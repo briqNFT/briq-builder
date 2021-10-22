@@ -1,7 +1,11 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js';
 
-//no need to export VoxelWorld, it's used by main and that one is exported to HelloWorld
+//no need to export VoxelWorld, it's used by main and that function is already exported to HelloWorld
+
+const materials = [Wood, Stone, Glass, Gold];
+
+
 class VoxelWorld {
     constructor(options) {
       this.cellSize = options.cellSize;
