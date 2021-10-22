@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import Homepage from './components/Homepage.vue'
+import Contract from './components/Contract.vue'
 </script>
 
 <template>
+<Contract/>
   <h1>brq</h1>
   <h2>Seize the brqs of construction</h2>
  <Homepage/>
