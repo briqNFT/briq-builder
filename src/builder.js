@@ -3,7 +3,7 @@ import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/t
 
 //no need to export VoxelWorld, it's used by main and that function is already exported to HelloWorld
 
-const materials = [Wood, Stone, Glass, Gold];
+const materials = ["Wood", "Stone", "Glass", "Gold"];
 
 
 class VoxelWorld {
