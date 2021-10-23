@@ -3,11 +3,14 @@
 
 <template>
 <div id="setOptions">
-    <p>Owner<input type="text" v-model="owner"/></p>
-    <input type="text" v-model="setId"/>
-    <button @click="doImport">Import</button>
-    <br/>
-    <button @click="doExport">Export</button>
+    <p>Owner: <input type="text" v-model="owner"/><button @click="doExport" :disabled="!canExport">Export</button></p>
+    <div id="setSelector">
+        <p v-for="set in Object.keys(sets)" :key="set">
+            {{ set }}
+            {{ sets[set] }} bricks
+            <button @click="doImport(set)">Import</button>
+        </p>
+    </div>
 </div>
 </template>
 
@@ -40,7 +43,15 @@ export default defineComponent({
         return {
             owner: "0x11",
             bricks: [],
-            setId: 0
+            sets: {}
+        }
+    },
+    computed: {
+        canExport: function() {
+            for (const mat in picker.tempStore)
+                if (picker.tempStore[mat])
+                return true;
+            return false;
         }
     },
     async mounted() {
@@ -48,7 +59,18 @@ export default defineComponent({
     },
     methods: {
         getList: async function() {
-            fetchData("store_list", {}).then(x => console.log(x))
+            fetchData("store_list", {}).then(x => {
+                let sets = x.sets.map(x => +(x.replace(".json", "")))
+                for (let set of sets)
+                    fetchData("store_get/" + set, {}).then(y => {
+                        if (!!y.error)
+                            return;
+                        let nb = 0;
+                        for (const cell in y.data)
+                            nb += y.data[cell].length;
+                        this.sets[set] = nb;
+                    });
+            });
         },
         doExport: async function() {
             var ret = {};
@@ -98,9 +120,9 @@ export default defineComponent({
             };
             fetch(`${base_url}/store_set`, data)
                 .then(x => x.json())
-                .then(x => this.setId = x.value).catch(x => console.log(x))
+                .then(x => this.getList()).catch(x => console.log(x))
         },
-        doImport: async function() {
+        doImport: async function(setId) {
             var headers = new Headers();
             headers.append("Content-Type", "application/json");
             let data = {
@@ -109,7 +131,7 @@ export default defineComponent({
                 mode: 'cors',
                 body: JSON.stringify({})
             };
-            fetch(`${base_url}/store_get/` + this.setId, data)
+            fetch(`${base_url}/store_get/` + setId, data)
                 .then(x => x.json())
                 .then(x => {
                     voxWorld.cells = {};
@@ -132,5 +154,18 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-
+#setSelector {
+    display: flex;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+#setSelector p {
+    display:block;
+    width: 100px;
+    height: 100px;
+    border:2px solid #eee;
+    padding:8px;
+    margin:8px;
+    border-radius:8px;
+}
 </style>
