@@ -287,6 +287,8 @@ function generatePlane(){
   return planeXZ;
 }
 
+export var voxWorld;
+
 export  function main(canvas) {
   const renderer = new THREE.WebGLRenderer({canvas});
 
@@ -317,12 +319,13 @@ export  function main(canvas) {
   scene.add(generateGrid());
   scene.add(generatePlane());
 
-  const world = new VoxelWorld({
+  voxWorld = new VoxelWorld({
     cellSize,
     tileSize,
     nbMaterial,
     tileTextureHeight,
   });
+  const world = voxWorld;
 
   const material = new THREE.MeshLambertMaterial({
     map: texture,
