@@ -15,6 +15,7 @@
 import { defineComponent } from 'vue'
 import { voxWorld } from '../builder.js'
 import { brickstore } from '../getter.js'
+import { picker } from '../materials.js'
 
 import getBaseUrl from '../url.js'
 var base_url = getBaseUrl();
@@ -111,16 +112,19 @@ export default defineComponent({
             fetch(`${base_url}/store_get/` + this.setId, data)
                 .then(x => x.json())
                 .then(x => {
-                    console.log(x);
+                    voxWorld.cells = {};
+                    picker.tempStore = { 1: 0, 2: 0,3: 0,4: 0 };
                     for (let cell in x.data)
                     {
                         if (!(cell in voxWorld.cells))
                             voxWorld.cells[cell] = new Uint8Array(voxWorld.cellSize * voxWorld.cellSize * voxWorld.cellSize);
                         for (let vox of x.data[cell])
+                        {
                             voxWorld.cells[cell][vox[0]] = vox[1];
+                            picker.tempStore[vox[1]]++;
+                        }
                         voxWorld.updateVoxelGeometry(...cell.split(',').map(x => +x));
                     }
-                    console.log(voxWorld)
                     voxWorld.updateVoxelGeometry(0, 0, 0);
                 }).catch(x => console.log(x))
         }
