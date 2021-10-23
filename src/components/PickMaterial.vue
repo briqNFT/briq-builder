@@ -10,9 +10,11 @@ return {'background-color': 'rgba('+matData.color[0] +','+matData.color[1] +','+
 </script>
 
 <template>
+<div class="button_selector">
     <div class="selector" v-for="i in nbMaterial" :key="i">
-        <button @click="pickmaterial(i)" :style='getColor(materialIndex[i-1])'>{{ materialIndex[i-1] }}</button>
+        <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1])'></button>
     </div>
+</div>
 </template>
 
 <script lang="ts">
@@ -29,4 +31,21 @@ export default defineComponent({
 
 <style scoped>
 
+div.button_selector{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    align-content: flex-start;
+    flex-wrap: wrap;
+}
+
+button.tile{
+    height: 48px;
+    width: 48px;
+    border: none;
+    display: block;
+    border-radius: 10px;
+}
 </style>
