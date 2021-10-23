@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 var ownedBricks = reactive([]);
+
+import { materialData } from '../materials.js'
+
+var names = Object.keys(materialData);
 </script>
 
 <template>
@@ -8,13 +12,15 @@ var ownedBricks = reactive([]);
     <input type="text" v-model="owner"/>
     <button @click="getBricks">Balance</button>
     <p>Known balance is {{ balance }} </p>
-    <p v-if="balance > 0">Bricks: {{ JSON.stringify(bricks) }}</p>
-    <p v-else>Bricks: none so far</p>
     <button :disabled="!!minting" @click="minting = 'ready'">Mint</button>
-    
+    <br/>
     <input type="text" v-model="setId"/>
     <button @click="doExport">Export</button>
     <button @click="doImport">Import</button>
+    <br/>
+    <p v-if="balance > 0">Bricks: {{ JSON.stringify(bricks) }}</p>
+    <p v-else>Bricks: none so far</p>
+
 </div>
 <div id="mint" v-if="!!minting">
     <p> Token:
@@ -22,8 +28,11 @@ var ownedBricks = reactive([]);
         Owner:
         <input type="text" v-model="owner"/><br/>
         Material:
-        <select>
-            <choice>1</choice>
+        <select v-model="mint_material">
+            <option value="1">{{names[0]}}</option>
+            <option value="2">{{names[1]}}</option>
+            <option value="3">{{names[2]}}</option>
+            <option value="4">{{names[3]}}</option>
         </select>
     </p>
     <button :disabled="minting != 'ready'" @click="doMint">Mint</button>
@@ -42,6 +51,7 @@ export default defineComponent({
             bricks: [],
             minting: false,
             mint_token: 1,
+            mint_material: 1,
             setId: 0
         }
     },
@@ -80,7 +90,7 @@ export default defineComponent({
                     "inputs": {
                         "owner": parseInt(this.owner.substr(2), 16),
                         "token_id": parseInt(this.mint_token, 16),
-                        "material": 1
+                        "material": parseInt(this.mint_material)
                     }
                 })
             };
@@ -107,7 +117,8 @@ export default defineComponent({
                 headers: headers,
                 mode: 'cors',
                 body: JSON.stringify({
-                    "data": ret
+                    "data": ret,
+                    "owner": this.owner,
                 })
             };
             fetch("http://localhost:5000/store_set", data)
@@ -149,7 +160,8 @@ export default defineComponent({
     top:0;
     right:0;
     width:300px;
-    height:150px;
+    height:200px;
+    overflow:scroll;
     background:#fff;
     border: 1px solid #ccc;
 }
