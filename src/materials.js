@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import { reactive } from 'vue';
 
-var materialData = {
+export var materialData = {
     "Wood": {color: [90, 57, 24], transparency: 255},
     "Concrete": {color: [228, 217, 197], transparency: 255},
     "Glass": {color: [199, 227, 225], transparency: 220},
@@ -17,7 +17,7 @@ export const nbMaterial = Object.keys(materialData).length; //rename & get lengt
 export const tileTextureHeight = 1;
 const data = new Uint8Array(4*nbMaterial*tileTextureHeight);
 
-var materialIndex = Object.keys(materialData);
+export var materialIndex = Object.keys(materialData);
 for (let i in materialIndex){
     data[i*4] = materialData[materialIndex[i]].color[0]
     data[i*4+1] = materialData[materialIndex[i]].color[1]
