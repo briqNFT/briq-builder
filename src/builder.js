@@ -365,6 +365,7 @@ export  function main(canvas) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.BasicShadowMap;
   
+  
 
   const fov = 75;
   const aspect = 2;  // the canvas default
@@ -378,7 +379,20 @@ export  function main(canvas) {
   controls.update();
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('lightblue');
+
+  function generateSkybox() {
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load([
+      'src/assets/skybox/Daylight-Box_Back.jpg',
+      'src/assets/skybox/Daylight-Box_Bottom.jpg', //here Vite uses the absolute path, can't use ./
+      'src/assets/skybox/Daylight-Box_Front.jpg',
+      'src/assets/skybox/Daylight-Box_Left.jpg',
+      'src/assets/skybox/Daylight-Box_Right.jpg',
+      'src/assets/skybox/Daylight-Box_Top.jpg',
+    ]);
+    scene.background = texture;
+}
+generateSkybox()
 
   function addLight(x, y, z) {
     const color = 0xFFFFFF;
