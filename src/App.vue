@@ -7,8 +7,8 @@ import { populate } from './getter.js'
 
 <template>
 <Contract/>
-  <h1>brq</h1>
-  <h2>Seize the brqs of construction</h2>
+  <h1>briq</h1>
+  <h2>Seize the briqs of construction</h2>
   <PickMaterial/>
  <Homepage/>
 </template>

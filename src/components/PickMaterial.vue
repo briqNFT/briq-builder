@@ -30,14 +30,15 @@ export default defineComponent({
             picker.material=mat
         },
         getMaterialNumber : function (bricks, i){
-
             if(!bricks) return 0;
             var numberMaterial={};
             for(let brick of bricks){
-            if (!(brick[1] in numberMaterial))
-                numberMaterial[brick[1]]=0;
-            numberMaterial[brick[1]]++;
+                console.log(brick)
+            if (!(brick.mat in numberMaterial))
+                numberMaterial[brick.mat]=0;
+            numberMaterial[brick.mat]++;
             }
+            console.log(numberMaterial[i]);
             return numberMaterial[i];
         }
     }
