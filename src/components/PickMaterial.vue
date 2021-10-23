@@ -37,6 +37,7 @@ export default defineComponent({
                 numberMaterial[brick.mat]=0;
             numberMaterial[brick.mat]++;
             }
+            if(!numberMaterial[i]) return 0; //we're checking if it's undefined
             return numberMaterial[i];
         }
     }
