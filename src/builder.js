@@ -155,6 +155,8 @@ class VoxelWorld {
       mesh = new THREE.Mesh(geometry, material);
       mesh.name = cellId;
       this.cellIdToMesh[cellId] = mesh;
+      mesh.castShadow = true;
+      mesh.receiveShadow = false;
       this.scene.add(mesh);
       mesh.position.set(cellX * cellSize, cellY * cellSize, cellZ * cellSize);
     }
@@ -374,9 +376,10 @@ export  function main(canvas) {
   function addLight(x, y, z) {
     const color = 0xFFFFFF;
     const intensity = 0.5;
-    const lightSpot = new THREE.PointLight(color, intensity, 18);
+    const lightSpot = new THREE.DirectionalLight(color, intensity, 18);
     lightSpot.position.set(x, y, z);
     lightSpot.castShadow = true;
+    lightSpot.shadow.bias = +0.01;
     lightSpot.shadow.camera.near = 0.1;
     lightSpot.shadow.camera.far = 100;
 
