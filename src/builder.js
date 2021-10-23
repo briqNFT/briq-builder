@@ -69,6 +69,13 @@ class VoxelWorld {
     }
     const voxelOffset = this.computeVoxelOffset(x, y, z);
     cell[voxelOffset] = v;
+    if(v==0){
+      picker.tempStore[picker.material]-=1;
+    }
+    else{
+   picker.tempStore[picker.material] +=1 ;
+    }
+    console.log(picker.tempStore);
   }
   getVoxel(x, y, z) {
     const cell = this.getCellForVoxel(x, y, z);

@@ -9,7 +9,8 @@ export var materialData = {
     "Steel": {color: [94, 104, 109], transparency: 255},
 };
 export var picker = reactive({
-    material: 1, //get 0 to 4 sent from PickMaterialVue
+    tempStore: {1: 0, 2: 0,3: 0,4: 0}, //tempStore is the array counting the bricks currently used in the builder
+    material: 1,
 })
 
 export const tileSize = 1;
