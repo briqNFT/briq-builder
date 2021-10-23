@@ -6,7 +6,7 @@ var user_bricks_mock = [];
 
 function populate_mock(){
     for (let i = 0; i < 41; i++) {
-        for (let j = 0; j<4; j++){
+        for (let j = 1; j<=4; j++){
             user_bricks_mock.push(["0x"+i*100+j, j, 0]);
         }
     }

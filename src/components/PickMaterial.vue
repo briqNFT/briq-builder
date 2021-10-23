@@ -11,15 +11,14 @@ var getColor = function (mat, i){
         return {'background-color': 'rgba('+matData.color[0] +','+matData.color[1] +','+matData.color[2] +','+matData.transparency/255 +')'}
     } 
 }
-
 </script>
 
 <template>
 <div class="button_selector">
     <div class="selector" v-for="i in nbMaterial" :key="i">
-        <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'></button>
+        <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(brickstore.user_bricks, i) }}</button>
     </div>
-    <p>{{ brickstore.user_bricks.length }}</p>
+    <p>Total number of bricks = {{ brickstore.user_bricks.length }}</p>
 </div>
 </template>
 
@@ -29,6 +28,17 @@ export default defineComponent({
     methods :{
         pickmaterial : function(mat){
             picker.material=mat
+        },
+        getMaterialNumber : function (bricks, i){
+
+            if(!bricks) return 0;
+            var numberMaterial={};
+            for(let brick of bricks){
+            if (!(brick[1] in numberMaterial))
+                numberMaterial[brick[1]]=0;
+            numberMaterial[brick[1]]++;
+            }
+            return numberMaterial[i];
         }
     }
 })
