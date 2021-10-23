@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js';
 
-import { picker, texture, tileSize, tileTextureHeight, tileTextureWidth } from './materials.js'
+import { picker, texture, tileSize, tileTextureHeight, nbMaterial } from './materials.js'
 
 //no need to export VoxelWorld, it's used by main and that function is already exported to HelloWorld
 
@@ -11,7 +11,7 @@ class VoxelWorld {
   constructor(options) {
     this.cellSize = options.cellSize;
     this.tileSize = options.tileSize;
-    this.tileTextureWidth = options.tileTextureWidth;
+    this.nbMaterial = options.nbMaterial;
     this.tileTextureHeight = options.tileTextureHeight;
     const {cellSize} = this;
     this.cellSliceSize = cellSize * cellSize;
@@ -66,7 +66,7 @@ class VoxelWorld {
     return cell[voxelOffset];
   }
   generateGeometryDataForCell(cellX, cellY, cellZ) {
-    const {cellSize, tileSize, tileTextureWidth, tileTextureHeight} = this;
+    const {cellSize, tileSize, nbMaterial, tileTextureHeight} = this;
     const positions = [];
     const normals = [];
     const uvs = [];
@@ -98,7 +98,7 @@ class VoxelWorld {
                   positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
                   normals.push(...dir);
                   uvs.push(
-                        (uvVoxel +   uv[0]) * tileSize / tileTextureWidth,
+                        (uvVoxel +   uv[0]) * tileSize / nbMaterial,
                     1 - (uvRow + 1 - uv[1]) * tileSize / tileTextureHeight);
                 }
                 indices.push(
@@ -309,7 +309,7 @@ export  function main(canvas) {
   const world = new VoxelWorld({
     cellSize,
     tileSize,
-    tileTextureWidth,
+    nbMaterial,
     tileTextureHeight,
   });
 
@@ -376,7 +376,7 @@ export  function main(canvas) {
       for (let x = 0; x < cellSize; ++x) {
         const height = (Math.sin(x / cellSize * Math.PI * 2) + Math.sin(z / cellSize * Math.PI * 3)) * (cellSize / 6) + (cellSize / 2);
         if (y < height) {
-          world.setVoxel(x, y, z, randInt(1, tileTextureWidth*tileTextureHeight+1));
+          world.setVoxel(x, y, z, randInt(1, nbMaterial*tileTextureHeight+1));
         }
       }
     }

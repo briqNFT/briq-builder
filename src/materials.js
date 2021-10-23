@@ -2,31 +2,29 @@ import * as THREE from 'three';
 
 import { reactive } from 'vue';
 
-export const materials = ["Wood", "Stone", "Glass", "Gold"];
+var materialData = {
+    "Wood": {color: [90, 57, 24], transparency: 255},
+    "Concrete": {color: [228, 217, 197], transparency: 255},
+    "Glass": {color: [199, 227, 225], transparency: 220},
+    "Steel": {color: [94, 104, 109], transparency: 255},
+};
 export var picker = reactive({
     material: 1,
 })
 
 export const tileSize = 1;
-export const tileTextureWidth = 3;
+export const nbMaterial = Object.keys(materialData).length; //rename & get length of material data
 export const tileTextureHeight = 1;
-const data = new Uint8Array(4*tileTextureWidth*tileTextureHeight);
+const data = new Uint8Array(4*nbMaterial*tileTextureHeight);
 
-data[0] = 0;
-data[1] = 255;
-data[2] = 0;
-data[3] = 255;
+var materialIndex = Object.keys(materialData);
+for (let i in materialIndex){
+    data[i*4] = materialData[materialIndex[i]].color[0]
+    data[i*4+1] = materialData[materialIndex[i]].color[1]
+    data[i*4+2] = materialData[materialIndex[i]].color[2]
+    data[i*4+3] = materialData[materialIndex[i]].transparency
+}
 
-data[4] = 255;
-data[5] = 0;
-data[6] = 0;
-data[7] = 255;
-
-data[8] = 255;
-data[9] = 0;
-data[10] = 255;
-data[11] = 220;
-
-export const texture = new THREE.DataTexture(data, tileTextureWidth*tileSize, tileTextureHeight*tileSize, THREE.RGBAFormat);
+export const texture = new THREE.DataTexture(data, nbMaterial*tileSize, tileTextureHeight*tileSize, THREE.RGBAFormat);
 texture.magFilter = THREE.NearestFilter;
 texture.minFilter = THREE.NearestFilter;
