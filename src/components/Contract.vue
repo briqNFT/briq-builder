@@ -23,8 +23,9 @@ var names = Object.keys(materialData);
 
 </div>
 <div id="mint" v-if="!!minting">
-    <p> Token:
+    <p>Token:
         0x<input type="text" v-model="mint_token"/><br/>
+        NB: <input type="number" v-model="mint_nb"/><br/>
         Owner:
         <input type="text" v-model="owner"/><br/>
         Material:
@@ -56,6 +57,7 @@ export default defineComponent({
             minting: false,
             mint_token: 1,
             mint_material: 1,
+            mint_nb: 50,
             setId: 0
         }
     },
@@ -91,14 +93,12 @@ export default defineComponent({
                 headers: headers,
                 mode: 'cors',
                 body: JSON.stringify({
-                    "inputs": {
-                        "owner": parseInt(this.owner.substr(2), 16),
-                        "token_id": parseInt(this.mint_token, 16),
-                        "material": parseInt(this.mint_material)
-                    }
+                    "token_start": parseInt(this.mint_token, 16),
+                    "material": this.mint_material,
+                    "nb": this.mint_nb
                 })
             };
-            fetch(`${base_url}/call_func/mint`, data)
+            fetch(`${base_url}/mint_bricks/${parseInt(this.owner.substr(2), 16)}`, data)
                 .then(x => x.json())
                 .then(x => this.minting = false, this.getBricks()).catch(x => this.minting = "ready" && console.log(x))
         },

@@ -2,6 +2,7 @@
 import Homepage from './components/Homepage.vue'
 import PickMaterial from './components/PickMaterial.vue'
 import Contract from './components/Contract.vue'
+import SetOptions from './components/SetOptions.vue'
 import { populate } from './getter.js'
 import Modal from './components/Modal.vue';
 
@@ -25,6 +26,7 @@ import Modal from './components/Modal.vue';
     />
   </div>
   <PickMaterial/>
+  <SetOptions/>
  <Homepage/>
 </template>
 
