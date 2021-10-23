@@ -1,27 +1,11 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js';
 
+import { picker, texture, tileSize, tileTextureHeight, tileTextureWidth } from './materials.js'
+
 //no need to export VoxelWorld, it's used by main and that function is already exported to HelloWorld
 
-const materials = ["Wood", "Stone", "Glass", "Gold"];
-
 const cellSize = 21;
-
-export var pickerMaterial = 1;
-
-const tileSize = 1;
-const tileTextureWidth = 2;
-const tileTextureHeight = 1;
-const data = new Uint8Array(3*tileTextureWidth*tileTextureHeight);
-data[0] = 0;
-data[1] = 255;
-data[2] = 0;
-data[3] = 255;
-data[4] = 0;
-data[5] = 0;
-const texture = new THREE.DataTexture(data, 2, 1, THREE.RGBFormat);
-texture.magFilter = THREE.NearestFilter;
-texture.minFilter = THREE.NearestFilter;
 
 class VoxelWorld {
   constructor(options) {
@@ -452,7 +436,7 @@ export  function main(canvas) {
 
     const intersection = world.intersectRay(start, end);
     if (intersection) {
-      const voxelId = event.shiftKey ? 0 : pickerMaterial;
+      const voxelId = event.shiftKey ? 0 : picker.material;
       // the intersection point is on the face. That means
       // the math imprecision could put us on either side of the face.
       // so go half a normal into the voxel if removing (pickerMaterial = 0)

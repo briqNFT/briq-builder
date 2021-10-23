@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Homepage from './components/Homepage.vue'
+import PickMaterial from './components/PickMaterial.vue'
 import Contract from './components/Contract.vue'
 </script>
 
@@ -7,6 +8,7 @@ import Contract from './components/Contract.vue'
 <Contract/>
   <h1>brq</h1>
   <h2>Seize the brqs of construction</h2>
+  <PickMaterial/>
  <Homepage/>
 </template>
 
