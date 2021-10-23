@@ -47,6 +47,9 @@ class VoxelWorld {
     return this.cells[this.computeCellId(x, y, z)];
   }
   setVoxel(x, y, z, v, addCell = true) {
+    if (Math.abs(x)>cellSize*2 || Math.abs(z)>cellSize*2) {
+        return;
+    }
     let cell = this.getCellForVoxel(x, y, z);
     if (!cell) {
       if (!addCell) {
