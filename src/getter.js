@@ -21,7 +21,6 @@ export function populate() {
         .then(x => x.json())
         .then(x => {
             brickstore.user_bricks = x.value.map(x => ({ "token_id": x[0], "mat": x[1], "set": x[2] }));
-            console.log(brickstore.user_bricks);
         }).catch(x => console.log(x))
 
 

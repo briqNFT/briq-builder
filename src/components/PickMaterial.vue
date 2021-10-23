@@ -33,12 +33,10 @@ export default defineComponent({
             if(!bricks) return 0;
             var numberMaterial={};
             for(let brick of bricks){
-                console.log(brick)
             if (!(brick.mat in numberMaterial))
                 numberMaterial[brick.mat]=0;
             numberMaterial[brick.mat]++;
             }
-            console.log(numberMaterial[i]);
             return numberMaterial[i];
         }
     }

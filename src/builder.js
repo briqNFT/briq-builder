@@ -3,7 +3,6 @@ import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/t
 
 import { picker, texture, tileSize, tileTextureHeight, nbMaterial } from './materials.js'
 
-//no need to export VoxelWorld, it's used by main and that function is already exported to HelloWorld
 
 const cellSize = 21;
 
@@ -14,6 +13,7 @@ const material = new THREE.MeshLambertMaterial({
   transparent: true,
 });
 
+//no need to export VoxelWorld, it's used by main and that function is already exported to HelloWorld
 class VoxelWorld {
   constructor(options) {
     this.cellSize = options.cellSize;
