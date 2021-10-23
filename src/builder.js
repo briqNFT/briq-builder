@@ -390,12 +390,12 @@ export  function main(canvas) {
   function generateSkybox() {
     const loader = new THREE.CubeTextureLoader();
     const texture = loader.load([
-      daylight_Back,
+      daylight_Right,
+      daylight_Left,
+      daylight_Top,
       daylight_Bottom,
       daylight_Front,
-      daylight_Left,
-      daylight_Right,
-      daylight_Top
+      daylight_Back
     ]);
     scene.background = texture;
 }
