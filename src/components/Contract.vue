@@ -159,24 +159,5 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-#contract {
-    position:fixed;
-    top:0;
-    right:0;
-    width:300px;
-    height:200px;
-    overflow:scroll;
-    background:#fff;
-    border: 1px solid #ccc;
-}
 
-#mint {
-    position: fixed;
-    top:50%;
-    left:50%;
-    height:200px;
-    width:200px;
-    background:#fff;
-    border: 1px solid #ccc;
-}
 </style>
