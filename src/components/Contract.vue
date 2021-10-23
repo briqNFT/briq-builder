@@ -129,9 +129,14 @@ export default defineComponent({
                     console.log(x);
                     for (let cell in x.data)
                     {
-                        for (let vox in x.data[cell])
-                            voxWorld.cells[x.data[cell][0]] = x.data[cell][1];
+                        if (!(cell in voxWorld.cells))
+                            voxWorld.cells[cell] = new Uint8Array(voxWorld.cellSize * voxWorld.cellSize * voxWorld.cellSize);
+                        for (let vox of x.data[cell])
+                            voxWorld.cells[cell][vox[0]] = vox[1];
+                        voxWorld.updateVoxelGeometry(...cell.split(',').map(x => +x));
                     }
+                    console.log(voxWorld)
+                    voxWorld.updateVoxelGeometry(0, 0, 0);
                 }).catch(x => console.log(x))
         }
         

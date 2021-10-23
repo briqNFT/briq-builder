@@ -7,6 +7,13 @@ import { picker, texture, tileSize, tileTextureHeight, nbMaterial } from './mate
 
 const cellSize = 21;
 
+const material = new THREE.MeshLambertMaterial({
+  map: texture,
+  side: THREE.DoubleSide,
+  alphaTest: 0.1,
+  transparent: true,
+});
+
 class VoxelWorld {
   constructor(options) {
     this.cellSize = options.cellSize;
@@ -16,6 +23,9 @@ class VoxelWorld {
     const {cellSize} = this;
     this.cellSliceSize = cellSize * cellSize;
     this.cells = {};
+
+    this.cellIdToMesh = {};
+    this.scene = null;
   }
   computeVoxelOffset(x, y, z) {
     const {cellSize, cellSliceSize} = this;
@@ -121,6 +131,57 @@ class VoxelWorld {
       uvs,
       indices,
     };
+  }
+  
+  updateCellGeometry(x, y, z) {
+    const cellX = Math.floor(x / cellSize);
+    const cellY = Math.floor(y / cellSize);
+    const cellZ = Math.floor(z / cellSize);
+    const cellId = this.computeCellId(x, y, z);
+    let mesh = this.cellIdToMesh[cellId];
+    const geometry = mesh ? mesh.geometry : new THREE.BufferGeometry();
+
+    const {positions, normals, uvs, indices} = this.generateGeometryDataForCell(cellX, cellY, cellZ);
+    const positionNumComponents = 3;
+    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
+    const normalNumComponents = 3;
+    geometry.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
+    const uvNumComponents = 2;
+    geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
+    geometry.setIndex(indices);
+    geometry.computeBoundingSphere();
+
+    if (!mesh) {
+      mesh = new THREE.Mesh(geometry, material);
+      mesh.name = cellId;
+      this.cellIdToMesh[cellId] = mesh;
+      this.scene.add(mesh);
+      mesh.position.set(cellX * cellSize, cellY * cellSize, cellZ * cellSize);
+    }
+  }
+
+  updateVoxelGeometry(x, y, z) {
+    const neighborOffsets = [
+      [ 0,  0,  0], // self
+      [-1,  0,  0], // left
+      [ 1,  0,  0], // right
+      [ 0, -1,  0], // down
+      [ 0,  1,  0], // up
+      [ 0,  0, -1], // back
+      [ 0,  0,  1], // front
+    ];
+  
+    const updatedCellIds = {};
+    for (const offset of neighborOffsets) {
+      const ox = x + offset[0];
+      const oy = y + offset[1];
+      const oz = z + offset[2];
+      const cellId = this.computeCellId(ox, oy, oz);
+      if (!updatedCellIds[cellId]) {
+        updatedCellIds[cellId] = true;
+        this.updateCellGeometry(ox, oy, oz);
+      }
+    }
   }
 
     // from
@@ -325,65 +386,8 @@ export  function main(canvas) {
     nbMaterial,
     tileTextureHeight,
   });
+  voxWorld.scene = scene;
   const world = voxWorld;
-
-  const material = new THREE.MeshLambertMaterial({
-    map: texture,
-    side: THREE.DoubleSide,
-    alphaTest: 0.1,
-    transparent: true,
-  });
-
-  const cellIdToMesh = {};
-  function updateCellGeometry(x, y, z) {
-    const cellX = Math.floor(x / cellSize);
-    const cellY = Math.floor(y / cellSize);
-    const cellZ = Math.floor(z / cellSize);
-    const cellId = world.computeCellId(x, y, z);
-    let mesh = cellIdToMesh[cellId];
-    const geometry = mesh ? mesh.geometry : new THREE.BufferGeometry();
-
-    const {positions, normals, uvs, indices} = world.generateGeometryDataForCell(cellX, cellY, cellZ);
-    const positionNumComponents = 3;
-    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
-    const normalNumComponents = 3;
-    geometry.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
-    const uvNumComponents = 2;
-    geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
-    geometry.setIndex(indices);
-    geometry.computeBoundingSphere();
-
-    if (!mesh) {
-      mesh = new THREE.Mesh(geometry, material);
-      mesh.name = cellId;
-      cellIdToMesh[cellId] = mesh;
-      scene.add(mesh);
-      mesh.position.set(cellX * cellSize, cellY * cellSize, cellZ * cellSize);
-    }
-  }
-
-  const neighborOffsets = [
-    [ 0,  0,  0], // self
-    [-1,  0,  0], // left
-    [ 1,  0,  0], // right
-    [ 0, -1,  0], // down
-    [ 0,  1,  0], // up
-    [ 0,  0, -1], // back
-    [ 0,  0,  1], // front
-  ];
-  function updateVoxelGeometry(x, y, z) {
-    const updatedCellIds = {};
-    for (const offset of neighborOffsets) {
-      const ox = x + offset[0];
-      const oy = y + offset[1];
-      const oz = z + offset[2];
-      const cellId = world.computeCellId(ox, oy, oz);
-      if (!updatedCellIds[cellId]) {
-        updatedCellIds[cellId] = true;
-        updateCellGeometry(ox, oy, oz);
-      }
-    }
-  }
 
   /*
   for (let y = 0; y < cellSize; ++y) {
@@ -402,7 +406,7 @@ export  function main(canvas) {
   }
 */
 
-  updateVoxelGeometry(1, 1, 1);  // 0,0,0 will generate
+  world.updateVoxelGeometry(1, 1, 1);  // 0,0,0 will generate
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -461,7 +465,7 @@ export  function main(canvas) {
         return v + intersection.normal[ndx] * (voxelId > 0 ? 0.5 : -0.5);
       });
       world.setVoxel(...pos, voxelId);
-      updateVoxelGeometry(...pos);
+      world.updateVoxelGeometry(...pos);
     }
   }
 
