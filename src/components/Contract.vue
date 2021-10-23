@@ -43,6 +43,10 @@ var names = Object.keys(materialData);
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { voxWorld } from '../builder.js'
+
+import getBaseUrl from '../url.js'
+var base_url = getBaseUrl();
+
 export default defineComponent({
     data() {
         return {
@@ -71,7 +75,7 @@ export default defineComponent({
                     }
                 })
             };
-            fetch(`http://localhost:5000/get_bricks/${parseInt(this.owner.substr(2), 16)}`, data)
+            fetch(`${base_url}/get_bricks/${parseInt(this.owner.substr(2), 16)}`, data)
                 .then(x => x.json())
                 .then(x => {
                     this.balance = x.value.length;
@@ -94,7 +98,7 @@ export default defineComponent({
                     }
                 })
             };
-            fetch("http://localhost:5000/call_func/mint", data)
+            fetch(`${base_url}/call_func/mint`, data)
                 .then(x => x.json())
                 .then(x => this.minting = false, this.getBricks()).catch(x => this.minting = "ready" && console.log(x))
         },
@@ -121,7 +125,7 @@ export default defineComponent({
                     "owner": this.owner,
                 })
             };
-            fetch("http://localhost:5000/store_set", data)
+            fetch(`${base_url}/store_set`, data)
                 .then(x => x.json())
                 .then(x => this.setId = x.value).catch(x => console.log(x))
         },
@@ -134,7 +138,7 @@ export default defineComponent({
                 mode: 'cors',
                 body: JSON.stringify({})
             };
-            fetch("http://localhost:5000/store_get/" + this.setId, data)
+            fetch(`${base_url}/store_get/` + this.setId, data)
                 .then(x => x.json())
                 .then(x => {
                     console.log(x);
