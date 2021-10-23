@@ -4,7 +4,7 @@ import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/t
 import { picker, texture, tileSize, tileTextureHeight, nbMaterial } from './materials.js'
 
 
-const cellSize = 21;
+const cellSize = 5;
 
 const material = new THREE.MeshLambertMaterial({
   map: texture,
@@ -341,8 +341,9 @@ function generateGrid() {
 }
 function generatePlane(){
   var geometry = new THREE.PlaneBufferGeometry(cellSize*2, cellSize*2);
-  var material = new THREE.MeshBasicMaterial( {color: 0x009624, side: THREE.DoubleSide });
+  var material = new THREE.MeshPhongMaterial( {color: 0x009624, side: THREE.DoubleSide });
   var planeXZ = new THREE.Mesh(geometry, material);
+  planeXZ.receiveShadow = true ;
   planeXZ.position.set(Math.floor(cellSize/2), 0,Math.floor(cellSize/2));
   planeXZ.rotateX( - Math.PI / 2);
   return planeXZ;
@@ -352,6 +353,9 @@ export var voxWorld;
 
 export  function main(canvas) {
   const renderer = new THREE.WebGLRenderer({canvas});
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.BasicShadowMap;
+  
 
   const fov = 75;
   const aspect = 2;  // the canvas default
@@ -369,10 +373,16 @@ export  function main(canvas) {
 
   function addLight(x, y, z) {
     const color = 0xFFFFFF;
-    const intensity = 1;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(x, y, z);
-    scene.add(light);
+    const intensity = 0.5;
+    const lightSpot = new THREE.PointLight(color, intensity, 18);
+    lightSpot.position.set(x, y, z);
+    lightSpot.castShadow = true;
+    lightSpot.shadow.camera.near = 0.1;
+    lightSpot.shadow.camera.far = 100;
+
+    const ambientLight = new THREE.AmbientLight(color, 0.4);
+    scene.add(ambientLight);
+    scene.add(lightSpot);
   }
   addLight(-1,  2,  4);
   addLight( 1, -1, -2);
