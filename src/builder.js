@@ -160,7 +160,7 @@ class VoxelWorld {
     // main loop along raycast vector
     while (t <= len) {
       const voxel = this.getVoxel(ix, iy, iz);
-      if (voxel) {
+      if (voxel || iy < 0) {
         return {
           position: [
             start.x + t * dx,
@@ -379,6 +379,7 @@ export  function main(canvas) {
     }
   }
 
+  /*
   for (let y = 0; y < cellSize; ++y) {
     for (let z = 0; z < cellSize; ++z) {
       for (let x = 0; x < cellSize; ++x) {
@@ -393,6 +394,7 @@ export  function main(canvas) {
   function randInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
   }
+*/
 
   updateVoxelGeometry(1, 1, 1);  // 0,0,0 will generate
 

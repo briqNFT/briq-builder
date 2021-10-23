@@ -9,7 +9,7 @@ var materialData = {
     "Steel": {color: [94, 104, 109], transparency: 255},
 };
 export var picker = reactive({
-    material: 1,
+    material: 1, //get 0 to 4 sent from PickMaterialVue
 })
 
 export const tileSize = 1;
