@@ -33,11 +33,13 @@ export default defineComponent({
             if(!bricks) return 0;
             var numberMaterial={};
             for(let brick of bricks){
-            if (!(brick.mat in numberMaterial))
-                numberMaterial[brick.mat]=0;
-            numberMaterial[brick.mat]++;
+                if(brick.set != 0) return 0;
+                if (!(brick.mat in numberMaterial))
+                    numberMaterial[brick.mat]=0;
+                numberMaterial[brick.mat]++;
             }
             if(!numberMaterial[i]) return 0; //we're checking if it's undefined
+            numberMaterial[i]-=picker.tempStore[i];//fuck yeah it works
             return numberMaterial[i];
         }
     }
