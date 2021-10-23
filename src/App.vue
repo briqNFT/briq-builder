@@ -2,6 +2,7 @@
 import Homepage from './components/Homepage.vue'
 import PickMaterial from './components/PickMaterial.vue'
 import Contract from './components/Contract.vue'
+import { populate } from './getter.js'
 </script>
 
 <template>
@@ -14,6 +15,7 @@ import Contract from './components/Contract.vue'
 
 <script lang="ts">
 import { reactive } from 'vue'
+populate()
 </script>
 
 <style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { picker, nbMaterial, materialData } from '../materials.js'
+import { brickstore } from '../getter.js'
 var materialIndex = Object.keys(materialData);
 
 var getColor = function (mat, i){
@@ -18,6 +19,7 @@ var getColor = function (mat, i){
     <div class="selector" v-for="i in nbMaterial" :key="i">
         <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'></button>
     </div>
+    <p>{{ brickstore.user_bricks.length }}</p>
 </div>
 </template>
 
