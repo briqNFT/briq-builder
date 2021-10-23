@@ -360,6 +360,13 @@ function generatePlane(){
 
 export var voxWorld;
 
+import daylight_Back from './assets/skybox/Daylight-Box_Back.jpg'
+import daylight_Bottom from './assets/skybox/Daylight-Box_Bottom.jpg'
+import daylight_Front from './assets/skybox/Daylight-Box_Front.jpg'
+import daylight_Left from './assets/skybox/Daylight-Box_Left.jpg'
+import daylight_Right from './assets/skybox/Daylight-Box_Right.jpg'
+import daylight_Top from './assets/skybox/Daylight-Box_Top.jpg'
+
 export  function main(canvas) {
   const renderer = new THREE.WebGLRenderer({canvas});
   renderer.shadowMap.enabled = true;
@@ -383,12 +390,12 @@ export  function main(canvas) {
   function generateSkybox() {
     const loader = new THREE.CubeTextureLoader();
     const texture = loader.load([
-      'src/assets/skybox/Daylight-Box_Back.jpg',
-      'src/assets/skybox/Daylight-Box_Bottom.jpg', //here Vite uses the absolute path, can't use ./
-      'src/assets/skybox/Daylight-Box_Front.jpg',
-      'src/assets/skybox/Daylight-Box_Left.jpg',
-      'src/assets/skybox/Daylight-Box_Right.jpg',
-      'src/assets/skybox/Daylight-Box_Top.jpg',
+      daylight_Back,
+      daylight_Bottom,
+      daylight_Front,
+      daylight_Left,
+      daylight_Right,
+      daylight_Top
     ]);
     scene.background = texture;
 }
