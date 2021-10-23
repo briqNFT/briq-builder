@@ -270,11 +270,18 @@ VoxelWorld.faces = [
   },
 ];
 
-function generatePlane() {
-  var gridXZ = new THREE.GridHelper(cellSize*2, cellSize*2);
-  gridXZ.setColors(new THREE.Color(0x000066), new THREE.Color(0x000066) );
+function generateGrid() {
+  var gridXZ = new THREE.GridHelper(cellSize*2, cellSize*2, 0xffff00, 0xffff00);
   gridXZ.position.set(Math.floor(cellSize/2), 0,Math.floor(cellSize/2));
   return gridXZ;
+}
+function generatePlane(){
+  var geometry = new THREE.PlaneBufferGeometry(cellSize*2, cellSize*2);
+  var material = new THREE.MeshBasicMaterial( {color: 0x009624, side: THREE.DoubleSide });
+  var planeXZ = new THREE.Mesh(geometry, material);
+  planeXZ.position.set(Math.floor(cellSize/2), 0,Math.floor(cellSize/2));
+  planeXZ.rotateX( - Math.PI / 2);
+  return planeXZ;
 }
 
 export  function main(canvas) {
@@ -304,6 +311,7 @@ export  function main(canvas) {
   addLight(-1,  2,  4);
   addLight( 1, -1, -2);
 
+  scene.add(generateGrid());
   scene.add(generatePlane());
 
   const world = new VoxelWorld({
