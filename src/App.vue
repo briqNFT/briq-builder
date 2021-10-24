@@ -25,7 +25,7 @@ import Modal from './components/Modal.vue';
   </div>
   <SetOptions/>
   <PickMaterial/>
- <Homepage/>
+  <Homepage style="z-index: -1"/>
 </template>
 
 <script lang="ts">

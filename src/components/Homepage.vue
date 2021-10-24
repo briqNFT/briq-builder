@@ -23,12 +23,15 @@ html, body {
 }
 
 #backgroundgl {
-  width: 80%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
   display: block;
   margin-left: auto;
   margin-right: auto;
-  border-radius: 15px;
+  border-radius: 0px;
 }
 
 </style>
