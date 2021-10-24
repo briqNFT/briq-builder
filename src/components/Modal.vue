@@ -57,25 +57,16 @@ import Contract from './Contract.vue'
 </template>
 
 <style>
-  .modal-backdrop {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 
   .modal {
+    position: fixed;
+    top: 50%;
     background: #FFFFFF;
     box-shadow: 2px 2px 20px 1px;
     overflow-x: wrap;
     display: flex;
     flex-direction: column;
-    width: 50%;
+    width: 100%;
   }
 
   .modal-header,
