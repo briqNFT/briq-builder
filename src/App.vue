@@ -9,23 +9,25 @@ import Modal from './components/Modal.vue';
 </script>
 
 <template>
-  <h1>briq</h1>
-  <h2>Seize the briqs of construction</h2>
-   <div id="app">
-    <button
-      type="button"
-      class="btn"
-      @click="showModal"
-    >Settings</button>
+  <div id="floatingMenu">
+    <h1>briq</h1>
+    <h2>Seize the briqs of construction</h2>
+    <div id="app">
+      <button
+        type="button"
+        class="btn"
+        @click="showModal"
+      >Settings</button>
 
-    <Modal
-      v-show="isModalVisible"
-      @close="closeModal"
-    />
+      <Modal
+        v-show="isModalVisible"
+        @close="closeModal"
+      />
+    </div>
+    <PickMaterial/>
   </div>
+  <Homepage/>
   <SetOptions/>
-  <PickMaterial/>
-  <Homepage style="z-index: -1"/>
 </template>
 
 <script lang="ts">
@@ -54,6 +56,11 @@ export default {
 </script>
 
 <style>
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -64,6 +71,15 @@ export default {
 * {
   box-sizing: border-box;
 }
+#floatingMenu {
+  z-index: 2;
+  position:fixed;
+  top: 0;
+  margin: auto;
+  left: 50%;
+  transform: translate(-50%,0);
+}
+
 h1 {
   font-size: 5rem;
   margin:0;

@@ -16,22 +16,12 @@
 </script>
 
 <style scoped>
-
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
 #backgroundgl {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  border-radius: 0px;
+  padding:0;
+  margin:0;
 }
 
 </style>
