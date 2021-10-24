@@ -360,6 +360,18 @@ function generatePlane(){
 
 export var voxWorld;
 
+
+function generatePreviewCube() {
+  var geometry =  new THREE.BoxGeometry(1, 1, 1);
+  var material = new THREE.MeshPhongMaterial( {color: 0x002496, opacity:0.5, transparent: true });
+  var planeXZ = new THREE.Mesh(geometry, material);
+  planeXZ.position.set(Math.floor(cellSize/2), 0,Math.floor(cellSize/2));
+  planeXZ.visible = false;
+  return planeXZ;
+}
+
+export var previewCube = generatePreviewCube();
+
 import daylight_Back from './assets/skybox/Daylight-Box_Back.jpg'
 import daylight_Bottom from './assets/skybox/Daylight-Box_Bottom.jpg'
 import daylight_Front from './assets/skybox/Daylight-Box_Front.jpg'
@@ -420,6 +432,7 @@ generateSkybox()
 
   scene.add(generateGrid());
   scene.add(generatePlane());
+  scene.add(previewCube);
 
   voxWorld = new VoxelWorld({
     cellSize,
@@ -485,6 +498,33 @@ generateSkybox()
     };
   }
 
+  function updatePreviewCube(event) {
+    if (!picker.material)
+      return;
+    const pos = getCanvasRelativePosition(event);
+    const x = (pos.x / canvas.width ) *  2 - 1;
+    const y = (pos.y / canvas.height) * -2 + 1;  // note we flip Y
+
+    const start = new THREE.Vector3();
+    const end = new THREE.Vector3();
+    start.setFromMatrixPosition(camera.matrixWorld);
+    end.set(x, y, 1).unproject(camera);
+
+    const intersection = world.intersectRay(start, end);
+    if (intersection) {
+      const pos = intersection.position.map((v, ndx) => {
+        return v + intersection.normal[ndx] * (event.shiftKey > 0 ? -0.5 : +0.5);
+      });
+      if (event.shiftKey)
+        previewCube.visible = false;
+      else
+      {
+        previewCube.visible = true;
+        previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
+      }
+    }
+  }
+
   function placeVoxel(event) {
     const pos = getCanvasRelativePosition(event);
     const x = (pos.x / canvas.width ) *  2 - 1;
@@ -532,6 +572,7 @@ generateSkybox()
     window.removeEventListener('pointermove', recordMovement);
     window.removeEventListener('pointerup', placeVoxelIfNoMovement);
   }
+  canvas.addEventListener('pointermove', updatePreviewCube);
   canvas.addEventListener('pointerdown', (event) => {
     event.preventDefault();
     recordStartPosition(event);
