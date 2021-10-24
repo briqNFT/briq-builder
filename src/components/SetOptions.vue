@@ -3,7 +3,7 @@
 
 <template>
 <div id="setOptions"  :class="minimized ? 'mini' : ''">
-    <button @click="toggle">Minimize</button>
+    <button @click="toggle">{{ minimized ? 'Maximize' : 'Minimize' }}</button>
     <div>
         <p>Owner: <input type="text" v-model="owner"/><button @click="doExport" :disabled="!canExport">Export</button></p>
         <div id="setSelector">
