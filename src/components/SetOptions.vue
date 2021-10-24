@@ -141,7 +141,10 @@ export default defineComponent({
             fetch(`${base_url}/store_get/` + setId, data)
                 .then(x => x.json())
                 .then(x => {
+                    const to_reset = Object.keys(voxWorld.cells);
                     voxWorld.cells = {};
+                    for (const to_res of to_reset)
+                        voxWorld.updateCellGeometry(...to_res.split(',').map(x => +x * voxWorld.cellSize));
                     picker.tempStore = { 1: 0, 2: 0,3: 0,4: 0 };
                     for (let cell in x.data)
                     {
