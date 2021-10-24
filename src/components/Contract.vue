@@ -18,9 +18,6 @@ var names = Object.keys(materialData);
     <button @click="doExport">Export</button>
     <button @click="doImport">Import</button>
     <br/>
-    <p v-if="balance > 0">Bricks: {{ JSON.stringify(bricks) }}</p>
-    <p v-else>Bricks: none so far</p>
-
 </div>
 <div id="mint" v-if="!!minting">
     <p>Token:
@@ -62,7 +59,6 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.getBricks()
     },
     methods: {
         getBricks: async function() {
@@ -100,7 +96,7 @@ export default defineComponent({
             };
             fetch(`${base_url}/mint_bricks/${parseInt(this.owner.substr(2), 16)}`, data)
                 .then(x => x.json())
-                .then(x => this.minting = false, this.getBricks()).catch(x => this.minting = "ready" && console.log(x))
+                .then(x => this.minting = false).catch(x => this.minting = "ready" && console.log(x))
         },
         doExport: async function() {
             var ret = {};
