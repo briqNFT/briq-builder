@@ -14,11 +14,18 @@ var getColor = function (mat, i){
 </script>
 
 <template>
-<div class="button_selector">
-    <div class="selector" v-for="i in nbMaterial" :key="i">
-        <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(brickstore.user_bricks, i) }}</button>
+<div>
+    <div class="button_selector">
+        <div class="selector" v-for="i in nbMaterial" :key="i">
+            <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(brickstore.user_bricks, i) }}</button>
+        </div>
     </div>
-    <p>Total number of briqs = {{ brickstore.user_bricks.length }}</p>
+    <template v-if="brickstore.user_bricks.length">
+        <p>{{ brickstore.user_bricks.length }} briqs loaded!</p>
+    </template>
+    <template v-else="">
+        <p>...Briqs are loading...</p>
+    </template>
 </div>
 </template>
 
@@ -48,7 +55,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
+* {
+    margin:0;
+    padding:0;
+}
 div.button_selector{
     display: flex; /*https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
     flex-direction: row;
@@ -57,6 +67,10 @@ div.button_selector{
     padding: 10px;
     align-content: flex-start;
     flex-wrap: wrap;
+}
+.button_selector * {
+    color: black;
+    font-weight:700;
 }
 
 button.tile{

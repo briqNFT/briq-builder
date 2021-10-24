@@ -12,6 +12,7 @@ import Modal from './components/Modal.vue';
   <div id="floatingMenu">
     <h1>briq</h1>
     <h2>Seize the briqs of construction</h2>
+    <PickMaterial/>
     <div id="app">
       <button
         type="button"
@@ -24,7 +25,6 @@ import Modal from './components/Modal.vue';
         @close="closeModal"
       />
     </div>
-    <PickMaterial/>
   </div>
   <Homepage/>
   <SetOptions/>
@@ -61,14 +61,12 @@ html, body {
   padding: 0;
 }
 
-#app {
+* {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-* {
   box-sizing: border-box;
 }
 #floatingMenu {
