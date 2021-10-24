@@ -152,9 +152,8 @@ export default defineComponent({
                             voxWorld.cells[cell][vox[0]] = vox[1];
                             picker.tempStore[vox[1]]++;
                         }
-                        voxWorld.updateVoxelGeometry(...cell.split(',').map(x => +x));
+                        voxWorld.updateCellGeometry(...cell.split(',').map(x => +x * voxWorld.cellSize));
                     }
-                    voxWorld.updateVoxelGeometry(0, 0, 0);
                 }).catch(x => console.log(x))
         }
     },
