@@ -5,6 +5,8 @@ import Contract from './components/Contract.vue'
 import SetOptions from './components/SetOptions.vue'
 import { populate } from './getter.js'
 import Modal from './components/Modal.vue';
+import "bootstrap/dist/css/bootstrap.min.css"; //https://therichpost.com/how-to-add-bootstrap-5-in-vue-3-application/
+
 
 </script>
 
@@ -53,6 +55,8 @@ export default {
     }
   }
 };
+
+
 </script>
 
 <style>
