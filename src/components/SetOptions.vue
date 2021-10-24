@@ -2,14 +2,17 @@
 </script>
 
 <template>
-<div id="setOptions">
-    <p>Owner: <input type="text" v-model="owner"/><button @click="doExport" :disabled="!canExport">Export</button></p>
-    <div id="setSelector">
-        <p v-for="set in Object.keys(sets)" :key="set">
-            {{ set }}
-            {{ sets[set] }} bricks
-            <button @click="doImport(set)">Import</button>
-        </p>
+<div id="setOptions"  :class="minimized ? 'mini' : ''">
+    <button @click="toggle">Minimize</button>
+    <div>
+        <p>Owner: <input type="text" v-model="owner"/><button @click="doExport" :disabled="!canExport">Export</button></p>
+        <div id="setSelector">
+            <p v-for="set in Object.keys(sets)" :key="set">
+                {{ set }}
+                {{ sets[set] }} bricks
+                <button @click="doImport(set)">Import</button>
+            </p>
+        </div>
     </div>
 </div>
 </template>
@@ -43,7 +46,8 @@ export default defineComponent({
         return {
             owner: "0x11",
             bricks: [],
-            sets: {}
+            sets: {},
+            minimized: false,
         }
     },
     computed: {
@@ -58,6 +62,9 @@ export default defineComponent({
         this.getList();
     },
     methods: {
+        toggle: function() {
+            this.minimized = !this.minimized;
+        },
         getList: async function() {
             fetchData("store_list", {}).then(x => {
                 let sets = x.sets.map(x => +(x.replace(".json", "")))
@@ -154,6 +161,30 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+#setOptions {
+    position:fixed;
+    bottom:0;
+    width:100%;
+}
+#setOptions > div {
+    overflow: auto;
+    background: rgba(255, 255, 255, 0.5);
+}
+#setOptions.mini > div {
+    display:none;
+}
+#setOptions > button {
+    margin:8px;
+    padding:2px;
+    position:absolute;
+    left: 0;
+    top: 0;
+}
+#setOptions.mini > button {
+    position:absolute;
+    left: 0;
+    transform: translate(0, calc(-100% - 16px));
+}
 #setSelector {
     display: flex;
     justify-content:center;
