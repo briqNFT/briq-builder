@@ -83,6 +83,12 @@ html, body {
 @media screen and (max-height: 800px) {
   #floatingMenu {
     position: relative;
+    max-height: 13rem;
+  }
+  @media (min-width: 500px) {
+    #floatingMenu {
+      max-height: 10rem;
+    }
   }
 }
 
