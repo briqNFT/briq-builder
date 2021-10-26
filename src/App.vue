@@ -69,13 +69,21 @@ html, body {
   color: #2c3e50;
   box-sizing: border-box;
 }
-#floatingMenu {
-  z-index: 2;
-  position:fixed;
-  top: 0;
-  margin: auto;
-  left: 50%;
-  transform: translate(-50%,0);
+
+@media screen and (min-height: 800px) {
+  #floatingMenu {
+    z-index: 2;
+    position:fixed;
+    top: 0;
+    margin: auto;
+    left: 50%;
+    transform: translate(-50%,0);
+  }
+}
+@media screen and (max-height: 800px) {
+  #floatingMenu {
+    position: relative;
+  }
 }
 
 h1 {
