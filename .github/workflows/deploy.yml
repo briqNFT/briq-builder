@@ -17,4 +17,4 @@ jobs:
           export_default_credentials: true
 
       - name: SSH to VM & deploy.
-        run: gcloud compute ssh ${{ secrets.GCP_INSTANCE }} --zone="europe-west3-c" --ssh-key-expire-after=2m --command="git clone https://github.com/S-L-Technologies/brq-builder.git && brq-builder/scripts/deploy.sh"
+        run: gcloud compute ssh ci@${{ secrets.GCP_INSTANCE }} --zone="europe-west3-c" --ssh-key-expire-after=2m --command="cd brq-builder && git pull && scripts/deploy.sh"
