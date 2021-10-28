@@ -1,95 +1,21 @@
 <script setup lang="ts">
-import Homepage from './components/Homepage.vue'
-import PickMaterial from './components/PickMaterial.vue'
-import Contract from './components/Contract.vue'
-import SetOptions from './components/SetOptions.vue'
-import { populate } from './getter.js'
-import Modal from './components/Modal.vue';
-
+import GA from './components/GA.vue'
 </script>
-
 <template>
-  <div id="floatingMenu">
-    <h1>briq</h1>
-    <h2>Seize the briqs of construction</h2>
-    <PickMaterial/>
-    <div id="app">
-      <button
-        type="button"
-        class="btn"
-        @click="showModal"
-      >Settings</button>
-
-      <Modal
-        v-show="isModalVisible"
-        @close="closeModal"
-      />
-    </div>
-  </div>
-  <Homepage/>
-  <SetOptions/>
+  <GA/>
+  <router-view/>
 </template>
 
-<script lang="ts">
-import { reactive } from 'vue'
-populate()
-
-export default {
-  name: 'App',
-  components: {
-    Modal,
-  },
-  data() {
-    return {
-      isModalVisible: false,
-    };
-  },
-  methods: {
-    showModal() {
-      this.isModalVisible = true;
-    },
-    closeModal() {
-      this.isModalVisible = false;
-    }
-  }
-};
-</script>
-
 <style>
-html, body {
+* {
   margin: 0;
   padding: 0;
-}
-
-* {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
   box-sizing: border-box;
-}
-
-@media screen and (min-height: 800px) {
-  #floatingMenu {
-    z-index: 2;
-    position:fixed;
-    top: 0;
-    margin: auto;
-    left: 50%;
-    transform: translate(-50%,0);
-  }
-}
-@media screen and (max-height: 800px) {
-  #floatingMenu {
-    position: relative;
-    max-height: 13rem;
-  }
-  @media (min-width: 500px) {
-    #floatingMenu {
-      max-height: 10rem;
-    }
-  }
 }
 
 h1 {
