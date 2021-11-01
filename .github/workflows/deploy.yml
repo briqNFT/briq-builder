@@ -2,19 +2,58 @@ name: deploy
 on:
   push:
     branches: [ master ]
+env:
+  GKE_CLUSTER: sltech-briq-k8s-cluster
+  GKE_ZONE: europe-west3-c
+
 jobs:
   deploy:
+    name: "Deploy to production"
     environment: production
     runs-on: ubuntu-latest
     steps:
-#      - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+    
+    # Setup gcloud CLI
+    - uses: google-github-actions/setup-gcloud@master
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
 
-      - name: SSH to VM & deploy.
-        run: gcloud compute ssh ci@${{ secrets.GCP_INSTANCE }} --zone="europe-west3-c" --ssh-key-expire-after=2m --command="cd brq-builder && git pull && scripts/deploy.sh"
+    # Configure Docker to use the gcloud command-line tool as a credential helper for authentication
+    - run: |-
+        gcloud auth configure-docker europe-west3-docker.pkg.dev
+
+    # Get the GKE credentials
+    - uses: google-github-actions/get-gke-credentials@main
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
+        credentials: ${{ secrets.GCP_SA_KEY }}
+
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+        cache: 'npm'
+
+    - run: npm ci --include=dev
+
+    - name: Install ytt
+      run: |-
+        # Taken from install script.
+        binary_type=linux-amd64
+        ytt_version=v0.37.0
+        ytt_checksum=1aad12386f6bae1a78197acdc7ec9e60c441f82c4ca944df8d3c78625750fe59
+        wget -nv -O- https://github.com/vmware-tanzu/carvel-ytt/releases/download/${ytt_version}/ytt-${binary_type} > ytt
+        echo "${ytt_checksum}  ytt" | shasum -c -
+        chmod +x ytt
+        sudo ln -s "$(pwd)/ytt" /usr/local/bin/ytt
+        ytt --version
+
+    - name: Deploy
+      run: |-
+        echo "$(git status)"
+        echo "$(git status --porcelain)"
+        infra/deploy.sh

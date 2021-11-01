@@ -1,0 +1,34 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: #@ data.values.name
+  labels: #@ data.values.defaultLabels
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: lb-sltech-company-ipv4-2
+    networking.gke.io/v1beta1.FrontendConfig: #@ data.values.name
+spec:
+  tls:
+  - secretName: sltech-company-tls
+  rules:
+  - host: sltech.company
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: #@ data.values.name
+            port:
+              number: 80
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: #@ data.values.name
+  labels: #@ data.values.defaultLabels
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: "PERMANENT_REDIRECT"

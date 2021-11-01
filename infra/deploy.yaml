@@ -1,0 +1,46 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:template", "template")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: #@ data.values.name
+  labels: #@ data.values.defaultLabels
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.defaultLabels
+  template:
+    metadata:
+      labels: #@ data.values.defaultLabels
+    spec:
+      containers:
+      - name: #@ data.values.name
+        image: #@ "europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/" + data.values.name + ":" + data.values.image_tag
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 2
+      - name: briq-protocol
+        image: europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/briq-protocol
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
