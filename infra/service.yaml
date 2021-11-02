@@ -21,7 +21,7 @@ metadata:
   name: #@ data.values.name
   labels: #@ data.values.defaultLabels
 spec:
-  timeoutSec: 60
+  timeoutSec: 10
   healthCheck:
     checkIntervalSec: 100
     timeoutSec: 10

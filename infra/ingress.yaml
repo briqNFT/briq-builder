@@ -12,7 +12,9 @@ spec:
   tls:
   - secretName: sltech-company-tls
   rules:
-  - host: sltech.company
+#@ arr = ["sltech.company", "www.sltech.company"]
+#@ for i in arr:
+  - host: #@ i
     http:
       paths:
       - path: /*
@@ -22,6 +24,7 @@ spec:
             name: #@ data.values.name
             port:
               number: 80
+#@ end
 ---
 apiVersion: networking.gke.io/v1beta1
 kind: FrontendConfig
