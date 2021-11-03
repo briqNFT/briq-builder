@@ -1,0 +1,7 @@
+{
+    "target": "es2016",
+    "compilerOptions": {
+        "isolatedModules": true,
+         "types": ["vite/client"]
+    }
+}
