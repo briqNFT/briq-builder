@@ -43,7 +43,7 @@ export var gaStore = reactive({
     },
     needGAPopup: function() {
         return !window.localStorage.getItem('ga-agreed-time') ||
-            (Date.now() - +window.localStorage.getItem('ga-agreed-time') > 365*24*3600)
+            (Date.now() - +window.localStorage.getItem('ga-agreed-time') > 365*24*3600*1000) // JS timestamps are milliseconds
     }
 })
 
