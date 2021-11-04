@@ -9,6 +9,8 @@ var names = Object.keys(materialData);
 
 <template>
 <div id="contract">
+    <p>Password: <input type="text" v-model="adminStore.secretCode"/></p>
+
     <input type="text" v-model="owner"/>
     <button @click="getBricks">Balance</button>
     <p>Known balance is {{ balance }} </p>
@@ -33,14 +35,16 @@ var names = Object.keys(materialData);
             <option value="4">{{names[3]}}</option>
         </select>
     </p>
-    <button :disabled="minting != 'ready'" @click="doMint">Mint</button>
+    <button :disabled="minting != 'ready' || !isOk()" @click="doMint">Mint</button>
     <p v-if="minting != 'ready'">(...minting...)</p>
 </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { voxWorld } from '../builder.js'
+
+import { adminStore, isOk } from '../admin'
 
 import getBaseUrl from '../url.js'
 var base_url = getBaseUrl();
@@ -48,6 +52,7 @@ var base_url = getBaseUrl();
 export default defineComponent({
     data() {
         return {
+            adminStore: adminStore,
             owner: "0x11",
             balance: 0,
             bricks: [],
@@ -61,6 +66,9 @@ export default defineComponent({
     async mounted() {
     },
     methods: {
+        isOk: function() {
+            return isOk();
+        },
         getBricks: async function() {
             var headers = new Headers();
             headers.append("Content-Type", "application/json");

@@ -11,6 +11,7 @@
                 {{ set }}
                 {{ sets[set] }} bricks
                 <button @click="doImport(set)">Import</button>
+                <button v-if="canDisassemble" @click="doDisassemble(set)">Disassemble</button>
             </p>
         </div>
     </div>
@@ -22,6 +23,7 @@ import { defineComponent } from 'vue'
 import { voxWorld } from '../builder.js'
 import { brickstore } from '../getter.js'
 import { picker } from '../materials.js'
+import { isOk, adminStore } from '../admin'
 
 import getBaseUrl from '../url.js'
 var base_url = getBaseUrl();
@@ -51,7 +53,12 @@ export default defineComponent({
         }
     },
     computed: {
+        canDisassemble: function() {
+            return isOk();
+        },
         canExport: function() {
+            if (!isOk())
+                return false;
             for (const mat in picker.tempStore)
                 if (picker.tempStore[mat])
                 return true;
@@ -70,7 +77,7 @@ export default defineComponent({
                 let sets = x.sets.map(x => +(x.replace(".json", "")))
                 for (let set of sets)
                     fetchData("store_get/" + set, {}).then(y => {
-                        if (!!y.error)
+                        if (!!y.detail)
                             return;
                         let nb = 0;
                         for (const cell in y.data)
@@ -157,6 +164,31 @@ export default defineComponent({
                         }
                         voxWorld.updateCellGeometry(...cell.split(',').map(x => +x * voxWorld.cellSize));
                     }
+                }).catch(x => console.log(x))
+        },
+        doDisassemble: async function(setId) {
+            let bricks = []
+            for (const brick of brickstore.user_bricks)
+            {
+                if (brick.set == setId)
+                bricks.push(brick.token_id)
+            }
+
+            var headers = new Headers();
+            headers.append("Content-Type", "application/json");
+            let data = {
+                method: 'POST',
+                headers: headers,
+                mode: 'cors',
+                body: JSON.stringify({
+                    token_id: setId,
+                    bricks: bricks
+                })
+            };
+            fetch(`${base_url}/store_delete`, data)
+                .then(x => x.json())
+                .then(x => {
+                    this.getList();
                 }).catch(x => console.log(x))
         }
     },
