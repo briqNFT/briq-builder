@@ -415,20 +415,25 @@ generateSkybox()
 
   function addLight(x, y, z) {
     const color = 0xFFFFFF;
-    const intensity = 0.5;
+    const intensity = 1.0;
     const lightSpot = new THREE.DirectionalLight(color, intensity, 18);
     lightSpot.position.set(x, y, z);
     lightSpot.castShadow = true;
     lightSpot.shadow.bias = +0.01;
     lightSpot.shadow.camera.near = 0.1;
     lightSpot.shadow.camera.far = 100;
+    lightSpot.shadow.camera.left=-cellSize*2;
+    lightSpot.shadow.camera.right=cellSize*2;
+    lightSpot.shadow.camera.bottom=-cellSize;
+    lightSpot.shadow.camera.top=cellSize*3;
 
-    const ambientLight = new THREE.AmbientLight(color, 0.4);
+    //scene.add(new THREE.CameraHelper(lightSpot.shadow.camera));
+
+    const ambientLight = new THREE.AmbientLight(color, 0.7);
     scene.add(ambientLight);
     scene.add(lightSpot);
   }
-  addLight(-1,  2,  4);
-  addLight( 1, -1, -2);
+  addLight(-10,  20,  -40);
 
   scene.add(generateGrid());
   scene.add(generatePlane());
