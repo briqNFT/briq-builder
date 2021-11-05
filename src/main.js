@@ -1,12 +1,13 @@
 import { createApp } from 'vue'
 // TODO: switch to WebHistory once the backend API uses a different port/server
 // For now I have to use hashes, or things won't work appropriately.
-import { createWebHashHistory, createRouter } from "vue-router";
+import { createWebHistory, createWebHashHistory, createRouter } from "vue-router";
 import App from './App.vue'
 
 // Pages
 import Builder from './components/Builder.vue'
 import Legal from './components/Legal.vue'
+import Admin from './components/Admin.vue'
 
 const routes = [
   {
@@ -19,10 +20,15 @@ const routes = [
     name: "Legal",
     component: Legal,
   },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: Admin,
+  },
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
 

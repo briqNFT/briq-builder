@@ -41,7 +41,7 @@ var names = Object.keys(materialData);
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import { voxWorld } from '../builder.js'
 
 import { adminStore, isOk } from '../admin'

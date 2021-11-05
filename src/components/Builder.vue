@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import Homepage from './Homepage.vue'
 import PickMaterial from './PickMaterial.vue'
-import Contract from './Contract.vue'
 import SetOptions from './SetOptions.vue'
-import Modal from './Modal.vue';
 import { populate } from '../getter.js'
 
 </script>
@@ -13,18 +11,6 @@ import { populate } from '../getter.js'
     <h1>briq</h1>
     <h2>Seize the briqs of construction</h2>
     <PickMaterial/>
-    <div id="app">
-      <button
-        type="button"
-        class="btn"
-        @click="showModal"
-      >Settings</button>
-
-      <Modal
-        v-show="isModalVisible"
-        @close="closeModal"
-      />
-    </div>
   </div>
   <Homepage/>
   <SetOptions/>
@@ -34,9 +20,6 @@ import { populate } from '../getter.js'
 import { reactive } from 'vue'
 populate()
 export default {
-  components: {
-    Modal,
-  },
   data() {
     return {
       isModalVisible: false,
