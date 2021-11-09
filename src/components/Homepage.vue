@@ -11,7 +11,10 @@ import { defineComponent } from 'vue';
 import { BuilderInputState } from '../BuilderInput';
 import { previewCube } from '../PreviewCube'
 
-class PlacerInput extends BuilderInputState {
+import { builderData } from "../BuilderData"
+
+class PlacerInput extends BuilderInputState
+{
     curX: number;
     curY: number;
     lastX: number;
@@ -74,17 +77,18 @@ class PlacerInput extends BuilderInputState {
             return;
         let [start, end] = getCameraRay(...this.getCanvasRelativePosition(this.curX, this.curY));
         const intersection = voxWorld.intersectRay(start, end);
-        if (intersection) {
-            const voxelId = event.shiftKey ? 0 : picker.material;
+        if (intersection)
+        {
+            const removing = event.shiftKey || event.button !== 0;
+            const voxelId = removing ? 0 : picker.material;
             // the intersection point is on the face. That means
             // the math imprecision could put us on either side of the face.
             // so go half a normal into the voxel if removing (pickerMaterial = 0)
             // our out of the voxel if adding (pickerMaterial  > 0)
-            const pos = intersection.position.map((v, ndx) => {
-                return v + intersection.normal[ndx] * (voxelId > 0 ? 0.5 : -0.5);
+            const pos: [number, number, number] = intersection.position.map((v, ndx) => {
+                return Math.floor(v + intersection.normal[ndx] * (removing ? -0.5 : 0.5));
             });
-            voxWorld.setVoxel(...pos, voxelId);
-            voxWorld.updateVoxelGeometry(...pos);
+            builderData.placeBriq(...pos, voxelId);
         }
     }
 }
