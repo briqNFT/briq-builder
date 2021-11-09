@@ -1,6 +1,7 @@
 {
-    "target": "es2016",
     "compilerOptions": {
+        "target": "es2020",
+        "moduleResolution": "Node",
         "isolatedModules": true,
          "types": ["vite/client"]
     }
