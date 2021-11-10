@@ -3,6 +3,7 @@
         "target": "es2020",
         "moduleResolution": "Node",
         "isolatedModules": true,
+        "strict": true,
         "types": ["vite/client", "@types/jest"],
     }
 }

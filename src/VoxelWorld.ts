@@ -35,11 +35,10 @@ export default class VoxelWorld {
 
     reset()
     {
-        for (let cell in this.cells)
-        {
-            this.cells[cell] = new Uint8Array();
+        let cells = this.cells;
+        this.cells = {};
+        for (let cell in cells)
             this.updateCellGeometry(...cell.split(',').map(x => +x * this.cellSize));
-        }
     }
 
     computeVoxelOffset(x, y, z) {
@@ -94,7 +93,6 @@ export default class VoxelWorld {
         else{
             pickerData.tempStore[pickerData.material] +=1 ;
         }
-        console.log(pickerData.tempStore);
     }
     
     getVoxel(x, y, z) {

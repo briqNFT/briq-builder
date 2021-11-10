@@ -12,6 +12,7 @@ export var builderInputFsm = new BuilderInputFSM();
 
 export var voxWorld;
 
+import { builderData } from "./builder/BuilderData"
 import { builderDataEvents } from "./builder/BuilderDataEvents"
 
 var camera;
@@ -179,14 +180,27 @@ generateSkybox()
 
     for (let event of builderDataEvents)
     {
-      if (event.type === "reset")
+      if (event.type === "change_set")
       {
         voxWorld.reset();
+        builderData.currentSet.forEach((cell, pos) => {
+          voxWorld.setVoxel(pos[0], pos[1], pos[2], cell.material)
+          voxWorld.updateVoxelGeometry(pos[0], pos[1], pos[2]);
+        });
       }
-      else if (event.type === "place")
+      else if (event.type === "setData")
       {
-          voxWorld.setVoxel(event.data.x, event.data.y, event.data.z, event.data.kind);
-          voxWorld.updateVoxelGeometry(event.data.x, event.data.y, event.data.z);
+        if (event.data.set !== builderData.currentSet.id)
+          continue;
+        if (event.data.subtype === "reset")
+        {
+          voxWorld.reset();
+        }
+        else if (event.data.subtype === "place")
+        {
+            voxWorld.setVoxel(event.data.x, event.data.y, event.data.z, event.data.kind);
+            voxWorld.updateVoxelGeometry(event.data.x, event.data.y, event.data.z);
+        }  
       }
     }
     builderDataEvents.length = 0;

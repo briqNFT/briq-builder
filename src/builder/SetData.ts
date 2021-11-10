@@ -2,9 +2,35 @@ import { Briq, BriqsData } from './BriqsData'
 
 import { BuilderDataEvent, builderDataEvents } from './BuilderDataEvents'
 
+class SetDataEvent extends BuilderDataEvent
+{
+    constructor(setId: number)
+    {
+        super("setData");
+        this.data = {
+            "set": setId
+        };
+    }
+
+    subtype(subtype: string): SetDataEvent
+    {
+        this.data.subtype = subtype;
+        return this;
+    }
+
+    setData(newData: any): SetDataEvent
+    {
+        let setId = this.data.set;
+        this.data = Object.assign(this.data, newData);
+        this.data.set = setId;
+        return this;
+    }
+}
+
 export class SetData
 {
     id: number;
+    name: string;
 
     regionSize: number;
     // Indexed by region & cell
@@ -17,6 +43,7 @@ export class SetData
     constructor(id: number, briqDB: BriqsData)
     {
         this.id = id;
+        this.name = "";
 
         this.regionSize = 10;
         this.briqs = new Map();
@@ -28,6 +55,8 @@ export class SetData
     serialize()
     {
         let ret: any = {};
+        ret.id = this.id;
+        ret.name = this.name;
         ret.regionSize = 10;
         ret.briqs = [];
         this.briqs.forEach((region, regionId) => {
@@ -43,11 +72,40 @@ export class SetData
         return ret;
     }
 
+    deserialize(data): SetData
+    {
+        if (this.id !== data.id)
+            throw new Error("Set tried to load data from the wrong set");
+        this.reset();
+        this.name = data.name;
+        this.regionSize = data.regionSize;
+        for (let briq of data.briqs)
+        {
+            let cell = this.briqDB.deserializeBriq(briq.data);
+            this.placeBriq(briq.pos[0], briq.pos[1], briq.pos[2], cell.material);
+        }
+        return this;
+    }
+
     reset()
     {
         this.briqs = new Map();
         this.usedByMaterial = {};
-        builderDataEvents.push(new BuilderDataEvent("reset"));
+        builderDataEvents.push(new SetDataEvent(this.id).subtype("reset"));
+    }
+
+    forEach(callable: (cell: Briq, pos: [number, number, number]) => any)
+    {
+        this.briqs.forEach((region, regionId) => {
+            region.forEach((cellId, cellPos) => {
+                let cell = this.briqDB.get(cellId);
+                if (!cell)
+                    throw new Error("Impossible");
+                let pos = this.to3DPos(regionId, cellPos);
+                callable(cell, pos);
+            });
+        });
+
     }
 
     placeBriq(x: number, y: number, z: number, cellKind: number, briq?: number): boolean
@@ -63,7 +121,7 @@ export class SetData
         let [regionId, cellId] = this.computeIDs(x, y, z);
         if (!this.briqs.has(regionId))
             this.briqs.set(regionId, new Map());
-        else if (!!this.briqs.get(regionId).get(cellId))
+        else if (!!this.briqs.get(regionId)?.get(cellId))
             return false;
 
         let actualBriq = this.briqDB.getOrCreate(briq, cellKind, this.id);
@@ -76,7 +134,7 @@ export class SetData
             this.usedByMaterial[cellKind] = 0;
         ++this.usedByMaterial[cellKind];
 
-        builderDataEvents.push(new BuilderDataEvent("place", {
+        builderDataEvents.push(new SetDataEvent(this.id).subtype("place").setData({
             x: x, y: y, z: z,
             kind: cellKind,
         }));

@@ -2,12 +2,9 @@
 import Homepage from './Homepage.vue'
 import PickMaterial from './PickMaterial.vue'
 import SetOptions from './SetOptions.vue'
-import Debug from './Debug.vue'
+import Toolbar from './Toolbar.vue'
 
 import { populate } from '../getter.js'
-
-var isProd = import.meta.env.PROD;
-
 </script>
 
 <template>
@@ -16,9 +13,9 @@ var isProd = import.meta.env.PROD;
     <h2>Seize the briqs of construction</h2>
     <PickMaterial/>
   </div>
-  <Debug v-if="!isProd"/>
   <Homepage/>
   <SetOptions/>
+  <Toolbar/>
 </template>
 
 <script lang="ts">
