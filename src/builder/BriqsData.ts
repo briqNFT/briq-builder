@@ -12,9 +12,9 @@ export class Briq
     set: number;
     onChain: boolean;
 
-    constructor(material: number, set: number, id?: number)
+    constructor(id: number, material: number, set: number)
     {
-        this.id = pseudoGUID();
+        this.id = id;
         this.material = material;
         this.set = set;
         this.onChain = false;
@@ -24,7 +24,9 @@ export class Briq
     {
         if (this.onChain)
         {
-
+            return {
+                briq: this.id
+            }
         }
         else
         {
@@ -52,17 +54,20 @@ export class BriqsData
 
     deserializeBriq(data: any): Briq
     {
-        if (data.id)
+        if (data.briq)
         {
-            // Handle actual briq
+            return this.get(data.briq);
         }
         else
-            return this.create(data.material, data.set)
+            return this.create(pseudoGUID(), data.material, data.set)
     }
 
-    get(id: number): Briq | undefined
+    get(id: number): Briq
     {
-        return this.briqs.get(id);
+        let briq = this.briqs.get(id);
+        if (!briq)
+            throw new Error("Get() has not found briq ID" + id);
+        return briq;
     }
 
     getOrCreate(id: number | undefined, material?: number, set?: number): Briq
@@ -73,12 +78,12 @@ export class BriqsData
             if (cell)
                 return cell;
         }
-        return this.create(material, set);
+        return this.create(pseudoGUID(), material, set);
     }
 
-    create(material?: number, set?: number): Briq
+    create(id: number, material: number, set: number): Briq
     {
-        let briq = new Briq(material, set);
+        let briq = new Briq(id, material, set);
         this.briqs.set(briq.id, briq);
         return briq;
     }

@@ -31,6 +31,7 @@ export class SetData
 {
     id: number;
     name: string;
+    onChain: boolean;
 
     regionSize: number;
     // Indexed by region & cell
@@ -44,6 +45,7 @@ export class SetData
     {
         this.id = id;
         this.name = "";
+        this.onChain = false;
 
         this.regionSize = 10;
         this.briqs = new Map();
@@ -82,7 +84,7 @@ export class SetData
         for (let briq of data.briqs)
         {
             let cell = this.briqDB.deserializeBriq(briq.data);
-            this.placeBriq(briq.pos[0], briq.pos[1], briq.pos[2], cell.material);
+            this.placeBriq(briq.pos[0], briq.pos[1], briq.pos[2], cell.material, cell.id);
         }
         return this;
     }
@@ -105,7 +107,6 @@ export class SetData
                 callable(cell, pos);
             });
         });
-
     }
 
     placeBriq(x: number, y: number, z: number, cellKind: number, briq?: number): boolean
@@ -153,7 +154,7 @@ export class SetData
         
         this.briqs.get(regionId).delete(cellId);
 
-        builderDataEvents.push(new BuilderDataEvent("place", {
+        builderDataEvents.push(new SetDataEvent(this.id).subtype("place").setData({
             x: x, y: y, z: z,
             kind: 0,
         }));
@@ -189,5 +190,35 @@ export class SetData
             my * this.regionSize + cy,
             mz * this.regionSize + cz,
         ];
+    }
+
+    swapForRealBriqs(available_by_matos: any)
+    {
+        this.briqs.forEach((region, regionId) => {
+            region.forEach((cellId, cellPos) => {
+                let cell = this.briqDB.get(cellId);
+                if (!cell)
+                    throw new Error("Impossible");
+                if (cell.onChain)
+                    return;
+                let newBriq = this.briqDB.get(parseInt(available_by_matos[cell.material].splice(0, 1)[0], 16));
+                region.set(cellPos, newBriq.id);
+            });
+        });
+    }
+
+    swapForFakeBriqs()
+    {
+        this.briqs.forEach((region, regionId) => {
+            region.forEach((cellId, cellPos) => {
+                let cell = this.briqDB.get(cellId);
+                if (!cell)
+                    throw new Error("Impossible");
+                if (!cell.onChain)
+                    return;
+                let newBriq = this.briqDB.getOrCreate(undefined, cell.material, this.id);
+                region.set(cellPos, newBriq.id);
+            });
+        });
     }
 }

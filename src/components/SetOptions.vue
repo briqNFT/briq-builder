@@ -58,6 +58,7 @@ export default defineComponent({
             return isOk();
         },
         canExport: function() {
+            return true;
             if (!isOk())
                 return false;
             for (const mat in pickerData.tempStore)
@@ -80,16 +81,11 @@ export default defineComponent({
                     fetchData("store_get/" + set, {}).then(y => {
                         if (!!y.detail)
                             return;
-                        let nb = 0;
-                        for (const cell in y.data)
-                            nb += y.data[cell].length;
-                        this.sets[set] = nb;
+                        this.sets[set] = y.data.briqs.length;
                     });
             });
         },
         doExport: async function() {
-            var ret = {};
-            var used_cells = [];
             var available_by_matos = {
                 "1": [],
                 "2": [],
@@ -102,75 +98,26 @@ export default defineComponent({
                     continue;
                 available_by_matos[brick.mat].push(brick.token_id)
             }
-            for (const cellId in voxWorld.cells)
-            {
-                ret[cellId] = [];
-                var u8cells = voxWorld.cells[cellId];
-                for (let i = 0; i < u8cells.length; ++i)
-                {
-                    if (u8cells[i] !== 0)
-                    {
-                        if (!available_by_matos[u8cells[i]].length)
-                        {
-                            console.log("not available");
-                            return;
-                        }
-                        var item = available_by_matos[u8cells[i]].splice(0, 1);
-                        used_cells.push(item[0]);
-                        ret[cellId].push([i, u8cells[i]])
-                    }
-                }
-            }
-            var headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            var data = {
-                method: 'POST',
-                headers: headers,
-                mode: 'cors',
-                body: JSON.stringify({
-                    "data": ret,
-                    "used_cells": used_cells,
-                    "owner": this.owner,
-                })
-            };
-            fetch(`${base_url}/store_set`, data)
-                .then(x => x.json())
-                .then(x => this.getList()).catch(x => console.log(x))
+            // Replace briqs by proper ones.
+            builderData.currentSet.swapForRealBriqs(available_by_matos);
+            let data = builderData.currentSet.serialize();
+            let used_cells = data.briqs.map(x => x.data.briq);
+            fetchData("store_set", {
+                "used_cells": used_cells,
+                "data": data,
+                "owner": parseInt(this.owner, 16),
+            }).then(_ => {
+                builderData.disassembleSet(builderData.currentSet.id);
+            })
         },
         doImport: async function(setId) {
             fetchData("store_get/" + setId)
                 .then(x => {
-                    builderData.reset();
-                    pickerData.tempStore = { 1: 0, 2: 0,3: 0,4: 0 };
-                    /*
-                    for (let cell in x.data)
-                    {
-                        for (let vox of x.data[cell])
-                        {
-                            builderData.placeBriq()
-                            voxWorld.cells[cell][vox[0]] = vox[1];
-                            pickerData.tempStore[vox[1]]++;
-                        }
-                        voxWorld.updateCellGeometry(...cell.split(',').map(x => +x * voxWorld.cellSize));
-                    }
-                    */
-                    /*
-                    const to_reset = Object.keys(voxWorld.cells);
-                    voxWorld.cells = {};
-                    for (const to_res of to_reset)
-                        voxWorld.updateCellGeometry(...to_res.split(',').map(x => +x * voxWorld.cellSize));
-                    pickerData.tempStore = { 1: 0, 2: 0,3: 0,4: 0 };
-                    for (let cell in x.data)
-                    {
-                        if (!(cell in voxWorld.cells))
-                            voxWorld.cells[cell] = new Uint8Array(voxWorld.cellSize * voxWorld.cellSize * voxWorld.cellSize);
-                        for (let vox of x.data[cell])
-                        {
-                            voxWorld.cells[cell][vox[0]] = vox[1];
-                            pickerData.tempStore[vox[1]]++;
-                        }
-                        voxWorld.updateCellGeometry(...cell.split(',').map(x => +x * voxWorld.cellSize));
-                    }*/
+                    builderData.newSet();
+                    x.data.id = builderData.currentSet.id;
+                    builderData.currentSet.deserialize(x.data);
+                    builderData.currentSet.swapForFakeBriqs();
+                    builderData.currentSet.name = "Der " + setId;
                 }).catch(x => console.log(x))
         },
         doDisassemble: async function(setId) {

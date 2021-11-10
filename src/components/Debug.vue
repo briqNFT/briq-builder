@@ -16,12 +16,21 @@ export default defineComponent({
     },
     computed: {
         builderDataRepr: function() {
+            let ret = [];
+            builderData.currentSet.forEach(cell => ret.push(cell));
+            return JSON.stringify(ret);
             //return JSON.stringify(Array.from(builderData.currentSet.briqs.values()).map(x => Array.from(x)), undefined, 4);
-            return JSON.stringify(builderData.wipSets);
+            //return JSON.stringify(Array.from(builderData.briqsData.briqs.values()));
+            //return JSON.stringify(Array.from(builderData.currentSet.briqs.values()));
         }
     }
 })
 </script>
 
 <style scoped>
+#debugWindow
+{
+    max-height: 300px;
+    overflow: scroll;
+}
 </style>
