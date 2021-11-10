@@ -1,18 +1,18 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js';
 
-import { picker, texture, tileSize, tileTextureHeight, nbMaterial } from './materials.js'
+import { texture, tileSize, tileTextureHeight, nbMaterial } from './materials.js'
 
 const cellSize = 5;
 
 import VoxelWorld from './VoxelWorld';
-import { BuilderInputFSM } from './BuilderInput';
+import { BuilderInputFSM } from './builder/inputs/BuilderInput';
 
 export var builderInputFsm = new BuilderInputFSM();
 
 export var voxWorld;
 
-import { builderDataEvents } from "./BuilderData"
+import { builderDataEvents } from "./builder/BuilderDataEvents"
 
 var camera;
 
@@ -179,7 +179,11 @@ generateSkybox()
 
     for (let event of builderDataEvents)
     {
-      if (event.type === "place")
+      if (event.type === "reset")
+      {
+        voxWorld.reset();
+      }
+      else if (event.type === "place")
       {
           voxWorld.setVoxel(event.data.x, event.data.y, event.data.z, event.data.kind);
           voxWorld.updateVoxelGeometry(event.data.x, event.data.y, event.data.z);

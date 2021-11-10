@@ -2,7 +2,11 @@
 import Homepage from './Homepage.vue'
 import PickMaterial from './PickMaterial.vue'
 import SetOptions from './SetOptions.vue'
+import Debug from './Debug.vue'
+
 import { populate } from '../getter.js'
+
+var isProd = import.meta.env.PROD;
 
 </script>
 
@@ -12,6 +16,7 @@ import { populate } from '../getter.js'
     <h2>Seize the briqs of construction</h2>
     <PickMaterial/>
   </div>
+  <Debug v-if="!isProd"/>
   <Homepage/>
   <SetOptions/>
 </template>

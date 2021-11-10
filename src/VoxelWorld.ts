@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-import { picker, texture, tileSize, tileTextureHeight, nbMaterial } from './materials.js'
+import { pickerData, texture, tileSize, tileTextureHeight, nbMaterial } from './materials.js'
 
 const material = new THREE.MeshLambertMaterial({
     map: texture,
@@ -15,7 +15,7 @@ export default class VoxelWorld {
     nbMaterial: number;
     tileTextureHeight: number;
     cellSliceSize: number;
-    cells: Map<number, number>;
+    cells: object;//Map<number, Uint8Array>;
     cellIdToMesh: Object;
     scene: any;
     static faces: Array<any>;
@@ -27,12 +27,21 @@ export default class VoxelWorld {
         this.tileTextureHeight = options.tileTextureHeight;
         const {cellSize} = this;
         this.cellSliceSize = cellSize * cellSize;
-        this.cells = new Map();
+        this.cells = {};
         
         this.cellIdToMesh = {};
         this.scene = null;
     }
-    
+
+    reset()
+    {
+        for (let cell in this.cells)
+        {
+            this.cells[cell] = new Uint8Array();
+            this.updateCellGeometry(...cell.split(',').map(x => +x * this.cellSize));
+        }
+    }
+
     computeVoxelOffset(x, y, z) {
         const {cellSize, cellSliceSize} = this;
         const voxelX = THREE.MathUtils.euclideanModulo(x, cellSize) | 0;
@@ -80,12 +89,12 @@ export default class VoxelWorld {
         const voxelOffset = this.computeVoxelOffset(x, y, z);
         cell[voxelOffset] = v;
         if(v==0){
-            picker.tempStore[picker.material]-=1;
+            pickerData.tempStore[pickerData.material]-=1;
         }
         else{
-            picker.tempStore[picker.material] +=1 ;
+            pickerData.tempStore[pickerData.material] +=1 ;
         }
-        console.log(picker.tempStore);
+        console.log(pickerData.tempStore);
     }
     
     getVoxel(x, y, z) {

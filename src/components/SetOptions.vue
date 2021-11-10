@@ -22,21 +22,22 @@
 import { defineComponent } from 'vue'
 import { voxWorld } from '../builder.js'
 import { brickstore } from '../getter.js'
-import { picker } from '../materials.js'
+import { pickerData } from '../materials.js'
 import { isOk, adminStore } from '../admin'
+
+import { builderData } from '../builder/BuilderData'
 
 import getBaseUrl from '../url.js'
 var base_url = getBaseUrl();
 
-// returns promise
-
-var fetchData = function(endpoint, body) {
+var fetchData = function(endpoint: string, body: object = {}): Promise<any>
+{
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
-    var dat = {
-        method: 'POST',
+    var dat: RequestInit = {
+        method: "POST",
         headers: headers,
-        mode: 'cors',
+        mode: "cors",
         body: JSON.stringify(body)
     };
     return fetch(`${base_url}/${endpoint}`, dat)
@@ -59,8 +60,8 @@ export default defineComponent({
         canExport: function() {
             if (!isOk())
                 return false;
-            for (const mat in picker.tempStore)
-                if (picker.tempStore[mat])
+            for (const mat in pickerData.tempStore)
+                if (pickerData.tempStore[mat])
                 return true;
             return false;
         }
@@ -137,22 +138,28 @@ export default defineComponent({
                 .then(x => this.getList()).catch(x => console.log(x))
         },
         doImport: async function(setId) {
-            var headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            let data = {
-                method: 'POST',
-                headers: headers,
-                mode: 'cors',
-                body: JSON.stringify({})
-            };
-            fetch(`${base_url}/store_get/` + setId, data)
-                .then(x => x.json())
+            fetchData("store_get/" + setId)
                 .then(x => {
+                    builderData.reset();
+                    pickerData.tempStore = { 1: 0, 2: 0,3: 0,4: 0 };
+                    /*
+                    for (let cell in x.data)
+                    {
+                        for (let vox of x.data[cell])
+                        {
+                            builderData.placeBriq()
+                            voxWorld.cells[cell][vox[0]] = vox[1];
+                            pickerData.tempStore[vox[1]]++;
+                        }
+                        voxWorld.updateCellGeometry(...cell.split(',').map(x => +x * voxWorld.cellSize));
+                    }
+                    */
+                    /*
                     const to_reset = Object.keys(voxWorld.cells);
                     voxWorld.cells = {};
                     for (const to_res of to_reset)
                         voxWorld.updateCellGeometry(...to_res.split(',').map(x => +x * voxWorld.cellSize));
-                    picker.tempStore = { 1: 0, 2: 0,3: 0,4: 0 };
+                    pickerData.tempStore = { 1: 0, 2: 0,3: 0,4: 0 };
                     for (let cell in x.data)
                     {
                         if (!(cell in voxWorld.cells))
@@ -160,10 +167,10 @@ export default defineComponent({
                         for (let vox of x.data[cell])
                         {
                             voxWorld.cells[cell][vox[0]] = vox[1];
-                            picker.tempStore[vox[1]]++;
+                            pickerData.tempStore[vox[1]]++;
                         }
                         voxWorld.updateCellGeometry(...cell.split(',').map(x => +x * voxWorld.cellSize));
-                    }
+                    }*/
                 }).catch(x => console.log(x))
         },
         doDisassemble: async function(setId) {
