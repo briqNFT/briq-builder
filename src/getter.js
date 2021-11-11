@@ -10,7 +10,7 @@ import { builderData } from './builder/BuilderData'
 var headers = new Headers();
 headers.append("Content-Type", "application/json");
 
-import getBaseUrl from './url.js'
+import getBaseUrl from './url'
 var base_url = getBaseUrl();
 
 export function populate() {

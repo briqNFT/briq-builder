@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { builderData } from '../builder/BuilderData';
+import { builderData } from '../../builder/BuilderData';
 
 import { defineComponent } from 'vue';
 export default defineComponent({

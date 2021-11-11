@@ -33,7 +33,6 @@ export class Briq
 
     deserialize(data: any)
     {
-        console.log(data);
         if (data.briq)
         {
             this.id = data.briq;
@@ -88,7 +87,6 @@ export class BriqsDB
         if (id)
         {
             let cell = this.get(id);
-            console.log("Getting ", id, cell)
             if (cell)
                 return cell;
             this.briqs.set(id, new Briq(id, 1, 0));

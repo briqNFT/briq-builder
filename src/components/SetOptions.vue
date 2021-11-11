@@ -5,7 +5,6 @@
 <div id="setOptions"  :class="minimized ? 'mini' : ''">
     <button @click="toggle">{{ minimized ? 'Maximize' : 'Minimize' }}</button>
     <div>
-        <p><button @click="doExport" :disabled="!canExport">Export</button></p>
         <div id="setSelector">
             <p v-for="set in Object.keys(sets)" :key="set">
                 {{ set }}
@@ -26,7 +25,7 @@ import { isOk, adminStore } from '../Admin'
 
 import { builderData } from '../builder/BuilderData'
 
-import getBaseUrl from '../url.js'
+import getBaseUrl from '../url'
 var base_url = getBaseUrl();
 
 var fetchData = function(endpoint: string, body: object = {}): Promise<any>
@@ -80,32 +79,19 @@ export default defineComponent({
                     fetchData("store_get/" + set, {}).then(y => {
                         if (!!y.detail)
                             return;
-                        console.log(y.data);
                         this.sets[set] = y.data.briqs.length;
                     });
             });
         },
-        doExport: async function() {
-            // Replace briqs by proper ones.
-            builderData.currentSet.swapForRealBriqs();
-            let data = builderData.currentSet.serialize();
-            let used_cells = data.briqs.map(x => x.data.briq);
-            fetchData("store_set", {
-                "used_cells": used_cells,
-                "data": data,
-                "owner": parseInt(this.owner, 16),
-            }).then(_ => {
-                builderData.disassembleSet(builderData.currentSet.id);
-            })
-        },
         doImport: async function(setId) {
             fetchData("store_get/" + setId)
                 .then(x => {
-                    builderData.newSet();
-                    x.data.id = builderData.currentSet.id;
+                    let set = builderData.newSet();
+                    set.id = setId;
+                    x.data.id = setId;
                     builderData.currentSet.deserialize(x.data);
-                    builderData.currentSet.swapForFakeBriqs();
-                    builderData.currentSet.name = "Der " + setId;
+                    //builderData.currentSet.swapForFakeBriqs();
+                    //builderData.currentSet.name = "Der " + setId;
                 }).catch(x => console.log(x))
         },
         doDisassemble: async function(setId) {

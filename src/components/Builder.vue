@@ -20,12 +20,18 @@ import { populate } from '../getter.js'
 
 <script lang="ts">
 import { reactive } from 'vue'
+
+import { builderDataEvents, BuilderDataEvent } from '../builder/BuilderDataEvents'
+
 populate()
 export default {
   data() {
     return {
       isModalVisible: false,
     };
+  },
+  mounted: function() {
+    builderDataEvents.push(new BuilderDataEvent("change_set"));
   },
   methods: {
     showModal() {

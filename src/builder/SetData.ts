@@ -209,9 +209,11 @@ export class SetData
         {
             if (brick.set !== 0)
                 continue;
+            // Already used.
+            if (this.briqsDB.get(brick.id))
+                continue;
             available_by_matos[brick.material].push(brick.id);
         }
-        console.log(available_by_matos);
         this.briqs.forEach((region, regionId) => {
             region.forEach((cellId, cellPos) => {
                 let cell = this.briqsDB.get(cellId)!;

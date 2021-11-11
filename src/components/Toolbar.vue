@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Debug from './Debug.vue'
+import Debug from './Tools/Debug.vue'
 import SetInfo from './Tools/SetInfo.vue'
 import WipSets from './Tools/WipSets.vue'
 
@@ -7,10 +7,10 @@ var isProd = import.meta.env.PROD;
 </script>
 
 <template>
-    <div class="toolbar">    
-        <Debug v-if="!isProd"/>
-        <WipSets/>
+    <div class="toolbar">
         <SetInfo/>
+        <WipSets/>
+        <Debug v-if="!isProd"/>
     </div>
 </template>
 
@@ -25,6 +25,8 @@ export default defineComponent({
 {
     display: flex;
     flex-wrap: wrap;
+
+    overflow: scroll;
 
     position: fixed;
     top: 0;

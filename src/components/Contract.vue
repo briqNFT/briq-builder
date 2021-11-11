@@ -46,7 +46,7 @@ import { voxWorld } from '../builder.js'
 
 import { adminStore, isOk } from '../Admin'
 
-import getBaseUrl from '../url.js'
+import getBaseUrl from '../url'
 var base_url = getBaseUrl();
 
 export default defineComponent({
