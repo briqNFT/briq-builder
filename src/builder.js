@@ -69,8 +69,7 @@ import daylight_Top from './assets/skybox/Daylight-Box_Top.jpg'
 export  function main(canvas) {
   const renderer = new THREE.WebGLRenderer({canvas});
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.BasicShadowMap;
-  
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   
 
   const fov = 75;
@@ -106,9 +105,9 @@ generateSkybox()
     const lightSpot = new THREE.DirectionalLight(color, intensity, 18);
     lightSpot.position.set(x, y, z);
     lightSpot.castShadow = true;
-    lightSpot.shadow.bias = +0.01;
+    lightSpot.shadow.bias = -0.005;
     lightSpot.shadow.camera.near = 0.1;
-    lightSpot.shadow.camera.far = 100;
+    lightSpot.shadow.camera.far = 50;
     lightSpot.shadow.camera.left=-cellSize*2;
     lightSpot.shadow.camera.right=cellSize*2;
     lightSpot.shadow.camera.bottom=-cellSize;
@@ -120,7 +119,7 @@ generateSkybox()
     scene.add(ambientLight);
     scene.add(lightSpot);
   }
-  addLight(-10,  20,  -40);
+  addLight(-1*5,  2*5,  -3*5);
 
   scene.add(generateGrid());
   scene.add(generatePlane());

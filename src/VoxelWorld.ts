@@ -190,7 +190,7 @@ export default class VoxelWorld {
             mesh.name = cellId;
             this.cellIdToMesh[cellId] = mesh;
             mesh.castShadow = true;
-            mesh.receiveShadow = false;
+            mesh.receiveShadow = true;
             this.scene.add(mesh);
             mesh.position.set(cellX * this.cellSize, cellY * this.cellSize, cellZ * this.cellSize);
         }
