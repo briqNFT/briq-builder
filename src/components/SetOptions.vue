@@ -99,7 +99,7 @@ export default defineComponent({
             for (const brick of builderData.BriqsDB.briqs.values())
             {
                 if (brick.set == setId)
-                bricks.push(brick.id)
+                    bricks.push(brick.id)
             }
 
             var headers = new Headers();
