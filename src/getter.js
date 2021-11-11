@@ -27,15 +27,7 @@ export function populate() {
     fetch(`${base_url}/get_bricks/${17}`, data)
         .then(x => x.json())
         .then(x => {
-            brickstore.user_bricks = x.value.map(x => ({
-                "token_id": x[0],
-                "mat": x[1],
-                "set": x[2]
-            }));
-            x.value.map(y => {
-                let briq = builderData.briqsData.create(parseInt(y[0], 16), +y[1], +y[2]);
-                briq.onChain = true;
-            })
+            builderData.BriqsDB.parseChainData(x.value);
         }).catch(x => console.log(x))
 
 

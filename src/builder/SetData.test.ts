@@ -1,8 +1,9 @@
+import { BriqsDB } from './BriqsDB';
 import { SetData } from './SetData'
 
-describe('Test BriqsData', () => {
+describe('Test BriqsDB', () => {
     it('should calculate positions correctly', () => {
-        let data = new SetData(0, undefined);
+        let data = new SetData(0, new BriqsDB());
         for (let i = 0; i < 10; ++i)
         {
             let x = Math.floor(Math.random() * 100);

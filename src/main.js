@@ -1,7 +1,5 @@
 import { createApp } from 'vue'
-// TODO: switch to WebHistory once the backend API uses a different port/server
-// For now I have to use hashes, or things won't work appropriately.
-import { createWebHistory, createWebHashHistory, createRouter } from "vue-router";
+import { createWebHistory, createRouter } from "vue-router";
 import App from './App.vue'
 
 // Pages

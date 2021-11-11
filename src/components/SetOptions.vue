@@ -21,9 +21,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { voxWorld } from '../builder.js'
-import { brickstore } from '../getter.js'
 import { pickerData } from '../materials.js'
-import { isOk, adminStore } from '../admin'
+import { isOk, adminStore } from '../Admin'
 
 import { builderData } from '../builder/BuilderData'
 
@@ -81,25 +80,14 @@ export default defineComponent({
                     fetchData("store_get/" + set, {}).then(y => {
                         if (!!y.detail)
                             return;
+                        console.log(y.data);
                         this.sets[set] = y.data.briqs.length;
                     });
             });
         },
         doExport: async function() {
-            var available_by_matos = {
-                "1": [],
-                "2": [],
-                "3": [],
-                "4": [],
-            };
-            for (const brick of brickstore.user_bricks)
-            {
-                if (brick.set !== 0)
-                    continue;
-                available_by_matos[brick.mat].push(brick.token_id)
-            }
             // Replace briqs by proper ones.
-            builderData.currentSet.swapForRealBriqs(available_by_matos);
+            builderData.currentSet.swapForRealBriqs();
             let data = builderData.currentSet.serialize();
             let used_cells = data.briqs.map(x => x.data.briq);
             fetchData("store_set", {
@@ -122,10 +110,10 @@ export default defineComponent({
         },
         doDisassemble: async function(setId) {
             let bricks = []
-            for (const brick of brickstore.user_bricks)
+            for (const brick of builderData.BriqsDB.briqs.values())
             {
                 if (brick.set == setId)
-                bricks.push(brick.token_id)
+                bricks.push(brick.id)
             }
 
             var headers = new Headers();

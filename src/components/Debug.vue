@@ -20,7 +20,7 @@ export default defineComponent({
             builderData.currentSet.forEach(cell => ret.push(cell));
             return JSON.stringify(ret);
             //return JSON.stringify(Array.from(builderData.currentSet.briqs.values()).map(x => Array.from(x)), undefined, 4);
-            //return JSON.stringify(Array.from(builderData.briqsData.briqs.values()));
+            //return JSON.stringify(Array.from(builderData.BriqsDB.briqs.values()));
             //return JSON.stringify(Array.from(builderData.currentSet.briqs.values()));
         }
     }

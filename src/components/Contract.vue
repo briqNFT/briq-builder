@@ -44,7 +44,7 @@ var names = Object.keys(materialData);
 import { defineComponent } from 'vue'
 import { voxWorld } from '../builder.js'
 
-import { adminStore, isOk } from '../admin'
+import { adminStore, isOk } from '../Admin'
 
 import getBaseUrl from '../url.js'
 var base_url = getBaseUrl();
@@ -85,7 +85,7 @@ export default defineComponent({
                 .then(x => x.json())
                 .then(x => {
                     this.balance = x.value.length;
-                    this.bricks = x.value.map(x => ({ "token_id": x[0], "mat": x[1], "set": x[2] }));
+                    this.bricks = x.value.map(y => ({ "token_id": y[0], "mat": y[1], "set": y[2] }));
                 }).catch(x => console.log(x))
         },
         doMint: async function() {

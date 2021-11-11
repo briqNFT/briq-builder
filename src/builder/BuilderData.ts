@@ -1,25 +1,25 @@
 import { Ref, ref, reactive, watchEffect } from 'vue'
-import { BriqsData } from './BriqsData';
+import { BriqsDB } from './BriqsDB';
 import { SetData } from './SetData';
 
 import { builderDataEvents, BuilderDataEvent } from './BuilderDataEvents'
 
-class BuilderData
+export class BuilderData
 {
     wipSets: Array<SetData>;
     currentSet: SetData;
-    briqsData: BriqsData;
+    BriqsDB: BriqsDB;
     constructor()
     {
-        this.briqsData = new BriqsData();
+        this.BriqsDB = new BriqsDB();
         this.wipSets = [];
         let ids = (window.localStorage.getItem("briq_set_ids")?.split(',') || []).map(x => +x);
         for (let sid of ids)
         {
             try
             {
-                let data = JSON.parse(window.localStorage.getItem("briq_set_" + sid));
-                let set = new SetData(data.id, this.briqsData).deserialize(data);
+                let data = JSON.parse(window.localStorage.getItem("briq_set_" + sid)!);
+                let set = new SetData(data.id, this.BriqsDB).deserialize(data);
                 this.wipSets.push(set);
             }
             catch (e)
@@ -34,7 +34,7 @@ class BuilderData
 
     newSet()
     {
-        this.wipSets.push(new SetData(Date.now(), this.briqsData));
+        this.wipSets.push(new SetData(Date.now(), this.BriqsDB));
         if (!!this.currentSet)
             this.currentSet = this.wipSets[this.wipSets.length - 1];
         builderDataEvents.push(new BuilderDataEvent("change_set"));
