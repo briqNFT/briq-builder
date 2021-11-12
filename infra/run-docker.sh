@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-npx vite build --outDir infra/dist/www/
+npx vite build --debug --outDir infra/dist/www/
 
 NAME="briq-builder"
 TAG=${TAG:=$(git rev-parse HEAD)}

@@ -42,9 +42,9 @@ var names = Object.keys(materialData);
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { voxWorld } from '../builder.js'
-
 import { adminStore, isOk } from '../Admin'
+
+import { voxWorld } from '../builder.js'
 
 import getBaseUrl from '../url'
 var base_url = getBaseUrl();

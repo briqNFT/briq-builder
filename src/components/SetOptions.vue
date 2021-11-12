@@ -19,11 +19,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { isOk } from '../Admin'
+import { builderData } from '../builder/BuilderData'
+
 import { voxWorld } from '../builder.js'
 import { pickerData } from '../materials.js'
-import { isOk, adminStore } from '../Admin'
-
-import { builderData } from '../builder/BuilderData'
 
 import getBaseUrl from '../url'
 var base_url = getBaseUrl();
