@@ -1,14 +1,17 @@
 var user_bricks = [];
 
 import { reactive } from "vue"
-export var brickstore = reactive({user_bricks:[]});
+export var brickstore = reactive({
+    user_bricks:[]
+});
+
+import { builderData } from './builder/BuilderData'
 
 var headers = new Headers();
 headers.append("Content-Type", "application/json");
 
-import getBaseUrl from './url.js'
+import getBaseUrl from './url'
 var base_url = getBaseUrl();
-
 
 export function populate() {
     var data = {
@@ -24,7 +27,7 @@ export function populate() {
     fetch(`${base_url}/get_bricks/${17}`, data)
         .then(x => x.json())
         .then(x => {
-            brickstore.user_bricks = x.value.map(x => ({ "token_id": x[0], "mat": x[1], "set": x[2] }));
+            builderData.BriqsDB.parseChainData(x.value);
         }).catch(x => console.log(x))
 
 

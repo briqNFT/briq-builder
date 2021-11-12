@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { picker, nbMaterial, materialData } from '../materials.js'
-import { brickstore } from '../getter.js'
+import { pickerData, nbMaterial, materialData } from '../materials.js'
+import { BriqsDB } from '../builder/BriqsDB'
 var materialIndex = Object.keys(materialData);
 
 var getColor = function (mat, i){
     var matData=materialData[mat];
-    if (i == picker.material){
+    if (i == pickerData.material){
         return {'border': '5px solid red', 'background-color': 'rgba('+matData.color[0] +','+matData.color[1] +','+matData.color[2] +','+matData.transparency/255 +')'}    
     } else {
         return {'background-color': 'rgba('+matData.color[0] +','+matData.color[1] +','+matData.color[2] +','+matData.transparency/255 +')'}
@@ -17,11 +17,12 @@ var getColor = function (mat, i){
 <div>
     <div class="button_selector">
         <div class="selector" v-for="i in nbMaterial" :key="i">
-            <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(brickstore.user_bricks, i) }}</button>
+            <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(i) }}</button>
         </div>
     </div>
-    <template v-if="brickstore.user_bricks.length">
-        <p>{{ brickstore.user_bricks.length }} briqs loaded!</p>
+    <p>Editing set {{ builderData.currentSet.id }}</p>
+    <template v-if="builderData.BriqsDB.briqs.size">
+        <p>{{ builderData.BriqsDB.briqs.size }} briqs loaded!</p>
     </template>
     <template v-else="">
         <p>...Briqs are loading...</p>
@@ -30,24 +31,33 @@ var getColor = function (mat, i){
 </template>
 
 <script lang="ts">
+import { builderData } from '../builder/BuilderData'
 import { defineComponent } from 'vue'
 export default defineComponent({
-    methods :{
-        pickmaterial : function(mat){
-            picker.material=mat
+    data() {
+        return {
+            builderData: builderData
+        }
+    },
+    methods:
+    {
+        pickmaterial : function(mat) {
+            pickerData.material=mat
         },
-        getMaterialNumber : function (bricks, i){
-            if(!bricks) return 0;
-            var numberMaterial={};
-            for(let brick of bricks){
+        getMaterialNumber : function (i)
+        {
+            var numberMaterial = {};
+            for (let brick of builderData.BriqsDB.briqs.values())
+            {
                 if (brick.set != 0)
                     continue
-                if (!(brick.mat in numberMaterial))
-                    numberMaterial[brick.mat]=0;
-                numberMaterial[brick.mat]++;
+                if (!(brick.material in numberMaterial))
+                    numberMaterial[brick.material]=0;
+                numberMaterial[brick.material]++;
             }
-            if(!numberMaterial[i]) return 0; //we're checking if it's undefined
-            numberMaterial[i]-=picker.tempStore[i];//fuck yeah it works
+            if (!numberMaterial[i])
+                return 0;
+            numberMaterial[i] -= builderData.currentSet.usedByMaterial[i] ?? 0;
             return numberMaterial[i];
         }
     }

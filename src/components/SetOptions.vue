@@ -5,7 +5,6 @@
 <div id="setOptions"  :class="minimized ? 'mini' : ''">
     <button @click="toggle">{{ minimized ? 'Maximize' : 'Minimize' }}</button>
     <div>
-        <p>Owner: <input type="text" v-model="owner"/><button @click="doExport" :disabled="!canExport">Export</button></p>
         <div id="setSelector">
             <p v-for="set in Object.keys(sets)" :key="set">
                 {{ set }}
@@ -21,22 +20,22 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { voxWorld } from '../builder.js'
-import { brickstore } from '../getter.js'
-import { picker } from '../materials.js'
-import { isOk, adminStore } from '../admin'
+import { pickerData } from '../materials.js'
+import { isOk, adminStore } from '../Admin'
 
-import getBaseUrl from '../url.js'
+import { builderData } from '../builder/BuilderData'
+
+import getBaseUrl from '../url'
 var base_url = getBaseUrl();
 
-// returns promise
-
-var fetchData = function(endpoint, body) {
+var fetchData = function(endpoint: string, body: object = {}): Promise<any>
+{
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
-    var dat = {
-        method: 'POST',
+    var dat: RequestInit = {
+        method: "POST",
         headers: headers,
-        mode: 'cors',
+        mode: "cors",
         body: JSON.stringify(body)
     };
     return fetch(`${base_url}/${endpoint}`, dat)
@@ -57,10 +56,11 @@ export default defineComponent({
             return isOk();
         },
         canExport: function() {
+            return true;
             if (!isOk())
                 return false;
-            for (const mat in picker.tempStore)
-                if (picker.tempStore[mat])
+            for (const mat in pickerData.tempStore)
+                if (pickerData.tempStore[mat])
                 return true;
             return false;
         }
@@ -79,99 +79,27 @@ export default defineComponent({
                     fetchData("store_get/" + set, {}).then(y => {
                         if (!!y.detail)
                             return;
-                        let nb = 0;
-                        for (const cell in y.data)
-                            nb += y.data[cell].length;
-                        this.sets[set] = nb;
+                        this.sets[set] = y.data.briqs.length;
                     });
             });
         },
-        doExport: async function() {
-            var ret = {};
-            var used_cells = [];
-            var available_by_matos = {
-                "1": [],
-                "2": [],
-                "3": [],
-                "4": [],
-            };
-            for (const brick of brickstore.user_bricks)
-            {
-                if (brick.set !== 0)
-                    continue;
-                available_by_matos[brick.mat].push(brick.token_id)
-            }
-            for (const cellId in voxWorld.cells)
-            {
-                ret[cellId] = [];
-                var u8cells = voxWorld.cells[cellId];
-                for (let i = 0; i < u8cells.length; ++i)
-                {
-                    if (u8cells[i] !== 0)
-                    {
-                        if (!available_by_matos[u8cells[i]].length)
-                        {
-                            console.log("not available");
-                            return;
-                        }
-                        var item = available_by_matos[u8cells[i]].splice(0, 1);
-                        used_cells.push(item[0]);
-                        ret[cellId].push([i, u8cells[i]])
-                    }
-                }
-            }
-            var headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            var data = {
-                method: 'POST',
-                headers: headers,
-                mode: 'cors',
-                body: JSON.stringify({
-                    "data": ret,
-                    "used_cells": used_cells,
-                    "owner": this.owner,
-                })
-            };
-            fetch(`${base_url}/store_set`, data)
-                .then(x => x.json())
-                .then(x => this.getList()).catch(x => console.log(x))
-        },
         doImport: async function(setId) {
-            var headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            let data = {
-                method: 'POST',
-                headers: headers,
-                mode: 'cors',
-                body: JSON.stringify({})
-            };
-            fetch(`${base_url}/store_get/` + setId, data)
-                .then(x => x.json())
+            fetchData("store_get/" + setId)
                 .then(x => {
-                    const to_reset = Object.keys(voxWorld.cells);
-                    voxWorld.cells = {};
-                    for (const to_res of to_reset)
-                        voxWorld.updateCellGeometry(...to_res.split(',').map(x => +x * voxWorld.cellSize));
-                    picker.tempStore = { 1: 0, 2: 0,3: 0,4: 0 };
-                    for (let cell in x.data)
-                    {
-                        if (!(cell in voxWorld.cells))
-                            voxWorld.cells[cell] = new Uint8Array(voxWorld.cellSize * voxWorld.cellSize * voxWorld.cellSize);
-                        for (let vox of x.data[cell])
-                        {
-                            voxWorld.cells[cell][vox[0]] = vox[1];
-                            picker.tempStore[vox[1]]++;
-                        }
-                        voxWorld.updateCellGeometry(...cell.split(',').map(x => +x * voxWorld.cellSize));
-                    }
+                    let set = builderData.newSet();
+                    set.id = setId;
+                    x.data.id = setId;
+                    builderData.currentSet.deserialize(x.data);
+                    //builderData.currentSet.swapForFakeBriqs();
+                    //builderData.currentSet.name = "Der " + setId;
                 }).catch(x => console.log(x))
         },
         doDisassemble: async function(setId) {
             let bricks = []
-            for (const brick of brickstore.user_bricks)
+            for (const brick of builderData.BriqsDB.briqs.values())
             {
                 if (brick.set == setId)
-                bricks.push(brick.token_id)
+                    bricks.push(brick.id)
             }
 
             var headers = new Headers();

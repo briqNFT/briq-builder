@@ -2,8 +2,9 @@
 import Homepage from './Homepage.vue'
 import PickMaterial from './PickMaterial.vue'
 import SetOptions from './SetOptions.vue'
-import { populate } from '../getter.js'
+import Toolbar from './Toolbar.vue'
 
+import { populate } from '../getter.js'
 </script>
 
 <template>
@@ -14,16 +15,23 @@ import { populate } from '../getter.js'
   </div>
   <Homepage/>
   <SetOptions/>
+  <Toolbar/>
 </template>
 
 <script lang="ts">
 import { reactive } from 'vue'
+
+import { builderDataEvents, BuilderDataEvent } from '../builder/BuilderDataEvents'
+
 populate()
 export default {
   data() {
     return {
       isModalVisible: false,
     };
+  },
+  mounted: function() {
+    builderDataEvents.push(new BuilderDataEvent("change_set"));
   },
   methods: {
     showModal() {

@@ -8,9 +8,11 @@ export var materialData = {
     "Glass": {color: [199, 227, 225], transparency: 220},
     "Steel": {color: [94, 104, 109], transparency: 255},
 };
-export var picker = reactive({
+
+export var pickerData = reactive({
     tempStore: {1: 0, 2: 0,3: 0,4: 0}, //tempStore is the array counting the bricks currently used in the builder
     material: 1,
+    currentSet: 0,
 })
 
 export const tileSize = 1;
