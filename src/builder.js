@@ -42,17 +42,17 @@ const material = new THREE.MeshLambertMaterial({
 });
 
 function generateGrid() {
-  var gridXZ = new THREE.GridHelper(cellSize*2, cellSize*2, 0xffff00, 0xffff00);
-  gridXZ.position.set(Math.floor(cellSize/2), 0,Math.floor(cellSize/2));
+  var gridXZ = new THREE.GridHelper(cellSize*2+1, cellSize*2+1, 0xffff00, 0xffff00);
+  gridXZ.position.set(1/2, 0, 1/2);
   return gridXZ;
 }
 
 function generatePlane(){
-  var geometry = new THREE.PlaneBufferGeometry(cellSize*2, cellSize*2);
+  var geometry = new THREE.PlaneBufferGeometry(cellSize*2+1, cellSize*2+1);
   var material = new THREE.MeshPhongMaterial( {color: 0x009624, side: THREE.DoubleSide });
   var planeXZ = new THREE.Mesh(geometry, material);
   planeXZ.receiveShadow = true ;
-  planeXZ.position.set(Math.floor(cellSize/2), 0,Math.floor(cellSize/2));
+  planeXZ.position.set(1/2, 0, 1/2);
   planeXZ.rotateX( - Math.PI / 2);
   return planeXZ;
 }
@@ -77,10 +77,10 @@ export  function main(canvas) {
   const near = 0.1;
   const far = 1000;
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.set(-cellSize * .3, cellSize * .8, -cellSize * .3);
+  camera.position.set(cellSize * 0.3, cellSize * 0.8, -cellSize * 1.4);
 
   const controls = new OrbitControls(camera, canvas);
-  controls.target.set(cellSize / 2, cellSize / 3, cellSize / 2);
+  controls.target.set(0, 1, 0);
   controls.update();
 
   const scene = new THREE.Scene();

@@ -8,6 +8,7 @@
     "test": "jest src"
   },
   "dependencies": {
+    "@types/three": "^0.134.0",
     "vue": "^3.2.16",
     "vue-router": "^4.0.12"
   },

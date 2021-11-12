@@ -17,7 +17,7 @@ export default defineComponent({
     computed: {
         builderDataRepr: function() {
             let ret = [];
-            builderData.currentSet.forEach(cell => ret.push(cell));
+            builderData.currentSet.forEach((_, pos) => ret.push(pos));
             return JSON.stringify(ret);
             //return JSON.stringify(Array.from(builderData.currentSet.briqs.values()).map(x => Array.from(x)), undefined, 4);
             //return JSON.stringify(Array.from(builderData.BriqsDB.briqs.values()));

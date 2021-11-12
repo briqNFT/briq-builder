@@ -120,6 +120,8 @@ export class SetData
 
     doPlaceBriq(x: number, y: number, z: number, cellKind: number, briq?: number): boolean
     {
+        if (Math.abs(x) > this.regionSize / 2 || Math.abs(z) > this.regionSize / 2)
+            return false;
         let [regionId, cellId] = this.computeIDs(x, y, z);
         if (!this.briqs.has(regionId))
             this.briqs.set(regionId, new Map());

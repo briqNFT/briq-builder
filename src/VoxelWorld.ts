@@ -75,9 +75,6 @@ export default class VoxelWorld {
     }
     
     setVoxel(x, y, z, v, addCell = true) {
-        if (Math.abs(x)>this.cellSize*2 || Math.abs(z)>this.cellSize*2) {
-            return;
-        }
         let cell = this.getCellForVoxel(x, y, z);
         if (!cell) {
             if (!addCell) {

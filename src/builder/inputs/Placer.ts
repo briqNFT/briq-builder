@@ -6,6 +6,8 @@ import { previewCube } from '../../PreviewCube'
 
 import { builderData } from '../BuilderData'
 
+import * as THREE from 'three'
+
 export class PlacerInput extends BuilderInputState
 {
     curX: number;
@@ -45,7 +47,7 @@ export class PlacerInput extends BuilderInputState
         if (intersection)
         {
             const pos = intersection.position.map((v, ndx) => {
-                return v + intersection.normal[ndx] * (event.shiftKey ? -0.5 : +0.5);
+                return Math.floor(v + intersection.normal[ndx] * (event.shiftKey ? -0.5 : +0.5));
             });
             if (event.shiftKey)
                 previewCube.visible = false;
@@ -53,6 +55,10 @@ export class PlacerInput extends BuilderInputState
             {
                 previewCube.visible = true;
                 previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
+                if (Math.abs(pos[0]) <= builderData.currentSet.regionSize / 2 && Math.abs(pos[2]) <= builderData.currentSet.regionSize / 2)
+                    (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x002496);
+                else
+                    (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);
             }
         }
     }

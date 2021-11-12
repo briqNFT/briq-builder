@@ -5,6 +5,6 @@
         "isolatedModules": true,
         "strict": true,
         "incremental": true,
-        "types": ["vite/client", "@types/jest"],
+        "types": ["vite/client", "@types/jest", "@types/three"],
     }
 }

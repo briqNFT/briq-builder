@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-function generatePreviewCube()
+function generatePreviewCube(): THREE.Mesh
 {
     var geometry =  new THREE.BoxGeometry(1, 1, 1);
     var material = new THREE.MeshPhongMaterial( {color: 0x002496, opacity:0.5, transparent: true });
