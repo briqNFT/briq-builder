@@ -158,6 +158,7 @@ export class SetData
             --this.usedByMaterial[material];
         
         this.briqs.get(regionId)!.delete(cellId);
+        this.briqsDB.briqs.delete(cellId);
 
         builderDataEvents.push(new SetDataEvent(this.id).subtype("place").setData({
             x: x, y: y, z: z,
