@@ -247,15 +247,14 @@ export class SetData
     {
         this.briqs.forEach((region, regionId) => {
             region.forEach((cellId, cellPos) => {
-                let cell = this.briqsDB.get(cellId);
-                if (!cell)
-                    throw new Error("Impossible");
+                let cell = this.briqsDB.get(cellId)!;
                 if (!cell.onChain)
                     return;
                 let newBriq = this.briqsDB.getOrCreate(undefined);
                 newBriq.material = cell.material;
                 newBriq.set = this.id;
                 region.set(cellPos, newBriq.id);
+                this.briqsDB.briqs.delete(cell.id);
             });
         });
     }
