@@ -176,17 +176,34 @@ export class SetData
         let rx: number = Math.floor(x / this.regionSize);
         let ry: number = Math.floor(y / this.regionSize);
         let rz: number = Math.floor(z / this.regionSize);
+
+        let cx: number = (x - rx * this.regionSize);
+        let cy: number = (y - ry * this.regionSize);
+        let cz: number = (z - rz * this.regionSize);
+
+        let mapN = (val: number) => Math.abs(val) * 2 + +(val < 0);
+
         return [
-          rx + ry * this.regionSize + rz * this.regionSize * this.regionSize,
-          (x - rx * this.regionSize) + (y - ry * this.regionSize) * this.regionSize + (z - rz * this.regionSize) * this.regionSize * this.regionSize
+            mapN(rx) + mapN(ry) * (this.regionSize * 2) + mapN(rz) * (this.regionSize * this.regionSize * 4),
+            cx + cy * this.regionSize + cz * this.regionSize * this.regionSize,
         ];
     }
 
     to3DPos(regionId: number, cellId: number): [number, number, number]
     {
-        let mz = Math.floor(regionId / this.regionSize / this.regionSize);
-        let my = Math.floor((regionId - mz * this.regionSize * this.regionSize) / this.regionSize);
-        let mx = regionId - mz * this.regionSize * this.regionSize - my * this.regionSize;
+        let mz = Math.floor(regionId / this.regionSize / this.regionSize / 4);
+        let my = Math.floor((regionId - mz * this.regionSize * this.regionSize * 4) / this.regionSize / 2);
+        let mx = regionId - mz * this.regionSize * this.regionSize * 4 - my * this.regionSize * 2;
+
+        let unmapN = (val: number) => {
+            if (val % 2 == 1)
+                val = (val - 1) * -1;
+            return val / 2;
+        }
+        mz = unmapN(mz);
+        my = unmapN(my);
+        mx = unmapN(mx);
+
         let cz = Math.floor(cellId / this.regionSize / this.regionSize);
         let cy = Math.floor((cellId - cz * this.regionSize * this.regionSize) / this.regionSize);
         let cx = cellId - cz * this.regionSize * this.regionSize - cy * this.regionSize;

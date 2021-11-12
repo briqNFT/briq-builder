@@ -206,7 +206,7 @@ export default class VoxelWorld {
             [ 0,  0, -1], // back
             [ 0,  0,  1], // front
         ];
-        
+
         const updatedCellIds = {};
         for (const offset of neighborOffsets) {
             const ox = x + offset[0];

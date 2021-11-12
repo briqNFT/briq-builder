@@ -186,6 +186,8 @@ generateSkybox()
           voxWorld.setVoxel(pos[0], pos[1], pos[2], cell.material)
           voxWorld.updateVoxelGeometry(pos[0], pos[1], pos[2]);
         });
+        voxWorld.updateCellGeometry(0, 0, 0);
+        voxWorld.updateCellGeometry(voxWorld.cellSize+1, 0, 0);
       }
       else if (event.type === "setData")
       {
