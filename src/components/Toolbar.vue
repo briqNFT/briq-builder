@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Debug from './Tools/Debug.vue'
 import SetInfo from './Tools/SetInfo.vue'
+import Wallet from './Tools/Wallet.vue'
 import WipSets from './Tools/WipSets.vue'
 
 var isProd = import.meta.env.PROD;
@@ -8,6 +9,7 @@ var isProd = import.meta.env.PROD;
 
 <template>
     <div class="toolbar">
+        <Wallet/>
         <SetInfo/>
         <WipSets/>
         <Debug v-if="!isProd"/>

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es2020",
-        "moduleResolution": "Node",
+        "moduleResolution": "node",
         "isolatedModules": true,
         "strict": true,
         "incremental": true,

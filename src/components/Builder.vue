@@ -3,6 +3,7 @@ import Homepage from './Homepage.vue'
 import PickMaterial from './PickMaterial.vue'
 import SetOptions from './SetOptions.vue'
 import Toolbar from './Toolbar.vue'
+import WalletSelector from './WalletSelector.vue';
 
 import { populate } from '../getter.js'
 </script>
@@ -16,6 +17,7 @@ import { populate } from '../getter.js'
   <Homepage/>
   <SetOptions/>
   <Toolbar/>
+  <WalletSelector/>
 </template>
 
 <script lang="ts">
