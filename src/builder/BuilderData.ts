@@ -1,14 +1,24 @@
 import { Ref, ref, reactive, watchEffect } from 'vue'
-import { BriqsDB } from './BriqsDB';
+import { Briq, BriqsDB } from './BriqsDB';
 import { SetData } from './SetData';
 
+import { fetchData } from '../url'
+
 import { builderDataEvents, BuilderDataEvent } from './BuilderDataEvents'
+
+import { contractStore } from '../Wallet'
+
+import BriqContract from '../contracts/briq'
 
 export class BuilderData
 {
     wipSets: Array<SetData>;
     currentSet: SetData;
     BriqsDB: BriqsDB;
+
+    briqContract: BriqContract | undefined;
+    //setContract: ;
+
     constructor()
     {
         this.BriqsDB = new BriqsDB();
@@ -31,6 +41,17 @@ export class BuilderData
         if (!this.wipSets.length)
             this.newSet();
         this.currentSet = this.wipSets[0];
+        
+        fetchData("contract_addresses").then(async x => {
+            this.briqContract = new BriqContract(x.briq, contractStore.provider);
+            //this.set_address = x.set;
+
+            if (contractStore.userWalletAddress)
+            {
+                let bricks = await this.briqContract.get_all_tokens_for_owner(contractStore.userWalletAddress);
+                builderData.BriqsDB.parseChainData(bricks.bricks as string[]);
+            }
+        })
     }
 
     newSet(): SetData

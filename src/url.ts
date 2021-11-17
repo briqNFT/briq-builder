@@ -8,16 +8,17 @@ export default function getBaseUrl()
 }
 
 var baseUrl = getBaseUrl();
-export async function fetchData(endpoint: string, body: object = {}): Promise<any>
+export async function fetchData(endpoint: string, body?: object): Promise<any>
 {
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
     var dat: RequestInit = {
-        method: "POST",
+        method: body ? "POST" : "GET",
         headers: headers,
-        mode: "cors",
-        body: JSON.stringify(body)
+        mode: "cors"
     };
+    if (body)
+        dat.body = JSON.stringify(body);
     return fetch(`${baseUrl}/${endpoint}`, dat)
         .then(x => x.json())
 }

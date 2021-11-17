@@ -46,6 +46,8 @@ import { adminStore, isOk } from '../Admin'
 
 import { voxWorld } from '../builder.js'
 
+import { builderData } from '../builder/BuilderData'
+
 import getBaseUrl from '../url'
 var base_url = getBaseUrl();
 
@@ -90,6 +92,9 @@ export default defineComponent({
         },
         doMint: async function() {
             this.minting = "minting";
+
+            console.log(await builderData.briqContract?.mint_multiple(this.mint_material, parseInt(this.mint_token, 16), this.mint_nb));
+            /*
             var headers = new Headers();
             headers.append("Content-Type", "application/json");
             var data = {
@@ -105,6 +110,7 @@ export default defineComponent({
             fetch(`${base_url}/mint_bricks/${parseInt(this.owner.substr(2), 16)}`, data)
                 .then(x => x.json())
                 .then(x => this.minting = false).catch(x => this.minting = "ready" && console.log(x))
+            */
         },
         doExport: async function() {
             var ret = {};

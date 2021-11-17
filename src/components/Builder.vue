@@ -4,8 +4,6 @@ import PickMaterial from './PickMaterial.vue'
 import SetOptions from './SetOptions.vue'
 import Toolbar from './Toolbar.vue'
 import WalletSelector from './WalletSelector.vue';
-
-import { populate } from '../getter.js'
 </script>
 
 <template>
@@ -25,12 +23,13 @@ import { reactive } from 'vue'
 
 import { builderDataEvents, BuilderDataEvent } from '../builder/BuilderDataEvents'
 
-populate()
 export default {
   data() {
     return {
       isModalVisible: false,
     };
+  },
+  created: function() {
   },
   mounted: function() {
     builderDataEvents.push(new BuilderDataEvent("change_set"));

@@ -1,7 +1,7 @@
-import { reactive } from 'vue'
+import { reactive, watchEffect } from 'vue'
 
-import { defaultProvider } from 'starknet';
-import type { Signer, Provider } from 'starknet';
+import { defaultProvider, Provider } from 'starknet';
+import type { Signer } from 'starknet';
 
 export var contractStore = reactive({
     signer: null as null | Signer,
@@ -11,8 +11,32 @@ export var contractStore = reactive({
     userWalletAddress: "",
 });
 
-// Get the contract address on Goerli testnet.
-defaultProvider.getContractAddresses().then((data) => { contractStore.goerliAddress = data.Starknet; });
+
+if (window.localStorage.getItem("user_address"))
+    contractStore.userWalletAddress = window.localStorage.getItem("user_address")!;
+
+watchEffect(() => {
+    // TODO: switch to IDB
+    window.localStorage.setItem("user_address", contractStore.userWalletAddress);
+});
+
+
+var localProvider = new Provider({});
+localProvider.baseUrl = "http://localhost:4999";
+localProvider.feederGatewayUrl = `${localProvider.baseUrl}/feeder_gateway`;
+localProvider.gatewayUrl = `${localProvider.baseUrl}/gateway`;
+localProvider = new Provider(localProvider);
+
+// Attempt to connect to the local network
+localProvider.getContractAddresses().then((data) => {
+    // Assume we want to use the local provider instead.
+    contractStore.provider = localProvider;
+    contractStore.goerliAddress = data.Starknet;
+    console.log("Switching to local provider");
+}).catch(_ => {
+    // Get the contract address on Goerli testnet.
+    defaultProvider.getContractAddresses().then((data) => { contractStore.goerliAddress = data.Starknet; });
+})
 
 import ManualWallet from './wallets/ManualWallet'
 import ArgentXWallet from './wallets/ArgentX'

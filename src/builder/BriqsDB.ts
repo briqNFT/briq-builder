@@ -1,3 +1,4 @@
+import { json } from "starknet";
 import { reactive } from "vue";
 
 function pseudoGUID()
@@ -63,13 +64,14 @@ export class BriqsDB
         return cell;
     }
 
-    parseChainData(jsonResponse: any)
+    parseChainData(jsonResponse: string[])
     {
-        jsonResponse.map((y: any) => {
-            let briq = new Briq(parseInt(y[0], 16), +y[1], +y[2]);
+        for (let i = 0; i < jsonResponse.length / 3; ++i)
+        {
+            let briq = new Briq(parseInt(jsonResponse[i*3 + 0], 16), parseInt(jsonResponse[i*3 + 1], 16), parseInt(jsonResponse[i*3 + 2], 16));
             briq.onChain = true;
             this.briqs.set(briq.id, briq);
-        })
+        }
     }
 
     get(id: number): Briq | undefined
