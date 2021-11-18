@@ -3,7 +3,8 @@ import { pickerData, nbMaterial, materialData } from '../materials.js'
 import { BriqsDB } from '../builder/BriqsDB'
 var materialIndex = Object.keys(materialData);
 
-var getColor = function (mat, i){
+var getColor = function(mat, i)
+{
     var matData=materialData[mat];
     if (i == pickerData.material){
         return {'border': '5px solid red', 'background-color': 'rgba('+matData.color[0] +','+matData.color[1] +','+matData.color[2] +','+matData.transparency/255 +')'}    
@@ -14,20 +15,20 @@ var getColor = function (mat, i){
 </script>
 
 <template>
-<div>
-    <div class="button_selector">
-        <div class="selector" v-for="i in nbMaterial" :key="i">
-            <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(i) }}</button>
+    <div>
+        <div class="button_selector">
+            <div class="selector" v-for="i in nbMaterial" :key="i">
+                <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(i) }}</button>
+            </div>
         </div>
+        <p>Editing set {{ builderDataStore.currentSet.id }}</p>
+        <template v-if="builderData.BriqsDB.briqs.size">
+            <p>{{ builderData.BriqsDB.briqs.size }} briqs loaded!</p>
+        </template>
+        <template v-else="">
+            <p>...Briqs are loading...</p>
+        </template>
     </div>
-    <p>Editing set {{ builderData.currentSet.id }}</p>
-    <template v-if="builderData.BriqsDB.briqs.size">
-        <p>{{ builderData.BriqsDB.briqs.size }} briqs loaded!</p>
-    </template>
-    <template v-else="">
-        <p>...Briqs are loading...</p>
-    </template>
-</div>
 </template>
 
 <script lang="ts">
@@ -38,6 +39,9 @@ export default defineComponent({
         return {
             builderData: builderData
         }
+    },
+    computed: {
+        builderDataStore: function() { return this.$store.state.builderData; },
     },
     methods:
     {

@@ -6,6 +6,8 @@ import { previewCube } from '../../PreviewCube'
 
 import { builderData } from '../BuilderData'
 
+import { store } from '../../store/Store'
+
 import * as THREE from 'three'
 
 export class PlacerInput extends BuilderInputState
@@ -87,7 +89,9 @@ export class PlacerInput extends BuilderInputState
             const pos: [number, number, number] = intersection.position.map((v, ndx) => {
                 return Math.floor(v + intersection.normal[ndx] * (removing ? -0.5 : 0.5));
             });
-            builderData.currentSet.placeBriq(...pos, voxelId);
+
+            store.dispatch("builderData/place_briq", { pos: pos, voxelId: voxelId });
+            //builderData.currentSet.placeBriq(...pos, voxelId);
         }
     }
 }

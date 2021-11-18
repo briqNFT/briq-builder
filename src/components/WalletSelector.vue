@@ -35,7 +35,7 @@ import { toBN } from 'starknet/utils/number';
 import { getKeyPair } from 'starknet/utils/ellipticCurve';
 import { Signer } from 'starknet';
 
-import { contractStore, getPotentialWallets} from '../Wallet'
+import { contractStore, getPotentialWallets } from '../Wallet'
 
 import { ref } from 'vue'
 export var openSelector = ref(false);
@@ -66,7 +66,10 @@ export default defineComponent({
             {
                 await wallet.enable(this.contractStore);
                 if (this.contractStore.isConnected)
+                {
+                    this.$store.dispatch("builderData/set_signer", this.contractStore.signer);
                     this.step = "success";
+                }
                 else
                     throw new Error("Could not connect to Argent-X wallet with address " + this.contractStore.userWalletAddress);
             }

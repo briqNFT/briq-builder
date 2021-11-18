@@ -110,6 +110,17 @@ export class SetData
         });
     }
 
+    getAt(x: number, y: number, z: number): Briq | undefined
+    {
+        let [regionId, cellId] = this.computeIDs(x, y, z);
+        if (!this.briqs.has(regionId))
+            return;
+        let briqId = this.briqs.get(regionId)!.get(cellId);
+        if (!briqId)
+            return;
+        return this.briqsDB.get(briqId);
+    }
+
     placeBriq(x: number, y: number, z: number, cellKind: number, briq?: number): boolean
     {
         if (cellKind > 0)

@@ -2,6 +2,7 @@
 import Homepage from './Homepage.vue'
 import PickMaterial from './PickMaterial.vue'
 import SetOptions from './SetOptions.vue'
+import MenuBar from './MenuBar.vue'
 import Toolbar from './Toolbar.vue'
 import WalletSelector from './WalletSelector.vue';
 </script>
@@ -12,6 +13,7 @@ import WalletSelector from './WalletSelector.vue';
     <h2>Seize the briqs of construction</h2>
     <PickMaterial/>
   </div>
+  <MenuBar/>
   <Homepage/>
   <SetOptions/>
   <Toolbar/>

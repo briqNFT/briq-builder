@@ -34,8 +34,15 @@ localProvider.getContractAddresses().then((data) => {
     contractStore.goerliAddress = data.Starknet;
     console.log("Switching to local provider");
 }).catch(_ => {
+    let prov = new Provider({});
+    prov.baseUrl = "https://alpha4.starknet.io";
+    prov.feederGatewayUrl = `${prov.baseUrl}/feeder_gateway`;
+    prov.gatewayUrl = `${prov.baseUrl}/gateway`;
+    prov = new Provider(prov);
+    console.log(prov);
     // Get the contract address on Goerli testnet.
-    defaultProvider.getContractAddresses().then((data) => { contractStore.goerliAddress = data.Starknet; });
+    prov.getContractAddresses().then((data) => { contractStore.goerliAddress = data.Starknet; });
+    contractStore.provider = prov;
 })
 
 import ManualWallet from './wallets/ManualWallet'

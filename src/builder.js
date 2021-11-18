@@ -12,8 +12,11 @@ export var builderInputFsm = new BuilderInputFSM();
 
 export var voxWorld;
 
-import { builderData } from "./builder/BuilderData"
+import { store } from "./store/Store"
+//import { builderData } from "./builder/BuilderData"
 import { builderDataEvents } from "./builder/BuilderDataEvents"
+
+let builderData = store.state.builderData;
 
 var camera;
 

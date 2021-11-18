@@ -10,9 +10,10 @@
   "dependencies": {
     "@types/three": "^0.134.0",
     "json-bigint": "git+https://github.com/S-L-Technologies/json-bigint.git#fix-ts",
-    "starknet": "^1.6",
+    "starknet": "^2.0.1",
     "vue": "^3.2.16",
-    "vue-router": "^4.0.12"
+    "vue-router": "^4.0.12",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",

@@ -42,6 +42,7 @@ export default class ArgentXWallet extends IWallet
         await swo.enable();
         if (swo.isConnected)
         {
+            console.log("Connected - ", swo.provider, swo.signer);
             contractStore.isConnected = true;
             contractStore.provider = swo.provider;
             contractStore.userWalletAddress = swo.signer!.address;

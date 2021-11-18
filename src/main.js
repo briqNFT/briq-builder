@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import { createWebHistory, createRouter } from "vue-router";
 import App from './App.vue'
 
+import { store } from './store/Store'
+
 // Pages
 import Builder from './components/Builder.vue'
 import Legal from './components/Legal.vue'
@@ -30,4 +32,4 @@ const router = createRouter({
   routes,
 });
 
-createApp(App).use(router).mount('#app')
+createApp(App).use(router).use(store).mount('#app')

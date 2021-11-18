@@ -4,7 +4,7 @@ import { toBN } from 'starknet/utils/number';
 import { contractStore } from '../Wallet'
 import { AddTransactionResponse } from 'starknet';
 
-import { Args, Contract, Provider } from 'starknet';
+import { Args, Contract, Provider, Signer } from 'starknet';
 
 import BriqABI from './briq_abi.json'
 
@@ -44,6 +44,6 @@ export default class BriqContract extends Contract
 
     async mint_multiple(material: number, token_start: number, nb: number): Promise<AddTransactionResponse>
     {
-        return await this.invoke("mint_multiple", { material: "" + material, token_start: "" + token_start, nb: "" + nb });
+        return await this.invoke("mint_multiple", { owner: (this.provider as Signer).address, material: "" + material, token_start: "" + token_start, nb: "" + nb });
     }
 }
