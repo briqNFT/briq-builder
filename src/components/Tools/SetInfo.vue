@@ -27,17 +27,14 @@ export default defineComponent({
             this.$store.dispatch("builderData/delete_wip_set", this.set.id);
         },
         swapReal: function() {
-            this.set.swapForRealBriqs(this.$store.state.builderData.briqsDB);
+            this.$store.dispatch("builderData/swap_for_real_briqs", this.set.id);
         },
         resetBriqs: function() {
-            this.set.swapForFakeBriqs();
+            this.$store.dispatch("builderData/swap_for_fake_briqs", this.set.id);
         },
-        makeCopy: function() {
+        makeCopy: async function() {
             let data = this.set.serialize();
-            let set = this.$store.state.builderData.newSet();
-            data.id = set.id;
-            set.deserialize(data);
-            set.name += " Copy";
+            let set =  await this.$store.dispatch("builderData/create_wip_set", { ...data, id: Date.now(), name: data.name + " Copy" });
         },
         doExport: function() {
             try

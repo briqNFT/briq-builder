@@ -46,14 +46,14 @@ const material = new THREE.MeshLambertMaterial({
 });
 
 function generateGrid() {
-  var gridXZ = new THREE.GridHelper(cellSize*2+1, cellSize*2+1, 0xffff00, 0xffff00);
+  var gridXZ = new THREE.GridHelper(cellSize*2+1, cellSize*2+1, 0x333333, 0x333333);
   gridXZ.position.set(1/2, 0, 1/2);
   return gridXZ;
 }
 
 function generatePlane(){
   var geometry = new THREE.PlaneBufferGeometry(cellSize*2+1, cellSize*2+1);
-  var material = new THREE.MeshPhongMaterial( {color: 0x009624, side: THREE.DoubleSide });
+  var material = new THREE.MeshPhongMaterial( {color: 0x209634, side: THREE.DoubleSide });
   var planeXZ = new THREE.Mesh(geometry, material);
   planeXZ.receiveShadow = true ;
   planeXZ.position.set(1/2, 0, 1/2);
@@ -71,7 +71,7 @@ import daylight_Right from '../../assets/skybox/Daylight-Box_Right.jpg'
 import daylight_Top from '../../assets/skybox/Daylight-Box_Top.jpg'
 
 export  function main(canvas) {
-  const renderer = new THREE.WebGLRenderer({canvas});
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   
@@ -116,12 +116,12 @@ generateSkybox()
     lightSpot.shadow.camera.right=cellSize*2;
     lightSpot.shadow.camera.bottom=-cellSize;
     lightSpot.shadow.camera.top=cellSize*3;
+    scene.add(lightSpot);
 
     //scene.add(new THREE.CameraHelper(lightSpot.shadow.camera));
 
     const ambientLight = new THREE.AmbientLight(color, 0.7);
     scene.add(ambientLight);
-    scene.add(lightSpot);
   }
   addLight(-1*5,  2*5,  -3*5);
 

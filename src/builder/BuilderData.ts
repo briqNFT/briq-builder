@@ -99,6 +99,94 @@ export var builderDataStore = (() => {
             briqsDB: briqsDB,
             briqContract: undefined as BriqContract | undefined,
         }),
+        actions: {
+            initialize: {
+                root: true,
+                handler: ({ state, dispatch, commit, getters }: any) => {
+                    for (let [sid, setData] of Object.entries(window.localStorage))
+                    {
+                        if (!sid.startsWith("briq_set"))
+                            continue;
+                        try
+                        {
+                            let data = JSON.parse(setData);
+                            //let set = new SetData(data.id, state.briqsDB).deserialize();
+                            dispatch("create_wip_set", data) //this.wipSets.push(set);
+                        }
+                        catch (e)
+                        {
+                            console.info("Could not parse stored set", sid, "error:", e)
+                            window.localStorage.removeItem(sid);
+                        };
+                    }
+                    if (state.wipSets.length > 1)
+                        dispatch("delete_wip_set", state.wipSets[0].id);
+                    //if (!state.wipSets.length)
+                    //    dispatch("create_wip_set")
+                    //    this.newSet();
+                    dispatch("select_set", state.wipSets[0]);
+                    //this.currentSet = this.wipSets[0];
+
+                    watchEffect(() => {
+                        // TODO: switch to IDB
+                        window.localStorage.setItem("briq_set_" + state.currentSet.id, JSON.stringify(state.currentSet.serialize()));
+                    });
+                    
+
+                    fetchData("contract_addresses").then(async x => {
+                        commit("set_briq_contract", x.briq);
+                        //this.briqContract = new BriqContract(x.briq, contractStore.provider);
+                        //this.set_address = x.set;
+            
+                        if (contractStore.userWalletAddress)
+                            dispatch("get_briqs");
+                            //let bricks = await this.briqContract.get_all_tokens_for_owner(contractStore.userWalletAddress);
+                            //builderData.BriqsDB.parseChainData(bricks.bricks as string[]);
+                    })
+                },
+            },
+            create_wip_set({ commit, state }: any, data: any)
+            {
+                commit("create_wip_set", data);
+                return state.wipSets[state.wipSets.length - 1];
+            },
+            delete_wip_set({ commit, dispatch, state }: any, data: any)
+            {
+                commit("delete_wip_set", data);
+                window.localStorage.removeItem("briq_set_" + data);
+                if (!state.wipSets.length)
+                    dispatch("create_wip_set")
+                // TODO: only change if necessary
+                dispatch("select_set", state.wipSets[0]);
+            },
+            select_set({ commit }: any, data: any)
+            {
+                commit("select_set", data);
+            },
+            async get_briqs({ commit, state }: any)
+            {
+                let bricks = await state.briqContract.get_all_tokens_for_owner(contractStore.userWalletAddress);
+                commit("set_briqs", bricks);
+            },
+            place_briq: ({ commit }: any, data: any) => {
+                commit("place_briq", data);
+            },
+            undo_place_briq: ({ commit }: any, data: any) => {
+                commit("undo_place_briq", data);        
+            },
+            set_signer({ commit }: any, data: any )
+            {
+                commit("set_signer", data);
+            },
+            swap_for_real_briqs({ commit }: any)
+            {
+                commit("swap_for_real_briqs");
+            },
+            swap_for_fake_briqs({ commit }: any)
+            {
+                commit("swap_for_fake_briqs");
+            },
+        },
         mutations: {
             create_wip_set(state: any, data: any)
             {
@@ -151,84 +239,13 @@ export var builderDataStore = (() => {
                 dispatchBuilderAction("place_briq", { pos: data.payload.pos, voxelId: data?.undoData?.briq?.material ?? 0 });
                 //state.currentSet.placeBriq(...data.pos, data.voxelId);
             },
-        },
-        actions: {
-            initialize: {
-                root: true,
-                handler: ({ state, dispatch, commit, getters }: any) => {
-                    for (let [sid, setData] of Object.entries(window.localStorage))
-                    {
-                        if (!sid.startsWith("briq_set"))
-                            continue;
-                        try
-                        {
-                            let data = JSON.parse(setData);
-                            //let set = new SetData(data.id, state.briqsDB).deserialize();
-                            dispatch("create_wip_set", data) //this.wipSets.push(set);
-                        }
-                        catch (e)
-                        {
-                            console.info("Could not parse stored set", sid, "error:", e)
-                            window.localStorage.removeItem(sid);
-                        };
-                    }
-                    if (state.wipSets.length > 1)
-                        dispatch("delete_wip_set", state.wipSets[0].id);
-                    //if (!state.wipSets.length)
-                    //    dispatch("create_wip_set")
-                    //    this.newSet();
-                    dispatch("select_set", state.wipSets[0]);
-                    //this.currentSet = this.wipSets[0];
-
-                    watchEffect(() => {
-                        // TODO: switch to IDB
-                        window.localStorage.setItem("briq_set_" + state.currentSet.id, JSON.stringify(state.currentSet.serialize()));
-                    });
-                    
-
-                    fetchData("contract_addresses").then(async x => {
-                        commit("set_briq_contract", x.briq);
-                        //this.briqContract = new BriqContract(x.briq, contractStore.provider);
-                        //this.set_address = x.set;
-            
-                        if (contractStore.userWalletAddress)
-                            dispatch("get_briqs");
-                            //let bricks = await this.briqContract.get_all_tokens_for_owner(contractStore.userWalletAddress);
-                            //builderData.BriqsDB.parseChainData(bricks.bricks as string[]);
-                    })
-                },
-            },
-            create_wip_set({ commit }: any, data: any)
+            swap_for_real_briqs(state: any)
             {
-                commit("create_wip_set", data);
+                state.currentSet.swapForRealBriqs(state.briqsDB);
             },
-            delete_wip_set({ commit, dispatch, state }: any, data: any)
+            swap_for_fake_briqs(state: any)
             {
-                commit("delete_wip_set", data);
-                window.localStorage.removeItem("briq_set_" + data);
-                if (!state.wipSets.length)
-                    dispatch("create_wip_set")
-                // TODO: only change if necessary
-                dispatch("select_set", state.wipSets[0]);
-            },
-            select_set({ commit }: any, data: any)
-            {
-                commit("select_set", data);
-            },
-            async get_briqs({ commit, state }: any)
-            {
-                let bricks = await state.briqContract.get_all_tokens_for_owner(contractStore.userWalletAddress);
-                commit("set_briqs", bricks);
-            },
-            set_signer({ commit }: any, data: any )
-            {
-                commit("set_signer", data);
-            },
-            place_briq: ({ commit }: any, data: any) => {
-                commit("place_briq", data);
-            },
-            undo_place_briq: ({ commit }: any, data: any) => {
-                commit("undo_place_briq", data);        
+                state.currentSet.swapForFakeBriqs();
             },
         },
         getters: {},
