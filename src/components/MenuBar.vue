@@ -21,11 +21,12 @@ export default defineComponent({
     top: 1rem;
     width: 100vw;
     display:flex;
+    padding: 0 5rem 0 5rem;
 }
 
 .toolButton {
-    width:5rem;
-    height:5rem;
+    width:4rem;
+    height:4rem;
     background:#ee7722;
     border-radius:1rem;
     padding:0.3rem;

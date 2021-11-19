@@ -8,7 +8,8 @@ var isProd = import.meta.env.PROD;
 </script>
 
 <template>
-    <div class="toolbar">
+    <div :class="{ toolbar: true, shouldShow: shouldShow || !showOnHover }">
+        <button style="position:absolute; top:0; right:0;" @click="showOnHover = !showOnHover">{{ showOnHover ? "Always show" : "Show when hovering" }}</button>
         <Wallet/>
         <SetInfo/>
         <WipSets/>
@@ -18,7 +19,13 @@ var isProd = import.meta.env.PROD;
 
 <script lang="ts">
 import { defineComponent } from "vue";
-export default defineComponent({ 
+export default defineComponent({
+    data() {
+        return {
+            showOnHover: false
+        };
+    },
+    props: ["shouldShow"]
 });
 </script>
 
@@ -32,11 +39,15 @@ export default defineComponent({
 
     position: fixed;
     top: 0;
-    right: 0;
+    right: -300px;
     width: 300px;
     height: 100vh;
     background: rgba(0, 0, 0, 0.1);
     border-left: 1px solid gray;
+}
+.toolbar.shouldShow
+{
+    right: 0;
 }
 .toolbar > div
 {
