@@ -20,9 +20,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { isOk } from '../Admin'
-import { builderData } from '../builder/BuilderData'
 
-import { voxWorld } from '../builder.js'
+import { voxWorld } from '../builder/graphics/builder.js'
 import { pickerData } from '../materials.js'
 
 import getBaseUrl from '../url'
@@ -86,17 +85,17 @@ export default defineComponent({
         doImport: async function(setId) {
             fetchData("store_get/" + setId)
                 .then(x => {
-                    let set = builderData.newSet();
+                    let set = this.$store.state.builderData.newSet();
                     set.id = setId;
                     x.data.id = setId;
-                    builderData.currentSet.deserialize(x.data);
+                    this.$store.state.builderData.currentSet.deserialize(x.data);
                     //builderData.currentSet.swapForFakeBriqs();
                     //builderData.currentSet.name = "Der " + setId;
                 }).catch(x => console.log(x))
         },
         doDisassemble: async function(setId) {
             let bricks = []
-            for (const brick of builderData.BriqsDB.briqs.values())
+            for (const brick of this.$store.state.builderData.briqsDB.briqs.values())
             {
                 if (brick.set == setId)
                     bricks.push(brick.id)

@@ -1,20 +1,21 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js';
 
-import { texture, tileSize, tileTextureHeight, nbMaterial } from './materials.js'
+import { texture, tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
 
 const cellSize = 5;
 
 import VoxelWorld from './VoxelWorld';
-import { BuilderInputFSM } from './builder/inputs/BuilderInput';
+import { BuilderInputFSM } from '../inputs/BuilderInput';
 
 export var builderInputFsm = new BuilderInputFSM();
 
 export var voxWorld;
 
-import { store } from "./store/Store"
+import { store } from "../../store/Store"
 //import { builderData } from "./builder/BuilderData"
-import { builderDataEvents } from "./builder/BuilderDataEvents"
+import { builderDataEvents } from "../BuilderDataEvents"
+import { dispatchedActions } from './dispatch'
 
 let builderData = store.state.builderData;
 
@@ -62,12 +63,12 @@ function generatePlane(){
 
 import { previewCube } from './PreviewCube'
 
-import daylight_Back from './assets/skybox/Daylight-Box_Back.jpg'
-import daylight_Bottom from './assets/skybox/Daylight-Box_Bottom.jpg'
-import daylight_Front from './assets/skybox/Daylight-Box_Front.jpg'
-import daylight_Left from './assets/skybox/Daylight-Box_Left.jpg'
-import daylight_Right from './assets/skybox/Daylight-Box_Right.jpg'
-import daylight_Top from './assets/skybox/Daylight-Box_Top.jpg'
+import daylight_Back from '../../assets/skybox/Daylight-Box_Back.jpg'
+import daylight_Bottom from '../../assets/skybox/Daylight-Box_Bottom.jpg'
+import daylight_Front from '../../assets/skybox/Daylight-Box_Front.jpg'
+import daylight_Left from '../../assets/skybox/Daylight-Box_Left.jpg'
+import daylight_Right from '../../assets/skybox/Daylight-Box_Right.jpg'
+import daylight_Top from '../../assets/skybox/Daylight-Box_Top.jpg'
 
 export  function main(canvas) {
   const renderer = new THREE.WebGLRenderer({canvas});
@@ -180,6 +181,25 @@ generateSkybox()
 
     controls.update();
 
+    for (let item of dispatchedActions)
+    {
+      if (item.action === "select_set")
+      {
+        voxWorld.reset();
+        for (let cell of item.payload)
+        {
+          voxWorld.setVoxel(...cell.pos, cell.material)
+          voxWorld.updateVoxelGeometry(...cell.pos);
+        }
+      }
+      else if (item.action === "place_briq")
+      {
+        voxWorld.setVoxel(...item.payload.pos, item.payload.voxelId)
+        voxWorld.updateVoxelGeometry(...item.payload.pos);
+      }
+    }
+    dispatchedActions.length = 0;
+    /*
     for (let event of builderDataEvents)
     {
       if (event.type === "change_set")
@@ -208,6 +228,8 @@ generateSkybox()
       }
     }
     builderDataEvents.length = 0;
+    */
+    
 
     renderer.render(scene, camera);
     requestAnimationFrame(render);

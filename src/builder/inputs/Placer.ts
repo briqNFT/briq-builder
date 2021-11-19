@@ -1,10 +1,8 @@
-import { getCameraRay, voxWorld } from "../../builder.js"
+import { getCameraRay, voxWorld } from "../graphics/builder.js"
 import { pickerData } from "../../materials.js"
 
 import { BuilderInputState } from './BuilderInput';
-import { previewCube } from '../../PreviewCube'
-
-import { builderData } from '../BuilderData'
+import { previewCube } from '../graphics/PreviewCube'
 
 import { store } from '../../store/Store'
 
@@ -57,7 +55,7 @@ export class PlacerInput extends BuilderInputState
             {
                 previewCube.visible = true;
                 previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-                if (Math.abs(pos[0]) <= builderData.currentSet.regionSize / 2 && Math.abs(pos[2]) <= builderData.currentSet.regionSize / 2)
+                if (Math.abs(pos[0]) <= store.state.builderData.currentSet.regionSize / 2 && Math.abs(pos[2]) <= store.state.builderData.currentSet.regionSize / 2)
                     (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x002496);
                 else
                     (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);

@@ -2,14 +2,16 @@ import { Ref, ref, reactive, watchEffect } from 'vue'
 import { Briq, BriqsDB } from './BriqsDB';
 import { SetData } from './SetData';
 
+import { registerUndoableAction } from "./UndoRedo"
+
 import { fetchData } from '../url'
 
-import { builderDataEvents, BuilderDataEvent } from './BuilderDataEvents'
+import { dispatchBuilderAction } from "./graphics/dispatch"
 
 import { contractStore } from '../Wallet'
 
 import BriqContract from '../contracts/briq'
-
+/*
 export class BuilderData
 {
     wipSets: Array<SetData>;
@@ -83,14 +85,11 @@ export class BuilderData
 }
 
 export var builderData = reactive(new BuilderData());
-
-watchEffect(() => {
-    // TODO: switch to IDB
-    window.localStorage.setItem("briq_set_" + builderData.currentSet.id, JSON.stringify(builderData.currentSet.serialize()));
-});
+*/
 
 let briqsDB = new BriqsDB();
 let initSet = new SetData(Date.now(), briqsDB);
+
 export var builderDataStore = (() => {
     return {
         namespaced: true,
@@ -103,14 +102,23 @@ export var builderDataStore = (() => {
         mutations: {
             create_wip_set(state: any, data: any)
             {
-                let set = new SetData(Date.now(), state.briqsDB);
+                let set = new SetData(data?.id ?? Date.now(), state.briqsDB);
                 if (data)
                     set.deserialize(data);
                 state.wipSets.push(set);
             },
+            delete_wip_set(state: any, data: any)
+            {
+                let idx = state.wipSets.findIndex(x => x.id === data);
+                state.wipSets.splice(idx, 1);
+            },
             select_set(state: any, data: any)
             {
-                state.currentSet = data;
+                if (data instanceof SetData)
+                    state.currentSet = data;
+                else
+                    state.currentSet = state.wipSets.filter(x => x.id === data)[0];
+                dispatchBuilderAction("select_set", state.currentSet);
             },
             set_briq_contract(state: any, data: any)
             {
@@ -127,6 +135,7 @@ export var builderDataStore = (() => {
             place_briq(state: any, data: any)
             {
                 state.currentSet.placeBriq(...data.pos, data.voxelId);
+                dispatchBuilderAction("place_briq", data);
             },
             undo_place_briq(state: any, data: any)
             {
@@ -139,6 +148,7 @@ export var builderDataStore = (() => {
                 {
                     state.currentSet.placeBriq(...data.payload.pos, 0);   
                 }
+                dispatchBuilderAction("place_briq", { pos: data.payload.pos, voxelId: data?.undoData?.briq?.material ?? 0 });
                 //state.currentSet.placeBriq(...data.pos, data.voxelId);
             },
         },
@@ -158,14 +168,23 @@ export var builderDataStore = (() => {
                         }
                         catch (e)
                         {
+                            console.info("Could not parse stored set", sid, "error:", e)
                             window.localStorage.removeItem(sid);
                         };
                     }
+                    if (state.wipSets.length > 1)
+                        dispatch("delete_wip_set", state.wipSets[0].id);
                     //if (!state.wipSets.length)
                     //    dispatch("create_wip_set")
                     //    this.newSet();
                     dispatch("select_set", state.wipSets[0]);
                     //this.currentSet = this.wipSets[0];
+
+                    watchEffect(() => {
+                        // TODO: switch to IDB
+                        window.localStorage.setItem("briq_set_" + state.currentSet.id, JSON.stringify(state.currentSet.serialize()));
+                    });
+                    
 
                     fetchData("contract_addresses").then(async x => {
                         commit("set_briq_contract", x.briq);
@@ -183,6 +202,15 @@ export var builderDataStore = (() => {
             {
                 commit("create_wip_set", data);
             },
+            delete_wip_set({ commit, dispatch, state }: any, data: any)
+            {
+                commit("delete_wip_set", data);
+                window.localStorage.removeItem("briq_set_" + data);
+                if (!state.wipSets.length)
+                    dispatch("create_wip_set")
+                // TODO: only change if necessary
+                dispatch("select_set", state.wipSets[0]);
+            },
             select_set({ commit }: any, data: any)
             {
                 commit("select_set", data);
@@ -197,7 +225,7 @@ export var builderDataStore = (() => {
                 commit("set_signer", data);
             },
             place_briq: ({ commit }: any, data: any) => {
-                commit("place_briq", data);        
+                commit("place_briq", data);
             },
             undo_place_briq: ({ commit }: any, data: any) => {
                 commit("undo_place_briq", data);        
@@ -206,3 +234,36 @@ export var builderDataStore = (() => {
         getters: {},
     };
 })();
+
+registerUndoableAction("builderData/place_briq", "builderData/undo_place_briq", {
+    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
+        let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos);
+        if (cell)
+            transientActionState.cell = cell;
+    },
+    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
+        store.dispatch("push_command_to_history", {
+            action: "builderData/place_briq",
+            redoData: payload,
+            undoData: {
+                payload,
+                undoData: {
+                    briq: (transientActionState.cell as Briq)?.serialize() ?? null
+                }
+            }
+        });
+    }
+});
+
+registerUndoableAction("builderData/select_set", "builderData/select_set", {
+    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
+        transientActionState.set = state.builderData.currentSet.id;
+    },
+    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
+        store.dispatch("push_command_to_history", {
+            action: "builderData/select_set",
+            redoData: payload,
+            undoData: transientActionState.set,
+        });
+    }
+});

@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts">
-import { builderInputFsm, main } from "../builder.js"
+import { builderInputFsm, main } from "../builder/graphics/builder.js"
 
 import { PlacerInput } from '../builder/inputs/Placer'
 

@@ -39,7 +39,6 @@ localProvider.getContractAddresses().then((data) => {
     prov.feederGatewayUrl = `${prov.baseUrl}/feeder_gateway`;
     prov.gatewayUrl = `${prov.baseUrl}/gateway`;
     prov = new Provider(prov);
-    console.log(prov);
     // Get the contract address on Goerli testnet.
     prov.getContractAddresses().then((data) => { contractStore.goerliAddress = data.Starknet; });
     contractStore.provider = prov;

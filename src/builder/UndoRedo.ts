@@ -1,43 +1,35 @@
-import { Briq } from "./BriqsDB";
-import { SetData } from "./SetData";
+type Hook = (localData: any, payload: any, state: any) => void;
 
-const undoActions = {
-    "builderData/place_briq": "builderData/undo_place_briq",
+const undoActions: { [key: string]: string } = {};
+const onBefore: { [key: string]: Hook } = {};
+const onAfter: { [key: string]: Hook } = {};
+
+export function registerUndoableAction(action: string, undoAction: string, hooks: { onBefore?: Hook, onAfter?: Hook })
+{
+    undoActions[action] = undoAction;
+    if (hooks.onBefore)
+        onBefore[action] = hooks.onBefore;
+    if (hooks.onAfter)
+        onAfter[action] = hooks.onAfter;
 }
 
 export const UndoRedo = (store: any) => {
     let transientActionState: any = {};
-
-    const onBefore = {
-        "builderData/place_briq": (payload: any, state: any) => {
-            let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos);
-            if (cell)
-                transientActionState.cell = cell;
-        }
-    };
-    const onAfter = {
-        "builderData/place_briq": (payload: any, state: any) => {
-            store.dispatch("push_command_to_history", {
-                action: "builderData/place_briq",
-                payload: { ...payload, _replay: true },
-                undoData: {
-                    briq: (transientActionState.cell as Briq)?.serialize() ?? null
-                }
-            });
-        }
-    };
-
     store.subscribeAction({
         before: (action: any, state: any) => {
-            if (!(action.type in onBefore) || action.payload._replay)
+            if (action.type === "undo_history" || action.type === "redo_history")
+                store.dispatch("redoing", true);
+            if (state.undoRedo.redoing || !(action.type in onBefore))
                 return;
             transientActionState = {};
-            onBefore[action.type](action.payload, state);
+            onBefore[action.type]({ transientActionState, store }, action.payload, state);
         },
         after: (action: any, state: any) => {
-            if (!(action.type in onAfter) || action.payload._replay)
+            if (action.type === "undo_history" || action.type === "redo_history")
+                store.dispatch("redoing", false);
+            if (state.undoRedo.redoing || !(action.type in onAfter))
                 return;
-            onAfter[action.type](action.payload, state);
+            onAfter[action.type]({ transientActionState, store }, action.payload, state);
         }
     })
 }
@@ -46,25 +38,34 @@ export const undoRedoStore = {
     state: {
         command_history: [],
         command_index: -1,
+        redoing: false,
     },
     actions: {
-        push_command_to_history: ({ commit }: any, data: any) => {
-            commit("push_command_to_history", data);
+        push_command_to_history: ({ state, commit }: any, data: any) => {
+            if (!state.redoing)
+                commit("push_command_to_history", data);
         },
         undo_history: ({ dispatch, commit, state }: any) => {
             if (state.command_index < 0)
                 return;
-            dispatch(undoActions[state.command_history[state.command_index].action], state.command_history[state.command_index]);
+            dispatch(undoActions[state.command_history[state.command_index].action], state.command_history[state.command_index].undoData);
             commit("undo_history");
         },
         redo_history: ({ dispatch, commit, state }: any) => {
             if (state.command_index + 1 >= state.command_history.length)
                 return;
-            dispatch(state.command_history[state.command_index + 1].action, state.command_history[state.command_index + 1].payload);
+            // Kind of ugly but should work fine as this is synchronous.
+            dispatch(state.command_history[state.command_index + 1].action, state.command_history[state.command_index + 1].redoData);
             commit("redo_history");
-        }
+        },
+        redoing: ({ commit }: any, data: any) => {
+            commit("redoing", data);
+        },
     },
     mutations: {
+        redoing: (state: any, data: any) => {
+            state.redoing = data;
+        },
         push_command_to_history: (state: any, data: any) => {
             state.command_history = state.command_history.slice(0, state.command_index + 1);
             state.command_history.push(data);

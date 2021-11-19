@@ -13,29 +13,28 @@
 
 <script lang="ts">
 import { defineComponent, toRef } from 'vue';
-import { builderData } from '../../builder/BuilderData';
 
 import { fetchData } from '../../url';
 
 export default defineComponent({
     data() {
         return {
-            set: toRef(builderData, "currentSet"),
+            set: toRef(this.$store.state.builderData, "currentSet"),
         };
     },
     methods: {
         disassemble: function() {
-            builderData.disassembleSet(this.set.id);
+            this.$store.dispatch("builderData/delete_wip_set", this.set.id);
         },
         swapReal: function() {
-            this.set.swapForRealBriqs(builderData.BriqsDB);
+            this.set.swapForRealBriqs(this.$store.state.builderData.briqsDB);
         },
         resetBriqs: function() {
             this.set.swapForFakeBriqs();
         },
         makeCopy: function() {
             let data = this.set.serialize();
-            let set = builderData.newSet();
+            let set = this.$store.state.builderData.newSet();
             data.id = set.id;
             set.deserialize(data);
             set.name += " Copy";
@@ -43,12 +42,12 @@ export default defineComponent({
         doExport: function() {
             try
             {
-                this.set.swapForRealBriqs(builderData.BriqsDB);
+                this.set.swapForRealBriqs(this.$store.state.builderData.briqsDB);
             }
             catch(e) {
                 return;
             }
-            let data = builderData.currentSet.serialize();
+            let data = this.$store.state.builderData.currentSet.serialize();
             let used_cells = data.briqs.map((x: any) => x.data.briq);
             fetchData("store_set", {
                 "used_cells": used_cells,

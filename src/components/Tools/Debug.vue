@@ -5,13 +5,11 @@
 </template>
 
 <script lang="ts">
-import { builderData } from '../../builder/BuilderData';
-
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
-            builderData: builderData
+            builderData: this.$store.state.builderData
         }
     },
     computed: {

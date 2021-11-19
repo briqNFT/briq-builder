@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-import { pickerData, texture, tileSize, tileTextureHeight, nbMaterial } from './materials.js'
+import { pickerData, texture, tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
 
 const material = new THREE.MeshLambertMaterial({
     map: texture,

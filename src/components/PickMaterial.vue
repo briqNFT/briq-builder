@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { pickerData, nbMaterial, materialData } from '../materials.js'
-import { BriqsDB } from '../builder/BriqsDB'
 var materialIndex = Object.keys(materialData);
 
 var getColor = function(mat, i)
@@ -21,9 +20,9 @@ var getColor = function(mat, i)
                 <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(i) }}</button>
             </div>
         </div>
-        <p>Editing set {{ builderDataStore.currentSet.id }}</p>
-        <template v-if="builderData.BriqsDB.briqs.size">
-            <p>{{ builderData.BriqsDB.briqs.size }} briqs loaded!</p>
+        <p>Editing set {{ builderData.currentSet.id }}</p>
+        <template v-if="builderData.briqsDB.briqs.size">
+            <p>{{ builderData.briqsDB.briqs.size }} briqs loaded!</p>
         </template>
         <template v-else="">
             <p>...Briqs are loading...</p>
@@ -32,16 +31,10 @@ var getColor = function(mat, i)
 </template>
 
 <script lang="ts">
-import { builderData } from '../builder/BuilderData'
 import { defineComponent } from 'vue'
 export default defineComponent({
-    data() {
-        return {
-            builderData: builderData
-        }
-    },
     computed: {
-        builderDataStore: function() { return this.$store.state.builderData; },
+        builderData: function() { return this.$store.state.builderData; },
     },
     methods:
     {
@@ -51,7 +44,7 @@ export default defineComponent({
         getMaterialNumber : function (i)
         {
             var numberMaterial = {};
-            for (let brick of builderData.BriqsDB.briqs.values())
+            for (let brick of this.builderData.briqsDB.briqs.values())
             {
                 if (brick.set != 0)
                     continue

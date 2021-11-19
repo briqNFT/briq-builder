@@ -10,21 +10,20 @@
 
 <script lang="ts">
 import { defineComponent, toRef } from 'vue';
-import { builderData } from '../../builder/BuilderData';
 
 export default defineComponent({
     data() {
         return {
-            set: toRef(builderData, "currentSet"),
-            wipSets: toRef(builderData, "wipSets")
+            set: toRef(this.$store.state.builderData, "currentSet"),
+            wipSets: toRef(this.$store.state.builderData, "wipSets")
         };
     },
     methods: {
         newSet: function() {
-            builderData.newSet();
+            this.$store.dispatch("builderData/create_wip_set");
         },
         selectSet: function(setId: number) {
-            builderData.selectSet(setId);
+            this.$store.dispatch("builderData/select_set", setId);
         }
     }
 })
