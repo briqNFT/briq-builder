@@ -2,6 +2,9 @@ import { createApp } from 'vue'
 import { createWebHistory, createRouter } from "vue-router";
 import App from './App.vue'
 
+// Load Tailwind CSS
+import './index.css'
+
 import { store } from './store/Store'
 
 // Pages
