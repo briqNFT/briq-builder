@@ -2,12 +2,12 @@
 </script>
 
 <template>
-<h1>briq</h1>
-<h2>Legal</h2>
+<h1 class="text-center">briq</h1>
+<h2 class="text-center">Legal</h2>
 <div class="section">
-    <p class="goHome"><router-link to="/"><button>Return to builder</button></router-link></p>
+    <p class="float-right"><router-link to="/"><button>Return to builder</button></router-link></p>
 </div>
-<div class="section">
+<div class="md:container md:mx-auto">
     <p>This website is owned by S&amp;L Technologies. We're based in Paris.</p>
     <h3>Mentions Légales</h3>
     <p>S&amp;L Technologies<br/>
@@ -19,7 +19,7 @@
     Directeur général : Lancelot de Ferrière<br/>
     </p>
 </div>
-<div class="section">
+<div class="md:container md:mx-auto">
     <h3>Privacy</h3>
     <p>Google Analytics tracking: {{ gaStore.agreed ? "on" : "off" }} // <button @click="gaStore.clear()">Reset preferences</button></p>
 </div>
@@ -37,6 +37,9 @@ export default defineComponent({
 
 
 <style scoped>
+button {
+    @apply btn;
+}
     .section {
         max-width: 800px;
         margin: auto;
@@ -53,9 +56,4 @@ export default defineComponent({
         margin-bottom: 0.5rem;
     }
 
-    .goHome button {
-        padding: 1rem;
-        margin-bottom: 1rem;
-        float:right;
-    }
 </style>

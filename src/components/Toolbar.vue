@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Debug from './Tools/Debug.vue'
 import SetInfo from './Tools/SetInfo.vue'
-import Wallet from './Tools/Wallet.vue'
 import WipSets from './Tools/WipSets.vue'
 
 var isProd = import.meta.env.PROD;
@@ -10,7 +9,6 @@ var isProd = import.meta.env.PROD;
 <template>
     <div :class="{ toolbar: true, shouldShow: shouldShow || !showOnHover }">
         <button style="position:absolute; top:0; right:0;" @click="showOnHover = !showOnHover">{{ showOnHover ? "Always show" : "Show when hovering" }}</button>
-        <Wallet/>
         <SetInfo/>
         <WipSets/>
         <Debug v-if="!isProd"/>
@@ -22,7 +20,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
     data() {
         return {
-            showOnHover: false
+            showOnHover: true
         };
     },
     props: ["shouldShow"]
@@ -38,10 +36,10 @@ export default defineComponent({
     overflow: scroll;
 
     position: fixed;
-    top: 0;
+    top: 300px;
     right: -300px;
     width: 300px;
-    height: 100vh;
+    height: calc(100vh - 200px);
     background: rgba(0, 0, 0, 0.1);
     border-left: 1px solid gray;
 }

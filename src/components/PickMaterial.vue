@@ -14,11 +14,8 @@ var getColor = function(mat, i)
 </script>
 
 <template>
-    <div>
-        <div class="button_selector">
-            <div class="selector" v-for="i in nbMaterial" :key="i">
-                <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(i) }}</button>
-            </div>
+        <div class="selector" v-for="i in nbMaterial" :key="i">
+            <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(i) }}</button>
         </div>
         <p>Editing set {{ builderData.currentSet.id }}</p>
         <template v-if="builderData.briqsDB.briqs.size">
@@ -27,7 +24,6 @@ var getColor = function(mat, i)
         <template v-else="">
             <p>...Briqs are loading...</p>
         </template>
-    </div>
 </template>
 
 <script lang="ts">
@@ -54,7 +50,7 @@ export default defineComponent({
             }
             if (!numberMaterial[i])
                 return 0;
-            numberMaterial[i] -= builderData.currentSet.usedByMaterial[i] ?? 0;
+            numberMaterial[i] -= this.builderData.currentSet.usedByMaterial[i] ?? 0;
             return numberMaterial[i];
         }
     }

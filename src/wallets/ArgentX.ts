@@ -43,10 +43,16 @@ export default class ArgentXWallet extends IWallet
         if (swo.isConnected)
         {
             console.log("Connected - ", swo.provider, swo.signer);
+            contractStore.dispatch("wallet/connect", {
+                userWalletAddress: swo.signer!.address,
+                signer: swo.signer!,
+            })
+            /*
             contractStore.isConnected = true;
             contractStore.provider = swo.provider;
             contractStore.userWalletAddress = swo.signer!.address;
             contractStore.signer = swo.signer!;
+            */
         }
         else
             throw new Error("Could not connect to ArgentX wallet");

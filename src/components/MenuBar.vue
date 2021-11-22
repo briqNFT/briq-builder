@@ -1,10 +1,22 @@
 <script setup lang="ts">
+import Settings from './Tools/Settings.vue'
 import UndoRedo from './Tools/UndoRedo.vue'
+import Wallet from './Tools/Wallet.vue'
 </script>
 
 <template>
     <div id="menuBar">
-        <UndoRedo/>
+        <div class="flex flex-nowrap justify-start align-start">
+            <UndoRedo/>
+        </div>
+        <div class="flex flex-nowrap justify-center align-start">
+            <button class="btn" disabled="true">Place</button>
+            <button class="btn" disabled="true">Erase</button>
+            <button class="btn" disabled="true">Paint</button>
+        </div>
+        <div class="flex flex-nowrap justify-end align-start">
+            <Settings/>
+        </div>
     </div>
 </template>
 
@@ -20,16 +32,10 @@ export default defineComponent({
     position: absolute;
     top: 1rem;
     width: 100vw;
-    display:flex;
     padding: 0 5rem 0 5rem;
+    @apply flex flex-nowrap;
 }
-
-.toolButton {
-    width:4rem;
-    height:4rem;
-    background:#ee7722;
-    border-radius:1rem;
-    padding:0.3rem;
-    margin:0.3rem;
+#menuBar > * {
+    @apply flex-auto;
 }
 </style>

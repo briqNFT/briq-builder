@@ -3,46 +3,80 @@ import { reactive, watchEffect } from 'vue'
 import { defaultProvider, Provider } from 'starknet';
 import type { Signer } from 'starknet';
 
-export var contractStore = reactive({
-    signer: null as null | Signer,
-    provider: defaultProvider,
-    isConnected: false,
-    goerliAddress: "",
-    userWalletAddress: "",
-});
+export const walletStore = {
+    namespaced: true,
+    state: () => ({
+        // Always provide a signer, even if it's actually a provider.
+        signer: defaultProvider as Provider | Signer,
+        provider: defaultProvider,
+        isConnected: false,
+        goerliAddress: "",
+        userWalletAddress: "",
+    }),
+    actions: {
+        initialize: {
+            root: true,
+            handler: ({ state, dispatch, commit, getters }: any) => {
+                if (window.localStorage.getItem("user_address"))
+                    commit("set_user_wallet", window.localStorage.getItem("user_address")!);
 
+                watchEffect(() => {
+                    // TODO: switch to IDB
+                    console.log("Writing address ", state.userWalletAddress);
+                    window.localStorage.setItem("user_address", state.userWalletAddress);
+                });
 
-if (window.localStorage.getItem("user_address"))
-    contractStore.userWalletAddress = window.localStorage.getItem("user_address")!;
+                var localProvider = new Provider({});
+                localProvider.baseUrl = "http://localhost:4999";
+                localProvider.feederGatewayUrl = `${localProvider.baseUrl}/feeder_gateway`;
+                localProvider.gatewayUrl = `${localProvider.baseUrl}/gateway`;
+                localProvider = new Provider(localProvider);
 
-watchEffect(() => {
-    // TODO: switch to IDB
-    window.localStorage.setItem("user_address", contractStore.userWalletAddress);
-});
-
-
-var localProvider = new Provider({});
-localProvider.baseUrl = "http://localhost:4999";
-localProvider.feederGatewayUrl = `${localProvider.baseUrl}/feeder_gateway`;
-localProvider.gatewayUrl = `${localProvider.baseUrl}/gateway`;
-localProvider = new Provider(localProvider);
-
-// Attempt to connect to the local network
-localProvider.getContractAddresses().then((data) => {
-    // Assume we want to use the local provider instead.
-    contractStore.provider = localProvider;
-    contractStore.goerliAddress = data.Starknet;
-    console.log("Switching to local provider");
-}).catch(_ => {
-    let prov = new Provider({});
-    prov.baseUrl = "https://alpha4.starknet.io";
-    prov.feederGatewayUrl = `${prov.baseUrl}/feeder_gateway`;
-    prov.gatewayUrl = `${prov.baseUrl}/gateway`;
-    prov = new Provider(prov);
-    // Get the contract address on Goerli testnet.
-    prov.getContractAddresses().then((data) => { contractStore.goerliAddress = data.Starknet; });
-    contractStore.provider = prov;
-})
+                // Attempt to connect to the local network
+                localProvider.getContractAddresses().then((data) => {
+                    // Assume we want to use the local provider instead.
+                    commit("set_signer", localProvider);
+                    commit("set_starknet_contract_address", data.Starknet);
+                    console.log("Switching to local provider");
+                }).catch(_ => {
+                    let prov = new Provider({});
+                    prov.baseUrl = "https://alpha4.starknet.io";
+                    prov.feederGatewayUrl = `${prov.baseUrl}/feeder_gateway`;
+                    prov.gatewayUrl = `${prov.baseUrl}/gateway`;
+                    prov = new Provider(prov);
+                    // Get the contract address on Goerli testnet.
+                    prov.getContractAddresses().then((data) => { commit("set_starknet_contract_address", data.Starknet); });
+                    commit("set_signer", prov);
+                })
+            }
+        },
+        connect({ commit }: any, data: any) {
+            commit("connect", data);
+        }
+    },
+    mutations: {
+        set_user_wallet(state: any, data: string)
+        {
+            state.userWalletAddress = data;
+        },
+        set_signer(state: any, data: Signer | Provider)
+        {
+            state.signer = data;
+            state.provider = data;
+        },
+        set_starknet_contract_address(state: any, data: string)
+        {
+            state.goerliAddress = data;
+        },
+        connect(state: any, data: any)
+        {
+            state.userWalletAddress = data.userWalletAddress;
+            state.signer = data.signer;
+            state.provider = data.signer;
+            state.isConnected = true;
+        }
+    }
+};
 
 import ManualWallet from './wallets/ManualWallet'
 import ArgentXWallet from './wallets/ArgentX'

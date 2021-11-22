@@ -28,13 +28,12 @@ var names = Object.keys(materialData);
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { adminStore, isOk } from '../Admin'
-import { contractStore } from '../Wallet'
 
 export default defineComponent({
     data() {
         return {
             adminStore: adminStore,
-            contractStore: contractStore,
+            contractStore: this.$store.state.wallet,
             minting: false,
             mint_token: 1,
             mint_material: 1,

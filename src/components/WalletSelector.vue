@@ -25,7 +25,7 @@
             <p>{{ error }}</p>
             <button @click="step='selection'">Go back</button>
         </template>
-        <button class="close" @click="open = !open">Close Window</button>
+        <button class="close absolute bottom-4 right-4" @click="step='selection'; open = !open">Close Window</button>
     </div>
 </template>
 
@@ -35,7 +35,7 @@ import { toBN } from 'starknet/utils/number';
 import { getKeyPair } from 'starknet/utils/ellipticCurve';
 import { Signer } from 'starknet';
 
-import { contractStore, getPotentialWallets } from '../Wallet'
+import { getPotentialWallets } from '../Wallet'
 
 import { ref } from 'vue'
 export var openSelector = ref(false);
@@ -45,7 +45,7 @@ import { IWallet } from '../wallets/IWallet';
 export default defineComponent({
     data() {
         return {
-            contractStore: contractStore,
+            contractStore: this.$store.state.wallet,
             open: openSelector,
             step: 'selection',
             error: '',
@@ -64,12 +64,9 @@ export default defineComponent({
             let wallet: IWallet = new this.availableWallets[walletId].handler();
             try
             {
-                await wallet.enable(this.contractStore);
+                await wallet.enable(this.$store);
                 if (this.contractStore.isConnected)
-                {
-                    this.$store.dispatch("builderData/set_signer", this.contractStore.signer);
                     this.step = "success";
-                }
                 else
                     throw new Error("Could not connect to Argent-X wallet with address " + this.contractStore.userWalletAddress);
             }
@@ -78,25 +75,6 @@ export default defineComponent({
                 this.error = wallet.getErrorMessage(err);
                 this.step = "error";
             }
-            /*
-            if (walletId === "argent")
-            {
-                let signer = await getSigner();
-                if (!signer)
-                    return;
-                this.open = false;
-                console.log(await signer.addTransaction({
-                    type: 'INVOKE_FUNCTION',
-                    entry_point_selector: getSelectorFromName('mint_multiple'),
-                    calldata: ["0", "1", "0", "0"],
-                    contract_address: "0x04a0ed17b7453e304261df18633bdb7fd8c8275f42f254e9f4674e85736c65ae",
-                }));
-            }
-            else if (walletId === "manual")
-            {
-                this.step = "manual-1";
-            }
-            */
         },
         initManual: async function() {
             contractStore.isConnected = true;
@@ -137,22 +115,23 @@ export default defineComponent({
 </script>
 
 <style scoped>
+h2 {
+    @apply text-center my-4;
+}
+
+button {
+    @apply btn;
+}
+
 #walletSelector {
+    @apply bg-briq-light p-2 rounded-xl shadow-xl;
+
     position:fixed;
     width: 400px;
     height: 400px;
     top: calc(50% - 200px);
     left: calc(50% - 200px);
-    background: white;
     z-index: 1000;
-
-    padding: 1rem;
-}
-
-.close {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
 }
 
 .walletOptions {

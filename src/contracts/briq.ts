@@ -1,7 +1,6 @@
 import { getSelectorFromName } from 'starknet/utils/stark';
 import { toBN } from 'starknet/utils/number';
 
-import { contractStore } from '../Wallet'
 import { AddTransactionResponse } from 'starknet';
 
 import { Args, Contract, Provider, Signer } from 'starknet';

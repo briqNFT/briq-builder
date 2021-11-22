@@ -1,9 +1,9 @@
 <template>
     <div>
-        <button @click="undo" :disabled="!canUndo" class="toolButton">
+        <button @click="undo" :disabled="!canUndo" class="btn">
             <p>Undo</p>
         </button>
-        <button @click="redo" :disabled="!canRedo" class="toolButton">
+        <button @click="redo" :disabled="!canRedo" class="btn">
             <p>Redo</p>
         </button>
     </div>
