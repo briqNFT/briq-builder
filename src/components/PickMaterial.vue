@@ -14,23 +14,26 @@ var getColor = function(mat, i)
 </script>
 
 <template>
-        <div class="selector" v-for="i in nbMaterial" :key="i">
-            <button @click="pickmaterial(i)" class ='tile' :style='getColor(materialIndex[i-1], i)'>{{ getMaterialNumber(i) }}</button>
-        </div>
-        <p>Editing set {{ builderData.currentSet.id }}</p>
-        <template v-if="builderData.briqsDB.briqs.size">
-            <p>{{ builderData.briqsDB.briqs.size }} briqs loaded!</p>
-        </template>
-        <template v-else="">
-            <p>...Briqs are loading...</p>
-        </template>
+    <div class="my-2 selector" v-for="i in nbMaterial" :key="i">
+        <Button noStyle="true" class ='tile'
+            @click="pickmaterial(i)"
+            :style='getColor(materialIndex[i-1], i)'
+            :tooltip="'Click to place ' + materialIndex[i-1] + ' briqs'"
+            >
+            {{ getMaterialNumber(i) }}</Button>
+    </div>
 </template>
 
 <script lang="ts">
+import Button from './generic/Button.vue'
+
 import { defineComponent } from 'vue'
 export default defineComponent({
     computed: {
         builderData: function() { return this.$store.state.builderData; },
+    },
+    components: {
+        Button
     },
     methods:
     {
@@ -58,18 +61,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-* {
-    margin:0;
-    padding:0;
-}
 div.button_selector{
-    display: flex; /*https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
-    flex-direction: row;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px;
-    align-content: flex-start;
-    flex-wrap: wrap;
 }
 .button_selector * {
     color: black;

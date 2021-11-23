@@ -6,6 +6,7 @@ import MenuBar from './MenuBar.vue'
 import SideBar from './SideBar.vue'
 import SideBarRight from './SideBarRight.vue'
 import Toolbar from './Toolbar.vue'
+import MiddleModal from './MiddleModal.vue'
 import WalletSelector from './WalletSelector.vue';
 import Messages from './Messages.vue'
 import SplashScreen from './SplashScreen.vue'
@@ -21,6 +22,7 @@ import SplashScreen from './SplashScreen.vue'
     <SideBarRight/>
     <MenuBar/>
     <Messages/>
+    <MiddleModal/>
     <WalletSelector/>
   </div>
 </template>

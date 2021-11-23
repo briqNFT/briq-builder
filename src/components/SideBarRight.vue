@@ -10,11 +10,12 @@ import { setTooltip } from '../Messages'
             <Button class="my-1" tooltip="Create a new WIP set." @click="newSet">New</Button>
             <Button class="my-1" tooltip="Delete the current WIP set." @click="deleteSet">Delete</button>
             <Button class="my-1" tooltip="Remove all briqs from the current WIP set." @click="clear" :disabled="set.briqsDB.briqs.size == 0">Clear</button>
+            <Button class="my-1" tooltip="Rename the current set" @click="rename">Rename</button>
         </div>
         <div class="flex flex-col content-end my-8">
-            <h4 class="text-center font-bold">SETS</h4>
+            <h4 class="text-center font-bold">WIP SETS</h4>
             <Button v-for="wipset in wipSets"
-                class="my-1"
+                class="my-1 h-auto"
                 @click="selectSet(wipset.id)"
                 :disabled="set.id == wipset.id"
                 :tooltip="(set.id == wipset.id) ? 'Set ' + set.id + ' is active.' : 'Click to switch to set ' + (wipset.name || wipset.id)"
@@ -24,6 +25,11 @@ import { setTooltip } from '../Messages'
 </template>
 
 <script lang="ts">
+
+import { setModal } from './MiddleModal.vue';
+
+import RenameSet from './RenameSet.vue';
+
 import { defineComponent, toRef } from "vue";
 export default defineComponent({
     data() {
@@ -44,8 +50,10 @@ export default defineComponent({
         },
         selectSet: function(setId: number) {
             this.$store.dispatch("builderData/select_set", setId);
-        }
-
+        },
+        rename: function() {
+            setModal(RenameSet, { set: this.set.id });
+        },
     }
 })
 </script>

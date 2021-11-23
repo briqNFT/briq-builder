@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Settings from './Tools/Settings.vue'
 import UndoRedo from './Tools/UndoRedo.vue'
+import Button from './generic/Button.vue'
 </script>
 
 <template>
@@ -9,9 +10,9 @@ import UndoRedo from './Tools/UndoRedo.vue'
             <UndoRedo/>
         </div>
         <div class="flex flex-nowrap justify-center align-start">
-            <button class="btn" disabled="true">Place</button>
-            <button class="btn" disabled="true">Erase</button>
-            <button class="btn" disabled="true">Paint</button>
+            <Button tooltip="In 'Place' mode, left-click to place and right-click to delete briqs." disabled="true">Place</Button>
+            <Button tooltip="" disabled="true">Erase</Button>
+            <Button tooltip="" disabled="true">Paint</Button>
         </div>
         <div class="flex flex-nowrap justify-end align-start">
             <Settings/>

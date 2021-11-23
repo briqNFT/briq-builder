@@ -41,4 +41,8 @@
         @apply bg-gray-300;
         @apply text-gray-600;
     }
+
+    input {
+        @apply rounded px-2 py-0.5;
+    }
 }

@@ -87,8 +87,12 @@ export var builderDataStore = (() => {
                 commit("select_set", data);
             },
             ////////////
-            //// Special set commands
+            //// Set commands
             ////////////
+            change_set_name({ commit }: any, payload: any)
+            {
+                commit("change_set_name", payload);
+            },
             swap_for_real_briqs({ commit }: any)
             {
                 commit("swap_for_real_briqs");
@@ -160,6 +164,10 @@ export var builderDataStore = (() => {
                 }
                 dispatchBuilderAction("place_briq", { pos: data.payload.pos, voxelId: data?.undoData?.briq?.material ?? 0 });
                 //state.currentSet.placeBriq(...data.pos, data.voxelId);
+            },
+            change_set_name(state: any, data: any)
+            {
+                data.set.name = data.name;
             },
             swap_for_real_briqs(state: any)
             {
