@@ -197,6 +197,10 @@ generateSkybox()
         voxWorld.setVoxel(...item.payload.pos, item.payload.voxelId)
         voxWorld.updateVoxelGeometry(...item.payload.pos);
       }
+      else if (item.action === "reset")
+      {
+        voxWorld.reset();
+      }
     }
     dispatchedActions.length = 0;
     /*

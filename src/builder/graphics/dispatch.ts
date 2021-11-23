@@ -17,10 +17,10 @@ const preprocessor: { [key: string]: (payload: any) => any } = {
     },
     "place_briq": (payload: any) => {
         return payload;
-    }
+    },
 };
 
-export function dispatchBuilderAction(action: string, payload: any)
+export function dispatchBuilderAction(action: string, payload?: any)
 {
-    dispatchedActions.push({ action, payload: preprocessor[action](payload) });
+    dispatchedActions.push({ action, payload: preprocessor?.[action]?.(payload) });
 };

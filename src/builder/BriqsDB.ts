@@ -74,6 +74,11 @@ export class BriqsDB
         }
     }
 
+    reset()
+    {
+        this.briqs = new Map();
+    }
+    
     get(id: number): Briq | undefined
     {
         return this.briqs.get(id);

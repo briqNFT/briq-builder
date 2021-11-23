@@ -94,6 +94,7 @@ export class SetData
     {
         this.briqs = new Map();
         this.usedByMaterial = {};
+        this.briqsDB.reset();
         builderDataEvents.push(new SetDataEvent(this.id).subtype("reset"));
     }
 

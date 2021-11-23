@@ -1,3 +1,5 @@
+import { pushMessage } from '../Messages'
+
 type Hook = (localData: any, payload: any, state: any) => void;
 
 const undoActions: { [key: string]: string } = {};
@@ -50,6 +52,7 @@ export const undoRedoStore = {
                 return;
             dispatch(undoActions[state.command_history[state.command_index].action], state.command_history[state.command_index].undoData);
             commit("undo_history");
+            pushMessage("Undo complete - " + state.command_history[state.command_index].action);
         },
         redo_history: ({ dispatch, commit, state }: any) => {
             if (state.command_index + 1 >= state.command_history.length)
@@ -57,6 +60,7 @@ export const undoRedoStore = {
             // Kind of ugly but should work fine as this is synchronous.
             dispatch(state.command_history[state.command_index + 1].action, state.command_history[state.command_index + 1].redoData);
             commit("redo_history");
+            pushMessage("Redo complete - " + state.command_history[state.command_index].action);
         },
         redoing: ({ commit }: any, data: any) => {
             commit("redoing", data);

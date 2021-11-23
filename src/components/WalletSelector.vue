@@ -16,7 +16,7 @@
         <template v-else-if="step=='success'">
             <h2>Success</h2>
             <p>You have successfully connected your wallet.</p>
-            <p>Your address is <span style="word-break: break-all;">{{ contractStore.userWalletAddress }}</span></p>
+            <p>Your address is <span style="word-break: break-all;">{{ wallet.userWalletAddress }}</span></p>
             <p>Closing in {{ countdown }}</p>
         </template>
         <template v-else-if="step=='error'">
@@ -28,91 +28,6 @@
         <button class="close absolute bottom-4 right-4" @click="step='selection'; open = !open">Close Window</button>
     </div>
 </template>
-
-<script lang="ts">
-import { getSelectorFromName } from 'starknet/utils/stark';
-import { toBN } from 'starknet/utils/number';
-import { getKeyPair } from 'starknet/utils/ellipticCurve';
-import { Signer } from 'starknet';
-
-import { getPotentialWallets } from '../Wallet'
-
-import { ref } from 'vue'
-export var openSelector = ref(false);
-
-import { defineComponent } from 'vue';
-import { IWallet } from '../wallets/IWallet';
-export default defineComponent({
-    data() {
-        return {
-            contractStore: this.$store.state.wallet,
-            open: openSelector,
-            step: 'selection',
-            error: '',
-            availableWallets: getPotentialWallets(),
-            countdown: 0,
-            // Manual stuff
-            walletContractAddress: "0x029aaa6c4abb3d009a138aad90cceb51ab2c18ac76c2e874d019caf6eafdc485",
-            walletPrivateKey: "12345",
-        }
-    },
-    methods: {
-        chooseWallet: async function(walletId: any) {
-            // Shouldn't happen in the regular interface happy path, just return
-            if (!this.availableWallets[walletId])
-                return;
-            let wallet: IWallet = new this.availableWallets[walletId].handler();
-            try
-            {
-                await wallet.enable(this.$store);
-                if (this.contractStore.isConnected)
-                    this.step = "success";
-                else
-                    throw new Error("Could not connect to Argent-X wallet with address " + this.contractStore.userWalletAddress);
-            }
-            catch(err: any)
-            {
-                this.error = wallet.getErrorMessage(err);
-                this.step = "error";
-            }
-        },
-        initManual: async function() {
-            contractStore.isConnected = true;
-            contractStore.userWalletAddress = this.walletContractAddress;
-            contractStore.signer = new Signer(contractStore.provider, this.walletContractAddress, getKeyPair(toBN(this.walletPrivateKey).toString()));
-            this.open = false;
-            const { result } = await contractStore.signer.callContract({
-                contract_address: this.walletContractAddress,
-                entry_point_selector: getSelectorFromName('get_current_nonce'),
-            });
-            const nonceBn = toBN(result[0]);
-            console.log(result, nonceBn);
-            console.log(await contractStore.signer.addTransaction({
-                type: 'INVOKE_FUNCTION',
-                entry_point_selector: getSelectorFromName('mint_multiple'),
-                calldata: ["0", "1", "0", "0"],
-                contract_address: "0x04a0ed17b7453e304261df18633bdb7fd8c8275f42f254e9f4674e85736c65ae",
-            }));
-        },
-    },
-    watch: {
-        step: function(nv, ov) {
-            if (nv === "success")
-            {
-                this.countdown = 4;
-                let cd = () => {
-                    this.countdown--;
-                    if (this.countdown === 0)
-                        this.open = false;
-                    else
-                        setTimeout(cd, 1000);
-                };
-                setTimeout(cd, 1000);
-            }
-        }
-    }
-})
-</script>
 
 <style scoped>
 h2 {
@@ -145,3 +60,90 @@ button {
     padding: 0.5rem;
 }
 </style>
+
+<script lang="ts">
+import { getSelectorFromName } from 'starknet/utils/stark';
+import { toBN } from 'starknet/utils/number';
+import { getKeyPair } from 'starknet/utils/ellipticCurve';
+import { Signer } from 'starknet';
+
+import { getPotentialWallets } from '../Wallet'
+
+import { ref } from 'vue'
+export var openSelector = ref(false);
+
+import { defineComponent } from 'vue';
+import { IWallet } from '../wallets/IWallet';
+export default defineComponent({
+    data() {
+        return {
+            wallet: this.$store.state.wallet,
+            open: openSelector,
+            step: 'selection',
+            error: '',
+            availableWallets: getPotentialWallets(),
+            countdown: 0,
+            // Manual stuff
+            walletContractAddress: "0x029aaa6c4abb3d009a138aad90cceb51ab2c18ac76c2e874d019caf6eafdc485",
+            walletPrivateKey: "12345",
+        }
+    },
+    methods: {
+        chooseWallet: async function(walletId: any) {
+            // Shouldn't happen in the regular interface happy path, just return
+            if (!this.availableWallets[walletId])
+                return;
+            let wallet: IWallet = new this.availableWallets[walletId].handler();
+            try
+            {
+                await wallet.enable(this.$store);
+                if (this.wallet.isConnected)
+                    this.step = "success";
+                else
+                    throw new Error("Could not connect to Argent-X wallet with address " + this.wallet.userWalletAddress);
+            }
+            catch(err: any)
+            {
+                this.error = wallet.getErrorMessage(err);
+                this.step = "error";
+            }
+        },
+        initManual: async function() {
+            /*
+            this.wallet.isConnected = true;
+            this.wallet.userWalletAddress = this.walletContractAddress;
+            this.wallet.signer = new Signer(wallet.provider, this.walletContractAddress, getKeyPair(toBN(this.walletPrivateKey).toString()));
+            this.open = false;
+            const { result } = await wallet.signer.callContract({
+                contract_address: this.walletContractAddress,
+                entry_point_selector: getSelectorFromName('get_current_nonce'),
+            });
+            const nonceBn = toBN(result[0]);
+            console.log(result, nonceBn);
+            console.log(await wallet.signer.addTransaction({
+                type: 'INVOKE_FUNCTION',
+                entry_point_selector: getSelectorFromName('mint_multiple'),
+                calldata: ["0", "1", "0", "0"],
+                contract_address: "0x04a0ed17b7453e304261df18633bdb7fd8c8275f42f254e9f4674e85736c65ae",
+            }));
+            */
+        },
+    },
+    watch: {
+        step: function(nv, ov) {
+            if (nv === "success")
+            {
+                this.countdown = 4;
+                let cd = () => {
+                    this.countdown--;
+                    if (this.countdown === 0)
+                        this.open = false;
+                    else
+                        setTimeout(cd, 1000);
+                };
+                setTimeout(cd, 1000);
+            }
+        }
+    }
+})
+</script>

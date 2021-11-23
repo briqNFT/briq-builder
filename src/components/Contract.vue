@@ -10,7 +10,7 @@ var names = Object.keys(materialData);
         <p>Token:<br/>
             Start: 0x<input type="text" v-model="mint_token"/><br/>
             NB: <input type="number" v-model="mint_nb"/><br/>
-            Owner: {{ contractStore.userWalletAddress }}<br/>
+            Owner: {{ wallet.userWalletAddress }}<br/>
             Material:
             <select v-model="mint_material">
                 <option value="1">{{names[0]}}</option>
@@ -33,7 +33,8 @@ export default defineComponent({
     data() {
         return {
             adminStore: adminStore,
-            contractStore: this.$store.state.wallet,
+            wallet: this.$store.state.wallet,
+            builderData: this.$store.state.builderData,
             minting: false,
             mint_token: 1,
             mint_material: 1,
@@ -44,12 +45,12 @@ export default defineComponent({
     },
     methods: {
         isOk: function() {
-            return isOk() && contractStore.isConnected;
+            return isOk() && this.wallet.isConnected;
         },
         doMint: async function() {
             this.minting = true;
 
-            let tx = await this.$store.state.builderData.briqContract?.mint_multiple(this.mint_material, parseInt(this.mint_token, 16), this.mint_nb);
+            let tx = await this.builderData.briqContract?.mint_multiple(this.mint_material, parseInt(this.mint_token, 16), this.mint_nb);
             console.log(tx);
             this.minting = false;
         },        

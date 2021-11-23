@@ -59,6 +59,15 @@ export var builderDataStore = (() => {
                     })
                 },
             },
+            async get_briqs({ commit, state, rootState }: any)
+            {
+                let bricks = await state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress);
+                commit("set_briqs", bricks.bricks);
+            },
+
+            ////////////
+            //// Set Management
+            ////////////
             create_wip_set({ commit, state }: any, data: any)
             {
                 commit("create_wip_set", data);
@@ -77,17 +86,9 @@ export var builderDataStore = (() => {
             {
                 commit("select_set", data);
             },
-            async get_briqs({ commit, state, rootState }: any)
-            {
-                let bricks = await state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress);
-                commit("set_briqs", bricks.bricks);
-            },
-            place_briq: ({ commit }: any, data: any) => {
-                commit("place_briq", data);
-            },
-            undo_place_briq: ({ commit }: any, data: any) => {
-                commit("undo_place_briq", data);        
-            },
+            ////////////
+            //// Special set commands
+            ////////////
             swap_for_real_briqs({ commit }: any)
             {
                 commit("swap_for_real_briqs");
@@ -96,6 +97,21 @@ export var builderDataStore = (() => {
             {
                 commit("swap_for_fake_briqs");
             },
+            ////////////
+            //// Briq manipulation stuff
+            ////////////
+            place_briq: ({ commit }: any, data: any) => {
+                commit("place_briq", data);
+            },
+            undo_place_briq: ({ commit }: any, data: any) => {
+                commit("undo_place_briq", data);        
+            },
+            clear: ({ commit }: any) => {
+                commit("clear");
+            },
+            undo_clear: ({ commit }: any, data: any) => {
+                commit("undo_clear", data);
+            }
         },
         mutations: {
             create_wip_set(state: any, data: any)
@@ -153,6 +169,15 @@ export var builderDataStore = (() => {
             {
                 state.currentSet.swapForFakeBriqs();
             },
+
+            clear: (state: any) => {
+                state.currentSet.reset();
+                dispatchBuilderAction("reset");
+            },
+            undo_clear: (state: any, data: any) => {
+                // TODO
+            },
+
         },
         getters: {},
     };

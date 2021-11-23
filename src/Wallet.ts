@@ -100,8 +100,3 @@ export function getPotentialWallets(): { [key: string]: { name: string, handler:
         }
     }
 }
-
-export function getSigner()
-{
-    return contractStore.signer;
-}

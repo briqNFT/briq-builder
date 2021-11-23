@@ -4,20 +4,23 @@ import PickMaterial from './PickMaterial.vue'
 import SetOptions from './SetOptions.vue'
 import MenuBar from './MenuBar.vue'
 import SideBar from './SideBar.vue'
+import SideBarRight from './SideBarRight.vue'
 import Toolbar from './Toolbar.vue'
 import WalletSelector from './WalletSelector.vue';
-
+import Messages from './Messages.vue'
 import SplashScreen from './SplashScreen.vue'
 </script>
 
 <template>
   <SplashScreen/>
-  <div @pointermove="checkMousePos" ref="builder">
-    <MenuBar/>
+  <div>
     <Homepage/>
     <SetOptions/>
     <Toolbar :shouldShow="shouldShowToolbar"/>
     <SideBar/>
+    <SideBarRight/>
+    <MenuBar/>
+    <Messages/>
     <WalletSelector/>
   </div>
 </template>
@@ -40,15 +43,6 @@ export default {
     builderDataEvents.push(new BuilderDataEvent("change_set"));
   },
   methods: {
-    showModal() {
-      this.isModalVisible = true;
-    },
-    closeModal() {
-      this.isModalVisible = false;
-    },
-    checkMousePos(ev: PointerEvent) {
-        this.shouldShowToolbar = this.$refs.builder.getBoundingClientRect().right - ev.clientX < 320;
-    }
   }
 };
 </script>

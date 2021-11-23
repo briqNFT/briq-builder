@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Settings from './Tools/Settings.vue'
 import UndoRedo from './Tools/UndoRedo.vue'
-import Wallet from './Tools/Wallet.vue'
 </script>
 
 <template>
