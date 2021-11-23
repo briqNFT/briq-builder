@@ -11,6 +11,7 @@ import { setTooltip } from '../Messages'
             <Button class="my-1" tooltip="Delete the current WIP set." @click="deleteSet">Delete</button>
             <Button class="my-1" tooltip="Remove all briqs from the current WIP set." @click="clear" :disabled="set.briqsDB.briqs.size == 0">Clear</button>
             <Button class="my-1" tooltip="Rename the current set" @click="rename">Rename</button>
+            <Button class="my-2" tooltip="Export the set to the blockchain" @click="exportSet">Export</button>
         </div>
         <div class="flex flex-col content-end my-8">
             <h4 class="text-center font-bold">WIP SETS</h4>
@@ -29,6 +30,7 @@ import { setTooltip } from '../Messages'
 import { setModal } from './MiddleModal.vue';
 
 import RenameSet from './RenameSet.vue';
+import ExportSet from './ExportSet.vue';
 
 import { defineComponent, toRef } from "vue";
 export default defineComponent({
@@ -53,6 +55,9 @@ export default defineComponent({
         },
         rename: function() {
             setModal(RenameSet, { set: this.set.id });
+        },
+        exportSet: function() {
+            setModal(ExportSet, { set: this.set.id });
         },
     }
 })

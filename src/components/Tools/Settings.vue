@@ -8,7 +8,7 @@
                         {{ contractStore.isConnected ? "Disconnect" : "Connect Wallet" }}
                     </button></p>
                     <p><button class="w-full">Help</button></p>
-                    <p><button class="w-full">Settings</button></p>
+                    <p><button class="w-full" @click="$router.push({ path: '/settings' })">Settings</button></p>
                     <p><button class="w-full" @click="$router.push({ path: '/legal' })">Legal / Privacy</button></p>
                     <p><button class="w-full" @click="$router.push({ path: '/admin' })">Admin</button></p>
                 </div>

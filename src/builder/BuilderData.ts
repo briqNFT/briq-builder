@@ -9,6 +9,7 @@ import { fetchData } from '../url'
 import { dispatchBuilderAction } from "./graphics/dispatch"
 
 import BriqContract from '../contracts/briq'
+import SetContract from '../contracts/set'
 
 let briqsDB = new BriqsDB();
 let initSet = new SetData(Date.now(), briqsDB);
@@ -21,6 +22,8 @@ export var builderDataStore = (() => {
             currentSet: initSet,
             briqsDB: briqsDB,
             briqContract: undefined as BriqContract | undefined,
+            setContract: undefined as SetContract | undefined,
+            chainSets: [],
         }),
         actions: {
             initialize: {
@@ -54,19 +57,26 @@ export var builderDataStore = (() => {
 
                     fetchData("contract_addresses").then(async x => {
                         commit("set_briq_contract", new BriqContract(x.briq, toRef(rootState.wallet, "signer")));
+                        commit("set_set_contract", new SetContract(x.set, toRef(rootState.wallet, "signer")));
                         if (rootState.wallet.userWalletAddress)
-                            dispatch("get_briqs");
+                            dispatch("try_fetching_user_data");
                     })
                 },
             },
-            async get_briqs({ commit, state, rootState }: any)
+            async try_fetching_user_data({ commit, state, rootState }: any, data: any)
             {
-                let bricks = await state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress);
-                commit("set_briqs", bricks.bricks);
+                let bricks = state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress);
+                let sets = state.setContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress);
+                let res = {
+                    bricks: (await bricks).bricks,
+                    sets: (await sets).tokens,
+                }
+                console.log(res);
+                commit("set_briqs", res.bricks);
+                commit("set_chain_sets", res.sets)
             },
-
             ////////////
-            //// Set Management
+            //// Local set Management
             ////////////
             create_wip_set({ commit, state }: any, data: any)
             {
@@ -86,6 +96,7 @@ export var builderDataStore = (() => {
             {
                 commit("select_set", data);
             },
+
             ////////////
             //// Set commands
             ////////////
@@ -101,6 +112,7 @@ export var builderDataStore = (() => {
             {
                 commit("swap_for_fake_briqs");
             },
+
             ////////////
             //// Briq manipulation stuff
             ////////////
@@ -142,10 +154,20 @@ export var builderDataStore = (() => {
             {
                 state.briqContract = data;
             },
+            set_set_contract(state: any, data: SetContract)
+            {
+                state.setContract = data;
+            },
+
             set_briqs(state: any, data: string[])
             {
                 state.briqsDB.parseChainData(data);
             },
+            set_chain_sets(state: any, data: string[])
+            {
+                state.chainSets = data;
+            },
+
             place_briq(state: any, data: any)
             {
                 state.currentSet.placeBriq(...data.pos, data.voxelId);

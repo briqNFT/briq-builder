@@ -18,7 +18,7 @@ export const walletStore = {
             root: true,
             handler: ({ state, dispatch, commit, getters }: any) => {
                 if (window.localStorage.getItem("user_address"))
-                    commit("set_user_wallet", window.localStorage.getItem("user_address")!);
+                    dispatch("set_user_wallet", window.localStorage.getItem("user_address")!);
 
                 watchEffect(() => {
                     // TODO: switch to IDB
@@ -50,8 +50,13 @@ export const walletStore = {
                 })
             }
         },
-        connect({ commit }: any, data: any) {
+        connect({ dispatch, commit }: any, data: any) {
+            dispatch("set_user_wallet", data.userWalletAddress);
             commit("connect", data);
+        },
+        set_user_wallet({ dispatch, commit }: any, data:any) {
+            commit("set_user_wallet", data);
+            dispatch("builderData/fetch_chain_sets", undefined, { root: true });
         }
     },
     mutations: {

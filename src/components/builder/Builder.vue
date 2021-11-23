@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import Homepage from './Homepage.vue'
-import PickMaterial from './PickMaterial.vue'
-import SetOptions from './SetOptions.vue'
-import MenuBar from './MenuBar.vue'
-import SideBar from './SideBar.vue'
-import SideBarRight from './SideBarRight.vue'
-import Toolbar from './Toolbar.vue'
-import MiddleModal from './MiddleModal.vue'
-import WalletSelector from './WalletSelector.vue';
-import Messages from './Messages.vue'
-import SplashScreen from './SplashScreen.vue'
+import Homepage from '../Homepage.vue'
+import SetOptions from '../SetOptions.vue'
+import MenuBar from '../MenuBar.vue'
+import SideBar from '../SideBar.vue'
+import SideBarRight from '../SideBarRight.vue'
+import Toolbar from '../Toolbar.vue'
+import MiddleModal from '../MiddleModal.vue'
+import WalletSelector from '../WalletSelector.vue';
+import Messages from '../Messages.vue'
+import SplashScreen from '../SplashScreen.vue'
 </script>
 
 <template>
@@ -30,7 +29,7 @@ import SplashScreen from './SplashScreen.vue'
 <script lang="ts">
 import { reactive } from 'vue'
 
-import { builderDataEvents, BuilderDataEvent } from '../builder/BuilderDataEvents'
+import { builderDataEvents, BuilderDataEvent } from '../../builder/BuilderDataEvents'
 
 export default {
   data() {

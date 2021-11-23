@@ -8,9 +8,11 @@ import './index.css'
 import { store } from './store/Store'
 
 // Pages
-import Builder from './components/Builder.vue'
+import Builder from './components/builder/Builder.vue'
 import Legal from './components/Legal.vue'
 import Admin from './components/Admin.vue'
+import Settings from './components/Settings.vue'
+import SetBrowser from './components/builder/set_browser/SetBrowser.vue'
 
 const routes = [
   {
@@ -28,6 +30,16 @@ const routes = [
     name: "Admin",
     component: Admin,
   },
+  {
+    path: "/settings",
+    name: "Settings",
+    component: Settings
+  },
+  {
+    path: "/browse_sets",
+    name: "Browse Sets",
+    component: SetBrowser
+  }
 ];
 
 const router = createRouter({
