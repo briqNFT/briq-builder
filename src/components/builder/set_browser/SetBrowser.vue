@@ -26,6 +26,7 @@ import { defineComponent } from 'vue';
 export default defineComponent({
     props: ["asModal"],
     emits: ["close"],
+    inject: ["messages"],
     computed: {
         chainSets: function() {
             return this.$store.state.builderData.chainSets
@@ -33,10 +34,16 @@ export default defineComponent({
     },
     methods: {
         disassemble: async function(sid) {
-            let data = (await fetchData("store_get/" + parseInt(sid, 16))).data;
-            console.log(data);
-            let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
-            console.log(TX);
+            try {
+                let data = (await fetchData("store_get/" + parseInt(sid, 16))).data;
+                let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
+                this.messages.pushMessage("Disassembly transaction sent - Hash " + TX.transaction_hash);   
+            }
+            catch(err)
+            {
+                this.messages.pushMessage("Error while disassembling set - See console for details.");   
+                console.error(err);
+            }
         }
     }
 })

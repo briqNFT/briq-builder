@@ -1,6 +1,7 @@
 <template>
     <div class="w-1/2">
         <div class="relative">
+            <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Export set</h3>
             <p>Set {{ metadata.set }}</p>
             <p>Name: {{ set.name }}</p>

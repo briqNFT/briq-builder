@@ -50,6 +50,8 @@ export default class SetContract extends Contract
 
     async disassemble(owner: string, token_id: string, bricks: Array<string>)
     {
+        if (!((this.provider as Signer).address))
+            throw new Error("Provider is not a signer");
         return await this.invoke("disassemble", { owner, token_id, bricks });
     }
 }

@@ -43,6 +43,8 @@ export default class BriqContract extends Contract
 
     async mint_multiple(material: number, token_start: number, nb: number): Promise<AddTransactionResponse>
     {
+        if (!((this.provider as Signer).address))
+            throw new Error("Provider is not a signer");
         return await this.invoke("mint_multiple", { owner: (this.provider as Signer).address, material: "" + material, token_start: "" + token_start, nb: "" + nb });
     }
 }

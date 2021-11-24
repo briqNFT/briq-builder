@@ -1,6 +1,7 @@
 <template>
     <div class="w-1/2">
         <div class="relative">
+            <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Rename set</h3>
             <p>Set {{ metadata.set }}</p>
             <p>Current name: {{ set.name }}</p>

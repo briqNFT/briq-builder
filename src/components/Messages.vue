@@ -3,7 +3,7 @@
 
 <template>
     <div class="fixed bottom-0 left-0 px-4 py-2">
-        <p>{{ lastMessage ? lastMessage : tooltip }}</p>
+        <button @click="openLog">+</button><p>{{ lastMessage ? lastMessage : tooltip }}</p>
     </div>
 </template>
 
@@ -12,6 +12,9 @@
 
 <script lang="ts">
 import { messagesStore } from '../Messages'
+import { setModal } from './MiddleModal.vue';
+
+import MessagesLog from './MessagesLog.vue';
 
 import { defineComponent, toRef } from "vue";
 export default defineComponent({
@@ -35,6 +38,11 @@ export default defineComponent({
                     clearTimeout(this.timeoutLM);
                 this.timeoutLM = setTimeout(() => { this.lastMessage = undefined; }, 6000);
             }
+        }
+    },
+    methods: {
+        openLog: function() {
+            setModal(MessagesLog);
         }
     }
 })
