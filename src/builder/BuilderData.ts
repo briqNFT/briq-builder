@@ -157,6 +157,8 @@ export var builderDataStore = (() => {
             create_wip_set(state: any, data: any)
             {
                 let set = new SetData(data?.id ?? Date.now(), state.briqsDB);
+                if (state.wipSets.find((x: SetData) => x.id === set.id))
+                    throw new Error("Set with ID " + set.id + " already exists");
                 if (data)
                     set.deserialize(data);
                 state.wipSets.push(set);
