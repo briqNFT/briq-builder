@@ -19,8 +19,10 @@ import HistoryLog from './modals/HistoryLog.vue'
             </teleport>
         </div>
         <div class="flex flex-nowrap justify-center align-start">
-            <Button tooltip="In 'Place' mode, left-click to place and right-click to delete briqs." disabled="true">Place</Button>
-            <Button tooltip="" disabled="true">Erase</Button>
+            <Button tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
+                @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'">Place</Button>
+            <Button tooltip="In 'Erase' mode, left-click to delete briqs."
+                @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'">Erase</Button>
             <Button tooltip="" disabled="true">Paint</Button>
         </div>
         <div class="flex flex-nowrap justify-end align-start">
@@ -32,11 +34,25 @@ import HistoryLog from './modals/HistoryLog.vue'
 <script lang="ts">
 import { setModal } from '../MiddleModal.vue'
 
+import { PlacerInput } from '../../builder/inputs/Placer'
+import { EraserInput } from '../../builder/inputs/Eraser'
+
+import { reactive } from 'vue';
+
+export var inputStore = reactive({
+    inputMap: {
+        "place": PlacerInput,
+        "erase": EraserInput,
+    },
+    currentInput: "place",
+});
+
 import { defineComponent } from "vue";
 export default defineComponent({
     data() {
         return {
-            setBrowser: false
+            setBrowser: false,
+            inputStore
         };
     },
     methods: {

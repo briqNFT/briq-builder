@@ -4,27 +4,45 @@
 </template>
 
 <script lang="ts">
-import { builderInputFsm, main } from "../../builder/graphics/builder.js"
+import { main } from "../../builder/graphics/builder.js"
 
-import { PlacerInput } from '../../builder/inputs/Placer'
+import { inputStore } from './MenuBar.vue'
 
-import { defineComponent } from 'vue';
+import { defineComponent, toRef } from 'vue';
 export default defineComponent({
+    data() {
+        return {
+            currentInput: undefined,
+        }
+    },
     async mounted() {
         main(this.$refs.canvas);
-        builderInputFsm.switchTo(new PlacerInput(this.$refs.canvas));
+        this.currentInput = toRef(inputStore, 'currentInput');
     },
+    inject: ["inputMode"],
     methods: {
         onPointerMove: function(event) {
-            builderInputFsm.onPointerMove(event);
+            this.inputMode.onPointerMove(event);
         },
         onPointerDown: function(event) {
-            builderInputFsm.onPointerDown(event);
+            this.inputMode.onPointerDown(event);
         },
         onPointerUp: function(event) {
-            builderInputFsm.onPointerUp(event);
+            this.inputMode.onPointerUp(event);
+        }
+    },
+    watch: {
+        currentInput: {
+            immediate: true,
+            handler: function(newV, oldV)
+            {
+                if (!newV)
+                    return;
+                this.inputMode.switchTo(new inputStore.inputMap[this.currentInput](this.$refs.canvas));
+            }
         }
     }
+
 });
 </script>
 

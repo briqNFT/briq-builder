@@ -1,6 +1,10 @@
 export class BuilderInputState
 {
     constructor() {}
+
+    onEnter() {}
+    onExit() {}
+
     onPointerMove(event: PointerEvent) {}
     onPointerDown(event: PointerEvent) {}
     onPointerUp(event: PointerEvent) {}
@@ -20,7 +24,10 @@ export class BuilderInputFSM
 
     switchTo(state: BuilderInputState)
     {
+        if (this.state)
+            this.state.onExit();
         this.state = state;
+        this.state.onEnter();
     }
 
     //
