@@ -7,6 +7,7 @@ function generatePreviewCube(): THREE.Mesh
     var planeXZ = new THREE.Mesh(geometry, material);
     planeXZ.position.set(0, 0, 0);
     planeXZ.visible = false;
+    planeXZ.renderOrder = 1;
     return planeXZ;
 }
 
