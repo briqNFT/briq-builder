@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import Settings from './Tools/Settings.vue'
-import UndoRedo from './Tools/UndoRedo.vue'
-import Button from './generic/Button.vue'
+import Settings from '../Tools/Settings.vue'
+import UndoRedo from '../Tools/UndoRedo.vue'
+import Button from '../generic/Button.vue'
 
-import SetBrowser from './builder/set_browser/SetBrowser.vue'
+import SetBrowser from './set_browser/SetBrowser.vue'
+
+import HistoryLog from './modals/HistoryLog.vue'
 </script>
 
 <template>
     <div id="menuBar">
         <div class="flex flex-nowrap justify-start align-start">
             <UndoRedo/>
+            <Button @click="setModal(HistoryLog)">History</Button>
             <Button @click="setBrowser = !setBrowser">Browse</Button>
             <teleport to="#app">
                 <SetBrowser asModal="true" @close="setBrowser=false" v-if="setBrowser"/>
@@ -27,13 +30,17 @@ import SetBrowser from './builder/set_browser/SetBrowser.vue'
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { setModal } from '../MiddleModal.vue'
 
+import { defineComponent } from "vue";
 export default defineComponent({
     data() {
         return {
             setBrowser: false
         };
+    },
+    methods: {
+        setModal: setModal
     }
 })
 </script>

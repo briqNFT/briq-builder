@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { fetchData } from '../url'
+import { fetchData } from '../../../url'
 
 import { defineComponent } from 'vue';
 export default defineComponent({

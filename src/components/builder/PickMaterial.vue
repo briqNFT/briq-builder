@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { pickerData, nbMaterial, materialData } from '../materials.js'
+import { pickerData, nbMaterial, materialData } from '../../materials.js'
 var materialIndex = Object.keys(materialData);
 
 var getColor = function(mat, i)
@@ -25,7 +25,7 @@ var getColor = function(mat, i)
 </template>
 
 <script lang="ts">
-import Button from './generic/Button.vue'
+import Button from '../generic/Button.vue'
 
 import { defineComponent } from 'vue'
 export default defineComponent({

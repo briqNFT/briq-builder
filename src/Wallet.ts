@@ -56,7 +56,7 @@ export const walletStore = {
         },
         set_user_wallet({ dispatch, commit }: any, data:any) {
             commit("set_user_wallet", data);
-            dispatch("builderData/fetch_chain_sets", undefined, { root: true });
+            dispatch("builderData/try_fetching_user_data", undefined, { root: true });
         }
     },
     mutations: {

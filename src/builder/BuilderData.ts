@@ -75,6 +75,8 @@ export var builderDataStore = (() => {
             },
             async get_briqs({ commit, state, rootState }: any, data: any)
             {
+                if (!state.briqContract)
+                    return;
                 try {
                     let bricks = (await state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).bricks;
                     commit("set_briqs", bricks);
@@ -88,6 +90,8 @@ export var builderDataStore = (() => {
             },
             async get_chain_sets({ commit, state, rootState }: any, data: any)
             {
+                if (!state.setContract)
+                    return;
                 try {
                     let sets = (await state.setContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).tokens;
                     commit("set_chain_sets", sets)
@@ -231,9 +235,10 @@ export var builderDataStore = (() => {
                 dispatchBuilderAction("reset");
             },
             undo_clear: (state: any, data: any) => {
-                // TODO
+                state.currentSet.reset();
+                state.currentSet.deserialize(data);
+                dispatchBuilderAction("select_set", state.currentSet);
             },
-
         },
         getters: {},
     };
@@ -268,6 +273,19 @@ registerUndoableAction("builderData/select_set", "builderData/select_set", {
             action: "builderData/select_set",
             redoData: payload,
             undoData: transientActionState.set,
+        });
+    }
+});
+
+registerUndoableAction("builderData/clear", "builderData/undo_clear", {
+    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
+        transientActionState.data = state.builderData.currentSet.serialize();
+    },
+    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
+        store.dispatch("push_command_to_history", {
+            action: "builderData/clear",
+            redoData: payload,
+            undoData: transientActionState.data,
         });
     }
 });

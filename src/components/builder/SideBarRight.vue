@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Button from "./generic/Button.vue";
+import Button from "../generic/Button.vue";
 import PickMaterial from "./PickMaterial.vue";
-import { setTooltip } from '../Messages'
+import { setTooltip } from '../../Messages'
 </script>
 
 <template>
@@ -27,10 +27,10 @@ import { setTooltip } from '../Messages'
 
 <script lang="ts">
 
-import { setModal } from './MiddleModal.vue';
+import { setModal } from '../MiddleModal.vue';
 
-import RenameSet from './RenameSet.vue';
-import ExportSet from './ExportSet.vue';
+import RenameSet from './modals/RenameSet.vue';
+import ExportSet from './modals/ExportSet.vue';
 
 import { defineComponent, toRef } from "vue";
 export default defineComponent({
