@@ -10,6 +10,7 @@ import { dispatchBuilderAction } from "./graphics/dispatch"
 
 import BriqContract from '../contracts/briq'
 import SetContract from '../contracts/set'
+import { pushMessage } from '../Messages';
 
 let briqsDB = new BriqsDB();
 let initSet = new SetData(Date.now(), briqsDB);
@@ -63,17 +64,40 @@ export var builderDataStore = (() => {
                     })
                 },
             },
-            async try_fetching_user_data({ commit, state, rootState }: any, data: any)
+            async try_fetching_user_data({ dispatch }: any, data: any)
             {
-                let bricks = state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress);
-                let sets = state.setContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress);
-                let res = {
-                    bricks: (await bricks).bricks,
-                    sets: (await sets).tokens,
+                let bricks = dispatch("get_briqs");
+                let sets = dispatch("get_chain_sets");
+                let awaiting = {
+                    briqs: await bricks,
+                    sets: await sets,
+                };
+            },
+            async get_briqs({ commit, state, rootState }: any, data: any)
+            {
+                try {
+                    let bricks = (await state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).bricks;
+                    commit("set_briqs", bricks);
+                    pushMessage("Successfully fetched " + bricks.length/3 + " briqs");
                 }
-                console.log(res);
-                commit("set_briqs", res.bricks);
-                commit("set_chain_sets", res.sets)
+                catch(err)
+                {
+                    pushMessage("Error fetching briqs - see console for details");
+                    console.error(err);
+                }
+            },
+            async get_chain_sets({ commit, state, rootState }: any, data: any)
+            {
+                try {
+                    let sets = (await state.setContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).tokens;
+                    commit("set_chain_sets", sets)
+                    pushMessage("Successfully fetched " + sets.length + " sets");
+                }
+                catch(err)
+                {
+                    pushMessage("Error fetching sets - see console for details");
+                    console.error(err);
+                }
             },
             ////////////
             //// Local set Management

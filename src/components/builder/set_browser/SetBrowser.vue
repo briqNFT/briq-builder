@@ -20,6 +20,8 @@
 </template>
 
 <script lang="ts">
+import { fetchData } from '../../../url'
+
 import { defineComponent } from 'vue';
 export default defineComponent({
     props: ["asModal"],
@@ -30,8 +32,11 @@ export default defineComponent({
         }
     },
     methods: {
-        disassemble: function(sid) {
-            //let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
+        disassemble: async function(sid) {
+            let data = (await fetchData("store_get/" + parseInt(sid, 16))).data;
+            console.log(data);
+            let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
+            console.log(TX);
         }
     }
 })

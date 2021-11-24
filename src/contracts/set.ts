@@ -43,6 +43,13 @@ export default class SetContract extends Contract
 
     async mint(owner: string, token_id: string, bricks: Array<string>)
     {
+        if (!((this.provider as Signer).address))
+            throw new Error("Provider is not a signer");
         return await this.invoke("mint", { owner, token_id, bricks });
+    }
+
+    async disassemble(owner: string, token_id: string, bricks: Array<string>)
+    {
+        return await this.invoke("disassemble", { owner, token_id, bricks });
     }
 }

@@ -15,7 +15,6 @@ import SplashScreen from '../SplashScreen.vue'
   <SplashScreen/>
   <div>
     <Homepage/>
-    <SetOptions/>
     <Toolbar :shouldShow="shouldShowToolbar"/>
     <SideBar/>
     <SideBarRight/>
@@ -27,10 +26,7 @@ import SplashScreen from '../SplashScreen.vue'
 </template>
 
 <script lang="ts">
-import { reactive } from 'vue'
-
-import { builderDataEvents, BuilderDataEvent } from '../../builder/BuilderDataEvents'
-
+import { pushMessage, setTooltip } from '../../Messages'
 export default {
   data() {
     return {
@@ -38,10 +34,14 @@ export default {
       shouldShowToolbar: false,
     };
   },
+  provide: {
+    messages: {
+      pushMessage, setTooltip
+    }
+  },
   created: function() {
   },
   mounted: function() {
-    builderDataEvents.push(new BuilderDataEvent("change_set"));
   },
   methods: {
   }

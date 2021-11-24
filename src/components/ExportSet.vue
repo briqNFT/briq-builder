@@ -5,22 +5,28 @@
             <p>Set {{ metadata.set }}</p>
             <p>Name: {{ set.name }}</p>
             <p>Briqs: {{ set.briqsDB.briqs.size }}</p>
-            <button class="btn float-left" @click="$emit('close')">Cancel & Close</button>
-            <button class="btn float-right" @click="exportSet">Export</button>
+            <p v-if="pending_transaction">Pending transaction: {{ pending_transaction }}</p>
+            <button class="btn float-left" :disabled="exporting" @click="$emit('close')">Cancel & Close</button>
+            <button class="btn float-right" :disabled="exporting || pending_transaction" @click="exportSet">Export</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { fetchData } from '../url'
+
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
             name: "",
+            pending_transaction: undefined,
+            exporting: false,
         }
     },
     props: ["metadata"],
     emits: ["close"],
+    inject: ["messages"],
     mounted() {
         this.name = this.set.name;
     },
@@ -33,11 +39,22 @@ export default defineComponent({
         exportSet: async function() {
             if (!this.$store.state.builderData.setContract)
                 return;
-            this.$store.dispatch("builderData/swap_for_real_briqs");
-            let data = this.$store.state.builderData.currentSet.serialize();
-            console.log(data);
-            let TX = await this.$store.state.builderData.setContract.mint(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
-            console.log(TX);
+            this.exporting = true;
+            try {
+                this.$store.dispatch("builderData/swap_for_real_briqs");
+                let data = this.$store.state.builderData.currentSet.serialize();
+                await fetchData("store_set", { token_id: data.id, data: data });
+                let TX = await this.$store.state.builderData.setContract.mint(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
+                console.log(TX);
+                this.messages.pushMessage("Set exported - TX " + TX.transaction_hash);
+                this.pending_transaction = TX.transaction_hash;
+            }
+            catch(err)
+            {
+                this.messages.pushMessage("Error while exporting set - check console for details");
+                console.error(err);
+            }
+            this.exporting = false;
         }
     }
 })
