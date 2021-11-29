@@ -1,0 +1,81 @@
+<script setup lang="ts">
+import Button from '../../generic/Button.vue';
+import ColorPicker from './ColorPicker.vue';
+</script>
+
+<template>
+    <div class="w-1/2">
+        <div class="relative">
+            <button @click="$emit('close')" class="absolute right-0">X</button>
+            <h2 class="text-center">Color Manager</h2>
+            <div>
+                <p v-for="col, key in colorMap" class="my-1">
+                    <Button class="mx-0.5" :disabled="usedColors[key] > 0" @click="deleteColor(key)">Delete</Button>
+                    <Button class="mx-0.5" :disabled="(usedColors?.[key] ?? 0) == 0" @click="replaceColor(key)">Replace</Button>
+                    <span class="w-6 h-6 inline-block mx-1" :style="{ 'backgroundColor': col.color }">{{ usedColors[key] ?? 0 }}</span>
+                    {{ col.name }}
+                </p>
+            </div>
+            <Button class="float-left" @click="resetAll">Reset to set colors</Button>
+            <Button class="float-right" @click="$emit('close')">Close</Button>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import * as THREE from 'three';
+
+import { inputStore } from '../../../builder/inputs/InputStore'
+
+import { getModal, setModal, setModalAndAwait } from '../../MiddleModal.vue'
+
+import { defineComponent } from 'vue';
+export default defineComponent({
+    data() {
+        return inputStore
+    },
+    computed: {
+        usedColors(): { [key: string]: number } {
+            let ret = {};
+            this.$store.state.builderData.currentSet.forEach(cell => {
+                if (cell.color in ret)
+                    ++ret[cell.color];
+                else
+                    ret[cell.color] = 1;
+            });
+            return ret;
+        },
+    },
+    methods: {
+        deleteColor(col: string) {
+            if (this.usedColors[col] > 0)
+                return;
+            delete this.colorMap[col];
+            if (this.currentColor === col)
+                this.currentColor = Object.keys(this.colorMap)[0];
+        },
+        async replaceColor(col: string) {
+            let mod = getModal();
+            let res = await setModalAndAwait(ColorPicker);
+            this.$store.state.builderData.currentSet.forEach((cell, pos) => {
+                if (cell.color === col)
+                    this.$store.dispatch("builderData/set_briq_color", { pos, color: res });
+            })
+            this.deleteColor(col);
+            this.currentColor = res;
+            setModal(mod);
+        },
+        resetAll() {
+            this.colorMap = {};
+            this.updateForSet(this.$store.state.builderData.currentSet);
+            if (Object.keys(this.colorMap).length === 0)
+                this.colorMap = {
+                    "#999999": {
+                        name: "#999999",
+                        color: "#999999",
+                    }
+                };
+            this.currentColor = Object.keys(this.colorMap)[0];
+        }
+    },
+})</script>

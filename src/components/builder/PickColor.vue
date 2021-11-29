@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Button from '../generic/Button.vue'
 import ColorPicker from './modals/ColorPicker.vue';
+import ColorManager from './modals/ColorManager.vue';
 </script>
 
 <template>
@@ -11,7 +12,10 @@ import ColorPicker from './modals/ColorPicker.vue';
             >{{ value.name }}
         </Button>
     </div>
-    <Button @click="setModal(ColorPicker)">New</Button>
+    <div class="my-2">
+        <Button @click="setModal(ColorPicker)">New</Button>
+        <Button @click="setModal(ColorManager)">Manage</Button>
+    </div>
 </template>
 
 <script lang="ts">

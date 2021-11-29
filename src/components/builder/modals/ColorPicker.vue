@@ -52,6 +52,7 @@ export default defineComponent({
                 color: hex,
             };
             inputStore.currentColor = hex;
+            this.$emit('close', inputStore.currentColor);
         }
     },
     computed: {
