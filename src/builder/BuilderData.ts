@@ -227,8 +227,9 @@ export var builderDataStore = (() => {
 
             place_briq(state: any, data: any)
             {
-                state.currentSet.placeBriq(...data.pos, data.color, data.voxelId);
-                dispatchBuilderAction("place_briq", data);
+                let ok = state.currentSet.placeBriq(...data.pos, data.color, data.voxelId);
+                if (ok)
+                    dispatchBuilderAction("place_briq", data);
             },
             undo_place_briq(state: any, data: any)
             {

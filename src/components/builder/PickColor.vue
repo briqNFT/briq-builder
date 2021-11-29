@@ -27,7 +27,7 @@ export default defineComponent({
     data() {
         return inputStore;
     },
-    inject:["pushMessage"],
+    inject:["messages"],
     methods:
     {
         setModal,
@@ -41,7 +41,7 @@ export default defineComponent({
             let [hex, name] = result;
             if (hex in inputStore.colorMap)
             {
-                this.pushMessage("Error while picking color: color " + hex + " already exists.");
+                this.messages.pushMessage("Error while picking color: color " + hex + " already exists.");
                 setModal();
                 return await this.registerNewColor();
             }
