@@ -77,7 +77,7 @@ export class SetData
 
     deserialize(data: any): SetData
     {
-        if (this.id !== data.id)
+        if (data.id && this.id !== data.id)
             throw new Error("Set tried to load data from the wrong set");
         this.reset();
         this.name = data.name;

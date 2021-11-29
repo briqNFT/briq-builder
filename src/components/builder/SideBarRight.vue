@@ -8,12 +8,15 @@ import { setTooltip } from '../../Messages'
     <div id="sideBar" class="flex flex-wrap flex-col px-5 py-20 absolute right-0 top-0 h-full w-20 justify-center content-end">
         <div class="flex flex-col content-end my-8">
             <Button class="my-1" tooltip="Create a new WIP set." @click="newSet">New</Button>
+            <Button class="my-1" tooltip="Copy a new WIP set." @click="copySet">Copy</Button>
             <Button class="my-1" tooltip="Delete the current WIP set." @click="deleteSet">Delete</button>
-            <Button class="my-1" tooltip="Remove all briqs from the current WIP set." @click="clear" :disabled="set.briqsDB.briqs.size == 0">Clear</button>
+            <div class="my-2"></div>
             <Button class="my-1" tooltip="Rename the current set" @click="rename">Rename</button>
-            <Button class="my-2" tooltip="Export the set to the blockchain" @click="exportSet">Export</button>
+            <Button class="my-1" tooltip="Export the set to the blockchain" @click="exportSet">Export</button>
+            <div class="my-2"></div>
+            <Button class="my-1" tooltip="Remove all briqs from the current WIP set." @click="clear" :disabled="set.briqsDB.briqs.size == 0">Clear</button>
         </div>
-        <div class="flex flex-col content-end my-8">
+        <div class="flex flex-col content-end my-4">
             <h4 class="text-center font-bold">WIP SETS</h4>
             <Button v-for="wipset in wipSets"
                 class="my-1 h-auto"
@@ -46,6 +49,11 @@ export default defineComponent({
         },
         newSet: function() {
             this.$store.dispatch("builderData/create_wip_set");
+        },
+        copySet: function() {
+            let data = this.set.serialize();
+            delete data.id;
+            this.$store.dispatch("builderData/create_wip_set", data);
         },
         deleteSet: function() {
             this.$store.dispatch("builderData/delete_wip_set", this.set.id);
