@@ -13,19 +13,23 @@ export class Briq
     set: number;
     onChain: boolean;
 
+    color: string;
+
     constructor(id: number, material: number, set: number)
     {
         this.id = id;
         this.material = material;
         this.set = set;
         this.onChain = false;
+        this.color = "#000000";
     }
 
     serialize()
     {
         let ret: any = {
             material: this.material,
-            set: this.set
+            set: this.set,
+            color: this.color
         }
         if (this.onChain)
             ret.briq = this.id;
@@ -43,6 +47,7 @@ export class Briq
             this.id = pseudoGUID()
         this.material = data.material
         this.set = data.set;
+        this.color = data.color;
         return this;
     }
 }

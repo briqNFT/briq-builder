@@ -85,7 +85,7 @@ export class SetData
         for (let briq of data.briqs)
         {
             let cell = this.briqsDB.deserializeBriq(briq.data);
-            this.placeBriq(briq.pos[0], briq.pos[1], briq.pos[2], cell.material, cell.id);
+            this.placeBriq(briq.pos[0], briq.pos[1], briq.pos[2], cell.color, cell.material, cell.id);
         }
         return this;
     }
@@ -122,15 +122,15 @@ export class SetData
         return this.briqsDB.get(briqId);
     }
 
-    placeBriq(x: number, y: number, z: number, cellKind: number, briq?: number): boolean
+    placeBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: number): boolean
     {
         if (cellKind > 0)
-            return this.doPlaceBriq(x, y, z, cellKind, briq);
+            return this.doPlaceBriq(x, y, z, color, cellKind, briq);
         else
             return this.doRemoveBriq(x, y, z);
     }
 
-    doPlaceBriq(x: number, y: number, z: number, cellKind: number, briq?: number): boolean
+    doPlaceBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: number): boolean
     {
         if (Math.abs(x) > this.regionSize / 2 || Math.abs(z) > this.regionSize / 2)
             return false;
@@ -146,6 +146,7 @@ export class SetData
         if (!actualBriq)
             return false;
         actualBriq.material = cellKind;
+        actualBriq.color = color;
         actualBriq.set = this.id;
         
         this.briqs.get(regionId)!.set(cellId, actualBriq.id);
@@ -179,6 +180,18 @@ export class SetData
             kind: 0,
         }));
         return true;
+    }
+
+    modifyBriq(x: number, y: number, z: number, data: any): Briq
+    {
+        let cell = this.getAt(x, y, z);
+        if (!cell)
+            throw new Error(`No cell at position ${x}, ${y}, ${z}`);
+        if (data.color)
+        {
+            cell.color = data.color;
+        }
+        return cell;
     }
 
     computeRegionId(x: number, y: number, z: number)

@@ -25,6 +25,7 @@ export var builderDataStore = (() => {
             briqContract: undefined as BriqContract | undefined,
             setContract: undefined as SetContract | undefined,
             chainSets: [],
+            genericChainSets: [],
         }),
         actions: {
             initialize: {
@@ -68,9 +69,11 @@ export var builderDataStore = (() => {
             {
                 let bricks = dispatch("get_briqs");
                 let sets = dispatch("get_chain_sets");
+                let gsets = dispatch("get_generic_chain_sets");
                 let awaiting = {
                     briqs: await bricks,
                     sets: await sets,
+                    gsets: await gsets,
                 };
             },
             async get_briqs({ commit, state, rootState }: any, data: any)
@@ -95,6 +98,21 @@ export var builderDataStore = (() => {
                 try {
                     let sets = (await state.setContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).tokens;
                     commit("set_chain_sets", sets)
+                    pushMessage("Successfully fetched " + sets.length + " sets");
+                }
+                catch(err)
+                {
+                    pushMessage("Error fetching sets - see console for details");
+                    console.error(err);
+                }
+            },
+            async get_generic_chain_sets({ commit, state, rootState }: any, data: any)
+            {
+                if (!state.setContract)
+                    return;
+                try {
+                    let sets = (await state.setContract.get_all_tokens_for_owner("0xe872a6192d04d0ca5c935cb1742bb3a48cb87338acf2d97cbe25d1898de5be")).tokens;
+                    commit("set_generic_chain_sets", sets)
                     pushMessage("Successfully fetched " + sets.length + " sets");
                 }
                 catch(err)
@@ -150,6 +168,9 @@ export var builderDataStore = (() => {
             undo_place_briq: ({ commit }: any, data: any) => {
                 commit("undo_place_briq", data);        
             },
+            set_briq_color: ({ commit }: any, data: any) => {
+                commit("set_briq_color", data);
+            },
             clear: ({ commit }: any) => {
                 commit("clear");
             },
@@ -169,7 +190,7 @@ export var builderDataStore = (() => {
             },
             delete_wip_set(state: any, data: any)
             {
-                let idx = state.wipSets.findIndex(x => x.id === data);
+                let idx = state.wipSets.findIndex((x: SetData) => x.id === data);
                 state.wipSets.splice(idx, 1);
             },
             select_set(state: any, data: any)
@@ -177,7 +198,7 @@ export var builderDataStore = (() => {
                 if (data instanceof SetData)
                     state.currentSet = data;
                 else
-                    state.currentSet = state.wipSets.filter(x => x.id === data)[0];
+                    state.currentSet = state.wipSets.filter((x: SetData) => x.id === data)[0];
                 dispatchBuilderAction("select_set", state.currentSet);
             },
             set_briq_contract(state: any, data: BriqContract)
@@ -197,26 +218,37 @@ export var builderDataStore = (() => {
             {
                 state.chainSets = data;
             },
+            set_generic_chain_sets(state: any, data: string[])
+            {
+                state.genericChainSets = data;
+            },
 
             place_briq(state: any, data: any)
             {
-                state.currentSet.placeBriq(...data.pos, data.voxelId);
+                state.currentSet.placeBriq(...data.pos, data.color, data.voxelId);
                 dispatchBuilderAction("place_briq", data);
             },
             undo_place_briq(state: any, data: any)
             {
+                console.log(data);
                 if (data.undoData.briq)
                 {
-                    state.currentSet.placeBriq(...data.payload.pos, 0);
-                    state.currentSet.placeBriq(...data.payload.pos, data.undoData.briq.material);
+                    state.currentSet.placeBriq(...data.payload.pos, "", 0);
+                    state.currentSet.placeBriq(...data.payload.pos, data.undoData.briq.color, data.undoData.briq.material);
                 }
                 else
                 {
-                    state.currentSet.placeBriq(...data.payload.pos, 0);   
+                    state.currentSet.placeBriq(...data.payload.pos, "", 0);   
                 }
-                dispatchBuilderAction("place_briq", { pos: data.payload.pos, voxelId: data?.undoData?.briq?.material ?? 0 });
+                dispatchBuilderAction("place_briq", { pos: data.payload.pos, color: data?.undoData?.briq?.color ?? "", voxelId: data?.undoData?.briq?.material ?? 0 });
                 //state.currentSet.placeBriq(...data.pos, data.voxelId);
             },
+            set_briq_color(state: any, data: any)
+            {
+                let cell = state.currentSet.modifyBriq(...data.pos, data);
+                dispatchBuilderAction("place_briq", { ...cell.serialize(), pos: data.pos });
+            },
+
             change_set_name(state: any, data: any)
             {
                 data.set.name = data.name;
@@ -259,6 +291,24 @@ registerUndoableAction("builderData/place_briq", "builderData/undo_place_briq", 
                 undoData: {
                     briq: (transientActionState.cell as Briq)?.serialize() ?? null
                 }
+            }
+        });
+    }
+});
+
+registerUndoableAction("builderData/set_briq_color", "builderData/set_briq_color", {
+    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
+        let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos);
+        if (cell)
+            transientActionState.cellColor = cell.color;
+    },
+    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
+        store.dispatch("push_command_to_history", {
+            action: "builderData/set_briq_color",
+            redoData: payload,
+            undoData: {
+                pos: payload.pos,
+                color: transientActionState.cellColor
             }
         });
     }

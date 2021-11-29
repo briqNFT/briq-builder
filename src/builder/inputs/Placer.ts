@@ -4,6 +4,8 @@ import { pickerData } from "../../materials.js"
 import { BuilderInputState } from './BuilderInput';
 import { previewCube } from '../graphics/PreviewCube'
 
+import { currentColor, colorMap } from '../../components/builder/PickColor.vue'
+
 import { store } from '../../store/Store'
 
 import * as THREE from 'three'
@@ -88,7 +90,7 @@ export class PlacerInput extends BuilderInputState
                 return Math.floor(v + intersection.normal[ndx] * (removing ? -0.5 : 0.5));
             });
 
-            store.dispatch("builderData/place_briq", { pos: pos, voxelId: voxelId });
+            store.dispatch("builderData/place_briq", { pos: pos, color: removing ? '' : colorMap[currentColor.value].color, voxelId: voxelId });
             //builderData.currentSet.placeBriq(...pos, voxelId);
         }
     }

@@ -32,7 +32,7 @@ export default defineComponent({
     emits: ["close"],
     computed: {
         chainSets: function() {
-            return this.$store.state.builderData.chainSets
+            return this.$store.state.builderData.chainSets.concat(this.$store.state.builderData.genericChainSets)
         }
     },
 })

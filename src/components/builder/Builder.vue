@@ -24,8 +24,6 @@ import SplashScreen from './SplashScreen.vue'
 
 <script lang="ts">
 
-import { builderInputFsm } from "../../builder/graphics/builder.js"
-
 import { pushMessage, setTooltip } from '../../Messages'
 export default {
   data() {
@@ -36,7 +34,6 @@ export default {
     messages: {
       pushMessage, setTooltip
     },
-    inputMode: builderInputFsm,
   },
   created: function() {
   },

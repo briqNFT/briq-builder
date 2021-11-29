@@ -1,13 +1,8 @@
 import * as THREE from 'three'
 
-import { pickerData, texture, tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
+import { materialByColor } from './Materials'
 
-const material = new THREE.MeshLambertMaterial({
-    map: texture,
-    side: THREE.DoubleSide,
-    alphaTest: 0.1,
-    transparent: true,
-});
+const material = materialByColor.material;
 
 export default class VoxelWorld {
     cellSize: number;
@@ -74,7 +69,7 @@ export default class VoxelWorld {
         return this.cells[this.computeCellId(x, y, z)];
     }
     
-    setVoxel(x, y, z, v, addCell = true) {
+    setVoxel(x, y, z, color: string, addCell = true) {
         let cell = this.getCellForVoxel(x, y, z);
         if (!cell) {
             if (!addCell) {
@@ -83,13 +78,8 @@ export default class VoxelWorld {
             cell = this.addCellForVoxel(x, y, z);
         }
         const voxelOffset = this.computeVoxelOffset(x, y, z);
+        const v = materialByColor.getIndex(color);
         cell[voxelOffset] = v;
-        if(v==0){
-            pickerData.tempStore[pickerData.material]-=1;
-        }
-        else{
-            pickerData.tempStore[pickerData.material] +=1 ;
-        }
     }
     
     getVoxel(x, y, z) {
@@ -102,7 +92,8 @@ export default class VoxelWorld {
     }
     
     generateGeometryDataForCell(cellX, cellY, cellZ) {
-        const {cellSize, tileSize, nbMaterial, tileTextureHeight} = this;
+        const {cellSize, tileSize, tileTextureHeight} = this;
+
         const positions = [];
         const normals = [];
         const uvs = [];
@@ -140,10 +131,7 @@ export default class VoxelWorld {
                                     {
                                         positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
                                         normals.push(...dir);
-                                        uvs.push(
-                                            (uvVoxel +   uv[0]) * tileSize / nbMaterial,
-                                            1 - (uvRow + 1 - uv[1]) * tileSize / tileTextureHeight
-                                        );
+                                        uvs.push(...materialByColor.getUV(uvVoxel, uv));
                                     }
                                     indices.push(
                                         ndx, ndx + 1, ndx + 2,

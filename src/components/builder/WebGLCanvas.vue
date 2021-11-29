@@ -6,7 +6,8 @@
 <script lang="ts">
 import { main } from "../../builder/graphics/builder.js"
 
-import { inputStore } from './MenuBar.vue'
+import { builderInputFsm } from "../../builder/graphics/builder.js"
+import { inputStore } from '../../builder/inputs/InputStore'
 
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({
@@ -19,16 +20,15 @@ export default defineComponent({
         main(this.$refs.canvas);
         this.currentInput = toRef(inputStore, 'currentInput');
     },
-    inject: ["inputMode"],
     methods: {
         onPointerMove: function(event) {
-            this.inputMode.onPointerMove(event);
+            builderInputFsm.onPointerMove(event);
         },
         onPointerDown: function(event) {
-            this.inputMode.onPointerDown(event);
+            builderInputFsm.onPointerDown(event);
         },
         onPointerUp: function(event) {
-            this.inputMode.onPointerUp(event);
+            builderInputFsm.onPointerUp(event);
         }
     },
     watch: {
@@ -38,7 +38,7 @@ export default defineComponent({
             {
                 if (!newV)
                     return;
-                this.inputMode.switchTo(new inputStore.inputMap[this.currentInput](this.$refs.canvas));
+                builderInputFsm.switchTo(new inputStore.inputMap[this.currentInput](this.$refs.canvas));
             }
         }
     }

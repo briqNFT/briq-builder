@@ -188,13 +188,13 @@ generateSkybox()
         voxWorld.reset();
         for (let cell of item.payload)
         {
-          voxWorld.setVoxel(...cell.pos, cell.material)
+          voxWorld.setVoxel(...cell.pos, cell.color)
           voxWorld.updateVoxelGeometry(...cell.pos);
         }
       }
       else if (item.action === "place_briq")
       {
-        voxWorld.setVoxel(...item.payload.pos, item.payload.voxelId)
+        voxWorld.setVoxel(...item.payload.pos, item.payload.color)
         voxWorld.updateVoxelGeometry(...item.payload.pos);
       }
       else if (item.action === "reset")

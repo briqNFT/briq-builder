@@ -11,7 +11,7 @@ const preprocessor: { [key: string]: (payload: any) => any } = {
         // Fetch the minimum required data to place stuff.
         let data: Array<any> = [];
         payload.forEach((cell: Briq, pos: [number, number, number]) => {
-            data.push({ pos, material: cell.material });
+            data.push({ pos, color: cell.color, material: cell.material });
         })
         return data;
     },

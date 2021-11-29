@@ -4,11 +4,13 @@ import { pickerData } from "../../materials.js"
 import { BuilderInputState } from './BuilderInput';
 import { previewCube } from '../graphics/PreviewCube'
 
+import { currentColor, colorMap } from '../../components/builder/PickColor.vue'
+
 import { store } from '../../store/Store'
 
 import * as THREE from 'three'
 
-export class EraserInput extends BuilderInputState
+export class PainterInput extends BuilderInputState
 {
     curX: number;
     curY: number;
@@ -62,7 +64,7 @@ export class EraserInput extends BuilderInputState
             {
                 previewCube.visible = true;
                 previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-                (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);
+                (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(colorMap[currentColor.value].color);
             }
         }
     }
@@ -82,14 +84,11 @@ export class EraserInput extends BuilderInputState
         const intersection = voxWorld.intersectRay(start, end);
         if (intersection)
         {
-            const removing = true;
-            const voxelId = 0;
             const pos: [number, number, number] = intersection.position.map((v, ndx) => {
-                return Math.floor(v + intersection.normal[ndx] * (removing ? -0.5 : 0.5));
+                return Math.floor(v + intersection.normal[ndx] * (-0.5));
             });
-
             if (pos[1] >= 0)
-                store.dispatch("builderData/place_briq", { pos: pos, color: "", voxelId: voxelId });
+                store.dispatch("builderData/set_briq_color", { pos: pos, color: colorMap[currentColor.value].color });
         }
     }
 }
