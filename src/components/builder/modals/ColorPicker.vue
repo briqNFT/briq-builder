@@ -42,17 +42,7 @@ export default defineComponent({
         },
         pickColor: function() {
             let hex = this.getHex();
-            if (hex in inputStore.colorMap)
-            {
-                console.log("fail");
-                return;
-            }
-            inputStore.colorMap[hex] = {
-                name: this.name,
-                color: hex,
-            };
-            inputStore.currentColor = hex;
-            this.$emit('close', inputStore.currentColor);
+            this.$emit('close', [hex, this.name]);
         }
     },
     computed: {

@@ -56,7 +56,11 @@ export default defineComponent({
         },
         async replaceColor(col: string) {
             let mod = getModal();
-            let res = await setModalAndAwait(ColorPicker);
+            let [res, name] = await setModalAndAwait(ColorPicker);
+            this.colorMap[res] = {
+                name,
+                color: res,
+            }
             this.$store.state.builderData.currentSet.forEach((cell, pos) => {
                 if (cell.color === col)
                     this.$store.dispatch("builderData/set_briq_color", { pos, color: res });

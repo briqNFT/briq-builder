@@ -13,14 +13,14 @@ import ColorManager from './modals/ColorManager.vue';
         </Button>
     </div>
     <div class="my-2">
-        <Button @click="setModal(ColorPicker)">New</Button>
+        <Button @click="registerNewColor">New</Button>
         <Button @click="setModal(ColorManager)">Manage</Button>
     </div>
 </template>
 
 <script lang="ts">
 import { inputStore } from '../../builder/inputs/InputStore';
-import { setModal } from '../MiddleModal.vue'
+import { setModal, setModalAndAwait } from '../MiddleModal.vue'
 
 import { defineComponent } from 'vue'
 export default defineComponent({
@@ -30,6 +30,21 @@ export default defineComponent({
     methods:
     {
         setModal,
+        async registerNewColor(): Promise<void> {
+            let [hex, name] = await setModalAndAwait(ColorPicker);
+            if (hex in inputStore.colorMap)
+            {
+                console.log("fail");
+                setModal();
+                return await this.registerNewColor();
+            }
+            inputStore.colorMap[hex] = {
+                name: name,
+                color: hex,
+            };
+            inputStore.currentColor = hex;
+            setModal();
+        },
         pickColor : function(key: string) {
             this.currentColor = key;
         },
