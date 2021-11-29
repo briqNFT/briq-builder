@@ -4,7 +4,7 @@ import { pickerData } from "../../materials.js"
 import { BuilderInputState } from './BuilderInput';
 import { previewCube } from '../graphics/PreviewCube'
 
-import { currentColor, colorMap } from '../../components/builder/PickColor.vue'
+import { inputStore } from "./InputStore";
 
 import { store } from '../../store/Store'
 
@@ -64,7 +64,7 @@ export class PainterInput extends BuilderInputState
             {
                 previewCube.visible = true;
                 previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-                (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(colorMap[currentColor.value].color);
+                (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.colorMap[inputStore.currentColor].color);
             }
         }
     }
@@ -88,7 +88,7 @@ export class PainterInput extends BuilderInputState
                 return Math.floor(v + intersection.normal[ndx] * (-0.5));
             });
             if (pos[1] >= 0)
-                store.dispatch("builderData/set_briq_color", { pos: pos, color: colorMap[currentColor.value].color });
+                store.dispatch("builderData/set_briq_color", { pos: pos, color: inputStore.colorMap[inputStore.currentColor].color });
         }
     }
 }

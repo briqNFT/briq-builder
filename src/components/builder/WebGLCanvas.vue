@@ -8,6 +8,7 @@ import { main } from "../../builder/graphics/builder.js"
 
 import { builderInputFsm } from "../../builder/graphics/builder.js"
 import { inputStore } from '../../builder/inputs/InputStore'
+import { inputMap } from '../../builder/inputs/InputMap'
 
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({
@@ -38,7 +39,7 @@ export default defineComponent({
             {
                 if (!newV)
                     return;
-                builderInputFsm.switchTo(new inputStore.inputMap[this.currentInput](this.$refs.canvas));
+                builderInputFsm.switchTo(new inputMap[this.currentInput](this.$refs.canvas));
             }
         }
     }

@@ -6,7 +6,9 @@ import { registerUndoableAction } from "./UndoRedo"
 
 import { fetchData } from '../url'
 
-import { dispatchBuilderAction } from "./graphics/dispatch"
+import { dispatchBuilderAction } from "./graphics/dispatch";
+
+import { inputStore } from './inputs/InputStore';
 
 import BriqContract from '../contracts/briq'
 import SetContract from '../contracts/set'
@@ -38,8 +40,7 @@ export var builderDataStore = (() => {
                         try
                         {
                             let data = JSON.parse(setData);
-                            //let set = new SetData(data.id, state.briqsDB).deserialize();
-                            dispatch("create_wip_set", data) //this.wipSets.push(set);
+                            dispatch("create_wip_set", data);
                         }
                         catch (e)
                         {
@@ -199,6 +200,7 @@ export var builderDataStore = (() => {
                     state.currentSet = data;
                 else
                     state.currentSet = state.wipSets.filter((x: SetData) => x.id === data)[0];
+                inputStore.updateForSet(state.currentSet);
                 dispatchBuilderAction("select_set", state.currentSet);
             },
             set_briq_contract(state: any, data: BriqContract)

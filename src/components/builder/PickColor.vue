@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from '../generic/Button.vue'
-import BuilderVue from './Builder.vue'
+import ColorPicker from './modals/ColorPicker.vue';
 </script>
 
 <template>
@@ -9,44 +9,23 @@ import BuilderVue from './Builder.vue'
             @click="pickColor(key)"
             :style="{ 'backgroundColor': value.color, 'border': (currentColor === key ? '4px solid black' : '') }"
             >{{ value.name }}
-            </Button>
+        </Button>
     </div>
+    <Button @click="setModal(ColorPicker)">New</Button>
 </template>
 
 <script lang="ts">
-import { dispatchBuilderAction } from '../../builder/graphics/dispatch'
-
-import { ref, reactive } from 'vue';
-export const currentColor = ref("gray");
-export const colorMap = reactive({
-    "gray": {
-        name: "Gray",
-        color: "#999999",
-    },
-    "red": {
-        name: "Red",
-        color: "#DD0000",
-    },
-    "blue": {
-        name: "Blue",
-        color: "#0000DD",
-    },
-    "green": {
-        name: "Green",
-        color: "#00DD00",
-    },
-});
+import { inputStore } from '../../builder/inputs/InputStore';
+import { setModal } from '../MiddleModal.vue'
 
 import { defineComponent } from 'vue'
 export default defineComponent({
     data() {
-        return {
-            colorMap,
-            currentColor
-        }
+        return inputStore;
     },
     methods:
     {
+        setModal,
         pickColor : function(key: string) {
             this.currentColor = key;
         },
