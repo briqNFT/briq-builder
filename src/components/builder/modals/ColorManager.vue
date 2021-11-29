@@ -56,7 +56,13 @@ export default defineComponent({
         },
         async replaceColor(col: string) {
             let mod = getModal();
-            let [res, name] = await setModalAndAwait(ColorPicker);
+            let result = await setModalAndAwait(ColorPicker, { color: this.colorMap[col].color });
+            if (!result)
+            {
+                setModal(mod);
+                return;
+            }
+            let [res, name] = result;
             this.colorMap[res] = {
                 name,
                 color: res,

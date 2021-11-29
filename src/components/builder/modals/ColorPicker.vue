@@ -27,10 +27,20 @@ export default defineComponent({
     data() {
         return {
             hue: 0,
-            luminance: 100,
-            saturation: 50,
+            saturation: 70,
+            luminance: 70,
             customName: ""
         }
+    },
+    props: ["metadata"],
+    mounted() {
+        if (!(this.metadata?.color))
+            return;
+        let col: THREE.HSL = { h: 0, s: 0, l: 0 };
+        new THREE.Color(this.metadata.color).getHSL(col);
+        this.hue = Math.round(col.h * 360.0 / Math.PI);
+        this.saturation = Math.round(col.s * 100);
+        this.luminance = Math.round(col.l * 100);
     },
     methods: {
         getHSL: function()

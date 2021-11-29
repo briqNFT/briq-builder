@@ -27,14 +27,21 @@ export default defineComponent({
     data() {
         return inputStore;
     },
+    inject:["pushMessage"],
     methods:
     {
         setModal,
         async registerNewColor(): Promise<void> {
-            let [hex, name] = await setModalAndAwait(ColorPicker);
+            let result = await setModalAndAwait(ColorPicker);
+            if (!result)
+            {
+                setModal();
+                return;
+            }
+            let [hex, name] = result;
             if (hex in inputStore.colorMap)
             {
-                console.log("fail");
+                this.pushMessage("Error while picking color: color " + hex + " already exists.");
                 setModal();
                 return await this.registerNewColor();
             }
