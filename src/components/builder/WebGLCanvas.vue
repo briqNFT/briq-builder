@@ -6,7 +6,7 @@
 <script lang="ts">
 import { main } from "../../builder/graphics/builder.js"
 
-import { builderInputFsm } from "../../builder/graphics/builder.js"
+import { builderInputFsm } from "../../builder/inputs/BuilderInput"
 import { inputStore } from '../../builder/inputs/InputStore'
 import { inputMap } from '../../builder/inputs/InputMap'
 

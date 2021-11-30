@@ -1,15 +1,11 @@
 import * as THREE from 'three';
-import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import { texture, tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
 
 const cellSize = 5;
 
 import VoxelWorld from './VoxelWorld';
-import { BuilderInputFSM } from '../inputs/BuilderInput';
-
-export var builderInputFsm = new BuilderInputFSM();
-
 export var voxWorld;
 
 import { store } from "../../store/Store"
@@ -20,6 +16,11 @@ import { dispatchedActions } from './dispatch'
 let builderData = store.state.builderData;
 
 var camera;
+
+// OrbitControls, exported so we can import them in inputs.
+export var orbitControls = {
+  controls: undefined,
+};
 
 /**
  * 
@@ -83,9 +84,11 @@ export  function main(canvas) {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.set(cellSize * 0.3, cellSize * 0.8, -cellSize * 1.4);
 
-  const controls = new OrbitControls(camera, canvas);
-  controls.target.set(0, 1, 0);
-  controls.update();
+  orbitControls.controls = new OrbitControls(camera, canvas);
+  orbitControls.controls.enableDamping = true;
+  orbitControls.controls.target.set(0, 1, 0);
+  orbitControls.controls.update();
+  
 
   const scene = new THREE.Scene();
 
@@ -179,7 +182,7 @@ generateSkybox()
       camera.updateProjectionMatrix();
     }
 
-    controls.update();
+    orbitControls.controls.update();
 
     for (let item of dispatchedActions)
     {

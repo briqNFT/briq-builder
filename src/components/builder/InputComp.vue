@@ -11,16 +11,16 @@ import Inspect from './inputs/Inspect.vue';
 <script lang="ts">
 import { inputStore } from '../../builder/inputs/InputStore';
 
-import { defineComponent, toRef } from "vue";
+import { defineComponent, toRef, markRaw } from "vue";
 export default defineComponent({
     data() {
         return {
             inputComp: toRef(inputStore, "currentInput"),
-            mapping: {
+            mapping: markRaw({
                 "place": Place,
                 "paint": Place,
                 "inspect": Inspect
-            }
+            })
         };
     }
 })

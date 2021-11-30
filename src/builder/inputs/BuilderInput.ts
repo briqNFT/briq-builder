@@ -19,9 +19,12 @@ class NullState extends BuilderInputState
 {
 }
 
-export class BuilderInputFSM
+import { orbitControls } from '../graphics/builder.js'
+
+class BuilderInputFSM
 {
     state: BuilderInputState;
+    orbitControls = orbitControls;
     constructor()
     {
         this.state = new NullState();
@@ -52,3 +55,5 @@ export class BuilderInputFSM
         this.state.onPointerUp(event);
     }
 }
+
+export var builderInputFsm = new BuilderInputFSM();

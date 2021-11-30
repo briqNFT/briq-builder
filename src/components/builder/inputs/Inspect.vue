@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { builderInputFsm } from "../../../builder/graphics/builder.js"
+import { builderInputFsm } from "../../../builder/inputs/BuilderInput"
 
 import { defineComponent } from 'vue';
 export default defineComponent({
