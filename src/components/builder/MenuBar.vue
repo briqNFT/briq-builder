@@ -12,20 +12,20 @@ import HistoryLog from './modals/HistoryLog.vue'
     <div id="menuBar">
         <div class="flex flex-nowrap justify-start align-start">
             <UndoRedo/>
-            <Button @click="setModal(HistoryLog)">History</Button>
-            <Button @click="setBrowser = !setBrowser">Browse</Button>
+            <Button class="mx-1" @click="setModal(HistoryLog)">History</Button>
+            <Button class="mx-1" @click="setBrowser = !setBrowser">Browse</Button>
             <teleport to="#app">
                 <SetBrowser asModal="true" @close="setBrowser=false" v-if="setBrowser"/>
             </teleport>
         </div>
         <div class="flex flex-nowrap justify-center align-start">
-            <Button tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
+            <Button class="mx-1" tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
                 @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'">Place</Button>
-            <Button tooltip="In 'Paint' mode, left-click to repaint briqs."
+            <Button class="mx-1" tooltip="In 'Paint' mode, left-click to repaint briqs."
                 @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'">Paint</Button>
-            <Button tooltip="In 'Erase' mode, left-click to delete briqs."
+            <Button class="mx-1" tooltip="In 'Erase' mode, left-click to delete briqs."
                 @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'">Erase</Button>
-            <Button tooltip="In 'Inspect' mode, left-click to inspect briqs."
+            <Button class="mx-1" tooltip="In 'Inspect' mode, left-click to inspect briqs."
                 @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'">Inspect</Button>
         </div>
         <div class="flex flex-nowrap justify-end align-start">

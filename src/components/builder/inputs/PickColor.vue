@@ -6,7 +6,8 @@ import ColorManager from '../modals/ColorManager.vue';
 
 <template>
     <div class="my-1" v-for="value, key in colorMap" :key="key">
-        <Button class ='tile'
+        <Button class='tile w-24'
+            :tooltip="'Select color ' + value.name"
             @click="pickColor(key)"
             :style="{ 'backgroundColor': value.color, 'border': (currentColor === key ? '4px solid black' : '') }"
             >{{ value.name }}
