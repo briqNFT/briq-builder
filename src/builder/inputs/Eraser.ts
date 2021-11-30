@@ -37,7 +37,7 @@ export class EraserInput extends MouseInputState
         if (event.shiftKey && this.lastClickPos)
         {
             previewCube.visible = true;
-            previewCube.scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1, Math.abs(this.lastClickPos[1] - pos[1]) + 1, Math.abs(this.lastClickPos[2] - pos[2]) + 1);
+            previewCube.scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1.1, Math.abs(this.lastClickPos[1] - pos[1]) + 1.1, Math.abs(this.lastClickPos[2] - pos[2]) + 1.1);
             previewCube.position.set(
                 ((this.lastClickPos[0] + pos[0]) / 2) + 0.5,
                 ((this.lastClickPos[1] + pos[1]) / 2) + 0.5,
@@ -46,7 +46,7 @@ export class EraserInput extends MouseInputState
         }
         else
         {
-            previewCube.scale.set(1, 1, 1);
+            previewCube.scale.set(1.1, 1.1, 1.1);
             // If the position is on the ground the intersection didn't return a cell.
             if (pos[1] < 0)
                 previewCube.visible = false;
