@@ -1,6 +1,11 @@
+import { reactive } from 'vue';
+
 export class BuilderInputState
 {
-    constructor() {}
+    gui: any;
+    constructor(guiState: any = {}) {
+        this.gui = reactive(guiState);
+    }
 
     onEnter() {}
     onExit() {}

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import Button from '../generic/Button.vue'
-import ColorPicker from './modals/ColorPicker.vue';
-import ColorManager from './modals/ColorManager.vue';
+import Button from '../../generic/Button.vue'
+import ColorPicker from '../modals/ColorPicker.vue';
+import ColorManager from '../modals/ColorManager.vue';
 </script>
 
 <template>
-    <div class="my-2" v-for="value, key in colorMap" :key="key">
+    <div class="my-1" v-for="value, key in colorMap" :key="key">
         <Button class ='tile'
             @click="pickColor(key)"
             :style="{ 'backgroundColor': value.color, 'border': (currentColor === key ? '4px solid black' : '') }"
@@ -19,8 +19,8 @@ import ColorManager from './modals/ColorManager.vue';
 </template>
 
 <script lang="ts">
-import { inputStore } from '../../builder/inputs/InputStore';
-import { setModal, setModalAndAwait } from '../MiddleModal.vue'
+import { inputStore } from '../../../builder/inputs/InputStore';
+import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
 
 import { defineComponent } from 'vue'
 export default defineComponent({

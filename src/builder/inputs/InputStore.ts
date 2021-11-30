@@ -6,21 +6,49 @@ export const inputStore = reactive({
     currentInput: "place",
     currentColor: "#999999",
     colorMap: {
-        "#999999": {
-            name: "Gray",
-            color: "#999999",
+        "#c5ac73": {
+            name: "#c5ac73",
+            color: "#c5ac73",
         },
-        "#DD0000": {
-            name: "Red",
-            color: "#DD0000",
+        "#e6de83": {
+            name: "#e6de83",
+            color: "#e6de83",
         },
-        "#0000DD": {
-            name: "Blue",
-            color: "#0000DD",
+        "#625231": {
+            name: "#625231",
+            color: "#625231",
         },
-        "#00DD00": {
-            name: "Green",
-            color: "#00DD00",
+        "#399ccd": {
+            name: "#399ccd",
+            color: "#399ccd",
+        },
+        "#62bdf6": {
+            name: "#62bdf6",
+            color: "#62bdf6",
+        },
+        "#ffeec5": {
+            name: "#ffeec5",
+            color: "#ffeec5",
+        },
+        "#416aac": {
+            name: "#416aac",
+            color: "#416aac",
+        },
+        "#394183": {
+            name: "#394183",
+            color: "#394183",
+        },
+        "#c5c5c5": {
+            name: "#c5c5c5",
+            color: "#c5c5c5",
+        },
+        "#ffffff": {
+            name: "#ffffff",
+            color: "#ffffff",
+        },
+        "#6a6a6a": {
+            name: "#6a6a6a",
+            color: "#6a6a6a",
         },
     } as { [key: string]: { name: string, color: string } },
     

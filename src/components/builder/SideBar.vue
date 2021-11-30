@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PickMaterial from "./PickMaterial.vue";
-import PickColor from './PickColor.vue';
+import PickColor from './inputs/PickColor.vue';
 </script>
 
 <template>

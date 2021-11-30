@@ -1,6 +1,6 @@
 <template>
-    <div class="w-1/2">
-        <div class="relative">
+    <div class="w-1/2" style="height:60%;">
+        <div class="relative h-full">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">History Log</h3>
             <div class="h-5/6 overflow-scroll">
