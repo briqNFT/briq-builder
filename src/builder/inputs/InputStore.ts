@@ -4,7 +4,7 @@ import type { SetData } from '../SetData';
 
 export const inputStore = reactive({
     currentInput: "place",
-    currentColor: "#999999",
+    currentColor: "#416aac",
     colorMap: {
         "#c5ac73": {
             name: "#c5ac73",
