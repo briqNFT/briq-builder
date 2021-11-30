@@ -8,13 +8,16 @@
             <p>Briqs: {{ set.briqsDB.briqs.size }}</p>
             <p v-if="pending_transaction">Pending transaction: {{ pending_transaction }}</p>
             <button class="btn float-left" :disabled="exporting" @click="$emit('close')">Cancel & Close</button>
-            <button class="btn float-right" :disabled="exporting || pending_transaction" @click="exportSet">Export</button>
+            <div class="float-right">
+                <button class="btn" @click="exportSetLocally">Export locally</button>
+                <button class="btn" :disabled="exporting || pending_transaction" @click="exportSet">Export on chain</button>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { fetchData } from '../../../url'
+import { downloadJSON, fetchData } from '../../../url'
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -37,6 +40,9 @@ export default defineComponent({
         }
     },
     methods: {
+        exportSetLocally: function() {
+            downloadJSON(this.$store.state.builderData.currentSet.serialize(), this.$store.state.builderData.currentSet.id + ".json")
+        },
         exportSet: async function() {
             if (!this.$store.state.builderData.setContract)
                 return;

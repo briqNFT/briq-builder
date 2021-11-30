@@ -22,3 +22,22 @@ export async function fetchData(endpoint: string, body?: object): Promise<any>
     return fetch(`${baseUrl}/${endpoint}`, dat)
         .then(x => x.json())
 }
+
+function doDownload(url: string, filename: string)
+{
+     let link = document.createElement('a');
+     link.href = url;
+     link.download = filename;
+     document.body.appendChild(link);
+     link.click();
+     document.body.removeChild(link);
+}
+
+export function downloadJSON(json: JSON, filename: string)
+{
+        let data = JSON.stringify(json);
+        let blob = new Blob([data], { type: 'application/json' });
+        let url = URL.createObjectURL(blob);
+        doDownload(url, filename);
+        URL.revokeObjectURL(url);
+}

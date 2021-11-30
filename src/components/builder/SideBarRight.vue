@@ -10,6 +10,7 @@ import { setTooltip } from '../../Messages'
             <Button class="my-1" tooltip="Create a new WIP set." @click="newSet">New</Button>
             <Button class="my-1" tooltip="Copy a new WIP set." @click="copySet">Copy</Button>
             <Button class="my-1" tooltip="Delete the current WIP set." @click="deleteSet">Delete</button>
+            <Button class="my-1" tooltip="Import a local set." @click="importSet">Import file</button>
             <div class="my-2"></div>
             <Button class="my-1" tooltip="Rename the current set" @click="rename">Rename</button>
             <Button class="my-1" tooltip="Export the set to the blockchain" @click="exportSet">Export</button>
@@ -43,6 +44,7 @@ export default defineComponent({
             wipSets: toRef(this.$store.state.builderData, "wipSets")
         };
     },
+    inject: ["messages"],
     methods: {
         clear: function() {
             this.$store.dispatch("builderData/clear");
@@ -54,6 +56,22 @@ export default defineComponent({
             let data = this.set.serialize();
             delete data.id;
             this.$store.dispatch("builderData/create_wip_set", data);
+        },
+        async importSet() {
+            let fileHandles = await window.showOpenFilePicker();
+            for (let fileHandle of fileHandles)
+            {
+                try
+                {
+                    let file = await fileHandle.getFile();
+                    let contents = JSON.parse(await file.text());
+                    this.$store.dispatch("builderData/create_wip_set", contents);
+                }
+                catch(err) {
+                    this.messages.pushMessage("Error while loading file " + fileHandle.name + " - check console for details");
+                    console.log(err);
+                }
+            }
         },
         deleteSet: function() {
             this.$store.dispatch("builderData/delete_wip_set", this.set.id);

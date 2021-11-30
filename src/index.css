@@ -28,8 +28,8 @@
     .btn {
         @apply bg-briq rounded px-3 py-1;
         @apply border-2 border-briq;
-        @apply h-10; /*2.5 rem*/
         @apply shadow-sm;
+        min-height: 2.5rem;
     }
     .btn:not(:disabled):hover {
         @apply border-b-2 border-b-deep-blue;
