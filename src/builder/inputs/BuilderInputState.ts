@@ -27,12 +27,12 @@ export class BuilderInputState
     _onEnter(data?: object) { this.onEnter(data); }
     _onExit() { this.onExit(); }
 
-    onPointerMove(event: PointerEvent) {}
-    onPointerDown(event: PointerEvent) {}
-    onPointerUp(event: PointerEvent) {}
-    _onPointerMove(event: PointerEvent) { this.onPointerMove(event); }
-    _onPointerDown(event: PointerEvent) { this.onPointerDown(event); }
-    _onPointerUp(event: PointerEvent) { this.onPointerUp(event); }
+    async onPointerMove(event: PointerEvent) {}
+    async onPointerDown(event: PointerEvent) {}
+    async onPointerUp(event: PointerEvent) {}
+    async _onPointerMove(event: PointerEvent) { await this.onPointerMove(event); }
+    async _onPointerDown(event: PointerEvent) { await this.onPointerDown(event); }
+    async _onPointerUp(event: PointerEvent) { await this.onPointerUp(event); }
 }
 
 export class MouseInputState extends BuilderInputState

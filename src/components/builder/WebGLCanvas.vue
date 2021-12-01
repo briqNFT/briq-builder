@@ -22,14 +22,14 @@ export default defineComponent({
         builderInputFsm.initialize(this.$refs.canvas as HTMLCanvasElement, orbitControls.controls);
     },
     methods: {
-        onPointerMove: function(event) {
-            builderInputFsm.onPointerMove(event);
+        onPointerMove: async function(event) {
+            await builderInputFsm.onPointerMove(event);
         },
-        onPointerDown: function(event) {
-            builderInputFsm.onPointerDown(event);
+        onPointerDown: async function(event) {
+            await builderInputFsm.onPointerDown(event);
         },
-        onPointerUp: function(event) {
-            builderInputFsm.onPointerUp(event);
+        onPointerUp: async function(event) {
+            await builderInputFsm.onPointerUp(event);
         }
     },
     watch: {

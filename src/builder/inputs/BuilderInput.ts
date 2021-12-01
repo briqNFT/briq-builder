@@ -25,19 +25,19 @@ export class BuilderInputFSM
 
     //
 
-    onPointerMove(event: PointerEvent)
+    async onPointerMove(event: PointerEvent)
     {
-        this.state._onPointerMove(event);
+        await this.state._onPointerMove(event);
     }
 
-    onPointerDown(event: PointerEvent)
+    async onPointerDown(event: PointerEvent)
     {
-        this.state._onPointerDown(event);
+        await this.state._onPointerDown(event);
     }
 
-    onPointerUp(event: PointerEvent)
+    async onPointerUp(event: PointerEvent)
     {
-        this.state._onPointerUp(event);
+        await this.state._onPointerUp(event);
     }
 }
 

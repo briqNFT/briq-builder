@@ -83,7 +83,7 @@ export class PainterMultiInput extends MouseInputState
         );
     }
 
-    onPointerUp(event: PointerEvent)
+    async onPointerUp(event: PointerEvent)
     {
         let pos = this.getIntersectionPos(this.curX, this.curY, true);
         if (!pos)
@@ -94,7 +94,7 @@ export class PainterMultiInput extends MouseInputState
                 for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
                 {
                     if (store.state.builderData.currentSet.getAt(x, y, z))
-                        store.dispatch("builderData/set_briq_color", { pos: [x, y, z], color: inputStore.colorMap[inputStore.currentColor].color });
+                        await store.dispatch("builderData/set_briq_color", { pos: [x, y, z], color: inputStore.colorMap[inputStore.currentColor].color });
                 }
         this.fsm.switchTo("paint");
     }
