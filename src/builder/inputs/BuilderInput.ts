@@ -1,119 +1,43 @@
-import { number } from 'starknet';
-import { reactive } from 'vue';
+import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import type { BuilderInputState } from './BuilderInputState'
 
-import { getCameraRay, voxWorld } from "../graphics/builder.js"
+import { inputMap } from '../../builder/inputs/InputMap'
 
-export class BuilderInputState
+export class BuilderInputFSM
 {
-    gui: any;
-    constructor(guiState: any = {}) {
-        this.gui = reactive(guiState);
-    }
+    state!: BuilderInputState;
+    canvas!: HTMLCanvasElement;
+    orbitControls!: OrbitControls;
 
-    onEnter() {}
-    onExit() {}
-
-    onPointerMove(event: PointerEvent) {}
-    onPointerDown(event: PointerEvent) {}
-    onPointerUp(event: PointerEvent) {}
-}
-
-
-export class MouseInputState extends BuilderInputState
-{
-    curX: number = 0;
-    curY: number = 0;
-    lastX: number = 0;
-    lastY: number = 0;
-
-    lastClickX: number = 0;
-    lastClickY: number = 0;
-
-    canvas: HTMLCanvasElement;
-
-    constructor(canvas: HTMLCanvasElement, guiState: any = {}) {
-        super(guiState);
-        this.canvas = canvas;
-    }
-
-    onEnter() {}
-    onExit() {}
-
-    getCanvasRelativePosition(x: number, y: number): [number, number]
+    initialize(canv: HTMLCanvasElement, oc: OrbitControls)
     {
-        const rect = this.canvas.getBoundingClientRect();
-        return [
-            (this.curX - rect.left) / rect.width * this.canvas.width / rect.width,
-            (this.curY - rect.top) / rect.height * this.canvas.height / rect.height
-        ]
+        this.canvas = canv;
+        this.orbitControls = oc;
     }
 
-    getIntersectionPos(x: number, y: number, overlay = false): [number, number, number] | undefined
-    {
-        let [start, end] = getCameraRay(...this.getCanvasRelativePosition(x, y));
-        const intersection = voxWorld.intersectRay(start, end);
-        if (!intersection)
-            return undefined;
-        return intersection.position.map((v, ndx) => {
-            return Math.floor(v + intersection.normal[ndx] * (overlay ? -0.5 : +0.5));
-        });
-    }
-
-    onPointerMove(event: PointerEvent) {
-        this.lastX = this.curX;
-        this.lastY = this.curY;
-        this.curX = event.clientX;
-        this.curY = event.clientY;
-    }
-
-    onPointerDown(event: PointerEvent) {
-        this.lastClickX = event.clientX;
-        this.lastClickY = event.clientY;
-    }
-
-    onPointerUp(event: PointerEvent) {
-    }
-}
-
-
-class NullState extends BuilderInputState
-{
-}
-
-import { orbitControls } from '../graphics/builder.js'
-
-class BuilderInputFSM
-{
-    state: BuilderInputState;
-    orbitControls = orbitControls;
-    constructor()
-    {
-        this.state = new NullState();
-    }
-
-    switchTo(state: BuilderInputState)
+    switchTo(state: string, data?: object)
     {
         if (this.state)
-            this.state.onExit();
-        this.state = state;
-        this.state.onEnter();
+            this.state._onExit();
+        this.state = new inputMap[state](this, this.canvas);
+        this.state._onEnter(data);
     }
 
     //
 
     onPointerMove(event: PointerEvent)
     {
-        this.state.onPointerMove(event);
+        this.state._onPointerMove(event);
     }
 
     onPointerDown(event: PointerEvent)
     {
-        this.state.onPointerDown(event);
+        this.state._onPointerDown(event);
     }
 
     onPointerUp(event: PointerEvent)
     {
-        this.state.onPointerUp(event);
+        this.state._onPointerUp(event);
     }
 }
 

@@ -4,11 +4,10 @@
 </template>
 
 <script lang="ts">
-import { main } from "../../builder/graphics/builder.js"
+import { main, orbitControls } from "../../builder/graphics/builder.js"
 
 import { builderInputFsm } from "../../builder/inputs/BuilderInput"
 import { inputStore } from '../../builder/inputs/InputStore'
-import { inputMap } from '../../builder/inputs/InputMap'
 
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({
@@ -20,6 +19,7 @@ export default defineComponent({
     async mounted() {
         main(this.$refs.canvas);
         this.currentInput = toRef(inputStore, 'currentInput');
+        builderInputFsm.initialize(this.$refs.canvas as HTMLCanvasElement, orbitControls.controls);
     },
     methods: {
         onPointerMove: function(event) {
@@ -39,7 +39,7 @@ export default defineComponent({
             {
                 if (!newV)
                     return;
-                builderInputFsm.switchTo(new inputMap[this.currentInput](this.$refs.canvas));
+                builderInputFsm.switchTo(this.currentInput);
             }
         }
     }

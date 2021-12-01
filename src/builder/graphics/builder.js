@@ -17,7 +17,7 @@ let builderData = store.state.builderData;
 
 var camera;
 
-// OrbitControls, exported so we can import them in inputs.
+// OrbitControls, exported so we can pass them to inputs.
 export var orbitControls = {
   controls: undefined,
 };
