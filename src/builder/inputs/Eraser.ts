@@ -89,17 +89,19 @@ export class EraserMultiInput extends MouseInputState
         );
     }
 
-    onPointerUp(event: PointerEvent)
+    async onPointerUp(event: PointerEvent)
     {
         let pos = this.getIntersectionPos(this.curX, this.curY, true);
         if (!pos)
             return;
 
+        let actionData = [];
         for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
             for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
                 for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
                     if (store.state.builderData.currentSet.getAt(x, y, z))
-                        store.dispatch("builderData/place_briq", { pos: [x, y, z], color: "", voxelId: 0 });
+                        actionData.push({ pos: [x, y, z], color: "", voxelId: 0 });
+        await store.dispatch("builderData/place_multiple_briqs", actionData);
         this.fsm.switchTo("erase");
     }
 }

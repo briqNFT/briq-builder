@@ -42,7 +42,7 @@ export class PainterInput extends MouseInputState
         if (!pos || pos[1] < 0)
             return;
 
-        store.dispatch("builderData/set_briq_color", { pos: pos, color: inputStore.colorMap[inputStore.currentColor].color });
+        store.dispatch("builderData/set_briq_color", [{ pos: pos, color: inputStore.colorMap[inputStore.currentColor].color }]);
         // Update preview cube.
         this._onPointerMove(event);
     }
@@ -89,13 +89,15 @@ export class PainterMultiInput extends MouseInputState
         if (!pos)
             return;
 
+        let actionData = [];
         for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
             for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
                 for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
                 {
                     if (store.state.builderData.currentSet.getAt(x, y, z))
-                        await store.dispatch("builderData/set_briq_color", { pos: [x, y, z], color: inputStore.colorMap[inputStore.currentColor].color });
+                        actionData.push({ pos: [x, y, z], color: inputStore.colorMap[inputStore.currentColor].color });
                 }
+        await store.dispatch("builderData/set_briq_color", actionData);
         this.fsm.switchTo("paint");
     }
 }

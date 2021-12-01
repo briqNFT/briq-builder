@@ -69,7 +69,7 @@ export default defineComponent({
             }
             this.$store.state.builderData.currentSet.forEach((cell, pos) => {
                 if (cell.color === col)
-                    this.$store.dispatch("builderData/set_briq_color", { pos, color: res });
+                    this.$store.dispatch("builderData/set_briq_color", [{ pos, color: res }]);
             })
             this.deleteColor(col);
             this.currentColor = res;

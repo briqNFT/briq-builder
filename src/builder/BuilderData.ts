@@ -263,7 +263,7 @@ export var builderDataStore = (() => {
             },
             undo_place_multiple_briqs(state: any, data: any)
             {
-                for (let briqData of data.undoData)
+                for (let briqData of data)
                 {
                     if (briqData.briq)
                     {
@@ -280,8 +280,11 @@ export var builderDataStore = (() => {
 
             set_briq_color(state: any, data: any)
             {
-                let cell = state.currentSet.modifyBriq(...data.pos, data);
-                dispatchBuilderAction("place_briq", { ...cell.serialize(), pos: data.pos });
+                for (let d of data)
+                {
+                    let cell = state.currentSet.modifyBriq(...d.pos, d);
+                    dispatchBuilderAction("place_briq", { ...cell.serialize(), pos: d.pos });
+                }
             },
 
             change_set_name(state: any, data: any)
@@ -353,18 +356,20 @@ registerUndoableAction("builderData/place_multiple_briqs", "builderData/undo_pla
 
 registerUndoableAction("builderData/set_briq_color", "builderData/set_briq_color", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
-        let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos as [number, number, number]);
-        if (cell)
-            transientActionState.cellColor = cell.color;
+        let colors = [];
+        for (let d of payload)
+        {
+            let cell = (state.builderData.currentSet as SetData).getAt(...d.pos as [number, number, number]);
+            if (cell)
+                colors.push(cell.color)    
+        }
+        transientActionState.colors = colors;
     },
     onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
         store.dispatch("push_command_to_history", {
             action: "builderData/set_briq_color",
             redoData: payload,
-            undoData: {
-                pos: payload.pos,
-                color: transientActionState.cellColor
-            }
+            undoData: payload.map((x, i) => ({ pos: x.pos, color: transientActionState.colors[i]}))
         });
     }
 });
