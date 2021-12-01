@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Settings from '../Tools/Settings.vue'
 import UndoRedo from '../Tools/UndoRedo.vue'
 import Button from '../generic/Button.vue'
 
@@ -17,9 +16,6 @@ import HistoryLog from './modals/HistoryLog.vue'
             <teleport to="#app">
                 <SetBrowser asModal="true" @close="setBrowser=false" v-if="setBrowser"/>
             </teleport>
-        </div>
-        <div class="flex flex-nowrap justify-end align-start">
-            <Settings/>
         </div>
     </div>
 </template>
