@@ -5,17 +5,17 @@ import ColorManager from '../modals/ColorManager.vue';
 </script>
 
 <template>
-    <div class="my-1" v-for="value, key in colorMap" :key="key">
-        <Button class='tile w-24'
+    <div class="my-1 flex flex-col" v-for="value, key in colorMap" :key="key">
+        <Button class='text-xs h-8 min-h-0'
             :tooltip="'Select color ' + value.name"
             @click="pickColor(key)"
             :style="{ 'backgroundColor': value.color, 'border': (currentColor === key ? '4px solid black' : '') }"
             >{{ value.name }}
         </Button>
     </div>
-    <div class="my-2">
-        <Button @click="registerNewColor">New</Button>
-        <Button @click="setModal(ColorManager)">Manage</Button>
+    <div class="my-2 flex flex-col">
+        <Button class="my-0.5" @click="registerNewColor">New</Button>
+        <Button class="my-0.5" @click="setModal(ColorManager)">Manage</Button>
     </div>
 </template>
 

@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import PickMaterial from "./PickMaterial.vue";
-import PickColor from './inputs/PickColor.vue';
+import Button from '../generic/Button.vue';
+import InputComp from './InputComp.vue'
 </script>
 
 <template>
-    <div id="sideBar" class="flex flex-wrap flex-col px-5 py-20 absolute left-0 top-0 h-full w-20 justify-center">
-        <div>
-            <template v-if="inputStore.currentInput === 'place' || inputStore.currentInput === 'paint'">
-                <PickColor/>
-            </template>
+    <div id="sideBar" class="flex flex-nowrap flex-col px-5 py-20 absolute left-0 top-0 h-full justify-top">
+        <div class="my-2 flex flex-col">
+            <Button class="my-0.5" tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
+                @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'">Place</Button>
+            <Button class="my-0.5" tooltip="In 'Paint' mode, left-click to repaint briqs."
+                @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'">Paint</Button>
+            <Button class="my-0.5" tooltip="In 'Erase' mode, left-click to delete briqs."
+                @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'">Erase</Button>
+            <Button class="my-0.5" tooltip="In 'Inspect' mode, left-click to inspect briqs."
+                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'">Inspect</Button>
         </div>
+        <InputComp/>
     </div>
 </template>
 
@@ -27,7 +33,4 @@ export default defineComponent({
 </script>
 
 <style scoped>
-button {
-    @apply btn my-2 w-full;
-}
 </style>

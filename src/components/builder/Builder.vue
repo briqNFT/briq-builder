@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import WebGLCanvas from './WebGLCanvas.vue'
 import MenuBar from './MenuBar.vue'
-import InputComp from './InputComp.vue'
+import SideBar from './SideBar.vue'
 import SideBarRight from './SideBarRight.vue'
 import MiddleModal from '../MiddleModal.vue'
 import WalletSelector from '../WalletSelector.vue';
@@ -13,7 +13,7 @@ import SplashScreen from './SplashScreen.vue'
   <SplashScreen/>
   <div>
     <WebGLCanvas/>
-    <InputComp/>
+    <SideBar/>
     <SideBarRight/>
     <MenuBar/>
     <Messages/>
