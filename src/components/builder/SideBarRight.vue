@@ -4,9 +4,13 @@ import Settings from '../Tools/Settings.vue'
 </script>
 
 <template>
-    <div class="absolute right-0 top-0 h-full w-60 pointer-events-none">
-        <Settings @click="expanded = !expanded" class="pointer-events-auto"/>
-        <div :class="'flex flex-nowrap flex-col mx-4 my-20 pointer-events-auto absolute top-0 h-full justify-top content-end ' + (expanded ? 'expanded' : 'unexpanded')">
+    <div class="absolute right-0 top-0 h-full pointer-events-none flex flex-nowrap flex-col mx-4 my-4 pointer-events-auto absolute top-0 h-full justify-start content-end">
+        <!--<Settings @click="expanded = !expanded" class="pointer-events-auto"/>-->
+        <Button class="pointer-events-auto" @click="expanded = !expanded">{{ titleText() }}</Button>
+        <div :class="'my-8 ' + (expanded ? 'expanded' : 'unexpanded')">
+            <div class="my-8 flex flex-col flex-nowrap gap-1">
+                <Button @click="openSelector = true">{{ contractStore.isConnected ? "Disconnect" : "Connect Wallet" }}</Button>
+            </div>
             <div class="flex flex-col flex-nowrap gap-1">
                 <Button>Help</button>
                 <Button @click="$router.push({ path: '/settings' })">Settings</button>
@@ -38,23 +42,33 @@ import Settings from '../Tools/Settings.vue'
 </template>
 
 <script lang="ts">
+import { openSelector } from '../WalletSelector.vue';
 
 import { setModal } from '../MiddleModal.vue';
 
 import RenameSet from './modals/RenameSet.vue';
 import ExportSet from './modals/ExportSet.vue';
 
-import { defineComponent, toRef } from "vue";
+import { defineComponent, toRef, ref } from "vue";
 export default defineComponent({
     data() {
         return {
             expanded: false,
+            openSelector: openSelector,
+            contractStore: this.$store.state.wallet,
             set: toRef(this.$store.state.builderData, "currentSet"),
             wipSets: toRef(this.$store.state.builderData, "wipSets")
         };
     },
     inject: ["messages"],
     methods: {
+        titleText: function() {
+            let ret = "Briq";
+            if (this.contractStore.isConnected)
+                ret += ': ' + this.contractStore.userWalletAddress.substr(0, 5) + '...' + this.contractStore.userWalletAddress.substr(-5, 5);
+                return ret;
+        },
+
         clear: function() {
             this.$store.dispatch("builderData/clear");
         },
@@ -100,9 +114,9 @@ export default defineComponent({
 
 <style scoped>
 .expanded {
-    right: 0;
+    display: auto;
 }
 .unexpanded {
-    right: -200px;
+    display: none;
 }
 </style>

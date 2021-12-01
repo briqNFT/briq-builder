@@ -13,9 +13,9 @@ import SplashScreen from './SplashScreen.vue'
   <SplashScreen/>
   <div>
     <WebGLCanvas/>
+    <MenuBar/>
     <SideBar/>
     <SideBarRight/>
-    <MenuBar/>
     <Messages/>
     <MiddleModal/>
     <WalletSelector/>
