@@ -13,6 +13,7 @@ import { inputStore } from './inputs/InputStore';
 import BriqContract from '../contracts/briq'
 import SetContract from '../contracts/set'
 import { pushMessage } from '../Messages';
+import { number } from 'starknet';
 
 let briqsDB = new BriqsDB();
 let initSet = new SetData(Date.now(), briqsDB);
@@ -169,6 +170,12 @@ export var builderDataStore = (() => {
             undo_place_briq: ({ commit }: any, data: any) => {
                 commit("undo_place_briq", data);        
             },
+            place_multiple_briqs: ({ commit }: any, data: any) => {
+                commit("place_multiple_briqs", data);
+            },
+            undo_place_multiple_briqs: ({ commit }: any, data: any) => {
+                commit("undo_place_multiple_briqs", data);        
+            },
             set_briq_color: ({ commit }: any, data: any) => {
                 commit("set_briq_color", data);
             },
@@ -233,7 +240,6 @@ export var builderDataStore = (() => {
             },
             undo_place_briq(state: any, data: any)
             {
-                console.log(data);
                 if (data.undoData.briq)
                 {
                     state.currentSet.placeBriq(...data.payload.pos, "", 0);
@@ -244,8 +250,34 @@ export var builderDataStore = (() => {
                     state.currentSet.placeBriq(...data.payload.pos, "", 0);   
                 }
                 dispatchBuilderAction("place_briq", { pos: data.payload.pos, color: data?.undoData?.briq?.color ?? "", voxelId: data?.undoData?.briq?.material ?? 0 });
-                //state.currentSet.placeBriq(...data.pos, data.voxelId);
             },
+
+            place_multiple_briqs(state: any, data: any)
+            {
+                for (let briqData of data)
+                {
+                    let ok = state.currentSet.placeBriq(...briqData.pos, briqData.color, briqData.voxelId);
+                    if (ok)
+                        dispatchBuilderAction("place_briq", briqData);
+                }
+            },
+            undo_place_multiple_briqs(state: any, data: any)
+            {
+                for (let briqData of data.undoData)
+                {
+                    if (briqData.briq)
+                    {
+                        state.currentSet.placeBriq(...briqData.pos, "", 0);
+                        state.currentSet.placeBriq(...briqData.pos, briqData.briq.color, briqData.briq.material);
+                    }
+                    else
+                    {
+                        state.currentSet.placeBriq(...briqData.pos, "", 0);   
+                    }
+                    dispatchBuilderAction("place_briq", { pos: briqData.pos, color: briqData?.briq?.color ?? "", voxelId: briqData?.briq?.material ?? 0 });    
+                }
+            },
+
             set_briq_color(state: any, data: any)
             {
                 let cell = state.currentSet.modifyBriq(...data.pos, data);
@@ -281,7 +313,7 @@ export var builderDataStore = (() => {
 
 registerUndoableAction("builderData/place_briq", "builderData/undo_place_briq", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
-        let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos);
+        let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos as [number, number, number]);
         if (cell)
             transientActionState.cell = cell;
     },
@@ -299,9 +331,29 @@ registerUndoableAction("builderData/place_briq", "builderData/undo_place_briq", 
     }
 });
 
+
+registerUndoableAction("builderData/place_multiple_briqs", "builderData/undo_place_multiple_briqs", {
+    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
+        transientActionState.data = [];
+        for (let briq of payload)
+        {
+            let cell = (state.builderData.currentSet as SetData).getAt(...briq.pos as [number, number, number]);
+            if (cell)
+                transientActionState.data.push(cell);
+        }
+    },
+    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
+        store.dispatch("push_command_to_history", {
+            action: "builderData/place_multiple_briqs",
+            redoData: payload,
+            undoData: (payload as Array<any>).map((x, i) => ({ ...x, briq: transientActionState.data[i]})),
+        });
+    }
+});
+
 registerUndoableAction("builderData/set_briq_color", "builderData/set_briq_color", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
-        let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos);
+        let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos as [number, number, number]);
         if (cell)
             transientActionState.cellColor = cell.color;
     },

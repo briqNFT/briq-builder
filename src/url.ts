@@ -1,8 +1,9 @@
+import { PROD } from './Meta'
 
 export default function getBaseUrl()
 {
     var baseUrl = "http://localhost:5000"
-    if (import.meta.env.PROD)
+    if (PROD)
         baseUrl = "https://api." + window.location.hostname
     return baseUrl
 }

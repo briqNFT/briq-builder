@@ -4,6 +4,8 @@ import { builderDataStore } from "../builder/BuilderData";
 import { walletStore } from "../Wallet";
 import { UndoRedo, undoRedoStore } from "../builder/UndoRedo";
 
+import { DEV } from '../Meta'
+
 export const store = createStore({
     modules: {
         undoRedo: undoRedoStore,
@@ -12,7 +14,7 @@ export const store = createStore({
     },
     plugins: [UndoRedo],
     // Activate strict mode in dev so that we can debug stuff properly.
-    strict: import.meta.env.DEV
+    strict: DEV
 });
 
 store.dispatch("initialize");
