@@ -4,7 +4,7 @@ import Settings from '../Tools/Settings.vue'
 </script>
 
 <template>
-    <div class="absolute right-0 top-0 h-full pointer-events-none flex flex-nowrap flex-col mx-4 my-4 pointer-events-auto absolute top-0 h-full justify-start content-end">
+    <div class="absolute right-0 top-0 pointer-events-none mx-4 my-4  flex flex-nowrap flex-col justify-start content-end">
         <!--<Settings @click="expanded = !expanded" class="pointer-events-auto"/>-->
         <Button class="pointer-events-auto" @click="expanded = !expanded">{{ titleText() }}</Button>
         <div :class="'my-8 ' + (expanded ? 'expanded' : 'unexpanded')">

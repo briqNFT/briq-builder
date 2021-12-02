@@ -3,9 +3,7 @@ import PickColor from './PickColor.vue';
 </script>
 
 <template>
-    <div>
-        <PickColor/>
-    </div>
+    <PickColor/>
 </template>
 
 <script lang="ts">
