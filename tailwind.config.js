@@ -6,7 +6,7 @@ module.exports = {
     extend: {
       colors: {
         'briq': "#EB5600",
-        'briq-dark': "#CA5010",
+        'briq-dark': "#C94A00",
         'briq-light': "#F7894A",
         'deep-blue': '#0D0845',
       },
@@ -14,9 +14,6 @@ module.exports = {
     fontFamily: {
       'display': ["Raleway", "Helvetica", "ui-sans-serif", "system-ui"],
       'sans': ["Source Sans Pro", "ui-sans-serif", "system-ui"],
-//-       'mono': ['ui-monospace', 'SFMono-Regular', ...],
-//+       'display': ['Oswald', ...],
-//+       'body': ['"Open Sans"', ...],
     }
   },
   variants: {
