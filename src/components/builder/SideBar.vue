@@ -5,15 +5,15 @@ import InputComp from './InputComp.vue'
 
 <template>
     <div id="sideBar" class="flex flex-nowrap flex-col mx-4 my-20 absolute left-0 top-0 h-full justify-top">
-        <div class="my-2 flex flex-col">
+        <div class="my-2 grid grid-rows-2 grid-cols-2 gap-1">
             <Button class="my-0.5" tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
-                @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'">Place</Button>
+                @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Button>
             <Button class="my-0.5" tooltip="In 'Paint' mode, left-click to repaint briqs."
-                @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'">Paint</Button>
+                @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'"><i class="fas fa-paint-brush"/></Button>
             <Button class="my-0.5" tooltip="In 'Erase' mode, left-click to delete briqs."
-                @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'">Erase</Button>
+                @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="fas fa-backspace"/></Button>
             <Button class="my-0.5" tooltip="In 'Inspect' mode, left-click to inspect briqs."
-                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'">Inspect</Button>
+                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-search-plus"/></Button>
         </div>
         <InputComp/>
     </div>
