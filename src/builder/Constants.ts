@@ -1,0 +1,1 @@
+export const cellSize = 10;

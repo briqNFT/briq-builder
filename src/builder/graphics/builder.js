@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import { texture, tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
 
-const cellSize = 5;
+import { cellSize } from '../Constants'
 
 import VoxelWorld from './VoxelWorld';
 export var voxWorld;

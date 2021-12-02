@@ -4,6 +4,8 @@ import { previewCube } from '../graphics/PreviewCube'
 import { inputStore } from "./InputStore";
 import { store } from '../../store/Store'
 
+import { cellSize } from '../../builder/Constants';
+
 import * as THREE from 'three'
 
 export class PlacerInput extends MouseInputState
@@ -25,7 +27,7 @@ export class PlacerInput extends MouseInputState
         if (!pos)
             return;
         previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-        if (Math.abs(pos[0]) <= store.state.builderData.currentSet.regionSize / 2 && Math.abs(pos[2]) <= store.state.builderData.currentSet.regionSize / 2)
+        if (Math.abs(pos[0]) <= cellSize && Math.abs(pos[2]) <= cellSize)
             (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.colorMap[inputStore.currentColor].color);
         else
             (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);

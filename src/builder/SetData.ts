@@ -2,6 +2,9 @@ import { Briq, BriqsDB } from './BriqsDB'
 
 import { BuilderDataEvent, builderDataEvents } from './BuilderDataEvents'
 
+import { cellSize } from './Constants';
+
+
 class SetDataEvent extends BuilderDataEvent
 {
     constructor(setId: number)
@@ -132,7 +135,7 @@ export class SetData
 
     doPlaceBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: number): boolean
     {
-        if (Math.abs(x) > this.regionSize / 2 || Math.abs(z) > this.regionSize / 2)
+        if (Math.abs(x) > cellSize || Math.abs(z) > cellSize)
             return false;
         let [regionId, cellId] = this.computeIDs(x, y, z);
         if (!this.briqs.has(regionId))
