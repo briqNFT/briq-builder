@@ -36,7 +36,7 @@ class MaterialByColor {
 
     getUV(index: number, uv: [number, number]): [number, number]
     {
-        return [((index % 16) + uv[0]) / 16, (Math.floor(index / 16) + uv[1]) / 16];
+        return [((index % 16) + uv[0]*0.9) / 16 + 0.001, (Math.floor(index / 16) + uv[1]*0.9) / 16 + 0.001];
     }
 
     updateTexture()
