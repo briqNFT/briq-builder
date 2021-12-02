@@ -5,7 +5,7 @@
 <h1 class="text-center">briq</h1>
 <h2 class="text-center">Legal</h2>
 <div class="section">
-    <p class="float-right"><router-link to="/"><button>Return to builder</button></router-link></p>
+    <p class="float-right"><router-link :to="{ name: 'Builder' }"><button>Return to builder</button></router-link></p>
 </div>
 <div class="md:container md:mx-auto">
     <p>This website is owned by S&amp;L Technologies. We're based in Paris.</p>

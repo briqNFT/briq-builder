@@ -1,10 +1,10 @@
 <template>
     <div>
         <button @click="undo" :disabled="!canUndo" class="btn mx-0.5">
-            <p>Undo</p>
+            <p><i class="fas fa-undo"></i></p>
         </button>
         <button @click="redo" :disabled="!canRedo" class="btn mx-0.5">
-            <p>Redo</p>
+            <p><i class="fas fa-redo"></i></p>
         </button>
     </div>
 </template>

@@ -19,7 +19,7 @@ import StarkwareIcon from './starkware.png'
             <div class="flex gap-4 items-center">
                 <p>Whitepaper</p>
                 <p>Resources</p>
-                <button>Connect</button>
+                <button @click="$router.push({ name: 'Builder' })">Connect</button>
             </div>
         </div>
         <div class="row">
@@ -27,7 +27,7 @@ import StarkwareIcon from './starkware.png'
                 <div class="centerall flex-1">
                     <h1 class="text-8xl font-display font-black">briq</h1>
                     <p class="md:my-4 my-8 text-2xl">NFT matter.<br/>NFTs that matter.<br/>Seize the briqs of construction.</p>
-                    <button>Build</button>
+                    <button @click="$router.push({ name: 'Builder' })">Build</button>
                 </div>
                 <div class="centerall flex-1"><GMIcon class="lg:scale-100 scale-75"/></div>
             </div>
@@ -95,7 +95,7 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped>
 .header > div, .row > div {
     @apply px-4 py-4;
 }

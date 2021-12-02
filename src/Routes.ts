@@ -7,12 +7,12 @@ import LandingPage from './components/landing_page/LandingPage.vue'
 
 export const routes = [
     {
-        path: "/landing",
+        path: "/",
         name: "Landing",
         component: LandingPage,
     },
     {
-        path: "/",
+        path: "/builder",
         name: "Builder",
         component: Builder,
     },

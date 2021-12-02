@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import UndoRedo from '../../Tools/UndoRedo.vue';
+import UndoRedo from '../UndoRedo.vue';
 export default defineComponent({
     data() {
         return {};
