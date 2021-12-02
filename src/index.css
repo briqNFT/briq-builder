@@ -3,17 +3,8 @@
 @tailwind utilities;
 
 @layer base {
-    /*
-    @font-face {
-        font-family: Poppins;
-        font-weight: 400;
-        src: local(Helvetica) url(https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap) format("woff");
-    }
-
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600&family=Poppins:wght@500&display=swap');
-    */
     body {
-        @apply text-deep-blue font-sans font-normal;
+        @apply text-white font-sans font-light bg-briq;
     }
     h1 {
         @apply text-7xl;
@@ -29,6 +20,7 @@
         @apply bg-briq rounded px-3 py-1;
         @apply border-2 border-briq;
         @apply shadow-sm;
+        @apply font-light;
         min-height: 2.5rem;
     }
     .btn:not(:disabled):hover {

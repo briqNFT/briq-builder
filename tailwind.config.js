@@ -12,7 +12,8 @@ module.exports = {
       },
     },
     fontFamily: {
-      'sans': ["Poppins", "ui-sans-serif", "system-ui"],
+      'display': ["Raleway", "Helvetica", "ui-sans-serif", "system-ui"],
+      'sans': ["Source Sans Pro", "ui-sans-serif", "system-ui"],
 //-       'mono': ['ui-monospace', 'SFMono-Regular', ...],
 //+       'display': ['Oswald', ...],
 //+       'body': ['"Open Sans"', ...],

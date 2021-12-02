@@ -11,57 +11,51 @@ import StarkwareIcon from './starkware.png'
 </script>
 
 <template>
-    <div class="pseudobody w-full h-full bg-briq text-white relative text-center">
-        <div class="header m-auto flex justify-between">
-            <div class="">
-                <h3>Briq</h3>
+    <div class="pseudobody w-full h-full bg-briq text-white text-lg relative text-center font-sans">
+        <div class="header m-auto flex justify-between items-center font-semibold">
+            <div class="text-xl">
+                <h3>briq</h3>
             </div>
-            <div class="flex gap-4">
+            <div class="flex gap-4 items-center">
                 <p>Whitepaper</p>
                 <p>Resources</p>
                 <button>Connect</button>
             </div>
         </div>
         <div class="row">
-            <div class="flex justify-between flex-nowrap my-10">
-                <div>
-                    <h1>BRIQ</h1>
+            <div class="flex justify-around flex-nowrap my-10">
+                <div class="centerall flex-1">
+                    <h1 class="font-display font-black">briq</h1>
                     <p>NFT matter.<br/>NFTs that matter.<br/>Seize the briqs of construction.</p>
                     <button>Build</button>
                 </div>
-                <div><GMIcon/></div>
+                <div class="centerall flex-1"><GMIcon/></div>
             </div>
         </div>
-        <div class="bg-briq-dark my-10 row">
+        <div class="bg-briq-dark my-20 row">
             <div class="flex justify-between flex-nowrap">
-                <div><ComposableIcon/></div>
-                <div>
-                    <div class="text-right">
-                        <h2>NFTS should be composable</h2>
-                        <p>SOEhtosejr ozjetoizjefojzeof oziefjosidjf oisdjf ozijsdfoizjfo izjoifj soidjf osdjf osdjfo  sdofisdoifj </p>
-                    </div>
+                <div class="centerleft flex-auto"><ComposableIcon/></div>
+                <div class="centerright flex-initial">
+                    <h2>NFTS should be composable</h2>
+                    <p>SOEhtosejr ozjetoizjefojzeof oziefjosidjf oisdjf ozijsdfoizjfo izjoifj soidjf osdjf osdjfo  sdofisdoifj </p>
                 </div>
             </div>
         </div>
-        <div class="row bg-briq-dark my-10">
+        <div class="row bg-briq-dark my-20">
             <div class="flex justify-between flex-nowrap">
-                <div>
-                    <div class="text-left">
-                        <h2>NFTS should be interoperable</h2>
-                        <p>SOEhtosejr ozjetoizjefojzeof oziefjosidjf oisdjf ozijsdfoizjfo izjoifj soidjf osdjf osdjfo  sdofisdoifj </p>
-                    </div>
+                <div class="centerleft flex-initial">
+                    <h2>NFTS should be interoperable</h2>
+                    <p>SOEhtosejr ozjetoizjefojzeof oziefjosidjf oisdjf ozijsdfoizjfo izjoifj soidjf osdjf osdjfo  sdofisdoifj </p>
                 </div>
-                <div><InteroperableIcon/></div>
+                <div class="centerright flex-auto"><InteroperableIcon/></div>
             </div>
         </div>
-        <div class="row bg-briq-dark my-10">
+        <div class="row bg-briq-dark my-20">
             <div class="flex justify-between flex-nowrap">
-                <div><OnChainIcon/></div>
-                <div>
-                    <div class="text-right">
-                        <h2>NFTS should be On-Chain</h2>
-                        <p>SOEhtosejr ozjetoizjefojzeof oziefjosidjf oisdjf ozijsdfoizjfo izjoifj soidjf osdjf osdjfo  sdofisdoifj </p>
-                    </div>
+                <div class="centerleft flex-auto"><OnChainIcon/></div>
+                <div class="centerright flex-initial">
+                    <h2>NFTS should be On-Chain</h2>
+                    <p>SOEhtosejr ozjetoizjefojzeof oziefjosidjf oisdjf ozijsdfoizjfo izjoifj soidjf osdjf osdjfo  sdofisdoifj </p>
                 </div>
             </div>
         </div>
@@ -104,16 +98,25 @@ export default defineComponent({
     @apply px-4 py-4;
 }
 .header {
-    @apply container m-auto lg:w-[80rem];
+    @apply container m-auto lg:w-[70rem];
 }
 .row > div {
-    @apply container m-auto lg:w-[80rem];
+    @apply container m-auto lg:w-[70rem];
 }
-.row > div > div {
+.centerall {
     @apply flex flex-col flex-nowrap justify-center items-center;
 }
-
+.centerright {
+    @apply flex flex-col flex-nowrap justify-center items-end text-right;
+}
+.centerleft {
+    @apply flex flex-col flex-nowrap justify-center items-start text-left;
+}
 svg {
-    @apply drop-shadow-md;
+    @apply drop-shadow-xl;
+}
+
+button {
+    @apply font-semibold border-white rounded-lg border-4 px-1;
 }
 </style>
