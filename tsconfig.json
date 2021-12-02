@@ -6,6 +6,6 @@
         "isolatedModules": true,
         "strict": true,
         "incremental": true,
-        "types": ["vite/client", "@types/jest", "@types/three"],
+        "types": ["vite/client", "@types/jest", "@types/three", "vite-svg-loader"],
     }
 }

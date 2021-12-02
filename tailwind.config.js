@@ -5,8 +5,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'briq': "#ee7722",
-        'briq-light': "#FFB078",
+        'briq': "#EB5600",
+        'briq-dark': "#CA5010",
+        'briq-light': "#F7894A",
         'deep-blue': '#0D0845',
       },
     },
