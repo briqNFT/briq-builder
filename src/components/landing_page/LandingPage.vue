@@ -23,10 +23,10 @@ import StarkwareIcon from './starkware.png'
             </div>
         </div>
         <div class="row">
-            <div class="flex flex-wrap justify-around my-10">
+            <div class="flex flex-wrap justify-around md:my-6 my-10">
                 <div class="centerall flex-1">
                     <h1 class="text-8xl font-display font-black">briq</h1>
-                    <p class="my-8 text-2xl">NFT matter.<br/>NFTs that matter.<br/>Seize the briqs of construction.</p>
+                    <p class="md:my-4 my-8 text-2xl">NFT matter.<br/>NFTs that matter.<br/>Seize the briqs of construction.</p>
                     <button>Build</button>
                 </div>
                 <div class="centerall flex-1"><GMIcon class="lg:scale-100 scale-75"/></div>
