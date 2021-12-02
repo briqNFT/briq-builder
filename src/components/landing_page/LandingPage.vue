@@ -14,7 +14,7 @@ import StarkwareIcon from './starkware.png'
     <div class="pseudobody w-full h-full bg-briq text-white text-lg relative text-center font-sans">
         <div class="header m-auto flex justify-between items-center font-semibold">
             <div class="text-xl">
-                <h3>briq</h3>
+                <h2>briq</h2>
             </div>
             <div class="flex gap-4 items-center">
                 <p>Whitepaper</p>
@@ -25,8 +25,7 @@ import StarkwareIcon from './starkware.png'
         <div class="row">
             <div class="flex flex-wrap justify-around md:my-6 my-10">
                 <div class="centerall flex-1">
-                    <h1 class="text-8xl font-display font-black">briq</h1>
-                    <p class="md:my-4 my-8 text-2xl">NFT matter.<br/>NFTs that matter.<br/>Seize the briqs of construction.</p>
+                    <p class="md:my-4 my-8 text-2xl">Briq is NFT matter.<br/>Briqs build NFTs that matter.<br/>Seize the briqs of construction.</p>
                     <button @click="$router.push({ name: 'Builder' })">Build</button>
                 </div>
                 <div class="centerall flex-1"><GMIcon class="lg:scale-100 scale-75"/></div>
@@ -37,17 +36,19 @@ import StarkwareIcon from './starkware.png'
                 <div class="md:centerleft centerall flex-auto"><ComposableIcon/></div>
                 <div class="md:centerright centerall flex-initial">
                     <h2>NFTS should be composable</h2>
-                    <p>SOEhtosejr ozjetoizjefojzeof oziefjosidjf oisdjf ozijsdfoizjfo izjoifj soidjf osdjf osdjfo  sdofisdoifj </p>
+                    <p>Briqs can be combined to create NFTs called sets. Sets can be disassembled to get the briqs back and create something new.  Sets can be combined to create even more complex structures. 
+Briqs are NFT matter.</p>
                 </div>
             </div>
         </div>
         <div class="row bg-briq-dark my-20">
             <div class="flex flex-wrap justify-between">
+                <div class="centerall md:centerright flex-auto"><InteroperableIcon/></div>
                 <div class="centerall md:centerleft flex-initial">
                     <h2>NFTS should be interoperable</h2>
-                    <p>SOEhtosejr ozjetoizjefojzeof oziefjosidjf oisdjf ozijsdfoizjfo izjoifj soidjf osdjf osdjfo  sdofisdoifj </p>
+                    <p>Briqs and sets can be used in any game and can be interpreted as you see fit. Build a car and race. Tear it apart and build a plane.  Your NFTs are not stuck in a data silo, they can always be reused for something new.
+Briqs are NFTs that matter.</p>
                 </div>
-                <div class="centerall md:centerright flex-auto"><InteroperableIcon/></div>
             </div>
         </div>
         <div class="row bg-briq-dark my-20">
@@ -55,7 +56,8 @@ import StarkwareIcon from './starkware.png'
                 <div class="centerall md:centerleft flex-auto"><OnChainIcon/></div>
                 <div class="centerall md:centerright flex-initial">
                     <h2>NFTS should be On-Chain</h2>
-                    <p>SOEhtosejr ozjetoizjefojzeof oziefjosidjf oisdjf ozijsdfoizjfo izjoifj soidjf osdjf osdjfo  sdofisdoifj </p>
+                    <p>Briqs and sets are stored on-chain for everyone to reuse  combine. Briqs don’t have shape, or color, they are up to interpretation. Feel free to use briqs in any way you want. 
+Seize the briqs of construction.</p>
                 </div>
             </div>
         </div>
@@ -78,9 +80,9 @@ import StarkwareIcon from './starkware.png'
                 </div>
             </div>
             <div class="flex justify-center gap-10 !my-10 text-5xl">
-                <p><i class="fab fa-twitter"></i></p>
-                <p><i class="fab fa-discord"></i></p>
-                <p><i class="fab fa-github"></i></p>
+                <a href="https://twitter.com/briqs_" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
+                <a href="https://discord.gg/ugqdKHTM" target="_blank"><p><i class="fab fa-discord"></i></p></a>
+                <a href="https://github.com/S-L-Technologies/" target="_blank"><p><i class="fab fa-github"></i></p></a>
             </div>
             <div>
                 <p class="font-light">Copyright © 2021 S&L Technologies. All rights reserved. <router-link class="font-medium px-4" to="/legal">Legal terms</router-link></p>
