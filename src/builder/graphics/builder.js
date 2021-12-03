@@ -119,10 +119,12 @@ generateSkybox()
     lightSpot.shadow.bias = -0.005;
     lightSpot.shadow.camera.near = 0.1;
     lightSpot.shadow.camera.far = 50;
-    lightSpot.shadow.camera.left=-cellSize*2;
-    lightSpot.shadow.camera.right=cellSize*2;
+    lightSpot.shadow.camera.left=-cellSize*1.3;
+    lightSpot.shadow.camera.right=cellSize*1.3;
     lightSpot.shadow.camera.bottom=-cellSize;
     lightSpot.shadow.camera.top=cellSize*3;
+    lightSpot.shadow.mapSize.width = 1024;
+    lightSpot.shadow.mapSize.height = 1024;
     scene.add(lightSpot);
 
     //scene.add(new THREE.CameraHelper(lightSpot.shadow.camera));
