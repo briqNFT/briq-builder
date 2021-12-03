@@ -13,6 +13,11 @@ import { store } from "../../store/Store"
 import { builderDataEvents } from "../BuilderDataEvents"
 import { dispatchedActions } from './dispatch'
 
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass.js';
+
 let builderData = store.state.builderData;
 
 var camera;
@@ -76,7 +81,6 @@ export  function main(canvas) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   
-
   const fov = 75;
   const aspect = 2;  // the canvas default
   const near = 0.1;
@@ -140,25 +144,25 @@ generateSkybox()
   });
   voxWorld.scene = scene;
   const world = voxWorld;
-
-  /*
-  for (let y = 0; y < cellSize; ++y) {
-    for (let z = 0; z < cellSize; ++z) {
-      for (let x = 0; x < cellSize; ++x) {
-        const height = (Math.sin(x / cellSize * Math.PI * 2) + Math.sin(z / cellSize * Math.PI * 3)) * (cellSize / 6) + (cellSize / 2);
-        if (y < height) {
-          world.setVoxel(x, y, z, randInt(1, nbMaterial*tileTextureHeight+1));
-        }
-      }
-    }
-  }
-
-  function randInt(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-  }
-*/
-
   world.updateVoxelGeometry(1, 1, 1);  // 0,0,0 will generate
+
+  const composer = new EffectComposer(renderer);
+  const renderPass = new RenderPass( scene, camera );
+  composer.addPass( renderPass );
+  const saoPass = new SAOPass(scene, camera, true, true);
+  saoPass.params = {
+    output: 0,
+    saoBias: 0.4,
+    saoIntensity: 0.1,
+    saoScale: 200,
+    saoKernelRadius: 40,
+    saoMinResolution: 0,
+    saoBlur: true,
+    saoBlurRadius: 8,
+    saoBlurStdDev: 4,
+    saoBlurDepthCutoff: 0.01
+  };
+  composer.addPass( saoPass );
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -167,6 +171,7 @@ generateSkybox()
     const needResize = canvas.width !== width || canvas.height !== height;
     if (needResize) {
       renderer.setSize(width, height, false);
+      composer.setSize(width, height);
     }
     return needResize;
   }
@@ -206,39 +211,8 @@ generateSkybox()
       }
     }
     dispatchedActions.length = 0;
-    /*
-    for (let event of builderDataEvents)
-    {
-      if (event.type === "change_set")
-      {
-        voxWorld.reset();
-        builderData.currentSet.forEach((cell, pos) => {
-          voxWorld.setVoxel(pos[0], pos[1], pos[2], cell.material)
-          voxWorld.updateVoxelGeometry(pos[0], pos[1], pos[2]);
-        });
-        voxWorld.updateCellGeometry(0, 0, 0);
-        voxWorld.updateCellGeometry(voxWorld.cellSize+1, 0, 0);
-      }
-      else if (event.type === "setData")
-      {
-        if (event.data.set !== builderData.currentSet.id)
-          continue;
-        if (event.data.subtype === "reset")
-        {
-          voxWorld.reset();
-        }
-        else if (event.data.subtype === "place")
-        {
-            voxWorld.setVoxel(event.data.x, event.data.y, event.data.z, event.data.kind);
-            voxWorld.updateVoxelGeometry(event.data.x, event.data.y, event.data.z);
-        }  
-      }
-    }
-    builderDataEvents.length = 0;
-    */
-    
 
-    renderer.render(scene, camera);
+    composer.render();
     requestAnimationFrame(render);
   }
   render();
