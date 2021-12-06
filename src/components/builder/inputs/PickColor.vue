@@ -5,11 +5,11 @@ import ColorManager from '../modals/ColorManager.vue';
 </script>
 
 <template>
-    <div class="my-0.5 flex flex-col" v-for="value, key in colorMap" :key="key">
+    <div class="my-0.5 flex flex-col" v-for="value, key in palette.colors" :key="key">
         <Button class='h-5 min-h-0'
-            :tooltip="'Select color ' + value.name"
+            :tooltip="'Select color ' + value"
             @click="pickColor(key)"
-            :style="{ 'backgroundColor': value.color, 'border': (currentColor === key ? '4px solid black' : '1px solid black') }"
+            :style="{ 'backgroundColor': key, 'border': (currentColor === key ? '4px solid black' : '1px solid black') }"
             >
         </Button>
     </div>
@@ -21,12 +21,20 @@ import ColorManager from '../modals/ColorManager.vue';
 
 <script lang="ts">
 import { inputStore } from '../../../builder/inputs/InputStore';
+import { palettesMgr } from '../../../builder/Palette';
 import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
 
-import { defineComponent } from 'vue'
+import { defineComponent, toRef } from 'vue'
 export default defineComponent({
     data() {
-        return inputStore;
+        return {
+            currentColor: toRef(inputStore, 'currentColor'),
+        }
+    },
+    computed: {
+        palette() {
+            return palettesMgr.getCurrent();
+        }
     },
     inject:["messages"],
     methods:
@@ -40,17 +48,14 @@ export default defineComponent({
                 return;
             }
             let [hex, name] = result;
-            if (hex in inputStore.colorMap)
+            if (hex in this.palette.colors)
             {
                 this.messages.pushMessage("Error while picking color: color " + hex + " already exists.");
                 setModal();
                 return await this.registerNewColor();
             }
-            inputStore.colorMap[hex] = {
-                name: name,
-                color: hex,
-            };
-            inputStore.currentColor = hex;
+            this.palette.colors[hex] = name;
+            this.currentColor = hex;
             setModal();
         },
         pickColor : function(key: string) {

@@ -9,11 +9,11 @@ import ColorPicker from './ColorPicker.vue';
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center">Color Manager</h2>
             <div>
-                <p v-for="col, key in colorMap" class="my-1">
+                <p v-for="col, key in palette.colors" class="my-1">
                     <Button class="mx-0.5" :disabled="usedColors[key] > 0" @click="deleteColor(key)">Delete</Button>
                     <Button class="mx-0.5" :disabled="(usedColors?.[key] ?? 0) == 0" @click="replaceColor(key)">Replace</Button>
-                    <span class="w-6 h-6 inline-block mx-1" :style="{ 'backgroundColor': col.color }">{{ usedColors[key] ?? 0 }}</span>
-                    {{ col.name }}
+                    <span class="w-6 h-6 inline-block mx-1" :style="{ 'backgroundColor': key }">{{ usedColors[key] ?? 0 }}</span>
+                    {{ col }}
                 </p>
             </div>
             <Button class="float-left" @click="resetAll">Reset to set colors</Button>
@@ -25,16 +25,21 @@ import ColorPicker from './ColorPicker.vue';
 <script lang="ts">
 import * as THREE from 'three';
 
-import { inputStore } from '../../../builder/inputs/InputStore'
+import { inputStore } from '../../../builder/inputs/InputStore';
+import { palettesMgr } from '../../../builder/Palette';
+import { getModal, setModal, setModalAndAwait } from '../../MiddleModal.vue';
 
-import { getModal, setModal, setModalAndAwait } from '../../MiddleModal.vue'
-
-import { defineComponent } from 'vue';
+import { defineComponent, toRef } from 'vue';
 export default defineComponent({
     data() {
-        return inputStore
+        return {
+            currentColor: toRef(inputStore, "currentColor"),
+        }
     },
     computed: {
+        palette() {
+            return palettesMgr.getCurrent();
+        },
         usedColors(): { [key: string]: number } {
             let ret = {};
             this.$store.state.builderData.currentSet.forEach(cell => {
@@ -50,23 +55,20 @@ export default defineComponent({
         deleteColor(col: string) {
             if (this.usedColors[col] > 0)
                 return;
-            delete this.colorMap[col];
+            delete this.palette.colors[col];
             if (this.currentColor === col)
-                this.currentColor = Object.keys(this.colorMap)[0];
+                this.currentColor = this.palette.getFirstColor();
         },
         async replaceColor(col: string) {
             let mod = getModal();
-            let result = await setModalAndAwait(ColorPicker, { color: this.colorMap[col].color });
+            let result = await setModalAndAwait(ColorPicker, { color: col });
             if (!result)
             {
                 setModal(mod);
                 return;
             }
             let [res, name] = result;
-            this.colorMap[res] = {
-                name,
-                color: res,
-            }
+            this.palette.colors[res] = name;
             this.$store.state.builderData.currentSet.forEach((cell, pos) => {
                 if (cell.color === col)
                     this.$store.dispatch("builderData/set_briq_color", [{ pos, color: res }]);
@@ -76,16 +78,9 @@ export default defineComponent({
             setModal(mod);
         },
         resetAll() {
-            this.colorMap = {};
-            this.updateForSet(this.$store.state.builderData.currentSet);
-            if (Object.keys(this.colorMap).length === 0)
-                this.colorMap = {
-                    "#999999": {
-                        name: "#999999",
-                        color: "#999999",
-                    }
-                };
-            this.currentColor = Object.keys(this.colorMap)[0];
+            this.palette.reset();
+            this.palette.updateForSet(this.$store.state.builderData.currentSet);
+            this.currentColor = this.palette.getFirstColor();
         }
     },
 })</script>

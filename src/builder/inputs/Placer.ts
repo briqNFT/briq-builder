@@ -28,7 +28,7 @@ export class PlacerInput extends MouseInputState
             return;
         previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
         if (Math.abs(pos[0]) <= cellSize && Math.abs(pos[2]) <= cellSize)
-            (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.colorMap[inputStore.currentColor].color);
+            (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
         else
             (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);
     }
@@ -50,7 +50,7 @@ export class PlacerInput extends MouseInputState
         if (!pos)
             return;
         const voxelId = removing ? 0 : pickerData.material;
-        store.dispatch("builderData/place_briq", { pos: pos, color: removing ? '' : inputStore.colorMap[inputStore.currentColor].color, voxelId: voxelId });
+        store.dispatch("builderData/place_briq", { pos: pos, color: removing ? '' : inputStore.currentColor, voxelId: voxelId });
     }
 }
 
@@ -100,7 +100,7 @@ export class PlacerMultiInput extends MouseInputState
             for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
                 for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
                     if (!store.state.builderData.currentSet.getAt(x, y, z))
-                        briqs.push({ pos: [x, y, z], color: inputStore.colorMap[inputStore.currentColor].color, voxelId: pickerData.material });
+                        briqs.push({ pos: [x, y, z], color: inputStore.currentColor, voxelId: pickerData.material });
         await store.dispatch("builderData/place_multiple_briqs", briqs);
 
         this.fsm.switchTo("place");

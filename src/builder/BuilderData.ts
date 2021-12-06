@@ -8,7 +8,7 @@ import { fetchData } from '../url'
 
 import { dispatchBuilderAction } from "./graphics/dispatch";
 
-import { inputStore } from './inputs/InputStore';
+import { palettesMgr } from './Palette';
 
 import BriqContract from '../contracts/briq'
 import SetContract from '../contracts/set'
@@ -207,7 +207,7 @@ export var builderDataStore = (() => {
                     state.currentSet = data;
                 else
                     state.currentSet = state.wipSets.filter((x: SetData) => x.id === data)[0];
-                inputStore.updateForSet(state.currentSet);
+                palettesMgr.updateForSet(state.currentSet);
                 dispatchBuilderAction("select_set", state.currentSet);
             },
             set_briq_contract(state: any, data: BriqContract)

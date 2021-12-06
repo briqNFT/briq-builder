@@ -23,7 +23,7 @@ export class PainterInput extends MouseInputState
             return;
 
         previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-        (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.colorMap[inputStore.currentColor].color);
+        (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
     }
 
     onPointerDown(event: PointerEvent)
@@ -42,7 +42,7 @@ export class PainterInput extends MouseInputState
         if (!pos || pos[1] < 0)
             return;
 
-        store.dispatch("builderData/set_briq_color", [{ pos: pos, color: inputStore.colorMap[inputStore.currentColor].color }]);
+        store.dispatch("builderData/set_briq_color", [{ pos: pos, color: inputStore.currentColor }]);
         // Update preview cube.
         this._onPointerMove(event);
     }
@@ -95,7 +95,7 @@ export class PainterMultiInput extends MouseInputState
                 for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
                 {
                     if (store.state.builderData.currentSet.getAt(x, y, z))
-                        actionData.push({ pos: [x, y, z], color: inputStore.colorMap[inputStore.currentColor].color });
+                        actionData.push({ pos: [x, y, z], color: inputStore.currentColor });
                 }
         await store.dispatch("builderData/set_briq_color", actionData);
         this.fsm.switchTo("paint");
