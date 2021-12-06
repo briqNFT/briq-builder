@@ -154,7 +154,7 @@ generateSkybox()
   const saoPass = new SAOPass(scene, camera, true, true);
   saoPass.params = {
     output: 0,
-    saoBias: 0.4,
+    saoBias: 1,
     saoIntensity: 0.1,
     saoScale: 200,
     saoKernelRadius: 40,
