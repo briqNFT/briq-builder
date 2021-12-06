@@ -48,13 +48,12 @@ export default defineComponent({
                 return;
             }
             let [hex, name] = result;
-            if (hex in this.palette.colors)
+            if (!this.palette.addColor(hex, name))
             {
                 this.messages.pushMessage("Error while picking color: color " + hex + " already exists.");
                 setModal();
                 return await this.registerNewColor();
             }
-            this.palette.colors[hex] = name;
             this.currentColor = hex;
             setModal();
         },

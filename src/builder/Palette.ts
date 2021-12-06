@@ -1,5 +1,7 @@
 import type { SetData } from './SetData';
 
+import { reactive, watchEffect } from 'vue';
+
 const DEFAULT_COLORS = {
     "#c5ac73": "#c5ac73",
     "#e6de83": "#e6de83",
@@ -17,31 +19,51 @@ const DEFAULT_COLORS = {
 class Palette
 {
     // Color - name
-    colors: { [key: string]: string } = {};
+    colors: { [key: string]: string };
 
     constructor()
     {
-        this.colors = Object.assign({}, DEFAULT_COLORS);
+        this.colors = reactive({});
+        this.deserialize();
+        watchEffect(() => {
+            this.serialize();
+        })
     }
 
     serialize()
     {
-
+        window.localStorage.setItem("palette", JSON.stringify(this.colors));
     }
 
     deserialize()
     {
-        
+        this.reset(false);
+        try {
+            Object.assign(this.colors, JSON.parse(window.localStorage.getItem("palette")!));
+        }
+        catch(_)
+        {
+            this.reset();
+        }
     }
 
-    reset()
+    reset(addDefault = true)
     {
-        this.colors = Object.assign({}, DEFAULT_COLORS);
+        for (const col of Object.getOwnPropertyNames(this.colors)) {
+            delete this.colors[col];
+        }
+        if (addDefault)
+            Object.assign(this.colors, DEFAULT_COLORS);
     }
 
     getFirstColor()
     {
         return Object.keys(this.colors)[0];
+    }
+
+    addColor(hex: string, name: string)
+    {
+        this.colors[hex] = name;
     }
 
     /**
@@ -77,5 +99,4 @@ class PalettesManager
     }
 }
 
-import { reactive } from 'vue';
 export var palettesMgr = reactive(new PalettesManager());
