@@ -14,8 +14,8 @@ import ColorManager from '../modals/ColorManager.vue';
         </Button>
     </div>
     <div class="my-1 flex flex-col">
-        <Button class="my-0.5" @click="registerNewColor">New Color</Button>
-        <Button class="my-0.5" @click="setModal(ColorManager)">Manage</Button>
+        <Button class="my-0.5" @click="registerNewColor" tooltip="Add a new color to the curret palette.">New Color</Button>
+        <Button class="my-0.5" @click="setModal(ColorManager)" tooltip="Manage the color palette. Replace or delete colors.">Manage</Button>
     </div>
 </template>
 
