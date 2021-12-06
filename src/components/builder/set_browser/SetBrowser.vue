@@ -3,7 +3,7 @@ import SetGridItem from './SetGridItem.vue';
 </script>
 
 <template>
-    <div :class="asModal ? 'w-full h-full p-24 invisible absolute top-0' : 'w-full min-h-screen h-full bg-briq-light'">
+    <div :class="asModal ? 'w-full h-full p-24 absolute top-0' : 'w-full min-h-screen h-full bg-briq-light'" :style="asModal ? { 'backgroundColor': 'rgba(0, 0, 0, 0.2)' } : ''">
         <div :class="'visible px-4 py-2 ' + (asModal ? 'rounded-md shadow-xl w-full h-full bg-briq-light' : 'container mx-auto')">
             <button v-if="asModal" class="float-right text-4xl text-gray-700" @click="$emit('close')">X</button>
             <h1 class="text-center my-8">Browse sets</h1>

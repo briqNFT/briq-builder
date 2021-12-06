@@ -35,6 +35,6 @@
     }
 
     input {
-        @apply rounded px-2 py-0.5;
+        @apply rounded px-2 py-0.5 text-deep-blue;
     }
 }
