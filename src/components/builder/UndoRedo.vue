@@ -1,17 +1,20 @@
 <template>
     <div>
-        <button @click="undo" :disabled="!canUndo" class="btn mx-0.5">
+        <Button @click="undo" :disabled="!canUndo" class="mx-0.5" tooltip="Undo (Ctrl + Z)">
             <p><i class="fas fa-undo"></i></p>
         </button>
-        <button @click="redo" :disabled="!canRedo" class="btn mx-0.5">
+        <Button @click="redo" :disabled="!canRedo" class="mx-0.5" tooltip="Undo (Ctrl + Shift + Z)">
             <p><i class="fas fa-redo"></i></p>
         </button>
     </div>
 </template>
 
 <script lang="ts">
+import Button from '../generic/Button.vue'
+
 import { defineComponent } from 'vue';
 export default defineComponent({
+    components: { Button },
     computed: {
         store: function() {
             return this.$store.state.undoRedo;

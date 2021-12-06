@@ -36,7 +36,7 @@ export default defineComponent({
                 this.lastMessage = newV[newV.length - 1];
                 if (this.timeoutLM)
                     clearTimeout(this.timeoutLM);
-                this.timeoutLM = setTimeout(() => { this.lastMessage = undefined; }, 6000);
+                this.timeoutLM = setTimeout(() => { this.lastMessage = undefined; }, this.tooltip ? 2000: 6000);
             }
         }
     },
