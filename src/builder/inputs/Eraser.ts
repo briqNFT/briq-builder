@@ -50,6 +50,9 @@ export class EraserInput extends MouseInputState
             return;
 
         store.dispatch("builderData/place_briq", { pos: pos, color: "", voxelId: 0 });
+        // Update the preview cursor in a few milliseconds to let the world update.
+        // Use the 'non event updating version' so the cube doesn't accidentally jump back.
+        setTimeout(() => this.onPointerMove(event), 100);
     }
 }
 

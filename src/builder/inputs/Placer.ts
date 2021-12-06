@@ -39,7 +39,7 @@ export class PlacerInput extends MouseInputState
             this.fsm.switchTo("place_multi", { x: event.clientX, y: event.clientY });
     }
 
-    onPointerUp(event: PointerEvent)
+    async onPointerUp(event: PointerEvent)
     {
         let mov = Math.abs(event.clientX - this.lastClickX) + Math.abs(event.clientY - this.lastClickY);
         if (mov > 10)
@@ -50,7 +50,10 @@ export class PlacerInput extends MouseInputState
         if (!pos)
             return;
         const voxelId = removing ? 0 : pickerData.material;
-        store.dispatch("builderData/place_briq", { pos: pos, color: removing ? '' : inputStore.currentColor, voxelId: voxelId });
+        await store.dispatch("builderData/place_briq", { pos: pos, color: removing ? '' : inputStore.currentColor, voxelId: voxelId });
+        // Update the preview cursor in a few milliseconds to let the world update.
+        // Use the 'non event updating version' so the cube doesn't accidentally jump back.
+        setTimeout(() => this.onPointerMove(event), 100);
     }
 }
 
