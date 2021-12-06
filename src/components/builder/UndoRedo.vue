@@ -25,6 +25,12 @@ export default defineComponent({
         canUndo: function() { return this.index >= 0; },
         canRedo: function() { return this.index < this.history.length - 1; },
     },
+    mounted() {
+        window.addEventListener('keyup', this.shortcut);
+    },
+    unmounted() {
+        window.removeEventListener('keyup', this.shortcut);
+    },
     methods: {
         undo: function() {
             this.$store.dispatch("undo_history");
@@ -32,6 +38,13 @@ export default defineComponent({
         redo: function() {
             this.$store.dispatch("redo_history");
         },
+        shortcut(event: KeyboardEvent) {
+            console.log(event);
+            if (!event.shiftKey && event.ctrlKey && event.key === 'z')
+                this.$store.dispatch("undo_history");
+            else if (event.shiftKey && event.ctrlKey && event.key === 'Z')
+                this.$store.dispatch("redo_history");
+        }
     }
 })
 </script>

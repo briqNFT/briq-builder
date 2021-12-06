@@ -32,8 +32,14 @@ export class PainterInput extends MouseInputState
             this.fsm.switchTo("paint_multi", { x: event.clientX, y: event.clientY });
     }
 
-    onPointerUp(event: PointerEvent)
+    async onPointerUp(event: PointerEvent)
     {
+        if (event.button === 2)
+        {
+            await store.dispatch("undo_history");
+            return;
+        }
+
         let mov = Math.abs(event.clientX - this.lastClickX) + Math.abs(event.clientY - this.lastClickY);
         if (mov > 10)
             return;
@@ -42,9 +48,9 @@ export class PainterInput extends MouseInputState
         if (!pos || pos[1] < 0)
             return;
 
-        store.dispatch("builderData/set_briq_color", [{ pos: pos, color: inputStore.currentColor }]);
+        await store.dispatch("builderData/set_briq_color", [{ pos: pos, color: inputStore.currentColor }]);
         // Update preview cube.
-        this._onPointerMove(event);
+        await this.onPointerMove(event);
     }
 }
 
