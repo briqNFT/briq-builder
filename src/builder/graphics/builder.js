@@ -76,6 +76,13 @@ import daylight_Left from '../../assets/skybox/Daylight-Box_Left.jpg'
 import daylight_Right from '../../assets/skybox/Daylight-Box_Right.jpg'
 import daylight_Top from '../../assets/skybox/Daylight-Box_Top.jpg'
 
+export function resetCamera()
+{
+    camera.position.set(cellSize * 0.3, cellSize * 0.8, -cellSize * 1.4);
+    orbitControls.controls.target.set(0, 1, 0);
+    orbitControls.controls.update();
+  }
+
 export  function main(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.shadowMap.enabled = true;
@@ -86,12 +93,10 @@ export  function main(canvas) {
   const near = 0.1;
   const far = 1000;
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.set(cellSize * 0.3, cellSize * 0.8, -cellSize * 1.4);
 
   orbitControls.controls = new OrbitControls(camera, canvas);
   orbitControls.controls.enableDamping = true;
-  orbitControls.controls.target.set(0, 1, 0);
-  orbitControls.controls.update();
+  resetCamera();
   
 
   const scene = new THREE.Scene();

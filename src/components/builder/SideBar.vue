@@ -5,7 +5,7 @@ import InputComp from './InputComp.vue'
 
 <template>
     <div id="sideBar" class="flex flex-nowrap flex-col mx-4 my-20 absolute left-0 top-0 max-w-full justify-top">
-        <div class="my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1">
+        <div class="my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24">
             <Button class="my-0.5" tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
                 @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Button>
             <Button class="my-0.5" tooltip="In 'Paint' mode, left-click to repaint briqs."
@@ -14,6 +14,8 @@ import InputComp from './InputComp.vue'
                 @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="fas fa-backspace"/></Button>
             <Button class="my-0.5" tooltip="In 'Inspect' mode, left-click to inspect briqs."
                 @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-search-plus"/></Button>
+            <Button class="my-0.5" tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots."
+                @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-eye"/></Button>
         </div>
         <div class="flex md:flex-col max-w-full overflow-scroll flex-row justify-stretch align-stretch content-stretch">
             <InputComp/>

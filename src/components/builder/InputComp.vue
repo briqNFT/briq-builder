@@ -2,6 +2,7 @@
 //import PickMaterial from "./PickMaterial.vue";
 import Place from './inputs/Place.vue';
 import Inspect from './inputs/Inspect.vue';
+import Camera from './inputs/Camera.vue';
 </script>
 
 <template>
@@ -19,7 +20,8 @@ export default defineComponent({
             mapping: markRaw({
                 "place": Place,
                 "paint": Place,
-                "inspect": Inspect
+                "inspect": Inspect,
+                "camera": Camera,
             })
         };
     }
