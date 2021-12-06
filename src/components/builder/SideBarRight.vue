@@ -7,7 +7,7 @@ import Settings from '../Tools/Settings.vue'
     <div class="absolute right-0 top-0 pointer-events-none mx-4 my-4  flex flex-nowrap flex-col justify-start content-end">
         <!--<Settings @click="expanded = !expanded" class="pointer-events-auto"/>-->
         <Button class="pointer-events-auto" @click="expanded = !expanded">{{ titleText() }}</Button>
-        <div :class="'my-8 ' + (expanded ? 'expanded' : 'unexpanded')">
+        <div :class="'my-8 pointer-events-auto ' + (expanded ? 'expanded' : 'unexpanded')">
             <div class="my-8 flex flex-col flex-nowrap gap-1">
                 <Button @click="openSelector = true">{{ contractStore.isConnected ? "Disconnect" : "Connect Wallet" }}</Button>
             </div>
