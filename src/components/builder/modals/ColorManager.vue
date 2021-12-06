@@ -55,7 +55,7 @@ export default defineComponent({
         deleteColor(col: string) {
             if (this.usedColors[col] > 0)
                 return;
-            delete this.palette.colors[col];
+            this.palette.deleteColor(col);
             if (this.currentColor === col)
                 this.currentColor = this.palette.getFirstColor();
         },

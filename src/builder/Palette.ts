@@ -61,6 +61,11 @@ class Palette
         return Object.keys(this.colors)[0];
     }
 
+    deleteColor(hex: string)
+    {
+        delete this.colors[hex];
+    }
+
     addColor(hex: string, name: string)
     {
         this.colors[hex] = name;
