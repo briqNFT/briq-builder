@@ -4,7 +4,7 @@
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">History Log</h3>
             <div class="h-5/6 overflow-scroll">
-                <p v-for="item, i in history">{{ i === index ? 'X' : ''}} {{ item.action }}</p>
+                <p v-for="item, i in history">{{ i === index ? 'X' : ''}} {{ getHumanOutput(item.action, item) }}</p>
             </div>
             <UndoRedo/>
         </div>
@@ -12,8 +12,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
 import UndoRedo from '../UndoRedo.vue';
+import { getHumanOutput } from '../../../builder/UndoRedo';
+
+import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {};
@@ -25,6 +27,9 @@ export default defineComponent({
         history: function() {
             return this.$store.state.undoRedo.command_history
         }
+    },
+    methods: {
+        getHumanOutput
     },
     props: ["metadata"],
     emits: ["close"],

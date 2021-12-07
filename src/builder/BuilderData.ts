@@ -332,7 +332,7 @@ registerUndoableAction("builderData/place_briq", "builderData/undo_place_briq", 
             }
         });
     }
-});
+}, (data: any) => "Place briq");
 
 
 registerUndoableAction("builderData/place_multiple_briqs", "builderData/undo_place_multiple_briqs", {
@@ -352,7 +352,7 @@ registerUndoableAction("builderData/place_multiple_briqs", "builderData/undo_pla
             undoData: (payload as Array<any>).map((x, i) => ({ ...x, briq: transientActionState.data[i]})),
         });
     }
-});
+}, (data: any) => "Place multiple briqs");
 
 registerUndoableAction("builderData/set_briq_color", "builderData/set_briq_color", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
@@ -372,7 +372,7 @@ registerUndoableAction("builderData/set_briq_color", "builderData/set_briq_color
             undoData: payload.map((x, i) => ({ pos: x.pos, color: transientActionState.colors[i]}))
         });
     }
-});
+}, (data: any) => "Change briq color");
 
 registerUndoableAction("builderData/select_set", "builderData/select_set", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
@@ -385,7 +385,7 @@ registerUndoableAction("builderData/select_set", "builderData/select_set", {
             undoData: transientActionState.set,
         });
     }
-});
+}, (data: any) => "Select set #" + data.undoData);
 
 registerUndoableAction("builderData/clear", "builderData/undo_clear", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
@@ -398,4 +398,4 @@ registerUndoableAction("builderData/clear", "builderData/undo_clear", {
             undoData: transientActionState.data,
         });
     }
-});
+}, (data: any) => "Clear all briqs");

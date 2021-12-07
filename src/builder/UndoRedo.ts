@@ -5,14 +5,25 @@ type Hook = (localData: any, payload: any, state: any) => void;
 const undoActions: { [key: string]: string } = {};
 const onBefore: { [key: string]: Hook } = {};
 const onAfter: { [key: string]: Hook } = {};
+const humanOutputs: { [key: string]: (data: any) => string } = {};
 
-export function registerUndoableAction(action: string, undoAction: string, hooks: { onBefore?: Hook, onAfter?: Hook })
+export function registerUndoableAction(action: string, undoAction: string, hooks: { onBefore?: Hook, onAfter?: Hook }, humanOutput?: (data: any) => string)
 {
     undoActions[action] = undoAction;
     if (hooks.onBefore)
         onBefore[action] = hooks.onBefore;
     if (hooks.onAfter)
         onAfter[action] = hooks.onAfter;
+    
+    if (humanOutput)
+        humanOutputs[action] = humanOutput;
+    else
+        humanOutputs[action] = () => action;
+}
+
+export function getHumanOutput(action: string, data: any): string
+{
+    return humanOutputs[action](data);
 }
 
 export const UndoRedo = (store: any) => {

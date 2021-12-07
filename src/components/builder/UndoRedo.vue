@@ -3,7 +3,7 @@
         <Button @click="undo" :disabled="!canUndo" class="mx-0.5" tooltip="Undo (Ctrl + Z)">
             <p><i class="fas fa-undo"></i></p>
         </button>
-        <Button @click="redo" :disabled="!canRedo" class="mx-0.5" tooltip="Undo (Ctrl + Shift + Z)">
+        <Button @click="redo" :disabled="!canRedo" class="mx-0.5" tooltip="Redo (Ctrl + Shift + Z)">
             <p><i class="fas fa-redo"></i></p>
         </button>
     </div>
