@@ -42,7 +42,6 @@ export default defineComponent({
             this.$store.dispatch("redo_history");
         },
         shortcut(event: KeyboardEvent) {
-            console.log(event);
             if (!event.shiftKey && event.ctrlKey && event.key === 'z')
                 this.$store.dispatch("undo_history");
             else if (event.shiftKey && event.ctrlKey && event.key === 'Z')
