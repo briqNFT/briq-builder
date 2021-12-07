@@ -16,7 +16,13 @@ import { dispatchedActions } from './dispatch'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { SSAARenderPass } from 'three/examples/jsm/postprocessing/SSAARenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
+
+import { watchEffect } from 'vue';
+import builderSettings from './Settings';
 
 let builderData = store.state.builderData;
 
@@ -81,13 +87,80 @@ export function resetCamera()
     camera.position.set(cellSize * 0.3, cellSize * 0.8, -cellSize * 1.4);
     orbitControls.controls.target.set(0, 1, 0);
     orbitControls.controls.update();
-  }
+}
 
-export  function main(canvas) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+function resizeRendererToDisplaySize(renderer, composer, camera) {
+  const canvas = renderer.domElement;
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  const needResize = canvas.width !== width || canvas.height !== height;
+  if (needResize)
+  {
+    renderer.setSize(width, height, false);
+    composer.setSize(width, height);
+    /*
+    TODO: FXAA
+    if (composer.passes.length === 3)
+    {
+      composer.passes[2].uniforms['resolution'].value.x = 1 / width;
+      composer.passes[2].uniforms['resolution'].value.y = 1 / height;
+    }
+    */
+    const canvas = renderer.domElement;
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.updateProjectionMatrix();
+  }
+  return needResize;
+}
+
+function recreateRenderer(canvas, scene, camera)
+{
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !!builderSettings.useRealAA });
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
-  
+
+  const composer = new EffectComposer(renderer);
+  if (builderSettings.useRealAA)
+  {
+    const renderPass = new SSAARenderPass(scene, camera);
+    renderPass.sampleLevel = 2;
+    composer.addPass(renderPass);
+  }
+  else
+  {
+    const renderPass = new RenderPass(scene, camera);
+    composer.addPass(renderPass);
+  }
+  if (builderSettings.useSAO)
+  {
+    const saoPass = new SAOPass(scene, camera, true, true);
+    saoPass.params = {
+      output: 0,
+      saoBias: 1,
+      saoIntensity: 0.1,
+      saoScale: 200,
+      saoKernelRadius: 40,
+      saoMinResolution: 0,
+      saoBlur: true,
+      saoBlurRadius: 8,
+      saoBlurStdDev: 4,
+      saoBlurDepthCutoff: 0.01
+    };
+    composer.addPass(saoPass); 
+    /*
+    if (builderSettings.useRealAA)
+    {
+      let effectFXAA = new ShaderPass(FXAAShader);
+      composer.addPass( effectFXAA );   
+    }
+    */
+  }
+  resizeRendererToDisplaySize(renderer, composer, camera);
+
+  return [renderer, composer];
+};
+
+export  function main(canvas) {  
   const fov = 75;
   const aspect = 2;  // the canvas default
   const near = 0.1;
@@ -98,7 +171,6 @@ export  function main(canvas) {
   orbitControls.controls.enableDamping = true;
   resetCamera();
   
-
   const scene = new THREE.Scene();
 
   function generateSkybox() {
@@ -153,46 +225,20 @@ generateSkybox()
   const world = voxWorld;
   world.updateVoxelGeometry(1, 1, 1);  // 0,0,0 will generate
 
-  const composer = new EffectComposer(renderer);
-  const renderPass = new RenderPass( scene, camera );
-  composer.addPass( renderPass );
-  const saoPass = new SAOPass(scene, camera, true, true);
-  saoPass.params = {
-    output: 0,
-    saoBias: 1,
-    saoIntensity: 0.1,
-    saoScale: 200,
-    saoKernelRadius: 40,
-    saoMinResolution: 0,
-    saoBlur: true,
-    saoBlurRadius: 8,
-    saoBlurStdDev: 4,
-    saoBlurDepthCutoff: 0.01
-  };
-  composer.addPass( saoPass );
-
-  function resizeRendererToDisplaySize(renderer) {
-    const canvas = renderer.domElement;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    const needResize = canvas.width !== width || canvas.height !== height;
-    if (needResize) {
-      renderer.setSize(width, height, false);
-      composer.setSize(width, height);
-    }
-    return needResize;
-  }
+  var renderer, composer;
+  // Recreate the renderer whenever things change.
+  watchEffect(() => {
+    if (renderer)
+      renderer.dispose();
+    [renderer, composer] = recreateRenderer(canvas, scene, camera);
+  });
 
   let renderRequested = false;
 
   function render() {
     renderRequested = undefined;
 
-    if (resizeRendererToDisplaySize(renderer)) {
-      const canvas = renderer.domElement;
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
-    }
+    resizeRendererToDisplaySize(renderer, composer, camera);
 
     orbitControls.controls.update();
 

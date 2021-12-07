@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from "../generic/Button.vue";
-import Settings from '../Tools/Settings.vue'
+import Settings from '../builder/modals/Settings.vue';
 </script>
 
 <template>
@@ -13,7 +13,7 @@ import Settings from '../Tools/Settings.vue'
             </div>
             <div class="flex flex-col flex-nowrap gap-1">
                 <Button>Help</button>
-                <Button @click="$router.push({ path: '/settings' })">Settings</button>
+                <Button @click="setModal(Settings)">Settings</button>
                 <Button @click="$router.push({ path: '/legal' })">Legal / Privacy</button>
                 <Button @click="$router.push({ path: '/admin' })">Admin</button>
             </div>
@@ -60,6 +60,7 @@ export default defineComponent({
     },
     inject: ["messages"],
     methods: {
+        setModal,
         titleText: function() {
             let ret = "Briq";
             if (this.contractStore.isConnected)
