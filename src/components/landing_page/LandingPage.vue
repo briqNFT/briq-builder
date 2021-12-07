@@ -17,9 +17,10 @@ import StarkwareIcon from './starkware.png'
                 <h2>briq</h2>
             </div>
             <div class="flex gap-4 items-center">
-                <p>Whitepaper</p>
+                <!--<p>Whitepaper</p>
                 <p>Resources</p>
-                <button @click="$router.push({ name: 'Builder' })">Connect</button>
+                <button :disabled="true" @click="$router.push({ name: 'Builder' })">Connect</button>-->
+                <button :disabled="true">Coming Soon</button>
             </div>
         </div>
         <div class="row">
