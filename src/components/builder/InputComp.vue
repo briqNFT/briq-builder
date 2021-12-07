@@ -1,6 +1,6 @@
 <script setup lang="ts">
-//import PickMaterial from "./PickMaterial.vue";
 import Place from './inputs/Place.vue';
+import Erase from './inputs/Erase.vue';
 import Inspect from './inputs/Inspect.vue';
 import Camera from './inputs/Camera.vue';
 </script>
@@ -20,6 +20,7 @@ export default defineComponent({
             mapping: markRaw({
                 "place": Place,
                 "paint": Place,
+                "erase": Erase,
                 "inspect": Inspect,
                 "camera": Camera,
             })

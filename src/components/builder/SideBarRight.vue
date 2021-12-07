@@ -25,8 +25,6 @@ import Settings from '../Tools/Settings.vue'
                 <div class="my-2"></div>
                 <Button class="my-1" tooltip="Rename the current set" @click="rename">Rename</button>
                 <Button class="my-1" tooltip="Export the set to the blockchain" @click="exportSet">Export</button>
-                <div class="my-2"></div>
-                <Button class="my-1" tooltip="Remove all briqs from the current WIP set." @click="clear" :disabled="set.briqsDB.briqs.size == 0">Clear</button>
             </div>
             <div class="flex flex-col content-end my-4">
                 <h4 class="text-center font-bold">WIP SETS</h4>
@@ -69,9 +67,6 @@ export default defineComponent({
                 return ret;
         },
 
-        clear: function() {
-            this.$store.dispatch("builderData/clear");
-        },
         newSet: function() {
             this.$store.dispatch("builderData/create_wip_set");
         },
