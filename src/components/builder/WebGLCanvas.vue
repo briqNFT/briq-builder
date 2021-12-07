@@ -20,6 +20,8 @@ export default defineComponent({
         main(this.$refs.canvas);
         this.currentInput = toRef(inputStore, 'currentInput');
         builderInputFsm.initialize(this.$refs.canvas as HTMLCanvasElement, orbitControls.controls);
+        await this.$store.dispatch("builderData/select_set", this.$store.state.builderData.currentSet);
+        await this.$store.dispatch("reset_history");
     },
     methods: {
         onPointerMove: async function(event) {

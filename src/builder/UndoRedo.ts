@@ -29,17 +29,17 @@ export function getHumanOutput(action: string, data: any): string
 export const UndoRedo = (store: any) => {
     let transientActionState: any = {};
     store.subscribeAction({
-        before: (action: any, state: any) => {
+        before: async (action: any, state: any) => {
             if (action.type === "undo_history" || action.type === "redo_history")
-                store.dispatch("redoing", true);
+                await store.dispatch("redoing", true)
             if (state.undoRedo.redoing || !(action.type in onBefore))
                 return;
             transientActionState = {};
             onBefore[action.type]({ transientActionState, store }, action.payload, state);
         },
-        after: (action: any, state: any) => {
+        after: async (action: any, state: any) => {
             if (action.type === "undo_history" || action.type === "redo_history")
-                store.dispatch("redoing", false);
+                await store.dispatch("redoing", false);
             if (state.undoRedo.redoing || !(action.type in onAfter))
                 return;
             onAfter[action.type]({ transientActionState, store }, action.payload, state);
@@ -58,20 +58,23 @@ export const undoRedoStore = {
             if (!state.redoing)
                 commit("push_command_to_history", data);
         },
-        undo_history: ({ dispatch, commit, state }: any) => {
+        undo_history: async ({ dispatch, commit, state }: any) => {
             if (state.command_index < 0)
                 return;
-            dispatch(undoActions[state.command_history[state.command_index].action], state.command_history[state.command_index].undoData);
+            await dispatch(undoActions[state.command_history[state.command_index].action], state.command_history[state.command_index].undoData);
             commit("undo_history");
             pushMessage("Undo complete - " + state.command_history[state.command_index].action);
         },
-        redo_history: ({ dispatch, commit, state }: any) => {
+        redo_history: async ({ dispatch, commit, state }: any) => {
             if (state.command_index + 1 >= state.command_history.length)
                 return;
             // Kind of ugly but should work fine as this is synchronous.
-            dispatch(state.command_history[state.command_index + 1].action, state.command_history[state.command_index + 1].redoData);
+            await dispatch(state.command_history[state.command_index + 1].action, state.command_history[state.command_index + 1].redoData);
             commit("redo_history");
             pushMessage("Redo complete - " + state.command_history[state.command_index].action);
+        },
+        reset_history: ({ commit }: any) => {
+            commit("reset_history");
         },
         redoing: ({ commit }: any, data: any) => {
             commit("redoing", data);
@@ -92,5 +95,9 @@ export const undoRedoStore = {
         redo_history: (state: any) => {
             ++state.command_index;
         },
+        reset_history: (state: any) => {
+            state.command_index = -1;
+            state.command_history = [];
+        }
     },
 };
