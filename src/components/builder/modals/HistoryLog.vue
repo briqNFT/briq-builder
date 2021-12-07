@@ -5,6 +5,7 @@
             <h3 class="text center w-full">History Log</h3>
             <div class="h-5/6 overflow-scroll">
                 <p v-for="item, i in history">{{ i === index ? 'X' : ''}} {{ getHumanOutput(item.action, item) }}</p>
+                <p v-if="!history.length">No actions yet</p>
             </div>
             <UndoRedo/>
         </div>
