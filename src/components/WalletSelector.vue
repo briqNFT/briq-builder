@@ -1,10 +1,13 @@
 <template>
-    <div v-if="open" id="walletSelector">
+    <div v-if="open" id="walletSelector" class="alternate-buttons">
         <template v-if="step=='selection'">
             <h2>Choose your wallet</h2>
             <div class="walletOptions">
                 <button v-for="wallet, key in availableWallets" @click="chooseWallet(key)">{{ wallet.name }}</button>
             </div>
+        </template>
+        <template v-else-if="step=='delegate'">
+            <component :is="delegate"></component>
         </template>
         <template v-else-if="step=='manual-1'">
             <h2>Enter wallet information</h2>
@@ -31,7 +34,7 @@
 
 <style scoped>
 h2 {
-    @apply text-center my-4;
+    @apply text-center my-4 font-semibold;
 }
 
 button {
@@ -39,13 +42,13 @@ button {
 }
 
 #walletSelector {
-    @apply bg-briq-light p-2 rounded-xl shadow-xl;
+    @apply bg-briq px-8 py-4 rounded-xl shadow-xl text-lg;
 
     position:fixed;
-    width: 400px;
+    width: 600px;
     height: 400px;
     top: calc(50% - 200px);
-    left: calc(50% - 200px);
+    left: calc(50% - 300px);
     z-index: 1000;
 }
 
@@ -72,7 +75,9 @@ import { getPotentialWallets } from '../Wallet'
 import { ref } from 'vue'
 export var openSelector = ref(false);
 
-import { defineComponent } from 'vue';
+import ArgentX from './wallets/ArgentX.vue';
+
+import { defineComponent, markRaw } from 'vue';
 import { IWallet } from '../wallets/IWallet';
 export default defineComponent({
     data() {
@@ -81,6 +86,7 @@ export default defineComponent({
             open: openSelector,
             step: 'selection',
             error: '',
+            delegate: undefined,
             availableWallets: getPotentialWallets(),
             countdown: 0,
             // Manual stuff
@@ -130,6 +136,12 @@ export default defineComponent({
         },
     },
     watch: {
+        open: function(nv, ov) {
+            if (!nv)
+                return;
+            this.delegate = markRaw(ArgentX);
+            this.step = 'delegate';
+        },
         step: function(nv, ov) {
             if (nv === "success")
             {

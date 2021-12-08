@@ -9,7 +9,8 @@ import Settings from '../builder/modals/Settings.vue';
         <Button class="" @click="expanded = !expanded">{{ titleText() }}</Button>
         <div :class="'my-2 ' + (expanded ? 'expanded' : 'unexpanded')">
             <div class="my-8 flex flex-col flex-nowrap gap-1">
-                <Button @click="openSelector = true">{{ contractStore.isConnected ? "Disconnect" : "Connect Wallet" }}</Button>
+                <Button v-if="!contractStore.isConnected" @click="openSelector = true">Connect Wallet</Button>
+                <Button v-if="contractStore.isConnected" @click="$store.dispatch('wallet/disconnect')">Disconnect</Button>
             </div>
             <div class="flex flex-col flex-nowrap gap-1">
                 <Button>Help</button>

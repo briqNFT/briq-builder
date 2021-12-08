@@ -50,9 +50,12 @@ export const walletStore = {
                 })
             }
         },
-        connect({ dispatch, commit }: any, data: any) {
-            dispatch("set_user_wallet", data.userWalletAddress);
+        async connect({ dispatch, commit }: any, data: any) {
+            await dispatch("set_user_wallet", data.userWalletAddress);
             commit("connect", data);
+        },
+        async disconnect({ dispatch, commit }: any) {
+            commit("disconnect");
         },
         set_user_wallet({ dispatch, commit }: any, data:any) {
             commit("set_user_wallet", data);
@@ -79,6 +82,13 @@ export const walletStore = {
             state.signer = data.signer;
             state.provider = data.signer;
             state.isConnected = true;
+        },
+        disconnect(state: any)
+        {
+            state.userWalletAddress = "";
+            state.signer = defaultProvider;
+            state.provider = defaultProvider;
+            state.isConnected = false;
         }
     }
 };
