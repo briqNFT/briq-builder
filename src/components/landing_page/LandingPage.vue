@@ -16,18 +16,19 @@ import StarkwareIcon from './starkware.png'
             <div class="text-xl">
                 <h2>briq</h2>
             </div>
-            <div class="flex gap-4 items-center">
-                <!--<p>Whitepaper</p>
+            <div class="flex gap-4 items-center comingsoon">
+                <p>Whitepaper</p>
                 <p>Resources</p>
-                <button :disabled="true" @click="$router.push({ name: 'Builder' })">Connect</button>-->
-                <button :disabled="true">Coming Soon</button>
+                <button :disabled="true" @click="$router.push({ name: 'Builder' })">Connect</button>
             </div>
         </div>
         <div class="row">
             <div class="flex flex-wrap justify-around md:my-6 my-10">
                 <div class="centerall flex-1">
                     <p class="md:my-4 my-8 text-2xl">Briq is NFT matter.<br/>Briqs build NFTs that matter.<br/>Seize the briqs of construction.</p>
-                    <button @click="$router.push({ name: 'Builder' })">Build</button>
+                    <div class="comingsoon" style="padding: 2rem 2rem 1rem 2rem">
+                        <button @click="$router.push({ name: 'Builder' })">Build</button>
+                    </div>
                 </div>
                 <div class="centerall flex-1"><GMIcon class="lg:scale-100 scale-75"/></div>
             </div>
@@ -131,5 +132,29 @@ svg {
 
 button {
     @apply font-semibold border-white rounded-lg border-4 px-1;
+}
+
+.comingsoon {
+    position: relative;
+}
+.comingsoon::after {
+    display: block;
+    content: " Coming Soon ";
+    border: 0.25rem solid white;
+    font-style: italic;
+    width:100%;
+    height:100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    @apply rounded-md;
+    text-shadow: 2px 1px 3px rgba(0, 0, 0, 0.4);
+    background: repeating-linear-gradient(
+        -45deg,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0), 20px,
+        rgba(247, 137, 74, 0.5) 20px,
+        rgba(247, 137, 74, 0.5) 30px
+    );
 }
 </style>
