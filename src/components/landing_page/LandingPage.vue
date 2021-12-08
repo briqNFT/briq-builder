@@ -83,7 +83,7 @@ Seize the briqs of construction.</p>
             </div>
             <div class="flex justify-center gap-10 !my-10 text-5xl">
                 <a href="https://twitter.com/briqs_" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
-                <a href="https://discord.gg/ugqdKHTM" target="_blank"><p><i class="fab fa-discord"></i></p></a>
+                <!--<a href="https://discord.gg/ugqdKHTM" target="_blank"><p><i class="fab fa-discord"></i></p></a>-->
                 <a href="https://github.com/S-L-Technologies/" target="_blank"><p><i class="fab fa-github"></i></p></a>
             </div>
             <div>
