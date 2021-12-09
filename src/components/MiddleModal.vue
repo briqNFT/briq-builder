@@ -38,10 +38,19 @@ export function setModal(modal?: any, metadata?: any)
     localStore.callback = false;
 }
 
+let escapeSC: any = undefined;
+
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return localStore
+    },
+    inject: ["hotkeyMgr"],
+    mounted() {
+        escapeSC = this.hotkeyMgr.subscribe("escape", () => this.close());
+    },
+    unmounted() {
+        this.hotkeyMgr.unsubscribe(escapeSC);
     },
     methods: {
         close(data?: any) {
