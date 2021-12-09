@@ -7,13 +7,13 @@
         @apply text-white font-sans font-light bg-briq;
     }
     h1 {
-        @apply text-7xl;
+        @apply text-7xl font-medium;
     }
     h2 {
-        @apply text-4xl;
+        @apply text-4xl font-medium;
     }
     h3 {
-        @apply text-xl;
+        @apply text-xl font-normal;
     }
 
     .btn {

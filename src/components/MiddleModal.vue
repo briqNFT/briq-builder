@@ -1,6 +1,6 @@
 <template>
     <div class="flex h-screen w-screen justify-center items-center fixed top-0 left-0 invisible">
-        <component :metadata="metadata" :is="modal" class="visible container rounded-lg bg-briq-light mx-auto w-3/4 px-8 py-4 shadow-xl relative"
+        <component :metadata="metadata" :is="modal" class="visible container rounded-lg bg-briq alternate-buttons mx-auto w-3/4 px-8 py-4 shadow-xl relative"
             @close="close"></component>
     </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-    <h2 class="font-semibold">Argent x Starkware wallet</h2>
+    <h2 class="font-semibold my-4">Argent x Starkware wallet</h2>
     <div v-if="shouldShowInstallHelp">
         <p>You do not have the Argent X extension installed.<br/>It is only for now only compatible with Google Chrome.</p>
         <p class="my-2"><a target="_blank" href="https://chrome.google.com/webstore/detail/argent-x-starknet-wallet/dlcobpjiigpikoobohmabehhmhfoodbb"><Button>Install from Chrome Web Store</Button></a></p>
