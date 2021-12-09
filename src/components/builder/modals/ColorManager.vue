@@ -10,13 +10,14 @@ import ColorPicker from './ColorPicker.vue';
             <h2 class="text-center">Color Manager</h2>
             <div>
                 <p v-for="col, key in palette.colors" class="my-1">
-                    <Button class="mx-0.5" :disabled="usedColors[key] > 0" @click="deleteColor(key)">Delete</Button>
-                    <Button class="mx-0.5" :disabled="(usedColors?.[key] ?? 0) == 0" @click="replaceColor(key)">Replace</Button>
-                    <span class="w-6 h-6 inline-block mx-1" :style="{ 'backgroundColor': key }">{{ usedColors[key] ?? 0 }}</span>
-                    {{ col }}
+                    <Button noStyle="true" class="mx-0.5 font-semibold" :disabled="usedColors[key] > 0" @click="deleteColor(key)"><i class="fas fa-times"></i></Button>
+                    <Button noStyle="true" class="mx-0.5 font-semibold" :disabled="(usedColors?.[key] ?? 0) == 0" @click="replaceColor(key)"><i class="fas fa-retweet"></i></Button>
+                    <span class="w-6 h-6 mx-1 inline-flex justify-center align-center font-bold" :style="{ 'borderRadius': '50%', 'backgroundColor': key }">{{ usedColors[key] ?? 0 }}</span>
+                    <span class="font-mono">{{ col }}</span>
                 </p>
             </div>
-            <Button class="float-left" @click="resetAll">Reset to set colors</Button>
+            <Button class="float-left" @click="resetAll">Reset to default colors</Button>
+            <Button class="float-left" @click="keepActive">Keep only set colors</Button>
             <Button class="float-right" @click="$emit('close')">Close</Button>
         </div>
     </div>
@@ -25,7 +26,7 @@ import ColorPicker from './ColorPicker.vue';
 <script lang="ts">
 import * as THREE from 'three';
 
-import { inputStore } from '../../../builder/inputs/InputStore';
+import { inputStore } from '../../../builder/inputs/InputStore';    
 import { palettesMgr } from '../../../builder/Palette';
 import { getModal, setModal, setModalAndAwait } from '../../MiddleModal.vue';
 
@@ -81,6 +82,11 @@ export default defineComponent({
             this.palette.reset();
             this.palette.updateForSet(this.$store.state.builderData.currentSet);
             this.currentColor = this.palette.getFirstColor();
+        },
+        keepActive() {
+            for (let col in this.palette.colors)
+                if (!this.usedColors[col])
+                    this.deleteColor(col);
         }
     },
 })</script>

@@ -14,6 +14,7 @@ module.exports = {
     fontFamily: {
       'display': ["Raleway", "Helvetica", "ui-sans-serif", "system-ui"],
       'sans': ["Source Sans Pro", "ui-sans-serif", "system-ui"],
+      'mono': ["Source Code Pro", "monospace", "system-ui"],
     }
   },
   variants: {
