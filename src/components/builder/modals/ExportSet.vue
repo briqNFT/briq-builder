@@ -18,6 +18,7 @@
 
 <script lang="ts">
 import { downloadJSON, fetchData } from '../../../url'
+import { SetData } from '../../../builder/SetData';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -48,8 +49,11 @@ export default defineComponent({
                 return;
             this.exporting = true;
             try {
-                this.$store.dispatch("builderData/swap_for_real_briqs");
                 let data = this.$store.state.builderData.currentSet.serialize();
+                let exportSet = new SetData(data.id, this.$store.state.builderData.briqsDB);
+                exportSet.deserialize(data);
+                exportSet.swapForRealBriqs(this.$store.state.builderData.briqsDB);
+                data = exportSet.serialize();
                 await fetchData("store_set", { token_id: data.id, data: data });
                 let TX = await this.$store.state.builderData.setContract.mint(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
                 console.log(TX);

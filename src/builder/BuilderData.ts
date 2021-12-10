@@ -10,13 +10,19 @@ import { dispatchBuilderAction } from "./graphics/dispatch";
 
 import { palettesMgr } from './Palette';
 
+import { setupMintProxy } from './MintProxy'
+
 import BriqContract from '../contracts/briq'
 import SetContract from '../contracts/set'
+import MintContract from '../contracts/mint'
 import { pushMessage } from '../Messages';
 import { number } from 'starknet';
 
 let briqsDB = new BriqsDB();
 let initSet = new SetData(Date.now(), briqsDB);
+
+
+var try_fetching_user_data_func;
 
 export var builderDataStore = (() => {
     return {
@@ -27,6 +33,7 @@ export var builderDataStore = (() => {
             briqsDB: briqsDB,
             briqContract: undefined as BriqContract | undefined,
             setContract: undefined as SetContract | undefined,
+            mintContract: undefined as MintContract | undefined,
             chainSets: [],
             genericChainSets: [],
         }),
@@ -60,23 +67,31 @@ export var builderDataStore = (() => {
                     
 
                     fetchData("contract_addresses").then(async x => {
-                        commit("set_briq_contract", new BriqContract(x.briq, toRef(rootState.wallet, "signer")));
-                        commit("set_set_contract", new SetContract(x.set, toRef(rootState.wallet, "signer")));
+                        await commit("set_briq_contract", new BriqContract(x.briq, toRef(rootState.wallet, "signer")));
+                        await commit("set_set_contract", new SetContract(x.set, toRef(rootState.wallet, "signer")));
+                        await commit("set_mint_contract", new MintContract(x.mint, toRef(rootState.wallet, "signer")));
                         if (rootState.wallet.userWalletAddress)
                             dispatch("try_fetching_user_data");
                     })
                 },
             },
-            async try_fetching_user_data({ dispatch }: any, data: any)
+            async try_fetching_user_data({ state, dispatch, rootState }: any, data: any)
             {
-                let bricks = dispatch("get_briqs");
-                let sets = dispatch("get_chain_sets");
-                let gsets = dispatch("get_generic_chain_sets");
-                let awaiting = {
-                    briqs: await bricks,
-                    sets: await sets,
-                    gsets: await gsets,
-                };
+                if (!try_fetching_user_data_func)
+                    try_fetching_user_data_func = (async () => {
+                        if (state.mintContract)
+                            setupMintProxy(state.mintContract, rootState.wallet.userWalletAddress);
+                        let bricks = dispatch("get_briqs");
+                        let sets = dispatch("get_chain_sets");
+                        let gsets = dispatch("get_generic_chain_sets");
+                        let awaiting = {
+                            briqs: await bricks,
+                            sets: await sets,
+                            gsets: await gsets,
+                        };
+                        try_fetching_user_data_func = undefined;
+                    })();
+                await try_fetching_user_data_func;
             },
             async get_briqs({ commit, state, rootState }: any, data: any)
             {
@@ -210,6 +225,7 @@ export var builderDataStore = (() => {
                 palettesMgr.updateForSet(state.currentSet);
                 dispatchBuilderAction("select_set", state.currentSet);
             },
+
             set_briq_contract(state: any, data: BriqContract)
             {
                 state.briqContract = data;
@@ -217,6 +233,10 @@ export var builderDataStore = (() => {
             set_set_contract(state: any, data: SetContract)
             {
                 state.setContract = data;
+            },
+            set_mint_contract(state: any, data: MintContract)
+            {
+                state.mintContract = data;
             },
 
             set_briqs(state: any, data: string[])

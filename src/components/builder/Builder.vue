@@ -7,6 +7,8 @@ import MiddleModal from '../MiddleModal.vue'
 import WalletSelector from '../WalletSelector.vue';
 import Messages from '../Messages.vue'
 import SplashScreen from './SplashScreen.vue'
+
+import MintProxy from './MintProxy.vue';
 </script>
 
 <template>
@@ -19,6 +21,7 @@ import SplashScreen from './SplashScreen.vue'
     <Messages/>
     <MiddleModal/>
     <WalletSelector/>
+    <MintProxy/>
   </div>
 </template>
 

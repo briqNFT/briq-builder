@@ -15,7 +15,7 @@ import InputComp from './InputComp.vue'
             <Button class="my-0.5" tooltip="In 'Inspect' mode, left-click to inspect briqs."
                 @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-search-plus"/></Button>
             <Button class="my-0.5" tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots."
-                @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-eye"/></Button>
+                @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-video"/></Button>
         </div>
         <div class="flex md:flex-col max-w-full overflow-scroll flex-row justify-stretch align-stretch content-stretch">
             <InputComp/>

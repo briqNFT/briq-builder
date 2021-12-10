@@ -3,6 +3,12 @@ import { reactive, watchEffect } from 'vue'
 import { defaultProvider, Provider } from 'starknet';
 import type { Signer } from 'starknet';
 
+import ManualWallet from './wallets/ManualWallet'
+import ArgentXWallet from './wallets/ArgentX'
+import MetamaskWallet from './wallets/Metamask'
+import { IWallet } from './wallets/IWallet';
+
+
 export const walletStore = {
     namespaced: true,
     state: () => ({
@@ -57,8 +63,16 @@ export const walletStore = {
         async disconnect({ dispatch, commit }: any) {
             commit("disconnect");
         },
-        set_user_wallet({ dispatch, commit }: any, data:any) {
+        set_user_wallet({ state, dispatch, commit, globalDispatch }: any, data:any) {
+            let noadd = state.userWalletAddress === "";
             commit("set_user_wallet", data);
+            // For now if we have an address it must be argent, so try and enable the wallet right away.
+            if (noadd)
+            {
+                let argx = new ArgentXWallet();
+                if (argx.isLikelyAvailable())
+                    argx.enable({ dispatch: (a, b) => { dispatch(a, b, { root: true })} });
+            }
             dispatch("builderData/try_fetching_user_data", undefined, { root: true });
         }
     },
@@ -92,11 +106,6 @@ export const walletStore = {
         }
     }
 };
-
-import ManualWallet from './wallets/ManualWallet'
-import ArgentXWallet from './wallets/ArgentX'
-import MetamaskWallet from './wallets/Metamask'
-import { IWallet } from './wallets/IWallet';
 
 export function getPotentialWallets(): { [key: string]: { name: string, handler: new () => IWallet }}
 {

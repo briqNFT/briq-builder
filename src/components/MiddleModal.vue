@@ -1,5 +1,5 @@
 <template>
-    <div class="flex h-screen w-screen justify-center items-center fixed top-0 left-0 invisible">
+    <div v-if="modal" class="flex h-screen w-screen justify-center items-center fixed top-0 left-0" style="background: rgba(0, 0, 0, 0.3);" @click="close">
         <component :metadata="metadata" :is="modal" class="visible container rounded-lg bg-briq alternate-buttons mx-auto w-3/4 px-8 py-4 shadow-xl relative"
             @close="close"></component>
     </div>

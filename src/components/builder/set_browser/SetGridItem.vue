@@ -5,13 +5,18 @@ import Button from '../../generic/Button.vue';
 <template>
     <div v-if="!isFiltered" class="w-full h-40 bg-briq rounded-md p-4">
         <h4 class="text-center">{{ setData?.name ?? setId}}</h4>
-        <Button tooltip="Delete the set, the briqs can then be reused." class="bg-briq-light" @click="disassemble">Disassemble</Button>
-        <Button tooltip="Import the set as a WIP set, it can then be modified." class="bg-briq-light" @click="importSet">Import</Button>
+        <Button tooltip="Delete the set, the briqs can then be reused." class="bg-briq-light" :disabled="!setData" @click="disassemble">Disassemble</Button>
+        <Button tooltip="Import the set as a WIP set, it can then be modified." class="bg-briq-light" :disabled="!setData" @click="importSet">Import</Button>
+        <Button tooltip="Transfer the set." class="bg-briq-light" :disabled="!setData" @click="transferSet">Transfer</Button>
     </div>
 </template>
 
 <script lang="ts">
 import { fetchData } from '../../../url'
+
+import { setModalAndAwait } from '../../MiddleModal.vue'
+
+import TransferSet from '../modals/TransferSet.vue'
 
 import { defineComponent } from "@vue/runtime-core"
 export default defineComponent({
@@ -68,6 +73,10 @@ export default defineComponent({
                 this.messages.pushMessage("Error while loading set - See console for details.");   
                 console.error(err);
             }
+        },
+        async transferSet()
+        {
+            await setModalAndAwait(TransferSet, { setId: this.setId, data: this.setData });
         }
     }
 })

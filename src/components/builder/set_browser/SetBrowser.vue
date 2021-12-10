@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SetGridItem from './SetGridItem.vue';
+import MiddleModal from '../../MiddleModal.vue';
 </script>
 
 <template>
@@ -11,11 +12,15 @@ import SetGridItem from './SetGridItem.vue';
                 <p><input class="w-full" v-model="searchText" type="text" placeholder="Type to search"/></p>
             </div>
             <div class="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div v-if="chainSets.length === 0">Nothing here yet.</div>
                 <SetGridItem v-for="setId in chainSets" :key="setId" :setId="setId" :searchText="searchText"/>
+                <!--
                 <div v-for="i in 10" class="w-full h-40 bg-briq rounded-md p-4" :key="i">
                     <h4 class="text-center">Test Item</h4>
                 </div>
+                -->
             </div>
+            <MiddleModal/>
         </div>
     </div>
 </template>

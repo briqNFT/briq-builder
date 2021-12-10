@@ -5,13 +5,13 @@ import { AddTransactionResponse } from 'starknet';
 
 import { Args, Contract, Provider, Signer } from 'starknet';
 
-import BriqABI from './briq_abi.json'
+import SetABI from './mint_proxy_abi.json'
 
-export default class BriqContract extends Contract
+export default class MintContract extends Contract
 {
     constructor(address: string, provider: Provider)
     {
-        super(BriqABI, address, provider)
+        super(SetABI, address, provider)
     }
 
     override private parseResponse(method: string, response: (string | string[])[]): Args {
@@ -36,22 +36,15 @@ export default class BriqContract extends Contract
         return out;
     }
 
-    async initialize(set_contract_address: string, mint_contract_address: string)
+    async has_minted(user: string): boolean
+    {
+        return !!parseInt((await this.call("has_minted", { user })).res, 16);
+    }
+
+    async mint(user: string)
     {
         if (!((this.provider as Signer).address))
             throw new Error("Provider is not a signer");
-        return await this.invoke("initialize", { set_contract_address, mint_contract_address });
-    }
-
-    async get_all_tokens_for_owner(owner: string)
-    {
-        return await this.call("get_all_tokens_for_owner", { owner: owner });
-    }
-
-    async mint_multiple(material: number, token_start: number, nb: number): Promise<AddTransactionResponse>
-    {
-        if (!((this.provider as Signer).address))
-            throw new Error("Provider is not a signer");
-        return await this.invoke("mint_multiple", { owner: (this.provider as Signer).address, material: "" + material, token_start: "" + token_start, nb: "" + nb });
+        return await this.invoke("mint", { user });
     }
 }
