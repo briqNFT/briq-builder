@@ -114,6 +114,7 @@ export default defineComponent({
 <style scoped>
 .expanded {
     overflow: auto;
+    @apply bg-black bg-opacity-40 rounded-md md:bg-transparent;
 }
 .unexpanded {
     overflow: hidden;
