@@ -7,6 +7,7 @@ import { store } from '../../store/Store'
 import { cellSize } from '../../builder/Constants';
 
 import * as THREE from 'three'
+import { preview } from "vite";
 
 export class PlacerInput extends MouseInputState
 {
@@ -28,9 +29,12 @@ export class PlacerInput extends MouseInputState
             return;
         previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
         if (Math.abs(pos[0]) <= cellSize && Math.abs(pos[2]) <= cellSize)
+        {
+            previewCube.visible = true;
             (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
+        }
         else
-            (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);
+            previewCube.visible = false;
     }
 
     onPointerDown(event: PointerEvent)

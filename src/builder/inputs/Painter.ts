@@ -34,11 +34,14 @@ export class PainterInput extends MouseInputState
 
     async onPointerUp(event: PointerEvent)
     {
+        /*
+        * Removed per Sylve advice.
         if (event.button === 2)
         {
             await store.dispatch("undo_history");
             return;
         }
+        */
 
         let mov = Math.abs(event.clientX - this.lastClickX) + Math.abs(event.clientY - this.lastClickY);
         if (mov > 10)

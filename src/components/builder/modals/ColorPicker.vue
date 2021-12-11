@@ -3,7 +3,7 @@ import Button from '../../generic/Button.vue';
 </script>
 
 <template>
-    <div class="w-3/5">
+    <div class="md:w-2/5 w-auto">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center">Color Picker</h2>

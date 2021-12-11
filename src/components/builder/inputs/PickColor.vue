@@ -6,10 +6,10 @@ import ColorManager from '../modals/ColorManager.vue';
 
 <template>
     <div class="my-0.5 flex flex-col" v-for="value, key in palette.colors" :key="key">
-        <Button class='h-5 min-h-0'
+        <Button class='h-5 min-h-0 shadow-md'
             :tooltip="'Select color ' + value"
             @click="pickColor(key)"
-            :style="{ 'backgroundColor': key, 'border': (currentColor === key ? '4px solid black' : '1px solid black') }"
+            :style="{ 'backgroundColor': key, 'border': (currentColor === key ? '3px solid black' : '0px solid black') }"
             >
         </Button>
     </div>

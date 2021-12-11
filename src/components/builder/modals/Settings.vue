@@ -1,9 +1,9 @@
 <template>
-    <div class="w-1/2">
+    <div class="md:w-1/2 w-auto">
         <div class="relative h-full">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Settings</h3>
-            <div>
+            <div class="my-4">
                 <p><input type="checkbox" v-model="useSAO"/> Use Screen-space Ambient Occlusion</p>
                 <p><input type="checkbox" v-model="useRealAA"/> Use Anti-Aliasing</p>
             </div>

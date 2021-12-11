@@ -17,7 +17,7 @@ import InputComp from './InputComp.vue'
             <Button class="my-0.5" tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots."
                 @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-video"/></Button>
         </div>
-        <div class="flex md:flex-col max-w-full overflow-scroll flex-row justify-stretch align-stretch content-stretch">
+        <div class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch">
             <InputComp/>
         </div>
     </div>

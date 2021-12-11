@@ -4,19 +4,18 @@ import Settings from '../builder/modals/Settings.vue';
 </script>
 
 <template>
-    <div class="absolute right-0 top-0 px-4 py-4 max-h-screen overflow-scroll flex flex-nowrap flex-col justify-start content-end">
-        <!--<Settings @click="expanded = !expanded" class="pointer-events-auto"/>-->
-        <Button class="" @click="expanded = !expanded">{{ titleText() }}</Button>
-        <div :class="'my-2 ' + (expanded ? 'expanded' : 'unexpanded')">
+    <div :class="'absolute right-0 top-0 px-4 py-4 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
+        <Button class="pointer-events-auto" @click="expanded = !expanded">{{ titleText() }}</Button>
+        <div class="my-2">
             <div class="my-8 flex flex-col flex-nowrap gap-1">
                 <Button v-if="!contractStore.isConnected" @click="openSelector = true">Connect Wallet</Button>
                 <Button v-if="contractStore.isConnected" @click="$store.dispatch('wallet/disconnect')">Disconnect</Button>
             </div>
             <div class="flex flex-col flex-nowrap gap-1">
-                <Button>Help</button>
+                <Button @click="openHelp">Help</button>
                 <Button @click="setModal(Settings)">Settings</button>
                 <Button @click="$router.push({ path: '/legal' })">Legal / Privacy</button>
-                <Button @click="$router.push({ path: '/admin' })">Admin</button>
+                <!--<Button @click="$router.push({ path: '/admin' })">Admin</button>-->
             </div>
             <div class="flex flex-col content-end my-8">
                 <Button class="my-1" tooltip="Create a new WIP set." @click="newSet">New</Button>
@@ -105,15 +104,25 @@ export default defineComponent({
         exportSet: function() {
             setModal(ExportSet, { set: this.set.id });
         },
+        openHelp() {
+            window.open('https://insidious-ginger-0f9.notion.site/briq-help-center-4a4958337970483dbfc2c1184290b42f','_blank');
+        }
     }
 })
 </script>
 
 <style scoped>
 .expanded {
-    display: auto;
+    overflow: auto;
 }
 .unexpanded {
-    display: none;
+    overflow: hidden;
+    @apply pointer-events-none;
+}
+.expanded > div {
+    visibility: visible;
+}
+.unexpanded > div {
+    visibility: hidden;
 }
 </style>

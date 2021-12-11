@@ -3,7 +3,7 @@ import Button from '../../generic/Button.vue';
 </script>
 
 <template>
-    <div class="w-1/3">
+    <div class="md:w-1/3 w-auto">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center">Transfer Set</h2>

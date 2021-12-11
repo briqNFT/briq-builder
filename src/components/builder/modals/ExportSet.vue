@@ -1,5 +1,5 @@
 <template>
-    <div class="w-1/2">
+    <div class="md:w-2/5 w-auto">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Export set</h3>
