@@ -10,8 +10,8 @@ import ColorPicker from './ColorPicker.vue';
             <h2 class="text-center">Color Manager</h2>
             <div>
                 <p v-for="col, key in palette.colors" class="my-1">
-                    <Button noStyle="true" class="mx-0.5 font-semibold" :disabled="usedColors[key] > 0" @click="deleteColor(key)"><i class="fas fa-times"></i></Button>
-                    <Button noStyle="true" class="mx-0.5 font-semibold" :disabled="(usedColors?.[key] ?? 0) == 0" @click="replaceColor(key)"><i class="fas fa-retweet"></i></Button>
+                    <Button noStyle="true" class="mx-1 font-semibold" :disabled="usedColors[key] > 0" @click="deleteColor(key)"><i class="fas fa-times"></i></Button>
+                    <Button noStyle="true" class="mx-1 font-semibold" :disabled="(usedColors?.[key] ?? 0) == 0" @click="replaceColor(key)"><i class="far fa-edit"></i></Button>
                     <span class="w-6 h-6 mx-1 inline-flex justify-center align-center font-bold" :style="{ 'borderRadius': '50%', 'backgroundColor': key }">{{ usedColors[key] ?? 0 }}</span>
                     <span class="font-mono">{{ col }}</span>
                 </p>

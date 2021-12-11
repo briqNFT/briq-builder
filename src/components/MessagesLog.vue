@@ -2,7 +2,8 @@
     <div class="w-1/2">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h3 class="text center w-full">Messages log</h3>
+            <h2 class="text-center w-full">Messages log</h2>
+            <p v-if="!messages.length">No messages yet</p>
             <p v-for="mess in messages">{{ mess }}</p>
         </div>
     </div>
