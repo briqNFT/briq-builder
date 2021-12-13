@@ -353,7 +353,7 @@ registerUndoableAction("builderData/place_briq", "builderData/undo_place_briq", 
             }
         });
     }
-}, (data: any) => "Place briq");
+}, (data: any) => !data?.redoData?.voxelId ? "Remove briq" : "Place briq");
 
 
 registerUndoableAction("builderData/place_multiple_briqs", "builderData/undo_place_multiple_briqs", {
@@ -373,7 +373,7 @@ registerUndoableAction("builderData/place_multiple_briqs", "builderData/undo_pla
             undoData: (payload as Array<any>).map((x, i) => ({ ...x, briq: transientActionState.data[i]})),
         });
     }
-}, (data: any) => "Place multiple briqs");
+}, (data: any) => !data?.redoData?.[0]?.voxelId ? "Remove multiple briqs" : "Place multiple briqs");
 
 registerUndoableAction("builderData/set_briq_color", "builderData/set_briq_color", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
