@@ -58,14 +58,14 @@ const material = new THREE.MeshLambertMaterial({
 });
 
 function generateGrid() {
-  var gridXZ = new THREE.GridHelper(cellSize*2+1, cellSize*2+1, 0x333333, 0x333333);
+  var gridXZ = new THREE.GridHelper(cellSize*2+1, cellSize*2+1, 0xeaeaea, 0xeaeaea);
   gridXZ.position.set(1/2, 0, 1/2);
   return gridXZ;
 }
 
-function generatePlane(){
+function generatePlane() {
   var geometry = new THREE.PlaneBufferGeometry(cellSize*2+1, cellSize*2+1);
-  var material = new THREE.MeshPhongMaterial( {color: 0x209634, side: THREE.DoubleSide });
+  var material = new THREE.MeshPhongMaterial( {color: 0xa93a00, side: THREE.DoubleSide });
   var planeXZ = new THREE.Mesh(geometry, material);
   planeXZ.receiveShadow = true ;
   planeXZ.position.set(1/2, 0, 1/2);
@@ -73,14 +73,33 @@ function generatePlane(){
   return planeXZ;
 }
 
-import { previewCube } from './PreviewCube'
-
 import daylight_Back from '../../assets/skybox/Daylight-Box_Back.jpg'
 import daylight_Bottom from '../../assets/skybox/Daylight-Box_Bottom.jpg'
 import daylight_Front from '../../assets/skybox/Daylight-Box_Front.jpg'
 import daylight_Left from '../../assets/skybox/Daylight-Box_Left.jpg'
 import daylight_Right from '../../assets/skybox/Daylight-Box_Right.jpg'
 import daylight_Top from '../../assets/skybox/Daylight-Box_Top.jpg'
+
+function generateSkybox(scene) {
+
+  const ctex = new THREE.DataTexture([255, 255, 255, 255], 1, 1, THREE.RGBAFormat);
+  ctex.magFilter = THREE.NearestFilter;
+  ctex.minFilter = THREE.NearestFilter;
+
+  const loader = new THREE.CubeTextureLoader();
+  const texture = loader.load([
+    daylight_Right,
+    daylight_Left,
+    daylight_Top,
+    daylight_Bottom,
+    daylight_Front,
+    daylight_Back
+  ]);
+  texture.color = 0xc94a00;
+  return texture;
+}
+
+import { previewCube } from './PreviewCube'
 
 export function resetCamera()
 {
@@ -173,20 +192,6 @@ export  function main(canvas) {
   
   const scene = new THREE.Scene();
 
-  function generateSkybox() {
-    const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-      daylight_Right,
-      daylight_Left,
-      daylight_Top,
-      daylight_Bottom,
-      daylight_Front,
-      daylight_Back
-    ]);
-    scene.background = texture;
-}
-generateSkybox()
-
   function addLight(x, y, z) {
     const color = 0xFFFFFF;
     const intensity = 1.0;
@@ -211,6 +216,7 @@ generateSkybox()
   }
   addLight(-1*5,  2*5,  -3*5);
 
+  scene.background = new THREE.Color(0xeaeaea);//generateSkybox();
   scene.add(generateGrid());
   scene.add(generatePlane());
   scene.add(previewCube);
