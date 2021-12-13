@@ -1,34 +1,42 @@
 <template>
-    <div v-if="open" id="walletSelector" class="alternate-buttons">
-        <template v-if="step=='selection'">
-            <h2>Choose your wallet</h2>
-            <div class="walletOptions">
-                <button v-for="wallet, key in availableWallets" @click="chooseWallet(key)">{{ wallet.name }}</button>
+    <div :class="'flex h-screen w-screen justify-center items-center fixed top-0 left-0 ' + (open ? 'bg-black bg-opacity-30' : 'invisible')">
+        <div class="container">
+            <div v-if="open" id="walletSelector" class="w-auto mx-auto md:w-4/5 lg:w-3/5 xl:w-1/2 alternate-buttons relative" style="min-height: 400px;">
+                <p @click="open = false" class="cursor-pointer font-medium absolute right-0 mx-4">X</p>
+                <template v-if="step=='selection'">
+                    <h2>Choose your wallet</h2>
+                    <div class="walletOptions">
+                        <button v-for="wallet, key in availableWallets" @click="chooseWallet(key)">{{ wallet.name }}</button>
+                    </div>
+                </template>
+                <template v-else-if="step=='delegate'">
+                    <component :is="delegate"></component>
+                </template>
+                <template v-else-if="step=='manual-1'">
+                    <h2>Enter wallet information</h2>
+                    <p>NB: the private key will remain in browser, but this remains rather unsafe.</p>
+                    <p>Wallet Contract Address:<input v-model="walletContractAddress" type="text"/></p>
+                    <p>Wallet Private Key:<input v-model="walletPrivateKey" type="password"/></p>
+                    <button @click="initManual">Connect</button>
+                </template>
+                <template v-else-if="step=='success'">
+                    <h2>Success</h2>
+                    <p>You have successfully connected your wallet.</p>
+                    <p>Your address is <span style="word-break: break-all;">{{ wallet.userWalletAddress }}</span></p>
+                    <p>Closing in {{ countdown }}</p>
+                </template>
+                <template v-else-if="step=='error'">
+                    <h2>Error</h2>
+                    <p>There was an error connecting your wallet:</p>
+                    <p>{{ error }}</p>
+                    <button @click="step='selection'">Go back</button>
+                </template>
+                <div class="absolute bottom-4 right-4">
+                    <p><button class="close float-right" @click="step='selection'; open = !open">Skip</button></p>
+                    <p class="clear-both text-sm">Not having a wallet will limit functionality to local changes only.</p>
+                </div>
             </div>
-        </template>
-        <template v-else-if="step=='delegate'">
-            <component :is="delegate"></component>
-        </template>
-        <template v-else-if="step=='manual-1'">
-            <h2>Enter wallet information</h2>
-            <p>NB: the private key will remain in browser, but this remains rather unsafe.</p>
-            <p>Wallet Contract Address:<input v-model="walletContractAddress" type="text"/></p>
-            <p>Wallet Private Key:<input v-model="walletPrivateKey" type="password"/></p>
-            <button @click="initManual">Connect</button>
-        </template>
-        <template v-else-if="step=='success'">
-            <h2>Success</h2>
-            <p>You have successfully connected your wallet.</p>
-            <p>Your address is <span style="word-break: break-all;">{{ wallet.userWalletAddress }}</span></p>
-            <p>Closing in {{ countdown }}</p>
-        </template>
-        <template v-else-if="step=='error'">
-            <h2>Error</h2>
-            <p>There was an error connecting your wallet:</p>
-            <p>{{ error }}</p>
-            <button @click="step='selection'">Go back</button>
-        </template>
-        <button class="close absolute bottom-4 right-4" @click="step='selection'; open = !open">Close Window</button>
+        </div>
     </div>
 </template>
 
@@ -43,12 +51,6 @@ button {
 
 #walletSelector {
     @apply bg-briq px-8 py-4 rounded-xl shadow-xl text-lg;
-
-    position:fixed;
-    width: 600px;
-    height: 400px;
-    top: calc(50% - 200px);
-    left: calc(50% - 300px);
     z-index: 1000;
 }
 
@@ -84,9 +86,9 @@ export default defineComponent({
         return {
             wallet: this.$store.state.wallet,
             open: openSelector,
-            step: 'selection',
+            step: 'delegate', // Defaut to delegate for now, only ArgentX supported.
+            delegate: markRaw(ArgentX),
             error: '',
-            delegate: undefined,
             availableWallets: getPotentialWallets(),
             countdown: 0,
             // Manual stuff

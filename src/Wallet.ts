@@ -8,6 +8,7 @@ import ArgentXWallet from './wallets/ArgentX'
 import MetamaskWallet from './wallets/Metamask'
 import { IWallet } from './wallets/IWallet';
 
+import { openSelector } from './components/WalletSelector.vue';
 
 export const walletStore = {
     namespaced: true,
@@ -25,6 +26,8 @@ export const walletStore = {
             handler: ({ state, dispatch, commit, getters }: any) => {
                 if (window.localStorage.getItem("user_address"))
                     dispatch("set_user_wallet", window.localStorage.getItem("user_address")!);
+                else
+                    openSelector.value = true;
 
                 watchEffect(() => {
                     // TODO: switch to IDB
