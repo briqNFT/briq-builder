@@ -8,12 +8,12 @@ import InputComp from './InputComp.vue'
         <div class="my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24">
             <Button class="my-0.5" tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
                 @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Button>
-            <Button class="my-0.5" tooltip="In 'Paint' mode, left-click to repaint briqs, right-click for quick-undo."
+            <Button class="my-0.5" tooltip="In 'Paint' mode, left-click to repaint briqs."
                 @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'"><i class="fas fa-paint-brush"/></Button>
             <Button class="my-0.5" tooltip="In 'Erase' mode, left-click to delete briqs."
-                @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="fas fa-backspace"/></Button>
+                @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="far fa-trash-alt"/></Button>
             <Button class="my-0.5" tooltip="In 'Inspect' mode, left-click to inspect briqs."
-                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-search-plus"/></Button>
+                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-eye"/></Button>
             <Button class="my-0.5" tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots."
                 @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-video"/></Button>
         </div>
