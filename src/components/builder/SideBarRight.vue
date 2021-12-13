@@ -4,36 +4,42 @@ import Settings from '../builder/modals/Settings.vue';
 </script>
 
 <template>
-    <div :class="'absolute right-0 top-0 px-4 py-4 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
-        <Button class="pointer-events-auto" @click="expanded = !expanded">{{ titleText() }}</Button>
-        <div class="my-2">
-            <div class="my-8 flex flex-col flex-nowrap gap-1">
-                <Button v-if="!contractStore.isConnected" @click="openSelector = true">Connect Wallet</Button>
-                <Button v-if="contractStore.isConnected" @click="$store.dispatch('wallet/disconnect')">Disconnect</Button>
+    <div class="absolute right-0 top-0 px-4 py-4 flex flex-row gap-2 pointer-events-none">
+        <div :class="' max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expandedCW ? ' expanded' : ' unexpanded')">
+            <Button class="pointer-events-auto" @click="CWClick">{{ CWTitle() }}</Button>
+            <div class="my-2">
+                <div class="flex flex-col flex-nowrap gap-1">
+                    <Button v-if="contractStore.isConnected" @click="expandedCW = false; $store.dispatch('wallet/disconnect')">Disconnect</Button>
+                </div>
             </div>
-            <div class="flex flex-col flex-nowrap gap-1">
-                <Button @click="openHelp">Help</button>
-                <Button @click="setModal(Settings)">Settings</button>
-                <Button @click="$router.push({ path: '/legal' })">Legal / Privacy</button>
-                <!--<Button @click="$router.push({ path: '/admin' })">Admin</button>-->
-            </div>
-            <div class="flex flex-col content-end my-8">
-                <Button class="my-1" tooltip="Create a new WIP set." @click="newSet">New</Button>
-                <Button class="my-1" tooltip="Copy a new WIP set." @click="copySet">Copy</Button>
-                <Button class="my-1" tooltip="Delete the current WIP set." @click="deleteSet">Delete</button>
-                <Button class="my-1" tooltip="Import a local set." @click="importSet">Import file</button>
-                <div class="my-2"></div>
-                <Button class="my-1" tooltip="Rename the current set" @click="rename">Rename</button>
-                <Button class="my-1" tooltip="Export the set to the blockchain" @click="exportSet">Export</button>
-            </div>
-            <div class="flex flex-col content-end my-4">
-                <h4 class="text-center font-bold">WIP SETS</h4>
-                <Button v-for="wipset in wipSets"
-                    class="my-1 h-auto"
-                    @click="selectSet(wipset.id)"
-                    :disabled="set.id == wipset.id"
-                    :tooltip="(set.id == wipset.id) ? 'Set ' + set.id + ' is active.' : 'Click to switch to set ' + (wipset.name || wipset.id)"
-                    >{{ wipset.name || wipset.id }}</button>
+        </div>
+        <div :class="' max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
+            <Button class="pointer-events-auto" @click="expanded = !expanded"><span class="mx-1">Menu</span><i class="mx-1 fas fa-bars"></i></Button>
+            <div class="my-2">
+                <div class="flex flex-col flex-nowrap gap-1">
+                    <Button @click="openHelp">Help</button>
+                    <Button @click="setModal(Settings)">Settings</button>
+                    <Button @click="$router.push({ path: '/legal' })">Legal / Privacy</button>
+                    <!--<Button @click="$router.push({ path: '/admin' })">Admin</button>-->
+                </div>
+                <div class="flex flex-col content-end my-8">
+                    <Button class="my-1" tooltip="Create a new WIP set." @click="newSet">New</Button>
+                    <Button class="my-1" tooltip="Copy a new WIP set." @click="copySet">Copy</Button>
+                    <Button class="my-1" tooltip="Delete the current WIP set." @click="deleteSet">Delete</button>
+                    <Button class="my-1" tooltip="Import a local set." @click="importSet">Import file</button>
+                    <div class="my-2"></div>
+                    <Button class="my-1" tooltip="Rename the current set" @click="rename">Rename</button>
+                    <Button class="my-1" tooltip="Export the set to the blockchain" @click="exportSet">Export</button>
+                </div>
+                <div class="flex flex-col content-end my-4">
+                    <h4 class="text-center font-bold">WIP SETS</h4>
+                    <Button v-for="wipset in wipSets"
+                        class="my-1 h-auto"
+                        @click="selectSet(wipset.id)"
+                        :disabled="set.id == wipset.id"
+                        :tooltip="(set.id == wipset.id) ? 'Set ' + set.id + ' is active.' : 'Click to switch to set ' + (wipset.name || wipset.id)"
+                        >{{ wipset.name || wipset.id }}</button>
+                </div>
             </div>
         </div>
     </div>
@@ -52,6 +58,7 @@ export default defineComponent({
     data() {
         return {
             expanded: false,
+            expandedCW: false,
             openSelector: openSelector,
             contractStore: this.$store.state.wallet,
             set: toRef(this.$store.state.builderData, "currentSet"),
@@ -61,6 +68,19 @@ export default defineComponent({
     inject: ["messages"],
     methods: {
         setModal,
+
+        CWTitle() {
+            if (this.contractStore.isConnected)
+                return this.contractStore.userWalletAddress.substr(0, 5) + '...' + this.contractStore.userWalletAddress.substr(-5, 5);
+            return "Connect Wallet";
+        },
+        CWClick() {
+            if (this.contractStore.isConnected)
+                this.expandedCW = ! this.expandedCW;
+            else
+                this.openSelector = true;
+        },
+
         titleText: function() {
             let ret = "Briq";
             if (this.contractStore.isConnected)
@@ -115,10 +135,10 @@ export default defineComponent({
 .expanded {
     overflow: auto;
     @apply bg-black bg-opacity-40 rounded-md md:bg-transparent;
+    @apply pointer-events-auto;
 }
 .unexpanded {
     overflow: hidden;
-    @apply pointer-events-none;
 }
 .expanded > div {
     visibility: visible;
