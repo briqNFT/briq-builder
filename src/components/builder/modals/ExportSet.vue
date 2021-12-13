@@ -2,15 +2,20 @@
     <div class="md:w-2/5 w-auto">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h3 class="text center w-full">Export set</h3>
+            <h2 class="text-center w-full">Export set</h2>
             <p>Set {{ metadata.set }}</p>
             <p>Name: {{ set.name }}</p>
             <p>Briqs: {{ set.briqsDB.briqs.size }}</p>
             <p v-if="pending_transaction">Pending transaction: {{ pending_transaction }}</p>
-            <button class="btn float-left" :disabled="exporting" @click="$emit('close')">Cancel & Close</button>
-            <div class="float-right">
-                <button class="btn" @click="exportSetLocally">Export locally</button>
-                <button class="btn" :disabled="exporting || pending_transaction" @click="exportSet">Export on chain</button>
+            <div class="flex justify-around my-8">
+                <div class="flex flex-col justify-center">
+                    <p><button class="block mx-auto btn" @click="exportSetLocally">Export locally</button></p>
+                    <p>Download a local copy of your set</p>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <p><button class="block mx-auto btn" :disabled="exporting || pending_transaction" @click="exportSet">Export on chain</button></p>
+                    <p>Assemble briqs into a set on the blockchain</p>
+                </div>
             </div>
         </div>
     </div>
