@@ -17,8 +17,10 @@ Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash"
                 <p v-if="status == 'error'" class="float-left">Status: Error while minting - check console for details.<br/>
 Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></p>
             </div>
-            <button class="btn float-right" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I Want to Briq Free</button>
-            <button class="btn float-right" v-if="status === 'ok'" @click="$emit('close')">Start Building</button>
+            <div class="flex justify-center">
+            <button class="btn" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I Want to Briq Free</button>
+            <button class="btn" v-if="status === 'ok'" @click="$emit('close')">Start Building</button>
+            </div>
         </div>
     </div>
 </template>
