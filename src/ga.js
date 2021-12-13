@@ -6,7 +6,7 @@ function loadGA()
     if (gaLoaded)
         return;
     gaLoaded = true;
-    if (gaStore.agreed)
+    if (!gaStore.agreed)
         return;
     const gaScript = document.createElement('script')
     gaScript.async = true;
