@@ -10,8 +10,10 @@ export default defineComponent({
         };
     },
     inject: ["hotkeyMgr"],
-    props:["name", "handler"],
+    props:["name", "handler", "data"],
     mounted() {
+        if (this.data)
+            this.hotkeyMgr.register(this.name, this.data);
         this.hk = this.hotkeyMgr.subscribe(this.name, this.handler);
     },
     unmounted() {
