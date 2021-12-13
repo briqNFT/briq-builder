@@ -1,4 +1,5 @@
 <template>
+    <Hotkey name="escape" :handler="() => open = false"/>
     <div :class="'flex h-screen w-screen justify-center items-center fixed top-0 left-0 ' + (open ? 'bg-black bg-opacity-30' : 'invisible')"
         @click.self="open = !open">
         <div class="container">

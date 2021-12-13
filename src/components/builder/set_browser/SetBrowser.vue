@@ -4,6 +4,7 @@ import MiddleModal from '../../MiddleModal.vue';
 </script>
 
 <template>
+    <Hotkey v-if="asModal" name="escape" :handler="() => $emit('close')"/>
     <div :class="asModal ? 'w-full h-full md:px-24 py-24 absolute top-0' : 'w-full min-h-screen bg-briq'" :style="asModal ? { 'backgroundColor': 'rgba(0, 0, 0, 0.3)' } : ''"
         @click.self="$emit('close')"
         >
