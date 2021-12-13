@@ -1,7 +1,7 @@
 import { reactive, watchEffect } from 'vue';
 
 const store = reactive({
-    useSAO: true,
+    useSAO: false,
     useRealAA: true,
 });
 
