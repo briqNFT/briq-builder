@@ -58,14 +58,14 @@ const material = new THREE.MeshLambertMaterial({
 });
 
 function generateGrid() {
-  var gridXZ = new THREE.GridHelper(cellSize*2+1, cellSize*2+1, 0xeaeaea, 0xeaeaea);
+  var gridXZ = new THREE.GridHelper(cellSize*2+1, cellSize*2+1, builderSettings.gridColor, builderSettings.gridColor);
   gridXZ.position.set(1/2, 0, 1/2);
   return gridXZ;
 }
 
 function generatePlane() {
   var geometry = new THREE.PlaneBufferGeometry(cellSize*2+1, cellSize*2+1);
-  var material = new THREE.MeshPhongMaterial( {color: 0xa93a00, side: THREE.DoubleSide });
+  var material = new THREE.MeshPhongMaterial( {color: builderSettings.planeColor, side: THREE.DoubleSide });
   var planeXZ = new THREE.Mesh(geometry, material);
   planeXZ.receiveShadow = true ;
   planeXZ.position.set(1/2, 0, 1/2);
@@ -216,7 +216,7 @@ export  function main(canvas) {
   }
   addLight(-1*5,  2*5,  -3*5);
 
-  scene.background = new THREE.Color(0xeaeaea);//generateSkybox();
+  scene.background = new THREE.Color(builderSettings.backgroundColor);//generateSkybox();
   scene.add(generateGrid());
   scene.add(generatePlane());
   scene.add(previewCube);
