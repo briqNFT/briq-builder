@@ -14,7 +14,7 @@ import Settings from '../builder/modals/Settings.vue';
             </div>
         </div>
         <div :class="' max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
-            <Button class="pointer-events-auto" @click="expanded = !expanded"><span class="mx-1">Menu</span><i class="mx-1 fas fa-bars"></i></Button>
+            <Button class="pointer-events-auto" @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Button>
             <div class="my-2">
                 <div class="flex flex-col flex-nowrap gap-1">
                     <Button @click="openHelp">Help</button>
