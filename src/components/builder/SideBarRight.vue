@@ -32,7 +32,7 @@ import Settings from '../builder/modals/Settings.vue';
                     <Button class="my-1" tooltip="Export the set to the blockchain" @click="exportSet">Export</button>
                 </div>
                 <div class="flex flex-col content-end my-4">
-                    <h4 class="text-center font-bold">WIP SETS</h4>
+                    <h4 class="text-center font-bold twshadow">WIP SETS</h4>
                     <Button v-for="wipset in wipSets"
                         class="my-1 h-auto"
                         @click="selectSet(wipset.id)"
@@ -132,6 +132,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
+.tshadow {
+    text-shadow: 0 0 2px rgb(0, 0, 0, 0.3);
+}
+
 .expanded {
     overflow: auto;
     @apply bg-black bg-opacity-40 rounded-md md:bg-transparent;

@@ -3,7 +3,7 @@
 
 <template>
     <div class="fixed bottom-0 left-0 px-4 py-2" style="z-index: 1000">
-        <button @click="openLog">+</button><p class="text-lg font-normal drop-shadow-md">{{ lastMessage ? lastMessage : tooltip }}</p>
+        <button @click="openLog" class="tshadow">+</button><p class="text-lg font-normal drop-shadow-md tshadow">{{ lastMessage ? lastMessage : tooltip }}</p>
     </div>
 </template>
 
@@ -47,3 +47,9 @@ export default defineComponent({
     }
 })
 </script>
+
+<style scoped>
+.tshadow {
+    text-shadow: 0 0 2px rgb(0, 0, 0, 0.6);
+}
+</style>
