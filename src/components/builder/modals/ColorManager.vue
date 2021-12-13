@@ -4,7 +4,7 @@ import ColorPicker from './ColorPicker.vue';
 </script>
 
 <template>
-    <div class="w-1/2">
+    <div class="lg:w-1/2 md:w-2/3 w-auto">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center">Color Manager</h2>
