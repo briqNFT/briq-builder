@@ -1,5 +1,6 @@
 <template>
-    <div :class="'flex h-screen w-screen justify-center items-center fixed top-0 left-0 ' + (open ? 'bg-black bg-opacity-30' : 'invisible')">
+    <div :class="'flex h-screen w-screen justify-center items-center fixed top-0 left-0 ' + (open ? 'bg-black bg-opacity-30' : 'invisible')"
+        @click.self="open = !open">
         <div class="container">
             <div v-if="open" id="walletSelector" class="w-auto mx-auto md:w-4/5 lg:w-3/5 xl:w-1/2 alternate-buttons relative" style="min-height: 400px;">
                 <p @click="open = false" class="cursor-pointer font-medium absolute right-0 mx-4">X</p>
