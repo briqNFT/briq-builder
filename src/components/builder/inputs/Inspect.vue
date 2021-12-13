@@ -3,7 +3,7 @@
         <div class="w-64 h-32 bg-briq-light p-2 rounded-md shadow-md">
         <h4>Briq #{{ fsm?.briq?.id ?? '' }}</h4>
         <p>Color: {{ fsm.briq.color }}</p>
-        <p>Material: {{ fsm.briq.material }}</p>
+        <p>Material: {{ mapMat(fsm.briq.material) }}</p>
         </div>
     </div>
 </template>
@@ -18,5 +18,10 @@ export default defineComponent({
             fsm: builderInputFsm.state.gui
         }
     },
+    methods: {
+        mapMat(mat: number) {
+            return "standard";
+        }
+    }
 })
 </script>
