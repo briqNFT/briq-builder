@@ -31,10 +31,12 @@
                     <p>{{ error }}</p>
                     <button @click="step='selection'">Go back</button>
                 </template>
+                <!--
                 <div class="absolute bottom-4 right-4">
                     <p><button class="close float-right" @click="step='selection'; open = !open">Skip</button></p>
                     <p class="clear-both text-sm">Not having a wallet will limit functionality to local changes only.</p>
                 </div>
+                -->
             </div>
         </div>
     </div>

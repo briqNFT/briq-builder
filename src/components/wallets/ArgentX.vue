@@ -12,12 +12,18 @@ You do not have the Argent X extension installed.<br/>It is only for now only co
     <div v-if="step === 'connected'" class="font-normal">
         <p class="break-all">Connected to {{ wallet.userWalletAddress }}</p>
     </div>
+    <div class="absolute bottom-4 right-4">
+        <p><button class="close btn float-right" @click="step='selection'; openSelector = !openSelector">{{ step == 'connected' ? 'Close' : 'Skip' }}</button></p>
+        <p v-if="step !== 'connected'" class="clear-both text-sm">Not having a wallet will limit functionality to local changes only.</p>
+    </div>
 </template>
 
 <script lang="ts">
 import { getPotentialWallets } from '../../Wallet'
 import Button from '../generic/Button.vue'
 const argentWallet = getPotentialWallets()["argentx"];
+
+import { openSelector } from '../WalletSelector.vue';
 
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({
@@ -29,6 +35,7 @@ export default defineComponent({
             handler: new argentWallet.handler(),
             step: "initial",
             wallet: toRef(this.$store.state, "wallet"),
+            openSelector
         }
     },
     mounted()
