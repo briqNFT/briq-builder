@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    <div class="fixed bottom-0 left-0 px-4 py-2">
+    <div class="fixed bottom-0 left-0 px-4 py-2" style="z-index: 1000">
         <button @click="openLog">+</button><p class="text-lg font-normal drop-shadow-md">{{ lastMessage ? lastMessage : tooltip }}</p>
     </div>
 </template>

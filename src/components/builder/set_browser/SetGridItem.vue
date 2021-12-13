@@ -3,18 +3,20 @@ import Button from '../../generic/Button.vue';
 </script>
 
 <template>
-    <div v-if="!isFiltered" class="w-full h-40 bg-briq rounded-md p-4">
+    <div v-if="!isFiltered" class="w-full bg-briq-dark rounded-md p-4">
         <h4 class="text-center">{{ setData?.name ?? setId}}</h4>
-        <Button tooltip="Delete the set, the briqs can then be reused." class="bg-briq-light" :disabled="!setData" @click="disassemble">Disassemble</Button>
-        <Button tooltip="Import the set as a WIP set, it can then be modified." class="bg-briq-light" :disabled="!setData" @click="importSet">Import</Button>
-        <Button tooltip="Transfer the set." class="bg-briq-light" :disabled="!setData" @click="transferSet">Transfer</Button>
+        <div class="flex flex-col gap-2 text-sm">
+            <Button tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="!setData" @click="disassemble">Disassemble</Button>
+            <Button tooltip="Import the set as a WIP set, it can then be modified." class="bg-transparent" :disabled="!canImport" @click="importSet">{{ importBtnText }}</Button>
+            <Button tooltip="Transfer the set." class="bg-transparent" :disabled="!setData" @click="transferSet">Transfer</Button>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { fetchData } from '../../../url'
 
-import { setModalAndAwait } from '../../MiddleModal.vue'
+import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
 
 import TransferSet from '../modals/TransferSet.vue'
 
@@ -38,6 +40,17 @@ export default defineComponent({
                 return false;
             let text = (this.searchText as string).toLowerCase();
             return this.setId.indexOf(text) === -1 && (this.setData?.name?.toLowerCase()?.indexOf(text) ?? -1) === -1;
+        },
+
+        canImport() {
+            if (!this.setData)
+                return false;
+            return !this.$store.state.builderData.wipSets.find(x => x.id == this.setData.id);
+        },
+        importBtnText() {
+            if (this.$store.state.builderData.wipSets.find(x => x.id === this?.setData?.id))
+                return "Already imported";
+            return "Import";
         }
     },
     methods: {
@@ -77,6 +90,7 @@ export default defineComponent({
         async transferSet()
         {
             await setModalAndAwait(TransferSet, { setId: this.setId, data: this.setData });
+            setModal();
         }
     }
 })

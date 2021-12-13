@@ -3,7 +3,7 @@ import Button from '../../generic/Button.vue';
 </script>
 
 <template>
-    <div class="md:w-1/3 w-auto">
+    <div class="lg:w-2/3 xl:w-1/2 w-full">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center">Transfer Set</h2>
@@ -16,7 +16,7 @@ import Button from '../../generic/Button.vue';
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef } from 'vue';
+import { defineComponent, nextTick, toRef } from 'vue';
 export default defineComponent({
     data() {
         return {
@@ -26,7 +26,7 @@ export default defineComponent({
     props: ["metadata"],
     computed: {
         formatOk() {
-            return this.target.match(/0x[abcdef0-9]{63}/gi);
+            return this.target.match(/^0x[abcdef0-9]{63}$/gi);
         }
     },
     methods: {
@@ -46,6 +46,16 @@ export default defineComponent({
 
             }
             //$emit('close')
+        }
+    },
+    watch: {
+        target(nv, ov)
+        {
+            if (nv.length - 20 > ov.length && nv.length < 65)
+                // Assume we just pasted an address, maybe it's missing leading zero (argentX issue).
+                // (also assume not like 30 zeros).
+                if (nv.match(/^0x[abcdef0-9]{25,}$/gi))
+                    this.target = "0x" + ('0'.repeat(65 - nv.length)) + nv.substr(2);
         }
     }
 })</script>

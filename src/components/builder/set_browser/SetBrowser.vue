@@ -4,12 +4,12 @@ import MiddleModal from '../../MiddleModal.vue';
 </script>
 
 <template>
-    <div :class="asModal ? 'w-full h-full p-24 absolute top-0' : 'w-full min-h-screen h-full bg-briq-light'" :style="asModal ? { 'backgroundColor': 'rgba(0, 0, 0, 0.2)' } : ''">
-        <div :class="'visible px-4 py-2 ' + (asModal ? 'rounded-md shadow-xl w-full h-full bg-briq-light' : 'container mx-auto')">
-            <button v-if="asModal" class="float-right text-4xl text-gray-700" @click="$emit('close')">X</button>
-            <h1 class="text-center my-8">Browse sets</h1>
+    <div :class="asModal ? 'w-full h-full md:px-24 py-24 absolute top-0' : 'w-full min-h-screen bg-briq'" :style="asModal ? { 'backgroundColor': 'rgba(0, 0, 0, 0.3)' } : ''">
+        <div :class="'alternate-buttons visible px-8 py-4 md:container md:mx-auto ' + (asModal ? 'rounded-md shadow-xl h-full bg-briq' : '')">
+            <button v-if="asModal" class="float-right text-2xl" @click="$emit('close')">X</button>
+            <h2 class="text-center my-8">Browse sets</h2>
             <div class="my-4">
-                <p><input class="w-full" v-model="searchText" type="text" placeholder="Type to search"/></p>
+                <p><input class="w-full" v-model="searchText" type="text" placeholder="Search by set ID or set name"/></p>
             </div>
             <div class="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 <div v-if="chainSets.length === 0">Nothing here yet.</div>

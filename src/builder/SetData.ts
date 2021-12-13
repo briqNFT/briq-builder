@@ -268,6 +268,8 @@ export class SetData
                 if (cell.onChain)
                     return;
                 let newBriq = this.briqsDB.cloneBriq(available_by_matos[cell.material].splice(0, 1)[0], chainDB);
+                // Copy color since that's not on-chain.
+                newBriq.color = cell.color;
                 newBriq.onChain = true;
                 region.set(cellPos, newBriq.id);
             });
