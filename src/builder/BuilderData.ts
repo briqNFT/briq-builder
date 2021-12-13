@@ -40,7 +40,7 @@ export var builderDataStore = (() => {
         actions: {
             initialize: {
                 root: true,
-                handler: ({ state, dispatch, commit, getters, rootState }: any) => {
+                handler: async ({ state, dispatch, commit, getters, rootState }: any) => {
                     for (let [sid, setData] of Object.entries(window.localStorage))
                     {
                         if (!sid.startsWith("briq_set"))
@@ -48,7 +48,7 @@ export var builderDataStore = (() => {
                         try
                         {
                             let data = JSON.parse(setData);
-                            dispatch("create_wip_set", data);
+                            await dispatch("create_wip_set", data);
                         }
                         catch (e)
                         {
@@ -57,8 +57,8 @@ export var builderDataStore = (() => {
                         };
                     }
                     if (state.wipSets.length > 1)
-                        dispatch("delete_wip_set", state.wipSets[0].id);
-                    dispatch("select_set", state.wipSets[0]);
+                        await dispatch("delete_wip_set", state.wipSets[0].id);
+                    await dispatch("select_set", state.wipSets[0]);
 
                     watchEffect(() => {
                         // TODO: switch to IDB
@@ -141,19 +141,20 @@ export var builderDataStore = (() => {
             ////////////
             //// Local set Management
             ////////////
-            create_wip_set({ commit, state }: any, data: any)
+            async create_wip_set({ commit, dispatch, state }: any, data: any)
             {
                 commit("create_wip_set", data);
+                await dispatch("select_set", state.wipSets[state.wipSets.length - 1]);
                 return state.wipSets[state.wipSets.length - 1];
             },
-            delete_wip_set({ commit, dispatch, state }: any, data: any)
+            async delete_wip_set({ commit, dispatch, state }: any, data: any)
             {
                 commit("delete_wip_set", data);
                 window.localStorage.removeItem("briq_set_" + data);
                 if (!state.wipSets.length)
-                    dispatch("create_wip_set")
+                    await dispatch("create_wip_set")
                 // TODO: only change if necessary
-                dispatch("select_set", state.wipSets[0]);
+                await dispatch("select_set", state.wipSets[0]);
             },
             select_set({ commit }: any, data: any)
             {
@@ -340,8 +341,8 @@ registerUndoableAction("builderData/place_briq", "builderData/undo_place_briq", 
         if (cell)
             transientActionState.cell = cell;
     },
-    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
-        store.dispatch("push_command_to_history", {
+    onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
+        await store.dispatch("push_command_to_history", {
             action: "builderData/place_briq",
             redoData: payload,
             undoData: {
@@ -365,8 +366,8 @@ registerUndoableAction("builderData/place_multiple_briqs", "builderData/undo_pla
                 transientActionState.data.push(cell);
         }
     },
-    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
-        store.dispatch("push_command_to_history", {
+    onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
+        await store.dispatch("push_command_to_history", {
             action: "builderData/place_multiple_briqs",
             redoData: payload,
             undoData: (payload as Array<any>).map((x, i) => ({ ...x, briq: transientActionState.data[i]})),
@@ -385,8 +386,8 @@ registerUndoableAction("builderData/set_briq_color", "builderData/set_briq_color
         }
         transientActionState.colors = colors;
     },
-    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
-        store.dispatch("push_command_to_history", {
+    onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
+        await store.dispatch("push_command_to_history", {
             action: "builderData/set_briq_color",
             redoData: payload,
             undoData: payload.map((x, i) => ({ pos: x.pos, color: transientActionState.colors[i]}))
@@ -398,8 +399,8 @@ registerUndoableAction("builderData/select_set", "builderData/select_set", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
         transientActionState.set = state.builderData.currentSet.id;
     },
-    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
-        store.dispatch("push_command_to_history", {
+    onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
+        await store.dispatch("push_command_to_history", {
             action: "builderData/select_set",
             redoData: payload,
             undoData: transientActionState.set,
@@ -411,8 +412,8 @@ registerUndoableAction("builderData/clear", "builderData/undo_clear", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
         transientActionState.data = state.builderData.currentSet.serialize();
     },
-    onAfter: ({ transientActionState, store }: any, payload: any, state: any) => {
-        store.dispatch("push_command_to_history", {
+    onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
+        await store.dispatch("push_command_to_history", {
             action: "builderData/clear",
             redoData: payload,
             undoData: transientActionState.data,

@@ -62,8 +62,8 @@ export const undoRedoStore = {
             if (state.command_index < 0)
                 return;
             await dispatch(undoActions[state.command_history[state.command_index].action], state.command_history[state.command_index].undoData);
-            commit("undo_history");
             pushMessage("Undo complete - " + state.command_history[state.command_index].action);
+            commit("undo_history");
         },
         redo_history: async ({ dispatch, commit, state }: any) => {
             if (state.command_index + 1 >= state.command_history.length)
