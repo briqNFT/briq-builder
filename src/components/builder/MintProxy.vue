@@ -1,6 +1,6 @@
 <template>
     <div v-if="canMint" class="absolute inset-x-0 bottom-0 container w-1/2 m-auto py-2 alternate-buttons">
-        <h2 class="text-center"><button @click="claim" class="btn bg-transparent">Claim your 100 Briqs & start building</button></h2>
+        <h2 class="text-center"><button @click="claim" class="btn">Claim your 100 Briqs & start building</button></h2>
     </div>
 </template>
 
