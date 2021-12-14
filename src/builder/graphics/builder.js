@@ -63,14 +63,21 @@ function generateGrid() {
   return gridXZ;
 }
 
-function generatePlane() {
+function generatePlane(scene) {
   var geometry = new THREE.PlaneBufferGeometry(cellSize*2+1, cellSize*2+1);
   var material = new THREE.MeshPhongMaterial( {color: builderSettings.planeColor, side: THREE.DoubleSide });
   var planeXZ = new THREE.Mesh(geometry, material);
-  planeXZ.receiveShadow = true ;
+  planeXZ.receiveShadow = true;
   planeXZ.position.set(1/2, 0, 1/2);
   planeXZ.rotateX( - Math.PI / 2);
-  return planeXZ;
+
+  var planeUnderside = new THREE.Mesh(geometry, material);
+  planeUnderside.position.set(1/2, -0.001, 1/2);
+  planeUnderside.rotateX( - Math.PI / 2);
+  planeUnderside.rotateY(Math.PI);
+
+  scene.add(planeXZ);
+  scene.add(planeUnderside);
 }
 
 import daylight_Back from '../../assets/skybox/Daylight-Box_Back.jpg'
@@ -210,7 +217,7 @@ function setupScene(voxWorld)
 
   scene.background = new THREE.Color(builderSettings.backgroundColor);//generateSkybox();
   scene.add(generateGrid());
-  scene.add(generatePlane());
+  generatePlane(scene);
   scene.add(previewCube);
 
   voxWorld.scene = scene;
