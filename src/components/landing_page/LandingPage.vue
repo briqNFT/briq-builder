@@ -8,6 +8,7 @@ import FabricIcon from './fabric.png'
 import FirstIcon from './first.png'
 import StarkwareIcon from './starkware.png'
 
+import AlphaBanner from '../AlphaBanner.vue';
 </script>
 
 <template>
@@ -97,6 +98,7 @@ import StarkwareIcon from './starkware.png'
             </div>
         </div>
     </div>
+    <AlphaBanner/>
 </template>
 
 <script lang="ts">

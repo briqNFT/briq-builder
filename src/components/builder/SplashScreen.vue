@@ -1,6 +1,6 @@
 <template>
   <div id="floatingMenu" :class="hidden">
-    <h1>briq</h1>
+    <h1 class="font-bold p-8">briq</h1>
     <h2>Seize the briqs of construction</h2>
     <!--
     <PickMaterial/>

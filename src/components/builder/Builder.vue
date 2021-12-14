@@ -9,6 +9,8 @@ import Messages from '../Messages.vue'
 import SplashScreen from './SplashScreen.vue'
 
 import MintProxy from './MintProxy.vue';
+import AlphaBanner from '../AlphaBanner.vue';
+import AlphaLogo from './AlphaLogo.vue';
 </script>
 
 <template>
@@ -22,7 +24,9 @@ import MintProxy from './MintProxy.vue';
     <MiddleModal/>
     <WalletSelector/>
     <MintProxy/>
+    <AlphaLogo/>
   </div>
+  <AlphaBanner/>
 </template>
 
 <script lang="ts">
