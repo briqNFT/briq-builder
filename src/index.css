@@ -41,7 +41,7 @@
         @apply border-4 border-deep-blue;
     }
     .alternate-buttons .btn:not(:disabled):active {
-        @apply border-2;
+        @apply border-4 bg-briq-light;
     }
 
     input {
