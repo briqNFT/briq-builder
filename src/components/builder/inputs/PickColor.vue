@@ -44,7 +44,7 @@ export default defineComponent({
     {
         setModal,
         async registerNewColor(): Promise<void> {
-            let result = await setModalAndAwait(ColorPicker);
+            let result = await setModalAndAwait(ColorPicker, { color: this.currentColor });
             if (!result)
             {
                 setModal();
