@@ -70,6 +70,11 @@ class TransactionsManager
     {
         return this.transactionsByKW?.[keyword] ?? [];
     }
+
+    anyPending(): boolean
+    {
+        return this.transactions.some(x => x.isPending());
+    }
 }
 
 type TxStatus = "UNKNOWN" | "PENDING" | "ERROR" | "ACCEPTED";
@@ -107,7 +112,8 @@ export class Transaction
             return;
         this.refreshing = true;
         let status = (await provider.getTransactionStatus(this.hash)).tx_status;
-        if (status === "PENDING" || status === "RECEIVED")
+        // Treat 'not received' as pending, as the TX shouldn't stay in that state for long.
+        if (status === "PENDING" || status === "RECEIVED" || status === "NOT_RECEIVED")
             this.status = "PENDING";
         else if (status === "REJECTED")
             this.status = "ERROR";

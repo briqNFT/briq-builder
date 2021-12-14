@@ -17,6 +17,7 @@ import AlphaLogo from './AlphaLogo.vue';
   <SplashScreen/>
   <div>
     <WebGLCanvas/>
+    <AlphaLogo/>
     <MenuBar/>
     <SideBar/>
     <SideBarRight/>
@@ -24,7 +25,6 @@ import AlphaLogo from './AlphaLogo.vue';
     <MiddleModal/>
     <WalletSelector/>
     <MintProxy/>
-    <AlphaLogo/>
   </div>
   <AlphaBanner/>
 </template>

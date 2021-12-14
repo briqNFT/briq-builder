@@ -36,6 +36,8 @@ export var builderDataStore = (() => {
             mintContract: undefined as MintContract | undefined,
             chainSets: [],
             genericChainSets: [],
+            fetchingBriqs: true,
+            fetchingSets: true,
         }),
         actions: {
             initialize: {
@@ -93,11 +95,12 @@ export var builderDataStore = (() => {
                     })();
                 await try_fetching_user_data_func;
             },
-            async get_briqs({ commit, state, rootState }: any, data: any)
+            async get_briqs({ commit, state, rootState }: any)
             {
                 if (!state.briqContract)
                     return;
                 try {
+                    commit("fetching_briqs", true);
                     let bricks = (await state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).bricks;
                     commit("set_briqs", bricks);
                     pushMessage("Successfully fetched " + bricks.length/3 + " briqs");
@@ -107,12 +110,14 @@ export var builderDataStore = (() => {
                     pushMessage("Error fetching briqs - see console for details");
                     console.error(err);
                 }
+                commit("fetching_briqs", false);
             },
-            async get_chain_sets({ commit, state, rootState }: any, data: any)
+            async get_chain_sets({ commit, state, rootState }: any)
             {
                 if (!state.setContract)
                     return;
                 try {
+                    commit("fetching_sets", true);
                     let sets = (await state.setContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).tokens;
                     commit("set_chain_sets", sets)
                     pushMessage("Successfully fetched " + sets.length + " sets");
@@ -122,6 +127,7 @@ export var builderDataStore = (() => {
                     pushMessage("Error fetching sets - see console for details");
                     console.error(err);
                 }
+                commit("fetching_sets", false);
             },
             async get_generic_chain_sets({ commit, state, rootState }: any, data: any)
             {
@@ -238,6 +244,15 @@ export var builderDataStore = (() => {
             set_mint_contract(state: any, data: MintContract)
             {
                 state.mintContract = data;
+            },
+
+            fetching_briqs(state: any, data: boolean)
+            {
+                state.fetchingBriqs = data;
+            },
+            fetching_sets(state: any, data: boolean)
+            {
+                state.fetchingSets = data;
             },
 
             set_briqs(state: any, data: string[])

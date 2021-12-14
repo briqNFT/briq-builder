@@ -5,7 +5,7 @@ import InputComp from './InputComp.vue'
 
 <template>
     <div id="sideBar" class="flex flex-nowrap flex-col mx-4 md:my-20 my-12 absolute left-0 top-0 max-w-full justify-top">
-        <div class="my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24">
+        <div class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24">
             <Button class="my-0.5" tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
                 @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Button>
             <Button class="my-0.5" tooltip="In 'Paint' mode, left-click to repaint briqs."
@@ -20,6 +20,7 @@ import InputComp from './InputComp.vue'
         <div class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch">
             <InputComp/>
         </div>
+        <p class="md:text-center font-normal drop-shadow-md" style="text-shadow: 0 0 2px rgba(0, 0, 0, 0.4)">{{ getNbBriqs }}</p>
     </div>
 </template>
 
@@ -32,6 +33,19 @@ export default defineComponent({
         return {
             inputStore
         };
+    },
+    computed: {
+        getNbBriqs() {
+            let total = 0;
+            this.$store.state.builderData.briqsDB.briqs.forEach(x => total += +(!x.set));
+            if (!total)
+                return '0 briqs left';
+            for (let mat in this.$store.state.builderData.currentSet.usedByMaterial)
+                total -= this.$store.state.builderData.currentSet.usedByMaterial[mat];
+            if (total === 1)
+                return '1 briq left';
+            return total + ' briqs left';
+        }
     }
 })
 </script>

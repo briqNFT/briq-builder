@@ -13,9 +13,10 @@
                     <p>Download a local copy of your set</p>
                 </div>
                 <div class="flex flex-col justify-start basis-1/2 text-center">
-                    <p><button class="block mx-auto btn" :disabled="exporting || transactionPending || alreadyOnChain || !hasBriqsAndSets"
+                    <p><button class="block mx-auto btn" :disabled="exporting || transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs"
                         @click="exportSet">Export on chain</button></p>
                     <p v-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
+                    <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
                     <p v-else-if="exporting || transactionPending">...Export is ongoing...</p>
                     <p v-else-if="!hasBriqsAndSets">Briqs need to be loaded before you can export a set. Please wait a little while.</p>
                     <p v-else="">Assemble briqs into a set on the blockchain</p>
@@ -59,7 +60,14 @@ export default defineComponent({
         },
         hasBriqsAndSets() {
             return this.$store.state.builderData.briqsDB.briqs.size
-        }
+        },
+        notEnoughBriqs() {
+            let total = 0;
+            this.$store.state.builderData.briqsDB.briqs.forEach(x => total += +(!x.set));
+            for (let mat in this.set.usedByMaterial)
+                total -= this.set.usedByMaterial[mat];
+            return total < 0;
+        },
     },
     methods: {
         exportSetLocally: function() {
