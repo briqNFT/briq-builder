@@ -1,5 +1,5 @@
 <template>
-    <div class="px-4 py-2" v-if="transactionsManager.anyPending()">
+    <div class="px-4 py-2" v-if="transactionsManager.transactions.length">
         <h3 class="text-center w-full">Transactions</h3>
         <p class="text-right" v-for="tx in transactionsManager.transactions">
         <span class="text-sm cursor-pointer" @click="copyHash(tx)">{{ tx.hash.substr(0, 7) + '...' + tx.hash.substr(59) }}</span> - {{ tx.status }}
