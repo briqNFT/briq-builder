@@ -21,8 +21,45 @@ import { number } from 'starknet';
 let briqsDB = new BriqsDB();
 let initSet = new SetData(Date.now(), briqsDB);
 
-
 var try_fetching_user_data_func;
+
+function checkForInitialGMSet(dispatch: CallableFunction, set: SetData)
+{
+    if (!window.localStorage.getItem("has_initial_gm_set"))
+    {
+        window.localStorage.setItem("has_initial_gm_set", "true")
+        dispatch("place_multiple_briqs", [
+            {"pos":[4,0,0],"color":"#c5ac73","voxelId":1},
+            {"pos":[3,0,0],"color":"#c5ac73","voxelId":1},
+            {"pos":[2,0,0],"color":"#c5ac73","voxelId":1},
+            {"pos":[1,0,0],"color":"#c5ac73","voxelId":1},
+            {"pos":[1,1,0],"color":"#e6de83","voxelId":1},
+            {"pos":[1,2,0],"color":"#e6de83","voxelId":1},
+            {"pos":[2,2,0],"color":"#e6de83","voxelId":1},
+            {"pos":[4,1,0],"color":"#62bdf6","voxelId":1},
+            {"pos":[4,2,0],"color":"#62bdf6","voxelId":1},
+            {"pos":[4,3,0],"color":"#62bdf6","voxelId":1},
+            {"pos":[4,4,0],"color":"#e6de83","voxelId":1},
+            {"pos":[3,4,0],"color":"#416aac","voxelId":1},
+            {"pos":[2,4,0],"color":"#416aac","voxelId":1},
+            {"pos":[1,4,0],"color":"#416aac","voxelId":1},
+            {"pos":[-1,0,0],"color":"#394183","voxelId":1},
+            {"pos":[-5,0,0],"color":"#416aac","voxelId":1},
+            {"pos":[-5,1,0],"color":"#416aac","voxelId":1},
+            {"pos":[-5,2,0],"color":"#416aac","voxelId":1},
+            {"pos":[-5,3,0],"color":"#416aac","voxelId":1},
+            {"pos":[-5,4,0],"color":"#416aac","voxelId":1},
+            {"pos":[-1,1,0],"color":"#394183","voxelId":1},
+            {"pos":[-1,2,0],"color":"#394183","voxelId":1},
+            {"pos":[-1,3,0],"color":"#394183","voxelId":1},
+            {"pos":[-1,4,0],"color":"#394183","voxelId":1},
+            {"pos":[-2,4,0],"color":"#e6de83","voxelId":1},
+            {"pos":[-4,4,0],"color":"#e6de83","voxelId":1},
+            {"pos":[-3,3,0],"color":"#c5ac73","voxelId":1}
+        ]);
+        dispatch("change_set_name", { set: set, name: "GM" })
+    }
+}
 
 export var builderDataStore = (() => {
     return {
@@ -46,7 +83,7 @@ export var builderDataStore = (() => {
                     for (let [sid, setData] of Object.entries(window.localStorage))
                     {
                         if (!sid.startsWith("briq_set"))
-                            continue;
+                        continue;
                         try
                         {
                             let data = JSON.parse(setData);
@@ -59,46 +96,48 @@ export var builderDataStore = (() => {
                         };
                     }
                     if (state.wipSets.length > 1)
-                        await dispatch("delete_wip_set", state.wipSets[0].id);
+                    await dispatch("delete_wip_set", state.wipSets[0].id);
+                    else
+                    await checkForInitialGMSet(dispatch, state.wipSets[0]);
                     await dispatch("select_set", state.wipSets[0]);
-
+                    
                     watchEffect(() => {
                         // TODO: switch to IDB
                         window.localStorage.setItem("briq_set_" + state.currentSet.id, JSON.stringify(state.currentSet.serialize()));
                     });
                     
-
+                    
                     fetchData("contract_addresses").then(async x => {
                         await commit("set_briq_contract", new BriqContract(x.briq, toRef(rootState.wallet, "signer")));
                         await commit("set_set_contract", new SetContract(x.set, toRef(rootState.wallet, "signer")));
                         await commit("set_mint_contract", new MintContract(x.mint, toRef(rootState.wallet, "signer")));
                         if (rootState.wallet.userWalletAddress)
-                            dispatch("try_fetching_user_data");
+                        dispatch("try_fetching_user_data");
                     })
                 },
             },
             async try_fetching_user_data({ state, dispatch, rootState }: any, data: any)
             {
                 if (!try_fetching_user_data_func)
-                    try_fetching_user_data_func = (async () => {
-                        if (state.mintContract)
-                            setupMintProxy(state.mintContract, rootState.wallet.userWalletAddress);
-                        let bricks = dispatch("get_briqs");
-                        let sets = dispatch("get_chain_sets");
-                        let gsets = dispatch("get_generic_chain_sets");
-                        let awaiting = {
-                            briqs: await bricks,
-                            sets: await sets,
-                            gsets: await gsets,
-                        };
-                        try_fetching_user_data_func = undefined;
-                    })();
+                try_fetching_user_data_func = (async () => {
+                    if (state.mintContract)
+                    setupMintProxy(state.mintContract, rootState.wallet.userWalletAddress);
+                    let bricks = dispatch("get_briqs");
+                    let sets = dispatch("get_chain_sets");
+                    let gsets = dispatch("get_generic_chain_sets");
+                    let awaiting = {
+                        briqs: await bricks,
+                        sets: await sets,
+                        gsets: await gsets,
+                    };
+                    try_fetching_user_data_func = undefined;
+                })();
                 await try_fetching_user_data_func;
             },
             async get_briqs({ commit, state, rootState }: any)
             {
                 if (!state.briqContract)
-                    return;
+                return;
                 try {
                     commit("fetching_briqs", true);
                     let bricks = (await state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).bricks;
@@ -115,7 +154,7 @@ export var builderDataStore = (() => {
             async get_chain_sets({ commit, state, rootState }: any)
             {
                 if (!state.setContract)
-                    return;
+                return;
                 try {
                     commit("fetching_sets", true);
                     let sets = (await state.setContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).tokens;
@@ -132,7 +171,7 @@ export var builderDataStore = (() => {
             async get_generic_chain_sets({ commit, state, rootState }: any, data: any)
             {
                 if (!state.setContract)
-                    return;
+                return;
                 try {
                     let sets = (await state.setContract.get_all_tokens_for_owner("0xe872a6192d04d0ca5c935cb1742bb3a48cb87338acf2d97cbe25d1898de5be")).tokens;
                     commit("set_generic_chain_sets", sets)
@@ -158,7 +197,7 @@ export var builderDataStore = (() => {
                 commit("delete_wip_set", data);
                 window.localStorage.removeItem("briq_set_" + data);
                 if (!state.wipSets.length)
-                    await dispatch("create_wip_set")
+                await dispatch("create_wip_set")
                 // TODO: only change if necessary
                 await dispatch("select_set", state.wipSets[0]);
             },
@@ -166,7 +205,7 @@ export var builderDataStore = (() => {
             {
                 commit("select_set", data);
             },
-
+            
             ////////////
             //// Set commands
             ////////////
@@ -182,7 +221,7 @@ export var builderDataStore = (() => {
             {
                 commit("swap_for_fake_briqs");
             },
-
+            
             ////////////
             //// Briq manipulation stuff
             ////////////
@@ -213,9 +252,9 @@ export var builderDataStore = (() => {
             {
                 let set = new SetData(data?.id ?? Date.now(), state.briqsDB);
                 if (state.wipSets.find((x: SetData) => x.id === set.id))
-                    throw new Error("Set with ID " + set.id + " already exists");
+                throw new Error("Set with ID " + set.id + " already exists");
                 if (data)
-                    set.deserialize(data);
+                set.deserialize(data);
                 state.wipSets.push(set);
             },
             delete_wip_set(state: any, data: any)
@@ -226,13 +265,13 @@ export var builderDataStore = (() => {
             select_set(state: any, data: any)
             {
                 if (data instanceof SetData)
-                    state.currentSet = data;
+                state.currentSet = data;
                 else
-                    state.currentSet = state.wipSets.filter((x: SetData) => x.id === data)[0];
+                state.currentSet = state.wipSets.filter((x: SetData) => x.id === data)[0];
                 palettesMgr.updateForSet(state.currentSet);
                 dispatchBuilderAction("select_set", state.currentSet);
             },
-
+            
             set_briq_contract(state: any, data: BriqContract)
             {
                 state.briqContract = data;
@@ -245,7 +284,7 @@ export var builderDataStore = (() => {
             {
                 state.mintContract = data;
             },
-
+            
             fetching_briqs(state: any, data: boolean)
             {
                 state.fetchingBriqs = data;
@@ -254,7 +293,7 @@ export var builderDataStore = (() => {
             {
                 state.fetchingSets = data;
             },
-
+            
             set_briqs(state: any, data: string[])
             {
                 state.briqsDB.parseChainData(data);
@@ -267,14 +306,14 @@ export var builderDataStore = (() => {
             {
                 state.genericChainSets = data;
             },
-
+            
             place_briq(state: any, data: any)
             {
                 let ok = state.currentSet.placeBriq(...data.pos, data.color, data.voxelId);
                 if (ok)
-                    dispatchBuilderAction("place_briq", data);
+                dispatchBuilderAction("place_briq", data);
                 else // Fail to prevent the action from being stored in the history.
-                    throw new Error();
+                throw new Error();
             },
             undo_place_briq(state: any, data: any)
             {
@@ -289,14 +328,14 @@ export var builderDataStore = (() => {
                 }
                 dispatchBuilderAction("place_briq", { pos: data.payload.pos, color: data?.undoData?.briq?.color ?? "", voxelId: data?.undoData?.briq?.material ?? 0 });
             },
-
+            
             place_multiple_briqs(state: any, data: any)
             {
                 for (let briqData of data)
                 {
                     let ok = state.currentSet.placeBriq(...briqData.pos, briqData.color, briqData.voxelId);
                     if (ok)
-                        dispatchBuilderAction("place_briq", briqData);
+                    dispatchBuilderAction("place_briq", briqData);
                 }
             },
             undo_place_multiple_briqs(state: any, data: any)
@@ -315,7 +354,7 @@ export var builderDataStore = (() => {
                     dispatchBuilderAction("place_briq", { pos: briqData.pos, color: briqData?.briq?.color ?? "", voxelId: briqData?.briq?.material ?? 0 });    
                 }
             },
-
+            
             set_briq_color(state: any, data: any)
             {
                 for (let d of data)
@@ -324,7 +363,7 @@ export var builderDataStore = (() => {
                     dispatchBuilderAction("place_briq", { ...cell.serialize(), pos: d.pos });
                 }
             },
-
+            
             change_set_name(state: any, data: any)
             {
                 data.set.name = data.name;
@@ -337,7 +376,7 @@ export var builderDataStore = (() => {
             {
                 state.currentSet.swapForFakeBriqs();
             },
-
+            
             clear: (state: any) => {
                 state.currentSet.reset();
                 dispatchBuilderAction("reset");
@@ -356,7 +395,7 @@ registerUndoableAction("builderData/place_briq", "builderData/undo_place_briq", 
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
         let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos as [number, number, number]);
         if (cell)
-            transientActionState.cell = cell;
+        transientActionState.cell = cell;
     },
     onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
         await store.dispatch("push_command_to_history", {
@@ -380,7 +419,7 @@ registerUndoableAction("builderData/place_multiple_briqs", "builderData/undo_pla
         {
             let cell = (state.builderData.currentSet as SetData).getAt(...briq.pos as [number, number, number]);
             if (cell)
-                transientActionState.data.push(cell);
+            transientActionState.data.push(cell);
         }
     },
     onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
@@ -399,7 +438,7 @@ registerUndoableAction("builderData/set_briq_color", "builderData/set_briq_color
         {
             let cell = (state.builderData.currentSet as SetData).getAt(...d.pos as [number, number, number]);
             if (cell)
-                colors.push(cell.color)    
+            colors.push(cell.color)    
         }
         transientActionState.colors = colors;
     },
