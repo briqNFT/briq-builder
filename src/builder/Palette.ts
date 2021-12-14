@@ -66,9 +66,12 @@ class Palette
         delete this.colors[hex];
     }
 
-    addColor(hex: string, name: string)
+    addColor(hex: string, name: string): boolean
     {
+        if (this.colors[hex])
+            return false;
         this.colors[hex] = name;
+        return true;
     }
 
     /**
