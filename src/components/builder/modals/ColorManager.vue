@@ -5,8 +5,8 @@
             <h2 class="text-center">Color Manager</h2>
             <div>
                 <p v-for="col, key in palette.colors" class="my-1">
-                    <Button noStyle="true" class="mx-1 font-semibold" :disabled="usedColors[key] > 0" @click="deleteColor(key)"><i class="fas fa-times"></i></Button>
-                    <Button noStyle="true" class="mx-1 font-semibold" :disabled="(usedColors?.[key] ?? 0) == 0" @click="replaceColor(key)"><i class="far fa-edit"></i></Button>
+                    <Button noStyle="true" :class="'mx-1 font-semibold ' + (usedColors[key] > 0 ? 'text-gray-600' : '')" :disabled="usedColors[key] > 0" @click="deleteColor(key)"><i class="fas fa-times"></i></Button>
+                    <Button noStyle="true" class="mx-1 font-semibold" @click="replaceColor(key)"><i class="far fa-edit"></i></Button>
                     <span class="w-6 h-6 mx-1 inline-flex justify-center align-center font-bold" :style="{ 'borderRadius': '50%', 'backgroundColor': key }">{{ usedColors[key] ?? 0 }}</span>
                     <span class="font-mono">{{ col }}</span>
                 </p>
@@ -52,8 +52,8 @@ export default defineComponent({
         },
     },
     methods: {
-        deleteColor(col: string) {
-            if (this.usedColors[col] > 0)
+        deleteColor(col: string, force: boolean = false) {
+            if (!force && this.usedColors[col] > 0)
                 return;
             this.palette.deleteColor(col);
             if (this.currentColor === col)
@@ -69,11 +69,13 @@ export default defineComponent({
             }
             let [res, name] = result;
             this.palette.colors[res] = name;
+            let awaits = [];
             this.$store.state.builderData.currentSet.forEach((cell, pos) => {
                 if (cell.color === col)
-                    this.$store.dispatch("builderData/set_briq_color", [{ pos, color: res }]);
-            })
-            this.deleteColor(col);
+                    awaits.push(this.$store.dispatch("builderData/set_briq_color", [{ pos, color: res }]));
+            });
+            await Promise.all(awaits);
+            this.deleteColor(col, true);
             this.currentColor = res;
             setModal(mod);
         },
