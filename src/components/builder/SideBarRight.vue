@@ -7,11 +7,12 @@ import { transactionsManager } from '../../builder/Transactions';
 </script>
 
 <template>
-    <div class="absolute right-0 top-0 px-4 py-4 flex flex-col md:flex-row gap-2 pointer-events-none max-h-screen">
+    <div class="absolute right-0 top-0 px-4 py-4 flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none max-h-screen">
         <div class="flex flex-col items-end">
             <div :class="'overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expandedCW ? ' expanded' : ' unexpanded')">
-                <Button class="pointer-events-auto" @click="CWClick">{{ CWTitle() }}
-                    <i v-if="transactionsManager.anyPending()" class="fas fa-spinner animate-spin-slow"></i>
+                <Button class="pointer-events-auto" @click="CWClick" tooltip="Click for more details on blockchain synchronisation">{{ CWTitle() }}
+                    <i v-if="transactionsManager.anyPending() || $store.state.builderData.fetchingBriqs" class="fas fa-spinner animate-spin-slow"></i>
+                    <i v-if="!transactionsManager.anyPending() && !$store.state.builderData.fetchingBriqs && $store.state.builderData.briqsDB.briqs.size > 0" class="fas fa-check"></i>
                 </Button>
                 <div class="my-2">
                     <div class="flex flex-col flex-nowrap gap-1">
@@ -27,7 +28,7 @@ import { transactionsManager } from '../../builder/Transactions';
             </div>
         </div>
         <div :class="'overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
-            <Button class="pointer-events-auto" @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Button>
+            <Button class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Button>
             <div class="my-2">
                 <div class="flex flex-col flex-nowrap gap-1">
                     <Button @click="openHelp">Help</button>
@@ -164,6 +165,6 @@ export default defineComponent({
     @apply visible block;
 }
 .unexpanded > div {
-    @apply invisible md:block hidden;
+    @apply invisible;
 }
 </style>
