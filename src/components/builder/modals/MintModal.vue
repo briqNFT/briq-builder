@@ -6,20 +6,20 @@
             <div class="my-4">
                 <p>We’re currently in <a href="">Alpha test</a> on StarkNet Mainnet. Claim 100 free briqs to start your building journey.</p>
             </div>
-            <div class="font-medium break-all">
-                <p v-if="status == 'calling'" class="float-left">Status: ...Minting briqs...</p>
-                <p v-if="status == 'polling'" class="float-left">Status: ...Waiting for transaction to validate...<br/>
+            <div class="font-medium">
+                <p v-if="status == 'calling'">Status: ...Minting briqs...</p>
+                <p v-if="status == 'polling'">Status: ...Waiting for transaction to validate...<br/>
 Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></p>
-                <p v-if="status == 'pending'" class="float-left">Status: ...Transaction pending...<br/>
+                <p v-if="status == 'pending'">Status: ...Transaction pending...<br/>
 Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></p>
-                <p v-if="status == 'ok'" class="float-left">Status: Transaction complete!<br/>
+                <p v-if="status == 'ok'">Status: Transaction complete!<br/>
 Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></p>
-                <p v-if="status == 'error'" class="float-left">Status: Error while minting - check console for details.<br/>
+                <p v-if="status == 'error'">Status: Error while minting - check console for details.<br/>
 Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></p>
             </div>
             <div class="flex justify-center">
-            <button class="btn" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I Want to Briq Free</button>
-            <button class="btn" v-if="status === 'ok'" @click="$emit('close')">Start Building</button>
+                <button class="btn" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I Want to Briq Free</button>
+                <button class="btn" v-if="status === 'ok'" @click="$emit('close')">Start Building</button>
             </div>
         </div>
     </div>

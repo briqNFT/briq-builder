@@ -20,6 +20,8 @@ import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
 
 import TransferSet from '../modals/TransferSet.vue'
 
+import { Transaction } from '../../../builder/Transactions'
+
 import { defineComponent } from "@vue/runtime-core"
 export default defineComponent({
     data() {
@@ -65,8 +67,9 @@ export default defineComponent({
         },
         disassemble: async function() {
             try {
-                let data = await this.loadData();
-                let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
+                let data = (await this.loadData())!;
+                let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, []);//data.briqs.map(x => "" + x.data.briq));
+                new Transaction(TX.transaction_hash, 'disassembly', { setId: data.id });
                 this.messages.pushMessage("Disassembly transaction sent - Hash " + TX.transaction_hash);   
             }
             catch(err)

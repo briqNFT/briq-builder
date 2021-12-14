@@ -9,11 +9,13 @@ import Messages from '../Messages.vue'
 import SplashScreen from './SplashScreen.vue'
 
 import MintProxy from './MintProxy.vue';
+import Transactions from './modals/Transactions.vue';
 </script>
 
 <template>
   <SplashScreen/>
   <div>
+    <Hotkey name="TX" :data="{ key: 'KeyT' }" :handler="() => setModal(Transactions)"/>
     <WebGLCanvas/>
     <MenuBar/>
     <SideBar/>
@@ -27,6 +29,7 @@ import MintProxy from './MintProxy.vue';
 
 <script lang="ts">
 
+import { setModal } from '../MiddleModal.vue';
 import { pushMessage, setTooltip } from '../../Messages'
 export default {
   data() {
@@ -43,6 +46,7 @@ export default {
   mounted: function() {
   },
   methods: {
+    setModal
   }
 };
 </script>
