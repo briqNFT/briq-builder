@@ -16,8 +16,8 @@
                     <p><button class="block mx-auto btn" :disabled="exporting || transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs"
                         @click="exportSet">Export on chain</button></p>
                     <p v-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
-                    <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
                     <p v-else-if="exporting || transactionPending">...Export is ongoing...</p>
+                    <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
                     <p v-else-if="!hasBriqsAndSets">Briqs need to be loaded before you can export a set. Please wait a little while.</p>
                     <p v-else="">Assemble briqs into a set on the blockchain</p>
                 </div>

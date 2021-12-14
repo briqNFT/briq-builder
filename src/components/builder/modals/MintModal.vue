@@ -9,15 +9,15 @@
             <div class="font-medium">
                 <p v-if="status == 'calling'">Status: ...Minting briqs...</p>
                 <p v-if="status == 'polling'">Status: ...Waiting for transaction to validate...<br/>
-Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></p>
+<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
                 <p v-if="status == 'pending'">Status: ...Transaction pending...<br/>
-Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></p>
+<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
                 <p v-if="status == 'ok'">Status: Transaction complete!<br/>
-Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></p>
+<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
                 <p v-if="status == 'error'">Status: Error while minting - check console for details.<br/>
-Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></p>
+<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
             </div>
-            <div class="flex justify-center">
+            <div class="flex justify-center my-4">
                 <button class="btn" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I Want to Briq Free</button>
                 <button class="btn" v-if="status === 'ok'" @click="$emit('close')">Start Building</button>
             </div>
@@ -27,6 +27,7 @@ Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash"
 
 <script lang="ts">
 import { mintProxyStore } from '../../../builder/MintProxy';
+import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -34,28 +35,42 @@ export default defineComponent({
         return {
             status: "waiting",
             txHash: "",
+            tx: undefined as undefined | Transaction
         }
     },
     props: ["metadata"],
     emits: ["close"],
     inject: ["messages"],
+    async mounted() {
+        console.log(transactionsManager.get("mint_proxy").filter(x => x.isOk()));
+        this.tx = transactionsManager.get("mint_proxy").filter(x => x.isOk())?.[0];
+        if (this.tx)
+        {
+            this.status = 'pending';
+            this.txHash = this.tx.hash;
+            await this.poll();
+        }
+    },
     methods: {
         async poll() {
-            let rep = await this.$store.state.wallet.provider.getTransactionStatus(this.txHash);
-            if (!rep || rep.tx_status === 'REJECTED')
+            if (!this.tx)
+                return;
+            await this.tx.poll();
+            if (!this.tx.isOk())
             {
                 this.status = 'error';
                 this.messages.pushMessage("Error while minting briqs - see console for details.");
                 return
             }
-            else if (rep.tx_status === 'PENDING')
+            else if (this.tx.isPending())
                 this.status = 'pending';
-            else if (rep.tx_status === 'ACCEPTED_ON_L2')
+            else if (this.tx.isOnChain())
             {
                 this.status = 'ok';
                 mintProxyStore.canMint = false;
                 mintProxyStore.hasMinted = true;
                 this.messages.pushMessage("Starting briqs successfully claimed !");
+                this.$store.dispatch('builderData/get_briqs');
                 return;
             }
             setTimeout(async () => {
@@ -71,6 +86,8 @@ export default defineComponent({
                 if (res.code !== 'TRANSACTION_RECEIVED')
                     throw new Error("Unknown error when minting, status is " + res.code + ", Tx hash " + (res?.transaction_hash ?? 'unknown'));
                 this.txHash = res.transaction_hash;
+                new Transaction(this.txHash, "mint_proxy");
+                this.tx = transactionsManager.getTx(this.txHash);
                 this.status = "polling";
                 setTimeout(async () => {
                     await this.poll();
