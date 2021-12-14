@@ -11,23 +11,23 @@ import StarkwareIcon from './starkware.png'
 </script>
 
 <template>
-    <div class="pseudobody w-full h-full bg-briq text-white text-lg relative text-center font-sans">
+    <div class="pseudobody w-full h-full bg-briq text-white text-lg relative text-center font-sans alternate-buttons">
         <div class="header m-auto flex justify-between items-center font-semibold">
             <div class="text-xl">
                 <h2>briq</h2>
             </div>
-            <div class="flex gap-4 items-center comingsoon">
-                <p>Whitepaper</p>
-                <p>Resources</p>
-                <button :disabled="true" @click="$router.push({ name: 'Builder' })">Connect</button>
+            <div class="flex gap-4 items-center alpha-pill">
+                <a href="https://insidious-ginger-0f9.notion.site/Alpha-paper-fd11fbbb6ac449129797e5f4ecb24d7a"><p>Whitepaper</p></a>
+                <a href="https://insidious-ginger-0f9.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f"><p>Resources</p></a>
+                <button @click="$router.push({ name: 'Builder' })">Go to Dapp</button>
             </div>
         </div>
         <div class="row">
             <div class="flex flex-wrap justify-around md:my-6 my-10">
                 <div class="centerall flex-1">
                     <p class="md:my-4 my-8 text-2xl">Briq is NFT matter.<br/>Briqs build NFTs that matter.<br/>Seize the briqs of construction.</p>
-                    <div class="comingsoon" style="padding: 2rem 2rem 1rem 2rem">
-                        <button @click="$router.push({ name: 'Builder' })">Build</button>
+                    <div class="alpha-pill py-4 px-3">
+                        <button @click="$router.push({ name: 'Builder' })"><span class="px-4 py-1 inline-block">Build</span></button>
                     </div>
                 </div>
                 <div class="centerall flex-1"><GMIcon class="lg:scale-100 scale-75"/></div>
@@ -38,19 +38,23 @@ import StarkwareIcon from './starkware.png'
                 <div class="md:centerleft centerall flex-auto"><ComposableIcon/></div>
                 <div class="md:centerright centerall flex-initial">
                     <h2>NFTS should be composable</h2>
-                    <p>Briqs can be combined to create NFTs called sets. Sets can be disassembled to get the briqs back and create something new.  Sets can be combined to create even more complex structures. 
-Briqs are NFT matter.</p>
+                    <p>Briqs can be combined to create NFTs called sets.<br/>
+                    Sets can be disassembled to get the briqs back and create something new.<br/>
+                    Sets can be combined to create even more complex structures.<br/>
+                    Briqs are NFT matter.</p>
                 </div>
             </div>
         </div>
         <div class="row bg-briq-dark my-20">
             <div class="flex flex-wrap justify-between">
-                <div class="centerall md:centerright flex-auto"><InteroperableIcon/></div>
                 <div class="centerall md:centerleft flex-initial">
                     <h2>NFTS should be interoperable</h2>
-                    <p>Briqs and sets can be used in any game and can be interpreted as you see fit. Build a car and race. Tear it apart and build a plane.  Your NFTs are not stuck in a data silo, they can always be reused for something new.
-Briqs are NFTs that matter.</p>
+                    <p>Briqs and sets can be used in any game and can be interpreted as you see fit.<br/>
+                    Build a car and race. Tear it apart and build a plane.<br/>
+                    Your NFTs are not stuck in a data silo, they can always be reused for something new.<br/>
+                    Briqs are NFTs that matter.</p>
                 </div>
+                <div class="centerall md:centerright flex-auto"><InteroperableIcon/></div>
             </div>
         </div>
         <div class="row bg-briq-dark my-20">
@@ -58,8 +62,10 @@ Briqs are NFTs that matter.</p>
                 <div class="centerall md:centerleft flex-auto"><OnChainIcon/></div>
                 <div class="centerall md:centerright flex-initial">
                     <h2>NFTS should be On-Chain</h2>
-                    <p>Briqs and sets are stored on-chain for everyone to reuse  combine. Briqs don’t have shape, or color, they are up to interpretation. Feel free to use briqs in any way you want. 
-Seize the briqs of construction.</p>
+                    <p>Briqs and sets are stored on-chain for everyone to reuse.<br/>
+                    Briqs don’t have shape, or color, they are up to interpretation.<br/>
+                    Feel free to use briqs in any way you want.<br/>
+                    Seize the briqs of construction.</p>
                 </div>
             </div>
         </div>
@@ -83,7 +89,7 @@ Seize the briqs of construction.</p>
             </div>
             <div class="flex justify-center gap-10 !my-10 text-5xl">
                 <a href="https://twitter.com/briqs_" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
-                <!--<a href="https://discord.gg/ugqdKHTM" target="_blank"><p><i class="fab fa-discord"></i></p></a>-->
+                <a href="https://discord.gg/m9TeETDK7C" target="_blank"><p><i class="fab fa-discord"></i></p></a>
                 <a href="https://github.com/S-L-Technologies/" target="_blank"><p><i class="fab fa-github"></i></p></a>
             </div>
             <div>
@@ -131,9 +137,24 @@ svg {
 }
 
 button {
-    @apply font-semibold border-white rounded-lg border-4 px-1;
+    @apply btn;
 }
 
+.alpha-pill {
+    position: relative
+}
+.alpha-pill ::after {
+    display: block;
+    content: "alpha";
+    font-style: italic;
+
+    @apply bg-briq-light px-2 py-0.5 text-deep-blue text-sm;
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    @apply rounded-xl shadow-sm;
+}
 .comingsoon {
     position: relative;
 }

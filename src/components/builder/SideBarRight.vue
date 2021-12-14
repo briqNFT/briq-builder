@@ -29,6 +29,7 @@ import { transactionsManager } from '../../builder/Transactions';
                     <Button @click="openHelp">Help</button>
                     <Button @click="setModal(Settings)">Settings</button>
                     <Button @click="$router.push({ path: '/legal' })">Legal / Privacy</button>
+                    <Button @click="$router.push({ path: '/' })">Home</button>
                     <!--<Button @click="$router.push({ path: '/admin' })">Admin</button>-->
                 </div>
                 <div class="flex flex-col content-end my-8">
