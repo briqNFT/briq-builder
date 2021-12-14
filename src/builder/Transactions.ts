@@ -39,44 +39,99 @@ class TransactionsManager
         this.transactions.push(tx);
         if (!this.transactionsByKW[keyword])
             this.transactionsByKW[keyword] = [];
-            this.transactionsByKW[keyword].push(tx);
+        this.transactionsByKW[keyword].push(tx);
+        if (provider)
+            this.transactions.forEach(x => x.poll());
+        this.serialize();
+    }
+
+    delete(tx: Transaction)
+    {
+        this.transactions.splice(this.transactions.findIndex(x => x.hash === tx.hash), 1);
+        this.transactionsByKW[tx.keyword].splice(this.transactionsByKW[tx.keyword].findIndex(x => x.hash === tx.hash), 1);
+        
+        this.serialize();
+    }
+
+    serialize()
+    {
         window.localStorage.setItem("transactions", JSON.stringify({
             version: CURR_VERSION,
-            txs: this.transactions.map(x => [x.hash, x.keyword, x.metadata])
+            txs: this.transactions.map(x => [x.hash, x.keyword, x.metadata, x.status])
         }))
+    }
+
+    getTx(hash: string): Transaction | undefined
+    {
+        return this.transactions.find(x => x.hash === hash);
+    }
+
+    get(keyword: string): Array<Transaction>
+    {
+        return this.transactionsByKW?.[keyword] ?? [];
     }
 }
 
+type TxStatus = "UNKNOWN" | "PENDING" | "ERROR" | "ACCEPTED";
+
 export class Transaction
 {
-    status: "UNKNOWN" | "PENDING" | "ERROR" | "ACCEPTED" = "UNKNOWN";
+    status: TxStatus = "UNKNOWN";
     hash: string;
     keyword: string;
     mgr: TransactionsManager;
     metadata: any;
 
-    constructor(hash: string, keyword: string, metadata?: any)
+    refreshing: boolean;
+
+    constructor(hash: string, keyword: string, metadata?: any, status?: TxStatus)
     {
         this.hash = hash;
         this.keyword = keyword;
         this.metadata = metadata;
         this.mgr = transactionsManager;
         this.mgr.add(this, keyword);
+        // Assume status is correct.
+        if (status)
+            this.status = status;
+    }
+
+    delete()
+    {
+        this.mgr.delete(this);
     }
 
     async poll()
     {
-        console.log((await provider?.getTransactionStatus(this.hash)));
+        if (this.refreshing)
+            return;
+        this.refreshing = true;
         let status = (await provider.getTransactionStatus(this.hash)).tx_status;
-        console.log(status);
         if (status === "PENDING" || status === "RECEIVED")
             this.status = "PENDING";
         else if (status === "REJECTED")
             this.status = "ERROR";
-        else if (status === "ACCEPTED_ONCHAIN")
+        else if (status === "ACCEPTED_ON_L2" || status === "ACCEPTED_ON_L1")
             this.status = "ACCEPTED";
         else
-            this.status = "PENDING";
+            this.status = "ERROR";
+        this.refreshing = false;
+        this.mgr.serialize();
+    }
+
+    isOk()
+    {
+        return this.status !== "ERROR";
+    }
+
+    isOnChain()
+    {
+        return this.status === "ACCEPTED";
+    }
+
+    isPending()
+    {
+        return this.status === "PENDING" || this.status === "UNKNOWN";
     }
 }
 

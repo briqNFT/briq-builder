@@ -9,13 +9,11 @@ import Messages from '../Messages.vue'
 import SplashScreen from './SplashScreen.vue'
 
 import MintProxy from './MintProxy.vue';
-import Transactions from './modals/Transactions.vue';
 </script>
 
 <template>
   <SplashScreen/>
   <div>
-    <Hotkey name="TX" :data="{ key: 'KeyT' }" :handler="() => setModal(Transactions)"/>
     <WebGLCanvas/>
     <MenuBar/>
     <SideBar/>

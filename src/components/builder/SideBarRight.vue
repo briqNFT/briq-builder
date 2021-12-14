@@ -1,17 +1,26 @@
 <script setup lang="ts">
 import Button from "../generic/Button.vue";
 import Settings from '../builder/modals/Settings.vue';
+import TransactionsMin from './TransactionsMin.vue';
+import { transactionsManager } from '../../builder/Transactions';
 </script>
 
 <template>
     <div class="absolute right-0 top-0 px-4 py-4 flex flex-row gap-2 pointer-events-none">
+        <div class="flex flex-col items-end">
         <div :class="' max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expandedCW ? ' expanded' : ' unexpanded')">
-            <Button class="pointer-events-auto" @click="CWClick">{{ CWTitle() }}</Button>
+            <Button class="pointer-events-auto" @click="CWClick">{{ CWTitle() }}
+                <i v-if="transactionsManager.transactions.length" class="fas fa-spinner animate-spin-slow"></i>
+            </Button>
             <div class="my-2">
                 <div class="flex flex-col flex-nowrap gap-1">
                     <Button v-if="contractStore.isConnected" @click="expandedCW = false; $store.dispatch('wallet/disconnect')">Disconnect</Button>
                 </div>
             </div>
+        </div>
+        <div :class="'relative bg-briq rounded-md ' + (expandedCW ? 'visible pointer-events-auto' : 'invisible')">
+            <TransactionsMin/>
+        </div>
         </div>
         <div :class="' max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
             <Button class="pointer-events-auto" @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Button>
@@ -62,7 +71,8 @@ export default defineComponent({
             openSelector: openSelector,
             contractStore: this.$store.state.wallet,
             set: toRef(this.$store.state.builderData, "currentSet"),
-            wipSets: toRef(this.$store.state.builderData, "wipSets")
+            wipSets: toRef(this.$store.state.builderData, "wipSets"),
+            transactionsManager
         };
     },
     inject: ["messages"],

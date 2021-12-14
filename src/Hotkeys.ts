@@ -107,7 +107,10 @@ export class HotkeyManager
         {
             for (let hk of this.keyHotkeys?.[event.code] ?? [])
                 if (this.checkPressed(hk, UP))
+                {
                     this.callbacks[hk].forEach(x => x());
+                    event.preventDefault();
+                }
             this.activeKeys[event.code] = false;
         }
     }
@@ -125,7 +128,10 @@ export class HotkeyManager
             this.activeKeys[event.code] = true;
             for (let hk of this.keyHotkeys?.[event.code] ?? [])
                 if (this.checkPressed(hk, DOWN))
+                {
                     this.callbacks[hk].forEach(x => x());
+                    event.preventDefault();
+                }
         }
     }
 };

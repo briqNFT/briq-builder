@@ -1,8 +1,3 @@
-<script setup lang="ts">
-import Button from '../../generic/Button.vue';
-import ColorPicker from './ColorPicker.vue';
-</script>
-
 <template>
     <div class="lg:w-1/2 md:w-2/3 w-auto">
         <div class="relative">
@@ -25,6 +20,7 @@ import ColorPicker from './ColorPicker.vue';
 
 <script lang="ts">
 import * as THREE from 'three';
+import ColorPicker from './ColorPicker.vue';
 
 import { inputStore } from '../../../builder/inputs/InputStore';    
 import { palettesMgr } from '../../../builder/Palette';
@@ -32,6 +28,9 @@ import { getModal, setModal, setModalAndAwait } from '../../MiddleModal.vue';
 
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({
+    components: {
+        ColorPicker
+    },
     data() {
         return {
             currentColor: toRef(inputStore, "currentColor"),

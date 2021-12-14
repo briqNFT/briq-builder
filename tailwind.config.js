@@ -1,7 +1,5 @@
 module.exports = {
-  purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-  mode: 'jit',
-  darkMode: false, // or 'media' or 'class'
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -10,6 +8,9 @@ module.exports = {
         'briq-light': "#F7894A",
         'deep-blue': '#0D0845',
       },
+      animation: {
+        'spin-slow': 'spin 3s linear infinite',
+      }
     },
     fontFamily: {
       'display': ["Raleway", "Helvetica", "ui-sans-serif", "system-ui"],
@@ -17,8 +18,5 @@ module.exports = {
       'mono': ["Source Code Pro", "monospace", "system-ui"],
     }
   },
-  variants: {
-    extend: {},
-  },
   plugins: [],
-}
+};

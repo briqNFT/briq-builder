@@ -16,6 +16,8 @@ import Button from '../../generic/Button.vue';
 </template>
 
 <script lang="ts">
+import { Transaction } from '../../../builder/Transactions';
+
 import { defineComponent, nextTick, toRef } from 'vue';
 export default defineComponent({
     data() {
@@ -36,16 +38,16 @@ export default defineComponent({
                 return;
             try {
                 let bricks = this.metadata.data.briqs.map(x => "0x" + x.data.briq.toString(16))
-                console.log(this.$store.state.wallet.userWalletAddress, this.target, this.metadata.setId, bricks);
                 let tx = await this.$store.state.builderData.setContract.transfer_from(this.$store.state.wallet.userWalletAddress, this.target, this.metadata.setId, bricks);
-                console.log(tx);
+                new Transaction(tx.transaction_hash, 'disassembly', { setId: this.metadata.setId });
+                this.messages.pushMessage("Set transfer ongoing - " + tx.transaction_hash);   
             }
             catch(err)
             {
+                this.messages.pushMessage("Error while transferring set - See console for details.");   
                 console.error(err);
-
             }
-            //$emit('close')
+            this.$emit('close')
         }
     },
     watch: {
@@ -58,4 +60,5 @@ export default defineComponent({
                     this.target = "0x" + ('0'.repeat(65 - nv.length)) + nv.substr(2);
         }
     }
-})</script>
+});
+</script>

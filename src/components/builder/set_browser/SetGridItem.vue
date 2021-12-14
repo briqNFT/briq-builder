@@ -3,12 +3,14 @@ import Button from '../../generic/Button.vue';
 </script>
 
 <template>
-    <div v-if="!isFiltered" class="w-full bg-briq-dark rounded-md p-4">
-        <h4 class="text-center">{{ setData?.name ?? setId}}</h4>
-        <div class="flex flex-col gap-2 text-sm">
-            <Button tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="!setData" @click="disassemble">Disassemble</Button>
-            <Button tooltip="Import the set as a WIP set, it can then be modified." class="bg-transparent" :disabled="!canImport" @click="importSet">{{ importBtnText }}</Button>
-            <Button tooltip="Transfer the set." class="bg-transparent" :disabled="!setData" @click="transferSet">Transfer</Button>
+    <div v-if="!isFiltered" class="w-full bg-briq-dark rounded-md px-4 py-2">
+        <h3 class="text-center my-1">{{ setData?.name ?? setId}}
+            <i v-if="!setData" class="fas fa-spinner animate-spin-slow"></i>
+        </h3>
+        <div class="my-2 flex flex-col gap-2 text-sm">
+            <Button tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setData" @click="disassemble">Disassemble</Button>
+            <Button tooltip="Import the set as a WIP set, it can then be modified." class="bg-transparent" :disabled="disableButtons || !canImport" @click="importSet">{{ importBtnText }}</Button>
+            <Button tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setData" @click="transferSet">Transfer</Button>
         </div>
     </div>
 </template>
@@ -20,7 +22,7 @@ import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
 
 import TransferSet from '../modals/TransferSet.vue'
 
-import { Transaction } from '../../../builder/Transactions'
+import { Transaction, transactionsManager } from '../../../builder/Transactions'
 
 import { defineComponent } from "@vue/runtime-core"
 export default defineComponent({
@@ -28,6 +30,7 @@ export default defineComponent({
         return {
             setData: undefined,
             setDataQuery: undefined as undefined | Promise<any>,
+            disableButtons: false
         }
     },
     inject: ["messages"],
@@ -38,6 +41,10 @@ export default defineComponent({
     computed: {
         /** @return true if the item should be hidden */
         isFiltered: function() {
+            // Hide sets that we know are being disassembled
+            if (this.inDisassembly)
+                return true;
+
             if (!this.searchText.length)
                 return false;
             let text = (this.searchText as string).toLowerCase();
@@ -53,6 +60,14 @@ export default defineComponent({
             if (this.$store.state.builderData.wipSets.find(x => x.id === this?.setData?.id))
                 return "Already imported";
             return "Import";
+        },
+
+        inDisassembly() {
+            return transactionsManager.get("disassembly").filter(x => x.isOk() && x?.metadata?.setId === parseInt(this.setId, 16)).length;
+        },
+
+        inTransfer() {
+            return transactionsManager.get("transfer_out").filter(x => x.isOk() && x?.metadata?.setId === parseInt(this.setId, 16)).length;
         }
     },
     methods: {
@@ -67,8 +82,9 @@ export default defineComponent({
         },
         disassemble: async function() {
             try {
+                this.disableButtons = true;
                 let data = (await this.loadData())!;
-                let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, []);//data.briqs.map(x => "" + x.data.briq));
+                let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
                 new Transaction(TX.transaction_hash, 'disassembly', { setId: data.id });
                 this.messages.pushMessage("Disassembly transaction sent - Hash " + TX.transaction_hash);   
             }
@@ -77,9 +93,11 @@ export default defineComponent({
                 this.messages.pushMessage("Error while disassembling set - See console for details.");   
                 console.error(err);
             }
+            this.disableButtons = false;
         },
         importSet: async function() {
             try {
+                this.disableButtons = true;
                 let data = await this.loadData();
                 this.$store.dispatch("builderData/create_wip_set", data);
                 this.messages.pushMessage("Set loaded");
@@ -89,11 +107,14 @@ export default defineComponent({
                 this.messages.pushMessage("Error while loading set - See console for details.");   
                 console.error(err);
             }
+            this.disableButtons = false;
         },
         async transferSet()
         {
+            this.disableButtons = true;
             await setModalAndAwait(TransferSet, { setId: this.setId, data: this.setData });
             setModal();
+            this.disableButtons = false;
         }
     }
 })

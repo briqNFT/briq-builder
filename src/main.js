@@ -20,6 +20,8 @@ import { store } from './store/Store'
 app.use(store);
 
 // Load general components
+import Button from './components/generic/Button.vue';
+app.component("Button", Button);
 import Hotkey from './components/generic/Hotkey.vue';
 app.component("Hotkey", Hotkey);
 

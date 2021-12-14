@@ -3,7 +3,10 @@
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Transactions</h3>
-            <p v-for="tx in transactionsManager.transactions">{{ tx.hash }} - {{ tx.status }} <Button @click="tx.poll()">Poll</Button></p>
+            <p v-for="tx in transactionsManager.transactions">{{ tx.hash }} - {{ tx.status }}
+            <Button @click="tx.poll()">Poll</Button>
+            <Button @click="tx.delete()">X</Button>
+            </p>
         </div>
     </div>
 </template>

@@ -285,6 +285,7 @@ export class SetData
                     return;
                 let newBriq = this.briqsDB.getOrCreate(undefined);
                 newBriq.material = cell.material;
+                newBriq.color = cell.color;
                 newBriq.set = this.id;
                 region.set(cellPos, newBriq.id);
                 this.briqsDB.briqs.delete(cell.id);
