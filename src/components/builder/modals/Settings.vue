@@ -5,13 +5,14 @@
             <h3 class="text center w-full">Settings</h3>
             <div class="my-4">
                 <p>Settings may need reloading to apply properly.</p>
-                <p><input type="checkbox" v-model="useSAO"/> Use Screen-space Ambient Occlusion</p>
-                <p><input type="checkbox" v-model="useRealAA"/> Use Anti-Aliasing</p>
-                <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="planeColor"/> Base Plane Color</p>
-                <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="gridColor"/> Grid Color</p>
-                <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="backgroundColor"/> Background Color</p>
+                <p><input type="checkbox" v-model="builderSettings.useSAO"/> Use Screen-space Ambient Occlusion</p>
+                <p><input type="checkbox" v-model="builderSettings.useRealAA"/> Use Anti-Aliasing</p>
+                <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.planeColor"/> Base Plane Color</p>
+                <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.gridColor"/> Grid Color</p>
+                <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.backgroundColor"/> Background Color</p>
             </div>
-            <Button @click="reset">Reset to defaults</Button>
+            <Button @click="resetToDefault">Reset to defaults</Button>
+            <Button class="mx-2" @click="resetToLast" :disabled="!mayUndo">Undo changes</Button>
         </div>
     </div>
 </template>
@@ -20,17 +21,38 @@
 import { resetStore } from '../../../builder/graphics/Settings';
 import builderSettings from '../../../builder/graphics/Settings';
 
-import Button from '../../generic/Button.vue';
-import { defineComponent } from 'vue';
+var initState;
+
+import { defineComponent, nextTick } from 'vue';
 export default defineComponent({
     data() {
-        return builderSettings;
+        return {
+            builderSettings,
+            mayUndo: false,
+        };
     },
     emits: ["close"],
-    components: { Button },
+    mounted() {
+        initState = JSON.parse(JSON.stringify(this.builderSettings));
+    },
+    watch: {
+        builderSettings: {
+            handler() {
+                this.mayUndo = true;
+            },
+            deep: true,
+        }
+    },
     methods: {
-        reset() {
+        resetToDefault() {
             resetStore();
+        },
+        resetToLast() {
+            for (let k in initState)
+            {
+                this.builderSettings[k] = initState[k];
+            }
+            nextTick(() => this.mayUndo = false);
         }
     }
 })

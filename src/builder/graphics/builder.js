@@ -179,6 +179,53 @@ function recreateRenderer(canvas, scene, camera)
   return [renderer, composer];
 };
 
+function addLight(scene, x, y, z) {
+  const color = 0xFFFFFF;
+  const intensity = 1.0;
+  const lightSpot = new THREE.DirectionalLight(color, intensity, 18);
+  lightSpot.position.set(x, y, z);
+  lightSpot.castShadow = true;
+  lightSpot.shadow.bias = -0.005;
+  lightSpot.shadow.camera.near = 0.1;
+  lightSpot.shadow.camera.far = 50;
+  lightSpot.shadow.camera.left=-cellSize*1.3;
+  lightSpot.shadow.camera.right=cellSize*1.3;
+  lightSpot.shadow.camera.bottom=-cellSize;
+  lightSpot.shadow.camera.top=cellSize*3;
+  lightSpot.shadow.mapSize.width = 1024;
+  lightSpot.shadow.mapSize.height = 1024;
+  scene.add(lightSpot);
+
+  const ambientLight = new THREE.AmbientLight(color, 0.7);
+  scene.add(ambientLight);
+}
+
+var scene;
+
+function setupScene(voxWorld)
+{
+  const scene = new THREE.Scene();
+
+  addLight(scene, -1*5,  2*5,  -3*5);
+
+  scene.background = new THREE.Color(builderSettings.backgroundColor);//generateSkybox();
+  scene.add(generateGrid());
+  scene.add(generatePlane());
+  scene.add(previewCube);
+
+  voxWorld.scene = scene;
+  for (let cid in voxWorld.cellIdToMesh)
+    scene.add(voxWorld.cellIdToMesh[cid]);
+  //voxWorld.updateVoxelGeometry(1, 1, 1);  // 0,0,0 will generate
+  
+  return scene;
+}
+
+function updateScene()
+{
+  scene = setupScene(voxWorld);
+}
+
 export  function main(canvas) {  
   const fov = 75;
   const aspect = 2;  // the canvas default
@@ -190,54 +237,24 @@ export  function main(canvas) {
   orbitControls.controls.enableDamping = true;
   resetCamera();
   
-  const scene = new THREE.Scene();
-
-  function addLight(x, y, z) {
-    const color = 0xFFFFFF;
-    const intensity = 1.0;
-    const lightSpot = new THREE.DirectionalLight(color, intensity, 18);
-    lightSpot.position.set(x, y, z);
-    lightSpot.castShadow = true;
-    lightSpot.shadow.bias = -0.005;
-    lightSpot.shadow.camera.near = 0.1;
-    lightSpot.shadow.camera.far = 50;
-    lightSpot.shadow.camera.left=-cellSize*1.3;
-    lightSpot.shadow.camera.right=cellSize*1.3;
-    lightSpot.shadow.camera.bottom=-cellSize;
-    lightSpot.shadow.camera.top=cellSize*3;
-    lightSpot.shadow.mapSize.width = 1024;
-    lightSpot.shadow.mapSize.height = 1024;
-    scene.add(lightSpot);
-
-    //scene.add(new THREE.CameraHelper(lightSpot.shadow.camera));
-
-    const ambientLight = new THREE.AmbientLight(color, 0.7);
-    scene.add(ambientLight);
-  }
-  addLight(-1*5,  2*5,  -3*5);
-
-  scene.background = new THREE.Color(builderSettings.backgroundColor);//generateSkybox();
-  scene.add(generateGrid());
-  scene.add(generatePlane());
-  scene.add(previewCube);
-
   voxWorld = new VoxelWorld({
     cellSize,
     tileSize,
     nbMaterial,
     tileTextureHeight,
   });
-  voxWorld.scene = scene;
   const world = voxWorld;
-  world.updateVoxelGeometry(1, 1, 1);  // 0,0,0 will generate
+
+  scene = setupScene(voxWorld);
 
   var renderer, composer;
   // Recreate the renderer whenever things change.
   watchEffect(() => {
+    updateScene();
     if (renderer)
       renderer.dispose();
     [renderer, composer] = recreateRenderer(canvas, scene, camera);
-  });
+  })
 
   let renderRequested = false;
 
