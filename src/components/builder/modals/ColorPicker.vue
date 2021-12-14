@@ -6,11 +6,16 @@
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center">Color Picker</h2>
-            <p>Hue: <input v-model="hue" type="range" min="0" max="3600"/></p>
-            <p>Saturation: <input v-model="saturation" type="range" min="0" max="1000"/></p>
-            <p>Luminance: <input v-model="luminance" type="range" min="0" max="1000"/></p>
-            <p class="h-8 w-16" :style="{ 'backgroundColor': getHSL()}"></p>
-            <p><input v-model="name" type="text" maxlength="7"/></p>
+            <div class="flex justify-stretch flex-col w-min font-medium">
+                <p class="inline-block flex justify-between">Hue:
+                    <input class="mx-2" v-model="hue" type="range" min="0" max="3600"/></p>
+                <p class="inline-block flex justify-between">Saturation:
+                    <input class="mx-2" v-model="saturation" type="range" min="0" max="1000"/></p>
+                <p class="inline-block flex justify-between">Luminance:
+                    <input class="mx-2" v-model="luminance" type="range" min="0" max="1000"/></p>
+                <p class="inline-block flex my-2"><div class="h-8 w-16 rounded-md" :style="{ 'backgroundColor': getHSL()}"></div>
+                    <input class="mx-2" v-model="name" type="text" maxlength="7"/></p>
+            </div>
             <Button class="float-right" @click="pickColor">Pick</Button>
         </div>
     </div>
