@@ -273,6 +273,8 @@ export var builderDataStore = (() => {
                 let ok = state.currentSet.placeBriq(...data.pos, data.color, data.voxelId);
                 if (ok)
                     dispatchBuilderAction("place_briq", data);
+                else // Fail to prevent the action from being stored in the history.
+                    throw new Error();
             },
             undo_place_briq(state: any, data: any)
             {
