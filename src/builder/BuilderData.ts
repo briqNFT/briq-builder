@@ -36,8 +36,8 @@ export var builderDataStore = (() => {
             mintContract: undefined as MintContract | undefined,
             chainSets: [],
             genericChainSets: [],
-            fetchingBriqs: true,
-            fetchingSets: true,
+            fetchingBriqs: false,
+            fetchingSets: false,
         }),
         actions: {
             initialize: {

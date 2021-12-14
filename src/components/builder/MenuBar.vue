@@ -8,7 +8,7 @@ import HistoryLog from './modals/HistoryLog.vue'
 </script>
 
 <template>
-    <div id="menuBar" class="px-4 py-2 absolute top-1 w-screen flex flex-nowrap">
+    <div id="menuBar" class="px-4 py-2 md:py-4 absolute top-0 w-screen flex flex-nowrap">
         <div class="flex flex-nowrap justify-start align-start">
             <UndoRedo/>
             <Button tooltip="Open the undo/redo history log" class="mx-1" @click="setModal(HistoryLog)"><i class="fas fa-history"></i></Button>
