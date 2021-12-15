@@ -17,7 +17,7 @@ type StarknetWindowObject =
     }
 
 import type { Store } from 'vuex';
-import { IWallet, WalletNotAvailable } from './IWallet'
+import { IWallet, WalletConnectionError, WalletNotAvailable } from './IWallet'
 
 export default class ArgentXWallet extends IWallet
 {
@@ -35,20 +35,15 @@ export default class ArgentXWallet extends IWallet
         return error?.toString();
     }
 
-    async enable(store: Store<unknown>): Promise<void>
+    async enable(): Promise<[string, Provider, Signer]>
     {
         let swo: StarknetWindowObject = (globalThis as any)?.["starknet"];
         if (!swo)
             throw new WalletNotAvailable();
         await swo.enable();
         if (swo.isConnected)
-        {
-            store.dispatch("wallet/connect", {
-                userWalletAddress: swo.signer!.address,
-                signer: swo.signer!,
-            })
-        }
+            return [swo.signer!.address, swo.provider, swo.signer];
         else
-            throw new Error("Could not connect to ArgentX wallet");
+            throw new WalletConnectionError();
     }
 }

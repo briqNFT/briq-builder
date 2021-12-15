@@ -1,8 +1,10 @@
 import { toRef, watchEffect } from 'vue'
+
 import { Briq, BriqsDB } from './BriqsDB';
 import { SetData } from './SetData';
 
 import { registerUndoableAction } from "./UndoRedo"
+import { pushMessage } from '../Messages';
 
 import { fetchData } from '../url'
 
@@ -12,16 +14,14 @@ import { palettesMgr } from './Palette';
 
 import { setupMintProxy } from './MintProxy'
 
+import { setupSync } from './StarknetSync';
+
 import BriqContract from '../contracts/briq'
 import SetContract from '../contracts/set'
 import MintContract from '../contracts/mint'
-import { pushMessage } from '../Messages';
-import { number } from 'starknet';
 
 let briqsDB = new BriqsDB();
 let initSet = new SetData(Date.now(), briqsDB);
-
-var try_fetching_user_data_func;
 
 function checkForInitialGMSet(dispatch: CallableFunction, set: SetData)
 {
@@ -61,6 +61,7 @@ function checkForInitialGMSet(dispatch: CallableFunction, set: SetData)
     }
 }
 
+var try_fetching_user_data_func;
 export var builderDataStore = (() => {
     return {
         namespaced: true,
@@ -96,9 +97,9 @@ export var builderDataStore = (() => {
                         };
                     }
                     if (state.wipSets.length > 1)
-                    await dispatch("delete_wip_set", state.wipSets[0].id);
+                        await dispatch("delete_wip_set", state.wipSets[0].id);
                     else
-                    await checkForInitialGMSet(dispatch, state.wipSets[0]);
+                        await checkForInitialGMSet(dispatch, state.wipSets[0]);
                     await dispatch("select_set", state.wipSets[0]);
                     
                     watchEffect(() => {
@@ -106,13 +107,14 @@ export var builderDataStore = (() => {
                         window.localStorage.setItem("briq_set_" + state.currentSet.id, JSON.stringify(state.currentSet.serialize()));
                     });
                     
+                    setupSync();
                     
                     fetchData("contract_addresses").then(async x => {
                         await commit("set_briq_contract", new BriqContract(x.briq, toRef(rootState.wallet, "signer")));
                         await commit("set_set_contract", new SetContract(x.set, toRef(rootState.wallet, "signer")));
                         await commit("set_mint_contract", new MintContract(x.mint, toRef(rootState.wallet, "signer")));
-                        if (rootState.wallet.userWalletAddress)
-                        dispatch("try_fetching_user_data");
+                        //if (rootState.wallet.userWalletAddress)
+                        //    dispatch("try_fetching_user_data");
                     })
                 },
             },
@@ -121,7 +123,7 @@ export var builderDataStore = (() => {
                 if (!try_fetching_user_data_func)
                 try_fetching_user_data_func = (async () => {
                     if (state.mintContract)
-                    setupMintProxy(state.mintContract, rootState.wallet.userWalletAddress);
+                        setupMintProxy(state.mintContract, rootState.wallet.userWalletAddress);
                     let bricks = dispatch("get_briqs");
                     let sets = dispatch("get_chain_sets");
                     let gsets = dispatch("get_generic_chain_sets");

@@ -1,4 +1,5 @@
 import type { Store } from 'vuex';
+import type { Provider, Signer } from 'starknet';
 
 export abstract class IWallet
 {
@@ -6,7 +7,11 @@ export abstract class IWallet
 
     abstract getErrorMessage(error: Error): string;
     
-    abstract enable(store: Store<unknown>): Promise<void>;
+    /**
+     * Enable the wallet
+     * Returns the user address & a valid signer & provider.
+     */
+    abstract enable(): Promise<[string, Provider, Signer]>;
 }
 
 export class WalletConnectionError extends Error

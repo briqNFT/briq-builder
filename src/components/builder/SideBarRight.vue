@@ -10,13 +10,14 @@ import { transactionsManager } from '../../builder/Transactions';
     <div class="absolute right-0 top-0 px-4 py-2 md:py-4 flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none max-h-screen">
         <div class="flex flex-col items-end">
             <div :class="'overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expandedCW ? ' expanded' : ' unexpanded')">
-                <Button class="pointer-events-auto" @click="CWClick" tooltip="Click for more details on blockchain synchronisation">{{ CWTitle() }}
+                <Button class="pointer-events-auto flex items-center gap-2" @click="CWClick" tooltip="Click for more details on blockchain synchronisation">
+                    <div class="inline-block text-sm leading-3">{{ CWTitle() }}<br/>{{ CWNet() }}</div>
                     <i v-if="transactionsManager.anyPending() || $store.state.builderData.fetchingBriqs" class="fas fa-spinner animate-spin-slow"></i>
                     <i v-if="!transactionsManager.anyPending() && !$store.state.builderData.fetchingBriqs && $store.state.builderData.briqsDB.briqs.size > 0" class="fas fa-check"></i>
                 </Button>
                 <div :class="'my-2 ' + (expandedCW ? '': ' hidden')">
                     <div class="flex flex-col flex-nowrap gap-1">
-                        <Button v-if="contractStore.isConnected" @click="expandedCW = false; $store.dispatch('wallet/disconnect')">Disconnect</Button>
+                        <Button v-if="isConnected" @click="expandedCW = false; $store.dispatch('wallet/disconnect')">Disconnect</Button>
                     </div>
                 </div>
             </div>
@@ -61,9 +62,9 @@ import { transactionsManager } from '../../builder/Transactions';
 </template>
 
 <script lang="ts">
-import { openSelector } from '../WalletSelector.vue';
-
 import { setModal } from '../MiddleModal.vue';
+
+import WalletSelectorVue from '../WalletSelector.vue';
 
 import RenameSet from './modals/RenameSet.vue';
 import ExportSet from './modals/ExportSet.vue';
@@ -74,34 +75,44 @@ export default defineComponent({
         return {
             expanded: false,
             expandedCW: false,
-            openSelector: openSelector,
             contractStore: this.$store.state.wallet,
+            wallet: this.$store.state.wallet,
             set: toRef(this.$store.state.builderData, "currentSet"),
             wipSets: toRef(this.$store.state.builderData, "wipSets"),
             transactionsManager
         };
     },
     inject: ["messages"],
+    computed: {
+        isConnected() {
+            return this.wallet.userWalletAddress;
+        }
+    },
     methods: {
         setModal,
 
         CWTitle() {
-            if (this.contractStore.isConnected)
+            if (this.isConnected)
                 return this.contractStore.userWalletAddress.substr(0, 5) + '...' + this.contractStore.userWalletAddress.substr(-5, 5);
             return "Connect Wallet";
         },
+        CWNet() {
+            if (!this.isConnected)
+                return '';
+            return this.wallet.signer.baseUrl.search("mainnet") !== -1 ? 'mainnet' : 'testnet';
+        },
         CWClick() {
-            if (this.contractStore.isConnected)
+            if (this.isConnected)
                 this.expandedCW = ! this.expandedCW;
             else
-                this.openSelector = true;
+                setModal(WalletSelectorVue);
         },
 
         titleText: function() {
             let ret = "Briq";
-            if (this.contractStore.isConnected)
+            if (this.isConnected)
                 ret += ': ' + this.contractStore.userWalletAddress.substr(0, 5) + '...' + this.contractStore.userWalletAddress.substr(-5, 5);
-                return ret;
+            return ret;
         },
 
         newSet: function() {

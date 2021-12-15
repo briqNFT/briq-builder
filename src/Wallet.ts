@@ -8,105 +8,80 @@ import ArgentXWallet from './wallets/ArgentX'
 import MetamaskWallet from './wallets/Metamask'
 import { IWallet } from './wallets/IWallet';
 
-import { openSelector } from './components/WalletSelector.vue';
+import { getProvider } from './Provider';
 
 export const walletStore = {
     namespaced: true,
     state: () => ({
         // Always provide a signer, even if it's actually a provider.
-        signer: defaultProvider as Provider | Signer,
-        provider: defaultProvider,
-        isConnected: false,
+        signer: undefined as undefined | Signer,
+        provider: undefined as undefined | Provider,
         goerliAddress: "",
         userWalletAddress: "",
     }),
     actions: {
         initialize: {
             root: true,
-            handler: ({ state, dispatch, commit, getters }: any) => {
+            handler: async ({ state, dispatch, commit, getters }: any) => {
+
+                let provider = await getProvider();
+                commit("set_provider", provider);
+
                 if (window.localStorage.getItem("user_address"))
-                    dispatch("set_user_wallet", window.localStorage.getItem("user_address")!);
-                else
-                    openSelector.value = true;
+                    // If we have a user address stored, try immediately enabling the wallet.
+                    await dispatch("enable_wallet");
 
                 watchEffect(() => {
                     // TODO: switch to IDB
                     console.log("Writing address ", state.userWalletAddress);
                     window.localStorage.setItem("user_address", state.userWalletAddress);
                 });
-
-                var localProvider = new Provider({});
-                localProvider.baseUrl = "http://localhost:4999";
-                localProvider.feederGatewayUrl = `${localProvider.baseUrl}/feeder_gateway`;
-                localProvider.gatewayUrl = `${localProvider.baseUrl}/gateway`;
-                localProvider = new Provider(localProvider);
-
-                // Attempt to connect to the local network
-                localProvider.getContractAddresses().then((data) => {
-                    // Assume we want to use the local provider instead.
-                    commit("set_signer", localProvider);
-                    commit("set_starknet_contract_address", data.Starknet);
-                    console.log("Switching to local provider");
-                }).catch(_ => {
-                    let prov = new Provider({});
-                    prov.baseUrl = "https://alpha4.starknet.io";
-                    prov.feederGatewayUrl = `${prov.baseUrl}/feeder_gateway`;
-                    prov.gatewayUrl = `${prov.baseUrl}/gateway`;
-                    prov = new Provider(prov);
-                    // Get the contract address on Goerli testnet.
-                    prov.getContractAddresses().then((data) => { commit("set_starknet_contract_address", data.Starknet); });
-                    commit("set_signer", prov);
-                })
             }
         },
-        async connect({ dispatch, commit }: any, data: any) {
-            await dispatch("set_user_wallet", data.userWalletAddress);
-            commit("connect", data);
-        },
-        async disconnect({ dispatch, commit }: any) {
-            commit("disconnect");
-        },
-        set_user_wallet({ state, dispatch, commit, globalDispatch }: any, data:any) {
-            let noadd = state.userWalletAddress === "";
-            commit("set_user_wallet", data);
-            // For now if we have an address it must be argent, so try and enable the wallet right away.
-            if (noadd)
+        async enable_wallet({ commit }: any) {
+            // For now the only available wallet is Argent.
+            let argx = new ArgentXWallet();
+            if (argx.isLikelyAvailable())
             {
-                let argx = new ArgentXWallet();
-                if (argx.isLikelyAvailable())
-                    argx.enable({ dispatch: (a, b) => { dispatch(a, b, { root: true })} });
+                try
+                {
+                    let [addr, provider, signer] = await argx.enable();
+                    // Update the provider (may be mainnet or testnet).
+                    commit("set_provider", provider);
+                    commit("set_signer", { addr, signer });
+                    return true;
+                }
+                catch(err)
+                {
+                    console.warn(err);
+                }
             }
-            dispatch("builderData/try_fetching_user_data", undefined, { root: true });
+            return false;
+        },
+        async disconnect({ commit }: any)
+        {
+            commit("set_signer", { addr: "", signer: undefined });
         }
     },
     mutations: {
+        set_provider(state: any, data: Provider)
+        {
+            state.provider = data;
+        },
         set_user_wallet(state: any, data: string)
         {
             state.userWalletAddress = data;
         },
-        set_signer(state: any, data: Signer | Provider)
+        set_signer(state: any, data: { signer: Signer, addr: string })
         {
-            state.signer = data;
-            state.provider = data;
+            state.signer = data.signer;
+            state.userWalletAddress = data.addr;
         },
+
         set_starknet_contract_address(state: any, data: string)
         {
             state.goerliAddress = data;
         },
-        connect(state: any, data: any)
-        {
-            state.userWalletAddress = data.userWalletAddress;
-            state.signer = data.signer;
-            state.provider = data.signer;
-            state.isConnected = true;
-        },
-        disconnect(state: any)
-        {
-            state.userWalletAddress = "";
-            state.signer = defaultProvider;
-            state.provider = defaultProvider;
-            state.isConnected = false;
-        }
     }
 };
 

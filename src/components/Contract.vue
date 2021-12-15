@@ -45,7 +45,7 @@ export default defineComponent({
     },
     methods: {
         isOk: function() {
-            return isOk() && this.wallet.isConnected;
+            return isOk() && this.wallet.signer;
         },
         doMint: async function() {
             this.minting = true;

@@ -13,31 +13,24 @@ You do not have the Argent X extension installed.<br/>It is only for now only co
         <p class="break-all">Connected to {{ wallet.userWalletAddress }}</p>
     </div>
     <div class="absolute bottom-4 right-4">
-        <p><button class="close btn float-right" @click="step='selection'; openSelector = !openSelector">{{ step == 'connected' ? 'Close' : 'Skip' }}</button></p>
+        <p><button class="close btn float-right" @click="step='selection'; $emit('close')">{{ step == 'connected' ? 'Close' : 'Skip' }}</button></p>
         <p v-if="step !== 'connected'" class="clear-both text-sm">Not having a wallet will limit functionality to local changes only.</p>
     </div>
 </template>
 
 <script lang="ts">
-import { getPotentialWallets } from '../../Wallet'
-import Button from '../generic/Button.vue'
-const argentWallet = getPotentialWallets()["argentx"];
-
-import { openSelector } from '../WalletSelector.vue';
+import ArgentXWallet from '../../wallets/ArgentX'
 
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({
-    components: {
-        Button,
-    },
     data() {
         return {
-            handler: new argentWallet.handler(),
+            handler: new ArgentXWallet(),
             step: "initial",
-            wallet: toRef(this.$store.state, "wallet"),
-            openSelector
+            wallet: this.$store.state.wallet,
         }
     },
+    emits: ["close"],
     mounted()
     {
         if (this.shouldShowInstallHelp)
@@ -55,12 +48,12 @@ export default defineComponent({
             this.step = "connecting";
             try
             {
-                await this.handler.enable(this.$store);
+                await this.$store.dispatch("wallet/enable_wallet");
                 if (this.wallet.signer)
                     this.step = "connected";
             } catch(err)
             {
-
+                console.warn(err);
             }
         }
     }

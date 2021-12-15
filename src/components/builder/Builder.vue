@@ -4,7 +4,6 @@ import MenuBar from './MenuBar.vue'
 import SideBar from './SideBar.vue'
 import SideBarRight from './SideBarRight.vue'
 import MiddleModal from '../MiddleModal.vue'
-import WalletSelector from '../WalletSelector.vue';
 import Messages from '../Messages.vue'
 import SplashScreen from './SplashScreen.vue'
 
@@ -14,42 +13,42 @@ import AlphaLogo from './AlphaLogo.vue';
 </script>
 
 <template>
-  <SplashScreen/>
-  <div>
-    <WebGLCanvas/>
-    <AlphaLogo/>
-    <MenuBar/>
-    <SideBar/>
-    <SideBarRight/>
-    <Messages/>
-    <MiddleModal/>
-    <WalletSelector/>
-    <MintProxy/>
-  </div>
-  <AlphaBanner/>
+    <SplashScreen @done="onLoaded"/>
+    <div>
+        <WebGLCanvas/>
+        <AlphaLogo/>
+        <MenuBar/>
+        <SideBar/>
+        <SideBarRight/>
+        <Messages/>
+        <MiddleModal/>
+        <MintProxy/>
+    </div>
+    <AlphaBanner/>
 </template>
 
 <script lang="ts">
+import { setModal } from '../MiddleModal.vue'
+import WalletSelectorVue from '../WalletSelector.vue';
 
-import { setModal } from '../MiddleModal.vue';
 import { pushMessage, setTooltip } from '../../Messages'
 export default {
-  data() {
-    return {
-    };
-  },
-  provide: {
-    messages: {
-      pushMessage, setTooltip
+    data() {
+        return {
+        };
     },
-  },
-  created: function() {
-  },
-  mounted: function() {
-  },
-  methods: {
-    setModal
-  }
+    provide: {
+        messages: {
+            pushMessage, setTooltip
+        },
+    },
+    methods: {
+        onLoaded() {
+            // TODO: maybe wait for more specific things?
+            if (!this.$store.state.wallet.signer)
+                setModal(WalletSelectorVue)
+        }
+    }
 };
 </script>
 

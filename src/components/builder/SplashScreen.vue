@@ -21,11 +21,13 @@ export default defineComponent({
         return localStore;
     },
     props: ["shouldHide"],
+    emit: ["done"],
     mounted: function() {
         if (!this.hidden)
         {
           setTimeout(() => {
               this.hidden = "shouldHide";
+              this.$emit("done");
           }, 1000);
           setTimeout(() => {
               this.hidden = "noDisplay";

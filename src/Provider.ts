@@ -3,9 +3,22 @@ import { defaultProvider, Provider } from 'starknet';
 import { fetchData } from './url';
 import { store } from './store/Store'
 
+import { PROD } from './Meta'
+
 export var provider: undefined | Provider;
 
-import { PROD } from './Meta'
+var providerPromise: undefined | Promise<Provider>;
+var onProvider: undefined | CallableFunction;
+
+export function getProvider(): Promise<Provider>
+{
+    if (!providerPromise)
+        providerPromise = new Promise((success: CallableFunction, failure: CallableFunction) => {
+            onProvider = () => { if (!provider) { failure() } else { success(provider) }};
+        });
+    return providerPromise;
+}
+getProvider();
 
 var setupDefaultProvider = function ()
 {
@@ -14,6 +27,9 @@ var setupDefaultProvider = function ()
     provider.feederGatewayUrl = `${provider.baseUrl}/feeder_gateway`;
     provider.gatewayUrl = `${provider.baseUrl}/gateway`;
     provider = new Provider(provider);
+    
+    onProvider!();
+
     store.commit("wallet/set_signer", provider);
     
     // Get the contract address.
@@ -30,6 +46,9 @@ else
         provider.feederGatewayUrl = `${provider.baseUrl}/feeder_gateway`;
         provider.gatewayUrl = `${provider.baseUrl}/gateway`;
         provider = new Provider(provider);
+
+        onProvider!();
+
         // Assume we want to use the local provider instead.
         store.commit("wallet/set_signer", provider);
         console.log("Switching to local provider");
