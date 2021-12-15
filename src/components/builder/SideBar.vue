@@ -4,8 +4,8 @@ import InputComp from './InputComp.vue'
 </script>
 
 <template>
-    <div id="sideBar" class="flex flex-nowrap flex-col mx-4 md:py-20 py-12 absolute left-0 top-0 max-w-full max-h-screen justify-top">
-        <div class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24">
+    <div id="sideBar" class="flex flex-nowrap flex-col mx-4 md:py-20 py-12 absolute left-0 top-0 max-w-full max-h-screen justify-top pointer-events-none">
+        <div class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24 pointer-events-auto">
             <Button tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
                 @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Button>
             <Button tooltip="In 'Paint' mode, left-click to repaint briqs."
@@ -17,10 +17,10 @@ import InputComp from './InputComp.vue'
             <Button tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots."
                 @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-video"/></Button>
         </div>
-        <div class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch">
+        <div class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch pointer-events-auto">
             <InputComp/>
         </div>
-        <p class="md:text-center font-normal drop-shadow-md" style="text-shadow: 0 0 2px rgba(0, 0, 0, 0.4)">{{ getNbBriqs }}</p>
+        <p class="md:text-center font-normal drop-shadow-md pointer-events-auto" style="text-shadow: 0 0 2px rgba(0, 0, 0, 0.4)">{{ getNbBriqs }}</p>
     </div>
 </template>
 

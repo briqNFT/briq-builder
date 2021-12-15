@@ -8,8 +8,8 @@ import HistoryLog from './modals/HistoryLog.vue'
 </script>
 
 <template>
-    <div id="menuBar" class="px-4 py-2 md:py-4 absolute top-0 w-screen flex flex-nowrap">
-        <div class="flex flex-nowrap justify-start align-start">
+    <div id="menuBar" class="px-4 py-2 md:py-4 absolute top-0 w-screen flex flex-nowrap pointer-events-none">
+        <div class="flex flex-nowrap justify-start align-start child-events">
             <UndoRedo/>
             <Button tooltip="Open the undo/redo history log" class="mx-1" @click="setModal(HistoryLog)"><i class="fas fa-history"></i></Button>
             <Button tooltip="Browse on-chain sets" class="mx-1" @click="setBrowser = !setBrowser"><i class="far fa-folder"></i></Button>
@@ -40,6 +40,9 @@ export default defineComponent({
 </script>
 
 <style>
+.child-events > * {
+    @apply pointer-events-auto;
+}
 #menuBar > * {
     @apply flex-auto;
 }
