@@ -7,6 +7,7 @@
                 <p>Settings may need reloading to apply properly.</p>
                 <p><input type="checkbox" v-model="builderSettings.useSAO"/> Use Screen-space Ambient Occlusion</p>
                 <p><input type="checkbox" v-model="builderSettings.useRealAA"/> Use Anti-Aliasing</p>
+                <p><input type="checkbox" v-model="builderSettings.showBorders"/> Show briq borders</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.planeColor"/> Base Plane Color</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.gridColor"/> Grid Color</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.backgroundColor"/> Background Color</p>

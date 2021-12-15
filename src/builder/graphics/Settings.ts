@@ -6,6 +6,7 @@ const store = reactive({
     planeColor: "#a93a00",
     gridColor: "#eaeaea",
     backgroundColor: "#eaeaea",
+    showBorders: false
 });
 
 export function resetStore() {
@@ -14,6 +15,7 @@ export function resetStore() {
     store.planeColor = "#a93a00";
     store.gridColor = "#eaeaea";
     store.backgroundColor = "#eaeaea";
+    store.showBorders = false;
 }
 
 for (let key in store)

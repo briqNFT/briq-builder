@@ -97,6 +97,7 @@ export default class VoxelWorld {
         const positions = [];
         const normals = [];
         const uvs = [];
+        const uv2s = [];
         const indices = [];
         const startX = cellX * cellSize;
         const startY = cellY * cellSize;
@@ -132,6 +133,7 @@ export default class VoxelWorld {
                                         positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
                                         normals.push(...dir);
                                         uvs.push(...materialByColor.getUV(uvVoxel, uv));
+                                        uv2s.push(...uv);
                                     }
                                     indices.push(
                                         ndx, ndx + 1, ndx + 2,
@@ -148,6 +150,7 @@ export default class VoxelWorld {
                 positions,
                 normals,
                 uvs,
+                uv2s,
                 indices,
             };
         }
@@ -160,13 +163,14 @@ export default class VoxelWorld {
         let mesh = this.cellIdToMesh[cellId];
         const geometry = mesh ? mesh.geometry : new THREE.BufferGeometry();
         
-        const {positions, normals, uvs, indices} = this.generateGeometryDataForCell(cellX, cellY, cellZ);
+        const {positions, normals, uvs, uv2s, indices} = this.generateGeometryDataForCell(cellX, cellY, cellZ);
         const positionNumComponents = 3;
         geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
         const normalNumComponents = 3;
         geometry.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
         const uvNumComponents = 2;
         geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
+        geometry.setAttribute('uv2', new THREE.BufferAttribute(new Float32Array(uv2s), uvNumComponents));
         geometry.setIndex(indices);
         geometry.computeBoundingSphere();
         

@@ -1,13 +1,19 @@
 import * as THREE from 'three';
 
+import lightMapTex from '../../assets/lightmap.png'
+
+import builderSettings from './Settings'
+
 import { pickerData, texture, tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
 
+import { watchEffect } from 'vue';
 class MaterialByColor {
     index: number;
     colorIndex: { [key: string]: number };
     indexMaterial: { [key: number]: THREE.Material };
 
     material: THREE.Material;
+    lightMapTexture: THREE.Texture;
 
     constructor()
     {
@@ -17,12 +23,26 @@ class MaterialByColor {
         };
         this.indexMaterial = {};
 
+        const lightMapLoader = new THREE.TextureLoader();
+        this.lightMapTexture = lightMapLoader.load(lightMapTex);
+        this.lightMapTexture.minFilter = THREE.NearestFilter;
+        this.lightMapTexture.magFilter = THREE.NearestFilter;
+
         this.material = new THREE.MeshLambertMaterial({
             map: texture,
             side: THREE.DoubleSide,
             alphaTest: 0.1,
             transparent: true,
         });
+
+        watchEffect(() => {
+            this.setLightMap(builderSettings.showBorders);
+        })
+    }
+
+    setLightMap(val: boolean)
+    {
+        this.material.lightMap = val ? this.lightMapTexture : undefined;
     }
 
     getIndex(color: string)
