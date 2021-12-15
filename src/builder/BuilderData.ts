@@ -6,8 +6,6 @@ import { SetData } from './SetData';
 import { registerUndoableAction } from "./UndoRedo"
 import { pushMessage } from '../Messages';
 
-import { fetchData } from '../url'
-
 import { dispatchBuilderAction } from "./graphics/dispatch";
 
 import { palettesMgr } from './Palette';
@@ -108,14 +106,6 @@ export var builderDataStore = (() => {
                     });
                     
                     setupSync();
-                    
-                    fetchData("contract_addresses").then(async x => {
-                        await commit("set_briq_contract", new BriqContract(x.briq, toRef(rootState.wallet, "signer")));
-                        await commit("set_set_contract", new SetContract(x.set, toRef(rootState.wallet, "signer")));
-                        await commit("set_mint_contract", new MintContract(x.mint, toRef(rootState.wallet, "signer")));
-                        //if (rootState.wallet.userWalletAddress)
-                        //    dispatch("try_fetching_user_data");
-                    })
                 },
             },
             async try_fetching_user_data({ state, dispatch, rootState }: any, data: any)

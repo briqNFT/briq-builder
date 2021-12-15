@@ -16,6 +16,7 @@ export const walletStore = {
         // Always provide a signer, even if it's actually a provider.
         signer: undefined as undefined | Signer,
         provider: undefined as undefined | Provider,
+        baseUrl: "",
         goerliAddress: "",
         userWalletAddress: "",
     }),
@@ -67,6 +68,7 @@ export const walletStore = {
         set_provider(state: any, data: Provider)
         {
             state.provider = data;
+            state.baseUrl = state.provider.baseUrl;
         },
         set_user_wallet(state: any, data: string)
         {
