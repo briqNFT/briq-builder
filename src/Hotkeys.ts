@@ -1,4 +1,6 @@
-type HotkeyData = { key: string, onDown?: boolean, ctrl?: boolean, shift?: boolean, alt?: boolean };
+type MetaKeyData = { onDown?: boolean, ctrl?: boolean, shift?: boolean, alt?: boolean }
+type HotkeyData = ({ key: string } & MetaKeyData) | ({ code: string } & MetaKeyData);
+type StoredHotkeyData = HotkeyData & { unified: string };
 
 // Values chosen to match onDown when booleaned
 const UP = 0;
@@ -11,19 +13,25 @@ enum KEY_SETUP {
 /**
  * Simple hotkey system - listens to key pressed, once all keys of a hotkey are active, it goes live.
  * For simplicity reasons only shift / control / alt are registered as modifier keys.
- * NB: hotkeys refer to key positions, not the actual key, so keyboard-independent.
+ * NB: because for whatever reason the 'new API' for keyboard event has no easy way
+ * to convert key codes into key keys and vice-versa (what SDL calls scancodes and keycodes),
+ * (see https://github.com/WICG/keyboard-map for more details on this)
+ * I'm registering both and the creator must choose. I'm assuming no conflict in naming.
  */
 export class HotkeyManager
 {
-    hotkeys: { [hotkey: string]: HotkeyData } = {};
+    hotkeys: { [hotkey: string]: StoredHotkeyData } = {};
     callbacks: { [hotkey: string]: Array<() => void> } = {};
-    keyHotkeys: { [keycode: string]: Array<string> } = {};
+    
+    keyHotkeys: { [unified: string]: Array<string> } = {};
 
     alt: boolean = false;
     ctrl: boolean = false;
     shift: boolean = false;
 
-    activeKeys: { [keycode: string]: boolean } = {};
+    activeKeys: { [key: string]: boolean } = {};
+    activeCodes: { [code: string]: boolean } = {};
+
     constructor()
     {
         window.addEventListener('keydown', (event) => this.onKeyDown(event));
@@ -42,10 +50,29 @@ export class HotkeyManager
     {
         if (this.hotkeys[hotkeyName])
             return this;
-        this.hotkeys[hotkeyName] = data;
-        if (!this.keyHotkeys[data.key])
-            this.keyHotkeys[data.key] = [];
-        this.keyHotkeys[data.key].push(hotkeyName);        
+
+        this.hotkeys[hotkeyName] = Object.assign({}, data);
+        let hdata = this.hotkeys[hotkeyName];
+
+        if (hdata.key)
+            hdata.key = hdata.shift ? hdata.key.toUpperCase() : hdata.key.toLowerCase();
+        
+        hdata.unified = hdata?.key ?? hdata.code;
+
+        if (hdata.key)
+        {
+            if (!this.keyHotkeys[hdata.key])
+                this.keyHotkeys[hdata.key] = [];
+            this.keyHotkeys[hdata.key].push(hotkeyName);
+        }
+
+        if (hdata.code)
+        {
+            if (!this.keyHotkeys[hdata.code])
+                this.keyHotkeys[hdata.code] = [];
+            this.keyHotkeys[hdata.code].push(hotkeyName);
+        }
+
         this.callbacks[hotkeyName] = [];
         return this;
     }
@@ -77,9 +104,14 @@ export class HotkeyManager
         cbs.splice(idx, 1);  
     }
 
-    isDown(keyCode: string)
+    isKeyDown(key: string)
     {
-        return this.activeKeys?.[keyCode] ?? false;
+        return this.activeKeys?.[key] ?? false;
+    }
+
+    isCodeDown(code: string)
+    {
+        return this.activeCodes?.[code] ?? false;
     }
 
     checkPressed(hotkeyName: string, on: KEY_SETUP)
@@ -92,7 +124,13 @@ export class HotkeyManager
         if (!!data.ctrl !== this.ctrl || !!data.shift !== this.shift || !!data.alt !== this.alt)
             return false;
 
-        return this.isDown(data.key);
+        return data.key ? this.isKeyDown(data.key) : this.isCodeDown(data.code);
+    }
+
+    maybeFireHotkey(hk: string, on: KEY_SETUP)
+    {
+        if (this.checkPressed(hk, on))
+            this.callbacks[hk].forEach(x => x());
     }
 
     onKeyUp(event: KeyboardEvent)
@@ -105,13 +143,14 @@ export class HotkeyManager
             this.ctrl = false;
         else
         {
+            // TODO: swap to synthetic events
             for (let hk of this.keyHotkeys?.[event.code] ?? [])
-                if (this.checkPressed(hk, UP))
-                {
-                    this.callbacks[hk].forEach(x => x());
-                    event.preventDefault();
-                }
-            this.activeKeys[event.code] = false;
+                this.maybeFireHotkey(hk, UP);
+            for (let hk of this.keyHotkeys?.[event.key] ?? [])
+                this.maybeFireHotkey(hk, UP);
+
+            this.activeCodes[event.code] = false;
+            this.activeKeys[event.key] = false;
         }
     }
 
@@ -125,13 +164,13 @@ export class HotkeyManager
             this.ctrl = true;
         else
         {
-            this.activeKeys[event.code] = true;
+            this.activeCodes[event.code] = true;
+            this.activeKeys[event.key] = true;
+            // TODO: swap to synthetic events
             for (let hk of this.keyHotkeys?.[event.code] ?? [])
-                if (this.checkPressed(hk, DOWN))
-                {
-                    this.callbacks[hk].forEach(x => x());
-                    event.preventDefault();
-                }
+                this.maybeFireHotkey(hk, DOWN);
+            for (let hk of this.keyHotkeys?.[event.key] ?? [])
+                this.maybeFireHotkey(hk, DOWN);
         }
     }
 };

@@ -25,8 +25,8 @@ describe('Test HotkeyManager', () => {
     it('should listen for keyDown/Up', () => {
         let hm = new HotkeyManager();
         let incr = 0;
-        let hook1 = hm.register("toto", { key: "KeyA" }).subscribe("toto", () => incr++);
-        let hook2 = hm.register("toto2", { key: "KeyA", onDown: true }).subscribe("toto2", () => incr++);
+        let hook1 = hm.register("toto", { code: "KeyA" }).subscribe("toto", () => incr++);
+        let hook2 = hm.register("toto2", { code: "KeyA", onDown: true }).subscribe("toto2", () => incr++);
         onKeyDown.forEach(x => x({ code: "KeyA" }));
         expect(incr).toEqual(1);
         onKeyUp.forEach(x => x({ code: "KeyA" }));
@@ -41,8 +41,8 @@ describe('Test HotkeyManager', () => {
         hm.unsubscribe(hook1);
         incr = 0;
 
-        let hook3 = hm.register("toto3", { key: "KeyA", ctrl: true }).subscribe("toto3", () => incr++);
-        let hook4 = hm.register("toto4", { key: "KeyA", ctrl: true, shift: true }).subscribe("toto4", () => incr++);
+        let hook3 = hm.register("toto3", { code: "KeyA", ctrl: true }).subscribe("toto3", () => incr++);
+        let hook4 = hm.register("toto4", { code: "KeyA", ctrl: true, shift: true }).subscribe("toto4", () => incr++);
         onKeyDown.forEach(x => x({ key: "Control" }));
 
         onKeyDown.forEach(x => x({ code: "KeyA" }));

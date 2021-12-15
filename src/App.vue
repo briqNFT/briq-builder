@@ -12,7 +12,7 @@ import { HotkeyManager } from './Hotkeys'
 let mgr = new HotkeyManager();
 
 // Some basic hotkeys available everywhere
-mgr.register("escape", { key: "Escape" });
+mgr.register("escape", { code: "Escape" });
 
 import { defineComponent } from 'vue';
 export default defineComponent({

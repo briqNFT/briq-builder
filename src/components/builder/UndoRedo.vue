@@ -1,7 +1,7 @@
 <template>
     <div>
-        <Hotkey name="undo" :data="{ key: 'KeyW', ctrl: true }" :handler="() => undo()"/>
-        <Hotkey name="redo" :data="{ key: 'KeyW', ctrl: true, shift: true }" :handler="() => redo()"/>
+        <Hotkey name="undo" :data="{ key: 'z', ctrl: true }" :handler="() => undo()"/>
+        <Hotkey name="redo" :data="{ key: 'z', ctrl: true, shift: true }" :handler="() => redo()"/>
         <Button @click="undo" :disabled="!canUndo" tooltip="Undo (Ctrl + Z)">
             <p><i class="fas fa-undo"></i></p>
         </button>

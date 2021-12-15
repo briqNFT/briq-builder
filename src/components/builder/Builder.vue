@@ -18,9 +18,9 @@ import AlphaLogo from './AlphaLogo.vue';
   <div>
     <WebGLCanvas/>
     <AlphaLogo/>
-    <MenuBar/>
     <SideBar/>
     <SideBarRight/>
+    <MenuBar/>
     <Messages/>
     <MiddleModal/>
     <WalletSelector/>
