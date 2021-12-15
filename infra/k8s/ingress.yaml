@@ -6,12 +6,12 @@ metadata:
   name: #@ data.values.name
   labels: #@ data.values.defaultLabels
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: lb-sltech-company-ipv4-2
+    kubernetes.io/ingress.global-static-ip-name: #@ data.values.static_ip
     networking.gke.io/v1beta1.FrontendConfig: #@ data.values.name
     networking.gke.io/managed-certificates: #@ data.values.name + "-managed-cert"
 spec:
   rules:
-#@ arr = ["sltech.company", "www.sltech.company", "briq.construction", "www.briq.construction"]
+#@ arr = data.values.sites
 #@ for i in arr:
   - host: #@ i
     http:
@@ -40,8 +40,4 @@ kind: ManagedCertificate
 metadata:
   name: #@ data.values.name + "-managed-cert"
 spec:
-  domains:
-    - sltech.company
-    - www.sltech.company
-    - briq.construction
-    - www.briq.construction
+  domains: #@ data.values.sites

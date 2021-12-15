@@ -1,0 +1,10 @@
+#@data/values
+---
+name: briq-builder
+env: prod
+static_ip: lb-sltech-company-ipv4-2
+sites: ["www.briq.construction", "briq.construction", "www.sltech.company", "sltech.company"]
+#@schema/type any=True
+defaultLabels:
+  appname: briq-builder
+  env: prod

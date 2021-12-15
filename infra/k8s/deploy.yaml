@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: #@ data.values.name
-        image: #@ "europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/" + data.values.name + ":" + data.values.image_tag
+        image: #@ "europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/" + data.values.image_name + ":" + data.values.image_tag
         ports:
         - containerPort: 80
         resources:

@@ -1,8 +1,12 @@
 #@data/values-schema
 ---
 name: briq-builder
-image_tag: ""
+env: test
+static_ip: lb-sltech-company-ipv4-2
+sites: [""]
 #@schema/type any=True
 defaultLabels:
   appname: briq-builder
   env: test
+image_name: briq-builder
+image_tag: ""
