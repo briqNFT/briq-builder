@@ -8,7 +8,7 @@ import InputComp from './InputComp.vue'
         <div class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24 pointer-events-auto">
             <Button tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
                 @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Button>
-            <Button tooltip="In 'Paint' mode, left-click to repaint briqs."
+            <Button tooltip="In 'Paint' mode, left-click to repaint briqs, right-click to sample the briq color."
                 @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'"><i class="fas fa-paint-brush"/></Button>
             <Button tooltip="In 'Erase' mode, left-click to delete briqs."
                 @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="far fa-trash-alt"/></Button>

@@ -1,8 +1,10 @@
 import { MouseInputState } from './BuilderInputState';
 import { previewCube } from '../graphics/PreviewCube'
 import { inputStore } from "./InputStore";
-import { store } from '../../store/Store'
-import * as THREE from 'three'
+import { store } from '../../store/Store';
+import * as THREE from 'three';
+
+import type { SetData } from '../SetData';
 
 export class PainterInput extends MouseInputState
 {
@@ -34,15 +36,6 @@ export class PainterInput extends MouseInputState
 
     async onPointerUp(event: PointerEvent)
     {
-        /*
-        * Removed per Sylve advice.
-        if (event.button === 2)
-        {
-            await store.dispatch("undo_history");
-            return;
-        }
-        */
-
         let mov = Math.abs(event.clientX - this.lastClickX) + Math.abs(event.clientY - this.lastClickY);
         if (mov > 10)
             return;
@@ -51,7 +44,15 @@ export class PainterInput extends MouseInputState
         if (!pos || pos[1] < 0)
             return;
 
-        await store.dispatch("builderData/set_briq_color", [{ pos: pos, color: inputStore.currentColor }]);
+        // Left-click paints, right-click samples the briq color.
+        if (event.button === 2)
+        {
+            let col = (store.state.builderData.currentSet as SetData).getAt(...pos)?.color;
+            if (col)
+                inputStore.currentColor = col;
+        }
+        else
+            await store.dispatch("builderData/set_briq_color", [{ pos: pos, color: inputStore.currentColor }]);
         // Update preview cube.
         await this.onPointerMove(event);
     }
