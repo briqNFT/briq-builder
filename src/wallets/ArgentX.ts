@@ -5,14 +5,16 @@ type StarknetWindowObject =
       enable: () => Promise<string[]>
       signer: Signer
       provider: Provider
-      selectedAddress: string
+      selectedAddress: string,
+      on: CallableFunction,
       isConnected: true
     }
   | {
       enable: () => Promise<string[]>
       signer?: Signer
       provider: Provider
-      selectedAddress?: string
+      selectedAddress?: string,
+      on: CallableFunction,
       isConnected: false
     }
 
@@ -45,5 +47,13 @@ export default class ArgentXWallet extends IWallet
             return [swo.signer!.address, swo.provider, swo.signer];
         else
             throw new WalletConnectionError();
+    }
+
+    async watchForChanges(cb: CallableFunction)
+    {
+        let swo: StarknetWindowObject = (globalThis as any)?.["starknet"];
+        if (!swo)
+            return; // shouldn't happen but meh
+        swo.on("accountsChanged", cb);
     }
 }

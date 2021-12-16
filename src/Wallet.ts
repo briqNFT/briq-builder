@@ -39,7 +39,7 @@ export const walletStore = {
                 });
             }
         },
-        async enable_wallet({ commit }: any) {
+        async enable_wallet({ dispatch, commit }: any) {
             // For now the only available wallet is Argent.
             let argx = new ArgentXWallet();
             if (argx.isLikelyAvailable())
@@ -50,6 +50,10 @@ export const walletStore = {
                     // Update the provider (may be mainnet or testnet).
                     commit("set_provider", provider);
                     commit("set_signer", { addr, signer });
+
+                    argx.watchForChanges(() => {
+                        dispatch("enable_wallet");
+                    })
                     return true;
                 }
                 catch(err)
