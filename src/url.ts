@@ -20,8 +20,11 @@ export async function fetchData(endpoint: string, body?: object): Promise<any>
     };
     if (body)
         dat.body = JSON.stringify(body);
-    return fetch(`${baseUrl}/${endpoint}`, dat)
-        .then(x => x.json())
+
+    let req = await fetch(`${baseUrl}/${endpoint}`, dat)
+    if (!req.ok)
+        throw new Error("HTTP error: " + (await req.json())?.detail ?? 'unknown error');
+    return req.json();
 }
 
 function doDownload(url: string, filename: string)
