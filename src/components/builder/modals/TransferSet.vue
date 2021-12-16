@@ -37,7 +37,7 @@ export default defineComponent({
             if (!this.formatOk)
                 return;
             try {
-                let bricks = this.metadata.data.briqs.map(x => "0x" + x.data.briq.toString(16))
+                let bricks = this.metadata.data.briqs.map(x => x.data.briq)
                 let tx = await this.$store.state.builderData.setContract.transfer_from(this.$store.state.wallet.userWalletAddress, this.target, this.metadata.setId, bricks);
                 new Transaction(tx.transaction_hash, 'disassembly', { setId: this.metadata.setId });
                 this.messages.pushMessage("Set transfer ongoing - " + tx.transaction_hash);   

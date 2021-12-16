@@ -3,7 +3,7 @@
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full">Export set</h2>
-            <p>Set: 0x{{ metadata.set.toString(16) }}</p>
+            <p>Set: {{ metadata.set }}</p>
             <p>Name: {{ set.name }}</p>
             <p>Briqs: {{ set.briqsDB.briqs.size }}</p>
             <p v-if="transactionPending">Pending transaction: {{ pending_transaction.hash }}</p>
