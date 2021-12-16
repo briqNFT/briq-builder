@@ -1,8 +1,15 @@
 import { reactive } from 'vue'
 
+import { PROD } from './Meta'
+
 var gaLoaded = false;
 function loadGA()
 {
+    if (!PROD)
+    {
+        console.log("GA not loaded, dev environment");
+        return;
+    }
     if (gaLoaded)
         return;
     gaLoaded = true;
