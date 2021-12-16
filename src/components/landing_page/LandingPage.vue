@@ -20,7 +20,7 @@ import AlphaBanner from '../AlphaBanner.vue';
             <div class="flex gap-4 items-center alpha-pill">
                 <a href="https://insidious-ginger-0f9.notion.site/Alpha-paper-fd11fbbb6ac449129797e5f4ecb24d7a"><p>Whitepaper</p></a>
                 <a href="https://insidious-ginger-0f9.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f"><p>Resources</p></a>
-                <button @click="$router.push({ name: 'Builder' })">App</button>
+                <button @click="$router.push({ name: 'Builder' })"><span class="px-2">App</span></button>
             </div>
         </div>
         <div class="row">
