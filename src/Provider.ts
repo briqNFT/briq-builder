@@ -1,7 +1,4 @@
-import { defaultProvider, Provider } from 'starknet';
-
-import { fetchData } from './url';
-import { store } from './store/Store'
+import {Provider } from 'starknet';
 
 import { PROD } from './Meta'
 
@@ -29,11 +26,6 @@ var setupDefaultProvider = function ()
     provider = new Provider(provider);
     
     onProvider!();
-
-    store.commit("wallet/set_signer", provider);
-    
-    // Get the contract address.
-    provider.getContractAddresses().then((data) => { store.commit("wallet/set_starknet_contract_address", data.Starknet); });
 }
 
 if (PROD)
@@ -49,10 +41,7 @@ else
 
         onProvider!();
 
-        // Assume we want to use the local provider instead.
-        store.commit("wallet/set_signer", provider);
         console.log("Switching to local provider");
-
     }).catch(() => {
         setupDefaultProvider();
     })
