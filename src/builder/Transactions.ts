@@ -19,7 +19,10 @@ class TransactionsManager
     loadFromStorage()
     {
         try {
-            let txs = JSON.parse(window.localStorage.getItem("transactions")!);
+            let storedTxs = window.localStorage.getItem("transactions");
+            if (!storedTxs)
+                return;
+            let txs = JSON.parse(storedTxs);
             if (txs.version !== CURR_VERSION)
                 throw new Error("bad version");
             for (let txdata of txs.txs)
