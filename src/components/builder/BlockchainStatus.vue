@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import Button from "../generic/Button.vue";
-import Settings from '../builder/modals/Settings.vue';
 import TransactionsMin from './TransactionsMin.vue';
 import BriqDetails from './BriqDetails.vue';
+import BriqModal from './modals/BriqModal.vue';
+import Hotkey from '../generic/Hotkey.vue';
 </script>
 
 <template>
+    <Hotkey name="briqModal" :data="{ key: 'b', ctrl: true }" :handler="() => setModal(BriqModal)"/>
     <div class="flex flex-col items-end">
         <div class="overflow-auto flex flex-nowrap flex-col justify-start content-end">
             <Button class="pointer-events-auto flex items-center gap-2 text-center" @click="mainBtnClick" :tooltip="mainBtnTooltip">
