@@ -8,9 +8,11 @@
     "test": "jest src"
   },
   "dependencies": {
+    "@types/uuid": "^8.3.3",
     "json-bigint": "git+https://github.com/S-L-Technologies/json-bigint.git#fix-ts",
     "starknet": "^2.5.0",
     "three": "^0.133.1",
+    "uuid": "^8.3.2",
     "vue": "^3.2.16",
     "vue-router": "^4.0.12",
     "vuex": "^4.0.2"

@@ -63,11 +63,11 @@ export default defineComponent({
         },
 
         inDisassembly() {
-            return transactionsManager.get("disassembly").filter(x => x.isOk() && x?.metadata?.setId === parseInt(this.setId, 16)).length;
+            return transactionsManager.get("disassembly").filter(x => x.isOk() && x?.metadata?.setId === this.setId).length;
         },
 
         inTransfer() {
-            return transactionsManager.get("transfer_out").filter(x => x.isOk() && x?.metadata?.setId === parseInt(this.setId, 16)).length;
+            return transactionsManager.get("transfer_out").filter(x => x.isOk() && x?.metadata?.setId === this.setId).length;
         }
     },
     methods: {
@@ -75,7 +75,7 @@ export default defineComponent({
             if (!this.setData)
             {
                 if (!this.setDataQuery)
-                    this.setDataQuery = fetchData("store_get/" + parseInt(this.setId, 16));
+                    this.setDataQuery = fetchData("store_get/" + this.setId);
                 this.setData = (await this.setDataQuery!).data;
             }
             return this.setData;
@@ -84,7 +84,7 @@ export default defineComponent({
             try {
                 this.disableButtons = true;
                 let data = (await this.loadData())!;
-                let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
+                let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => x.data.briq));
                 new Transaction(TX.transaction_hash, 'disassembly', { setId: data.id });
                 this.messages.pushMessage("Disassembly transaction sent - Hash " + TX.transaction_hash);   
             }

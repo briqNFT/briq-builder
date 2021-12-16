@@ -1,51 +1,23 @@
 import { Briq, BriqsDB } from './BriqsDB'
 
-import { BuilderDataEvent, builderDataEvents } from './BuilderDataEvents'
-
 import { cellSize } from './Constants';
-
-
-class SetDataEvent extends BuilderDataEvent
-{
-    constructor(setId: number)
-    {
-        super("setData");
-        this.data = {
-            "set": setId
-        };
-    }
-
-    subtype(subtype: string): SetDataEvent
-    {
-        this.data.subtype = subtype;
-        return this;
-    }
-
-    setData(newData: any): SetDataEvent
-    {
-        let setId = this.data.set;
-        this.data = Object.assign(this.data, newData);
-        this.data.set = setId;
-        return this;
-    }
-}
 
 export class SetData
 {
-    id: number;
+    id: string;
     name: string;
     onChain: boolean;
 
     regionSize: number;
     // Indexed by region & cell
-    briqs: Map<number, Map<number, number>>;
+    briqs: Map<number, Map<number, string>>;
 
     usedByMaterial: { [key:string]: number };
 
     // This briqsDB is unique to the set.
     briqsDB: BriqsDB
 
-    constructor(id: number, chainBriqsBd: BriqsDB)
+    constructor(id: string, chainBriqsBd: BriqsDB)
     {
         this.id = id;
         this.name = "";
@@ -98,7 +70,6 @@ export class SetData
         this.briqs = new Map();
         this.usedByMaterial = {};
         this.briqsDB.reset();
-        builderDataEvents.push(new SetDataEvent(this.id).subtype("reset"));
     }
 
     forEach(callable: (cell: Briq, pos: [number, number, number]) => any)
@@ -125,7 +96,7 @@ export class SetData
         return this.briqsDB.get(briqId);
     }
 
-    placeBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: number): boolean
+    placeBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: string): boolean
     {
         if (cellKind > 0)
             return this.doPlaceBriq(x, y, z, color, cellKind, briq);
@@ -133,7 +104,7 @@ export class SetData
             return this.doRemoveBriq(x, y, z);
     }
 
-    doPlaceBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: number): boolean
+    doPlaceBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: string): boolean
     {
         if (Math.abs(x) > cellSize || Math.abs(z) > cellSize || y < 0)
             return false;
@@ -159,30 +130,27 @@ export class SetData
             this.usedByMaterial[cellKind] = 0;
         ++this.usedByMaterial[cellKind];
 
-        builderDataEvents.push(new SetDataEvent(this.id).subtype("place").setData({
-            x: x, y: y, z: z,
-            kind: cellKind,
-        }));
         return true;
     }
 
     doRemoveBriq(x: number, y: number, z: number): boolean
     {
         let [regionId, cellId] = this.computeIDs(x, y, z);
-        if (!this.briqs.has(regionId) || !this.briqs.get(regionId)!.get(cellId))
+        if (!this.briqs.has(regionId))
             return true;
-        const material = this.briqsDB.get(this.briqs.get(regionId)!.get(cellId)!)?.material;
+        let briqId = this.briqs.get(regionId)!.get(cellId);
+        if (!briqId)
+            return true;
+        let briq = this.briqsDB.get(briqId);
+        if (!briq)
+            return true;
         
-        if (material)
-            --this.usedByMaterial[material];
+        if (briq.material)
+            --this.usedByMaterial[briq.material];
         
         this.briqs.get(regionId)!.delete(cellId);
-        this.briqsDB.briqs.delete(cellId);
+        this.briqsDB.briqs.delete(briq.id);
 
-        builderDataEvents.push(new SetDataEvent(this.id).subtype("place").setData({
-            x: x, y: y, z: z,
-            kind: 0,
-        }));
         return true;
     }
 
@@ -256,7 +224,7 @@ export class SetData
         };
         for (const brick of chainDB.briqs.values())
         {
-            if (brick.set !== 0)
+            if (brick.partOfSet())
                 continue;
             // Already used.
             if (this.briqsDB.get(brick.id))

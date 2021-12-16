@@ -37,7 +37,7 @@ export default defineComponent({
     computed: {
         getNbBriqs() {
             let total = 0;
-            this.$store.state.builderData.briqsDB.briqs.forEach(x => total += +(!x.set));
+            this.$store.state.builderData.briqsDB.briqs.forEach(x => total += +(!x.partOfSet()));
             if (!total)
                 return '0 briqs left';
             for (let mat in this.$store.state.builderData.currentSet.usedByMaterial)

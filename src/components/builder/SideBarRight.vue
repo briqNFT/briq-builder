@@ -32,7 +32,7 @@ import BlockchainStatus from './BlockchainStatus.vue';
                 <div class="flex flex-col content-end my-4">
                     <h4 class="text-center font-bold twshadow">WIP SETS</h4>
                     <Button v-for="wipset in wipSets"
-                        class="my-1 h-auto"
+                        class="my-1 h-auto break-all"
                         @click="selectSet(wipset.id)"
                         :disabled="set.id == wipset.id"
                         :tooltip="(set.id == wipset.id) ? 'Set ' + set.id + ' is active.' : 'Click to switch to set ' + (wipset.name || wipset.id)"

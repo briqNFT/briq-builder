@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { downloadJSON, fetchData } from '../../../url'
+import { downloadJSON, fetchData } from '../../../url'
 import { SetData } from '../../../builder/SetData';
 
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
@@ -53,7 +53,7 @@ export default defineComponent({
             return this.$store.state.builderData.wipSets.filter(x => x.id === this.metadata.set)?.[0];
         },
         alreadyOnChain() {
-            return (!!this.$store.state.builderData.chainSets.find(x => parseInt(x, 16) === this.metadata.set)) || this.pending_transaction?.isOnChain();
+            return (!!this.$store.state.builderData.chainSets.find(x => x === this.metadata.set)) || this.pending_transaction?.isOnChain();
         },
         transactionPending() {
             return this.pending_transaction?.isPending() ?? false;
@@ -63,7 +63,7 @@ export default defineComponent({
         },
         notEnoughBriqs() {
             let total = 0;
-            this.$store.state.builderData.briqsDB.briqs.forEach(x => total += +(!x.set));
+            this.$store.state.builderData.briqsDB.briqs.forEach(x => total += +(!x.partOfSet()));
             for (let mat in this.set.usedByMaterial)
                 total -= this.set.usedByMaterial[mat];
             return total < 0;
@@ -85,9 +85,11 @@ export default defineComponent({
                 exportSet.swapForRealBriqs(this.$store.state.builderData.briqsDB);
                 data = exportSet.serialize();
                 await fetchData("store_set", { token_id: data.id, data: data });
+                // Debug
+                //downloadJSON(data, data.id + ".json")
                 let TX = await this.$store.state.builderData.setContract.mint(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => "" + x.data.briq));
                 new Transaction(TX.transaction_hash, "export_set", { setId: data.id });
-                this.messages.pushMessage("Set exported - TX " + TX.transaction_hash);
+                this.messages.pushMessage("Set exported " + exportSet.id + " - TX " + TX.transaction_hash);
                 this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
             }
             catch(err)

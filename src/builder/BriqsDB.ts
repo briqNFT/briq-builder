@@ -1,27 +1,29 @@
 import { json } from "starknet";
 import { reactive } from "vue";
 
-function pseudoGUID()
-{
-    return Date.now() + Math.floor(Math.random()*100000);
-}
+import { hexUuid } from '../Uuid';
 
 export class Briq
 {
-    id: number;
+    id: string;
     material: number;
-    set: number;
+    set: string;
     onChain: boolean;
 
     color: string;
 
-    constructor(id: number, material: number, set: number)
+    constructor(id: string, material: number, set: string)
     {
         this.id = id;
         this.material = material;
         this.set = set;
         this.onChain = false;
         this.color = "#000000";
+    }
+
+    partOfSet()
+    {
+        return this.set && this.set !== "0x0";
     }
 
     serialize()
@@ -44,7 +46,7 @@ export class Briq
             this.onChain = true;
         }
         else
-            this.id = pseudoGUID()
+            this.id = hexUuid();
         this.material = data.material;
         this.set = data.set;
         this.color = data.color;
@@ -54,7 +56,7 @@ export class Briq
 
 export class BriqsDB
 {
-    briqs: Map<number, Briq>
+    briqs: Map<string, Briq>
     chainDb?: BriqsDB
     constructor(chainDb?: BriqsDB)
     {
@@ -64,7 +66,7 @@ export class BriqsDB
 
     deserializeBriq(data: any): Briq
     {
-        let cell = new Briq(0, 0, 0).deserialize(data)
+        let cell = new Briq("", 0, "").deserialize(data)
         this.briqs.set(cell.id, cell);
         return cell;
     }
@@ -73,7 +75,7 @@ export class BriqsDB
     {
         for (let i = 0; i < jsonResponse.length / 3; ++i)
         {
-            let briq = new Briq(parseInt(jsonResponse[i*3 + 0], 16), parseInt(jsonResponse[i*3 + 1], 16), parseInt(jsonResponse[i*3 + 2], 16));
+            let briq = new Briq(jsonResponse[i*3 + 0], parseInt(jsonResponse[i*3 + 1], 16), jsonResponse[i*3 + 2]);
             briq.onChain = true;
             this.briqs.set(briq.id, briq);
         }
@@ -84,7 +86,7 @@ export class BriqsDB
         this.briqs = new Map();
     }
     
-    get(id: number): Briq | undefined
+    get(id: string): Briq | undefined
     {
         return this.briqs.get(id);
     }
@@ -94,27 +96,27 @@ export class BriqsDB
      * @param id 
      * @returns 
      */
-    getOrCreate(id: number | undefined): Briq
+    getOrCreate(id: string | undefined): Briq
     {
         if (id)
         {
             let cell = this.get(id);
             if (cell)
                 return cell;
-            this.briqs.set(id, new Briq(id, 1, 0));
+            this.briqs.set(id, new Briq(id, 1, ""));
             return this.briqs.get(id)!;
         }
-        return this.create(pseudoGUID(), 1, 0);
+        return this.create(hexUuid(), 1, "");
     }
 
-    create(id: number, material: number, set: number): Briq
+    create(id: string, material: number, set: string): Briq
     {
         let briq = new Briq(id, material, set);
         this.briqs.set(briq.id, briq);
         return briq;
     }
 
-    cloneBriq(id: number, from: BriqsDB): Briq
+    cloneBriq(id: string, from: BriqsDB): Briq
     {
         let br = from.get(id)!;
         let ret = new Briq(id, br.material, br.set);
@@ -123,7 +125,7 @@ export class BriqsDB
         return ret;
     }
 
-    getAvailableBriq(material: number): number | undefined
+    getAvailableBriq(material: number): string | undefined
     {
         for (let briq of this.briqs.values())
         {

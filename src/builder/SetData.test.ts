@@ -3,7 +3,7 @@ import { SetData } from './SetData'
 
 describe('Test BriqsDB', () => {
     it('should calculate positions correctly', () => {
-        let data = new SetData(0, new BriqsDB());
+        let data = new SetData("", new BriqsDB());
 
         for (let i = 0; i < 20; ++i)
         {

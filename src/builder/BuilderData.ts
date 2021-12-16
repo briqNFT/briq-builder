@@ -15,9 +15,10 @@ import { setupSync } from './StarknetSync';
 import BriqContract from '../contracts/briq'
 import SetContract from '../contracts/set'
 import MintContract from '../contracts/mint'
+import { hexUuid } from '../Uuid';
 
 let briqsDB = new BriqsDB();
-let initSet = new SetData(Date.now(), briqsDB);
+let initSet = new SetData(hexUuid(), briqsDB);
 
 function checkForInitialGMSet(dispatch: CallableFunction, set: SetData)
 {
@@ -238,7 +239,9 @@ export var builderDataStore = (() => {
         mutations: {
             create_wip_set(state: any, data: any)
             {
-                let set = new SetData(data?.id ?? Date.now(), state.briqsDB);
+                let set = new SetData(data?.id ?? hexUuid(), state.briqsDB);
+                if (!set.name)
+                    set.name = "New Set";
                 if (state.wipSets.find((x: SetData) => x.id === set.id))
                 throw new Error("Set with ID " + set.id + " already exists");
                 if (data)
