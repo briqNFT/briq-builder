@@ -1,6 +1,6 @@
 import { store } from "../store/Store";
 
-import { fetchData } from '../url'
+import { setupMintProxy } from './MintProxy'
 
 import BriqContract from '../contracts/briq'
 import SetContract from '../contracts/set'
@@ -15,8 +15,8 @@ const ADDRESSES = {
     },
     "https://alpha-mainnet.starknet.io": {
         briq: "0x0273f8db9cb370e945c125293b3742deedc4a034b8fc770762ac89b0747452cb",
-        mint: "",
-        set: "",
+        mint: "0x3556974b2439116a5460c5e33daf6ad74bfb5ff60e4e3c2384027bdab81ec40",
+        set: "0x2ff5db29c8dce860c02527b8c9ba0b557b66afd855490e13c33334b6180cd44",
     }
 }
 
@@ -41,9 +41,15 @@ export function setupSync()
     })
 
     watchEffect(async () => {
-        if (!store.state.builderData.briqContract || !store.state.wallet.userWalletAddress)
+        if (!store.state.builderData.briqContract || !store.state.builderData.setContract || !store.state.wallet.userWalletAddress)
             return;
         // console.log("FETCHING DATA", store.state.wallet.provider)
         await store.dispatch("builderData/try_fetching_user_data");
     })
+
+    watchEffect(() => {
+        if (store.state.builderData.mintContract && store.state.wallet.userWalletAddress)
+            setupMintProxy(store.state.builderData.mintContract, store.state.wallet.userWalletAddress);
+    });
+
 }

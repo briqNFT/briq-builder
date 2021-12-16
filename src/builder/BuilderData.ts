@@ -10,8 +10,6 @@ import { dispatchBuilderAction } from "./graphics/dispatch";
 
 import { palettesMgr } from './Palette';
 
-import { setupMintProxy } from './MintProxy'
-
 import { setupSync } from './StarknetSync';
 
 import BriqContract from '../contracts/briq'
@@ -112,8 +110,6 @@ export var builderDataStore = (() => {
             {
                 if (!try_fetching_user_data_func)
                 try_fetching_user_data_func = (async () => {
-                    if (state.mintContract)
-                        setupMintProxy(state.mintContract, rootState.wallet.userWalletAddress);
                     let bricks = dispatch("get_briqs");
                     let sets = dispatch("get_chain_sets");
                     let gsets = dispatch("get_generic_chain_sets");

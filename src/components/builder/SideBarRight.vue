@@ -4,31 +4,13 @@ import Settings from '../builder/modals/Settings.vue';
 import TransactionsMin from './TransactionsMin.vue';
 import BriqDetails from './BriqDetails.vue';
 import { transactionsManager } from '../../builder/Transactions';
+import BlockchainStatus from './BlockchainStatus.vue';
 </script>
 
 <template>
-    <div class="absolute right-0 top-0 px-4 py-2 md:py-4 flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none max-h-screen">
-        <div class="flex flex-col items-end">
-            <div :class="'overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expandedCW ? ' expanded' : ' unexpanded')">
-                <Button class="pointer-events-auto flex items-center gap-2" @click="CWClick" tooltip="Click for more details on blockchain synchronisation">
-                    <div class="inline-block text-sm leading-3">{{ CWTitle() }}<br/>{{ CWNet() }}</div>
-                    <i v-if="transactionsManager.anyPending() || $store.state.builderData.fetchingBriqs" class="fas fa-spinner animate-spin-slow"></i>
-                    <i v-if="!transactionsManager.anyPending() && !$store.state.builderData.fetchingBriqs && $store.state.builderData.briqsDB.briqs.size > 0" class="fas fa-check"></i>
-                </Button>
-                <div :class="'my-2 ' + (expandedCW ? '': ' hidden')">
-                    <div class="flex flex-col flex-nowrap gap-1">
-                        <Button v-if="isConnected" @click="expandedCW = false; $store.dispatch('wallet/disconnect')">Disconnect</Button>
-                    </div>
-                </div>
-            </div>
-            <div :class="'relative bg-briq rounded-md ' + (expandedCW ? 'block pointer-events-auto' : 'hidden')">
-                <BriqDetails/>
-            </div>
-            <div :class="'my-2 relative bg-briq rounded-md ' + (expandedCW ? 'block pointer-events-auto' : 'hidden')">
-                <TransactionsMin/>
-            </div>
-        </div>
-        <div :class="'overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
+    <div class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none">
+        <BlockchainStatus class="max-h-screen"/>
+        <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
             <Button class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Button>
             <div class="my-2">
                 <div class="flex flex-col flex-nowrap gap-1">

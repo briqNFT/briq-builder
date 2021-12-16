@@ -4,7 +4,7 @@ export default function getBaseUrl()
 {
     var baseUrl = "http://localhost:5000"
     if (PROD)
-        baseUrl = "https://api." + window.location.hostname
+        baseUrl = "https://api." + window.location.hostname.replace("www.", "");
     return baseUrl
 }
 

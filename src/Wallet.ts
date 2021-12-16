@@ -25,12 +25,16 @@ export const walletStore = {
             root: true,
             handler: async ({ state, dispatch, commit, getters }: any) => {
 
-                let provider = await getProvider();
-                commit("set_provider", provider);
-
                 if (window.localStorage.getItem("user_address"))
                     // If we have a user address stored, try immediately enabling the wallet.
                     await dispatch("enable_wallet");
+
+                // Fallback to regular provider if that failed.
+                if (!state.signer)
+                {
+                    let provider = getProvider();
+                    commit("set_provider", provider);
+                }
 
                 watchEffect(() => {
                     // TODO: switch to IDB
@@ -50,7 +54,6 @@ export const walletStore = {
                     // Update the provider (may be mainnet or testnet).
                     commit("set_provider", provider);
                     commit("set_signer", { addr, signer });
-
                     argx.watchForChanges(() => {
                         dispatch("enable_wallet");
                     })
