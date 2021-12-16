@@ -16,6 +16,11 @@
         @apply text-xl font-normal;
     }
 
+    /* Overwrite the default outline color */
+    button, a {
+        @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-briq-dark;
+    }
+
     .btn {
         @apply bg-briq rounded px-3 py-1;
         @apply border-2 border-briq;
