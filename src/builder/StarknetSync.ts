@@ -15,8 +15,8 @@ const ADDRESSES = {
     },
     "https://alpha-mainnet.starknet.io": {
         briq: "0x0273f8db9cb370e945c125293b3742deedc4a034b8fc770762ac89b0747452cb",
-        mint: "0x3556974b2439116a5460c5e33daf6ad74bfb5ff60e4e3c2384027bdab81ec40",
-        set: "0x2ff5db29c8dce860c02527b8c9ba0b557b66afd855490e13c33334b6180cd44",
+        mint: "0x071aec22994caea23c3660db2d41642a5930a9967eca1c7db5de40d96b476c59",
+        set: "0x0039e6347ff107dfbad60995628b29e8551c4e02a3827ab0fbd795a956f1b466",
     }
 }
 
