@@ -3,6 +3,7 @@ import Place from './inputs/Place.vue';
 import Erase from './inputs/Erase.vue';
 import Inspect from './inputs/Inspect.vue';
 import Camera from './inputs/Camera.vue';
+import Move from './inputs/Move.vue';
 </script>
 
 <template>
@@ -23,6 +24,7 @@ export default defineComponent({
                 "erase": Erase,
                 "inspect": Inspect,
                 "camera": Camera,
+                "move": Move
             })
         };
     }

@@ -1,3 +1,4 @@
+import { number } from 'starknet';
 import { Briq, BriqsDB } from './BriqsDB'
 
 import { cellSize } from './Constants';
@@ -152,6 +153,18 @@ export class SetData
         this.briqsDB.briqs.delete(briq.id);
 
         return true;
+    }
+
+    moveAll(x: number, y: number, z: number)
+    {
+        let ret = new Map();
+        this.forEach((briq, pos) => {
+            let [regionId, cellId] = this.computeIDs(pos[0] + x, pos[1] + y, pos[2] + z);
+            if (!ret.has(regionId))
+                ret.set(regionId, new Map());
+            ret.get(regionId).set(cellId, briq.id);
+        })
+        this.briqs = ret;
     }
 
     modifyBriq(x: number, y: number, z: number, data: any): Briq

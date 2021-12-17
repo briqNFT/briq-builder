@@ -1,10 +1,11 @@
+import type { BuilderInputState } from './BuilderInputState';
+
 import { CameraOnlyInput } from './CameraOnly';
 import { PlacerInput, PlacerMultiInput } from './Placer';
 import { EraserInput, EraserMultiInput } from './Eraser';
 import { PainterInput, PainterMultiInput } from './Painter';
 import { InspectInput } from './Inspect';
-
-import type { BuilderInputState } from './BuilderInputState';
+import { MoveInput } from './Move';
 
 export const inputMap: { [key: string]: typeof BuilderInputState } = {
     "place": PlacerInput,
@@ -15,4 +16,5 @@ export const inputMap: { [key: string]: typeof BuilderInputState } = {
     "paint_multi": PainterMultiInput,
     "inspect": InspectInput,
     "camera": CameraOnlyInput,
+    "move": MoveInput
 };

@@ -16,6 +16,7 @@ import BriqContract from '../contracts/briq'
 import SetContract from '../contracts/set'
 import MintContract from '../contracts/mint'
 import { hexUuid } from '../Uuid';
+import { cellSize } from './Constants';
 
 let briqsDB = new BriqsDB();
 let initSet = new SetData(hexUuid(), briqsDB);
@@ -234,7 +235,19 @@ export var builderDataStore = (() => {
             },
             undo_clear: ({ commit }: any, data: any) => {
                 commit("undo_clear", data);
-            }
+            },
+
+            move_all_briqs({ state, commit }: any, data: any) {
+                state.currentSet.forEach((briq, pos) => {
+                    if (pos[0] + data.x < -cellSize || pos[0] + data.x > cellSize)
+                        throw new Error("cannot");
+                    if (pos[2] + data.z < -cellSize || pos[2] + data.z > cellSize)
+                        throw new Error("cannot");
+                    if (pos[1] + data.y < 0)
+                        throw new Error("cannot");
+                });
+                commit("move_all_briqs", data);
+            },
         },
         mutations: {
             create_wip_set(state: any, data: any)
@@ -377,6 +390,11 @@ export var builderDataStore = (() => {
                 state.currentSet.deserialize(data);
                 dispatchBuilderAction("select_set", state.currentSet);
             },
+
+            move_all_briqs(state: any, data: any) {
+                state.currentSet.moveAll(data.x ?? 0, data.y ?? 0, data.z ?? 0);
+                dispatchBuilderAction("select_set", state.currentSet);
+            },
         },
         getters: {},
     };
@@ -467,3 +485,16 @@ registerUndoableAction("builderData/clear", "builderData/undo_clear", {
         });
     }
 }, (data: any) => "Clear all briqs");
+
+
+registerUndoableAction("builderData/move_all_briqs", "builderData/move_all_briqs", {
+    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
+    },
+    onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
+        await store.dispatch("push_command_to_history", {
+            action: "builderData/move_all_briqs",
+            redoData: payload,
+            undoData: { x: (-payload?.x) || 0, y: (-payload?.y) || 0, z: (-payload?.z) || 0 }
+        });
+    }
+}, (data: any) => "Move all briqs");
