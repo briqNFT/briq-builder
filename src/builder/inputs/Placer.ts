@@ -13,7 +13,7 @@ export class PlacerInput extends MouseInputState
 {
     onEnter()
     {
-        previewCube.visible = true;
+        previewCube.visible = false;
         previewCube.scale.set(1, 1, 1);
     }
     

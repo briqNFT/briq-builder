@@ -10,7 +10,7 @@ export class PainterInput extends MouseInputState
 {
     onEnter() {
         previewCube.scale.set(1.1, 1.1, 1.1);
-        previewCube.visible = true;
+        previewCube.visible = false;
     }
 
     onExit() {
@@ -21,8 +21,13 @@ export class PainterInput extends MouseInputState
     onPointerMove(event: PointerEvent)
     {
         let pos = this.getIntersectionPos(this.curX, this.curY, true);
-        if (!pos)
+        if (!pos || pos[1] < 0)
+        {
+            previewCube.visible = false;
             return;
+        }
+        if (!previewCube.visible)
+            previewCube.visible = true;
 
         previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
         (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);

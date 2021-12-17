@@ -9,7 +9,7 @@ export class EraserInput extends MouseInputState
     lastClickPos: [number, number, number] | undefined;
 
     onEnter() {
-        previewCube.visible = true;
+        previewCube.visible = false;
         previewCube.scale.set(1.1, 1.1, 1.1);
         (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);
     }
