@@ -24,6 +24,8 @@ import TransferSet from '../modals/TransferSet.vue'
 
 import { Transaction, transactionsManager } from '../../../builder/Transactions'
 
+import contractStore from '../../../Contracts'
+
 import { defineComponent } from "@vue/runtime-core"
 export default defineComponent({
     data() {
@@ -84,7 +86,7 @@ export default defineComponent({
             try {
                 this.disableButtons = true;
                 let data = (await this.loadData())!;
-                let TX = await this.$store.state.builderData.setContract.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => x.data.briq));
+                let TX = await contractStore.set.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => x.data.briq));
                 new Transaction(TX.transaction_hash, 'disassembly', { setId: data.id });
                 this.messages.pushMessage("Disassembly transaction sent - Hash " + TX.transaction_hash);   
             }

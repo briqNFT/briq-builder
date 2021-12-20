@@ -5,13 +5,14 @@ import { AddTransactionResponse } from 'starknet';
 
 import { Args, Contract, Provider, Signer } from 'starknet';
 
-import SetABI from './mint_proxy_abi.json'
+import MintABI from './mint_proxy_abi.json'
+import ExtendedContract from './Abstraction';
 
-export default class MintContract extends Contract
+export default class MintContract extends ExtendedContract
 {
     constructor(address: string, provider: Provider)
     {
-        super(SetABI, address, provider)
+        super(MintABI, address, provider)
     }
 
     async has_minted(user: string): boolean

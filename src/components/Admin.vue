@@ -14,17 +14,17 @@ import Button from './generic/Button.vue';
 </template>
 
 <script lang="ts">
+import contractStore from '../Contracts';
+
 import { defineComponent } from 'vue';
 export default defineComponent({
     methods: {
         async init1() {
-            let bd = this.$store.state.builderData;
-            let tx = await bd.briqContract.initialize(bd.setContract.connectedTo, bd.mintContract.connectedTo);
+            let tx = await contractStore.briq.initialize(contractStore.set.connectedTo, contractStore.mint.connectedTo);
             console.log(tx);
         },
         async init2() {
-            let bd = this.$store.state.builderData;
-            let tx = await bd.setContract.initialize(bd.briqContract.connectedTo);
+            let tx = await contractStore.set.initialize(contractStore.briq.connectedTo);
             console.log(tx);
         }
     }

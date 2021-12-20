@@ -11,9 +11,9 @@ import Hotkey from '../generic/Hotkey.vue';
         <div class="overflow-auto flex flex-nowrap flex-col justify-start content-end">
             <Button class="pointer-events-auto flex items-center gap-2 text-center" @click="mainBtnClick" :tooltip="mainBtnTooltip">
                 <div v-if="!isConnected">Connect Wallet</div>
-                <div v-else-if="isConnected && builderData.briqContract" class="inline-block text-sm leading-3">{{ userAddress }}<br/>{{ userNet }}</div>
+                <div v-else-if="isConnected && contractStore.briq" class="inline-block text-sm leading-3">{{ userAddress }}<br/>{{ userNet }}</div>
                 <div v-else="" class="inline-block text-sm leading-3">Unsupported<br/>Network</div>
-                <template v-if="isConnected && builderData.briqContract">
+                <template v-if="isConnected && contractStore.briq">
                     <i v-if="transactionsManager.anyPending() || builderData.fetchingBriqs" class="fas fa-spinner animate-spin-slow"></i>
                     <i v-if="!transactionsManager.anyPending() && !builderData.fetchingBriqs && builderData.briqsDB.briqs.size > 0" class="fas fa-check"></i>
                 </template>
@@ -38,7 +38,7 @@ import { setModal } from '../MiddleModal.vue';
 
 import WalletSelectorVue from '../WalletSelector.vue';
 import { transactionsManager } from '../../builder/Transactions';
-
+import contractStore from '../../Contracts';
 import { defineComponent } from "vue";
 export default defineComponent({
     data() {
@@ -46,6 +46,7 @@ export default defineComponent({
             expanded: false,
             wallet: this.$store.state.wallet,
             builderData: this.$store.state.builderData,
+            contractStore: contractStore,
             transactionsManager
         };
     },

@@ -10,6 +10,8 @@ import { IWallet } from './wallets/IWallet';
 
 import { getProvider, setProvider } from './Provider';
 
+import { watchSignerChanges } from './Contracts'
+
 export const walletStore = {
     namespaced: true,
     state: () => ({
@@ -35,6 +37,8 @@ export const walletStore = {
                     let provider = await getProvider();
                     commit("set_provider", provider);
                 }
+
+                watchSignerChanges(state);
 
                 watchEffect(() => {
                     // TODO: switch to IDB

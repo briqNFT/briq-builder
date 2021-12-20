@@ -65,6 +65,8 @@ import { mintProxyStore } from '../../../builder/MintProxy';
 import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
 import type { Provider } from 'starknet';
+import contractStore from '../../../Contracts';
+
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
@@ -132,7 +134,7 @@ export default defineComponent({
             this.status = "calling";
             try
             {
-                let tx = this.$store.state.builderData.mintContract.mint(this.$store.state.wallet.userWalletAddress);
+                let tx = contractStore.mint.mint(this.$store.state.wallet.userWalletAddress);
                 let res = await tx;
                 if (res.code !== 'TRANSACTION_RECEIVED')
                     throw new Error("Unknown error when minting, status is " + res.code + ", Tx hash " + (res?.transaction_hash ?? 'unknown'));

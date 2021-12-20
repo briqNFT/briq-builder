@@ -18,6 +18,8 @@ import Button from '../../generic/Button.vue';
 <script lang="ts">
 import { Transaction } from '../../../builder/Transactions';
 
+import contractStore from '../../../Contracts';
+
 import { defineComponent, nextTick, toRef } from 'vue';
 export default defineComponent({
     data() {
@@ -39,7 +41,7 @@ export default defineComponent({
                 return;
             try {
                 let bricks = this.metadata.data.briqs.map(x => x.data.briq)
-                let tx = await this.$store.state.builderData.setContract.transfer_from(this.$store.state.wallet.userWalletAddress, this.target, this.metadata.setId, bricks);
+                let tx = await contractStore.set.transfer_from(this.$store.state.wallet.userWalletAddress, this.target, this.metadata.setId, bricks);
                 new Transaction(tx.transaction_hash, 'disassembly', { setId: this.metadata.setId });
                 this.messages.pushMessage("Set transfer ongoing - " + tx.transaction_hash);   
             }

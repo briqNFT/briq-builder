@@ -13,11 +13,10 @@ import { palettesMgr } from './Palette';
 
 import { setupSync } from './StarknetSync';
 
-import BriqContract from '../contracts/briq'
-import SetContract from '../contracts/set'
-import MintContract from '../contracts/mint'
 import { hexUuid } from '../Uuid';
 import { cellSize } from './Constants';
+
+import contractStore from '../Contracts';
 
 let briqsDB = new BriqsDB();
 let initSet = new SetData(hexUuid(), briqsDB);
@@ -68,9 +67,6 @@ export var builderDataStore = (() => {
             wipSets: [initSet] as Array<SetData>,
             currentSet: initSet,
             briqsDB: briqsDB,
-            briqContract: undefined as BriqContract | undefined,
-            setContract: undefined as SetContract | undefined,
-            mintContract: undefined as MintContract | undefined,
             chainSets: [],
             genericChainSets: [],
             fetchingBriqs: false,
@@ -127,11 +123,11 @@ export var builderDataStore = (() => {
             },
             async get_briqs({ commit, state, rootState }: any)
             {
-                if (!state.briqContract)
+                if (!contractStore.briq)
                 return;
                 try {
                     commit("fetching_briqs", true);
-                    let bricks = (await state.briqContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).bricks;
+                    let bricks = (await contractStore.briq.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).bricks;
                     commit("set_briqs", bricks);
                     pushMessage("Successfully fetched " + bricks.length/3 + " briqs");
                 }
@@ -145,11 +141,11 @@ export var builderDataStore = (() => {
             },
             async get_chain_sets({ commit, state, rootState }: any)
             {
-                if (!state.setContract)
+                if (!contractStore.set)
                 return;
                 try {
                     commit("fetching_sets", true);
-                    let sets = (await state.setContract.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).tokens;
+                    let sets = (await contractStore.set.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).tokens;
                     commit("set_chain_sets", sets)
                     pushMessage("Successfully fetched " + sets.length + " sets");
                 }
@@ -162,10 +158,10 @@ export var builderDataStore = (() => {
             },
             async get_generic_chain_sets({ commit, state, rootState }: any, data: any)
             {
-                if (!state.setContract)
+                if (!contractStore.set)
                 return;
                 try {
-                    let sets = (await state.setContract.get_all_tokens_for_owner("0xe872a6192d04d0ca5c935cb1742bb3a48cb87338acf2d97cbe25d1898de5be")).tokens;
+                    let sets = (await contractStore.set.get_all_tokens_for_owner("0xe872a6192d04d0ca5c935cb1742bb3a48cb87338acf2d97cbe25d1898de5be")).tokens;
                     commit("set_generic_chain_sets", sets)
                     pushMessage("Successfully fetched " + sets.length + " sets");
                 }
@@ -277,20 +273,7 @@ export var builderDataStore = (() => {
                 palettesMgr.updateForSet(state.currentSet);
                 dispatchBuilderAction("select_set", state.currentSet);
             },
-            
-            set_briq_contract(state: any, data: BriqContract)
-            {
-                state.briqContract = data;
-            },
-            set_set_contract(state: any, data: SetContract)
-            {
-                state.setContract = data;
-            },
-            set_mint_contract(state: any, data: MintContract)
-            {
-                state.mintContract = data;
-            },
-            
+                        
             fetching_briqs(state: any, data: boolean)
             {
                 state.fetchingBriqs = data;

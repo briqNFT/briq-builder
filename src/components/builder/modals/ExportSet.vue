@@ -32,6 +32,8 @@ import { SetData } from '../../../builder/SetData';
 
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
 
+import contractStore from '../../../Contracts';
+
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
@@ -74,7 +76,7 @@ export default defineComponent({
             downloadJSON(this.$store.state.builderData.currentSet.serialize(), this.$store.state.builderData.currentSet.id + ".json")
         },
         exportSet: async function() {
-            if (!this.$store.state.builderData.setContract)
+            if (!contractStore.set)
                 return;
             this.exporting = true;
             try {
@@ -87,7 +89,7 @@ export default defineComponent({
                 await fetchData("store_set", { token_id: data.id, data: data });
                 // Debug
                 //downloadJSON(data, data.id + ".json")
-                let TX = await this.$store.state.builderData.setContract.mint(this.$store.state.wallet.userWalletAddress, data.id, data.briqs.map(x => x.data.briq));
+                let TX = await contractStore.set.mint(this.$store.state.wallet.userWalletAddress, data.id, data.briqs.map(x => x.data.briq));
                 new Transaction(TX.transaction_hash, "export_set", { setId: data.id });
                 this.messages.pushMessage("Set exported " + exportSet.id + " - TX " + TX.transaction_hash);
                 this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);

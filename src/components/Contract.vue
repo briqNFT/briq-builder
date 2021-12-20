@@ -28,6 +28,7 @@ var names = Object.keys(materialData);
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { adminStore, isOk } from '../Admin'
+import contractStore from '../Contracts';
 
 export default defineComponent({
     data() {
@@ -50,7 +51,7 @@ export default defineComponent({
         doMint: async function() {
             this.minting = true;
 
-            let tx = await this.builderData.briqContract?.mint_multiple(this.mint_material, parseInt(this.mint_token, 16), this.mint_nb);
+            let tx = await contractStore.briq.mint_multiple(this.mint_material, parseInt(this.mint_token, 16), this.mint_nb);
             console.log(tx);
             this.minting = false;
         },        
