@@ -20,8 +20,8 @@ spec:
         - containerPort: 80
         resources:
           requests:
-            cpu: "100m"
-            memory: "256Mi"
+            cpu: #@ data.values.resources.cpu
+            memory: #@ data.values.resources.memory 
         livenessProbe:
           httpGet:
             path: /health
