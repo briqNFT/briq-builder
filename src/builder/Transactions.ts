@@ -1,10 +1,16 @@
 import * as starknet from 'starknet';
 
-import { provider } from '../Provider'
-
-import { reactive } from 'vue';
+import { reactive, watch, watchEffect, toRef } from 'vue';
+import { store } from "../store/Store";
 
 const CURR_VERSION = 1;
+
+var provider = toRef(store.state.wallet, "provider");
+var address = toRef(store.state.wallet, "userWalletAddress");
+
+function getUserAddress(): string {
+    return address.value;
+}
 
 class TransactionsManager
 {
@@ -18,8 +24,13 @@ class TransactionsManager
 
     loadFromStorage()
     {
+        this.transactions = [];
+        this.transactionsByKW = {};
+
+        if (!address)
+            return;
         try {
-            let storedTxs = window.localStorage.getItem("transactions");
+            let storedTxs = window.localStorage.getItem("transactions_" + getUserAddress());
             if (!storedTxs)
                 return;
             let txs = JSON.parse(storedTxs);
@@ -27,13 +38,12 @@ class TransactionsManager
                 throw new Error("bad version");
             for (let txdata of txs.txs)
                 new Transaction(...txdata);
-            if (provider)
-                this.transactions.forEach(x => x.poll());
+            this.transactions.forEach(x => x.poll());
         }
         catch(err)
         {
-            console.error(err);
-            window.localStorage.removeItem("transactions");
+            console.warn(err);
+            window.localStorage.removeItem("transactions_" + getUserAddress());
         }
     }
 
@@ -43,8 +53,7 @@ class TransactionsManager
         if (!this.transactionsByKW[keyword])
             this.transactionsByKW[keyword] = [];
         this.transactionsByKW[keyword].push(tx);
-        if (provider)
-            this.transactions.forEach(x => x.poll());
+        this.transactions.forEach(x => x.poll());
         this.serialize();
     }
 
@@ -58,7 +67,10 @@ class TransactionsManager
 
     serialize()
     {
-        window.localStorage.setItem("transactions", JSON.stringify({
+        // Shouldn't really happen, and won't matter.
+        if (!getUserAddress())
+            return;
+        window.localStorage.setItem("transactions_" + getUserAddress(), JSON.stringify({
             version: CURR_VERSION,
             txs: this.transactions.map(x => [x.hash, x.keyword, x.metadata, x.status])
         }))
@@ -90,7 +102,7 @@ export class Transaction
     mgr: TransactionsManager;
     metadata: any;
 
-    refreshing: boolean;
+    refreshing: boolean = false;
 
     constructor(hash: string, keyword: string, metadata?: any, status?: TxStatus)
     {
@@ -111,21 +123,28 @@ export class Transaction
 
     async poll()
     {
+        if (!provider.value)
+            return;
+
         if (this.refreshing)
             return;
         this.refreshing = true;
-        let status = (await provider.getTransactionStatus(this.hash)).tx_status;
-        // Treat 'not received' as pending, as the TX shouldn't stay in that state for long.
-        if (status === "PENDING" || status === "RECEIVED" || status === "NOT_RECEIVED")
-            this.status = "PENDING";
-        else if (status === "REJECTED")
-            this.status = "ERROR";
-        else if (status === "ACCEPTED_ON_L2" || status === "ACCEPTED_ON_L1" || status === "ACCEPTED_ONCHAIN") // Last one ought be temporary
-            this.status = "ACCEPTED";
-        else
-            this.status = "ERROR";
+        try {
+            let status = (await provider.value.getTransactionStatus(this.hash)).tx_status;
+            // Treat 'not received' as pending, as the TX shouldn't stay in that state for long.
+            if (status === "PENDING" || status === "RECEIVED" || status === "NOT_RECEIVED")
+                this.status = "PENDING";
+            else if (status === "REJECTED")
+                this.status = "ERROR";
+            else if (status === "ACCEPTED_ON_L2" || status === "ACCEPTED_ON_L1" || status === "ACCEPTED_ONCHAIN") // Last one ought be temporary
+                this.status = "ACCEPTED";
+            else
+                this.status = "ERROR";
+            this.mgr.serialize();
+        }
+        catch(err)
+        { /*ignore*/ }
         this.refreshing = false;
-        this.mgr.serialize();
     }
 
     isOk()
@@ -145,4 +164,6 @@ export class Transaction
 }
 
 export const transactionsManager = reactive(new TransactionsManager());
+watch(provider, () => transactionsManager.loadFromStorage());
+watch(address, () => transactionsManager.loadFromStorage());
 transactionsManager.loadFromStorage();
