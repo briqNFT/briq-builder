@@ -8,7 +8,7 @@ import ArgentXWallet from './wallets/ArgentX'
 import MetamaskWallet from './wallets/Metamask'
 import { IWallet } from './wallets/IWallet';
 
-import { getProvider } from './Provider';
+import { getProvider, setProvider } from './Provider';
 
 export const walletStore = {
     namespaced: true,
@@ -76,6 +76,7 @@ export const walletStore = {
         {
             state.provider = data;
             state.baseUrl = state.provider.baseUrl;
+            setProvider(data);
         },
         set_user_wallet(state: any, data: string)
         {

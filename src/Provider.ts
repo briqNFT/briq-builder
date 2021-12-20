@@ -17,6 +17,12 @@ export function getProvider(): Promise<Provider>
 }
 getProvider();
 
+export async function setProvider(prov: Provider)
+{
+    await getProvider();
+    provider = prov;
+}
+
 var setupDefaultProvider = function ()
 {
     provider = new Provider({});

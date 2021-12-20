@@ -120,7 +120,7 @@ export class Transaction
             this.status = "PENDING";
         else if (status === "REJECTED")
             this.status = "ERROR";
-        else if (status === "ACCEPTED_ON_L2" || status === "ACCEPTED_ON_L1")
+        else if (status === "ACCEPTED_ON_L2" || status === "ACCEPTED_ON_L1" || status === "ACCEPTED_ONCHAIN") // Last one ought be temporary
             this.status = "ACCEPTED";
         else
             this.status = "ERROR";
