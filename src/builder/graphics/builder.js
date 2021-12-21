@@ -9,8 +9,6 @@ import VoxelWorld from './VoxelWorld';
 export var voxWorld;
 
 import { store } from "../../store/Store"
-//import { builderData } from "./builder/BuilderData"
-import { builderDataEvents } from "../BuilderDataEvents"
 import { dispatchedActions } from './dispatch'
 
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
