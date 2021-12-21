@@ -3,16 +3,20 @@ import type { BuilderInputState } from './BuilderInputState'
 
 import { inputMap } from '../../builder/inputs/InputMap'
 
+import type { inputStore } from './InputStore';
+
 export class BuilderInputFSM
 {
     state!: BuilderInputState;
     canvas!: HTMLCanvasElement;
     orbitControls!: OrbitControls;
+    store!: typeof inputStore;
 
-    initialize(canv: HTMLCanvasElement, oc: OrbitControls)
+    initialize(canv: HTMLCanvasElement, oc: OrbitControls, store: typeof inputStore)
     {
         this.canvas = canv;
         this.orbitControls = oc;
+        this.store = store;
     }
 
     switchTo(state: string, data?: object)

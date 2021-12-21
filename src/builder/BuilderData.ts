@@ -18,6 +18,8 @@ import { cellSize } from './Constants';
 
 import contractStore from '../Contracts';
 
+import { inputStore } from './inputs/InputStore';
+
 let briqsDB = new BriqsDB();
 let initSet = new SetData(hexUuid(), briqsDB);
 
@@ -235,6 +237,11 @@ export var builderDataStore = (() => {
                 commit("undo_clear", data);
             },
 
+            swap_briqs({ commit }: any, data: Array<[string, string]>)
+            {
+                commit("swap_briqs", data);
+            },
+
             move_all_briqs({ state, commit }: any, data: any) {
                 state.currentSet.forEach((briq, pos) => {
                     if (pos[0] + data.x < -cellSize || pos[0] + data.x > cellSize)
@@ -267,10 +274,11 @@ export var builderDataStore = (() => {
             select_set(state: any, data: any)
             {
                 if (data instanceof SetData)
-                state.currentSet = data;
+                    state.currentSet = data;
                 else
-                state.currentSet = state.wipSets.filter((x: SetData) => x.id === data)[0];
+                    state.currentSet = state.wipSets.filter((x: SetData) => x.id === data)[0];
                 palettesMgr.updateForSet(state.currentSet);
+                inputStore.selectionMgr.selectSet(state.currentSet);
                 dispatchBuilderAction("select_set", state.currentSet);
             },
                         
@@ -373,6 +381,16 @@ export var builderDataStore = (() => {
             undo_clear: (state: any, data: any) => {
                 state.currentSet.reset();
                 state.currentSet.deserialize(data);
+                dispatchBuilderAction("select_set", state.currentSet);
+            },
+
+            swap_briqs(state: any, data: Array<[string, string]>)
+            {
+                for (let [ogId, newId] of data)
+                {
+                    state.currentSet.swapBriq(ogId, state.briqsDB.get(newId));
+                    inputStore.selectionMgr.replace(ogId, newId);
+                }
                 dispatchBuilderAction("select_set", state.currentSet);
             },
 

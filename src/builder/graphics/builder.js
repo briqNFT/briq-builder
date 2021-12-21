@@ -207,6 +207,8 @@ function addLight(scene, x, y, z) {
 
 var scene;
 
+import { selectionRender } from '../inputs/Selection';
+
 function setupScene(voxWorld)
 {
   const scene = new THREE.Scene();
@@ -223,6 +225,8 @@ function setupScene(voxWorld)
     scene.add(voxWorld.cellIdToMesh[cid]);
   //voxWorld.updateVoxelGeometry(1, 1, 1);  // 0,0,0 will generate
   
+  selectionRender.setScene(scene);
+
   return scene;
 }
 

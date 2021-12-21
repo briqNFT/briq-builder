@@ -109,6 +109,11 @@ export class BriqsDB
         return this.create(hexUuid(), 1, "");
     }
 
+    add(briq: Briq)
+    {
+        this.briqs.set(briq.id, briq);
+    }
+
     create(id: string, material: number, set: string): Briq
     {
         let briq = new Briq(id, material, set);

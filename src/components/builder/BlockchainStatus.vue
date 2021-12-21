@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import TransactionsMin from './TransactionsMin.vue';
 import BriqDetails from './BriqDetails.vue';
-import BriqModal from './modals/BriqModal.vue';
+import BriqListModal from './modals/BriqListModal.vue';
 import Hotkey from '../generic/Hotkey.vue';
 </script>
 
 <template>
     <div class="flex flex-col items-end">
-        <Hotkey name="briqModal" :data="{ key: 'b', ctrl: true }" :handler="() => setModal(BriqModal)"/>
+        <Hotkey name="briqListModal" :data="{ key: 'b', ctrl: true }" :handler="() => setModal(BriqListModal)"/>
         <div class="overflow-auto flex flex-nowrap flex-col justify-start content-end">
             <Button class="pointer-events-auto flex items-center gap-2 text-center" @click="mainBtnClick" :tooltip="mainBtnTooltip">
                 <div v-if="!isConnected">Connect Wallet</div>

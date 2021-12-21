@@ -18,6 +18,9 @@ export class SetData
     // This briqsDB is unique to the set.
     briqsDB: BriqsDB
 
+    // Region/Cell ID of each briq, by ID
+    briqPos: Map<string, [number, number]>;
+
     constructor(id: string, chainBriqsBd: BriqsDB)
     {
         this.id = id;
@@ -29,6 +32,7 @@ export class SetData
         this.usedByMaterial = {};
 
         this.briqsDB = new BriqsDB(chainBriqsBd);
+        this.briqPos = new Map();
     }
 
     serialize()
@@ -71,6 +75,7 @@ export class SetData
         this.briqs = new Map();
         this.usedByMaterial = {};
         this.briqsDB.reset();
+        this.briqPos = new Map();
     }
 
     forEach(callable: (cell: Briq, pos: [number, number, number]) => any)
@@ -95,6 +100,34 @@ export class SetData
         if (!briqId)
             return;
         return this.briqsDB.get(briqId);
+    }
+
+    swapBriq(ogId: string, nv: Briq)
+    {
+        let pos = this.briqPos.get(ogId);
+        if (!pos)
+            throw new Error("Unknown briq");
+        if (this.briqPos.has(nv.id))
+            throw new Error("Brick already placed");
+        let old = this.briqsDB.briqs.get(ogId);
+        nv.color = old!.color;
+        this.briqsDB.add(nv);
+        this.briqs.get(pos[0])!.set(pos[1], nv.id);
+        this.briqPos.set(nv.id, pos);
+        this.briqPos.delete(ogId);
+        this.briqsDB.briqs.delete(ogId);
+    }
+
+    modifyBriq(x: number, y: number, z: number, data: any): Briq
+    {
+        let cell = this.getAt(x, y, z);
+        if (!cell)
+            throw new Error(`No cell at position ${x}, ${y}, ${z}`);
+        if (data.color)
+        {
+            cell.color = data.color;
+        }
+        return cell;
     }
 
     placeBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: string): boolean
@@ -126,6 +159,7 @@ export class SetData
         actualBriq.set = this.id;
         
         this.briqs.get(regionId)!.set(cellId, actualBriq.id);
+        this.briqPos.set(actualBriq.id, [regionId, cellId]);
 
         if (!this.usedByMaterial[cellKind])
             this.usedByMaterial[cellKind] = 0;
@@ -150,6 +184,7 @@ export class SetData
             --this.usedByMaterial[briq.material];
         
         this.briqs.get(regionId)!.delete(cellId);
+        this.briqPos.delete(briq.id);
         this.briqsDB.briqs.delete(briq.id);
 
         return true;
@@ -163,20 +198,9 @@ export class SetData
             if (!ret.has(regionId))
                 ret.set(regionId, new Map());
             ret.get(regionId).set(cellId, briq.id);
+            this.briqPos.set(briq.id, [regionId, cellId]);
         })
         this.briqs = ret;
-    }
-
-    modifyBriq(x: number, y: number, z: number, data: any): Briq
-    {
-        let cell = this.getAt(x, y, z);
-        if (!cell)
-            throw new Error(`No cell at position ${x}, ${y}, ${z}`);
-        if (data.color)
-        {
-            cell.color = data.color;
-        }
-        return cell;
     }
 
     computeRegionId(x: number, y: number, z: number)

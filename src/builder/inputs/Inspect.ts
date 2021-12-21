@@ -2,6 +2,7 @@ import { MouseInputState } from './BuilderInputState';
 import { store } from '../../store/Store'
 import type { SetData } from '../SetData'
 import type { Briq } from "../BriqsDB.js";
+import { selectionRender } from './Selection';
 
 export class InspectInput extends MouseInputState
 {
@@ -14,9 +15,14 @@ export class InspectInput extends MouseInputState
             curX: 0,
             curY: 0,
         });
+        selectionRender.show();
     }
 
-    onPointerMove(event: PointerEvent)
+    override onExit() {
+        selectionRender.hide();
+    }
+
+    async onPointerMove(event: PointerEvent)
     {
         this.gui.curX = this.curX;
         this.gui.curY = this.curY;
@@ -27,5 +33,18 @@ export class InspectInput extends MouseInputState
             this.gui.briq = undefined;
         else
             this.gui.briq = (store.state.builderData.currentSet as SetData).getAt(...pos);
+    }
+
+    async onPointerUp(event: PointerEvent)
+    {
+        let mov = Math.abs(event.clientX - this.lastClickX) + Math.abs(event.clientY - this.lastClickY);
+        if (mov > 10)
+            return;
+
+            const pos = this.getIntersectionPos(this.curX, this.curY, true);
+        if (!pos || pos[1] < 0)
+            this.fsm.store.selectionMgr.clear();
+        else
+            this.fsm.store.selectionMgr.selectAt(...pos);
     }
 }

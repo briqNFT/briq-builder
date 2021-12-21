@@ -12,8 +12,8 @@ import InputComp from './InputComp.vue'
                 @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'"><i class="fas fa-paint-brush"/></Button>
             <Button tooltip="In 'Erase' mode, left-click to delete briqs."
                 @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="far fa-trash-alt"/></Button>
-            <Button tooltip="In 'Inspect' mode, left-click to inspect briqs."
-                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-eye"/></Button>
+            <Button tooltip="In 'Select' mode, you can select briqs and swap them for others."
+                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-mouse-pointer"></i></Button>
             <Button tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots."
                 @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-video"/></Button>
             <Button tooltip="Use 'Move' mode to move all briqs in the set."
