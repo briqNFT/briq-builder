@@ -14,16 +14,16 @@ export default class BriqContract extends ExtendedContract
         super(BriqABI, address, provider)
     }
 
-    async initialize(set_contract_address: string, mint_contract_address: string)
+    async initialize(set_contract_address: string, mint_contract_address: string, erc20_contract_address: string)
     {
         if (!((this.provider as Signer).address))
             throw new Error("Provider is not a signer");
-        return await this.invoke("initialize", { set_contract_address, mint_contract_address });
+        return await this.invoke("initialize", { set_contract_address, mint_contract_address, erc20_contract_address });
     }
 
     async get_all_tokens_for_owner(owner: string)
     {
-        return await this.call("get_all_tokens_for_owner", { owner: owner });
+        return (await this.call("get_all_tokens_for_owner", { owner: owner })).tokens;
     }
 
     async mint_multiple(material: number, token_start: number, nb: number): Promise<AddTransactionResponse>
@@ -41,7 +41,7 @@ export class ProdBriqContract extends ExtendedContract
         super(ProdBriqABI, address, provider)
     }
 
-    async initialize(set_contract_address: string, mint_contract_address: string)
+    async initialize(set_contract_address: string, mint_contract_address: string, erc20_contract_address: string)
     {
         if (!((this.provider as Signer).address))
             throw new Error("Provider is not a signer");
@@ -50,7 +50,7 @@ export class ProdBriqContract extends ExtendedContract
 
     async get_all_tokens_for_owner(owner: string)
     {
-        return await this.call("get_all_tokens_for_owner", { owner: owner });
+        return (await this.call("get_all_tokens_for_owner", { owner: owner })).bricks;
     }
 
     async mint_multiple(material: number, token_start: number, nb: number): Promise<AddTransactionResponse>

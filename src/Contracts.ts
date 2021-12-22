@@ -5,9 +5,10 @@ import MintContract from './contracts/mint'
 const ADDRESSES = {
     // Alpha4-goerli
     "https://alpha4.starknet.io": {
-        briq: "0x011ddf2b37e4eecaa3a52b69e0c692cc2856a5a55c559aba1692019fb2c2030b",
-        mint: "0x026faf2c0f470949b115e4273e54e1183ac4567b4da5bba27ac691cabfbec5ee",
-        set: "0x036a2ffb6251cabfa89414da5ec7f939fcd7f3c5da1020b4e1e2867bc3ea82b8",
+        briq: "0x066c0a6dbfa8c1e2a9d41658d03ec22f20e751f0b81c189d451cade12cf2cef9",
+        mint: "0x036b6a131a44e2b60684529c7dbd4f857371b0279e6d309e2bf094f5a976ddfa",
+        set: "0x05958f8b2214242bd436faac06e0db6b953c03348ce960aab9f4f4bcecb23014",
+        briq_erc20: "0x0373419e9c39a1f5e1995382c7bd89e00dea6cd02f8bb26e8d7e1df071aac775",
     },
     "https://alpha-mainnet.starknet.io": {
         briq: "0x03c5c2e0c3e6f48c5fa286876418450304ae5da85d333bcbf35ca495d10939c5",
@@ -34,6 +35,7 @@ const contractStore = reactive({
     briq: undefined as undefined | BriqContract | ProdBriqContract,
     mint: undefined as undefined | MintContract,
     set: undefined as undefined | SetContract | ProdSetContract,
+    briq_erc20: undefined as undefined | object,
 });
 export default contractStore;
 
@@ -52,12 +54,14 @@ export function watchSignerChanges(walletStore: any)
             contractStore.briq = new impl.briq(addr.briq, signer);
             contractStore.set = new impl.set(addr.set, signer);
             contractStore.mint = new impl.mint(addr.mint, signer);
+            contractStore.briq_erc20 = { connectedTo: addr.briq_erc20 };
         }
         else
         {
             contractStore.briq = undefined;
             contractStore.set = undefined;
             contractStore.mint = undefined;
+            contractStore.briq_erc20 = undefined;
         }
     });    
 }

@@ -20,7 +20,7 @@ import { defineComponent } from 'vue';
 export default defineComponent({
     methods: {
         async init1() {
-            let tx = await contractStore.briq.initialize(contractStore.set.connectedTo, contractStore.mint.connectedTo);
+            let tx = await contractStore.briq.initialize(contractStore.set.connectedTo, contractStore.mint.connectedTo, contractStore.briq_erc20.connectedTo );
             console.log(tx);
         },
         async init2() {

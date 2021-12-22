@@ -129,7 +129,7 @@ export var builderDataStore = (() => {
                 return;
                 try {
                     commit("fetching_briqs", true);
-                    let bricks = (await contractStore.briq.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).bricks;
+                    let bricks = (await contractStore.briq.get_all_tokens_for_owner(rootState.wallet.userWalletAddress));
                     commit("set_briqs", bricks);
                     pushMessage("Successfully fetched " + bricks.length/3 + " briqs");
                 }
