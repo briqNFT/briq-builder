@@ -5,7 +5,13 @@
             <h2 class="text-center w-full">Export set</h2>
             <p>Set: {{ metadata.set }}</p>
             <p>Name: {{ set.name }}</p>
-            <p>Briqs: {{ set.briqsDB.briqs.size }}</p>
+            <template v-if="briqsForExport.length">
+                <h4 class="font-semibold">Briqs</h4>
+                <div class="max-h-40 overflow-auto">
+                    <BriqTable :briqs="briqsForExport" :columns="['color', 'material']">
+                    </BriqTable>
+                </div>
+            </template>
             <p v-if="transactionPending">Pending transaction: {{ pending_transaction.hash }}</p>
             <div class="flex justify-around my-8">
                 <div class="flex flex-col justify-start basis-1/2 text-center">
@@ -14,7 +20,7 @@
                 </div>
                 <div class="flex flex-col justify-start basis-1/2 text-center">
                     <p><button class="block mx-auto btn" :disabled="exporting || transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs"
-                        @click="exportSet">Export on chain</button></p>
+                        @click="exportSetOnChain">Export on chain</button></p>
                     <p v-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
                     <p v-else-if="exporting || transactionPending">...Export is ongoing...</p>
                     <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
@@ -29,29 +35,34 @@
 <script lang="ts">
 import { downloadJSON, fetchData } from '../../../url'
 import { SetData } from '../../../builder/SetData';
+import type { Briq, BriqsDB } from '../../../builder/BriqsDB';
 
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
 
 import contractStore from '../../../Contracts';
 
 import { defineComponent } from 'vue';
+import BriqTable from '../BriqTable.vue';
 export default defineComponent({
     data() {
         return {
             name: "",
             pending_transaction: undefined as Transaction | undefined,
             exporting: false,
-        }
+            briqsForExport: [] as Array<Briq>,
+            exportSet: undefined as SetData | undefined,
+        };
     },
     props: ["metadata"],
     emits: ["close"],
     inject: ["messages", "reportError"],
-    mounted() {
+    async mounted() {
         this.name = this.set.name;
         this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.metadata.set)?.[0];
+        await this.prepareForExport();
     },
     computed: {
-        set: function() {
+        set: function () {
             return this.$store.state.builderData.wipSets.filter(x => x.id === this.metadata.set)?.[0];
         },
         alreadyOnChain() {
@@ -61,47 +72,66 @@ export default defineComponent({
             return this.pending_transaction?.isPending() ?? false;
         },
         hasBriqsAndSets() {
-            return this.$store.state.builderData.briqsDB.briqs.size
+            return this.$store.state.builderData.briqsDB.briqs.size;
         },
         notEnoughBriqs() {
-            let total = 0;
-            this.$store.state.builderData.briqsDB.briqs.forEach(x => total += +(!x.partOfSet()));
-            for (let mat in this.set.usedByMaterial)
-                total -= this.set.usedByMaterial[mat];
-            return total < 0;
+            // if there is no exportable set, then we have some briq-related issue.
+            return !this.exportSet;
         },
     },
     methods: {
-        exportSetLocally: function() {
-            downloadJSON(this.$store.state.builderData.currentSet.serialize(), this.$store.state.builderData.currentSet.id + ".json")
+        exportSetLocally: function () {
+            downloadJSON(this.$store.state.builderData.currentSet.serialize(), this.$store.state.builderData.currentSet.id + ".json");
         },
-        exportSet: async function() {
+        exportSetOnChain: async function () {
             if (!contractStore.set)
                 return;
             this.exporting = true;
             try {
-                let data = this.$store.state.builderData.currentSet.serialize();
-                let exportSet = new SetData(data.id, this.$store.state.builderData.briqsDB);
-                exportSet.deserialize(data);
-                exportSet.swapForFakeBriqs();
-                exportSet.swapForRealBriqs(this.$store.state.builderData.briqsDB);
-                data = exportSet.serialize();
+                await this.prepareForExport();
+                if (!this.exportSet)
+                    throw new Error("The set could not be exported");
+                let data = this.exportSet.serialize();
                 await fetchData("store_set", { token_id: data.id, data: data });
                 // Debug
                 //downloadJSON(data, data.id + ".json")
                 let TX = await contractStore.set.mint(this.$store.state.wallet.userWalletAddress, data.id, data.briqs.map(x => x.data.briq));
                 new Transaction(TX.transaction_hash, "export_set", { setId: data.id });
-                this.messages.pushMessage("Set exported " + exportSet.id + " - TX " + TX.transaction_hash);
+                this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
                 this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
+                this.$store.dispatch("builderData/update_set", data);
             }
-            catch(err)
-            {
+            catch (err) {
                 this.messages.pushMessage("Error while exporting set - check console for details");
                 this.reportError(err);
                 console.error(err);
             }
             this.exporting = false;
+        },
+        async prepareForExport() {
+            if (this.exportSet)
+                return;
+            let data = this.$store.state.builderData.currentSet.serialize();
+            const chainBriqs: BriqsDB = this.$store.state.builderData.briqsDB;
+            let exportSet = new SetData(data.id, chainBriqs);
+            exportSet.deserialize(data);
+            let userCustom = [];
+            exportSet.forEach((briq: Briq) => {
+                if (chainBriqs.briqs.has(briq.id))
+                    userCustom.push(briq.id);
+            });
+            try {
+                exportSet.swapForRealBriqs(chainBriqs);
+            }
+            catch (err) {
+                this.briqsForExport = [];
+                this.exportSet = undefined;
+                return;
+            }
+            this.briqsForExport = Array.from(exportSet.briqsDB.briqs.values());
+            this.exportSet = exportSet;
         }
-    }
+    },
+    components: { BriqTable }
 })
 </script>

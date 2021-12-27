@@ -264,22 +264,29 @@ export class SetData
             if (brick.partOfSet())
                 continue;
             // Already used.
-            if (this.briqsDB.get(brick.id))
+            if (this.briqsDB.briqs.has(brick.id))
                 continue;
             available_by_matos[brick.material].push(brick.id);
         }
+        let swaps: Array<[string, Briq]> = [];
         this.briqs.forEach((region, regionId) => {
             region.forEach((cellId, cellPos) => {
                 let cell = this.briqsDB.get(cellId)!;
                 if (cell.onChain)
-                    return;
+                {
+                    let set = chainDB.briqs.get(cell.id)!.set;
+                    if (set === this.id)
+                        return;
+                }
                 let newBriq = this.briqsDB.cloneBriq(available_by_matos[cell.material].splice(0, 1)[0], chainDB);
-                // Copy color since that's not on-chain.
+                // Copy metadata from the original briq.
                 newBriq.color = cell.color;
                 newBriq.onChain = true;
-                region.set(cellPos, newBriq.id);
+                swaps.push([cell.id, newBriq]);
             });
         });
+        for (let swap of swaps)
+            this.swapBriq(swap[0], swap[1]);
     }
 
     swapForFakeBriqs()

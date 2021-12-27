@@ -4,10 +4,6 @@
             {
                 "name": "briq_contract_address",
                 "type": "felt"
-            },
-            {
-                "name": "max_mint",
-                "type": "felt"
             }
         ],
         "name": "constructor",
@@ -21,7 +17,7 @@
                 "type": "felt"
             }
         ],
-        "name": "amount_minted",
+        "name": "has_minted",
         "outputs": [
             {
                 "name": "res",
@@ -39,21 +35,6 @@
             }
         ],
         "name": "mint",
-        "outputs": [],
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "name": "user",
-                "type": "felt"
-            },
-            {
-                "name": "amount",
-                "type": "felt"
-            }
-        ],
-        "name": "mint_amount",
         "outputs": [],
         "type": "function"
     }

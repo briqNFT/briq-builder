@@ -195,6 +195,10 @@ export var builderDataStore = (() => {
             {
                 commit("select_set", data);
             },
+            update_set({ commit }: any, data: any)
+            {
+                commit("update_set", data);
+            },
             
             ////////////
             //// Set commands
@@ -279,6 +283,11 @@ export var builderDataStore = (() => {
                     state.currentSet = state.wipSets.filter((x: SetData) => x.id === data)[0];
                 palettesMgr.updateForSet(state.currentSet);
                 inputStore.selectionMgr.selectSet(state.currentSet);
+                dispatchBuilderAction("select_set", state.currentSet);
+            },
+            update_set(state: any, data: any)
+            {
+                state.currentSet.deserialize(data);
                 dispatchBuilderAction("select_set", state.currentSet);
             },
                         

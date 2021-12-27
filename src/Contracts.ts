@@ -1,14 +1,14 @@
 import BriqContract, { ProdBriqContract } from './contracts/briq'
 import SetContract, { ProdSetContract } from './contracts/set'
-import MintContract from './contracts/mint'
+import MintContract, { ProdMintContract } from './contracts/mint'
 
 const ADDRESSES = {
     // Alpha4-goerli
     "https://alpha4.starknet.io": {
-        briq: "0x066c0a6dbfa8c1e2a9d41658d03ec22f20e751f0b81c189d451cade12cf2cef9",
-        mint: "0x036b6a131a44e2b60684529c7dbd4f857371b0279e6d309e2bf094f5a976ddfa",
-        set: "0x05958f8b2214242bd436faac06e0db6b953c03348ce960aab9f4f4bcecb23014",
-        briq_erc20: "0x0373419e9c39a1f5e1995382c7bd89e00dea6cd02f8bb26e8d7e1df071aac775",
+        briq: "0x06ef7bdad787d1442aed56e8a8863f27a9b5a3dd278d0fb09a75b0aaba1d7512",
+        mint: "0x05786cc6e77d1eb312e2e6fd1210697abb7e06ccfb48e82774ede15cc63e0f1a",
+        set: "0x039dff96e31dc4413dce8e32751a718dcc876efee05e2adee2fc83efcad2c04c",
+        briq_erc20: "0x05e29c9716ca704f0712e97073023a1e9014cfcf113b229d7e8dfe15cd5906fc",
     },
     "https://alpha-mainnet.starknet.io": {
         briq: "0x03c5c2e0c3e6f48c5fa286876418450304ae5da85d333bcbf35ca495d10939c5",
@@ -25,7 +25,7 @@ const IMPL = {
     },
     "https://alpha-mainnet.starknet.io": {
         briq: ProdBriqContract,
-        mint: MintContract,
+        mint: ProdMintContract,
         set: ProdSetContract,
     }
 }

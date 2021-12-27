@@ -126,7 +126,6 @@ export class BriqsDB
         let br = from.get(id)!;
         let ret = new Briq(id, br.material, br.set);
         ret.color = br.color;
-        this.briqs.set(id, ret);
         return ret;
     }
 
