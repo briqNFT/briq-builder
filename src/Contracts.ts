@@ -1,13 +1,13 @@
-import BriqContract, { ProdBriqContract } from './contracts/briq'
-import SetContract, { ProdSetContract } from './contracts/set'
-import MintContract, { ProdMintContract } from './contracts/mint'
+import BriqContract from './contracts/briq'
+import SetContract from './contracts/set'
+import MintContract from './contracts/mint'
 
 const ADDRESSES = {
     // Alpha4-goerli
     "https://alpha4.starknet.io": {
-        briq: "0x06ef7bdad787d1442aed56e8a8863f27a9b5a3dd278d0fb09a75b0aaba1d7512",
-        mint: "0x05786cc6e77d1eb312e2e6fd1210697abb7e06ccfb48e82774ede15cc63e0f1a",
-        set: "0x039dff96e31dc4413dce8e32751a718dcc876efee05e2adee2fc83efcad2c04c",
+        briq: "0x01d6b126e22d2f805a64fa0ce53ddebcd37363d13ab89960bd2bf896dd2742d4",
+        mint: "0x03dbda16e85ad0d72cd54ffd2971b4e18e71a4f9d1d310cc8fd2deb564fc8a59",
+        set: "0x01618ffcb9f43bfd894eb4a176ce265323372bb4d833a77e20363180efca3a65",
         briq_erc20: "0x05e29c9716ca704f0712e97073023a1e9014cfcf113b229d7e8dfe15cd5906fc",
     },
     "https://alpha-mainnet.starknet.io": {
@@ -24,17 +24,17 @@ const IMPL = {
         set: SetContract,
     },
     "https://alpha-mainnet.starknet.io": {
-        briq: ProdBriqContract,
-        mint: ProdMintContract,
-        set: ProdSetContract,
+        briq: BriqContract,
+        mint: MintContract,
+        set: SetContract,
     }
 }
 
 import { reactive, watchEffect, toRef } from 'vue';
 const contractStore = reactive({
-    briq: undefined as undefined | BriqContract | ProdBriqContract,
+    briq: undefined as undefined | BriqContract,
     mint: undefined as undefined | MintContract,
-    set: undefined as undefined | SetContract | ProdSetContract,
+    set: undefined as undefined | SetContract,
     briq_erc20: undefined as undefined | object,
 });
 export default contractStore;

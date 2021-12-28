@@ -87,18 +87,6 @@
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "get_mint_contract",
-        "outputs": [
-            {
-                "name": "res",
-                "type": "felt"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
         "inputs": [
             {
                 "name": "owner",
@@ -230,36 +218,11 @@
         "name": "get_all_tokens_for_owner",
         "outputs": [
             {
-                "name": "tokens_len",
+                "name": "bricks_len",
                 "type": "felt"
             },
             {
-                "name": "tokens",
-                "type": "felt*"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "name": "owner",
-                "type": "felt"
-            },
-            {
-                "name": "set_id",
-                "type": "felt"
-            }
-        ],
-        "name": "get_bricks_for_set",
-        "outputs": [
-            {
-                "name": "tokens_len",
-                "type": "felt"
-            },
-            {
-                "name": "tokens",
+                "name": "bricks",
                 "type": "felt*"
             }
         ],

@@ -66,6 +66,7 @@ p {
 import type { Provider, CallContractTransaction } from 'starknet';
 
 import { transactionsManager } from '../../builder/Transactions';
+import contractStore from '../../Contracts';
 
 import { toBN } from 'starknet/utils/number';
 import { getSelectorFromName } from 'starknet/utils/stark';
@@ -80,9 +81,9 @@ export default defineComponent({
             provider: (toRef(this.$store.state.wallet, "provider") as Provider),
             addr: this.getAddr(),
             
-            briqContract: toRef(this.$store.state.builderData, "briqContract"),
-            setContract: toRef(this.$store.state.builderData, "setContract"),
-            mintContract: toRef(this.$store.state.builderData, "mintContract"),
+            briqContract: toRef(contractStore, "briq"),
+            setContract: toRef(contractStore, "set"),
+            mintContract: toRef(contractStore, "mint"),
 
             tempTx: "",
 
