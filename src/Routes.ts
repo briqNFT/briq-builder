@@ -4,6 +4,7 @@ import Admin from './components/Admin.vue'
 import Settings from './components/Settings.vue'
 import SetBrowser from './components/builder/set_browser/SetBrowser.vue'
 import LandingPage from './components/landing_page/LandingPage.vue'
+import Debug from './components/debug/Debug.vue'
 
 export const routes = [
     {
@@ -35,5 +36,10 @@ export const routes = [
         path: "/browse_sets",
         name: "Browse Sets",
         component: SetBrowser
+    },
+    {
+        path: "/debug/:address?",
+        name: "Debug",
+        component: Debug
     }
 ];

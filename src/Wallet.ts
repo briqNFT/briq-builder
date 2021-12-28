@@ -32,7 +32,7 @@ export const walletStore = {
                 // Fallback to regular provider if that failed.
                 if (!state.signer)
                 {
-                    let provider = getProvider();
+                    let provider = await getProvider();
                     commit("set_provider", provider);
                 }
 
