@@ -6,6 +6,18 @@
             <div class="my-4">
                 <p>We’re currently in <a href="">Alpha test</a> on StarkNet Mainnet. Claim 100 free briqs to start your building journey.</p>
             </div>
+            <template v-if="!mintProxyStore.walletOk">
+            <div class="font-medium text-xl">
+                <p>Your wallet is not yet deployed. Please check Voyager Explorer,
+                you should see the deploy transaction before you can claim briqs.</p>
+            </div>
+            <div class="flex justify-center my-4 gap-2">
+                <a :href="voyagerLink" target="_blank"><Button>Check Voyager</Button></a>
+                <button class="btn" :disabled="true">I Want to Briq Free</button>
+            </div>
+
+            </template>
+            <template v-else="">
             <div class="font-medium">
                 <p v-if="status == 'calling'">Status: ...Minting briqs...</p>
                 <p v-if="status == 'polling'">Status: ...Waiting for transaction to validate...<br/>
@@ -21,6 +33,7 @@
                 <button class="btn" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I Want to Briq Free</button>
                 <button class="btn" v-if="status === 'ok'" @click="$emit('close')">Start Building</button>
             </div>
+            </template>
         </div>
     </div>
 </template>
@@ -29,13 +42,15 @@
 import { mintProxyStore } from '../../../builder/MintProxy';
 import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
+import type { Provider } from 'starknet';
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
             status: "waiting",
             txHash: "",
-            tx: undefined as undefined | Transaction
+            tx: undefined as undefined | Transaction,
+            mintProxyStore
         }
     },
     props: ["metadata"],
@@ -49,6 +64,14 @@ export default defineComponent({
             this.status = 'pending';
             this.txHash = this.tx.hash;
             await this.poll();
+        }
+    },
+    computed: {
+        voyagerLink() {
+            if ((this.$store.state.wallet.provider as Provider).gatewayUrl.search("mainnet") !== -1)
+                return `https://voyager.online/contract/${this.$store.state.wallet.userWalletAddress}`
+            else
+                return `https://goerli.voyager.online/contract/${this.$store.state.wallet.userWalletAddress}`
         }
     },
     methods: {
