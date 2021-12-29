@@ -5,6 +5,7 @@ import { SetData } from './SetData';
 
 import { registerUndoableAction } from "./UndoRedo"
 import { pushMessage } from '../Messages';
+import { reportError } from '../Monitoring';
 
 import { dispatchBuilderAction } from "./graphics/dispatch";
 
@@ -137,6 +138,7 @@ export var builderDataStore = (() => {
                 catch(err)
                 {
                     pushMessage("Error fetching briqs - see console for details");
+                    reportError(err);
                     console.error(err);
                 }
                 commit("fetching_briqs", false);

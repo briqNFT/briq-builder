@@ -26,6 +26,7 @@ export default defineComponent({
         }
     },
     props: ["metadata"],
+    inject: ["reportError"],
     computed: {
         formatOk() {
             return this.target.match(/^0x[abcdef0-9]{63}$/gi);
@@ -46,6 +47,7 @@ export default defineComponent({
             {
                 this.messages.pushMessage("Error while transferring set - See console for details.");   
                 console.error(err);
+                this.reportError(err);
             }
             this.$emit('close')
         }

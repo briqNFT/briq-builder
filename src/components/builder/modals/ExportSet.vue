@@ -43,7 +43,7 @@ export default defineComponent({
     },
     props: ["metadata"],
     emits: ["close"],
-    inject: ["messages"],
+    inject: ["messages", "reportError"],
     mounted() {
         this.name = this.set.name;
         this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.metadata.set)?.[0];
@@ -95,6 +95,7 @@ export default defineComponent({
             catch(err)
             {
                 this.messages.pushMessage("Error while exporting set - check console for details");
+                this.reportError(err);
                 console.error(err);
             }
             this.exporting = false;

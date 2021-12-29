@@ -67,7 +67,7 @@ export default defineComponent({
     },
     props: ["metadata"],
     emits: ["close"],
-    inject: ["messages"],
+    inject: ["messages", "reportError"],
     async mounted() {
         this.tx = transactionsManager.get("mint_proxy").filter(x => x.isOk())?.[0];
         if (this.tx)
@@ -138,6 +138,7 @@ export default defineComponent({
                 this.status = "error";
                 this.errorDetails = err?.toString() ?? err;
                 console.error(err);
+                this.reportError(err);
                 this.messages.pushMessage("Error while minting briqs - see console for details.");
             }
         }

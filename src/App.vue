@@ -9,6 +9,8 @@ import { HotkeyManager } from './Hotkeys'
 </template>
 
 <script lang="ts">
+import { reportError } from './Monitoring';
+
 let mgr = new HotkeyManager();
 
 // Some basic hotkeys available everywhere
@@ -17,7 +19,8 @@ mgr.register("escape", { code: "Escape" });
 import { defineComponent } from 'vue';
 export default defineComponent({
   provide: {
-    hotkeyMgr: mgr
+    hotkeyMgr: mgr,
+    reportError
   },
 })
 </script>

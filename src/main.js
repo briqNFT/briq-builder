@@ -1,19 +1,24 @@
 import { createApp } from 'vue'
 import { createWebHistory, createRouter } from "vue-router";
+import { setupMonitoring } from './Monitoring';
+
 import App from './App.vue'
 
 let app = createApp(App);
+
 
 // Load Tailwind CSS
 import './index.css'
 
 // Routing
-import { routes } from './Routes'
+import { routes } from './Routes'
 const router = createRouter({
-  history: createWebHistory(),
-  routes,
+    history: createWebHistory(),
+    routes,
 });
 app.use(router);
+
+setupMonitoring(app, router);
 
 // Load general store
 import { store } from './store/Store'
