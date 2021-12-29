@@ -3,6 +3,7 @@ import Legal from './components/Legal.vue'
 import Admin from './components/Admin.vue'
 import Settings from './components/Settings.vue'
 import SetBrowser from './components/builder/set_browser/SetBrowser.vue'
+import ShareView from './components/builder/share/Share.vue'
 import LandingPage from './components/landing_page/LandingPage.vue'
 import Debug from './components/debug/Debug.vue'
 
@@ -41,5 +42,13 @@ export const routes = [
         path: "/debug/:address?",
         name: "Debug",
         component: Debug
+    },
+    {
+        path: "/share",
+        name: "Share",
+        component: ShareView,
+        props(route: any) {
+            return route.query || {}
+        }
     }
 ];

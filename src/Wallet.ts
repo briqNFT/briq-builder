@@ -93,7 +93,11 @@ export const walletStore = {
         {
             commit("set_starknet_contract_address", data);
         },
-
+        async force_provider({ commit }: any, data: Provider)
+        {
+            commit("set_signer", { addr: "", signer: undefined });
+            commit("set_provider", data);
+        }
     },
     mutations: {
         set_provider(state: any, data: Provider)

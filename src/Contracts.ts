@@ -45,15 +45,16 @@ export default contractStore;
 export function watchSignerChanges(walletStore: any)
 {
     let signer = toRef(walletStore, "signer");
+    let provider = toRef(walletStore, "provider");
 
     watchEffect(async () => {
         let addr = walletStore.baseUrl && ADDRESSES?.[walletStore.baseUrl];
         let impl = walletStore.baseUrl && IMPL?.[walletStore.baseUrl];
         if (addr)
         {
-            contractStore.briq = new impl.briq(addr.briq, signer);
-            contractStore.set = new impl.set(addr.set, signer);
-            contractStore.mint = new impl.mint(addr.mint, signer);
+            contractStore.briq = new impl.briq(addr.briq, signer.value ? signer : provider);
+            contractStore.set = new impl.set(addr.set, signer.value ? signer : provider);
+            contractStore.mint = new impl.mint(addr.mint, signer.value ? signer : provider);
             contractStore.briq_erc20 = { connectedTo: addr.briq_erc20 };
         }
         else

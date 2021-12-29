@@ -7,6 +7,18 @@ export var provider: undefined | Provider;
 var providerPromise: undefined | Promise<Provider>;
 var onProvider: undefined | CallableFunction;
 
+export function getProviderForNetwork(network: string): Provider
+{
+    let ret = new Provider({});
+    if (network === "mainnet")
+        ret.baseUrl = "https://alpha-mainnet.starknet.io";
+    else
+        ret.baseUrl = "https://alpha4.starknet.io";
+    ret.feederGatewayUrl = `${ret.baseUrl}/feeder_gateway`;
+    ret.gatewayUrl = `${ret.baseUrl}/gateway`;
+    return new Provider(ret);
+}
+
 export function getProvider(): Promise<Provider>
 {
     if (!providerPromise)
@@ -15,13 +27,14 @@ export function getProvider(): Promise<Provider>
         });
     return providerPromise;
 }
-getProvider();
 
 export async function setProvider(prov: Provider)
 {
     await getProvider();
     provider = prov;
 }
+
+getProvider();
 
 var setupDefaultProvider = function ()
 {
