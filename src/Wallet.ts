@@ -40,7 +40,8 @@ export const walletStore = {
                 {
                     logDebug("FALLING BACK");
                     let provider = await getProvider();
-                    commit("set_provider", provider);
+                    if (!state.signer)
+                        commit("set_provider", provider);
                 }
 
                 watchSignerChanges(state);
@@ -55,9 +56,9 @@ export const walletStore = {
         enable_wallet: noParallel(async ({ dispatch, commit }: any) => {
             // For now the only available wallet is Argent.
             let argx = new ArgentXWallet();
+            logDebug("ARGENT-X AVAILABILITY:", argx.isLikelyAvailable());
             if (argx.isLikelyAvailable())
             {
-                logDebug("ARGENT-X AVAILABLE");
                 try
                 {
                     let [addr, provider, signer] = await argx.enable();

@@ -21,6 +21,22 @@ type StarknetWindowObject =
 import type { Store } from 'vuex';
 import { IWallet, WalletConnectionError, WalletNotAvailable } from './IWallet'
 
+export async function getStarknetObject()
+{
+    let checkObject = (resolve: any, reject: any, i = 0) => {
+        if (i > 20)
+            reject();
+        if ((globalThis as any)?.["starknet"])
+            return resolve((globalThis as any).starknet);
+        setTimeout(() => {
+            checkObject(resolve, reject, i + 1);
+        }, 200);
+    }
+    return new Promise((resolve, reject) => {
+        checkObject(resolve, reject);
+    })
+}
+
 export default class ArgentXWallet extends IWallet
 {
     isLikelyAvailable(): boolean

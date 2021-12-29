@@ -67,12 +67,12 @@ import type { Provider, CallContractTransaction } from 'starknet';
 
 import { transactionsManager } from '../../builder/Transactions';
 import contractStore from '../../Contracts';
+import { getStarknetObject } from '../../wallets/ArgentX';
 
 import { ticketing, ignoreOutdated, OutdatedPromiseError } from '../../Async';
 
 import { toBN } from 'starknet/utils/number';
 import { getSelectorFromName } from 'starknet/utils/stark';
-//import {  } from './utils/stark';
 
 async function test(testVar: string, testDataVar: string, test: CallableFunction) {
     this[testVar] = undefined;
@@ -128,8 +128,10 @@ export default defineComponent({
         }
     },
     mounted() {
-        if (!this.wallet.signer)
-            this.$store.dispatch("wallet/enable_wallet");
+        getStarknetObject().then(() => {
+            if (!this.wallet.signer)
+                this.$store.dispatch("wallet/enable_wallet");
+        }).catch();
 
         watchEffect(() => {
             this.checkGateway();
