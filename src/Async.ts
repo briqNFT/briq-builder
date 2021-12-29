@@ -15,17 +15,38 @@ export function noParallel(func: CallableFunction)
     }
 }
 
+export class OutdatedPromiseError extends Error
+{
+
+};
+
 /**
  * If the promise runs several time, only the latest succeeds.
  */
- export function ticketing(func: CallableFunction)
- {
-     var ticket = 1;
-     return async function(...args: any[]) {
-         let myTicket = ticket++;
-         let res = await func(...args);
-         if (ticket > myTicket)
-            throw new Error("Outdated promise");
-         return res;
-     }
- }
+export function ticketing<T>(func: (...args: any[]) => Promise<T>): (...args: any[]) => Promise<T>
+{
+    var ticket = 0;
+    return async function(...args: any[]): ReturnType<typeof func> {
+        let myTicket = ++ticket;
+        let res = await func.call(this, ...args);
+        if (ticket > myTicket)
+            throw new OutdatedPromiseError("Outdated promise");
+        return res;
+    }
+}
+
+/**
+ * Run a function, ignoring outdated promises error from ticketing.
+ * The execution of func will still be stopped at whatever raised the error.
+ */
+export async function ignoreOutdated<T>(func: (...args: any[]) => Promise<T>): Promise<T>
+{
+    let ret: T;
+    try {
+        ret = await func();
+    } catch(err) {
+        if (!(err instanceof OutdatedPromiseError))
+            throw err;
+    }
+    return ret!;
+}

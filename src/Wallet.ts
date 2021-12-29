@@ -64,9 +64,9 @@ export const walletStore = {
                     logDebug("ARGENT-X ENABLED:", addr, provider, signer);
                     // Update the provider (may be mainnet or testnet).
                     commit("set_provider", provider);
-                    commit("set_signer", { addr, signer });
-                    argx.watchForChanges(() => {
-                        dispatch("enable_wallet");
+                    commit("set_signer", { provider, signer, addr });
+                    argx.watchForChanges(async () => {
+                        await dispatch("enable_wallet");
                     })
                     return true;
                 }
@@ -94,7 +94,7 @@ export const walletStore = {
             state.baseUrl = state.provider.baseUrl;
             setProvider(data);
         },
-        set_signer(state: any, data: { signer: Signer, addr: string })
+        set_signer(state: any, data: { provider: Provider, signer: Signer, addr: string })
         {
             state.signer = data.signer;
             state.userWalletAddress = data.addr;

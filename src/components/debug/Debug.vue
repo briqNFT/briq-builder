@@ -68,12 +68,24 @@ import type { Provider, CallContractTransaction } from 'starknet';
 import { transactionsManager } from '../../builder/Transactions';
 import contractStore from '../../Contracts';
 
+import { ticketing, ignoreOutdated, OutdatedPromiseError } from '../../Async';
+
 import { toBN } from 'starknet/utils/number';
 import { getSelectorFromName } from 'starknet/utils/stark';
 //import {  } from './utils/stark';
 
-import { defineComponent, watchEffect, toRef} from 'vue';
-import { starknetKeccak } from 'starknet/dist/utils/hash';
+async function test(testVar: string, testDataVar: string, test: CallableFunction) {
+    this[testVar] = undefined;
+    try {
+        await test();
+    } catch(err: any)
+    {
+        this[testVar] = false;
+        this[testDataVar] = err?.toString() ?? err;
+    }
+};
+
+import { defineComponent, watchEffect, watchPostEffect, toRef} from 'vue';
 export default defineComponent({
     data() {
         return {
@@ -116,14 +128,21 @@ export default defineComponent({
         }
     },
     mounted() {
-        /*watch(toRef(this.wallet, "userWalletAddress"), () => {
-            this.update();
-        });
-        this.update();*/
         if (!this.wallet.signer)
             this.$store.dispatch("wallet/enable_wallet");
+
         watchEffect(() => {
-            this.update();
+            this.checkGateway();
+        });
+        watchEffect(() => {
+            this.checkWallet();
+        });
+        watchEffect(() => {
+            this.checkMint();
+        });
+        watchEffect(() => {
+            this.checkBalance();
+            this.checkBalanceSets();
         });
         watchEffect(() => {
             for (let tx of transactionsManager.transactions)
@@ -141,99 +160,95 @@ export default defineComponent({
             if (this.transactionsToDebug.indexOf(tx) === -1)
                 this.transactionsToDebug.splice(0, 0, tx);
         },
-
-        update() {
-            this.checkGateway();
-            this.checkWallet();
-            this.checkMint();
-            this.checkBalance();
-            this.checkBalanceSets();
+        getAddresses: ticketing(async function () {
+            return await this.provider.getContractAddresses();
+        }),
+        checkGateway() {
+            test.call(this, "reachabilityTest", "reachabilityTestData", async () => {
+                try {
+                    let addresses = (await this.getAddresses()).Starknet;
+                    this.reachabilityTest = true;
+                }
+                catch(_) {}
+            })
         },
-        async checkGateway() {
-            this.reachabilityTest = undefined;
-            if (!this.provider)
-                return;
-            try {
-                let addresses = (await this.provider.getContractAddresses()).Starknet;
-                this.reachabilityTest = true;
-            } catch(err: any)
-            {
-                this.reachabilityTest = false;
-                this.reachabilityTestData = err?.toString() ?? err;
-            }
-        },
+        getCode: ticketing(async function(addr: string) {
+            return await this.provider.getCode(addr);
+        }),
         async checkWallet()
         {
             this.walletTest = undefined;
             if (!this.provider || !this.addr)
                 return;
             try {
-                let code = await this.provider.getCode(this.addr);
-                if (!code.bytecode.length)
-                    throw new Error("Wallet is not deployed");
-                this.walletTest = true;
+                await ignoreOutdated(async () => {
+                    let code = await this.getCode(this.addr)
+                    if (!code.bytecode?.length)
+                        throw new Error("Wallet is not deployed");
+                    this.walletTest = true;
+                });
             } catch(err: any)
             {
                 this.walletTest = false;
                 this.walletTestData = err?.toString() ?? err;
             }
         },
-        async checkMint()
-        {
-            this.mintTest = undefined;
-            if (!this.provider || !this.mintContract)
-                return;
-            try {
-                let code = await this.provider.callContract({
-                    contract_address: this.mintContract.connectedTo,
-                    entry_point_selector: getSelectorFromName("has_minted"),
-                    calldata: [toBN(this.addr.substr(2,), "hex").toString()],
+        getMint: ticketing(async function () {
+            return await this.provider.callContract({
+                contract_address: this.mintContract.connectedTo,
+                entry_point_selector: getSelectorFromName("has_minted"),
+                calldata: [toBN(this.addr.substr(2,), "hex").toString()],
+            });
+        }),
+        checkMint() {
+            test.call(this, "mintTest", "mintTestData", async () => {
+                if (!this.provider || !this.mintContract)
+                    return;
+
+                await ignoreOutdated(async () => {
+                    let code = await this.getMint();
+                    this.mintTest = true;
+                    this.mintTestData = "" + parseInt(code.result[0], 16);
                 });
-                this.mintTest = true;
-                this.mintTestData = "" + parseInt(code.result[0], 16);
-            } catch(err: any)
-            {
-                this.mintTest = false;
-                this.mintTestData = err?.toString() ?? err;
-            }
+            })
         },
-        async checkBalance()
-        {
-            this.briqsTest = undefined;
-            if (!this.provider || !this.briqContract)
-                return;
-            try {
-                let code = await this.provider.callContract({
-                    contract_address: this.briqContract.connectedTo,
-                    entry_point_selector: getSelectorFromName("balance_of"),
-                    calldata: [toBN(this.addr.substr(2,), "hex").toString()],
+        getBalance: ticketing(async function () {
+            return await this.provider.callContract({
+                contract_address: this.briqContract!.connectedTo,
+                entry_point_selector: getSelectorFromName("balance_of"),
+                calldata: [toBN(this.addr.substr(2,), "hex").toString()],
+            });
+        }),
+        checkBalance() {
+            test.call(this, "briqsTest", "briqsTestData", async () => {
+                if (!this.provider || !this.briqContract)
+                    return;
+
+                ignoreOutdated(async () => {
+                    let code = await this.getBalance();
+                    this.briqsTest = true;
+                    this.briqsTestData = "" + parseInt(code.result[0], 16);
                 });
-                this.briqsTest = true;
-                this.briqsTestData = "" + parseInt(code.result[0], 16);
-            } catch(err: any)
-            {
-                this.briqsTest = false;
-                this.briqsTestData = err?.toString() ?? err;
-            }
+            })
         },
-        async checkBalanceSets()
-        {
-            this.briqsTest = undefined;
-            if (!this.provider || !this.setContract)
-                return;
-            try {
-                let code = await this.provider.callContract({
-                    contract_address: this.setContract.connectedTo,
-                    entry_point_selector: getSelectorFromName("balance_of"),
-                    calldata: [toBN(this.addr.substr(2,), "hex").toString()],
+        getSets: ticketing(async function () {
+            return await this.provider.callContract({
+                contract_address: this.setContract!.connectedTo,
+                entry_point_selector: getSelectorFromName("balance_of"),
+                calldata: [toBN(this.addr.substr(2,), "hex").toString()],
+            });
+        }),
+        checkBalanceSets() {
+            test.call(this, "setsTest", "setsTestData", async () => {
+                if (!this.provider || !this.setContract)
+                    return;
+
+                ignoreOutdated(async () => {
+                    let code = await this.getSets();
+                    this.setsTest = true;
+                    this.setsTestData = "" + parseInt(code.result[0], 16);
                 });
-                this.setsTest = true;
-                this.setsTestData = parseInt(code.result[0], 16)
-            } catch(err: any)
-            {
-                this.setsTest = false;
-                this.setsTestData = err?.toString() ?? err;
-            }
+            })
         },
 
         async updateTxData(tx: string)
