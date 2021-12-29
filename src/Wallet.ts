@@ -1,7 +1,10 @@
-import { reactive, watchEffect } from 'vue'
+import { reactive, watchEffect } from 'vue'
 
 import { defaultProvider, Provider } from 'starknet';
-import type { Signer } from 'starknet';
+import type { Signer } from 'starknet';
+
+import { logDebug, logDebugDelay } from './Messages'
+import { noParallel } from './Async';
 
 import ManualWallet from './wallets/ManualWallet'
 import ArgentXWallet from './wallets/ArgentX'
@@ -9,7 +12,6 @@ import MetamaskWallet from './wallets/Metamask'
 import { IWallet } from './wallets/IWallet';
 
 import { getProvider, setProvider } from './Provider';
-
 import { watchSignerChanges } from './Contracts'
 
 export const walletStore = {
@@ -26,6 +28,8 @@ export const walletStore = {
         initialize: {
             root: true,
             handler: async ({ state, dispatch, commit, getters }: any) => {
+                
+                logDebugDelay(() => ["STARTING WALLET CONNECT", window.localStorage.getItem("user_address")]);
 
                 if (window.localStorage.getItem("user_address"))
                     // If we have a user address stored, try immediately enabling the wallet.
@@ -34,6 +38,7 @@ export const walletStore = {
                 // Fallback to regular provider if that failed.
                 if (!state.signer)
                 {
+                    logDebug("FALLING BACK");
                     let provider = await getProvider();
                     commit("set_provider", provider);
                 }
@@ -47,14 +52,16 @@ export const walletStore = {
                 });
             }
         },
-        async enable_wallet({ dispatch, commit }: any) {
+        enable_wallet: noParallel(async ({ dispatch, commit }: any) => {
             // For now the only available wallet is Argent.
             let argx = new ArgentXWallet();
             if (argx.isLikelyAvailable())
             {
+                logDebug("ARGENT-X AVAILABLE");
                 try
                 {
                     let [addr, provider, signer] = await argx.enable();
+                    logDebug("ARGENT-X ENABLED:", addr, provider, signer);
                     // Update the provider (may be mainnet or testnet).
                     commit("set_provider", provider);
                     commit("set_signer", { addr, signer });
@@ -69,7 +76,7 @@ export const walletStore = {
                 }
             }
             return false;
-        },
+        }),
         async disconnect({ commit }: any)
         {
             commit("set_signer", { addr: "", signer: undefined });
@@ -86,10 +93,6 @@ export const walletStore = {
             state.provider = data;
             state.baseUrl = state.provider.baseUrl;
             setProvider(data);
-        },
-        set_user_wallet(state: any, data: string)
-        {
-            state.userWalletAddress = data;
         },
         set_signer(state: any, data: { signer: Signer, addr: string })
         {
