@@ -4,9 +4,20 @@
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full py-4">Welcome to briq</h2>
             <div class="my-4">
-                <p>We’re currently in <a href="">Alpha test</a> on StarkNet Mainnet. Claim 100 free briqs to start your building journey.</p>
+                <p>We’re currently in <a href="">Alpha test</a> on StarkNet TestNet. Claim 100 free briqs to start your building journey.</p>
             </div>
-            <template v-if="!$store.state.wallet.starknetAddress">
+            <template v-if="$store.state.wallet.baseUrl.indexOf('mainnet') !== -1 ">
+            <div class="font-medium text-xl">
+                <p>Mission accomplished folks !<br/>briq was working so well that mainnet costs on L1 are too high for StarkWare, so we're temporarily turning Mainnet briq off.<br/>Please switch to Testnet to use Briq!<br/>
+                <br/>Follow this <a target="_blank" href="https://twitter.com/briqs_/status/1476284938773221382?ref_src=twsrc%5Etfw" class="underline">twitter thread</a> for more information.
+                </p>
+            </div>
+            <div class="flex justify-center my-4 gap-2">
+                <button class="btn" :disabled="true">I Want to Briq Free</button>
+            </div>
+
+            </template>
+            <template v-else-if="!$store.state.wallet.starknetAddress">
             <div class="font-medium text-xl">
                 <p>Failed to reach the Starknet Gateway. This may happen because of rate-limiting on the Starknet side.<br/>
                 If you're on main-net, try on testnet, or retry later.</p>
