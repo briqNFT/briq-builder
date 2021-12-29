@@ -52,4 +52,13 @@ export function setupSync()
             setupMintProxy(store.state.builderData.mintContract, store.state.wallet.userWalletAddress);
     });
 
+    watchEffect(async () => {
+        try {
+            let addr = (await store.state.wallet.provider.getContractAddresses())?.Starknet;
+            store.dispatch("wallet/set_starknet_contract_address", addr);
+        } catch(err)
+        {
+            store.dispatch("wallet/set_starknet_contract_address", undefined);
+        }
+    });
 }

@@ -6,7 +6,17 @@
             <div class="my-4">
                 <p>We’re currently in <a href="">Alpha test</a> on StarkNet Mainnet. Claim 100 free briqs to start your building journey.</p>
             </div>
-            <template v-if="!mintProxyStore.walletOk">
+            <template v-if="!$store.state.wallet.starknetAddress">
+            <div class="font-medium text-xl">
+                <p>Failed to reach the Starknet Gateway. This may happen because of rate-limiting on the Starknet side.<br/>
+                If you're on main-net, try on testnet, or retry later.</p>
+            </div>
+            <div class="flex justify-center my-4 gap-2">
+                <button class="btn" :disabled="true">I Want to Briq Free</button>
+            </div>
+
+            </template>
+            <template v-else-if="!mintProxyStore.walletOk">
             <div class="font-medium text-xl">
                 <p>Your wallet is not yet deployed. Please check Voyager Explorer,
                 you should see the deploy transaction before you can claim briqs.</p>
@@ -26,8 +36,9 @@
 <span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
                 <p v-if="status == 'ok'">Status: Transaction complete!<br/>
 <span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
-                <p v-if="status == 'error'">Status: Error while minting - check console for details.<br/>
-<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
+                <p v-if="status == 'error'">Status: Error while minting.
+<span v-if="txHash"><br/>Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span>
+                Error details: <br/> <span class="font-mono text-xs tracking-tighter">{{ errorDetails }}</span></p>
             </div>
             <div class="flex justify-center my-4">
                 <button class="btn" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I Want to Briq Free</button>
@@ -48,6 +59,7 @@ export default defineComponent({
     data() {
         return {
             status: "waiting",
+            errorDetails: "",
             txHash: "",
             tx: undefined as undefined | Transaction,
             mintProxyStore
@@ -57,7 +69,6 @@ export default defineComponent({
     emits: ["close"],
     inject: ["messages"],
     async mounted() {
-        console.log(transactionsManager.get("mint_proxy").filter(x => x.isOk()));
         this.tx = transactionsManager.get("mint_proxy").filter(x => x.isOk())?.[0];
         if (this.tx)
         {
@@ -82,6 +93,12 @@ export default defineComponent({
             if (!this.tx.isOk())
             {
                 this.status = 'error';
+                try {
+                    this.errorDetails = await this.tx.getMetadata();
+                } catch (err)
+                {
+                    this.errorDetails = "Could not get tx metadata, error: " + err?.toString() ?? err;
+                }
                 this.messages.pushMessage("Error while minting briqs - see console for details.");
                 return
             }
@@ -119,6 +136,7 @@ export default defineComponent({
             catch(err)
             {
                 this.status = "error";
+                this.errorDetails = err?.toString() ?? err;
                 console.error(err);
                 this.messages.pushMessage("Error while minting briqs - see console for details.");
             }

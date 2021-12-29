@@ -152,6 +152,11 @@ export class Transaction
         return this.status !== "ERROR";
     }
 
+    async getMetadata()
+    {
+        return await provider.value.getTransaction(this.hash);
+    }
+
     isOnChain()
     {
         return this.status === "ACCEPTED";

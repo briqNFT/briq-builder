@@ -17,7 +17,7 @@ export const walletStore = {
         signer: undefined as undefined | Signer,
         provider: undefined as undefined | Provider,
         baseUrl: "",
-        goerliAddress: "",
+        starknetAddress: "",
         userWalletAddress: "",
     }),
     actions: {
@@ -69,7 +69,12 @@ export const walletStore = {
         async disconnect({ commit }: any)
         {
             commit("set_signer", { addr: "", signer: undefined });
-        }
+        },
+        set_starknet_contract_address({ commit }: any, data: any)
+        {
+            commit("set_starknet_contract_address", data);
+        },
+
     },
     mutations: {
         set_provider(state: any, data: Provider)
@@ -90,7 +95,7 @@ export const walletStore = {
 
         set_starknet_contract_address(state: any, data: string)
         {
-            state.goerliAddress = data;
+            state.starknetAddress = data;
         },
     }
 };
