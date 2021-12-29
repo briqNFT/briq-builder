@@ -7,7 +7,7 @@ import { logDebug, logDebugDelay } from './Messages'
 import { noParallel } from './Async';
 
 import ManualWallet from './wallets/ManualWallet'
-import ArgentXWallet from './wallets/ArgentX'
+import ArgentXWallet, { getStarknetObject } from './wallets/ArgentX'
 import MetamaskWallet from './wallets/Metamask'
 import { IWallet } from './wallets/IWallet';
 
@@ -28,12 +28,19 @@ export const walletStore = {
         initialize: {
             root: true,
             handler: async ({ state, dispatch, commit, getters }: any) => {
-                
                 logDebugDelay(() => ["STARTING WALLET CONNECT", window.localStorage.getItem("user_address")]);
 
                 if (window.localStorage.getItem("user_address"))
+                {
                     // If we have a user address stored, try immediately enabling the wallet.
                     await dispatch("enable_wallet");
+                    // If we failed, try again in case we just loaded too quickly.
+                    if (!state.signer)
+                        getStarknetObject().then(() => {
+                            if (!state.signer)
+                                dispatch("enable_wallet");
+                        }).catch(() => logDebug("Argent appears unavailable"));
+                }
 
                 // Fallback to regular provider if that failed.
                 if (!state.signer)

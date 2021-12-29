@@ -1,4 +1,4 @@
-import {Provider } from 'starknet';
+import { Provider } from 'starknet';
 
 import { PROD } from './Meta'
 
