@@ -23,6 +23,8 @@ export function setupMonitoring(app: any, router: any)
         logErrors: true,
         // Sample 5% of transactions for performance.
         tracesSampleRate: 0.05,
+        // % of errors to report
+        sampleRate: DEV ? 1.0 : 0.1,
     });
 }
 
