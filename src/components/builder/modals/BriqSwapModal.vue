@@ -8,7 +8,7 @@
                 @highlight="(x) => selectedBriq = x"
                 @select="onSelect"
             ></BriqTable>
-            <Button v-if="selectedBriq" @click="onSelect(selectedBriq)">toto</Button>
+            <Button v-if="selectedBriq" @click="onSelect(selectedBriq)">Swap</Button>
         </div>
     </div>
 </template>
