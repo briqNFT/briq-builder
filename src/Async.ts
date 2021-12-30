@@ -8,7 +8,7 @@ export function noParallel(func: CallableFunction)
     return async function(...args: any[]) {
         if (prom)
             return await prom;
-        prom = func(...args);
+        prom = func.call(this, ...args);
         let res = await prom;
         prom = undefined;
         return res;

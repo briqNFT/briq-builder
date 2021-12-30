@@ -19,7 +19,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
-import { watchEffect } from 'vue';
+import { watchEffect } from 'vue';
 import builderSettings from './Settings';
 
 let builderData = store.state.builderData;
@@ -113,6 +113,19 @@ export function resetCamera()
     orbitControls.controls.update();
 }
 
+// TODO: horrible, this is a workaround for my dumb renderer handling.
+var _takeScreenshot;
+export function takeScreenshot()
+{
+  return _takeScreenshot();
+}
+function _createTakeScreenshot(renderer, composer) {
+  return function() {
+    composer.render();
+    return renderer.domElement.toDataURL("image/png");
+  };
+}
+
 function resizeRendererToDisplaySize(renderer, composer, camera) {
   const canvas = renderer.domElement;
   const width = canvas.clientWidth;
@@ -180,7 +193,7 @@ function recreateRenderer(canvas, scene, camera)
     */
   }
   resizeRendererToDisplaySize(renderer, composer, camera);
-
+  _takeScreenshot = _createTakeScreenshot(renderer, composer);
   return [renderer, composer];
 };
 

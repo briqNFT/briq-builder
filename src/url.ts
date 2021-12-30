@@ -37,6 +37,14 @@ function doDownload(url: string, filename: string)
      document.body.removeChild(link);
 }
 
+export function downloadData(data: any, mime: string, filename: string)
+{
+        let blob = new Blob([data], { type: mime });
+        let url = URL.createObjectURL(blob);
+        doDownload(url, filename);
+        URL.revokeObjectURL(url);
+}
+
 export function downloadJSON(json: JSON, filename: string)
 {
         let data = JSON.stringify(json);

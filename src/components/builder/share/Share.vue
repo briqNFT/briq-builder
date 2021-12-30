@@ -10,12 +10,18 @@ import AlphaLogo from './../AlphaLogo.vue';
 <template>
     <SplashScreen/>
     <div>
-        <WebGLCanvas/>
-        <MiddleModal/>
-        <h1 class="fixed bottom-0 left-0 right-0 text-center py-8 font-display drop-shadow-md">
-            <span>{{ setData?.name }}</span>
-        </h1>
-        <h5 class="fixed bottom-0 left-0 right-0 text-center py-2 drop-shadow-md">{{ setData?.id }}</h5>
+        <WebGLCanvas style="height:calc(100vh - 200px)"/>
+        <div class="text-center py-4 font-display">
+            <div class="">
+                <h1 class="my-2">{{ setData?.name }}</h1>
+                <p class="font-lightest my-2">{{ setData?.id }}</p>
+                <template v-if="author">
+                    <p class="tracking-tighter font-mono self-align-center mx-2 text-2xl font-lightest break-all">
+                        by {{ author }}
+                    </p>
+                </template>
+            </div>
+        </div>
         <div v-if="loadingStatus === 'loading'" class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
             <div class="rounded-md bg-briq px-8 py-4">
                 <h2 class="text-center p-2">Loading</h2>
@@ -31,10 +37,12 @@ import AlphaLogo from './../AlphaLogo.vue';
         </div>
         <AlphaLogo/>
         <div class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none">
+            <Button @click="screenshot" class="pointer-events-auto"><i class="fas fa-camera"></i> Take Screenshot</Button>
             <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
                 <Button class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Button>
                 <div class="my-2">
                     <div class="flex flex-col flex-nowrap gap-1">
+                        <Button @click="$router.push({ name: 'Builder' })">Builder</button>
                         <Button @click="openHelp">Help</button>
                         <Button @click="openSettings">Settings</button>
                         <Button @click="$router.push({ path: '/legal' })">Legal / Privacy</button>
@@ -44,6 +52,7 @@ import AlphaLogo from './../AlphaLogo.vue';
                 </div>
             </div>
         </div>
+        <MiddleModal/>
     </div>
     <AlphaBanner/>
 </template>
@@ -52,15 +61,17 @@ import AlphaLogo from './../AlphaLogo.vue';
 import { pushMessage, setTooltip } from '../../../Messages';
 import { setModal } from '../../MiddleModal.vue';
 import Settings from '../modals/Settings.vue';
+import Screenshot from './Screenshot.vue';
 import { dispatchBuilderAction } from '../../../builder/graphics/dispatch';
 import { SetData } from '../../../builder/SetData';
 import { inputStore } from '../../../builder/inputs/InputStore';
-import { getProviderForNetwork } from '../../../Provider';
+import { getProvider, getProviderForNetwork } from '../../../Provider';
 import { fetchData } from '../../../url';
 import { reportError } from '../../../Monitoring';
+import { ticketing } from '../../../Async';
+import contractStore from '../../../Contracts';
 
-
-import { defineComponent } from 'vue';
+import { defineComponent, watchEffect } from 'vue';
 export default defineComponent({
     data() {
         return {
@@ -68,6 +79,7 @@ export default defineComponent({
             setData: undefined as undefined | SetData,
             loadingStatus: "loading" as "loading" | "error" | "loaded",
             loadingData: undefined as any,
+            author: "",
         };
     },
     props: ["set_id", "network"],
@@ -78,9 +90,14 @@ export default defineComponent({
     },
     async mounted() {
         // this.$store.dispatch("wallet/force_provider", getProviderForNetwork(this.network));
+        watchEffect(() => {
+            this.fetchAuthor();
+        })
+        
         inputStore.currentInput = "camera";
         this.setData = undefined;
         dispatchBuilderAction("reset");
+
         if (!this.set_id)
         {
             this.loadingStatus = "error";
@@ -114,6 +131,20 @@ export default defineComponent({
         },
         openSettings() {
             setModal(Settings);
+        },
+        fetchAuthor: ticketing(async function() {
+            this.author="0x46fda85f6ff5b7303b71d632b842e950e354fa08225c4f62eee23a1abbec4eb";
+            return;
+            if (!contractStore.set || !this.set_id)
+                return;
+            try {
+                let author = (await contractStore.set.call("owner_of", { token_id: this.set_id })).res;
+                if (author && author !== "0x0")
+                    this.author = author;
+            } catch(_) {}
+        }),
+        screenshot() {
+            setModal(Screenshot, { setData: this.setData, author: this.author });    
         }
     }
 });

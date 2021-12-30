@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed bottom-0 right-0 p-2">
+    <div class="absolute bottom-0 right-0 p-2">
         <a target="_blank" href="https://insidious-ginger-0f9.notion.site/Alpha-paper-fd11fbbb6ac449129797e5f4ecb24d7a">
             <h5 class="text-5xl font-bold drop-shadow-lg px-4 py-6 alpha-pill">briq</h5></a>
     </div>
