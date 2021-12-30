@@ -272,6 +272,7 @@ export var builderDataStore = (() => {
             },
             delete_wip_set(state: any, data: any)
             {
+                inputStore.selectionMgr.clear();
                 let idx = state.wipSets.findIndex((x: SetData) => x.id === data);
                 state.wipSets.splice(idx, 1);
             },
@@ -288,6 +289,7 @@ export var builderDataStore = (() => {
             update_set(state: any, data: any)
             {
                 state.currentSet.deserialize(data);
+                inputStore.selectionMgr.clear();
                 dispatchBuilderAction("select_set", state.currentSet);
             },
                         
@@ -317,9 +319,10 @@ export var builderDataStore = (() => {
             {
                 let ok = state.currentSet.placeBriq(...data.pos, data.color, data.voxelId);
                 if (ok)
-                dispatchBuilderAction("place_briq", data);
+                    dispatchBuilderAction("place_briq", data);
                 else // Fail to prevent the action from being stored in the history.
-                throw new Error();
+                    throw new Error();
+                inputStore.selectionMgr.clear();
             },
             undo_place_briq(state: any, data: any)
             {
@@ -333,6 +336,7 @@ export var builderDataStore = (() => {
                     state.currentSet.placeBriq(...data.payload.pos, "", 0);   
                 }
                 dispatchBuilderAction("place_briq", { pos: data.payload.pos, color: data?.undoData?.briq?.color ?? "", voxelId: data?.undoData?.briq?.material ?? 0 });
+                inputStore.selectionMgr.clear();
             },
             
             place_multiple_briqs(state: any, data: any)
@@ -343,6 +347,7 @@ export var builderDataStore = (() => {
                     if (ok)
                     dispatchBuilderAction("place_briq", briqData);
                 }
+                inputStore.selectionMgr.clear();
             },
             undo_place_multiple_briqs(state: any, data: any)
             {
@@ -359,6 +364,7 @@ export var builderDataStore = (() => {
                     }
                     dispatchBuilderAction("place_briq", { pos: briqData.pos, color: briqData?.briq?.color ?? "", voxelId: briqData?.briq?.material ?? 0 });    
                 }
+                inputStore.selectionMgr.clear();
             },
             
             set_briq_color(state: any, data: any)
@@ -377,19 +383,23 @@ export var builderDataStore = (() => {
             swap_for_real_briqs(state: any)
             {
                 state.currentSet.swapForRealBriqs(state.briqsDB);
+                inputStore.selectionMgr.clear();
             },
             swap_for_fake_briqs(state: any)
             {
                 state.currentSet.swapForFakeBriqs();
+                inputStore.selectionMgr.clear();
             },
             
             clear: (state: any) => {
                 state.currentSet.reset();
+                inputStore.selectionMgr.clear();
                 dispatchBuilderAction("reset");
             },
             undo_clear: (state: any, data: any) => {
                 state.currentSet.reset();
                 state.currentSet.deserialize(data);
+                inputStore.selectionMgr.clear();
                 dispatchBuilderAction("select_set", state.currentSet);
             },
 
