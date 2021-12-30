@@ -5,8 +5,8 @@ import { APP_ENV, DEV } from './Meta';
 
 export function setupMonitoring(app: any, router: any)
 {
-    // temporarily turned off except in dev env to avoid flooding.
-    if (!DEV)
+    // temporarily turned off except in prod to avoid flooding.
+    if (APP_ENV === "prod")
         return;
     // Init Sentry error tracking.
     Sentry.init({
@@ -24,15 +24,22 @@ export function setupMonitoring(app: any, router: any)
         // Sample 5% of transactions for performance.
         tracesSampleRate: 0.05,
         // % of errors to report
-        sampleRate: DEV ? 1.0 : 0.1,
+        sampleRate: 1.0,
     });
 }
 
 /**
- * Manual exception reporting
+ * Manual exception reporting. Adds more info to the stack trace for easier tracking.
  * @param err Error to track
+ * @param reason A richer reason for the error for easier reading in Sentry.
  */
-export function reportError(err: Error)
+export function reportError(err: Error, reason?: string)
 {
-    Sentry.captureException(err);
+    let richError = new Error();
+    richError.name = err.name;
+    richError.message = (reason ? `(${reason})\n` : "") + err.message;
+    richError.stack += err?.stack ? "\n" + err?.stack : "";
+    if (DEV)
+        console.log("reporting error >> ", richError)
+    Sentry.captureException(richError);
 }

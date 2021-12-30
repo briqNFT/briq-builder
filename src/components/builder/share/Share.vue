@@ -11,6 +11,24 @@ import AlphaLogo from './../AlphaLogo.vue';
     <SplashScreen/>
     <div>
         <WebGLCanvas/>
+        <MiddleModal/>
+        <h1 class="fixed bottom-0 left-0 right-0 text-center py-8 font-display drop-shadow-md">
+            <span>{{ setData?.name }}</span>
+        </h1>
+        <h5 class="fixed bottom-0 left-0 right-0 text-center py-2 drop-shadow-md">{{ setData?.id }}</h5>
+        <div v-if="loadingStatus === 'loading'" class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
+            <div class="rounded-md bg-briq px-8 py-4">
+                <h2 class="text-center p-2">Loading</h2>
+                <p class="text-lg">Set {{ set_id ?? '' }} is currently loading...</p>
+            </div>
+        </div>
+        <div v-else-if="loadingStatus === 'error'" class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
+            <div class="rounded-md bg-briq px-8 py-4">
+                <h2 class="text-center p-2">Error loading set</h2>
+                <p class="text-lg">{{ loadingData.text }}</p>
+                <p class="alternate-buttons m-2"><router-link :to="{ name: 'Builder' }"><Button class="m-auto block">Return to builder</Button></router-link></p>
+            </div>
+        </div>
         <AlphaLogo/>
         <div class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none">
             <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
@@ -26,12 +44,6 @@ import AlphaLogo from './../AlphaLogo.vue';
                 </div>
             </div>
         </div>
-        <Messages/>
-        <MiddleModal/>
-        <h1 class="fixed bottom-0 left-0 right-0 text-center py-8 font-display drop-shadow-md">
-            <span>{{ setData?.name }}</span>
-        </h1>
-        <h5 class="fixed bottom-0 left-0 right-0 text-center py-4 drop-shadow-md">{{ setData?.id }}</h5>
     </div>
     <AlphaBanner/>
 </template>
@@ -45,6 +57,8 @@ import { SetData } from '../../../builder/SetData';
 import { inputStore } from '../../../builder/inputs/InputStore';
 import { getProviderForNetwork } from '../../../Provider';
 import { fetchData } from '../../../url';
+import { reportError } from '../../../Monitoring';
+
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -52,6 +66,8 @@ export default defineComponent({
         return {
             expanded: false,
             setData: undefined as undefined | SetData,
+            loadingStatus: "loading" as "loading" | "error" | "loaded",
+            loadingData: undefined as any,
         };
     },
     props: ["set_id", "network"],
@@ -64,16 +80,32 @@ export default defineComponent({
         // this.$store.dispatch("wallet/force_provider", getProviderForNetwork(this.network));
         inputStore.currentInput = "camera";
         this.setData = undefined;
+        dispatchBuilderAction("reset");
+        if (!this.set_id)
+        {
+            this.loadingStatus = "error";
+            this.loadingData = {
+                "error": "bad_set_id",
+                "text": `${this.set_id ?? '<empty set id>' } is not a valid set ID`
+            };
+            return;
+        }
         try {
             let data = await fetchData("store_get/" + this.set_id);
             let set = new SetData(data.data.id, undefined)
             set.deserialize(data.data);
             this.setData = set;
             dispatchBuilderAction("select_set", set);
+            this.loadingStatus = "loaded";
         }
         catch(err)
         {
-            console.log(err);
+            this.loadingStatus = "error";
+            this.loadingData = {
+                "error": "failed_loading",
+                "text": `Failed loading set '${this.set_id}'. It may be an invalid set ID.`
+            };
+            reportError(err, "Failed to load set in Share");
         }
     },
     methods: {

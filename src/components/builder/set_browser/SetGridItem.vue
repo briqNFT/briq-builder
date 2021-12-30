@@ -85,7 +85,7 @@ export default defineComponent({
         },
         copyShareLink() {
             let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";
-            navigator.clipboard.writeText(`https://briq.construction/share?set_id=${this.setId}&network=${network}&version=1`);
+            navigator.clipboard.writeText(`${window.location.hostname}/share?set_id=${this.setId}&network=${network}&version=1`);
             this.messages.pushMessage("Copied sharing link to clipboard");
         },
         disassemble: async function() {
