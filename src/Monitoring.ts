@@ -1,10 +1,13 @@
 import * as Sentry from "@sentry/vue";
 import { Integrations } from "@sentry/tracing";
 
-import { APP_ENV } from './Meta';
+import { APP_ENV, DEV } from './Meta';
 
 export function setupMonitoring(app: any, router: any)
 {
+    // temporarily turned off except in dev env to avoid flooding.
+    if (!DEV)
+        return;
     // Init Sentry error tracking.
     Sentry.init({
         app,
