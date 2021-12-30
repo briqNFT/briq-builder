@@ -8,6 +8,7 @@ import Button from '../../generic/Button.vue';
             <i v-if="!setData" class="fas fa-spinner animate-spin-slow"></i>
         </h3>
         <div class="my-2 flex flex-col gap-2 text-sm">
+            <Button tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="disableButtons || !setData" @click="copyShareLink">Copy Sharing Link</Button>
             <Button tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setData" @click="disassemble">Disassemble</Button>
             <Button tooltip="Import the set as a WIP set, it can then be modified." class="bg-transparent" :disabled="disableButtons || !canImport" @click="importSet">{{ importBtnText }}</Button>
             <Button tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setData" @click="transferSet">Transfer</Button>
@@ -81,6 +82,11 @@ export default defineComponent({
                 this.setData = (await this.setDataQuery!).data;
             }
             return this.setData;
+        },
+        copyShareLink() {
+            let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";
+            navigator.clipboard.writeText(`https://briq.construction/share?set_id=${this.setId}&network=${network}&version=1`);
+            this.messages.pushMessage("Copied sharing link to clipboard");
         },
         disassemble: async function() {
             try {
