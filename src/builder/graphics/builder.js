@@ -109,7 +109,7 @@ import { previewCube } from './PreviewCube'
 export function resetCamera()
 {
     camera.position.set(cellSize * 0.3, cellSize * 0.8, -cellSize * 1.4);
-    orbitControls.controls.target.set(0, 1, 0);
+    orbitControls.controls.target.set(1/2, 1, 1/2);
     orbitControls.controls.update();
 }
 
