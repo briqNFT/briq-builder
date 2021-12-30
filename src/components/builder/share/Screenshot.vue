@@ -5,7 +5,7 @@
             <h2 class="my-4 text-center w-full">Screenshot</h2>
             <!-- This is here just to trigger the recompute. -->
             <template v-if="image"></template>
-            <div class="max-h-[30rem] overflow-auto">
+            <div class="max-h-[40rem] overflow-auto">
                 <canvas class="border-briq-light border-8 my-2 w-full object-contain" ref="screenshot"></canvas>
             </div>
             <div class="my-2">
@@ -14,7 +14,7 @@
             </div>
             <div class="my-4 flex gap-2 w-full justify-around">
                 <Button @click="downloadImg">Download</Button>
-                <a target="_blank" :href="`https://twitter.com/intent/tweet?text=Check out my briqs!&url=${link}&via=briqs_`">
+                <a target="_blank" :href="`https://twitter.com/intent/tweet?text=Check out what I built with @briqs_!🧱 &url=${link}&via=briqs_`">
                 <Button @click="downloadImg"><i class="fab fa-twitter"></i> Tweet</Button></a>
             </div>
         </div>
@@ -54,7 +54,7 @@ export default defineComponent({
     },
     computed: {
         link() {
-            return window.location.href;
+            return window.location.href.replace("http://", "https://");
         },
         image() {
             // Goes first for reactivity.
