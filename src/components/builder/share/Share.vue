@@ -28,6 +28,10 @@ import AlphaLogo from './../AlphaLogo.vue';
         </div>
         <Messages/>
         <MiddleModal/>
+        <h1 class="fixed bottom-0 left-0 right-0 text-center py-8 font-display drop-shadow-md">
+            <span>{{ setData?.name }}</span>
+        </h1>
+        <h5 class="fixed bottom-0 left-0 right-0 text-center py-4 drop-shadow-md">{{ setData?.id }}</h5>
     </div>
     <AlphaBanner/>
 </template>
@@ -40,12 +44,14 @@ import { dispatchBuilderAction } from '../../../builder/graphics/dispatch';
 import { SetData } from '../../../builder/SetData';
 import { inputStore } from '../../../builder/inputs/InputStore';
 import { getProviderForNetwork } from '../../../Provider';
-
 import { fetchData } from '../../../url';
-export default {
+
+import { defineComponent } from 'vue';
+export default defineComponent({
     data() {
         return {
-            expanded: false
+            expanded: false,
+            setData: undefined as undefined | SetData,
         };
     },
     props: ["set_id", "network"],
@@ -57,10 +63,12 @@ export default {
     async mounted() {
         // this.$store.dispatch("wallet/force_provider", getProviderForNetwork(this.network));
         inputStore.currentInput = "camera";
+        this.setData = undefined;
         try {
             let data = await fetchData("store_get/" + this.set_id);
             let set = new SetData(data.data.id, undefined)
             set.deserialize(data.data);
+            this.setData = set;
             dispatchBuilderAction("select_set", set);
         }
         catch(err)
@@ -76,7 +84,7 @@ export default {
             setModal(Settings);
         }
     }
-};
+});
 </script>
 
 
