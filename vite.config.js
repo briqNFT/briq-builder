@@ -12,7 +12,7 @@ svgLoader({
 export default defineConfig(({ mode }) => ({
     build: {
         target: "es2020",
-        sourcemap: mode === "PROD",
+        sourcemap: mode === "production",
         /*
         minify: false,
         rollupOptions: {
