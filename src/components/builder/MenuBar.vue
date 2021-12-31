@@ -12,7 +12,7 @@ import HistoryLog from './modals/HistoryLog.vue'
         <div class="flex flex-nowrap justify-start align-start child-events">
             <UndoRedo/>
             <Button tooltip="Open the undo/redo history log" class="mx-1" @click="setModal(HistoryLog)"><i class="fas fa-history"></i></Button>
-            <Button tooltip="Browse on-chain sets" class="mx-1" @click="setBrowser = !setBrowser"><i class="far fa-folder"></i></Button>
+            <Button tooltip="Browse on-chain sets" class="mx-1" @click="setBrowser = !setBrowser"><i class="far fa-folder"></i> Sets</Button>
             <teleport to="#app">
                 <SetBrowser asModal="true" @close="setBrowser=false" v-if="setBrowser"/>
             </teleport>

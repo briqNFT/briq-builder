@@ -10,6 +10,7 @@ import SplashScreen from './SplashScreen.vue'
 import MintProxy from './MintProxy.vue';
 import AlphaBanner from '../AlphaBanner.vue';
 import AlphaLogo from './AlphaLogo.vue';
+import SetToolbar from './SetToolbar.vue';
 </script>
 
 <template>
@@ -18,6 +19,7 @@ import AlphaLogo from './AlphaLogo.vue';
         <WebGLCanvas/>
         <AlphaLogo/>
         <MenuBar/>
+        <SetToolbar/>
         <SideBar/>
         <SideBarRight/>
         <Messages/>
