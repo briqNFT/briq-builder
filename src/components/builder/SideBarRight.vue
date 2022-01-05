@@ -3,7 +3,6 @@ import Button from "../generic/Button.vue";
 import Settings from '../builder/modals/Settings.vue';
 import TransactionsMin from './TransactionsMin.vue';
 import BriqDetails from './BriqDetails.vue';
-import { transactionsManager } from '../../builder/Transactions';
 import BlockchainStatus from './BlockchainStatus.vue';
 </script>
 
@@ -20,17 +19,8 @@ import BlockchainStatus from './BlockchainStatus.vue';
                     <Button @click="$router.push({ path: '/' })">Home</button>
                     <!--<Button @click="$router.push({ path: '/admin' })">Admin</button>-->
                 </div>
-                <div class="flex flex-col content-end my-8">
-                    <Button class="my-1" tooltip="Create a new WIP set." @click="newSet">New</Button>
-                    <Button class="my-1" tooltip="Copy a new WIP set." @click="copySet">Copy</Button>
-                    <Button class="my-1" tooltip="Delete the current WIP set." @click="deleteSet">Delete</button>
-                    <Button class="my-1" tooltip="Import a local set." @click="importSet">Import file</button>
-                    <div class="my-2"></div>
-                    <Button class="my-1" tooltip="Rename the current set" @click="rename">Rename</button>
-                    <Button class="my-1" tooltip="Export the set to the blockchain" @click="exportSet">Export</button>
-                </div>
                 <div class="flex flex-col content-end my-4">
-                    <h4 class="text-center font-bold twshadow">WIP SETS</h4>
+                    <h4 class="text-center font-bold twshadow">LOCAL SETS</h4>
                     <Button v-for="wipset in wipSets"
                         class="my-1 h-auto break-all"
                         @click="selectSet(wipset.id)"
@@ -46,6 +36,9 @@ import BlockchainStatus from './BlockchainStatus.vue';
 <script lang="ts">
 import { setModal } from '../MiddleModal.vue';
 
+import { transactionsManager } from '../../builder/Transactions';
+import { setsManager } from '../../builder/SetsManager';
+
 import WalletSelectorVue from '../WalletSelector.vue';
 
 import RenameSet from './modals/RenameSet.vue';
@@ -60,7 +53,6 @@ export default defineComponent({
             contractStore: this.$store.state.wallet,
             wallet: this.$store.state.wallet,
             set: toRef(this.$store.state.builderData, "currentSet"),
-            wipSets: toRef(this.$store.state.builderData, "wipSets"),
             transactionsManager
         };
     },
@@ -68,6 +60,9 @@ export default defineComponent({
     computed: {
         isConnected() {
             return this.wallet.userWalletAddress;
+        },
+        wipSets() {
+            return setsManager.setList.map(x => setsManager.setsInfo[x].local).filter(x => x);
         }
     },
     methods: {

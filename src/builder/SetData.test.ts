@@ -1,9 +1,8 @@
-import { BriqsDB } from './BriqsDB';
 import { SetData } from './SetData'
 
 describe('Test BriqsDB', () => {
     it('should calculate positions correctly', () => {
-        let data = new SetData("", new BriqsDB());
+        let data = new SetData("");
 
         for (let i = 0; i < 20; ++i)
         {

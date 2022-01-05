@@ -33,8 +33,12 @@ import SetToolbar from './SetToolbar.vue';
 import { setModal } from '../MiddleModal.vue'
 import WalletSelectorVue from '../WalletSelector.vue';
 
+import { setsManager, checkForInitialGMSet } from '../../builder/SetsManager';
+import contractStore from '../../Contracts';
+
 import { pushMessage, setTooltip } from '../../Messages'
-export default {
+import { defineComponent, watchEffect } from 'vue';
+export default defineComponent({
     data() {
         return {
         };
@@ -44,6 +48,24 @@ export default {
             pushMessage, setTooltip
         },
     },
+    async mounted() {
+        setsManager.loadFromStorage();
+        let set = checkForInitialGMSet();
+        if (set)
+            await this.$store.dispatch("builderData/select_set", set.id);
+        else
+        {
+            // Must have a local set.
+            let set = setsManager.getLocalSet();
+            if (!set)
+                set = setsManager.createLocalSet();
+            await this.$store.dispatch("builderData/select_set", set.id);
+        }
+        await this.$store.dispatch("reset_history");
+
+        // TODO: centralise these?
+        setsManager.watchForChain(contractStore, this.$store.state.wallet);
+    },
     methods: {
         onLoaded() {
             // TODO: maybe wait for more specific things?
@@ -51,7 +73,7 @@ export default {
                 setModal(WalletSelectorVue)
         }
     }
-};
+});
 </script>
 
 <style scoped>

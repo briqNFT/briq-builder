@@ -4,7 +4,8 @@
         <div class="w-[16rem] flex-none md:block hidden"></div>
         <div class="w-full flex-shrink visibleChildren">
             <div class="flex justify-center">
-                <div class="flex justify-around lg:justify-self-end flex-1">
+                <div class="flex justify-center md:justify-end flex-1">
+                    <!--
                     <div class="flex-1 flex gap-1 mx-2 flex-wrap justify-center lg:justify-end">
                         <div class="flex justify-stretch gap-1">
                             <Button class="w-12" tooltip="Create a new WIP set." @click="newSet"><i class="far fa-file"></i></Button>
@@ -15,8 +16,9 @@
                             <Button class="w-12" tooltip="Import a local set." @click="importSet"><i class="fas fa-file-import"></i></button>
                         </div>
                     </div>
+                    -->
                     <div class="mx-2 justify-center lg:justify-self-end flex-none">
-                        <Button><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Button>
+                        <Button :disabled="!$store.state.builderData.currentSet.briqsDB.briqs.size" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Button>
                     </div>
                 </div>
             </div>
@@ -39,7 +41,16 @@
 </script>
 
 <script lang="ts">
+import { setModal, setModalAndAwait } from '../MiddleModal.vue';
+
 import { defineComponent } from 'vue'
+import ExportSetVue from './modals/ExportSet.vue';
 export default defineComponent({
+    methods: {
+        async mintSet() {
+            await setModalAndAwait(ExportSetVue, { set: this.$store.state.builderData.currentSet.id });
+            setModal();
+        },
+    }
 })
 </script>

@@ -1,4 +1,3 @@
-import { number } from 'starknet';
 import { Briq, BriqsDB } from './BriqsDB'
 
 import { cellSize } from './Constants';
@@ -21,7 +20,7 @@ export class SetData
     // Region/Cell ID of each briq, by ID
     briqPos: Map<string, [number, number]>;
 
-    constructor(id: string, chainBriqsBd: BriqsDB)
+    constructor(id: string)
     {
         this.id = id;
         this.name = "";
@@ -31,7 +30,15 @@ export class SetData
         this.briqs = new Map();
         this.usedByMaterial = {};
 
-        this.briqsDB = new BriqsDB(chainBriqsBd);
+        this.briqsDB = new BriqsDB();
+        this.briqPos = new Map();
+    }
+
+    reset()
+    {
+        this.briqs = new Map();
+        this.usedByMaterial = {};
+        this.briqsDB.reset();
         this.briqPos = new Map();
     }
 
@@ -70,13 +77,12 @@ export class SetData
         return this;
     }
 
-    reset()
-    {
-        this.briqs = new Map();
-        this.usedByMaterial = {};
-        this.briqsDB.reset();
-        this.briqPos = new Map();
+    getName() {
+        return this.name || this.id;
     }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
 
     forEach(callable: (cell: Briq, pos: [number, number, number]) => any)
     {

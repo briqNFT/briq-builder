@@ -18,92 +18,24 @@ import { cellSize } from './Constants';
 
 import contractStore from '../Contracts';
 
-import { inputStore } from './inputs/InputStore';
+import { inputStore } from './inputs/InputStore';
+import { setsManager } from './SetsManager';
 
-let briqsDB = new BriqsDB();
-let initSet = new SetData(hexUuid(), briqsDB);
-
-function checkForInitialGMSet(dispatch: CallableFunction, set: SetData)
-{
-    if (!window.localStorage.getItem("has_initial_gm_set"))
-    {
-        window.localStorage.setItem("has_initial_gm_set", "true")
-        dispatch("place_multiple_briqs", [
-            {"pos":[4,0,0],"color":"#c5ac73","voxelId":1},
-            {"pos":[3,0,0],"color":"#c5ac73","voxelId":1},
-            {"pos":[2,0,0],"color":"#c5ac73","voxelId":1},
-            {"pos":[1,0,0],"color":"#c5ac73","voxelId":1},
-            {"pos":[1,1,0],"color":"#e6de83","voxelId":1},
-            {"pos":[1,2,0],"color":"#e6de83","voxelId":1},
-            {"pos":[2,2,0],"color":"#e6de83","voxelId":1},
-            {"pos":[4,1,0],"color":"#62bdf6","voxelId":1},
-            {"pos":[4,2,0],"color":"#62bdf6","voxelId":1},
-            {"pos":[4,3,0],"color":"#62bdf6","voxelId":1},
-            {"pos":[4,4,0],"color":"#e6de83","voxelId":1},
-            {"pos":[3,4,0],"color":"#416aac","voxelId":1},
-            {"pos":[2,4,0],"color":"#416aac","voxelId":1},
-            {"pos":[1,4,0],"color":"#416aac","voxelId":1},
-            {"pos":[-1,0,0],"color":"#394183","voxelId":1},
-            {"pos":[-5,0,0],"color":"#416aac","voxelId":1},
-            {"pos":[-5,1,0],"color":"#416aac","voxelId":1},
-            {"pos":[-5,2,0],"color":"#416aac","voxelId":1},
-            {"pos":[-5,3,0],"color":"#416aac","voxelId":1},
-            {"pos":[-5,4,0],"color":"#416aac","voxelId":1},
-            {"pos":[-1,1,0],"color":"#394183","voxelId":1},
-            {"pos":[-1,2,0],"color":"#394183","voxelId":1},
-            {"pos":[-1,3,0],"color":"#394183","voxelId":1},
-            {"pos":[-1,4,0],"color":"#394183","voxelId":1},
-            {"pos":[-2,4,0],"color":"#e6de83","voxelId":1},
-            {"pos":[-4,4,0],"color":"#e6de83","voxelId":1},
-            {"pos":[-3,3,0],"color":"#c5ac73","voxelId":1}
-        ]);
-        dispatch("change_set_name", { set: set, name: "GM" })
-    }
-}
+let initSet = new SetData(hexUuid());
 
 var try_fetching_user_data_func;
 export var builderDataStore = (() => {
     return {
         namespaced: true,
         state: () => ({
-            wipSets: [initSet] as Array<SetData>,
             currentSet: initSet,
-            briqsDB: briqsDB,
-            chainSets: [],
-            genericChainSets: [],
+            briqsDB: new BriqsDB(),
             fetchingBriqs: false,
-            fetchingSets: false,
         }),
         actions: {
             initialize: {
                 root: true,
                 handler: async ({ state, dispatch, commit, getters, rootState }: any) => {
-                    for (let [sid, setData] of Object.entries(window.localStorage))
-                    {
-                        if (!sid.startsWith("briq_set"))
-                        continue;
-                        try
-                        {
-                            let data = JSON.parse(setData);
-                            await dispatch("create_wip_set", data);
-                        }
-                        catch (e)
-                        {
-                            console.info("Could not parse stored set", sid, "error:", e)
-                            window.localStorage.removeItem(sid);
-                        };
-                    }
-                    if (state.wipSets.length > 1)
-                        await dispatch("delete_wip_set", state.wipSets[0].id);
-                    else
-                        await checkForInitialGMSet(dispatch, state.wipSets[0]);
-                    await dispatch("select_set", state.wipSets[0]);
-                    
-                    watchEffect(() => {
-                        // TODO: switch to IDB
-                        window.localStorage.setItem("briq_set_" + state.currentSet.id, JSON.stringify(state.currentSet.serialize()));
-                    });
-                    
                     setupSync();
                 },
             },
@@ -111,14 +43,7 @@ export var builderDataStore = (() => {
             {
                 if (!try_fetching_user_data_func)
                 try_fetching_user_data_func = (async () => {
-                    let bricks = dispatch("get_briqs");
-                    let sets = dispatch("get_chain_sets");
-                    let gsets = dispatch("get_generic_chain_sets");
-                    let awaiting = {
-                        briqs: await bricks,
-                        sets: await sets,
-                        gsets: await gsets,
-                    };
+                    await dispatch("get_briqs");
                     try_fetching_user_data_func = undefined;
                 })();
                 await try_fetching_user_data_func;
@@ -141,56 +66,9 @@ export var builderDataStore = (() => {
                 }
                 commit("fetching_briqs", false);
             },
-            async get_chain_sets({ commit, state, rootState }: any)
-            {
-                if (!contractStore.set)
-                return;
-                try {
-                    commit("fetching_sets", true);
-                    let sets = (await contractStore.set.get_all_tokens_for_owner(rootState.wallet.userWalletAddress)).tokens;
-                    commit("set_chain_sets", sets)
-                    pushMessage("Successfully fetched " + sets.length + " sets");
-                }
-                catch(err)
-                {
-                    pushMessage("Error fetching sets - see console for details");
-                    console.error(err);
-                }
-                commit("fetching_sets", false);
-            },
-            async get_generic_chain_sets({ commit, state, rootState }: any, data: any)
-            {
-                if (!contractStore.set)
-                return;
-                try {
-                    let sets = (await contractStore.set.get_all_tokens_for_owner("0xe872a6192d04d0ca5c935cb1742bb3a48cb87338acf2d97cbe25d1898de5be")).tokens;
-                    commit("set_generic_chain_sets", sets)
-                    pushMessage("Successfully fetched " + sets.length + " sets");
-                }
-                catch(err)
-                {
-                    pushMessage("Error fetching sets - see console for details");
-                    console.error(err);
-                }
-            },
             ////////////
             //// Local set Management
             ////////////
-            async create_wip_set({ commit, dispatch, state }: any, data: any)
-            {
-                commit("create_wip_set", data);
-                await dispatch("select_set", state.wipSets[state.wipSets.length - 1]);
-                return state.wipSets[state.wipSets.length - 1];
-            },
-            async delete_wip_set({ commit, dispatch, state }: any, data: any)
-            {
-                commit("delete_wip_set", data);
-                window.localStorage.removeItem("briq_set_" + data);
-                if (!state.wipSets.length)
-                await dispatch("create_wip_set")
-                // TODO: only change if necessary
-                await dispatch("select_set", state.wipSets[0]);
-            },
             select_set({ commit }: any, data: any)
             {
                 commit("select_set", data);
@@ -259,29 +137,12 @@ export var builderDataStore = (() => {
             },
         },
         mutations: {
-            create_wip_set(state: any, data: any)
+            select_set(state: any, data: string)
             {
-                let set = new SetData(data?.id ?? hexUuid(), state.briqsDB);
-                if (!set.name)
-                    set.name = "New Set";
-                if (state.wipSets.find((x: SetData) => x.id === set.id))
-                throw new Error("Set with ID " + set.id + " already exists");
-                if (data)
-                set.deserialize(data);
-                state.wipSets.push(set);
-            },
-            delete_wip_set(state: any, data: any)
-            {
-                inputStore.selectionMgr.clear();
-                let idx = state.wipSets.findIndex((x: SetData) => x.id === data);
-                state.wipSets.splice(idx, 1);
-            },
-            select_set(state: any, data: any)
-            {
-                if (data instanceof SetData)
-                    state.currentSet = data;
-                else
-                    state.currentSet = state.wipSets.filter((x: SetData) => x.id === data)[0];
+                let set = setsManager.setsInfo[data].local;
+                if (!set)
+                    throw new Error("Could not find local set with ID " + data);
+                state.currentSet = set;
                 palettesMgr.updateForSet(state.currentSet);
                 inputStore.selectionMgr.selectSet(state.currentSet);
                 dispatchBuilderAction("select_set", state.currentSet);
@@ -297,22 +158,10 @@ export var builderDataStore = (() => {
             {
                 state.fetchingBriqs = data;
             },
-            fetching_sets(state: any, data: boolean)
-            {
-                state.fetchingSets = data;
-            },
             
             set_briqs(state: any, data: string[])
             {
                 state.briqsDB.parseChainData(data);
-            },
-            set_chain_sets(state: any, data: string[])
-            {
-                state.chainSets = data;
-            },
-            set_generic_chain_sets(state: any, data: string[])
-            {
-                state.genericChainSets = data;
             },
             
             place_briq(state: any, data: any)
@@ -345,7 +194,7 @@ export var builderDataStore = (() => {
                 {
                     let ok = state.currentSet.placeBriq(...briqData.pos, briqData.color, briqData.voxelId);
                     if (ok)
-                    dispatchBuilderAction("place_briq", briqData);
+                        dispatchBuilderAction("place_briq", briqData);
                 }
                 inputStore.selectionMgr.clear();
             },

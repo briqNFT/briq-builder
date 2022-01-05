@@ -1,7 +1,11 @@
-import { PROD } from './Meta'
+import { DEV, PROD } from './Meta'
 
 export default function getBaseUrl()
 {
+    // Hack for dev when I want chain-connectivity.
+    if (DEV && true)
+        return "https://api.test.sltech.company";
+
     var baseUrl = "http://localhost:5000"
     if (PROD)
         baseUrl = "https://api." + window.location.hostname.replace("www.", "");

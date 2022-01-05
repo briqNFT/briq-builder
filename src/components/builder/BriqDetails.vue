@@ -6,18 +6,20 @@
                 <i :class="'fas ' + (data.fetchingBriqs ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
             </button>
         </p>
-        <p>Total sets owned: {{ data.chainSets.length }} 
-            <button :disabled="data.fetchingSets" @click="$store.dispatch('builderData/get_chain_sets')">
-                <i :class="'fas ' + (data.fetchingSets ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
+        <p>Total sets owned: {{ chainSets.length }} 
+            <button :disabled="fetchingSets" @click="updateChainContracts">
+                <i :class="'fas ' + (fetchingSets ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
             </button>
         </p>
     </div>
 </template>
 
 <script lang="ts">
-import { transactionsManager } from '../../builder/Transactions';
+import { setsManager } from '../../builder/SetsManager';
+import contractStore from '../../Contracts';
 
 import { defineComponent } from 'vue';
+import { reportError } from '../../Monitoring';
 export default defineComponent({
     data() {
         return {
@@ -26,7 +28,24 @@ export default defineComponent({
         };
     },
     inject: ['messages'],
+    computed: {
+        chainSets() {
+            return setsManager.setList.map(x => setsManager.setsInfo[x]).filter(x => x.status !== 'LOCAL');
+        },
+        fetchingSets() {
+            return setsManager.fetchingChainSets;
+        }
+    },
     methods: {
+        updateChainContracts() {
+            if (!contractStore.set)
+            {
+                this.messages.pushMessage("Cannot update sets - the Dapp is not connected to the contract");
+                reportError(new Error("Cannot update sets - the Dapp is not connected to the contract"));
+                return;
+            }
+            setsManager.loadOnChain(contractStore.set, this.$store.state.wallet.userWalletAddress);
+        }
     }
 })
 </script>

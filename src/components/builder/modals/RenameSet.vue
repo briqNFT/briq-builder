@@ -12,6 +12,8 @@
 </template>
 
 <script lang="ts">
+import { setsManager } from '../../../builder/SetsManager';
+
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
@@ -26,7 +28,7 @@ export default defineComponent({
     },
     computed: {
         set: function() {
-            return this.$store.state.builderData.wipSets.filter(x => x.id === this.metadata.set)?.[0];
+            return setsManager.setsInfo[this.metadata.set].local!;
         }
     },
     methods: {

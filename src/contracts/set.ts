@@ -22,9 +22,9 @@ export default class SetContract extends ExtendedContract
         return await this.invoke("initialize", { briq_contract_address });
     }
 
-    async get_all_tokens_for_owner(owner: string)
+    async get_all_tokens_for_owner(owner: string): Promise<string[]>
     {
-        return await this.call("get_all_tokens_for_owner", { owner: owner });
+        return (await this.call("get_all_tokens_for_owner", { owner: owner })).tokens as string[];
     }
 
     async mint(owner: string, token_id: string, bricks: Array<string>)
