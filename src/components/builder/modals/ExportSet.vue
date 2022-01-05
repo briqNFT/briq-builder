@@ -1,12 +1,20 @@
 <template>
-    <div class="md:w-2/5 w-auto">
+    <div class="md:w-4/5 lg:w-3/5 xl:w-1/2 w-auto">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full">Export set</h2>
-            <p>Set: {{ metadata.set }}</p>
-            <p>Name: {{ set.name }}</p>
+            <div class="flex justify-between flex-wrap gap-2">
+                <div class="flex-1">
+                    <h4 class="font-medium">Set</h4>
+                    <p>{{ metadata.set }}</p>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-medium">Name</h4>
+                    <p>{{ set.name }} <button @click="rename">( click to rename )</button></p>
+                </div>
+            </div>
             <template v-if="briqsForExport.length">
-                <h4 class="font-semibold">Briqs</h4>
+                <h4 class="font-medium">Briqs</h4>
                 <div class="max-h-40 overflow-auto">
                     <BriqTable :briqs="briqsForExport" :columns="['color', 'material']">
                     </BriqTable>
@@ -43,6 +51,8 @@ import contractStore from '../../../Contracts';
 
 import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
+import RenameSet from '../modals/RenameSet.vue';
+import { awaitModal } from '../../MiddleModal.vue';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -85,6 +95,9 @@ export default defineComponent({
         },
     },
     methods: {
+        async rename() {
+            await awaitModal(RenameSet, { set: this.metadata.set });
+        },
         exportSetLocally: function () {
             downloadJSON(this.set.serialize(), this.set.id + ".json");
         },
@@ -96,6 +109,8 @@ export default defineComponent({
                 await this.prepareForExport();
                 if (!this.exportSet)
                     throw new Error("The set could not be exported");
+                // Update the name in case it changed.
+                this.exportSet.name = this.set.name;
                 let data = this.exportSet.serialize();
                 await fetchData("store_set", { token_id: data.id, data: data });
                 // Debug
