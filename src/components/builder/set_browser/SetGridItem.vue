@@ -1,45 +1,67 @@
-<script setup lang="ts">
-import Button from '../../generic/Button.vue';
-</script>
-
 <template>
-    <div v-if="!isFiltered" class="w-full bg-briq-dark rounded-md px-4 py-2">
-        <h3 class="text-center my-1">{{ setData?.name ?? setId}}
-            <i v-if="!setData" class="fas fa-spinner animate-spin-slow"></i>
+    <div v-if="!isFiltered" :class="'w-full bg-briq-dark rounded-md px-4 py-2 border-4' + (isCurrent ? ' border-deep-blue' : ' border-briq-dark')">
+        <h3 class="text-center my-1">{{ setInfo.getSet()?.getName() }}
+            <i v-if="false" class="fas fa-spinner animate-spin-slow"></i>
+            <i v-else-if="setInfo.status === 'ONCHAIN_ONLY'" class="fas fa-cloud"></i>
+            <i v-else-if="setInfo.status !== 'LOCAL'" class="fas fa-cloud-download-alt"></i>
+            <i v-if="setInfo.isEditing()" class="fas fa-wrench"></i>
+            <!--<i v-else-if="setInfo.status === 'LOCAL'" class="fas fa-check-circle"></i>-->
         </h3>
         <div class="my-2 flex flex-col gap-2 text-sm">
-            <Button tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="disableButtons || !setData" @click="copyShareLink">Copy Sharing Link</Button>
-            <Button tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setData" @click="disassemble">Disassemble</Button>
-            <Button tooltip="Import the set as a WIP set, it can then be modified." class="bg-transparent" :disabled="disableButtons || !canImport" @click="importSet">{{ importBtnText }}</Button>
-            <Button tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setData" @click="transferSet">Transfer</Button>
+            <template v-if="setInfo.isOnChain()">
+                <Button tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink">Copy Sharing Link</Button>
+                <Button tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setInfo" @click="disassemble">Disassemble</Button>
+                <Button tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo" @click="transferSet">Transfer</Button>
+
+                <Button tooltip="Import the set as a local set, it can then be modified." class="bg-transparent" :disabled="disableButtons || !canImport" @click="loadSetFromChain">{{ importBtnText }}</Button>
+            </template>
+            <template v-else="">
+                <Button tooltip="" class="bg-transparent" :disabled="disableButtons" @click="duplicateSet">Duplicate</Button>
+                <Button tooltip="" class="bg-transparent" :disabled="!canMint" @click="mintSet">Save on Chain</Button>
+                <Button tooltip="" class="bg-transparent" :disabled="disableButtons" @click="renameSet">Rename</Button>
+            </template>
+            <template v-if="setInfo.status !== 'ONCHAIN_ONLY'">
+                <Button v-if="setInfo.status !== 'LOCAL'" tooltip="Delete the local copy of this set. The on-chain version will remain." class="bg-transparent" :disabled="disableButtons" @click="deleteSet">Delete local copy</Button>
+                <Button v-if="setInfo.status === 'LOCAL'" tooltip="Delete this set." class="bg-transparent" :disabled="disableButtons" @click="deleteSet">Delete</Button>
+                <Button tooltip="" class="bg-transparent" :disabled="!canSelectSet" @click="selectSet">Edit this set</Button>
+            </template>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { fetchData } from '../../../url'
-
 import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
 
-import TransferSet from '../modals/TransferSet.vue'
+import TextModal from '../../generic/TextModal.vue';
+import TransferSet from '../modals/TransferSet.vue';
 
-import { Transaction, transactionsManager } from '../../../builder/Transactions'
+import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
-import contractStore from '../../../Contracts'
+import contractStore from '../../../Contracts';
+
+import { SetData } from '../../../builder/setData';
+import { setsManager, SetInfo } from '../../../builder/SetsManager';
+
+const DEFAULT_INFO = new SetInfo("");
+
+import ExportSetVue from '../modals/ExportSet.vue';
+import { reportError } from '../../../Monitoring';
 
 import { defineComponent } from "@vue/runtime-core"
+import RenameSetVue from '../modals/RenameSet.vue';
 export default defineComponent({
     data() {
         return {
-            setData: undefined,
-            setDataQuery: undefined as undefined | Promise<any>,
+            setInfo: DEFAULT_INFO,
             disableButtons: false
         }
     },
     inject: ["messages"],
     props: ["setId", "searchText"],
     mounted() {
-        this.loadData();
+        this.setInfo = setsManager.getInfo(this.setId);
+        if (!this.setInfo)
+            throw new Error("Set does not exist in setsManager: " + this.setId);
     },
     computed: {
         /** @return true if the item should be hidden */
@@ -47,20 +69,36 @@ export default defineComponent({
             // Hide sets that we know are being disassembled
             if (this.inDisassembly)
                 return true;
-
+            
+            // Search
             if (!this.searchText.length)
                 return false;
             let text = (this.searchText as string).toLowerCase();
-            return this.setId.indexOf(text) === -1 && (this.setData?.name?.toLowerCase()?.indexOf(text) ?? -1) === -1;
+            return this.setId.indexOf(text) === -1 && (this.setInfo.getSet()?.name?.toLowerCase()?.indexOf(text) ?? -1) === -1;
+        },
+
+        isCurrent() {
+            return this.$store.state.builderData.currentSet.id === this.setId;
+        },
+
+        canShare() {
+            return !this.disableButtons && this.setInfo.isOnChain();
         },
 
         canImport() {
-            if (!this.setData)
-                return false;
-            return !this.$store.state.builderData.wipSets.find(x => x.id == this.setData.id);
+            return this.setInfo.status === "ONCHAIN_ONLY";
         },
+
+        canMint() {
+            return this.setInfo.local?.briqsDB?.briqs?.size > 0 && !this.disableButtons;
+        },
+
+        canSelectSet() {
+            return !this.isCurrent && !this.canImport;
+        },
+
         importBtnText() {
-            if (this.$store.state.builderData.wipSets.find(x => x.id === this?.setData?.id))
+            if (this.setInfo.status !== "ONCHAIN_ONLY")
                 return "Already imported";
             return "Import";
         },
@@ -74,40 +112,30 @@ export default defineComponent({
         }
     },
     methods: {
-        loadData: async function() {
-            if (!this.setData)
-            {
-                if (!this.setDataQuery)
-                    this.setDataQuery = fetchData("store_get/" + this.setId);
-                this.setData = (await this.setDataQuery!).data;
-            }
-            return this.setData;
-        },
         copyShareLink() {
             let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";
             navigator.clipboard.writeText(`${window.location.hostname}/share?set_id=${this.setId}&network=${network}&version=1`);
             this.messages.pushMessage("Copied sharing link to clipboard");
         },
-        disassemble: async function() {
+        async disassemble() {
             try {
                 this.disableButtons = true;
-                let data = (await this.loadData())!;
-                let TX = await contractStore.set.disassemble(this.$store.state.wallet.userWalletAddress, "" + data.id, data.briqs.map(x => x.data.briq));
-                new Transaction(TX.transaction_hash, 'disassembly', { setId: data.id });
+                let TX = await contractStore.set.disassemble(this.$store.state.wallet.userWalletAddress, "" + this.setInfo.id, Array.from(this.setInfo.chain.briqsDB.briqs.keys()));
+                new Transaction(TX.transaction_hash, 'disassembly', { setId: this.setInfo.id });
                 this.messages.pushMessage("Disassembly transaction sent - Hash " + TX.transaction_hash);   
             }
             catch(err)
             {
                 this.messages.pushMessage("Error while disassembling set - See console for details.");   
-                console.error(err);
+                reportError(err, "Error while disassembling set");
             }
             this.disableButtons = false;
         },
-        importSet: async function() {
+        async loadSetFromChain() {
             try {
                 this.disableButtons = true;
-                let data = await this.loadData();
-                this.$store.dispatch("builderData/create_wip_set", data);
+                await this.setInfo.loadLocally();
+                this.editLocally();
                 this.messages.pushMessage("Set loaded");
             }
             catch(err)
@@ -117,12 +145,55 @@ export default defineComponent({
             }
             this.disableButtons = false;
         },
-        async transferSet()
-        {
+        async transferSet() {
             this.disableButtons = true;
-            await setModalAndAwait(TransferSet, { setId: this.setId, data: this.setData });
+            await setModalAndAwait(TransferSet, { setId: this.setId, data: this.setInfo.local });
             setModal();
             this.disableButtons = false;
+        },
+
+        // Local options
+        async selectSet() {
+            await this.$store.dispatch('builderData/select_set', this.setId)
+        },
+        editLocally() {
+            this.setInfo.status = 'ONCHAIN_EDITING';
+        },
+        async deleteSet() {
+            let current = this.isCurrent;
+            // Ask for confirmation on non-empty sets.
+            if (this.setInfo.status === 'LOCAL' && this.setInfo?.local?.briqsDB?.briqs?.size > 0)
+            {
+                let btn = await setModalAndAwait(TextModal, {
+                    "title": "Confirm delete?",
+                    "text": "This set will be deleted. This cannot be undone. Are you sure?",
+                    "buttons": [{ "text": "Yes" }, { "text": "No" }]
+                });
+                setModal();
+                if (btn !== 0)
+                    return;
+            }
+            setsManager.deleteLocalSet(this.setId);
+            if (current)
+            {
+                // Must have a local set.
+                let set = setsManager.getLocalSet();
+                if (!set)
+                    set = setsManager.createLocalSet();
+                console.log("set is ", set);
+                this.$store.dispatch("builderData/select_set", set.id);
+            }
+        },
+        duplicateSet() {
+            setsManager.duplicateLocally(this.setId);
+        },
+        async mintSet() {
+            await setModalAndAwait(ExportSetVue, { set: this.setId });
+            setModal();
+        },
+        async renameSet() {
+            await setModalAndAwait(RenameSetVue, { set: this.setId });
+            setModal();
         }
     }
 })

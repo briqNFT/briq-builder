@@ -41,8 +41,10 @@ import { transactionsManager, Transaction } from '../../../builder/Transactions'
 
 import contractStore from '../../../Contracts';
 
-import { defineComponent } from 'vue';
+import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
+
+import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
@@ -62,11 +64,14 @@ export default defineComponent({
         await this.prepareForExport();
     },
     computed: {
-        set: function () {
-            return this.$store.state.builderData.wipSets.filter(x => x.id === this.metadata.set)?.[0];
+        setInfo() {
+            return setsManager.setsInfo[this.metadata.set];
+        },
+        set() {
+            return this.setInfo.local!;
         },
         alreadyOnChain() {
-            return (!!this.$store.state.builderData.chainSets.find(x => x === this.metadata.set)) || this.pending_transaction?.isOnChain();
+            return this.setInfo.status !== 'LOCAL' || this.pending_transaction?.isOnChain();
         },
         transactionPending() {
             return this.pending_transaction?.isPending() ?? false;
@@ -81,7 +86,7 @@ export default defineComponent({
     },
     methods: {
         exportSetLocally: function () {
-            downloadJSON(this.$store.state.builderData.currentSet.serialize(), this.$store.state.builderData.currentSet.id + ".json");
+            downloadJSON(this.set.serialize(), this.set.id + ".json");
         },
         exportSetOnChain: async function () {
             if (!contractStore.set)
@@ -111,9 +116,9 @@ export default defineComponent({
         async prepareForExport() {
             if (this.exportSet)
                 return;
-            let data = this.$store.state.builderData.currentSet.serialize();
+            let data = this.set.serialize();
             const chainBriqs: BriqsDB = this.$store.state.builderData.briqsDB;
-            let exportSet = new SetData(data.id, chainBriqs);
+            let exportSet = new SetData(data.id);
             exportSet.deserialize(data);
             let userCustom = [];
             exportSet.forEach((briq: Briq) => {

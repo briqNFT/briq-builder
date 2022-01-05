@@ -110,7 +110,7 @@ export default defineComponent({
         }
         try {
             let data = await fetchData("store_get/" + this.set_id);
-            let set = new SetData(data.data.id, undefined)
+            let set = new SetData(data.data.id)
             set.deserialize(data.data);
             this.setData = set;
             dispatchBuilderAction("select_set", set);

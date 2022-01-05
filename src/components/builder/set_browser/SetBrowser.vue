@@ -13,6 +13,14 @@ import MiddleModal from '../../MiddleModal.vue';
             <h2 class="text-center my-8">Browse sets</h2>
             <div class="my-4">
                 <p><input class="w-full" v-model="searchText" type="text" placeholder="Search by set ID or set name"/></p>
+                <p class="flex gap-2 my-4">
+                    <Button tooltip="Create a new WIP set." @click="createSet"><i class="far fa-file"></i> New</Button>
+                    <!--
+                    <Button tooltip="Copy a new WIP set." @click="copySet"><i class="far fa-copy"></i> Copy</Button>
+                    <Button tooltip="Delete the current WIP set." @click="deleteSet"><i class="far fa-trash-alt"></i> Delete</button>
+                    -->
+                    <Button tooltip="Import a local set." @click="importSet"><i class="fas fa-file-import"></i> Import from file</button>
+                </p>
             </div>
             <div class="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 <div v-if="chainSets.length === 0">Nothing here yet.</div>
@@ -29,7 +37,10 @@ import MiddleModal from '../../MiddleModal.vue';
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { setsManager } from '../../../builder/SetsManager';
+import { SetData } from '../../../builder/SetData';
+
+import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
@@ -40,8 +51,30 @@ export default defineComponent({
     emits: ["close"],
     computed: {
         chainSets: function() {
-            return this.$store.state.builderData.chainSets.concat(this.$store.state.builderData.genericChainSets)
+            return setsManager.setList;
         }
     },
+    methods: {
+        createSet() {
+            setsManager.createLocalSet();
+        },
+        async importSet() {
+            let fileHandles = await window.showOpenFilePicker();
+            for (let fileHandle of fileHandles)
+            {
+                try
+                {
+                    let file = await fileHandle.getFile();
+                    let contents = JSON.parse(await file.text());
+                    let set = new SetData(contents.id).deserialize(contents);
+                    setsManager.registerLocalSet(set);
+                }
+                catch(err) {
+                    this.messages.pushMessage("Error while loading file " + fileHandle.name + " - check console for details");
+                    console.log(err);
+                }
+            }
+        }
+    }
 })
 </script>
