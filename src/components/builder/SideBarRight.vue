@@ -26,7 +26,7 @@ import BlockchainStatus from './BlockchainStatus.vue';
                         @click="selectSet(wipset.id)"
                         :disabled="set.id == wipset.id"
                         :tooltip="(set.id == wipset.id) ? 'Set ' + set.id + ' is active.' : 'Click to switch to set ' + (wipset.name || wipset.id)"
-                        >{{ wipset.name || wipset.id }}</button>
+                        >{{ wipset.name || wipset.id }} <i v-if="isViewOnly(wipset.id)" class="fas fa-cloud"></i></button>
                 </div>
             </div>
         </div>
@@ -67,6 +67,10 @@ export default defineComponent({
     },
     methods: {
         setModal,
+
+        isViewOnly(sid: string) {
+            return setsManager.getInfo(sid).status !== 'LOCAL';
+        },
 
         CWTitle() {
             if (this.isConnected)

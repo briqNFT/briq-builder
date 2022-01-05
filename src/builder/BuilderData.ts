@@ -139,12 +139,15 @@ export var builderDataStore = (() => {
         mutations: {
             select_set(state: any, data: string)
             {
-                let set = setsManager.setsInfo[data].local;
+                let info = setsManager.getInfo(data)
+                let set = info.local;
                 if (!set)
                     throw new Error("Could not find local set with ID " + data);
                 state.currentSet = set;
                 palettesMgr.updateForSet(state.currentSet);
                 inputStore.selectionMgr.selectSet(state.currentSet);
+                if (info.status === 'ONCHAIN_LOADED')
+                    inputStore.currentInput = 'camera';
                 dispatchBuilderAction("select_set", state.currentSet);
             },
             update_set(state: any, data: any)

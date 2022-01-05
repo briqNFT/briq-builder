@@ -104,7 +104,10 @@ export default defineComponent({
                 new Transaction(TX.transaction_hash, "export_set", { setId: data.id });
                 this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
                 this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
-                this.$store.dispatch("builderData/update_set", data);
+                await this.$store.dispatch("builderData/update_set", data);
+
+                setsManager.getInfo(data.id).status = 'ONCHAIN_LOADED';
+                await this.$store.dispatch("builderData/select_set", data.id);
             }
             catch (err) {
                 this.messages.pushMessage("Error while exporting set - check console for details");
