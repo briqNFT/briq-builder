@@ -28,7 +28,7 @@ export default defineComponent({
         }
     },
     props: ["metadata"],
-    inject: ["reportError"],
+    inject: ["messages", "reportError"],
     computed: {
         formatOk() {
             return this.target.match(/^0x[abcdef0-9]{63}$/gi);
@@ -40,7 +40,7 @@ export default defineComponent({
             if (!this.formatOk)
                 return;
             try {
-                let bricks = this.metadata.data.briqs.map(x => x.data.briq)
+                let bricks = this.metadata.data.serialize().briqs.map(x => x.data.briq);
                 let tx = await contractStore.set.transfer_from(this.$store.state.wallet.userWalletAddress, this.target, this.metadata.setId, bricks);
                 new Transaction(tx.transaction_hash, 'disassembly', { setId: this.metadata.setId });
                 this.messages.pushMessage("Set transfer ongoing - " + tx.transaction_hash);   

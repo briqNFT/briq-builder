@@ -9,21 +9,23 @@
         </h3>
         <div class="my-2 flex flex-col gap-2 text-sm">
             <template v-if="setInfo.isOnChain()">
-                <Button tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink">Copy Sharing Link</Button>
-                <Button tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setInfo" @click="disassemble">Disassemble</Button>
-                <Button tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo" @click="transferSet">Transfer</Button>
+                <Button tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Button>
+                <Button tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setInfo" @click="disassemble"><i class="fas fa-magic"></i> Disassemble</Button>
+                <Button tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo" @click="transferSet"><i class="fas fa-dolly"></i> Transfer</Button>
 
-                <Button tooltip="Import the set as a local set, it can then be modified." class="bg-transparent" :disabled="disableButtons || !canImport" @click="loadSetFromChain">{{ importBtnText }}</Button>
+                <Button tooltip="Make a local copy of the set that you can then modify and re-export." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="duplicateSet(setInfo.chain!)"><i class="fas fa-copy"></i> Make a local copy</Button>
+
+                <Button v-if="setInfo.status === 'ONCHAIN_ONLY'" tooltip="Download a view-only local copy." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="loadSetFromChain"><i class="fas fa-cloud-download-alt"></i> Cache locally</Button>
             </template>
             <template v-else="">
-                <Button tooltip="" class="bg-transparent" :disabled="disableButtons" @click="duplicateSet">Duplicate</Button>
-                <Button tooltip="" class="bg-transparent" :disabled="!canMint" @click="mintSet">Save on Chain</Button>
-                <Button tooltip="" class="bg-transparent" :disabled="disableButtons" @click="renameSet">Rename</Button>
+                <Button tooltip="" class="bg-transparent" :disabled="disableButtons" @click="duplicateSet(setInfo.local!)"><i class="fas fa-copy"></i> Duplicate</Button>
+                <Button tooltip="" class="bg-transparent" :disabled="!canMint" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Button>
+                <Button tooltip="" class="bg-transparent" :disabled="disableButtons" @click="renameSet"><i class="fas fa-file-signature"></i> Rename</Button>
             </template>
             <template v-if="setInfo.status !== 'ONCHAIN_ONLY'">
-                <Button v-if="setInfo.status !== 'LOCAL'" tooltip="Delete the local copy of this set. The on-chain version will remain." class="bg-transparent" :disabled="disableButtons" @click="deleteSet">Delete local copy</Button>
-                <Button v-if="setInfo.status === 'LOCAL'" tooltip="Delete this set." class="bg-transparent" :disabled="disableButtons" @click="deleteSet">Delete</Button>
-                <Button tooltip="" class="bg-transparent" :disabled="!canSelectSet" @click="selectSet">Edit this set</Button>
+                <Button v-if="setInfo.status !== 'LOCAL'" tooltip="Delete the local copy of this set. The on-chain version will remain." class="bg-transparent" :disabled="disableButtons" @click="deleteSet"><i class="fas fa-trash"></i> Clear Cached Copy</Button>
+                <Button v-if="setInfo.status === 'LOCAL'" tooltip="Delete this set." class="bg-transparent" :disabled="disableButtons" @click="deleteSet"><i class="fas fa-trash-alt"></i> Delete</Button>
+                <Button tooltip="" class="bg-transparent" :disabled="!canSelectSet" @click="selectSet"><i class="fas fa-folder-open"></i> Load in Builder</Button>
             </template>
         </div>
     </div>
@@ -85,16 +87,12 @@ export default defineComponent({
             return !this.disableButtons && this.setInfo.isOnChain();
         },
 
-        canImport() {
-            return this.setInfo.status === "ONCHAIN_ONLY";
-        },
-
         canMint() {
             return this.setInfo.local?.briqsDB?.briqs?.size > 0 && !this.disableButtons;
         },
 
         canSelectSet() {
-            return !this.isCurrent && !this.canImport;
+            return !this.isCurrent;
         },
 
         importBtnText() {
@@ -131,11 +129,11 @@ export default defineComponent({
             }
             this.disableButtons = false;
         },
+        // TODO: use this?
         async loadSetFromChain() {
             try {
                 this.disableButtons = true;
                 await this.setInfo.loadLocally();
-                this.editLocally();
                 this.messages.pushMessage("Set loaded");
             }
             catch(err)
@@ -147,7 +145,7 @@ export default defineComponent({
         },
         async transferSet() {
             this.disableButtons = true;
-            await setModalAndAwait(TransferSet, { setId: this.setId, data: this.setInfo.local });
+            await setModalAndAwait(TransferSet, { setId: this.setId, data: this.setInfo.chain });
             setModal();
             this.disableButtons = false;
         },
@@ -155,9 +153,6 @@ export default defineComponent({
         // Local options
         async selectSet() {
             await this.$store.dispatch('builderData/select_set', this.setId)
-        },
-        editLocally() {
-            this.setInfo.status = 'ONCHAIN_EDITING';
         },
         async deleteSet() {
             let current = this.isCurrent;
@@ -184,8 +179,8 @@ export default defineComponent({
                 this.$store.dispatch("builderData/select_set", set.id);
             }
         },
-        duplicateSet() {
-            setsManager.duplicateLocally(this.setId);
+        duplicateSet(set: SetData) {
+            setsManager.duplicateLocally(set);
         },
         async mintSet() {
             await setModalAndAwait(ExportSetVue, { set: this.setId });

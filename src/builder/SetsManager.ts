@@ -81,12 +81,14 @@ export class SetInfo {
             data = await this._fetchFromChain(this.id);
         } catch(err) {
             reportError(err as Error, "Error while loading chain set data");
+            delete this.chain;
             return this;
         }
         try {
             this.chain = new SetData(data.id).deserialize(data);
         } catch(err) {
             reportError(err as Error, "Error while parsing set data from chain");
+            delete this.chain;
             return this;
         }
         return this;
@@ -239,15 +241,12 @@ class SetsManager
         // TODO: reload set
     }
 
-    duplicateLocally(sid: string) {
-        let ogData = this.setsInfo[sid];
-        if (!ogData || !ogData.local)
-            throw new Error("SetInfo ID " + sid + " (local data) does not exist in setsManager setsInfo");
-        let set = setsManager.createLocalSet();
-        let data = ogData.local!.serialize();
+    duplicateLocally(set: SetData) {
+        let copy = setsManager.createLocalSet();
+        let data = set.serialize();
         delete data.id;
-        set.deserialize(data);
-        return set;
+        copy.deserialize(data);
+        return copy;
     }
 };
 

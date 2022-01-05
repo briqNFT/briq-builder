@@ -49,6 +49,7 @@ export default defineComponent({
     },
     props: ["asModal"],
     emits: ["close"],
+    inject: ['messages'],
     computed: {
         chainSets: function() {
             return setsManager.setList;
@@ -70,7 +71,7 @@ export default defineComponent({
                     setsManager.registerLocalSet(set);
                 }
                 catch(err) {
-                    this.messages.pushMessage("Error while loading file " + fileHandle.name + " - check console for details");
+                    this.messages.pushMessage("Error while loading file " + fileHandle.name + " - " + err.message);
                     console.log(err);
                 }
             }

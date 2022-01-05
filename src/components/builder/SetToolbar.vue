@@ -18,7 +18,12 @@
                     </div>
                     -->
                     <div class="mx-2 justify-center lg:justify-self-end flex-none">
-                        <Button :disabled="!$store.state.builderData.currentSet.briqsDB.briqs.size" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Button>
+                        <Button v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Save your set on-chain to share it with others" :disabled="true"><i class="fas fa-share-square"></i> Copy Sharing Link</Button>
+                        <Button v-if="setInfo?.status === 'ONCHAIN_LOADED'" tooltip="This link will let you share your briq creation with others" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Button>
+                    </div>
+                    <div class="mx-2 justify-center lg:justify-self-end flex-none">
+                        <Button v-if="setInfo?.status === 'ONCHAIN_LOADED'" tooltip="This set is already on-chain" :disabled="true"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Button>
+                        <Button v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Mint your set as an NFT on-chain" :disabled="!$store.state.builderData.currentSet.briqsDB.briqs.size" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Button>
                     </div>
                 </div>
             </div>
@@ -43,13 +48,25 @@
 <script lang="ts">
 import { setModal, setModalAndAwait } from '../MiddleModal.vue';
 
-import { defineComponent } from 'vue'
+import { setsManager } from '../../builder/SetsManager';
 import ExportSetVue from './modals/ExportSet.vue';
+
+import { defineComponent } from 'vue';
 export default defineComponent({
+    computed: {
+        setInfo() {
+            return setsManager.getInfo(this.$store.state.builderData.currentSet.id);
+        }  
+    },
     methods: {
         async mintSet() {
             await setModalAndAwait(ExportSetVue, { set: this.$store.state.builderData.currentSet.id });
             setModal();
+        },
+        copyShareLink() {
+            let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";
+            navigator.clipboard.writeText(`${window.location.hostname}/share?set_id=${this.$store.state.builderData.currentSet.id}&network=${network}&version=1`);
+            this.messages.pushMessage("Copied sharing link to clipboard");
         },
     }
 })
