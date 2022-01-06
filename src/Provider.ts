@@ -2,21 +2,17 @@ import { Provider } from 'starknet';
 
 import { PROD } from './Meta'
 
+// TODO: import from starknet?
+type NetworkName = 'mainnet-alpha' | 'goerli-alpha';
+
 export var provider: undefined | Provider;
 
 var providerPromise: undefined | Promise<Provider>;
 var onProvider: undefined | CallableFunction;
 
-export function getProviderForNetwork(network: string): Provider
+export function getProviderForNetwork(network: NetworkName): Provider
 {
-    let ret = new Provider({});
-    if (network === "mainnet")
-        ret.baseUrl = "https://alpha-mainnet.starknet.io";
-    else
-        ret.baseUrl = "https://alpha4.starknet.io";
-    ret.feederGatewayUrl = `${ret.baseUrl}/feeder_gateway`;
-    ret.gatewayUrl = `${ret.baseUrl}/gateway`;
-    return new Provider(ret);
+    return new Provider({ network });
 }
 
 export function getProvider(): Promise<Provider>
@@ -38,12 +34,7 @@ getProvider();
 
 var setupDefaultProvider = function ()
 {
-    provider = new Provider({});
-    provider.baseUrl = "https://alpha4.starknet.io";
-    provider.feederGatewayUrl = `${provider.baseUrl}/feeder_gateway`;
-    provider.gatewayUrl = `${provider.baseUrl}/gateway`;
-    provider = new Provider(provider);
-    
+    provider = getProviderForNetwork('goerli-alpha');    
     onProvider!();
 }
 
@@ -52,7 +43,7 @@ if (PROD)
 else
 {
     fetch('http://localhost:4999/status').then(() => {
-        provider = new Provider({});
+        provider = new Provider();
         provider.baseUrl = "http://localhost:4999";
         provider.feederGatewayUrl = `${provider.baseUrl}/feeder_gateway`;
         provider.gatewayUrl = `${provider.baseUrl}/gateway`;
