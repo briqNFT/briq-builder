@@ -3,7 +3,7 @@
     <div v-if="shouldShowInstallHelp" class="font-normal">
         <p>Because StarkNet is currently in Alpha release stage, only the <span class="whitespace-nowrap">Argent x StarkWare</span> wallet is compatible<br/>
 You do not have the Argent X extension installed.<br/>It is only for now only compatible with Google Chrome.</p>
-        <p class="my-2"><a target="_blank" href="https://chrome.google.com/webstore/detail/argent-x-starknet-wallet/dlcobpjiigpikoobohmabehhmhfoodbb"><Button>Install from Chrome Web Store</Button></a></p>
+        <p class="my-2"><a target="_blank" href="https://chrome.google.com/webstore/detail/argent-x-starknet-wallet/dlcobpjiigpikoobohmabehhmhfoodbb"><Btn>Install from Chrome Web Store</Btn></a></p>
     </div>
     <div v-if="step === 'connecting'" class="font-normal">
         <p>...Connecting to Argent x Starkware wallet...</p>

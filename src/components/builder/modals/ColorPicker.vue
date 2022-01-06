@@ -16,7 +16,7 @@
                 <p class="inline-block flex my-2"><div class="h-8 w-16 rounded-md" :style="{ 'backgroundColor': getHSL()}"></div>
                     <input class="mx-2" v-model="name" type="text" maxlength="7"/></p>
             </div>
-            <Button class="float-right" @click="pickColor">Pick</Button>
+            <Btn class="float-right" @click="pickColor">Pick</Btn>
         </div>
     </div>
 </template>

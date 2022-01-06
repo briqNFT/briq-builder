@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Button from "../generic/Button.vue";
 import Settings from '../builder/modals/Settings.vue';
 import TransactionsMin from './TransactionsMin.vue';
 import BriqDetails from './BriqDetails.vue';
@@ -10,23 +9,23 @@ import BlockchainStatus from './BlockchainStatus.vue';
     <div class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col lg:flex-row lg:items-start items-end gap-2 pointer-events-none">
         <BlockchainStatus class="max-h-screen"/>
         <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
-            <Button class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Button>
+            <Btn class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Btn>
             <div class="my-2">
                 <div class="flex flex-col flex-nowrap gap-1">
-                    <Button @click="openHelp">Help</button>
-                    <Button @click="setModal(Settings)">Settings</button>
-                    <Button @click="$router.push({ path: '/legal' })">Legal / Privacy</button>
-                    <Button @click="$router.push({ path: '/' })">Home</button>
-                    <!--<Button @click="$router.push({ path: '/admin' })">Admin</button>-->
+                    <Btn @click="openHelp">Help</Btn>
+                    <Btn @click="setModal(Settings)">Settings</Btn>
+                    <Btn @click="$router.push({ path: '/legal' })">Legal / Privacy</Btn>
+                    <Btn @click="$router.push({ path: '/' })">Home</Btn>
+                    <!--<Btn @click="$router.push({ path: '/admin' })">Admin</Btn>-->
                 </div>
                 <div class="flex flex-col content-end my-4">
                     <h4 class="text-center font-bold twshadow">LOCAL SETS</h4>
-                    <Button v-for="wipset in wipSets"
+                    <Btn v-for="wipset in wipSets"
                         class="my-1 h-auto break-all"
                         @click="selectSet(wipset.id)"
                         :disabled="set.id == wipset.id"
                         :tooltip="(set.id == wipset.id) ? 'Set ' + set.id + ' is active.' : 'Click to switch to set ' + (wipset.name || wipset.id)"
-                        >{{ wipset.name || wipset.id }} <i v-if="isViewOnly(wipset.id)" class="fas fa-cloud"></i></button>
+                        >{{ wipset.name || wipset.id }} <i v-if="isViewOnly(wipset.id)" class="fas fa-cloud"></i></Btn>
                 </div>
             </div>
         </div>

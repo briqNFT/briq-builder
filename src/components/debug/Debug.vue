@@ -41,7 +41,7 @@
         </div>
         <div class="my-4">
             <h2>Transaction debug:</h2>
-            <input v-model="tempTx" type="text" size="80"/> <Button :disabled="!tempTx.match(/^0x[a-fA-F0-9]{63}$/gi)" @click="addTx(tempTx)">See Tx info</Button>
+            <input v-model="tempTx" type="text" size="80"/> <Btn :disabled="!tempTx.match(/^0x[a-fA-F0-9]{63}$/gi)" @click="addTx(tempTx)">See Tx info</Btn>
             <p class="!text-sm" v-for="tx in transactionsToDebug">- {{ tx }}
                 <span v-if="getTxData(tx) === undefined">: <i class="fas fa-spinner animate-spin-slow"></i></span>
                 <span v-else="">:<br/>

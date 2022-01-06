@@ -1,11 +1,11 @@
 <template>
     <div class="font-mono text-sm grid grid-cols-2 gap-1">
-        <Button @click="moveX(1)">X+1</Button>
-        <Button @click="moveX(-1)">X-1</Button>
-        <Button @click="moveY(1)">Y+1</Button>
-        <Button @click="moveY(-1)">Y-1</Button>
-        <Button @click="moveZ(1)">Z+1</Button>
-        <Button @click="moveZ(-1)">Z-1</Button>
+        <Btn @click="moveX(1)">X+1</Btn>
+        <Btn @click="moveX(-1)">X-1</Btn>
+        <Btn @click="moveY(1)">Y+1</Btn>
+        <Btn @click="moveY(-1)">Y-1</Btn>
+        <Btn @click="moveZ(1)">Z+1</Btn>
+        <Btn @click="moveZ(-1)">Z-1</Btn>
     </div>
 </template>
 

@@ -1,22 +1,17 @@
-<script setup lang="ts">
-import { setTooltip } from '../../Messages'
-</script>
-
 <template>
-    <template v-if="tooltip">
-        <button :class="noStyle ? '' : 'btn'" @pointerenter="setTooltip(tooltip)" @pointerleave="setTooltip()"><slot></slot></button>
-    </template>
-    <template v-else="">
-        <button :class="noStyle ? '' : 'btn'"><slot></slot></button>
-    </template>    
+    <Tooltip :tooltip="tooltip">
+        <button v-bind="$attrs" :class="noStyle ? '' : 'btn'"><slot></slot></button>
+    </Tooltip>
 </template>
 
 <script lang="ts">
 /**
  * A generic Button component that can automatically set a tooltip.
  */
-import { defineComponent, toRef } from "vue";
+import Tooltip from "./Tooltip.vue";
+import { defineComponent } from "vue";
 export default defineComponent({
-    props: ["tooltip", "noStyle"]
+    props: ["tooltip", "noStyle"],
+    components: { Tooltip }
 });
 </script>

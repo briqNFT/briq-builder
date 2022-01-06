@@ -6,18 +6,18 @@ import InputComp from './InputComp.vue'
 <template>
     <div id="sideBar" class="flex flex-nowrap flex-col mx-4 md:py-20 py-12 absolute left-0 top-0 max-w-full max-h-screen justify-top pointer-events-none">
         <div class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24 pointer-events-auto">
-            <Button v-if="editMode" tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
-                @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Button>
-            <Button v-if="editMode" tooltip="In 'Paint' mode, left-click to repaint briqs, right-click to sample the briq color."
-                @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'"><i class="fas fa-paint-brush"/></Button>
-            <Button v-if="editMode" tooltip="In 'Erase' mode, left-click to delete briqs."
-                @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="far fa-trash-alt"/></Button>
-            <Button v-if="editMode" tooltip="In 'Select' mode, you can select briqs and swap them for others."
-                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-mouse-pointer"></i></Button>
-            <Button tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots."
-                @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-video"/></Button>
-            <Button v-if="editMode" tooltip="Use 'Move' mode to move all briqs in the set."
-                @click="inputStore.currentInput = 'move'" :disabled="inputStore.currentInput === 'move'"><i class="fas fa-arrows-alt"></i></Button>
+            <Btn v-if="editMode" tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
+                @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Btn>
+            <Btn v-if="editMode" tooltip="In 'Paint' mode, left-click to repaint briqs, right-click to sample the briq color."
+                @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'"><i class="fas fa-paint-brush"/></Btn>
+            <Btn v-if="editMode" tooltip="In 'Erase' mode, left-click to delete briqs."
+                @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="far fa-trash-alt"/></Btn>
+            <Btn v-if="editMode" tooltip="In 'Select' mode, you can select briqs and swap them for others."
+                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-mouse-pointer"></i></Btn>
+            <Btn tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots."
+                @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-video"/></Btn>
+            <Btn v-if="editMode" tooltip="Use 'Move' mode to move all briqs in the set."
+                @click="inputStore.currentInput = 'move'" :disabled="inputStore.currentInput === 'move'"><i class="fas fa-arrows-alt"></i></Btn>
         </div>
         <div class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch pointer-events-auto">
             <InputComp/>

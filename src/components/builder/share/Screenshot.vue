@@ -13,9 +13,9 @@
                 <p><label><input v-model="showMetadata" type="checkbox"> Show title & author</label></p>
             </div>
             <div class="my-4 flex gap-2 w-full justify-around">
-                <Button @click="downloadImg">Download</Button>
+                <Btn @click="downloadImg">Download</Btn>
                 <a target="_blank" :href="`https://twitter.com/intent/tweet?text=Check out what I built with @briqs_!🧱 &url=${link}&via=briqs_`">
-                <Button @click="downloadImg"><i class="fab fa-twitter"></i> Tweet</Button></a>
+                <Btn @click="downloadImg"><i class="fab fa-twitter"></i> Tweet</Btn></a>
             </div>
         </div>
     </div>

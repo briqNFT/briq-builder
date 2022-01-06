@@ -9,7 +9,7 @@ import Hotkey from '../generic/Hotkey.vue';
     <div class="flex flex-col items-end">
         <Hotkey name="briqListModal" :data="{ key: 'b', ctrl: true }" :handler="() => setModal(BriqListModal)"/>
         <div class="overflow-auto flex flex-nowrap flex-col justify-start content-end">
-            <Button class="pointer-events-auto flex items-center gap-2 text-center" @click="mainBtnClick" :tooltip="mainBtnTooltip">
+            <Btn class="pointer-events-auto flex items-center gap-2 text-center" @click="mainBtnClick" :tooltip="mainBtnTooltip">
                 <div v-if="!isConnected">Connect Wallet</div>
                 <div v-else-if="isConnected && contractStore.briq" class="inline-block text-sm leading-3">{{ userAddress }}<br/>{{ userNet }}</div>
                 <div v-else="" class="inline-block text-sm leading-3">Unsupported<br/>Network</div>
@@ -17,10 +17,10 @@ import Hotkey from '../generic/Hotkey.vue';
                     <i v-if="transactionsManager.anyPending() || builderData.fetchingBriqs" class="fas fa-spinner animate-spin-slow"></i>
                     <i v-if="!transactionsManager.anyPending() && !builderData.fetchingBriqs && builderData.briqsDB.briqs.size > 0" class="fas fa-check"></i>
                 </template>
-            </Button>
+            </Btn>
             <div :class="'my-2 ' + (expanded ? 'pointer-events-auto': 'hidden')">
                 <div class="flex flex-col flex-nowrap gap-1">
-                    <Button v-if="isConnected" @click="expanded = false; $store.dispatch('wallet/disconnect')">Disconnect</Button>
+                    <Btn v-if="isConnected" @click="expanded = false; $store.dispatch('wallet/disconnect')">Disconnect</Btn>
                 </div>
             </div>
         </div>

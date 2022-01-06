@@ -4,10 +4,10 @@
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text-center w-full">Briq Details</h3>
             <div class="flex gap-2">
-                <Button @click="setup = 'all'">On-chain</Button>
-                <Button @click="setup = 'current'">Local set</Button>
+                <Btn @click="setup = 'all'">On-chain</Btn>
+                <Btn @click="setup = 'current'">Local set</Btn>
                 <!-- TODO -->
-                <!--<Button v-for="set of sets" @click="setup = 'set'">Set {{ set }}</Button>-->
+                <!--<Btn v-for="set of sets" @click="setup = 'set'">Set {{ set }}</Btn>-->
             </div>
             <div class="h-5/6 overflow-auto">
                 <table class="text-justify font-mono text-xs">

@@ -8,17 +8,17 @@ import ColorManager from '../modals/ColorManager.vue';
     <!-- Flex to occupy width-->
     <div class="grid grid-rows-2 grid-flow-col md:flex md:flex-col gap-0.5">
         <div class="flex flex-col" v-for="value, key in palette.colors" :key="key">
-            <Button class='h-5 min-h-0 shadow-md'
+            <Btn class='h-5 min-h-0 shadow-md'
                 :tooltip="'Select color ' + value"
                 @click="pickColor(key)"
                 :style="{ 'backgroundColor': key, 'border': (currentColor === key ? '3px solid black' : '0px solid black') }"
                 >
-            </Button>
+            </Btn>
         </div>
     </div>
     <div class="mx-1 md:mx-0 md:my-1 flex md:flex-col gap-0.5">
-        <Button @click="registerNewColor" tooltip="Add a new color to the curret palette.">New Color</Button>
-        <Button @click="setModal(ColorManager)" tooltip="Manage the color palette. Replace or delete colors.">Manage</Button>
+        <Btn @click="registerNewColor" tooltip="Add a new color to the curret palette.">New Color</Btn>
+        <Btn @click="setModal(ColorManager)" tooltip="Manage the color palette. Replace or delete colors.">Manage</Btn>
     </div>
 </template>
 

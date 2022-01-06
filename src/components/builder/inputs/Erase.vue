@@ -1,6 +1,6 @@
 <template>
     <div class="w-full">
-        <Button class="w-full" @click="clear">Clear All</Button>
+        <Btn class="w-full" @click="clear">Clear All</Btn>
     </div>
 </template>
 

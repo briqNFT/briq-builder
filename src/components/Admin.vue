@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Contract from './Contract.vue'
-import Button from './generic/Button.vue';
 </script>
 
 <template>
@@ -8,8 +7,8 @@ import Button from './generic/Button.vue';
         <h1>Admin</h1>
         <Contract/>
 
-        <Button @click="init1">Initialize Briq</Button>
-        <Button @click="init2">Initialize Set</Button>
+        <Btn @click="init1">Initialize Briq</Btn>
+        <Btn @click="init2">Initialize Set</Btn>
     </div>
 </template>
 

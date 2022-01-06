@@ -26,7 +26,7 @@ app.use(store);
 
 // Load general components
 import Button from './components/generic/Button.vue';
-app.component("Button", Button);
+app.component("Btn", Button);
 import Hotkey from './components/generic/Hotkey.vue';
 app.component("Hotkey", Hotkey);
 

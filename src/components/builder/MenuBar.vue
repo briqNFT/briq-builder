@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import UndoRedo from './UndoRedo.vue'
-import Button from '../generic/Button.vue'
-
 import SetBrowser from './set_browser/SetBrowser.vue'
 
 import HistoryLog from './modals/HistoryLog.vue'
@@ -11,8 +9,8 @@ import HistoryLog from './modals/HistoryLog.vue'
     <div id="menuBar" class="px-4 py-2 md:py-4 absolute top-0 w-screen flex flex-nowrap pointer-events-none">
         <div class="flex flex-nowrap justify-start align-start child-events">
             <UndoRedo/>
-            <Button tooltip="Open the undo/redo history log" class="mx-1" @click="setModal(HistoryLog)"><i class="fas fa-history"></i></Button>
-            <Button tooltip="Browse on-chain sets" class="mx-1" @click="setBrowser = !setBrowser"><i class="far fa-folder"></i> Sets</Button>
+            <Btn tooltip="Open the undo/redo history log" class="mx-1" @click="setModal(HistoryLog)"><i class="fas fa-history"></i></Btn>
+            <Btn tooltip="Browse on-chain sets" class="mx-1" @click="setBrowser = !setBrowser"><i class="far fa-folder"></i> Sets</Btn>
             <teleport to="#app">
                 <SetBrowser asModal="true" @close="setBrowser=false" v-if="setBrowser"/>
             </teleport>
