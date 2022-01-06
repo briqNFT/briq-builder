@@ -1,14 +1,15 @@
-<script setup lang="ts">
-</script>
-
 <template>
-    <div class="fixed bottom-0 left-0 px-4 py-2" style="z-index: 1000">
-        <button @click="openLog" class="tshadow">+</button><p class="text-lg font-normal drop-shadow-md tshadow">{{ lastMessage ? lastMessage : tooltip }}</p>
+    <!-- This is repeated 3 times to have nice contrasting B&W text -->
+    <div class="fixed bottom-0 left-0 px-4 py-2 mix-blend-saturation" style="z-index: 1000">
+        <button @click="openLog" class="tshadow">+</button><p class="text-lg font-normal">{{ lastMessage ? lastMessage : tooltip }}</p>
+    </div>
+    <div class="fixed bottom-0 left-0 px-4 py-2 mix-blend-difference" style="z-index: 1000">
+        <button @click="openLog" class="tshadow">+</button><p class="text-lg font-normal">{{ lastMessage ? lastMessage : tooltip }}</p>
+    </div>
+    <div class="fixed bottom-0 left-0 px-4 py-2 mix-blend-overlay" style="z-index: 1000">
+        <button @click="openLog" class="tshadow">+</button><p class="text-lg font-normal">{{ lastMessage ? lastMessage : tooltip }}</p>
     </div>
 </template>
-
-<style>
-</style>
 
 <script lang="ts">
 import { messagesStore } from '../Messages'
