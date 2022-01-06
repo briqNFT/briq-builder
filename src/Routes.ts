@@ -6,6 +6,7 @@ import SetBrowser from './components/builder/set_browser/SetBrowser.vue'
 import ShareView from './components/builder/share/Share.vue'
 import LandingPage from './components/landing_page/LandingPage.vue'
 import Debug from './components/debug/Debug.vue'
+import Team from './components/team/Team.vue'
 
 export const routes = [
     {
@@ -50,5 +51,10 @@ export const routes = [
         props(route: any) {
             return route.query || {}
         }
-    }
+    },
+    {
+        path: "/team",
+        name: "Team",
+        component: Team
+    },
 ];

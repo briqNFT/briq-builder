@@ -1,28 +1,21 @@
 <script setup lang="ts">
+import Header from './Header.vue';
+
 import GMIcon from './GM.svg?component'
 import ComposableIcon from './Composable.svg?component'
 import InteroperableIcon from './Interoperable.svg?component'
 import OnChainIcon from './OnChain.svg?component'
 
-import FabricIcon from './fabric.png'
-import FirstIcon from './first.png'
-import StarkwareIcon from './starkware.png'
+import FabricIcon from '../../assets/fabric.png'
+import FirstIcon from '../../assets/first.png'
+import StarkwareIcon from '../../assets/starkware.png'
 
 import AlphaBanner from '../AlphaBanner.vue';
 </script>
 
 <template>
-    <div class="pseudobody w-full h-full bg-briq text-white text-lg relative text-center font-sans alternate-buttons">
-        <div class="header m-auto flex justify-between items-center font-semibold">
-            <div class="text-xl">
-                <h2>briq</h2>
-            </div>
-            <div class="flex gap-4 items-center alpha-pill">
-                <a href="https://insidious-ginger-0f9.notion.site/Alpha-paper-fd11fbbb6ac449129797e5f4ecb24d7a"><p>Whitepaper</p></a>
-                <a href="https://insidious-ginger-0f9.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f"><p>Resources</p></a>
-                <button @click="$router.push({ name: 'Builder' })"><span class="px-2">App</span></button>
-            </div>
-        </div>
+    <div class="w-full h-full bg-briq text-white text-lg relative text-center font-sans alternate-buttons">
+        <Header></Header>
         <div class="row">
             <div class="flex flex-wrap justify-around md:my-6 my-10">
                 <div class="centerall flex-1">
