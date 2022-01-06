@@ -1,13 +1,7 @@
 <template>
-    <!-- This is repeated 3 times to have nice contrasting B&W text -->
-    <div class="fixed bottom-0 left-0 px-4 py-2 mix-blend-saturation" style="z-index: 1000">
-        <button @click="openLog" class="tshadow">+</button><p class="text-lg font-normal">{{ lastMessage ? lastMessage : tooltip }}</p>
-    </div>
-    <div class="fixed bottom-0 left-0 px-4 py-2 mix-blend-difference" style="z-index: 1000">
-        <button @click="openLog" class="tshadow">+</button><p class="text-lg font-normal">{{ lastMessage ? lastMessage : tooltip }}</p>
-    </div>
-    <div class="fixed bottom-0 left-0 px-4 py-2 mix-blend-overlay" style="z-index: 1000">
-        <button @click="openLog" class="tshadow">+</button><p class="text-lg font-normal">{{ lastMessage ? lastMessage : tooltip }}</p>
+    <div class="fixed bottom-0 left-0 px-4 py-2" style="z-index: 1000">
+        <button @click="openLog" class="flex justify-center items-center bg-briq" style="border-radius:50%;width:1.2rem;height:1.2rem;">+</button>
+        <p class="bg-briq rounded-2xl my-2 px-2 text-lg font-normal">{{ lastMessage ? lastMessage : tooltip }}</p>
     </div>
 </template>
 
