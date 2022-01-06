@@ -4,8 +4,8 @@
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Transactions</h3>
             <p v-for="tx in transactionsManager.transactions">{{ tx.hash }} - {{ tx.status }}
-            <Button @click="tx.poll()">Poll</Button>
-            <Button @click="tx.delete()">X</Button>
+            <Btn @click="tx.poll()">Poll</Btn>
+            <Btn @click="tx.delete()">X</Btn>
             </p>
         </div>
     </div>

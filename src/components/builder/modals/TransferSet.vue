@@ -10,7 +10,7 @@ import Button from '../../generic/Button.vue';
             <div class="my-8">
                 <input class="w-full" type="text" placeholder="Starkware Address to transfer to (hex format: 0xACDE...)" v-model="target"/>
             </div>
-            <Button class="float-right" :disabled="!formatOk" @click="doTransfer">Transfer</Button>
+            <Btn class="float-right" :disabled="!formatOk" @click="doTransfer">Transfer</Btn>
         </div>
     </div>
 </template>

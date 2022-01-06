@@ -15,12 +15,12 @@ var getColor = function(mat, i)
 
 <template>
     <div class="my-2 selector" v-for="i in nbMaterial" :key="i">
-        <Button noStyle="true" class ='tile'
+        <Btn noStyle="true" class ='tile'
             @click="pickmaterial(i)"
             :style='getColor(materialIndex[i-1], i)'
             :tooltip="'Click to place ' + materialIndex[i-1] + ' briqs'"
             >
-            {{ getMaterialNumber(i) }}</Button>
+            {{ getMaterialNumber(i) }}</Btn>
     </div>
 </template>
 

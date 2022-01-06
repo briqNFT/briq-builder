@@ -12,8 +12,8 @@
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.gridColor"/> Grid Color</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.backgroundColor"/> Background Color</p>
             </div>
-            <Button @click="resetToDefault">Reset to defaults</Button>
-            <Button class="mx-2" @click="resetToLast" :disabled="!mayUndo">Undo changes</Button>
+            <Btn @click="resetToDefault">Reset to defaults</Btn>
+            <Btn class="mx-2" @click="resetToLast" :disabled="!mayUndo">Undo changes</Btn>
         </div>
     </div>
 </template>

@@ -9,7 +9,7 @@
                 <h2 class="text-center text-2xl">LEGAL</h2>
             </div>
             <div class="float-right">
-                <p><router-link :to="{ name: 'Builder' }"><Button>Return to builder</Button></router-link></p>
+                <p><router-link :to="{ name: 'Builder' }"><Btn>Return to builder</Btn></router-link></p>
             </div>
             <div>
                 <p>This website is owned by S&amp;L Technologies. We're based in Paris.</p>
@@ -25,7 +25,7 @@
             </div>
             <div class="my-4">
                 <h3 class="text-2xl my-2 font-bold">Privacy</h3>
-                <p>Google Analytics tracking: {{ gaStore.agreed ? "on" : "off" }} // <Button @click="gaStore.clear()">Reset preferences</Button></p>
+                <p>Google Analytics tracking: {{ gaStore.agreed ? "on" : "off" }} // <Btn @click="gaStore.clear()">Reset preferences</Btn></p>
             </div>
         </div>
     </div>

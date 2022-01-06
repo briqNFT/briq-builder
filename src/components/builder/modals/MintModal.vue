@@ -33,7 +33,7 @@
                 you should see the deploy transaction before you can claim briqs.</p>
             </div>
             <div class="flex justify-center my-4 gap-2">
-                <a :href="voyagerLink" target="_blank"><Button>Check Voyager</Button></a>
+                <a :href="voyagerLink" target="_blank"><Btn>Check Voyager</Btn></a>
                 <button class="btn" :disabled="true">I Want to Briq Free</button>
             </div>
 

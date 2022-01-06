@@ -14,12 +14,12 @@ import MiddleModal from '../../MiddleModal.vue';
             <div class="my-4">
                 <p><input class="w-full" v-model="searchText" type="text" placeholder="Search by set ID or set name"/></p>
                 <p class="flex gap-2 my-4">
-                    <Button tooltip="Create a new WIP set." @click="createSet"><i class="far fa-file"></i> New</Button>
+                    <Btn tooltip="Create a new WIP set." @click="createSet"><i class="far fa-file"></i> New</Btn>
                     <!--
-                    <Button tooltip="Copy a new WIP set." @click="copySet"><i class="far fa-copy"></i> Copy</Button>
-                    <Button tooltip="Delete the current WIP set." @click="deleteSet"><i class="far fa-trash-alt"></i> Delete</button>
+                    <Btn tooltip="Copy a new WIP set." @click="copySet"><i class="far fa-copy"></i> Copy</Btn>
+                    <Btn tooltip="Delete the current WIP set." @click="deleteSet"><i class="far fa-trash-alt"></i> Delete</Btn>
                     -->
-                    <Button tooltip="Import a local set." @click="importSet"><i class="fas fa-file-import"></i> Import from file</button>
+                    <Btn tooltip="Import a local set." @click="importSet"><i class="fas fa-file-import"></i> Import from file</Btn>
                 </p>
             </div>
             <div class="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

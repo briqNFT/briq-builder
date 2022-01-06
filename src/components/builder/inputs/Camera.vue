@@ -1,6 +1,6 @@
 <template>
     <div>
-        <Button @click="resetCamera">Reset to Default</Button>
+        <Btn @click="resetCamera">Reset to Default</Btn>
     </div>
 </template>
 

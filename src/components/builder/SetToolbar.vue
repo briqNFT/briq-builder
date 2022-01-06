@@ -8,22 +8,22 @@
                     <!--
                     <div class="flex-1 flex gap-1 mx-2 flex-wrap justify-center lg:justify-end">
                         <div class="flex justify-stretch gap-1">
-                            <Button class="w-12" tooltip="Create a new WIP set." @click="newSet"><i class="far fa-file"></i></Button>
-                            <Button class="w-12" tooltip="Copy a new WIP set." @click="copySet"><i class="far fa-copy"></i></Button>
+                            <Btn class="w-12" tooltip="Create a new WIP set." @click="newSet"><i class="far fa-file"></i></Btn>
+                            <Btn class="w-12" tooltip="Copy a new WIP set." @click="copySet"><i class="far fa-copy"></i></Btn>
                         </div>
                         <div class="flex justify-stretch gap-1">
-                            <Button class="w-12" tooltip="Delete the current WIP set." @click="deleteSet"><i class="far fa-trash-alt"></i></button>
-                            <Button class="w-12" tooltip="Import a local set." @click="importSet"><i class="fas fa-file-import"></i></button>
+                            <Btn class="w-12" tooltip="Delete the current WIP set." @click="deleteSet"><i class="far fa-trash-alt"></i></button>
+                            <Btn class="w-12" tooltip="Import a local set." @click="importSet"><i class="fas fa-file-import"></i></button>
                         </div>
                     </div>
                     -->
                     <div class="mx-2 justify-center lg:justify-self-end flex-none">
-                        <Button v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Save your set on-chain to share it with others" :disabled="true"><i class="fas fa-share-square"></i> Copy Sharing Link</Button>
-                        <Button v-if="setInfo?.status === 'ONCHAIN_LOADED'" tooltip="This link will let you share your briq creation with others" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Button>
+                        <Btn v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Save your set on-chain to share it with others" :disabled="true"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
+                        <Btn v-if="setInfo?.status === 'ONCHAIN_LOADED'" tooltip="This link will let you share your briq creation with others" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
                     </div>
                     <div class="mx-2 justify-center lg:justify-self-end flex-none">
-                        <Button v-if="setInfo?.status === 'ONCHAIN_LOADED'" tooltip="This set is already on-chain" :disabled="true"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Button>
-                        <Button v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Mint your set as an NFT on-chain" :disabled="!$store.state.builderData.currentSet.briqsDB.briqs.size" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Button>
+                        <Btn v-if="setInfo?.status === 'ONCHAIN_LOADED'" tooltip="This set is already on-chain" :disabled="true"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Btn>
+                        <Btn v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Mint your set as an NFT on-chain" :disabled="!$store.state.builderData.currentSet.briqsDB.briqs.size" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Btn>
                     </div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
 .visibleChildren * {
     @apply invisible;
 }
-.visibleChildren button, .visibleChildren button * {
+.visibleChildren >>> button, .visibleChildren >>> button * {
     @apply visible;
 }
 

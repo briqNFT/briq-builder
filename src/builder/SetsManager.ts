@@ -18,6 +18,8 @@ export class SetInfo {
     local?: SetData;
     chain?: SetData;
     status: SET_STATUS = 'LOCAL';
+    // True if we are currently syncing with the chain.
+    syncing = false;
 
     constructor(sid: string, status?: SET_STATUS) {
         this.id = sid;
@@ -35,6 +37,7 @@ export class SetInfo {
 
     deserialize(data: any)
     {
+        this.syncing = false;
         this.status = data.status;
         this.id = data.id;
         if (data.local)
@@ -75,22 +78,30 @@ export class SetInfo {
         return (await fetchData("store_get/" + sid)).data;
     });
 
-    async loadFromChain() {
+    async _loadFromChain() {
         let data;
         try {
             data = await this._fetchFromChain(this.id);
         } catch(err) {
             reportError(err as Error, "Error while loading chain set data");
-            delete this.chain;
-            return this;
         }
         try {
-            this.chain = new SetData(data.id).deserialize(data);
+            data = new SetData(data.id).deserialize(data);
         } catch(err) {
             reportError(err as Error, "Error while parsing set data from chain");
-            delete this.chain;
-            return this;
         }
+        if (data)
+            this.chain = data;
+        else
+            delete this.chain;
+    }
+
+    async loadFromChain(force = false) {
+        if (this.chain && !force)
+            return this.chain;
+        this.syncing = true;
+        this._loadFromChain();
+        this.syncing = false;
         return this;
     }
 

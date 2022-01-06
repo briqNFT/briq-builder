@@ -8,7 +8,7 @@ import BriqSwapModal from '../modals/BriqSwapModal.vue';
         <template v-if="selection.selectedBriqs.length <= 2">
             <div  class="bg-briq rounded-md px-2 py-1" v-for="briqId of selection.selectedBriqs">
                 <p class="text-sm tracking-tighter break-all">{{ getBriqIdentifier(selection.set?.briqsDB.get(briqId).id) }}</p>
-                <Button :disabled="$store.state.builderData.briqsDB.briqs.size === 0" @click="openSwapModal(briqId)">Swap briq</Button>
+                <Btn :disabled="$store.state.builderData.briqsDB.briqs.size === 0" @click="openSwapModal(briqId)">Swap briq</Btn>
             </div>
         </template>
         <template v-else="">

@@ -32,23 +32,23 @@ import AlphaLogo from './../AlphaLogo.vue';
             <div class="rounded-md bg-briq px-8 py-4">
                 <h2 class="text-center p-2">Error loading set</h2>
                 <p class="text-lg">{{ loadingData.text }}</p>
-                <p class="alternate-buttons m-2"><router-link :to="{ name: 'Builder' }"><Button class="m-auto block">Return to builder</Button></router-link></p>
+                <p class="alternate-buttons m-2"><router-link :to="{ name: 'Builder' }"><Btn class="m-auto block">Return to builder</Btn></router-link></p>
             </div>
         </div>
         <AlphaLogo/>
         <div class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none">
-            <Button v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fab fa-twitter"></i> Tweet</Button>
-            <Button v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fas fa-camera"></i> Take Screenshot</Button>
+            <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fab fa-twitter"></i> Tweet</Btn>
+            <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fas fa-camera"></i> Take Screenshot</Btn>
             <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
-                <Button class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Button>
+                <Btn class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Btn>
                 <div class="my-2">
                     <div class="flex flex-col flex-nowrap gap-1">
-                        <Button @click="$router.push({ name: 'Builder' })">Builder</button>
-                        <Button @click="openHelp">Help</button>
-                        <Button @click="openSettings">Settings</button>
-                        <Button @click="$router.push({ path: '/legal' })">Legal / Privacy</button>
-                        <Button @click="$router.push({ path: '/' })">Home</button>
-                        <!--<Button @click="$router.push({ path: '/admin' })">Admin</button>-->
+                        <Btn @click="$router.push({ name: 'Builder' })">Builder</Btn>
+                        <Btn @click="openHelp">Help</Btn>
+                        <Btn @click="openSettings">Settings</Btn>
+                        <Btn @click="$router.push({ path: '/legal' })">Legal / Privacy</Btn>
+                        <Btn @click="$router.push({ path: '/' })">Home</Btn>
+                        <!--<Btn @click="$router.push({ path: '/admin' })">Admin</Btn>-->
                     </div>
                 </div>
             </div>
