@@ -8,7 +8,7 @@
             <div class="invisible min-w-0" style="flex: 0 5000 auto">
                 <Tooltip :useCursor="true" v-if="setInfo.syncing" tooltip="...Syncing with StarkNet..."><i class="fas fa-spinner animate-spin-slow"></i></Tooltip>
                 <Tooltip :useCursor="true" v-else-if="setInfo.status === 'ONCHAIN_ONLY'" tooltip="This set is saved on-chain"><i class="fas fa-cloud"></i></Tooltip>
-                <Tooltip :useCursor="true" v-else-if="setInfo.status !== 'LOCAL'" tooltip="This set is saved on-chain but being edited in the builder"><i class="fas fa-cloud-download-alt"></i></Tooltip>
+                <Tooltip :useCursor="true" v-else-if="setInfo.status !== 'LOCAL'" tooltip="This set is saved on-chain but loaded in the builder"><i class="fas fa-cloud-download-alt"></i></Tooltip>
                 <Tooltip :useCursor="true" v-if="setInfo.isEditing()" tooltip="This set is only available on this computer"><i class="fas fa-wrench"></i></Tooltip>
             </div>
 
@@ -24,10 +24,9 @@
         <div class="my-2 flex flex-col gap-2 text-sm">
             <template v-if="setInfo.isOnChain()">
                 <Btn tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
-                <Btn tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setInfo" @click="disassemble"><i class="fas fa-magic"></i> Disassemble</Btn>
                 <Btn tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo" @click="transferSet"><i class="fas fa-dolly"></i> Transfer</Btn>
-
                 <Btn tooltip="Make a local copy of the set that you can then modify and re-export." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="duplicateSet(setInfo.chain!)"><i class="fas fa-copy"></i> Duplicate</Btn>
+                <Btn tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setInfo" @click="disassemble"><i class="fas fa-magic"></i> Disassemble</Btn>
             </template>
             <template v-else="">
                 <Btn tooltip="" class="bg-transparent" :disabled="!canMint" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Save on Chain</Btn>
