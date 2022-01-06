@@ -53,6 +53,7 @@ import ExportSetVue from './modals/ExportSet.vue';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
+    inject: ["messages"],
     computed: {
         setInfo() {
             return setsManager.getInfo(this.$store.state.builderData.currentSet.id);

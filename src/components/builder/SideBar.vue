@@ -22,7 +22,12 @@ import InputComp from './InputComp.vue'
         <div class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch pointer-events-auto">
             <InputComp/>
         </div>
-        <p class="md:text-center font-normal drop-shadow-md pointer-events-auto" style="text-shadow: 0 0 2px rgba(0, 0, 0, 0.4)">{{ getNbBriqs }}</p>
+        <!-- Repeated 3 times for contrast -->
+        <div position="relative w-full">
+            <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-auto mix-blend-saturation">{{ getNbBriqs }}</p>
+            <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-auto mix-blend-difference">{{ getNbBriqs }}</p>
+            <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-auto mix-blend-overlay">{{ getNbBriqs }}</p>
+        </div>
     </div>
 </template>
 
