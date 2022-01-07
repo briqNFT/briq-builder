@@ -7,6 +7,7 @@
              -->
             <div class="invisible min-w-0" style="flex: 0 5000 auto">
                 <Tooltip :useCursor="true" v-if="setInfo.syncing" tooltip="...Syncing with StarkNet..."><i class="fas fa-spinner animate-spin-slow"></i></Tooltip>
+                <Tooltip :useCursor="true" v-else-if="setInfo.isOnChain() && !setInfo.chain" tooltip="Error loading set metadata from chain"><i class="text-red-900 fas fa-times"></i></Tooltip>
                 <Tooltip :useCursor="true" v-else-if="setInfo.status === 'ONCHAIN_ONLY'" tooltip="This set is saved on-chain"><i class="fas fa-cloud"></i></Tooltip>
                 <Tooltip :useCursor="true" v-else-if="setInfo.status !== 'LOCAL'" tooltip="This set is saved on-chain but loaded in the builder"><i class="fas fa-cloud-download-alt"></i></Tooltip>
                 <Tooltip :useCursor="true" v-if="setInfo.isEditing()" tooltip="This set is only available on this computer"><i class="fas fa-wrench"></i></Tooltip>
@@ -16,6 +17,7 @@
 
             <div>
                 <Tooltip :useCursor="true" v-if="setInfo.syncing" tooltip="...Syncing with StarkNet..."><i class="fas fa-spinner animate-spin-slow"></i></Tooltip>
+                <Tooltip :useCursor="true" v-else-if="setInfo.isOnChain() && !setInfo.chain" tooltip="Error loading set metadata from chain"><i class="text-red-900 fas fa-times"></i></Tooltip>
                 <Tooltip :useCursor="true" v-else-if="setInfo.status === 'ONCHAIN_ONLY'" tooltip="This set is saved on-chain"><i class="fas fa-cloud"></i></Tooltip>
                 <Tooltip :useCursor="true" v-else-if="setInfo.status !== 'LOCAL'" tooltip="This set is saved on-chain but being edited in the builder"><i class="fas fa-cloud-download-alt"></i></Tooltip>
                 <Tooltip :useCursor="true" v-if="setInfo.isEditing()" tooltip="This set is only available on this computer"><i class="fas fa-wrench"></i></Tooltip>
