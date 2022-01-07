@@ -100,7 +100,7 @@ export class SetInfo {
         if (this.chain && !force)
             return this.chain;
         this.syncing = true;
-        this._loadFromChain();
+        await this._loadFromChain();
         this.syncing = false;
         return this;
     }

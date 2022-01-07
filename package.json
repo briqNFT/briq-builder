@@ -1,6 +1,6 @@
 {
   "name": "briq-builder",
-  "version": "0.1.0",
+  "version": "0.3.1-alpha",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
