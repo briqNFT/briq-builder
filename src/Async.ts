@@ -50,3 +50,24 @@ export async function ignoreOutdated<T>(func: (...args: any[]) => Promise<T>): P
     }
     return ret!;
 }
+
+/**
+ * Similar to watchEffect, but awaitable. Given watchEffect runs immediately (but executes on next tick I think), this shouldn't be too slow.
+ * Convenient in case you want to await on an async side-effect.
+ */
+import { watchEffect } from "vue";
+export async function watchEffectAndWait(func: () => Promise<any>, ...args: any[]) {
+
+    await new Promise(resolve => {
+        // To do minimal computation, just have a fire-and-forget function that resets itself.
+        let f : () => Promise<any>;
+        f = async() => {
+            await func();
+            resolve(true); // true is just to make typescript happy.
+            f = func;
+        };
+        watchEffect(async () => {
+            await f();
+        }, ...args);
+    });
+}

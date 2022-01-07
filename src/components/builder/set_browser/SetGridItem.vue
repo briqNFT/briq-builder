@@ -157,7 +157,6 @@ export default defineComponent({
             await this.$store.dispatch("builderData/select_set", this.setId);
         },
         async deleteSet() {
-            let current = this.isCurrent;
             // Ask for confirmation on non-empty sets.
             if (this.setInfo.status === "LOCAL" && this.setInfo?.local?.briqsDB?.briqs?.size > 0) {
                 let btn = await setModalAndAwait(TextModal, {
@@ -170,14 +169,6 @@ export default defineComponent({
                     return;
             }
             setsManager.deleteLocalSet(this.setId);
-            if (current) {
-                // Must have a local set.
-                let set = setsManager.getLocalSet();
-                if (!set)
-                    set = setsManager.createLocalSet();
-                console.log("set is ", set);
-                this.$store.dispatch("builderData/select_set", set.id);
-            }
         },
         duplicateSet(set: SetData) {
             setsManager.duplicateLocally(set);

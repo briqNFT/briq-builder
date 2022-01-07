@@ -4,7 +4,7 @@ import SetContract from '../contracts/set';
 import { SetData} from './SetData';
 
 import { hexUuid } from '../Uuid';
-import { ticketing } from '../Async';
+import { ignoreOutdated, ticketing } from '../Async';
 import { reportError } from '../Monitoring';
 import { fetchData } from '../url';
 
@@ -13,11 +13,18 @@ import { pushMessage } from '../Messages';
 
 export type SET_STATUS = "ONCHAIN_ONLY" | "ONCHAIN_LOADED" | "ONCHAIN_EDITING" | "LOCAL";
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 export class SetInfo {
     id: string;
     local?: SetData;
     chain?: SetData;
     status: SET_STATUS = 'LOCAL';
+    
+    chain_owner: string = '';
     // True if we are currently syncing with the chain.
     syncing = false;
 
@@ -31,6 +38,7 @@ export class SetInfo {
         return {
             id: this.id,
             status: this.status,
+            chain_owner: this.chain_owner,
             local: this.local?.serialize(),
         }
     }
@@ -40,6 +48,7 @@ export class SetInfo {
         this.syncing = false;
         this.status = data.status;
         this.id = data.id;
+        this.chain_owner = data.chain_owner;
         if (data.local)
             this.local = new SetData(this.id).deserialize(data.local);
         // TODO: check coherence.
@@ -82,13 +91,14 @@ export class SetInfo {
         let data;
         try {
             data = await this._fetchFromChain(this.id);
+            await sleep(5000);
+            try {
+                data = new SetData(data.id).deserialize(data);
+            } catch(err) {
+                reportError(err as Error, "Error while parsing set data from chain");
+            }
         } catch(err) {
             reportError(err as Error, "Error while loading chain set data");
-        }
-        try {
-            data = new SetData(data.id).deserialize(data);
-        } catch(err) {
-            reportError(err as Error, "Error while parsing set data from chain");
         }
         if (data)
             this.chain = data;
@@ -111,8 +121,6 @@ export class SetInfo {
         this.status = "ONCHAIN_LOADED";
     }
 }
-
-
 
 class SetsManager
 {
@@ -146,48 +154,60 @@ class SetsManager
         }
     }
 
+    getSets = ticketing(async function(setContract: SetContract, owner: string) {
+        return await setContract.get_all_tokens_for_owner(owner);
+    })
+
     async loadOnChain(setContract: SetContract, owner: string) {
         this.fetchingChainSets = true;
         try {
-            let sets = await setContract.get_all_tokens_for_owner(owner);
-            for (let id of sets)
-            {
-                if (!this.setsInfo[id])
-                    this.setList.push(id);
-                if (this.setsInfo[id])
+            await ignoreOutdated(async () => {
+                let sets = await this.getSets(setContract, owner);
+                for (let id of sets)
                 {
-                    // If we found a same-ID set marked local, then assume we're editing it.
-                    if (this.setsInfo[id].status === "LOCAL")
-                        this.setsInfo[id].status = "ONCHAIN_EDITING";
-                    // Otherwise keep the local set, it's probably got good data.
+                    if (!this.setsInfo[id])
+                        this.setList.push(id);
+                    if (this.setsInfo[id])
+                    {
+                        // If we found a same-ID set marked local, then assume we're editing it.
+                        if (this.setsInfo[id].status === "LOCAL")
+                            this.setsInfo[id].status = "ONCHAIN_EDITING";
+                        // Otherwise keep the local set, it's probably got good data.
+                    }
+                    else
+                        this.setsInfo[id] = new SetInfo(id, "ONCHAIN_ONLY");
+                    this.setsInfo[id].loadFromChain();
+                    // TODO: we probably should set this elsewhere
+                    this.setsInfo[id].chain_owner = owner;
                 }
-                else
-                    this.setsInfo[id] = new SetInfo(id, "ONCHAIN_ONLY");
-                this.setsInfo[id].loadFromChain();
-            }
+            });
         } catch(err) {
             console.log(err);
             pushMessage("Error loading sets from chain - see console for details");
         }
         this.fetchingChainSets = false;
-    }
+    };
 
     // TODO: move this elsewhere?
     watchForChain(contractStore: any, wallet: any) {
         watch([toRef(contractStore, "set"), toRef(wallet, "userWalletAddress")], () => {
-            // Clear view-only chain sets, and switch chain sets to LOCAL.
             for (let sid in this.setsInfo)
             {
-                if (this.setsInfo[sid].isOnChain())
+                // If the set is onchain & unedited, drop it.
+                if (this.setsInfo[sid].isOnChain() && this.setsInfo[sid].chain_owner !== wallet.userWalletAddress)
                     this._deleteSet(sid);
-                else
+                // Otherwise, switch it to local (TODO: maybe acknowledge it's on-chain but you don't own it?)
+                else if (!this.setsInfo[sid].isOnChain())
                 {
                     this.setsInfo[sid].status = 'LOCAL';
                     delete this.setsInfo[sid].chain;
                 }
             }
             if (contractStore.set && wallet.userWalletAddress)
+            {
+                //console.log("LOADING CHAIN SETS", contractStore.set.connectedTo, wallet.userWalletAddress);
                 setsManager.loadOnChain(contractStore.set, wallet.userWalletAddress);
+            }
         })
     }
 

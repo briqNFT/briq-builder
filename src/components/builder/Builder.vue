@@ -35,6 +35,7 @@ import WalletSelectorVue from '../WalletSelector.vue';
 
 import { setsManager, checkForInitialGMSet } from '../../builder/SetsManager';
 import contractStore from '../../Contracts';
+import { watchEffectAndWait } from '../../Async';
 
 import { pushMessage, setTooltip } from '../../Messages'
 import { defineComponent, watchEffect } from 'vue';
@@ -53,14 +54,24 @@ export default defineComponent({
         let set = checkForInitialGMSet();
         if (set)
             await this.$store.dispatch("builderData/select_set", set.id);
-        else
-        {
-            // Must have a local set.
-            let set = setsManager.getLocalSet();
-            if (!set)
-                set = setsManager.createLocalSet();
-            await this.$store.dispatch("builderData/select_set", set.id);
-        }
+        
+        // Must have a local set.
+        await watchEffectAndWait(async () => {
+            if (!this.$store.state.builderData.currentSet || !setsManager.getInfo(this.$store.state.builderData.currentSet.id))
+            {
+                let set = setsManager.getLocalSet();
+                if (!set)
+                    set = setsManager.createLocalSet();
+                await this.$store.dispatch("builderData/select_set", set.id);
+            }
+        });
+
+        // For storage space optimisation, delete non-current chain-only sets.
+        for (let sid in setsManager.setsInfo)
+            if (this.$store.state.builderData.currentSet.id !== sid && setsManager.setsInfo[sid].isOnChain())
+                setsManager.deleteLocalSet(sid);
+
+        // Reset history so we start fresh.
         await this.$store.dispatch("reset_history");
 
         // TODO: centralise these?
