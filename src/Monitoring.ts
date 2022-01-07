@@ -5,9 +5,9 @@ import { APP_ENV, DEV } from './Meta';
 
 export function setupMonitoring(app: any, router: any)
 {
-    // temporarily turned off in prod.
-    if (APP_ENV === "prod" || APP_ENV === "dev")
+    if (APP_ENV === "dev")
         return;
+    
     // Init Sentry error tracking.
     Sentry.init({
         app,
