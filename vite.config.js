@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 
@@ -7,6 +7,13 @@ svgLoader({
         multipass: true
     }
 })
+
+const injectNpmVersion = () => {
+  return {
+    name: 'inject-npm-version',
+    config: () => ({ define: { "import.meta.env.VERSION": JSON.stringify(process.env.npm_package_version) } })
+  }
+};
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -27,5 +34,5 @@ export default defineConfig(({ mode }) => ({
         }
         */
     },
-    plugins: [vue(), svgLoader()]
+    plugins: [vue(), svgLoader(), injectNpmVersion()]
 }));
