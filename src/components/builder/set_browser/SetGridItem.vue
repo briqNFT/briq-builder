@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="my-2 flex flex-col gap-2 text-sm">
-            <template v-if="setInfo.isOnChain()">
+            <template v-if="!setInfo.isLocalOnly()">
                 <Btn tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
                 <Btn tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="transferSet"><i class="fas fa-dolly"></i> Transfer</Btn>
                 <Btn tooltip="Make a local copy of the set that you can then modify and re-export." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="duplicateSet(setInfo.chain!)"><i class="fas fa-copy"></i> Duplicate</Btn>
@@ -33,7 +33,8 @@
                 <Btn tooltip="" class="bg-transparent" :disabled="disableButtons" @click="renameSet"><i class="fas fa-file-signature"></i> Rename</Btn>
                 <Btn tooltip="Duplicate the set." class="bg-transparent" :disabled="disableButtons" @click="duplicateSet(setInfo.local!)"><i class="fas fa-copy"></i> Duplicate</Btn>
             </template>
-            
+            <Btn v-if="setInfo.status === 'ONCHAIN_EDITING'" tooltip="Revert to onchain-set" class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="deleteSet">Revert to on-chain version</Btn>
+
             <Btn v-if="setInfo.status === 'LOCAL'" tooltip="Delete this set." class="bg-transparent" :disabled="disableButtons" @click="deleteSet"><i class="fas fa-trash-alt"></i> Delete</Btn>
             <Btn tooltip="Load the set in the builder, to be edited." class="bg-transparent" :disabled="!canSelectSet" @click="selectSet"><i class="fas fa-folder-open"></i> Load in Builder</Btn>
         </div>

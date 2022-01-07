@@ -13,11 +13,6 @@ import { pushMessage } from '../Messages';
 
 export type SET_STATUS = "ONCHAIN_ONLY" | "ONCHAIN_LOADED" | "ONCHAIN_EDITING" | "LOCAL";
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-
 export class SetInfo {
     id: string;
     local?: SetData;
@@ -91,7 +86,6 @@ export class SetInfo {
         let data;
         try {
             data = await this._fetchFromChain(this.id);
-            await sleep(5000);
             try {
                 data = new SetData(data.id).deserialize(data);
             } catch(err) {

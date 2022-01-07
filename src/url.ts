@@ -3,7 +3,7 @@ import { DEV, PROD } from './Meta'
 export default function getBaseUrl()
 {
     // Hack for dev when I want chain-connectivity.
-    if (DEV && true)
+    if (DEV && false)
         return "https://api.test.sltech.company";
 
     var baseUrl = "http://localhost:5000"
