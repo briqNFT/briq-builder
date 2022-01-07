@@ -55,6 +55,10 @@ export default defineComponent({
         if (set)
             await this.$store.dispatch("builderData/select_set", set.id);
         
+        let previousSet = window.localStorage.getItem("current_set");
+        if (previousSet && setsManager.getInfo(previousSet))
+            await this.$store.dispatch("builderData/select_set", previousSet);
+
         // Must have a local set.
         await watchEffectAndWait(async () => {
             if (!this.$store.state.builderData.currentSet || !setsManager.getInfo(this.$store.state.builderData.currentSet.id))
@@ -73,6 +77,10 @@ export default defineComponent({
 
         // Reset history so we start fresh.
         await this.$store.dispatch("reset_history");
+
+        watchEffect(() => {
+            window.localStorage.setItem("current_set", this.$store.state.builderData.currentSet.id);
+        })
 
         // TODO: centralise these?
         setsManager.watchForChain(contractStore, this.$store.state.wallet);
