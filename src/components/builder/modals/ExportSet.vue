@@ -190,6 +190,7 @@ export default defineComponent({
                 await this.$store.dispatch("builderData/update_set", data);
 
                 setsManager.getInfo(data.id).status = 'ONCHAIN_LOADED';
+                setsManager.getInfo(data.id).chain = this.exportSet;
                 await this.$store.dispatch("builderData/select_set", data.id);
                 this.exporting = 'DONE';
             }

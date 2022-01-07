@@ -114,6 +114,21 @@ export class SetInfo {
         this.local = new SetData(this.id).deserialize(this.chain?.serialize());
         this.status = "ONCHAIN_LOADED";
     }
+
+    async checkActuallyOnChain(setContract: SetContract) {
+        let owner = await setContract.owner_of(this.id);
+        if (!owner || owner === "0x0")
+        {
+            this.chain_owner = '';
+            this.status = 'LOCAL';
+        }
+        else
+        {
+            this.chain_owner = owner;
+            if (this.status === 'LOCAL')
+                this.status = 'ONCHAIN_EDITING';
+        }
+    }
 }
 
 class SetsManager
@@ -126,7 +141,7 @@ class SetsManager
     /**
      * Load all sets from local storage. Note that this doesn't clear any preloaded sets (such as on-chain ones).
      */
-    async loadFromStorage() {
+    async loadFromStorage(setContract: SetContract) {
         for (let [sid, setData] of Object.entries(window.localStorage))
         {
             if (!sid.startsWith("briq_set"))
@@ -138,7 +153,7 @@ class SetsManager
                 this.setList.push(info.id);
                 this.setsInfo[info.id] = info;
                 if (!info.isLocalOnly())
-                    info.loadFromChain();
+                    info.loadFromChain()
             }
             catch (e)
             {
@@ -187,14 +202,14 @@ class SetsManager
         watch([toRef(contractStore, "set"), toRef(wallet, "userWalletAddress")], () => {
             for (let sid in this.setsInfo)
             {
-                // If the set is onchain & unedited, drop it.
+                // If the set is onchain & not owned by us, remove it.
                 if (this.setsInfo[sid].isOnChain() && this.setsInfo[sid].chain_owner !== wallet.userWalletAddress)
                     this._deleteSet(sid);
-                // Otherwise, switch it to local (TODO: maybe acknowledge it's on-chain but you don't own it?)
-                else if (!this.setsInfo[sid].isOnChain())
+                // Otherwise, query chain status
+                else if (contractStore.set)
                 {
-                    this.setsInfo[sid].status = 'LOCAL';
-                    delete this.setsInfo[sid].chain;
+                    this.setsInfo[sid].checkActuallyOnChain(contractStore.set);
+                    this.setsInfo[sid].loadFromChain();
                 }
             }
             if (contractStore.set && wallet.userWalletAddress)

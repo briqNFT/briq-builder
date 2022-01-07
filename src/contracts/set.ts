@@ -47,4 +47,9 @@ export default class SetContract extends ExtendedContract
            throw new Error("Provider is not a signer");
         return await this.invoke("transfer_from", { sender, recipient, token_id, bricks });
     }
+
+    async owner_of(token_id: string)
+    {
+        return (await this.call("owner_of", { token_id })).res as string;
+    }
 }
