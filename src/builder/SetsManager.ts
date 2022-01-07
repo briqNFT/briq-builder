@@ -1,5 +1,5 @@
 
-import { reactive } from 'vue';
+import { reactive, WatchStopHandle } from 'vue';
 import SetContract from '../contracts/set';
 import { SetData} from './SetData';
 
@@ -283,15 +283,34 @@ class SetsManager
 
 export const setsManager = reactive(new SetsManager());
 
+
+let storageHandlers: { [sid: string]: WatchStopHandle } = {};
 watchEffect(() => {
-    // TODO: this can probably get quite inefficient.
     for (let sid in setsManager.setsInfo)
     {
-        let info = setsManager.setsInfo[sid];
-        if (info.status === 'ONCHAIN_ONLY')
+        if (storageHandlers[sid])
             continue;
-        console.log("Serializing set ", sid);
-        window.localStorage.setItem("briq_set_" + sid, JSON.stringify(info.serialize()));
+        storageHandlers[sid] = watchEffect(() => {
+            let info = setsManager.setsInfo[sid];
+            console.log("SET STORAGE HANDLER - Serializing set ", sid);
+            if (!info || info.status === 'ONCHAIN_ONLY')
+            {
+                // Delete
+                if (window.localStorage.getItem("briq_set_" + sid))
+                {
+                    console.log("SET STORAGE HANDLER - deleted local set");
+                    window.localStorage.removeItem("briq_set_" + sid);
+                }
+                if (!info)
+                {
+                    console.log("SET STORAGE HANDLER - unwatching ", sid);
+                    storageHandlers[sid]();
+                    delete storageHandlers[sid];
+                }
+                return;
+            }
+            window.localStorage.setItem("briq_set_" + sid, JSON.stringify(info.serialize()));        
+        })
     }
 });
 
