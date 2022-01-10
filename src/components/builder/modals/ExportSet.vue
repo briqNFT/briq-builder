@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import { downloadJSON, fetchData } from '../../../url'
+import { downloadData, downloadJSON, fetchData } from '../../../url'
 import { SetData } from '../../../builder/SetData';
 import type { Briq, BriqsDB } from '../../../builder/BriqsDB';
 
@@ -68,6 +68,8 @@ import RenameSet from '../modals/RenameSet.vue';
 import { awaitModal } from '../../MiddleModal.vue';
 import { VERSION } from '../../../Meta';
 
+import { takeScreenshot } from '../../../builder/graphics/builder.js';
+
 type exportSteps = '' | 'SIGNING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE';
 
 import { defineComponent } from 'vue';
@@ -79,6 +81,7 @@ export default defineComponent({
             exporting: '' as exportSteps,
             briqsForExport: [] as Array<Briq>,
             exportSet: undefined as SetData | undefined,
+            screenshot: undefined as Promise<HTMLImageElement> | undefined,
         };
     },
     props: ["metadata"],
@@ -88,6 +91,12 @@ export default defineComponent({
         this.name = this.set.name;
         this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.metadata.set)?.[0];
         await this.prepareForExport();
+        let uri = takeScreenshot();
+        let img = new Image();
+        img.src = uri;
+        this.screenshot = new Promise((resolve: (data: HTMLImageElement) => void) => {
+            img.decode().then(() => resolve(img));
+        })
     },
     computed: {
         setInfo() {
@@ -167,14 +176,27 @@ export default defineComponent({
                         "message": "mint_set"
                     },
                 }
+
+                let img = (await this.screenshot)!;
+                let c = document.createElement("canvas");
+                let ctx = c.getContext("2d")!;
+                let ratio = Math.min(400 / img.width, 300 / img.height);
+                c.width = Math.floor(img.width * ratio);
+                c.height = Math.floor(img.height * ratio);
+                ctx.scale(ratio, ratio);
+                ctx.drawImage(img, 0, 0);
+                let blob = fetch(c.toDataURL("image/jpeg", 0.95));
+
                 // Debug
-                //downloadJSON(data, data.id + ".json")
+                downloadJSON(data, data.id + ".json")
                 let signature = await this.$store.state.wallet.signer.signMessage(message);
                 this.exporting = 'SENDING_TRANSACTION';
                 let TX = await contractStore.set.mint(this.$store.state.wallet.userWalletAddress, data.id, data.briqs.map(x => x.data.briq));
                 new Transaction(TX.transaction_hash, "export_set", { setId: data.id });
                 this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
+
                 this.exporting = 'WAITING_FOR_CONFIRMATION';
+                // Poll the transaction status regularly.
                 let regularly = setInterval(() => this.pending_transaction?.poll(), 3000);
                 await fetchData("store_set", {
                     owner: this.$store.state.wallet.userWalletAddress,
@@ -183,6 +205,7 @@ export default defineComponent({
                     transaction_hash: TX.transaction_hash,
                     message_hash: await this.$store.state.wallet.signer.hashMessage(message),
                     signature: signature,
+                    image_base64: (await blob).url,
                 });
                 clearInterval(regularly);
                 this.pending_transaction?.poll();

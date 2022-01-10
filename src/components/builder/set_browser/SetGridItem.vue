@@ -23,6 +23,7 @@
                 <Tooltip :useCursor="true" v-if="setInfo.isEditing()" tooltip="This set is only available on this computer"><i class="fas fa-wrench"></i></Tooltip>
             </div>
         </div>
+        <img v-if="imgSrc" :src="imgSrc"/>
         <div class="my-2 flex flex-col gap-2 text-sm">
             <template v-if="!setInfo.isLocalOnly()">
                 <Btn tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
@@ -56,28 +57,48 @@ import contractStore from '../../../Contracts';
 import { SetData } from '../../../builder/setData';
 import { setsManager, SetInfo } from '../../../builder/SetsManager';
 
-const DEFAULT_INFO = new SetInfo("");
-
 import ExportSetVue from '../modals/ExportSet.vue';
 import { reportError } from '../../../Monitoring';
 
 import RenameSetVue from '../modals/RenameSet.vue';
 import Tooltip from '../../generic/Tooltip.vue';
 
+const DEFAULT_INFO = new SetInfo("");
+
+import { reactive } from 'vue';
+const setImageCache = reactive({} as { [set: string]: string });
+
 import { defineComponent } from 'vue';
+import getBaseUrl, { fetchData } from '../../../url';
 export default defineComponent({
     data() {
         return {
             setInfo: DEFAULT_INFO,
-            disableButtons: false
+            disableButtons: false,
+            imgSrc: undefined as string | undefined,
         };
     },
     inject: ["messages"],
     props: ["setId", "searchText"],
-    mounted() {
+    async mounted() {
         this.setInfo = setsManager.getInfo(this.setId);
         if (!this.setInfo)
             throw new Error("Set does not exist in setsManager: " + this.setId);
+
+        if (this.setInfo.isLocalOnly())
+            return;
+        // Load source image & cache it JS-side.
+        this.imgSrc = setImageCache?.[this.setId];
+        let src = new Image();
+        src.src = getBaseUrl() + "/preview/" + this.setId;
+        try {
+            await src.decode();
+            this.imgSrc = src.currentSrc;
+            setImageCache[this.setId] = src.currentSrc;
+        } catch (_) {
+            this.imgSrc = undefined;
+            delete setImageCache[this.setId];
+        }
     },
     computed: {
         /** @return true if the item should be hidden */
