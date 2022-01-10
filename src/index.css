@@ -16,6 +16,10 @@
         @apply text-xl font-normal;
     }
 
+    .briq-logo {
+        @apply font-display;
+    }
+
     /* Overwrite the default outline color */
     button, a {
         @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-briq-dark;

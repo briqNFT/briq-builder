@@ -1,7 +1,7 @@
 <template>
     <div class="header m-auto flex justify-between items-center font-semibold text-white text-lg text-center font-sans alternate-buttons">
         <div class="text-xl">
-            <a href="/"><h2>briq</h2></a>
+            <a href="/"><h2 class="briq-logo">briq</h2></a>
         </div>
         <div class="flex gap-4 items-center alpha-pill">
             <a href="/team"><p>Team</p></a>
