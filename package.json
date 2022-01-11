@@ -5,7 +5,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "test": "jest src"
+    "test": "jest src",
+    "server": "node server/main.js"
   },
   "dependencies": {
     "@sentry/tracing": "^6.16.1",
