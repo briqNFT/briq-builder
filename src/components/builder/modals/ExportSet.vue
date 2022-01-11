@@ -1,25 +1,29 @@
 <template>
-    <div class="md:w-4/5 lg:w-3/5 xl:w-1/2 w-auto">
+    <div class="md:w-3/5 lg:w-1/2 xl:w-1/3 w-auto">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full">Export set</h2>
             <template v-if="!exporting">
-                <div class="my-2 flex justify-between flex-wrap gap-2">
-                    <div class="flex-1">
+                <div class="my-2 flex flex-col gap-2">
+                    <div>
                         <h4 class="font-medium">Set</h4>
                         <p>{{ metadata.set }}</p>
                     </div>
-                    <div class="flex-1">
+                    <div>
                         <h4 class="font-medium">Name <button @click="rename">( click to rename )</button></h4>
                         <p>{{ set.name }}</p>
                     </div>
-                </div>
-                <div class="my-2 flex justify-between flex-wrap gap-2">
-                    <div v-if="screenshot" class="flex-1">
-                        <h4 class="font-medium">Preview <button @click="retakeScreenshot">( click to change )</button></h4>
-                        <img class="max-w-[15rem] rounded-xl" :src="screenshot"/>
+                    <div v-if="screenshot">
+                        <h4 class="font-medium">Preview</h4>
+                        <div class="flex gap-4">
+                            <img class="max-w-[15rem] rounded-xl" :src="screenshot"/>
+                            <div class="flex flex-col justify-around">
+                                <Btn @click="cropScreenshot">Crop</Btn>
+                                <Btn @click="retakeScreenshot">Retake</Btn>
+                            </div>
+                        </div>
                     </div>
-                    <div v-if="briqsForExport.length" class="flex-1">
+                    <div v-if="briqsForExport.length">
                         <h4 class="font-medium">Briqs</h4>
                         <div class="max-h-40 overflow-auto">
                             <BriqTable :briqs="briqsForExport" :columns="['color', 'material']">
@@ -80,6 +84,7 @@ import ScreenshotVue from './Screenshot.vue';
 type exportSteps = '' | 'SIGNING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE';
 
 import { defineComponent } from 'vue';
+import CropScreenshotVue from './CropScreenshot.vue';
 export default defineComponent({
     data() {
         return {
@@ -90,6 +95,7 @@ export default defineComponent({
             exportSet: undefined as SetData | undefined,
             screenshot: "" as string,
             screenshotPromise: undefined as Promise<string> | undefined,
+            ogImage: "" as string,
         };
     },
     props: ["metadata"],
@@ -103,14 +109,18 @@ export default defineComponent({
         if (this.metadata.screenshot)
         {
             img.src = this.metadata.screenshot;
-            this.screenshotPromise = this.prepareImage(img);
-            this.screenshot = await this.screenshotPromise;
+            img.decode().then(async () => {
+                this.ogImage = img.src;
+                this.screenshotPromise = this.prepareImage(img);
+                this.screenshot = await this.screenshotPromise;
+            });
             return;
         }
         let uri = takeScreenshot();
         img.src = uri;
         this.screenshotPromise = new Promise((resolve: (data: string) => void) => {
             img.decode().then(async () => {
+                this.ogImage = img.src;
                 this.screenshot = await this.prepareImage(img);
                 resolve(this.screenshot);
             });
@@ -142,7 +152,7 @@ export default defineComponent({
         {
             let c = document.createElement("canvas");
             let ctx = c.getContext("2d")!;
-            let ratio = Math.min(800 / img.width, 600 / img.height);
+            let ratio = Math.min(1, Math.min(800 / img.width, 600 / img.height));
 
             c.width = Math.floor(img.width * ratio);
             c.height = Math.floor(img.height * ratio);
@@ -182,6 +192,12 @@ export default defineComponent({
         async retakeScreenshot() {
             let oldScreen = this.screenshot;
             let [modal, screenProm] = await awaitModal(ScreenshotVue, { set: this.metadata.set });
+            setModal(modal, { ...this.metadata, screenshot: (await screenProm) || oldScreen });
+        },
+        async cropScreenshot() {
+            let oldScreen = this.screenshot;
+            let [modal, screenProm] = await awaitModal(CropScreenshotVue, { screenshot: this.ogImage });
+            console.log(await screenProm);
             setModal(modal, { ...this.metadata, screenshot: (await screenProm) || oldScreen });
         },
         async rename() {
