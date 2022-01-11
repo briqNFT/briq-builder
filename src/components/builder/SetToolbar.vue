@@ -1,5 +1,5 @@
 <template>
-    <div class="invisible absolute md:top-0 bottom-0 w-screen flex py-2 md:py-4">
+    <div v-if="!forceInput" class="invisible absolute md:top-0 bottom-0 w-screen flex py-2 md:py-4">
         <!-- For easy placement, have invisible blocks for the left/right hand side items -->
         <div class="w-[16rem] flex-none md:block hidden"></div>
         <div class="w-full flex-shrink visibleChildren">
@@ -50,6 +50,7 @@ import { setModal, setModalAndAwait } from '../MiddleModal.vue';
 
 import { setsManager } from '../../builder/SetsManager';
 import ExportSetVue from './modals/ExportSet.vue';
+import { inputStore } from '../../builder/inputs/InputStore';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -57,7 +58,10 @@ export default defineComponent({
     computed: {
         setInfo() {
             return setsManager.getInfo(this.$store.state.builderData.currentSet.id);
-        }  
+        },
+        forceInput() {
+            return inputStore.forceInput;
+        }
     },
     methods: {
         async mintSet() {

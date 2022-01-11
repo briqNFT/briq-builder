@@ -190,12 +190,12 @@ export default defineComponent({
                 return 'fas fa-check';
         },
         async retakeScreenshot() {
-            let oldScreen = this.screenshot;
+            let oldScreen = this.ogImage;
             let [modal, screenProm] = await awaitModal(ScreenshotVue, { set: this.metadata.set });
             setModal(modal, { ...this.metadata, screenshot: (await screenProm) || oldScreen });
         },
         async cropScreenshot() {
-            let oldScreen = this.screenshot;
+            let oldScreen = this.ogImage;
             let [modal, screenProm] = await awaitModal(CropScreenshotVue, { screenshot: this.ogImage });
             console.log(await screenProm);
             setModal(modal, { ...this.metadata, screenshot: (await screenProm) || oldScreen });

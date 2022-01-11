@@ -6,7 +6,7 @@
             <div class="relative">
                 <img ref="image" @mousedown="onMouseDown" @mousemove="onMouseMove" @mouseup="onMouseUp" :src="metadata.screenshot"/>
                 <div class="absolute top-0 left-0 pointer-events-none overflow-hidden">
-                    <div ref="overlay" class="outline-black outline opacity-50 outline-[1000px] absolute top-0 left-0">
+                    <div ref="overlay" class="outline-black outline opacity-50 outline-[5000px] absolute top-0 left-0">
                     </div>
                 </div>
             </div>

@@ -5,7 +5,7 @@ import InputComp from './InputComp.vue'
 
 <template>
     <div id="sideBar" class="flex flex-nowrap flex-col mx-4 md:py-20 py-12 absolute left-0 top-0 max-w-full max-h-screen justify-top pointer-events-none">
-        <div class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24 pointer-events-auto">
+        <div v-if="!inputStore.forceInput" class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24 pointer-events-auto">
             <Btn v-if="editMode" tooltip="In 'Place' mode, left-click to place and right-click to delete briqs."
                 @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Btn>
             <Btn v-if="editMode" tooltip="In 'Paint' mode, left-click to repaint briqs, right-click to sample the briq color."
