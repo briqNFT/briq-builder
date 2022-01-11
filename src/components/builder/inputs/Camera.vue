@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="flex flex-col">
         <Btn @click="resetCamera">Reset to Default</Btn>
     </div>
 </template>

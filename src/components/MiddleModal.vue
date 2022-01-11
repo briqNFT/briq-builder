@@ -20,7 +20,7 @@ export function getModal()
     return localStore.modal;
 }
 
-export async function setModalAndAwait(modal?: any, metadata?: any): any
+export async function setModalAndAwait(modal?: any, metadata?: any): Promise<any>
 {
     localStore.modal = undefined;
     localStore.metadata = metadata;
@@ -31,9 +31,9 @@ export async function setModalAndAwait(modal?: any, metadata?: any): any
     return localStore.result;
 }
 
-export async function awaitModal(modal?: any, metadata?: any): any
+export async function awaitModal(modal?: any, metadata?: any): Promise<[any, any]>
 {
-    let ogData = [localStore.modal, localStore.metadata];
+    let ogModal = localStore.modal;
     localStore.modal = undefined;
     localStore.metadata = metadata;
     localStore.modal = modal;
@@ -41,10 +41,7 @@ export async function awaitModal(modal?: any, metadata?: any): any
         localStore.callback = res;
     });
     localStore.modal = undefined;
-    let result = localStore.result;
-    localStore.metadata = ogData[1];
-    localStore.modal = ogData[0];
-    return result;
+    return [ogModal, localStore.result];
 }
 
 export function setModal(modal?: any, metadata?: any)

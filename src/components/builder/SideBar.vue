@@ -19,7 +19,7 @@ import InputComp from './InputComp.vue'
             <Btn v-if="editMode" tooltip="Use 'Move' mode to move all briqs in the set."
                 @click="inputStore.currentInput = 'move'" :disabled="inputStore.currentInput === 'move'"><i class="fas fa-arrows-alt"></i></Btn>
         </div>
-        <div class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch pointer-events-auto">
+        <div id="inputComp" class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch pointer-events-auto">
             <InputComp/>
         </div>
         <!-- Repeated 3 times for contrast -->
@@ -44,7 +44,7 @@ export default defineComponent({
     },
     computed: {
         editMode() {
-            return setsManager.getInfo(this.$store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
+            return !inputStore.forceInput && setsManager.getInfo(this.$store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
         },
         getNbBriqs() {
             let total = 0;

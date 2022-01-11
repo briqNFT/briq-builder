@@ -4,23 +4,29 @@
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full">Export set</h2>
             <template v-if="!exporting">
-                <div class="flex justify-between flex-wrap gap-2">
+                <div class="my-2 flex justify-between flex-wrap gap-2">
                     <div class="flex-1">
                         <h4 class="font-medium">Set</h4>
                         <p>{{ metadata.set }}</p>
                     </div>
                     <div class="flex-1">
-                        <h4 class="font-medium">Name</h4>
-                        <p>{{ set.name }} <button @click="rename">( click to rename )</button></p>
+                        <h4 class="font-medium">Name <button @click="rename">( click to rename )</button></h4>
+                        <p>{{ set.name }}</p>
                     </div>
                 </div>
-                <template v-if="briqsForExport.length">
-                    <h4 class="font-medium">Briqs</h4>
-                    <div class="max-h-40 overflow-auto">
-                        <BriqTable :briqs="briqsForExport" :columns="['color', 'material']">
-                        </BriqTable>
+                <div class="my-2 flex justify-between flex-wrap gap-2">
+                    <div v-if="screenshot" class="flex-1">
+                        <h4 class="font-medium">Preview <button @click="retakeScreenshot">( click to change )</button></h4>
+                        <img class="max-w-[15rem] rounded-xl" :src="screenshot"/>
                     </div>
-                </template>
+                    <div v-if="briqsForExport.length" class="flex-1">
+                        <h4 class="font-medium">Briqs</h4>
+                        <div class="max-h-40 overflow-auto">
+                            <BriqTable :briqs="briqsForExport" :columns="['color', 'material']">
+                            </BriqTable>
+                        </div>
+                    </div>
+                </div>
                 <p v-if="transactionPending">Pending transaction: {{ pending_transaction.hash }}</p>
                 <div class="flex justify-around my-8">
                     <div class="flex flex-col justify-start basis-1/2 text-center">
@@ -65,10 +71,11 @@ import contractStore from '../../../Contracts';
 import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
 import RenameSet from '../modals/RenameSet.vue';
-import { awaitModal } from '../../MiddleModal.vue';
+import { setModalAndAwait, awaitModal, setModal } from '../../MiddleModal.vue';
 import { VERSION } from '../../../Meta';
 
 import { takeScreenshot } from '../../../builder/graphics/builder.js';
+import ScreenshotVue from './Screenshot.vue';
 
 type exportSteps = '' | 'SIGNING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE';
 
@@ -81,7 +88,8 @@ export default defineComponent({
             exporting: '' as exportSteps,
             briqsForExport: [] as Array<Briq>,
             exportSet: undefined as SetData | undefined,
-            screenshot: undefined as Promise<HTMLImageElement> | undefined,
+            screenshot: "" as string,
+            screenshotPromise: undefined as Promise<string> | undefined,
         };
     },
     props: ["metadata"],
@@ -91,11 +99,21 @@ export default defineComponent({
         this.name = this.set.name;
         this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.metadata.set)?.[0];
         await this.prepareForExport();
-        let uri = takeScreenshot();
         let img = new Image();
+        if (this.metadata.screenshot)
+        {
+            img.src = this.metadata.screenshot;
+            this.screenshotPromise = this.prepareImage(img);
+            this.screenshot = await this.screenshotPromise;
+            return;
+        }
+        let uri = takeScreenshot();
         img.src = uri;
-        this.screenshot = new Promise((resolve: (data: HTMLImageElement) => void) => {
-            img.decode().then(() => resolve(img));
+        this.screenshotPromise = new Promise((resolve: (data: string) => void) => {
+            img.decode().then(async () => {
+                this.screenshot = await this.prepareImage(img);
+                resolve(this.screenshot);
+            });
         })
     },
     computed: {
@@ -120,6 +138,28 @@ export default defineComponent({
         },
     },
     methods: {
+        async prepareImage(img: HTMLImageElement): Promise<string>
+        {
+            let c = document.createElement("canvas");
+            let ctx = c.getContext("2d")!;
+            let ratio = Math.min(800 / img.width, 600 / img.height);
+
+            c.width = Math.floor(img.width * ratio);
+            c.height = Math.floor(img.height * ratio);
+
+            // Prevent images from being too tall by adding transparent sides.
+            let whRatio = img.width / img.height;
+            let imgBlitStart = 0;
+            if (whRatio < 0.75)
+            {
+                imgBlitStart = (c.height * 0.75 - c.width) / 2.0 / ratio;
+                c.width = c.height * 0.75;
+            }
+
+            ctx.scale(ratio, ratio);
+            ctx.drawImage(img, imgBlitStart, 0);
+            return (await fetch(c.toDataURL("image/png"))).url;
+        },
         step(step: exportSteps)
         {
             return {
@@ -139,8 +179,14 @@ export default defineComponent({
             else
                 return 'fas fa-check';
         },
+        async retakeScreenshot() {
+            let oldScreen = this.screenshot;
+            let [modal, screenProm] = await awaitModal(ScreenshotVue, { set: this.metadata.set });
+            setModal(modal, { ...this.metadata, screenshot: (await screenProm) || oldScreen });
+        },
         async rename() {
-            await awaitModal(RenameSet, { set: this.metadata.set });
+            let [modal, _] = await awaitModal(RenameSet, { set: this.metadata.set });
+            setModal(modal, { set: this.metadata.set });
         },
         exportSetLocally: function () {
             downloadJSON(this.set.serialize(), this.set.id + ".json");
@@ -177,38 +223,37 @@ export default defineComponent({
                     },
                 }
 
-                let img = (await this.screenshot)!;
-                let c = document.createElement("canvas");
-                let ctx = c.getContext("2d")!;
-                let ratio = Math.min(400 / img.width, 300 / img.height);
-                c.width = Math.floor(img.width * ratio);
-                c.height = Math.floor(img.height * ratio);
-                ctx.scale(ratio, ratio);
-                ctx.drawImage(img, 0, 0);
-                let blob = fetch(c.toDataURL("image/jpeg", 0.95));
-
-                // Debug
-                downloadJSON(data, data.id + ".json")
                 let signature = await this.$store.state.wallet.signer.signMessage(message);
                 this.exporting = 'SENDING_TRANSACTION';
+
+                await fetchData("store_set", {
+                    owner: this.$store.state.wallet.userWalletAddress,
+                    token_id: data.id,
+                    data: data,
+                    message_hash: await this.$store.state.wallet.signer.hashMessage(message),
+                    signature: signature,
+                    image_base64: (await this.screenshotPromise),
+                });
+
+                // Debug
+                //downloadJSON(data, data.id + ".json")
                 let TX = await contractStore.set.mint(this.$store.state.wallet.userWalletAddress, data.id, data.briqs.map(x => x.data.briq));
                 new Transaction(TX.transaction_hash, "export_set", { setId: data.id });
                 this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
 
                 this.exporting = 'WAITING_FOR_CONFIRMATION';
-                // Poll the transaction status regularly.
-                let regularly = setInterval(() => this.pending_transaction?.poll(), 3000);
-                await fetchData("store_set", {
-                    owner: this.$store.state.wallet.userWalletAddress,
-                    token_id: data.id,
-                    data: data,
-                    transaction_hash: TX.transaction_hash,
-                    message_hash: await this.$store.state.wallet.signer.hashMessage(message),
-                    signature: signature,
-                    image_base64: (await blob).url,
+                await new Promise(resolve => {
+                    // Poll the transaction status regularly.
+                    let regularly: any;
+                    regularly = setInterval(async () => {
+                        await this.pending_transaction!.poll();
+                        if (this.pending_transaction!.isPending() || !this.pending_transaction!.isOk())
+                        {
+                            clearInterval(regularly);
+                            resolve(null);
+                        }
+                    }, 3000);
                 });
-                clearInterval(regularly);
-                this.pending_transaction?.poll();
                 this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
                 await this.$store.dispatch("builderData/update_set", data);
 

@@ -121,7 +121,16 @@ export function takeScreenshot()
 }
 function _createTakeScreenshot(renderer, composer) {
   return function() {
+    let old = previewCube.visible;
+    let old2 = selectionRender.parent?.visible;
+    previewCube.visible = false;
+    selectionRender.hide();
     composer.render();
+    previewCube.visible = old;
+    if (old2)
+      selectionRender.show();
+    else
+      selectionRender.hide();
     return renderer.domElement.toDataURL("image/png");
   };
 }
