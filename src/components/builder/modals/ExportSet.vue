@@ -200,8 +200,9 @@ export default defineComponent({
             setModal(modal, { ...this.metadata, screenshot: (await screenProm) || oldScreen });
         },
         async rename() {
+            let oldScreen = this.ogImage;
             let [modal, _] = await awaitModal(RenameSet, { set: this.metadata.set });
-            setModal(modal, { set: this.metadata.set });
+            setModal(modal, { set: this.metadata.set, screenshot: oldScreen });
         },
         exportSetLocally: function () {
             downloadJSON(this.set.serialize(), this.set.id + ".json");
