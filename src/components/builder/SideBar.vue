@@ -23,7 +23,7 @@ import InputComp from './InputComp.vue'
             <InputComp/>
         </div>
         <!-- Repeated 3 times for contrast -->
-        <div position="relative w-full">
+        <div v-if="editMode" position="relative w-full">
             <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-auto mix-blend-saturation">{{ getNbBriqs }}</p>
             <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-auto mix-blend-difference">{{ getNbBriqs }}</p>
             <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-auto mix-blend-overlay">{{ getNbBriqs }}</p>

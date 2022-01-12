@@ -6,7 +6,7 @@ import BlockchainStatus from './BlockchainStatus.vue';
 </script>
 
 <template>
-    <div class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col lg:flex-row lg:items-start items-end gap-2 pointer-events-none">
+    <div v-if="!forceInput" class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col lg:flex-row lg:items-start items-end gap-2 pointer-events-none">
         <BlockchainStatus class="max-h-screen"/>
         <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
             <Btn class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Btn>
@@ -38,6 +38,8 @@ import { setModal } from '../MiddleModal.vue';
 import { transactionsManager } from '../../builder/Transactions';
 import { setsManager } from '../../builder/SetsManager';
 
+import { inputStore } from '../../builder/inputs/InputStore';
+
 import WalletSelectorVue from '../WalletSelector.vue';
 
 import RenameSet from './modals/RenameSet.vue';
@@ -57,6 +59,9 @@ export default defineComponent({
     },
     inject: ["messages"],
     computed: {
+        forceInput() {
+            return inputStore.forceInput;
+        },
         isConnected() {
             return this.wallet.userWalletAddress;
         },
