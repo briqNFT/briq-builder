@@ -24,22 +24,25 @@
             </div>
         </div>
         <img v-if="imgSrc" :src="imgSrc"/>
-        <div class="my-2 flex flex-col gap-2 text-sm">
-            <template v-if="!setInfo.isLocalOnly()">
-                <Btn tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
-                <Btn tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="transferSet"><i class="fas fa-dolly"></i> Transfer</Btn>
-                <Btn tooltip="Make a local copy of the set that you can then modify and re-export." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="duplicateSet(setInfo.chain!)"><i class="fas fa-copy"></i> Duplicate</Btn>
-                <Btn tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="disassemble"><i class="fas fa-magic"></i> Disassemble</Btn>
-            </template>
-            <template v-else="">
-                <Btn tooltip="" class="bg-transparent" :disabled="!canMint" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Mint on Chain</Btn>
-                <Btn tooltip="" class="bg-transparent" :disabled="disableButtons" @click="renameSet"><i class="fas fa-file-signature"></i> Rename</Btn>
-                <Btn tooltip="Duplicate the set." class="bg-transparent" :disabled="disableButtons" @click="duplicateSet(setInfo.local!)"><i class="fas fa-copy"></i> Duplicate</Btn>
-            </template>
-            <Btn v-if="setInfo.status === 'ONCHAIN_EDITING'" tooltip="Revert to onchain-set" class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="deleteSet">Revert to on-chain version</Btn>
+        <div class="relative">
+            <i class="fas fa-ellipsis-h cursor-pointer" @click="expanded = !expanded"></i>
+            <div v-if="expanded" class="my-2 flex flex-col gap-2 text-sm absolute bottom-5 bg-briq w-full rounded-md p-4 border-2 border-briq-light">
+                <template v-if="!setInfo.isLocalOnly()">
+                    <Btn tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
+                    <Btn tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="transferSet"><i class="fas fa-dolly"></i> Transfer</Btn>
+                    <Btn tooltip="Make a local copy of the set that you can then modify and re-export." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="duplicateSet(setInfo.chain!)"><i class="fas fa-copy"></i> Duplicate</Btn>
+                    <Btn tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="disassemble"><i class="fas fa-magic"></i> Disassemble</Btn>
+                </template>
+                <template v-else="">
+                    <Btn tooltip="" class="bg-transparent" :disabled="!canMint" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Mint on Chain</Btn>
+                    <Btn tooltip="" class="bg-transparent" :disabled="disableButtons" @click="renameSet"><i class="fas fa-file-signature"></i> Rename</Btn>
+                    <Btn tooltip="Duplicate the set." class="bg-transparent" :disabled="disableButtons" @click="duplicateSet(setInfo.local!)"><i class="fas fa-copy"></i> Duplicate</Btn>
+                </template>
+                <Btn v-if="setInfo.status === 'ONCHAIN_EDITING'" tooltip="Revert to onchain-set" class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="deleteSet">Revert to on-chain version</Btn>
 
-            <Btn v-if="setInfo.status === 'LOCAL'" tooltip="Delete this set." class="bg-transparent" :disabled="disableButtons" @click="deleteSet"><i class="fas fa-trash-alt"></i> Delete</Btn>
-            <Btn tooltip="Load the set in the builder, to be edited." class="bg-transparent" :disabled="!canSelectSet" @click="selectSet"><i class="fas fa-folder-open"></i> Load in Builder</Btn>
+                <Btn v-if="setInfo.status === 'LOCAL'" tooltip="Delete this set." class="bg-transparent" :disabled="disableButtons" @click="deleteSet"><i class="fas fa-trash-alt"></i> Delete</Btn>
+                <Btn tooltip="Load the set in the builder, to be edited." class="bg-transparent" :disabled="!canSelectSet" @click="selectSet"><i class="fas fa-folder-open"></i> Load in Builder</Btn>
+            </div>
         </div>
     </div>
 </template>
@@ -76,6 +79,7 @@ export default defineComponent({
             setInfo: DEFAULT_INFO,
             disableButtons: false,
             imgSrc: undefined as string | undefined,
+            expanded: false,
         };
     },
     inject: ["messages"],

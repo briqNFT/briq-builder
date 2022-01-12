@@ -15,7 +15,7 @@ import SetToolbar from './SetToolbar.vue';
 
 <template>
     <SplashScreen @done="onLoaded"/>
-    <div>
+    <div class="fixed w-screen h-screen">
         <WebGLCanvas/>
         <AlphaLogo/>
         <MenuBar/>

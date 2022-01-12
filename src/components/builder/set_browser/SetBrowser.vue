@@ -5,10 +5,10 @@ import MiddleModal from '../../MiddleModal.vue';
 
 <template>
     <Hotkey v-if="asModal" name="escape" :handler="() => $emit('close')"/>
-    <div :class="asModal ? 'w-full h-full md:px-24 py-24 absolute top-0' : 'w-full min-h-screen bg-briq'" :style="asModal ? { 'backgroundColor': 'rgba(0, 0, 0, 0.3)' } : ''"
+    <div :class="asModal ? 'w-full min-h-full flex flex-col justify-center md:px-24 py-24 absolute top-0' : 'w-full min-h-screen bg-briq'" :style="asModal ? { 'backgroundColor': 'rgba(0, 0, 0, 0.3)' } : ''"
         @click.self="$emit('close')"
         >
-        <div :class="'alternate-buttons visible px-8 py-4 overflow-auto md:container md:mx-auto ' + (asModal ? 'rounded-md shadow-xl h-full bg-briq' : '')">
+        <div :class="'alternate-buttons visible px-8 py-4 md:container md:mx-auto ' + (asModal ? 'rounded-md shadow-xl bg-briq' : '')">
             <button v-if="asModal" class="float-right text-2xl" @click="$emit('close')">X</button>
             <h2 class="text-center my-8">Browse sets</h2>
             <div class="my-4">
