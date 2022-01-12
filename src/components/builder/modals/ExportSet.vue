@@ -1,63 +1,85 @@
 <template>
-    <div class="md:w-3/5 lg:w-1/2 xl:w-1/3 w-auto">
+    <div class="md:w-4/5 lg:w-3/5 xl:w-1/2 w-auto min-h-[35rem]">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full">Export set</h2>
-            <template v-if="!exporting">
-                <div class="my-2 flex flex-col gap-2">
-                    <div>
-                        <h4 class="font-medium">Set</h4>
-                        <p>{{ metadata.set }}</p>
-                    </div>
-                    <div>
-                        <h4 class="font-medium">Name <button @click="rename">( click to rename )</button></h4>
-                        <p>{{ set.name }}</p>
-                    </div>
-                    <div v-if="screenshot">
-                        <h4 class="font-medium">Preview</h4>
-                        <div class="flex gap-4">
-                            <img class="max-w-[15rem] rounded-xl" :src="screenshot"/>
-                            <div class="flex flex-col justify-around">
-                                <Btn @click="cropScreenshot">Crop</Btn>
-                                <Btn @click="retakeScreenshot">Retake</Btn>
+            <h3 class="text-center">{{ metadata.set }}</h3>
+            <div class="flex flex-nowrap items-center gap-3">
+                <Btn :disabled="step(exporting) > step('CONFIRMATION') || !step(exporting)" @click="exporting = exportSteps[step(exporting) - 1]">Back</Btn>
+                <div class="w-full bg-briq-light rounded-md flex justify-around items-center p-2 my-4">
+                    <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'METADATA'"><i :class="getStepIcon('METADATA')"></i>Metadata</button>
+                    <i class="text-sm fas fa-arrow-right"></i>
+                    <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'PREVIEW'"><i :class="getStepIcon('PREVIEW')"></i> Preview</button>
+                    <i class="text-sm fas fa-arrow-right"></i>
+                    <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'CONFIRMATION'"><i :class="getStepIcon('CONFIRMATION')"></i> Confirmation</button>
+                    <i class="text-sm fas fa-arrow-right"></i>
+                    <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="true"><i :class="getStepIcon('DONE')"></i> Export</button>
+                </div>
+                <Btn :disabled="step(exporting) >= step('CONFIRMATION')" @click="exporting = exportSteps[step(exporting) + 1]">Next</Btn>
+            </div>
+            <div class="overflow-hidden w-full">
+                <div class="flex flex-nowrap relative" :style="{ left: `-${Math.min(step('SIGNING'), step(exporting))*100}%` }">
+                    <div class="flex-none w-full">
+                        <div class="my-2 flex flex-col gap-2">
+                            <div>
+                                <h3 class="font-medium">Set name <button @click="rename"><i class="far fa-edit"></i></button></h3>
+                                <h2>{{ set.name }}</h2>
+                                <div class="my-4"></div>
+                                <h3 class="font-medium">Set description <button :disabled="true"><i class="far fa-edit"></i></button></h3>
+                                <p class="text-lg">{{ "COMING SOON! Descriptions are not supported yet..." }}</p>
                             </div>
                         </div>
                     </div>
-                    <div v-if="briqsForExport.length">
-                        <h4 class="font-medium">Briqs</h4>
-                        <div class="max-h-40 overflow-auto">
-                            <BriqTable :briqs="briqsForExport" :columns="['color', 'material']">
-                            </BriqTable>
+                    <div class="flex-none w-full">
+                        <div v-if="screenshot">
+                            <img class="m-auto max-h-[25rem] rounded-xl" :src="screenshot"/>
+                            <div class="flex justify-around my-8">
+                                <Btn @click="cropScreenshot">Crop Image</Btn>
+                                <Btn @click="retakeScreenshot">Retake Screenshot</Btn>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-none w-full">
+                        <h3 class="text-center">{{ set.name }}</h3>
+                        <div class="flex justify-around items-center">
+                            <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-xl" :src="screenshot"/></p>
+                            <div v-if="briqsForExport.length" class="flex-1 max-h-40 overflow-auto flex justify-center">
+                                <BriqTable :briqs="briqsForExport" :columns="['color', 'material']">
+                                </BriqTable>
+                            </div>
+                        </div>
+                        <!--<p v-if="transactionPending">Pending transaction: {{ pending_transaction.hash }}</p>-->
+                        <div class="flex justify-around my-8">
+                            <div class="flex flex-col justify-start basis-1/2 text-center">
+                                <p><button class="block mx-auto btn" @click="exportSetLocally">Export locally</button></p>
+                                <p>Download a local copy of your set</p>
+                            </div>
+                            <div class="flex flex-col justify-start basis-1/2 text-center">
+                                <p><button class="block mx-auto btn" :disabled="transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs"
+                                    @click="exportSetOnChain">Export on chain</button></p>
+                                <p v-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
+                                <p v-else-if="transactionPending">...Export is ongoing...</p>
+                                <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
+                                <p v-else-if="!hasBriqsAndSets">Briqs need to be loaded before you can export a set. Please wait a little while.</p>
+                                <p v-else="">Assemble briqs into a set on the blockchain</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div :class="'flex-none w-full'">
+                        <div class="text-lg font-medium">
+                            <p>1 - Signing: <i :class="getStepIcon('SIGNING')"></i></p>
+                            <p>2 - Sending transaction: <i :class="getStepIcon('SENDING_TRANSACTION')"></i></p>
+                            <p>3 - Waiting for transaction to be received: <i :class="getStepIcon('WAITING_FOR_CONFIRMATION')"></i></p>
+                            <p class="mx-8">Hash: {{ pending_transaction?.hash ? '' : '(pending)' }}<span class="tracking-tighter text-sm font-light">{{ pending_transaction?.hash }}</span></p>
+                            <p class="mx-8">Status: {{ pending_transaction?.status ?? '(pending)' }}</p>
+                            <div class="my-8"></div>
+                            <p v-if="exporting === 'DONE'">You’ve successfully signed your transaction! It is now pending on StarkNet.<br />You can now close this modal.</p>
+                            <p v-if="exporting === 'ERROR'">There was an error while exporting your set.<br/>The following step failed: {{ errorStep }}.<br/>Check the browser console for more information.</p>
+                            <Btn v-if="exporting === 'ERROR'" @click="exporting = 'METADATA'; errorStep = undefined">Start over</Btn>
                         </div>
                     </div>
                 </div>
-                <p v-if="transactionPending">Pending transaction: {{ pending_transaction.hash }}</p>
-                <div class="flex justify-around my-8">
-                    <div class="flex flex-col justify-start basis-1/2 text-center">
-                        <p><button class="block mx-auto btn" @click="exportSetLocally">Export locally</button></p>
-                        <p>Download a local copy of your set</p>
-                    </div>
-                    <div class="flex flex-col justify-start basis-1/2 text-center">
-                        <p><button class="block mx-auto btn" :disabled="exporting || transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs"
-                            @click="exportSetOnChain">Export on chain</button></p>
-                        <p v-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
-                        <p v-else-if="exporting || transactionPending">...Export is ongoing...</p>
-                        <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
-                        <p v-else-if="!hasBriqsAndSets">Briqs need to be loaded before you can export a set. Please wait a little while.</p>
-                        <p v-else="">Assemble briqs into a set on the blockchain</p>
-                    </div>
-                </div>
-            </template>
-            <template v-else>
-                <div class="text-lg font-medium">
-                    <p>1 - Signing: <i :class="getStepIcon('SIGNING')"></i></p>
-                    <p>2 - Sending transaction: <i :class="getStepIcon('SENDING_TRANSACTION')"></i></p>
-                    <p>3 - Waiting for transaction to be received: <i :class="getStepIcon('WAITING_FOR_CONFIRMATION')"></i></p>
-                    <p class="mx-8">Hash: {{ pending_transaction?.hash ? '' : '(pending)' }}<span class="tracking-tighter text-sm font-light">{{ pending_transaction?.hash }}</span></p>
-                    <p class="mx-8">Status: {{ pending_transaction?.status ?? '(pending)' }}</p>
-                    <p>4 - All done</p>
-                </div>
-            </template>
+            </div>
         </div>
     </div>
 </template>
@@ -81,16 +103,20 @@ import { VERSION } from '../../../Meta';
 import { takeScreenshot } from '../../../builder/graphics/builder.js';
 import ScreenshotVue from './Screenshot.vue';
 
-type exportSteps = '' | 'SIGNING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE';
+type ExportSteps = 'METADATA' | 'PREVIEW' | 'CONFIRMATION' | 'SIGNING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'ERROR' | 'DONE';
+const exportSteps = ['METADATA', 'PREVIEW', 'CONFIRMATION', 'SIGNING', 'SENDING_TRANSACTION', 'WAITING_FOR_CONFIRMATION', 'ERROR', 'DONE'];
 
 import { defineComponent } from 'vue';
 import CropScreenshotVue from './CropScreenshot.vue';
+import RenameSet from '../modals/RenameSet.vue';
 export default defineComponent({
     data() {
         return {
             name: "",
             pending_transaction: undefined as Transaction | undefined,
-            exporting: '' as exportSteps,
+            exporting: 'METADATA' as ExportSteps,
+            exportSteps,
+            errorStep: undefined as undefined | ExportSteps,
             briqsForExport: [] as Array<Briq>,
             exportSet: undefined as SetData | undefined,
             screenshot: "" as string,
@@ -160,18 +186,20 @@ export default defineComponent({
             ctx.drawImage(img, imgBlitStart, 0);
             return (await fetch(c.toDataURL("image/png"))).url;
         },
-        step(step: exportSteps)
+        step(step: ExportSteps)
         {
-            return {
-                '': 0,
-                'SIGNING': 1,
-                'SENDING_TRANSACTION': 2,
-                'WAITING_FOR_CONFIRMATION': 3,
-                'DONE': 4,
-            }[step];
+            return exportSteps.indexOf(step);
         },
-        getStepIcon(step: exportSteps)
+        getStepIcon(step: ExportSteps)
         {
+            if (this.errorStep)
+            {
+                if (step === this.errorStep)
+                    return 'fas fa-times';
+                if (this.step(this.errorStep) < this.step(step))
+                    return 'far fa-circle';
+                return 'fas fa-check';
+            }
             if (this.step(step) === this.step(this.exporting))
                 return 'fas fa-spinner animate-spin-slow';
             else if (this.step(step) > this.step(this.exporting))
@@ -185,9 +213,9 @@ export default defineComponent({
             img.src = await pushModal(ScreenshotVue, { set: this.metadata.set }) as string;
             //this.$emit('show');
             await img.decode();
+            this.ogImage = img.src;
             this.screenshotPromise = this.prepareImage(img);
             this.screenshot = await this.screenshotPromise;
-            this.ogImage = this.screenshot;
         },
         async cropScreenshot() {
             let img = new Image();
@@ -277,7 +305,8 @@ export default defineComponent({
                 this.messages.pushMessage("Error while exporting set - check console for details");
                 this.reportError(err);
                 console.error(err);
-                this.exporting = '';
+                this.errorStep = this.exporting;
+                this.exporting = 'ERROR';
             }
         },
         async prepareForExport() {
@@ -304,6 +333,6 @@ export default defineComponent({
             this.exportSet = exportSet;
         }
     },
-    components: { BriqTable }
+    components: { BriqTable, RenameSet }
 })
 </script>
