@@ -56,7 +56,6 @@
                     <p class="mx-8">Hash: {{ pending_transaction?.hash ? '' : '(pending)' }}<span class="tracking-tighter text-sm font-light">{{ pending_transaction?.hash }}</span></p>
                     <p class="mx-8">Status: {{ pending_transaction?.status ?? '(pending)' }}</p>
                     <p>4 - All done</p>
-                    <p><Btn class="float--right" @click="$emit('close')">Close</Btn></p>
                 </div>
             </template>
         </div>
