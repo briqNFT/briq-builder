@@ -1,5 +1,8 @@
 <template>
-    <div v-if="!isFiltered" :class="'w-full relative bg-briq-dark rounded-md px-4 py-2 border-4' + (isCurrent ? ' border-deep-blue' : ' border-briq-dark')">
+    <div v-if="!isFiltered"
+        :class="'w-full relative flex flex-col bg-briq-dark rounded-md px-4 py-2 border-4' + (isCurrent ? ' border-deep-blue' : ' border-briq-dark')"
+         @click="$emit('selectSet', !selected)"
+    >
         <div class="flex flex-nowrap items-center">
             <!--
                 I want a "look centered, get pushed to the left by the icon if needed" look.
@@ -23,10 +26,18 @@
                 <Tooltip :useCursor="true" v-if="setInfo.isEditing()" tooltip="This set is only available on this computer"><i class="fas fa-wrench"></i></Tooltip>
             </div>
         </div>
-        <img v-if="imgSrc" :src="imgSrc"/>
+        <div class="flex-1 flex justify-center min-h-[2rem] my-2">
+            <img v-if="imgSrc" :src="imgSrc" class="rounded-md"/>
+            <div v-if="!imgSrc" class="imagePlaceholder rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider"><p>No Image</p></div>
+        </div>
         <div class="relative">
-            <i class="fas fa-ellipsis-h cursor-pointer" @click="expanded = !expanded"></i>
-            <div v-if="expanded" class="my-2 flex flex-col gap-2 text-sm absolute bottom-5 bg-briq w-full rounded-md p-4 border-2 border-briq-light">
+            <div class="flex justify-between items-center">
+                <i class="fas fa-ellipsis-h cursor-pointer" @click.stop="$emit('open', openDetails ? undefined : setId)"></i>
+                <input type="checkbox" :checked="selected"/>
+            </div>
+            <div @click.stop="$emit('open', undefined)" v-if="openDetails"
+                class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-briq w-full rounded-md p-4 border-2 border-briq-light"
+            >
                 <template v-if="!setInfo.isLocalOnly()">
                     <Btn tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
                     <Btn tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="transferSet"><i class="fas fa-dolly"></i> Transfer</Btn>
@@ -47,6 +58,18 @@
     </div>
 </template>
 
+<style scoped>
+.imagePlaceholder
+{
+    background: repeating-linear-gradient(
+        -45deg,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0), 10px,
+        rgba(247, 137, 74, 0.5) 10px,
+        rgba(247, 137, 74, 0.5) 15px
+    );
+}
+</style>
 <script lang="ts">
 import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
 
@@ -79,11 +102,11 @@ export default defineComponent({
             setInfo: DEFAULT_INFO,
             disableButtons: false,
             imgSrc: undefined as string | undefined,
-            expanded: false,
         };
     },
+    emit: ["open"],
     inject: ["messages"],
-    props: ["setId", "searchText"],
+    props: ["setId", "searchText", "openDetails", "selected"],
     async mounted() {
         this.setInfo = setsManager.getInfo(this.setId);
         if (!this.setInfo)

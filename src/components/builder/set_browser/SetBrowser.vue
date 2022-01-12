@@ -8,23 +8,31 @@ import MiddleModal from '../../MiddleModal.vue';
     <div :class="asModal ? 'w-full min-h-full flex flex-col justify-center md:px-24 py-24 absolute top-0' : 'w-full min-h-screen bg-briq'" :style="asModal ? { 'backgroundColor': 'rgba(0, 0, 0, 0.3)' } : ''"
         @click.self="$emit('close')"
         >
-        <div :class="'alternate-buttons visible px-8 py-4 md:container md:mx-auto ' + (asModal ? 'rounded-md shadow-xl bg-briq' : '')">
+        <div :class="'alternate-buttons visible px-8 py-4 md:container md:mx-auto ' + (asModal ? 'rounded-md shadow-xl bg-briq' : '')"
+            @click="openDetails = undefined"
+        >
             <button v-if="asModal" class="float-right text-2xl" @click="$emit('close')">X</button>
             <h2 class="text-center my-8">Browse sets</h2>
             <div class="my-4">
                 <p><input class="w-full" v-model="searchText" type="text" placeholder="Search by set ID or set name"/></p>
                 <p class="flex gap-2 my-4">
                     <Btn tooltip="Create a new WIP set." @click="createSet"><i class="far fa-file"></i> New</Btn>
-                    <!--
-                    <Btn tooltip="Copy a new WIP set." @click="copySet"><i class="far fa-copy"></i> Copy</Btn>
-                    <Btn tooltip="Delete the current WIP set." @click="deleteSet"><i class="far fa-trash-alt"></i> Delete</Btn>
-                    -->
                     <Btn tooltip="Import a local set." @click="importSet"><i class="fas fa-file-import"></i> Import from file</Btn>
+                    <Btn tooltip="Delete all selected sets." @click="deleteAll" :disabled="!canDelete"><i class="far fa-trash-alt"></i> Delete local sets</Btn>
+                    <!--
+                    <Btn tooltip="Disassemble all selected sets." @click="disassembleAll" :disabled="!canDisassemble"><i class="far fa-trash-alt"></i> Disassemble all</Btn>
+                    -->
                 </p>
             </div>
             <div class="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 <div v-if="chainSets.length === 0">Nothing here yet.</div>
-                <SetGridItem v-for="setId in chainSets" :key="setId" :setId="setId" :searchText="searchText"/>
+                <SetGridItem v-for="setId in chainSets" :key="setId" :setId="setId"
+                    :searchText="searchText"
+                    :openDetails="openDetails === setId"
+                    :selected="selected[setId]"
+                    @open="(x: string) => openDetails = x"
+                    @selectSet="(val: boolean) => onSelectSet(setId, val)"
+                />
                 <!--
                 <div v-for="i in 10" class="w-full h-40 bg-briq rounded-md p-4" :key="i">
                     <h4 class="text-center">Test Item</h4>
@@ -40,11 +48,17 @@ import MiddleModal from '../../MiddleModal.vue';
 import { setsManager } from '../../../builder/SetsManager';
 import { SetData } from '../../../builder/SetData';
 
+import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
+import TextModal from '../../generic/TextModal.vue';
+
+
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
             searchText: "",
+            openDetails: undefined as undefined | string,
+            selected: {} as { [setId: string]: boolean }
         }
     },
     props: ["asModal"],
@@ -53,6 +67,15 @@ export default defineComponent({
     computed: {
         chainSets: function() {
             return setsManager.setList;
+        },
+        selectedSets() {
+            return Object.keys(this.selected);
+        },
+        canDelete() {
+            return this.selectedSets.length && this.selectedSets.every(setId => setsManager.getInfo(setId)?.local);
+        },
+        canDisassemble() {
+            return this.selectedSets.length && this.selectedSets.every(setId => setsManager.getInfo(setId)?.chain);            
         }
     },
     methods: {
@@ -75,6 +98,29 @@ export default defineComponent({
                     console.log(err);
                 }
             }
+        },
+        onSelectSet(setId: string, value: boolean) {
+            if (!value)
+                delete this.selected[setId];
+            else
+                this.selected[setId] = true;
+        },
+        async deleteAll() {
+            let btn = await setModalAndAwait(TextModal, {
+                "title": "Confirm delete?",
+                "text": "This selected sets will be deleted. This cannot be undone. Are you sure?",
+                "buttons": [{ "text": "Yes" }, { "text": "No" }]
+            });
+            setModal();
+            if (btn !== 0)
+                return;
+            for (let setId of this.selectedSets)
+            {
+                setsManager.deleteLocalSet(setId);
+                delete this.selected[setId];
+            }
+        },
+        async disassembleAll() {
         }
     }
 })

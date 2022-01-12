@@ -22,10 +22,10 @@ import SetToolbar from './SetToolbar.vue';
         <SetToolbar/>
         <SideBar/>
         <SideBarRight/>
-        <Messages/>
         <MiddleModal/>
         <MintProxy/>
     </div>
+    <Messages/>
     <AlphaBanner/>
 </template>
 
