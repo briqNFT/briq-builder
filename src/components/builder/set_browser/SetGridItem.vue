@@ -71,7 +71,6 @@
 }
 </style>
 <script lang="ts">
-import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
 
 import TextModal from '../../generic/TextModal.vue';
 import TransferSet from '../modals/TransferSet.vue';
@@ -96,6 +95,7 @@ const setImageCache = reactive({} as { [set: string]: string });
 
 import { defineComponent } from 'vue';
 import getBaseUrl, { fetchData } from '../../../url';
+import { pushModal } from '../../Modals.vue';
 export default defineComponent({
     data() {
         return {
@@ -197,8 +197,7 @@ export default defineComponent({
         },
         async transferSet() {
             this.disableButtons = true;
-            await setModalAndAwait(TransferSet, { setId: this.setId, data: this.setInfo.chain });
-            setModal();
+            await pushModal(TransferSet, { setId: this.setId, data: this.setInfo.chain });
             this.disableButtons = false;
         },
         // Local options
@@ -209,13 +208,13 @@ export default defineComponent({
         },
         async deleteSet() {
             // Ask for confirmation on non-empty sets.
-            if (this.setInfo.status === "LOCAL" && this.setInfo?.local?.briqsDB?.briqs?.size > 0) {
-                let btn = await setModalAndAwait(TextModal, {
+            if (this.setInfo.status === "LOCAL" && this.setInfo?.local?.briqsDB?.briqs?.size > 0)
+            {
+                let btn = await pushModal(TextModal, {
                     "title": "Confirm delete?",
                     "text": "This set will be deleted. This cannot be undone. Are you sure?",
                     "buttons": [{ "text": "Yes" }, { "text": "No" }]
                 });
-                setModal();
                 if (btn !== 0)
                     return;
             }
@@ -225,12 +224,10 @@ export default defineComponent({
             setsManager.duplicateLocally(set);
         },
         async mintSet() {
-            await setModalAndAwait(ExportSetVue, { set: this.setId });
-            setModal();
+            await pushModal(ExportSetVue, { set: this.setId });
         },
         async renameSet() {
-            await setModalAndAwait(RenameSetVue, { set: this.setId });
-            setModal();
+            await pushModal(RenameSetVue, { set: this.setId });
         }
     },
     components: { Tooltip }

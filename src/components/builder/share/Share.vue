@@ -60,7 +60,7 @@ import AlphaLogo from './../AlphaLogo.vue';
 
 <script lang="ts">
 import { pushMessage, setTooltip } from '../../../Messages';
-import { setModal } from '../../MiddleModal.vue';
+import { pushModal } from '../../Modals.vue';
 import Settings from '../modals/Settings.vue';
 import Screenshot from './Screenshot.vue';
 import { dispatchBuilderAction } from '../../../builder/graphics/dispatch';
@@ -131,7 +131,7 @@ export default defineComponent({
             window.open('https://insidious-ginger-0f9.notion.site/briq-help-center-4a4958337970483dbfc2c1184290b42f','_blank');
         },
         openSettings() {
-            setModal(Settings);
+            pushModal(Settings);
         },
         fetchAuthor: ticketing(async function() {
             this.author="0x46fda85f6ff5b7303b71d632b842e950e354fa08225c4f62eee23a1abbec4eb";
@@ -145,7 +145,7 @@ export default defineComponent({
             } catch(_) {}
         }),
         screenshot() {
-            setModal(Screenshot, { setData: this.setData, author: this.author });    
+            pushModal(Screenshot, { setData: this.setData, author: this.author });    
         }
     }
 });

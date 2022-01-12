@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BriqSwapModal from '../modals/BriqSwapModal.vue';
+import { pushModal } from "../../Modals.vue";
 </script>
 
 <template>
@@ -28,8 +29,6 @@ import BriqSwapModal from '../modals/BriqSwapModal.vue';
 <script lang="ts">
 import { builderInputFsm } from "../../../builder/inputs/BuilderInput"
 
-import { setModal, setModalAndAwait } from "../../MiddleModal.vue";
-
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
@@ -43,12 +42,11 @@ export default defineComponent({
             return "standard";
         },
         async openSwapModal(briqId: string) {
-            let choice = await setModalAndAwait(BriqSwapModal, {
+            let choice = await pushModal(BriqSwapModal, {
                 exclude: [briqId],
             })
             if (choice?.briq?.id)
                 await this.$store.dispatch("builderData/swap_briqs", [[briqId, choice.briq.id]]);
-            setModal();
         },
         getBriqIdentifier(id: string) {
             if (this.$store.state.builderData.briqsDB.briqs.has(id))

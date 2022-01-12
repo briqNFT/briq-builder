@@ -24,7 +24,7 @@ import ColorPicker from './ColorPicker.vue';
 
 import { inputStore } from '../../../builder/inputs/InputStore';    
 import { palettesMgr } from '../../../builder/Palette';
-import { getModal, setModal, setModalAndAwait } from '../../MiddleModal.vue';
+import { pushModal } from '../../Modals.vue';
 
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({
@@ -60,13 +60,9 @@ export default defineComponent({
                 this.currentColor = this.palette.getFirstColor();
         },
         async replaceColor(col: string) {
-            let mod = getModal();
-            let result = await setModalAndAwait(ColorPicker, { color: col });
+            let result = await pushModal(ColorPicker, { color: col }) as [string, string];
             if (!result)
-            {
-                setModal(mod);
                 return;
-            }
             let [res, name] = result;
             this.palette.colors[res] = name;
             let awaits = [];
@@ -77,7 +73,6 @@ export default defineComponent({
             await Promise.all(awaits);
             this.deleteColor(col, true);
             this.currentColor = res;
-            setModal(mod);
         },
         resetAll() {
             this.palette.reset();

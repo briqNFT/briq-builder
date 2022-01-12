@@ -4,6 +4,7 @@ import MenuBar from './MenuBar.vue'
 import SideBar from './SideBar.vue'
 import SideBarRight from './SideBarRight.vue'
 import MiddleModal from '../MiddleModal.vue'
+import Modals, { pushModal } from '../Modals.vue'
 import Messages from '../Messages.vue'
 import SplashScreen from './SplashScreen.vue'
 
@@ -22,15 +23,14 @@ import SetToolbar from './SetToolbar.vue';
         <SetToolbar/>
         <SideBar/>
         <SideBarRight/>
-        <MiddleModal/>
         <MintProxy/>
     </div>
+    <Modals/>
     <Messages/>
     <AlphaBanner/>
 </template>
 
 <script lang="ts">
-import { setModal } from '../MiddleModal.vue'
 import WalletSelectorVue from '../WalletSelector.vue';
 
 import { setsManager, checkForInitialGMSet } from '../../builder/SetsManager';
@@ -89,7 +89,7 @@ export default defineComponent({
         onLoaded() {
             // TODO: maybe wait for more specific things?
             if (!this.$store.state.wallet.signer)
-                setModal(WalletSelectorVue)
+                pushModal(WalletSelectorVue)
         }
     }
 });

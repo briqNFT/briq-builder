@@ -11,7 +11,7 @@
 </style>
 <script lang="ts">
 import { messagesStore } from '../Messages'
-import { setModal } from './MiddleModal.vue';
+import { pushModal } from './Modals.vue';
 
 import MessagesLog from './MessagesLog.vue';
 
@@ -41,7 +41,7 @@ export default defineComponent({
     },
     methods: {
         openLog: function() {
-            setModal(MessagesLog);
+            pushModal(MessagesLog);
         }
     }
 })

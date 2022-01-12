@@ -7,7 +7,7 @@ import Hotkey from '../generic/Hotkey.vue';
 
 <template>
     <div class="flex flex-col items-end">
-        <Hotkey name="briqListModal" :data="{ key: 'b', ctrl: true }" :handler="() => setModal(BriqListModal)"/>
+        <Hotkey name="briqListModal" :data="{ key: 'b', ctrl: true }" :handler="() => pushModal(BriqListModal)"/>
         <div class="overflow-auto flex flex-nowrap flex-col justify-start content-end">
             <Btn class="pointer-events-auto flex items-center gap-2 text-center" @click="mainBtnClick" :tooltip="mainBtnTooltip">
                 <div v-if="!isConnected">Connect Wallet</div>
@@ -34,7 +34,7 @@ import Hotkey from '../generic/Hotkey.vue';
 </template>
 
 <script lang="ts">
-import { setModal } from '../MiddleModal.vue';
+import { pushModal } from '../Modals.vue';
 
 import WalletSelectorVue from '../WalletSelector.vue';
 import { transactionsManager } from '../../builder/Transactions';
@@ -68,12 +68,12 @@ export default defineComponent({
         }
     },
     methods: {
-        setModal,
+        pushModal,
         mainBtnClick() {
             if (this.isConnected)
                 this.expanded = ! this.expanded;
             else
-                setModal(WalletSelectorVue);
+                pushModal(WalletSelectorVue);
         },
     }
 })

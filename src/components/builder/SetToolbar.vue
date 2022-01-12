@@ -46,7 +46,7 @@
 </script>
 
 <script lang="ts">
-import { setModal, setModalAndAwait } from '../MiddleModal.vue';
+import { pushModal } from '../Modals.vue';
 
 import { setsManager } from '../../builder/SetsManager';
 import ExportSetVue from './modals/ExportSet.vue';
@@ -65,8 +65,7 @@ export default defineComponent({
     },
     methods: {
         async mintSet() {
-            await setModalAndAwait(ExportSetVue, { set: this.$store.state.builderData.currentSet.id });
-            setModal();
+            await pushModal(ExportSetVue, { set: this.$store.state.builderData.currentSet.id });
         },
         copyShareLink() {
             let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";

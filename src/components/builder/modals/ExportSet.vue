@@ -74,7 +74,8 @@ import contractStore from '../../../Contracts';
 import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
 import RenameSet from '../modals/RenameSet.vue';
-import { setModalAndAwait, awaitModal, setModal } from '../../MiddleModal.vue';
+import { pushModal } from '../../Modals.vue';
+
 import { VERSION } from '../../../Meta';
 
 import { takeScreenshot } from '../../../builder/graphics/builder.js';
@@ -98,7 +99,7 @@ export default defineComponent({
         };
     },
     props: ["metadata"],
-    emits: ["close"],
+    emits: ["close", "hide", "show"],
     inject: ["messages", "reportError"],
     async mounted() {
         this.name = this.set.name;
@@ -106,24 +107,14 @@ export default defineComponent({
         await this.prepareForExport();
         let img = new Image();
         if (this.metadata.screenshot)
-        {
             img.src = this.metadata.screenshot;
-            img.decode().then(async () => {
-                this.ogImage = img.src;
-                this.screenshotPromise = this.prepareImage(img);
-                this.screenshot = await this.screenshotPromise;
-            });
-            return;
-        }
-        let uri = takeScreenshot();
-        img.src = uri;
-        this.screenshotPromise = new Promise((resolve: (data: string) => void) => {
-            img.decode().then(async () => {
-                this.ogImage = img.src;
-                this.screenshot = await this.prepareImage(img);
-                resolve(this.screenshot);
-            });
-        })
+        else
+            img.src = takeScreenshot();
+        img.decode().then(async () => {
+            this.ogImage = img.src;
+            this.screenshotPromise = this.prepareImage(img);
+            this.screenshot = await this.screenshotPromise;
+        });
     },
     computed: {
         setInfo() {
@@ -189,20 +180,24 @@ export default defineComponent({
                 return 'fas fa-check';
         },
         async retakeScreenshot() {
-            let oldScreen = this.ogImage;
-            let [modal, screenProm] = await awaitModal(ScreenshotVue, { set: this.metadata.set });
-            setModal(modal, { ...this.metadata, screenshot: (await screenProm) || oldScreen });
+            let img = new Image();
+            //this.$emit('hide');
+            img.src = await pushModal(ScreenshotVue, { set: this.metadata.set }) as string;
+            //this.$emit('show');
+            await img.decode();
+            this.screenshotPromise = this.prepareImage(img);
+            this.screenshot = await this.screenshotPromise;
+            this.ogImage = this.screenshot;
         },
         async cropScreenshot() {
-            let oldScreen = this.ogImage;
-            let [modal, screenProm] = await awaitModal(CropScreenshotVue, { screenshot: this.ogImage });
-            console.log(await screenProm);
-            setModal(modal, { ...this.metadata, screenshot: (await screenProm) || oldScreen });
+            let img = new Image();
+            img.src = await pushModal(CropScreenshotVue, { screenshot: this.ogImage }) as string;
+            await img.decode();
+            this.screenshotPromise = this.prepareImage(img);
+            this.screenshot = await this.screenshotPromise;
         },
         async rename() {
-            let oldScreen = this.ogImage;
-            let [modal, _] = await awaitModal(RenameSet, { set: this.metadata.set });
-            setModal(modal, { set: this.metadata.set, screenshot: oldScreen });
+            await pushModal(RenameSet, { set: this.metadata.set });
         },
         exportSetLocally: function () {
             downloadJSON(this.set.serialize(), this.set.id + ".json");

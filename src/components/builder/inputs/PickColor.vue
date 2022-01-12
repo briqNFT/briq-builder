@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Button from '../../generic/Button.vue'
+import Button from '../../generic/Button.vue'
 import ColorPicker from '../modals/ColorPicker.vue';
 import ColorManager from '../modals/ColorManager.vue';
 </script>
@@ -18,14 +18,14 @@ import ColorManager from '../modals/ColorManager.vue';
     </div>
     <div class="mx-1 md:mx-0 md:my-1 flex md:flex-col gap-0.5">
         <Btn @click="registerNewColor" tooltip="Add a new color to the curret palette.">New Color</Btn>
-        <Btn @click="setModal(ColorManager)" tooltip="Manage the color palette. Replace or delete colors.">Manage</Btn>
+        <Btn @click="pushModal(ColorManager)" tooltip="Manage the color palette. Replace or delete colors.">Manage</Btn>
     </div>
 </template>
 
 <script lang="ts">
 import { inputStore } from '../../../builder/inputs/InputStore';
 import { palettesMgr } from '../../../builder/Palette';
-import { setModal, setModalAndAwait } from '../../MiddleModal.vue'
+import { pushModal } from '../../Modals.vue';
 
 import { defineComponent, toRef } from 'vue'
 export default defineComponent({
@@ -42,23 +42,18 @@ export default defineComponent({
     inject:["messages"],
     methods:
     {
-        setModal,
+        pushModal,
         async registerNewColor(): Promise<void> {
-            let result = await setModalAndAwait(ColorPicker, { color: this.currentColor });
+            let result = await pushModal(ColorPicker, { color: this.currentColor }) as [string, string];
             if (!result)
-            {
-                setModal();
                 return;
-            }
             let [hex, name] = result;
             if (!this.palette.addColor(hex, name))
             {
                 this.messages.pushMessage("Error while picking color: color " + hex + " already exists.");
-                setModal();
                 return await this.registerNewColor();
             }
             this.currentColor = hex;
-            setModal();
         },
         pickColor : function(key: string) {
             this.currentColor = key;

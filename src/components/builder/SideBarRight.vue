@@ -13,7 +13,7 @@ import BlockchainStatus from './BlockchainStatus.vue';
             <div class="my-2">
                 <div class="flex flex-col flex-nowrap gap-1">
                     <Btn @click="openHelp">Help</Btn>
-                    <Btn @click="setModal(Settings)">Settings</Btn>
+                    <Btn @click="pushModal(Settings)">Settings</Btn>
                     <Btn @click="$router.push({ path: '/legal' })">Legal / Privacy</Btn>
                     <Btn @click="$router.push({ path: '/' })">Home</Btn>
                     <!--<Btn @click="$router.push({ path: '/admin' })">Admin</Btn>-->
@@ -33,7 +33,7 @@ import BlockchainStatus from './BlockchainStatus.vue';
 </template>
 
 <script lang="ts">
-import { setModal } from '../MiddleModal.vue';
+import { pushModal } from '../Modals.vue';
 
 import { transactionsManager } from '../../builder/Transactions';
 import { setsManager } from '../../builder/SetsManager';
@@ -70,8 +70,7 @@ export default defineComponent({
         }
     },
     methods: {
-        setModal,
-
+        pushModal,
         isViewOnly(sid: string) {
             return setsManager.getInfo(sid).status !== 'LOCAL';
         },
@@ -90,7 +89,7 @@ export default defineComponent({
             if (this.isConnected)
                 this.expandedCW = ! this.expandedCW;
             else
-                setModal(WalletSelectorVue);
+                pushModal(WalletSelectorVue);
         },
 
         titleText: function() {
@@ -131,10 +130,10 @@ export default defineComponent({
             this.$store.dispatch("builderData/select_set", setId);
         },
         rename: function() {
-            setModal(RenameSet, { set: this.set.id });
+            pushModal(RenameSet, { set: this.set.id });
         },
         exportSet: function() {
-            setModal(ExportSet, { set: this.set.id });
+            pushModal(ExportSet, { set: this.set.id });
         },
         openHelp() {
             window.open('https://insidious-ginger-0f9.notion.site/briq-help-center-4a4958337970483dbfc2c1184290b42f','_blank');

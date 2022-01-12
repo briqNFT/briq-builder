@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { mintProxyStore } from '../../builder/MintProxy'
-import { setModal } from '../MiddleModal.vue';
+import { pushModal } from '../Modals.vue';
 import MintModalVue from './modals/MintModal.vue';
 
 import { defineComponent } from 'vue';
@@ -16,7 +16,7 @@ export default defineComponent({
     },
     methods: {
         claim() {
-            setModal(MintModalVue);
+            pushModal(MintModalVue);
         }
     }
 })

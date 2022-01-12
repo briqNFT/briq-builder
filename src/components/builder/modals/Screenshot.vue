@@ -1,18 +1,19 @@
 <template>
-<div ref="myself" class="invisible">
-    <h2 class="visible text-center text-[5rem] opacity-50 pointer-events-none">SCREENSHOTTING</h2>
-    <teleport to="#inputComp">
-        <div class="flex flex-col my-4 gap-2">
-            <Btn @click="$emit('close')">Cancel</Btn>
-            <Btn @click="returnScreen">Take Screenshot</Btn>
-        </div>
-    </teleport>
-</div>
+    <div>
+        <h2 class="visible text-center text-[5rem] opacity-50 pointer-events-none">SCREENSHOTTING</h2>
+        <teleport to="#inputComp">
+            <div class="flex flex-col my-4 gap-2">
+                <Btn @click="$emit('close')">Cancel</Btn>
+                <Btn @click="returnScreen">Take Screenshot</Btn>
+            </div>
+        </teleport>
+    </div>
 </template>
 
 <script lang="ts">
 import { takeScreenshot } from '../../../builder/graphics/builder.js';
 import { inputStore } from '../../../builder/inputs/InputStore';
+import { setOnlyShowLast } from '../../Modals.vue';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -24,18 +25,20 @@ export default defineComponent({
         };
     },
     mounted() {
-        // Hide the parent to hide the gray background.
-        this.$refs.myself.parentNode.style.visibility = "hidden";
         this.oldInput = inputStore.currentInput;
         inputStore.currentInput = "camera";
         inputStore.forceInput = true;
+        // Hide the modal itself (the teleported stuff isn't affected)
+        this.$emit('hide');
+        setOnlyShowLast(true);
     },
     unmounted() {
         inputStore.currentInput = this.oldInput;
         inputStore.forceInput = false;
+        setOnlyShowLast(false);
     },
     props: ["metadata"],
-    emits: ["close"],
+    emits: ["close", "hide", "show"],
 
     methods: {
         takeScreen()

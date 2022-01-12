@@ -1,74 +1,43 @@
 <template>
-    <Hotkey name="escape" :handler="() => close()"/>
-    <div v-if="modal" class="flex h-screen w-screen justify-center items-center fixed top-0 left-0" style="background: rgba(0, 0, 0, 0.3);" @mousedown.self.stop="close()">
-        <component :metadata="metadata" :is="modal" class="visible container rounded-lg bg-briq alternate-buttons mx-auto px-8 py-4 shadow-xl relative"
-            @close="close"></component>
+    <div v-if="data?.modal">
+        <div
+            :class="'flex h-screen w-screen overflow-auto fixed top-0 justify-center items-center ' + (visible ? 'visible' : 'invisible')"
+            style="background: rgba(0, 0, 0, 0.3);"
+            @mousedown.self.stop="close()"
+        >
+        </div>
+        <Hotkey name="escape" :handler="() => close()"/>
+        <div
+            class="flex min-h-screen w-screen overflow-auto absolute top-0 justify-center items-center invisible"
+        >
+            <component :metadata="data.metadata" :is="data.modal"
+                :class="'container rounded-lg bg-briq alternate-buttons mx-auto my-8 px-8 py-4 shadow-xl relative ' + (visible ? 'visible' : 'invisible')"
+                @close="close"
+                @hide="toggleVisibility(false)"
+                @show="toggleVisibility(true)"
+                @toggleVisibility="toggleVisibility"></component>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { shallowReactive } from 'vue';
-var localStore = shallowReactive({
-    modal: undefined as undefined | any,
-    metadata: undefined as any,
-    callback: false as any,
-    result: undefined as any
-});
-
-export function getModal()
-{
-    return localStore.modal;
-}
-
-export async function setModalAndAwait(modal?: any, metadata?: any): Promise<any>
-{
-    localStore.modal = undefined;
-    localStore.metadata = metadata;
-    localStore.modal = modal;
-    await new Promise((res, rej) => {
-        localStore.callback = res;
-    });
-    return localStore.result;
-}
-
-export async function awaitModal(modal?: any, metadata?: any): Promise<[any, any]>
-{
-    let ogModal = localStore.modal;
-    localStore.modal = undefined;
-    localStore.metadata = metadata;
-    localStore.modal = modal;
-    await new Promise((res, rej) => {
-        localStore.callback = res;
-    });
-    localStore.modal = undefined;
-    return [ogModal, localStore.result];
-}
-
-export function setModal(modal?: any, metadata?: any)
-{
-    localStore.modal = undefined;
-    localStore.metadata = metadata;
-    localStore.modal = modal;
-    localStore.callback = false;
-}
-
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
-        return localStore
+        return {
+            visible: true,
+        }
+    },
+    props: ["data"],
+    computed: {
     },
     methods: {
         close(data?: any) {
-            if (this.callback)
-            {
-                this.result = data;
-                this.callback();
-            }
-            else
-                setModal();
-            this.callback = false;
+            this.data.callback(data);
         },
-        setModal: setModal
+        toggleVisibility(value: boolean) {
+            this.visible = value;
+        }
     }
 })
 </script>
