@@ -5,7 +5,7 @@
         <Btn @click="undo" :disabled="!canUndo" tooltip="Undo (Ctrl + Z)">
             <p><i class="fas fa-undo"></i></p>
         </Btn>
-        <Btn @click="redo" :disabled="!canRedo" class="mx-1" tooltip="Redo (Ctrl + Shift + Z)">
+        <Btn @click="redo" :disabled="!canRedo" class="ml-1" tooltip="Redo (Ctrl + Shift + Z)">
             <p><i class="fas fa-redo"></i></p>
         </Btn>
     </div>

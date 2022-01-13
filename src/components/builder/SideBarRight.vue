@@ -6,7 +6,8 @@ import BlockchainStatus from './BlockchainStatus.vue';
 </script>
 
 <template>
-    <div v-if="!forceInput" class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col lg:flex-row lg:items-start items-end gap-2 pointer-events-none">
+    <!-- Below medium size, push the buttons down to leave room for minting stuff. -->
+    <div v-if="!forceInput" class="absolute right-0 top-0 px-4 py-[6.5rem] md:py-4 max-h-screen flex flex-col lg:flex-row lg:items-start items-end gap-2 pointer-events-none">
         <BlockchainStatus class="max-h-screen"/>
         <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
             <Btn class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Btn>
