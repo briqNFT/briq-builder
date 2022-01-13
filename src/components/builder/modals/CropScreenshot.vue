@@ -2,15 +2,18 @@
     <div class="md:w-3/5 w-auto">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h3 class="text center w-full">Crop Screenshot</h3>
-            <div class="relative">
-                <img ref="image" @mousedown="onMouseDown" @mousemove="onMouseMove" @mouseup="onMouseUp" :src="metadata.screenshot"/>
+            <h2 class="text-center w-full my-4">Crop Screenshot</h2>
+            <div class="relative my-4">
+                <img class="cursor-crosshair" ref="image" @mousedown="onMouseDown" @mousemove="onMouseMove" @mouseup="onMouseUp" :src="metadata.screenshot"/>
                 <div class="absolute top-0 left-0 pointer-events-none overflow-hidden">
                     <div ref="overlay" class="outline-black outline opacity-50 outline-[5000px] absolute top-0 left-0">
                     </div>
                 </div>
             </div>
-            <Btn class="my-2 float-right" @click="crop">Crop</Btn>
+            <div class="flex justify-around">
+                <Btn class="my-2 float-left" @click="$emit('close')"><span class="px-4">Cancel</span></Btn>
+                <Btn class="my-2 float-right" @click="crop"><span class="px-4">Crop</span></Btn>
+            </div>
         </div>
     </div>
 </template>
