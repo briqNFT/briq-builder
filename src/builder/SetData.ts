@@ -281,7 +281,7 @@ export class SetData
                 if (cell.onChain)
                 {
                     let set = chainDB.briqs.get(cell.id)!.set;
-                    if (set === this.id)
+                    if (set === this.id || !chainDB.briqs.get(cell.id)!.partOfSet())
                         return;
                 }
                 let newBriq = this.briqsDB.cloneBriq(available_by_matos[cell.material].splice(0, 1)[0], chainDB);
