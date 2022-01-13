@@ -5,6 +5,10 @@ import { APP_ENV, DEV } from './Meta';
 
 export function setupMonitoring(app: any, router: any)
 {
+    // Turned off in prod for now.
+    if (APP_ENV === "prod")
+        return;
+
     if (APP_ENV === "dev")
         return;
     
