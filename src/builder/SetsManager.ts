@@ -208,8 +208,10 @@ class SetsManager
                 // Otherwise, query chain status
                 else if (contractStore.set)
                 {
-                    this.setsInfo[sid].checkActuallyOnChain(contractStore.set);
-                    this.setsInfo[sid].loadFromChain();
+                    this.setsInfo[sid].checkActuallyOnChain(contractStore.set).then(() => {
+                        if (this.setsInfo?.[sid] && !this.setsInfo[sid].isLocalOnly())
+                            this.setsInfo?.[sid].loadFromChain();
+                    })
                 }
             }
             if (contractStore.set && wallet.userWalletAddress)

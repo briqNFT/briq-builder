@@ -51,7 +51,7 @@ export var builderDataStore = (() => {
             async get_briqs({ commit, state, rootState }: any)
             {
                 if (!contractStore.briq)
-                return;
+                    return;
                 try {
                     commit("fetching_briqs", true);
                     let bricks = (await contractStore.briq.get_all_tokens_for_owner(rootState.wallet.userWalletAddress));

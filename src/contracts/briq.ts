@@ -31,4 +31,9 @@ export default class BriqContract extends ExtendedContract
             throw new Error("Provider is not a signer");
         return await this.invoke("mint_multiple", { owner: (this.provider as Signer).address, material: "" + material, token_start: "" + token_start, nb: "" + nb });
     }
+
+    async balance_of(owner: string)
+    {
+        return (await this.call("balance_of", { owner })).res;
+    }
 }

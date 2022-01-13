@@ -1,9 +1,9 @@
 <template>
     <div class="px-4 py-2 text-right">
         <h3 class="w-full">Briq details</h3>
-        <p>Total briqs owned: {{ briqsDB.briqs.size }} 
-            <button :disabled="data.fetchingBriqs" @click="$store.dispatch('builderData/get_briqs')">
-                <i :class="'fas ' + (data.fetchingBriqs ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
+        <p>Total briqs owned: {{ balance }} 
+            <button :disabled="fetchingBriqs" @click="getBalance">
+                <i :class="'fas ' + (fetchingBriqs ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
             </button>
         </p>
         <p>Total sets owned: {{ chainSets.length }} 
@@ -17,15 +17,22 @@
 <script lang="ts">
 import { setsManager } from '../../builder/SetsManager';
 import contractStore from '../../Contracts';
-
-import { defineComponent } from 'vue';
 import { reportError } from '../../Monitoring';
+import { ticketing } from '../../Async';
+
+import { defineComponent, watchEffect } from 'vue';
 export default defineComponent({
     data() {
         return {
             data: this.$store.state.builderData,
             briqsDB: this.$store.state.builderData.briqsDB,
+            balance: undefined as undefined | number,
         };
+    },
+    beforeMount() {
+        watchEffect(() => {
+            this.getBalance();
+        })
     },
     inject: ['messages'],
     computed: {
@@ -34,9 +41,16 @@ export default defineComponent({
         },
         fetchingSets() {
             return setsManager.fetchingChainSets;
+        },
+        fetchingBriqs() {
+            return this.balance === undefined;
         }
     },
     methods: {
+        getBalance: ticketing(async function(this: any) {
+            this.balance = undefined;
+            this.balance = parseInt(await contractStore.briq?.balance_of(this.$store.state.wallet.userWalletAddress), 16) || 0;
+        }),
         updateChainContracts() {
             if (!contractStore.set)
             {
