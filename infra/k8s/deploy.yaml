@@ -29,3 +29,18 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
           failureThreshold: 2
+      - name: #@ data.values.name + "-node"
+        image: #@ "europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/" + data.values.image_name + "-node:" + data.values.image_tag
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: #@ data.values.resources.cpu
+            memory: #@ data.values.resources.memory 
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 2

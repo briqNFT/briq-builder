@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import WebGLCanvas from './../WebGLCanvas.vue'
-import MiddleModal from '../../MiddleModal.vue'
+import Modals from '../../Modals.vue'
 import Messages from '../../Messages.vue'
 import SplashScreen from './../SplashScreen.vue'
 import AlphaBanner from '../../AlphaBanner.vue';
@@ -53,8 +53,8 @@ import AlphaLogo from './../AlphaLogo.vue';
                 </div>
             </div>
         </div>
-        <MiddleModal/>
     </div>
+    <Modals/>
     <AlphaBanner/>
 </template>
 
@@ -134,8 +134,6 @@ export default defineComponent({
             pushModal(Settings);
         },
         fetchAuthor: ticketing(async function() {
-            this.author="0x46fda85f6ff5b7303b71d632b842e950e354fa08225c4f62eee23a1abbec4eb";
-            return;
             if (!contractStore.set || !this.set_id)
                 return;
             try {
