@@ -45,7 +45,7 @@
                     </div>
                     <div class="flex-none w-full">
                         <h3 class="text-center">{{ set.name }}</h3>
-                        <h4 class="text-center" v-if="exportSet">{{ briqsForExport.length }} briqs</h4>
+                        <h4 class="text-center">{{ set.briqsDB.briqs.size }} briqs</h4>
                         <div class="flex justify-around items-center">
                             <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-xl" :src="screenshot"/></p>
                         </div>
@@ -87,7 +87,7 @@
                 </div>
             </div>
             <div :class="'w-full bg-briq-light rounded-md flex justify-between items-center p-2 my-2' + (step(exporting) < step('SIGNING') ? '' : ' invisible')">
-                <Btn :disabled="step(exporting) > step('CONFIRMATION') || !step(exporting)" @click="exporting = exportSteps[step(exporting) - 1]"><span class="mx-4">Back</span></Btn>
+                <Btn :disabled="step(exporting) > step('CONFIRMATION') || step(exporting) <= step('METADATA')" @click="exporting = exportSteps[step(exporting) - 1]"><span class="mx-4">Back</span></Btn>
                 <Btn v-if="step(exporting) < step('CONFIRMATION')" @click="exporting = exportSteps[step(exporting) + 1]"><span class="mx-4">Next</span></Btn>
             </div>
         </div>
