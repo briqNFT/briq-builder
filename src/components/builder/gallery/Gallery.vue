@@ -1,11 +1,11 @@
 <template>
     <Header></Header>
     <div class="alternate-buttons container m-auto px-2">
-        <h1 class="text-center my-8 briq-logo">briq Gallery</h1>
-        <p class="text-center my-2 text-lg font-medium"> In the briq gallery we highlight some of the best sets created by the briq community !<br />
+        <h1 class="text-center my-8 briq-logo">briq gallery</h1>
+        <p class="text-center my-2 text-lg font-medium"> In the briq gallery we highlight some of the best sets created by the briq community!<br />
             Each set is built out of briqs, the fundamental building block.<br/>
             Click on any of see what they look like.<br/>
-            Send us your own sets on <a href="https://discord.gg/kpvbDCw5pr">Discord</a> or <a href="https://twitter.com/briqs_">Twitter</a> and we'll add them here !</p>
+            Send us your own sets on <a href="https://discord.gg/kpvbDCw5pr">Discord</a> or <a href="https://twitter.com/briqs_">Twitter</a> and we'll add them here!</p>
             <div class="flex justify-center gap-10 text-5xl mt-8 mb-8">
                 <a href="https://twitter.com/briqs_" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
                 <a href="https://discord.gg/kpvbDCw5pr" target="_blank"><p><i class="fab fa-discord"></i></p></a>
