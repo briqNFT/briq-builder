@@ -4,6 +4,7 @@ import Admin from './components/Admin.vue'
 import Settings from './components/Settings.vue'
 import SetBrowser from './components/builder/set_browser/SetBrowser.vue'
 import ShareView from './components/builder/share/Share.vue'
+import Gallery from './components/builder/gallery/Gallery.vue'
 import LandingPage from './components/landing_page/LandingPage.vue'
 import Debug from './components/debug/Debug.vue'
 import Team from './components/team/Team.vue'
@@ -51,6 +52,11 @@ export const routes = [
         props(route: any) {
             return route.query || {}
         }
+    },
+    {
+        path: "/gallery",
+        name: "Gallery",
+        component: Gallery,
     },
     {
         path: "/team",
