@@ -5,6 +5,8 @@ let windowSpy: any;
 let onKeyDown: Array<CallableFunction> = [];
 let onKeyUp: Array<CallableFunction> = [];
 
+let hm: HotkeyManager;
+
 beforeAll(() => {
   windowSpy = jest.spyOn(window, "window", "get");
   windowSpy.mockImplementation(() => ({
@@ -13,6 +15,10 @@ beforeAll(() => {
             onKeyDown.push(cb)
         else if (e === "keyup")
             onKeyUp.push(cb)
+      },
+      removeEventListener: () => {},
+      dispatchEvent: (event: CustomEvent) => {
+        hm.listeners?.[event.detail.name]?.(event);
       }
   }))
 });
@@ -23,7 +29,7 @@ afterAll(() => {
 
 describe('Test HotkeyManager', () => {
     it('should listen for keyDown/Up', () => {
-        let hm = new HotkeyManager();
+        hm = new HotkeyManager();
         let incr = 0;
         let hook1 = hm.register("toto", { code: "KeyA" }).subscribe("toto", () => incr++);
         let hook2 = hm.register("toto2", { code: "KeyA", onDown: true }).subscribe("toto2", () => incr++);

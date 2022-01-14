@@ -4,7 +4,7 @@ import MiddleModal from './MiddleModal.vue';
 
 <template>
     <div class="absolute top-0 left-0 h-screen w-screen invisible">
-        <MiddleModal v-for="data, index in store.modals" :key="index" :data="data" :class="(onlyShowLast ? (index === store.modals.length - 1 ? '' : 'hidden') : '')">
+        <MiddleModal v-for="data, index in store.modals" :key="data.id" :data="data" :class="(onlyShowLast ? (index === store.modals.length - 1 ? '' : 'hidden') : '')">
         </MiddleModal>
     </div>
 </template>
@@ -13,17 +13,20 @@ import MiddleModal from './MiddleModal.vue';
 import { reactive, markRaw } from 'vue';
 
 let store = reactive({
-    modals: [],
+    modals: [] as Array<{ modal: any, metadata: any, callback: any, id: number }>,
     onlyShowLast: false,
 });
 
+let identifier = 0;
 export async function pushModal(modal: any, metadata?: any)
 {
+    let ident = ++identifier;
     let result = await new Promise((res) => {
         let data = markRaw({
             modal,
             metadata,
             callback: res,
+            id: ident,
         });
         store.modals.push(data);
     });

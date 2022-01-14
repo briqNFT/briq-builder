@@ -21,8 +21,11 @@ enum KEY_SETUP {
 export class HotkeyManager
 {
     hotkeys: { [hotkey: string]: StoredHotkeyData } = {};
-    callbacks: { [hotkey: string]: Array<() => void> } = {};
     
+    callbacks: { [hotkey: string]: Array<[number, () => void]> } = {};
+    listeners: { [hotkey: string]: (event: any) => void } = {};
+    identifier = 1;
+
     keyHotkeys: { [unified: string]: Array<string> } = {};
 
     alt: boolean = false;
@@ -83,25 +86,40 @@ export class HotkeyManager
      * @param callback Callback to call
      * @returns the identifier for unsubscription. Use as an opaque type recommended.
      */
-    subscribe(hotkeyName: string, callback: () => void): [string, () => void]
+    subscribe(hotkeyName: string, callback: () => void): [string, number]
     {
         let data = this.hotkeys[hotkeyName];
         if (!data)
-            return [hotkeyName, callback];
-        this.callbacks[hotkeyName].push(callback);
-        // Fire immediately if the hotkey should trigger on down.
-        if (this.checkPressed(hotkeyName, DOWN))
-            callback();
-        return [hotkeyName, callback];
+            return [hotkeyName, 0];
+
+        let id = ++this.identifier;
+        this.callbacks[hotkeyName].splice(0, 0, [id, callback]);        
+        if (!this.listeners[hotkeyName])
+        {
+            this.listeners[hotkeyName] = (event: any) => {
+                if (event.detail.name !== hotkeyName)
+                    return;
+                // TODO: allow bubbling & stopping (possibly by returning an ENUM).
+                // For now the bubbling stops at the first hotkey.
+                this.callbacks[hotkeyName][0][1]();
+            };
+            window.addEventListener('hotkey', this.listeners[hotkeyName]);
+        }
+        return [hotkeyName, id];
     }
 
-    unsubscribe(handler: [string, () => void])
+    unsubscribe(handler: [string, number])
     {
-        let cbs = this.callbacks[handler[0]];
-        if (!cbs)
+        let idx = this.callbacks[handler[0]].findIndex(x => x[0] == handler[1]);
+        if (idx === -1)
             return;
-        let idx = cbs.indexOf(handler[1]);
-        cbs.splice(idx, 1);  
+        this.callbacks[handler[0]].splice(idx, 1);
+        if (!this.callbacks[handler[0]].length)
+        {
+            let cb = this.listeners[handler[0]];
+            window.removeEventListener('hotkey', cb);
+            delete this.listeners[handler[0]];
+        }
     }
 
     isKeyDown(key: string)
@@ -130,7 +148,16 @@ export class HotkeyManager
     maybeFireHotkey(hk: string, on: KEY_SETUP)
     {
         if (this.checkPressed(hk, on))
-            this.callbacks[hk].forEach(x => x());
+        {
+            let event = new CustomEvent('hotkey', {
+                bubbles: true,
+                cancelable: true,
+                detail: { "name": hk }
+            });
+            window.dispatchEvent(event);
+            return true;
+        }
+        return false;
     }
 
     onKeyUp(event: KeyboardEvent)
@@ -143,11 +170,13 @@ export class HotkeyManager
             this.ctrl = false;
         else
         {
-            // TODO: swap to synthetic events
+            let fired: { [hk: string]: boolean } = {};
             for (let hk of this.keyHotkeys?.[event.code] ?? [])
-                this.maybeFireHotkey(hk, UP);
+                fired[hk] = this.maybeFireHotkey(hk, UP);
             for (let hk of this.keyHotkeys?.[event.key] ?? [])
-                this.maybeFireHotkey(hk, UP);
+                // Don't fire twice.
+                if (!fired[hk])
+                    this.maybeFireHotkey(hk, UP);
 
             this.activeCodes[event.code] = false;
             this.activeKeys[event.key] = false;
@@ -166,11 +195,14 @@ export class HotkeyManager
         {
             this.activeCodes[event.code] = true;
             this.activeKeys[event.key] = true;
-            // TODO: swap to synthetic events
+
+            let fired: { [hk: string]: boolean } = {};
             for (let hk of this.keyHotkeys?.[event.code] ?? [])
-                this.maybeFireHotkey(hk, DOWN);
+                fired[hk] = this.maybeFireHotkey(hk, DOWN);
             for (let hk of this.keyHotkeys?.[event.key] ?? [])
-                this.maybeFireHotkey(hk, DOWN);
+                // Don't fire twice.
+                if (!fired[hk])
+                    this.maybeFireHotkey(hk, DOWN);
         }
     }
 };
