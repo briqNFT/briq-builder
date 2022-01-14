@@ -3,11 +3,15 @@
         <div class="text-xl">
             <a href="/"><h2 class="briq-logo">briq</h2></a>
         </div>
-        <div class="flex gap-4 items-center alpha-pill">
-            <a href="/team"><p>Team</p></a>
-            <a href="https://insidious-ginger-0f9.notion.site/Alpha-paper-fd11fbbb6ac449129797e5f4ecb24d7a"><p>Whitepaper</p></a>
-            <a href="https://insidious-ginger-0f9.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f"><p>Resources</p></a>
-            <button @click="$router.push({ name: 'Builder' })"><span class="px-2">App</span></button>
+        <div class="flex items-center gap-4">
+            <div class="flex gap-4 flex-wrap justify-center md:justify-end">
+                <a href="/team"><p>Team</p></a>
+                <a href="/gallery"><p>Gallery</p></a>
+                <a href="https://insidious-ginger-0f9.notion.site/briq-ae6a1d92745044cc9c2274251a5212f3"><p>Resources</p></a>
+            </div>
+            <div class="alpha-pill flex-none">
+                <button class="flex-none" @click="$router.push({ name: 'Builder' })"><span class="px-2">App</span></button>
+            </div>
         </div>
     </div>
 </template>
