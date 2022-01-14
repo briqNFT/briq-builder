@@ -161,9 +161,12 @@ function resizeRendererToDisplaySize(renderer, composer, camera) {
 
 function recreateRenderer(canvas, scene, camera)
 {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !!builderSettings.useRealAA });
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !!builderSettings.useRealAA });
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
+
+  renderer.setClearColor(0x000000);
+  renderer.setClearAlpha(0);
 
   const composer = new EffectComposer(renderer);
   if (builderSettings.useRealAA)
@@ -237,9 +240,15 @@ function setupScene(voxWorld)
 
   addLight(scene, -1*5,  2*5,  -3*5);
 
-  scene.background = new THREE.Color(builderSettings.backgroundColor);//generateSkybox();
-  scene.add(generateGrid());
-  generatePlane(scene);
+  if (!builderSettings.transparentBackground)
+    scene.background = new THREE.Color(builderSettings.backgroundColor);
+
+  if (builderSettings.showPlane)
+  {
+    if (builderSettings.showGrid)
+      scene.add(generateGrid());
+    generatePlane(scene);
+  }
   scene.add(previewCube);
 
   voxWorld.scene = scene;

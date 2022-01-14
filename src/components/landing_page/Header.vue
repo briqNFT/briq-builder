@@ -42,8 +42,8 @@ button {
 
     @apply bg-briq-light px-2 py-0.5 text-deep-blue text-sm;
     position: absolute;
-    top: 0;
-    right: 0;
+    top: -1rem;
+    right: -1rem;
 
     @apply rounded-xl shadow-sm;
 }

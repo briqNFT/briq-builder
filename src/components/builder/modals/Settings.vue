@@ -3,11 +3,13 @@
         <div class="relative h-full">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Settings</h3>
-            <div class="my-4">
+            <div class="my-4 settings">
                 <p>Settings may need reloading to apply properly.</p>
-                <p><input type="checkbox" v-model="builderSettings.useSAO"/> Use Screen-space Ambient Occlusion</p>
-                <p><input type="checkbox" v-model="builderSettings.useRealAA"/> Use Anti-Aliasing</p>
-                <p><input type="checkbox" v-model="builderSettings.showBorders"/> Show briq borders</p>
+                <p><label><input type="checkbox" v-model="builderSettings.useSAO"/> Use Screen-space Ambient Occlusion</label></p>
+                <p><label><input type="checkbox" v-model="builderSettings.useRealAA"/> Use Anti-Aliasing</label></p>
+                <p><label><input type="checkbox" v-model="builderSettings.showPlane"/> Show base plane</label></p>
+                <p><label><input type="checkbox" :disabled="!builderSettings.showPlane" v-model="builderSettings.showGrid"/> Show base grid</label></p>
+                <p><label><input type="checkbox" v-model="builderSettings.showBorders"/> Show briq borders</label></p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.planeColor"/> Base Plane Color</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.gridColor"/> Grid Color</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.backgroundColor"/> Background Color</p>
@@ -17,6 +19,15 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+.settings * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none; 
+}
+</style>
 
 <script lang="ts">
 import { resetStore } from '../../../builder/graphics/Settings';
