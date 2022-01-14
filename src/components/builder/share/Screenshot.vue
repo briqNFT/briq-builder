@@ -108,7 +108,7 @@ export default defineComponent({
             img.decode().then(() => this.screenData = img);
         },
         async downloadImg() {
-            downloadData(await (await fetch(this.$refs.screenshot.toDataURL())).blob(), "image/png", "set");
+            downloadData(await (await fetch(this.$refs.screenshot.toDataURL())).blob(), "image/png", this.metadata.setData.id);
         },
     }
 })

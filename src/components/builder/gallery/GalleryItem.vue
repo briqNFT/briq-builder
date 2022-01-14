@@ -1,12 +1,14 @@
 <template>
-    <div v-if="setData" class="bg-briq-light rounded-md px-4 py-2">
+    <div>
         <a :href="`/share?set_id=${setId}&network=testnet&version=1`" target="_blank">
-            <h3 class="text-center break-all">{{ setData?.name || setId }}</h3>
-            <div class="flex-1 flex justify-center min-h-[2rem] my-2">
-                <img v-if="imgSrc" :src="imgSrc" class="rounded-md"/>
-                <div v-if="!imgSrc" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider">
-                    <p v-if="!loadingImage">No Image</p>
-                    <p v-else=""><i class="fas fa-spinner animate-spin-slow"></i></p>
+            <div v-if="setData" class="bg-briq-light rounded-md px-4 py-2 h-full w-full flex flex-col hover:outline-4 hover:outline hover:outline-briq-dark">
+                <h3 class="text-center break-all">{{ setData?.name || setId }}</h3>
+                <div class="flex-1 flex flex-col justify-center min-h-[2rem] my-2">
+                    <div><img v-if="imgSrc" :src="imgSrc" class="rounded-md"/></div>
+                    <div v-if="!imgSrc" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider">
+                        <p v-if="!loadingImage">No Preview</p>
+                        <p v-else=""><i class="fas fa-spinner animate-spin-slow"></i></p>
+                    </div>
                 </div>
             </div>
         </a>
