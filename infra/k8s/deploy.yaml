@@ -20,8 +20,8 @@ spec:
         - containerPort: 80
         resources:
           requests:
-            cpu: #@ data.values.resources.cpu
-            memory: #@ data.values.resources.memory 
+            cpu: #@ data.values.resources.nginx.cpu
+            memory: #@ data.values.resources.nginx.memory 
         livenessProbe:
           httpGet:
             path: /health
@@ -35,8 +35,8 @@ spec:
         - containerPort: 5000
         resources:
           requests:
-            cpu: #@ data.values.resources.cpu
-            memory: #@ data.values.resources.memory 
+            cpu: #@ data.values.resources.node.cpu
+            memory: #@ data.values.resources.node.memory
         livenessProbe:
           httpGet:
             path: /health

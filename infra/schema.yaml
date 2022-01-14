@@ -5,8 +5,12 @@ env: test
 static_ip: lb-sltech-company-ipv4-2
 sites: [""]
 resources:
-  cpu: "50m"
-  memory: "128Mi"
+  node:
+    cpu: "100m"
+    memory: "128Mi"
+  nginx:
+    cpu: "50m"
+    memory: "128Mi"
 #@schema/type any=True
 defaultLabels:
   appname: briq-builder

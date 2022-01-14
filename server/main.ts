@@ -1,56 +1,46 @@
-import * as http from 'http';
-import { TorusKnotBufferGeometry } from 'three';
-
-const hostname = '0.0.0.0';
-const port = process.env.NODE_ENV === 'development' ? 3000 : 5000;
-
-const starknet = require('starknet');
-const { getSelectorFromName } = require('starknet/utils/stark');
-const { toBN } = require('starknet/utils/number');
-
 const { createServer: createViteServer } = require('vite');
-
+// Somehow didn't work if I just import above - some error when buillding.
 import type { createServer, ViteDevServer } from 'vite';
 
-const fs = require('fs');
-const path = require('path');
-var vite: ViteDevServer;
-
-const https = require('https');
-
+import * as fs from 'fs';
+import * as http from 'http';
+import * as https from 'https';
+import * as path from 'path';
 import * as url from 'url';
+import connect from 'connect';
 
-var connect = require('connect');
-var app = connect();
-http.createServer(app);
+const DEV = process.env.NODE_ENV === 'development';
 
-console.log("ENV is ", process.env.NODE_ENV);
+const config = {
+    hostname: '0.0.0.0',
+    port: DEV ? 3000 : 5000,
+};
 
-var toto = async function() {
-    vite = await (createViteServer as typeof createServer)({ mode: 'development', server: { middlewareMode: 'ssr' } });
-
-    
+async function runServer() {
+    let app = connect();
+    let vite: undefined | ViteDevServer;
     let template: string;
-    if (process.env.NODE_ENV === 'development')
+    // In dev mode, run vite as a dev server middleware so that the frontend can be loaded as if running 'npm run dev'
+    if (DEV)
     {
+        vite = await (createViteServer as typeof createServer)({ mode: 'development', server: { middlewareMode: 'ssr' } });
         app.use(vite.middlewares)
 
+        // Load the raw index.html, to be transformed.
         template = fs.readFileSync(
             path.resolve(__dirname, '../../index.html'),
             'utf-8'
         );
     }
     else
+        // Load the transformed dist/index.html
         template = fs.readFileSync(
             path.resolve(__dirname, '../index.html'),
             'utf-8'
         );
 
     app.use(async (req: http.IncomingMessage, res) => {
-
-        console.log("REQUEST");
-        console.log(req.url);
-
+        console.log("GET ", req.url);
         if (req.url === '/health')
         {
             res.statusCode = 200;
@@ -58,12 +48,12 @@ var toto = async function() {
             res.end("ok");
             return
         }
-    
+
         try
         {
             let processedTemplate = template;
-            if (process.env.NODE_ENV === 'development')
-                processedTemplate = await vite.transformIndexHtml(req.url!, processedTemplate);
+            if (DEV)
+                processedTemplate = await vite!.transformIndexHtml(req.url!, processedTemplate);
 
             if (req.url?.indexOf('/share') !== -1)
             {
@@ -72,7 +62,9 @@ var toto = async function() {
 
                 let data: any;
                 try {
-                    data = await new Promise((res, err) => {
+                    // Fetch information from the API.
+                    // TODO: would perhaps be nice to not go throught the external router.
+                    data = await new Promise((resolve, reject) => {
                         try
                         {
                             let query = https.request({
@@ -90,17 +82,21 @@ var toto = async function() {
                                 
                                 // The whole response has been received. Print out the result.
                                 resp.on('end', () => {
-                                    res(JSON.parse(data));
+                                    try {
+                                        resolve(JSON.parse(data));
+                                    } catch(_) {
+                                        reject()
+                                    }
                                 });
                                 
                                 resp.on('error', err => {
-                                    err();
+                                    reject();
                                 })
                             });
                             query.end();
-                            query.on('error', () => err());
+                            query.on('error', () => reject());
                         }
-                        catch(_) { err(); }
+                        catch(_) { reject(); }
                     })
                     processedTemplate = processedTemplate.replace("<!--<meta-replace>-->",[
                         '<meta property="og:title" content="' + (data.data.name || data.data.id) + '">',
@@ -123,29 +119,16 @@ var toto = async function() {
         } catch (e: any) {
             // If an error is caught, let Vite fix the stracktrace so it maps back to
             // your actual source code.
-            if (e instanceof Error)
-                vite.ssrFixStacktrace(e)
+            if (DEV && e instanceof Error)
+                vite!.ssrFixStacktrace(e)
             console.error(e)
             res.statusCode = 500;
             res.end(e?.message || e?.toString() || "Unknown error");
         }
     });
 
-    app.listen(port, hostname, async () => {
-        console.log("Start");
-
-        /*
-        let prov = starknet.defaultProvider;
-        console.log(prov);
-        console.log(getSelectorFromName("owner_of"))
-        let call = prov.callContract({
-            contract_address: "0x01618ffcb9f43bfd894eb4a176ce265323372bb4d833a77e20363180efca3a65",
-            entry_point_selector: getSelectorFromName("owner_of"),
-            calldata: [toBN("0xf7917ffd99a249248695911e83c798e2").toString()],
-        })
-        await call;
-        console.log((await call).result);
-        */
+    app.listen(config.port, config.hostname, async () => {
+        console.log("Starting briq-builder Node server on ", config.port, config.hostname);
     });
 }
-toto();
+runServer();
