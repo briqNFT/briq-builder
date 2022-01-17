@@ -1,7 +1,5 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-import { texture, tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
+import { tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
 
 import { cellSize } from '../Constants'
 
@@ -11,18 +9,17 @@ export var voxWorld;
 import { store } from "../../store/Store"
 import { dispatchedActions } from './dispatch'
 
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { SSAARenderPass } from 'three/examples/jsm/postprocessing/SSAARenderPass.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass.js';
-import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
-
 import { watchEffect } from 'vue';
 import builderSettings from './Settings';
 
-let builderData = store.state.builderData;
+import {
+  THREE, THREE_SETUP,
+  OrbitControls,
+  EffectComposer,
+  RenderPass,
+  SSAARenderPass,
+  SAOPass,
+} from '../../three';
 
 var camera;
 
@@ -47,13 +44,6 @@ export function getCameraRay(xin, yin)
     end.set(x, y, 1).unproject(camera);
     return [start, end];  
 }
-
-const material = new THREE.MeshLambertMaterial({
-  map: texture,
-  side: THREE.DoubleSide,
-  alphaTest: 0.1,
-  transparent: true,
-});
 
 function generateGrid() {
   var gridXZ = new THREE.GridHelper(cellSize*2+1, cellSize*2+1, builderSettings.gridColor, builderSettings.gridColor);
@@ -104,7 +94,7 @@ function generateSkybox(scene) {
   return texture;
 }
 
-import { previewCube } from './PreviewCube'
+import getPreviewCube from './PreviewCube'
 
 export function resetCamera()
 {
@@ -121,12 +111,12 @@ export function takeScreenshot()
 }
 function _createTakeScreenshot(renderer, composer) {
   return function() {
-    let old = previewCube.visible;
+    let old = getPreviewCube().visible;
     let old2 = selectionRender.parent?.visible;
-    previewCube.visible = false;
+    getPreviewCube().visible = false;
     selectionRender.hide();
     composer.render();
-    previewCube.visible = old;
+    getPreviewCube().visible = old;
     if (old2)
       selectionRender.show();
     else
@@ -249,7 +239,7 @@ function setupScene(voxWorld)
       scene.add(generateGrid());
     generatePlane(scene);
   }
-  scene.add(previewCube);
+  scene.add(getPreviewCube());
 
   voxWorld.scene = scene;
   for (let cid in voxWorld.cellIdToMesh)
@@ -266,7 +256,9 @@ function updateScene()
   scene = setupScene(voxWorld);
 }
 
-export  function main(canvas) {  
+export async function main(canvas) {
+  await THREE_SETUP;
+
   const fov = 75;
   const aspect = 2;  // the canvas default
   const near = 0.1;

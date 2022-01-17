@@ -1,6 +1,6 @@
 import type { SetData } from "../SetData";
 
-import * as THREE from 'three'
+import { THREE } from '../../three';
 
 class SelectionRender
 {

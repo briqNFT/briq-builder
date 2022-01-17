@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import * as THREE from 'three';
+import { THREE } from '../../../three';
 
 import { inputStore } from '../../../builder/inputs/InputStore'
 

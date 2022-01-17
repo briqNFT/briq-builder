@@ -1,13 +1,12 @@
-import * as THREE from 'three';
+//import * as THREE from 'three';
+import { THREE } from '../../three';
 
 import lightMapTex from '../../assets/lightmap.png'
 
 import builderSettings from './Settings'
 
-import { pickerData, texture, tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
-
 import { watchEffect } from 'vue';
-class MaterialByColor {
+export class MaterialByColor {
     index: number;
     colorIndex: { [key: string]: number };
     indexMaterial: { [key: number]: THREE.Material };
@@ -29,11 +28,11 @@ class MaterialByColor {
         this.lightMapTexture.magFilter = THREE.NearestFilter;
 
         this.material = new THREE.MeshLambertMaterial({
-            map: texture,
             side: THREE.DoubleSide,
             alphaTest: 0.1,
             transparent: true,
         });
+        this.updateTexture();
 
         watchEffect(() => {
             this.setLightMap(builderSettings.showBorders);
@@ -81,5 +80,3 @@ class MaterialByColor {
         this.material.needsUpdate = true;
     }
 }
-
-export var materialByColor = new MaterialByColor();

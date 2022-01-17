@@ -19,7 +19,6 @@
 </template>
 
 <script lang="ts">
-import * as THREE from 'three';
 import ColorPicker from './ColorPicker.vue';
 
 import { inputStore } from '../../../builder/inputs/InputStore';    

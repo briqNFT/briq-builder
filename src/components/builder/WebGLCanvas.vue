@@ -14,12 +14,14 @@ export default defineComponent({
     data() {
         return {
             currentInput: undefined,
+            setup: false,
         }
     },
     async mounted() {
-        main(this.$refs.canvas);
+        await main(this.$refs.canvas);
         this.currentInput = toRef(inputStore, 'currentInput');
         builderInputFsm.initialize(this.$refs.canvas as HTMLCanvasElement, orbitControls.controls, inputStore);
+        this.setup = true;
     },
     methods: {
         onPointerMove: async function(event) {
@@ -39,7 +41,8 @@ export default defineComponent({
             {
                 if (!newV)
                     return;
-                builderInputFsm.switchTo(this.currentInput);
+                if (this.setup)
+                    builderInputFsm.switchTo(this.currentInput);
             }
         }
     }
