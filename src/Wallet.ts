@@ -1,6 +1,6 @@
 import { reactive, watchEffect } from 'vue'
 
-import { defaultProvider, Provider } from 'starknet';
+import { Provider } from 'starknet';
 import type { Signer } from 'starknet';
 
 import { logDebug, logDebugDelay } from './Messages'

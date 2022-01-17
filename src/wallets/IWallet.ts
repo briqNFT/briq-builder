@@ -1,4 +1,3 @@
-import type { Store } from 'vuex';
 import type { Provider, Signer } from 'starknet';
 
 export abstract class IWallet

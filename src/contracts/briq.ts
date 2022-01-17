@@ -1,6 +1,5 @@
-import { AddTransactionResponse } from 'starknet';
-
-import { Provider, Signer } from 'starknet';
+import type { AddTransactionResponse } from 'starknet';
+import type { Provider, Signer } from 'starknet';
 
 import BriqABI from './briq_abi.json'
 

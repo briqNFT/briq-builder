@@ -18,3 +18,17 @@ export const store = createStore({
 });
 
 store.dispatch("initialize");
+
+var resolveLoading: any;
+export var isLoaded = (() => {
+    return new Promise(resolve => {
+        resolveLoading = resolve;
+    });
+})();
+
+export function setLoaded()
+{
+    console.log("store laoded");
+    resolveLoading();
+}
+

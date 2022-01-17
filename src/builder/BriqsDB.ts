@@ -1,6 +1,3 @@
-import { json } from 'starknet';
-import { reactive } from "vue";
-
 import { hexUuid } from '../Uuid';
 
 export class Briq
