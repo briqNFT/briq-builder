@@ -1,7 +1,7 @@
 import { reactive } from 'vue'
 import type MintContract from '../contracts/mint';
 
-import * as starknet from "starknet";
+import * as starknet from 'starknet';
 import { ticketing, OutdatedPromiseError } from '../Async';
 
 export const mintProxyStore = reactive({
