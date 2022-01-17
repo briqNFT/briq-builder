@@ -1,17 +1,20 @@
-import * as Sentry from "@sentry/vue";
-import { Integrations } from "@sentry/tracing";
+import type * as SentryType from '@sentry/vue';
+var Sentry: typeof SentryType;
 
 import { APP_ENV, DEV } from './Meta';
 
-export function setupMonitoring(app: any, router: any)
+export async function setupMonitoring(app: any, router: any)
 {
     // Turned off in prod for now.
     if (APP_ENV === "prod")
         return;
-
     if (APP_ENV === "dev")
         return;
     
+    let sentryLib = await import('./sentry_wrapper');
+    Sentry = sentryLib.Sentry;
+    const Integrations = sentryLib.Integrations;
+
     // Init Sentry error tracking.
     Sentry.init({
         app,
@@ -45,5 +48,5 @@ export function reportError(err: Error, reason?: string)
     richError.stack += err?.stack ? "\n" + err?.stack : "";
     if (DEV)
         console.log("reporting error >> ", richError)
-    Sentry.captureException(richError);
+    Sentry?.captureException(richError);
 }
