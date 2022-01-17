@@ -33,30 +33,4 @@ export default class ExtendedContract extends Contract
         }
         return out;
     }
-    
-    /**
-     * Overriden to support pending block
-     * TODO: once starknet.js does this natively, remove this.
-     */
-    override async call(method: string, args: Args = {}) {
-        // ensure contract is connected
-        if (this.connectedTo === null)
-            throw new Error('contract isnt connected to an address')
-    
-        // validate method and args
-        this.validateMethodAndArgs('CALL', method, args);
-    
-        // compile calldata
-        const entrypointSelector = getSelectorFromName(method);
-        const calldata = compileCalldata(args);
-    
-        return this.provider
-          .callContract({
-            contract_address: this.connectedTo,
-            calldata,
-            entry_point_selector: entrypointSelector,
-          },
-          "pending")
-          .then((x) => this.parseResponse(method, x.result));
-      }
 }
