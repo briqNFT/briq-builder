@@ -1,13 +1,11 @@
-import * as THREE from 'three'
+import { THREE } from '../../three';
 
-import { materialByColor } from './Materials'
-
-const material = materialByColor.material;
-
+import { MaterialByColor } from './Materials';
 export default class VoxelWorld {
     cellSize: number;
     tileSize: number;
     nbMaterial: number;
+    materialByColor: MaterialByColor;
     tileTextureHeight: number;
     cellSliceSize: number;
     cells: object;//Map<number, Uint8Array>;
@@ -26,6 +24,8 @@ export default class VoxelWorld {
         
         this.cellIdToMesh = {};
         this.scene = null;
+
+        this.materialByColor = new MaterialByColor();
     }
 
     reset()
@@ -78,7 +78,7 @@ export default class VoxelWorld {
             cell = this.addCellForVoxel(x, y, z);
         }
         const voxelOffset = this.computeVoxelOffset(x, y, z);
-        const v = materialByColor.getIndex(color);
+        const v = this.materialByColor.getIndex(color);
         cell[voxelOffset] = v;
     }
     
@@ -132,7 +132,7 @@ export default class VoxelWorld {
                                     {
                                         positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
                                         normals.push(...dir);
-                                        uvs.push(...materialByColor.getUV(uvVoxel, uv));
+                                        uvs.push(...this.materialByColor.getUV(uvVoxel, uv));
                                         uv2s.push(...uv);
                                     }
                                     indices.push(
@@ -175,7 +175,7 @@ export default class VoxelWorld {
         geometry.computeBoundingSphere();
         
         if (!mesh) {
-            mesh = new THREE.Mesh(geometry, material);
+            mesh = new THREE.Mesh(geometry, this.materialByColor.material);
             mesh.name = cellId;
             this.cellIdToMesh[cellId] = mesh;
             mesh.castShadow = true;

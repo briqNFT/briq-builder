@@ -1,21 +1,21 @@
 import { MouseInputState } from './BuilderInputState';
-import { previewCube } from '../graphics/PreviewCube'
+import getPreviewCube from '../graphics/PreviewCube'
 import { inputStore } from "./InputStore";
 import { store } from '../../store/Store';
-import * as THREE from 'three';
 
 import type { SetData } from '../SetData';
 
+import { THREE } from '../../three';
 export class PainterInput extends MouseInputState
 {
     onEnter() {
-        previewCube.scale.set(1.1, 1.1, 1.1);
-        previewCube.visible = false;
+        getPreviewCube().scale.set(1.1, 1.1, 1.1);
+        getPreviewCube().visible = false;
     }
 
     onExit() {
-        previewCube.visible = false;
-        previewCube.scale.set(1, 1, 1);
+        getPreviewCube().visible = false;
+        getPreviewCube().scale.set(1, 1, 1);
     }
 
     onPointerMove(event: PointerEvent)
@@ -23,14 +23,14 @@ export class PainterInput extends MouseInputState
         let pos = this.getIntersectionPos(this.curX, this.curY, true);
         if (!pos || pos[1] < 0)
         {
-            previewCube.visible = false;
+            getPreviewCube().visible = false;
             return;
         }
-        if (!previewCube.visible)
-            previewCube.visible = true;
+        if (!getPreviewCube().visible)
+            getPreviewCube().visible = true;
 
-        previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-        (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
+        getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
+        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
     }
 
     onPointerDown(event: PointerEvent)
@@ -76,11 +76,11 @@ export class PainterMultiInput extends MouseInputState
             throw new Error("Error: PainterMultiInput must have a well defined event position on entry");
         
         this.fsm.orbitControls.enabled = false;
-        previewCube.visible = true;
+        getPreviewCube().visible = true;
     }
 
     onExit() {
-        previewCube.visible = false;
+        getPreviewCube().visible = false;
         this.fsm.orbitControls.enabled = true;
     }
 
@@ -90,8 +90,8 @@ export class PainterMultiInput extends MouseInputState
         if (!pos)
             return;
 
-        previewCube.scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1.1, Math.abs(this.lastClickPos[1] - pos[1]) + 1.1, Math.abs(this.lastClickPos[2] - pos[2]) + 1.1);
-        previewCube.position.set(
+        getPreviewCube().scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1.1, Math.abs(this.lastClickPos[1] - pos[1]) + 1.1, Math.abs(this.lastClickPos[2] - pos[2]) + 1.1);
+        getPreviewCube().position.set(
             ((this.lastClickPos[0] + pos[0]) / 2) + 0.5,
             ((this.lastClickPos[1] + pos[1]) / 2) + 0.5,
             ((this.lastClickPos[2] + pos[2]) / 2) + 0.5,

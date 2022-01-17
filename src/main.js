@@ -1,16 +1,13 @@
 import { createApp } from 'vue'
-import { createWebHistory, createRouter } from "vue-router";
-import { setupMonitoring } from './Monitoring';
-
-import App from './App.vue'
-
-let app = createApp(App);
-
 
 // Load Tailwind CSS
 import './index.css'
 
+import App from './App.vue'
+let app = createApp(App);
+
 // Routing
+import { createWebHistory, createRouter } from "vue-router";
 import { routes } from './Routes'
 const router = createRouter({
     history: createWebHistory(),
@@ -18,16 +15,24 @@ const router = createRouter({
 });
 app.use(router);
 
+import { setupMonitoring } from './Monitoring';
 setupMonitoring(app, router);
+
+import Button from './components/generic/Button.vue';
+import Hotkey from './components/generic/Hotkey.vue';
+// Load general components
+app.component("Btn", Button);
+app.component("Hotkey", Hotkey);
 
 // Load general store
 import { store } from './store/Store'
 app.use(store);
 
-// Load general components
-import Button from './components/generic/Button.vue';
-app.component("Btn", Button);
-import Hotkey from './components/generic/Hotkey.vue';
-app.component("Hotkey", Hotkey);
+import { THREE } from './three';
+async function start()
+{
+    await THREE;
+    app.mount('#app')    
+}
 
-app.mount('#app')
+start();

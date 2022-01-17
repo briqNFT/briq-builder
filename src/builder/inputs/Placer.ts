@@ -1,25 +1,24 @@
 import { pickerData } from "../../materials.js"
 import { MouseInputState } from './BuilderInputState';
-import { previewCube } from '../graphics/PreviewCube'
+import getPreviewCube from '../graphics/PreviewCube'
 import { inputStore } from "./InputStore";
 import { store } from '../../store/Store'
 
 import { cellSize } from '../../builder/Constants';
 
-import * as THREE from 'three'
-import { preview } from "vite";
+import { THREE } from '../../three';
 
 export class PlacerInput extends MouseInputState
 {
     onEnter()
     {
-        previewCube.visible = false;
-        previewCube.scale.set(1, 1, 1);
+        getPreviewCube().visible = false;
+        getPreviewCube().scale.set(1, 1, 1);
     }
     
     onExit()
     {
-        previewCube.visible = false;
+        getPreviewCube().visible = false;
     }
 
     onPointerMove(event: PointerEvent)
@@ -27,14 +26,14 @@ export class PlacerInput extends MouseInputState
         const pos = this.getIntersectionPos(this.curX, this.curY);
         if (!pos)
             return;
-        previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
+        getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
         if (Math.abs(pos[0]) <= cellSize && Math.abs(pos[2]) <= cellSize && pos[1] >= 0)
         {
-            previewCube.visible = true;
-            (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
+            getPreviewCube().visible = true;
+            (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
         }
         else
-            previewCube.visible = false;
+            getPreviewCube().visible = false;
     }
 
     onPointerDown(event: PointerEvent)
@@ -76,11 +75,11 @@ export class PlacerMultiInput extends MouseInputState
             throw new Error("Error: PlacerMultiInput must have a well defined event position on entry");
         
         this.fsm.orbitControls.enabled = false;
-        previewCube.visible = true;
+        getPreviewCube().visible = true;
     }
 
     onExit() {
-        previewCube.visible = false;
+        getPreviewCube().visible = false;
         this.fsm.orbitControls.enabled = true;
     }
 
@@ -90,8 +89,8 @@ export class PlacerMultiInput extends MouseInputState
         if (!pos)
             return;
 
-        previewCube.scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1, Math.abs(this.lastClickPos[1] - pos[1]) + 1, Math.abs(this.lastClickPos[2] - pos[2]) + 1);
-        previewCube.position.set(
+        getPreviewCube().scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1, Math.abs(this.lastClickPos[1] - pos[1]) + 1, Math.abs(this.lastClickPos[2] - pos[2]) + 1);
+        getPreviewCube().position.set(
             ((this.lastClickPos[0] + pos[0]) / 2) + 0.5,
             ((this.lastClickPos[1] + pos[1]) / 2) + 0.5,
             ((this.lastClickPos[2] + pos[2]) / 2) + 0.5,

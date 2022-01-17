@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-
 import { reactive } from 'vue';
 
 export var materialData = {
@@ -27,7 +25,3 @@ for (let i in materialIndex){
     data[i*4+2] = materialData[materialIndex[i]].color[2]
     data[i*4+3] = materialData[materialIndex[i]].transparency
 }
-
-export const texture = new THREE.DataTexture(data, nbMaterial*tileSize, tileTextureHeight*tileSize, THREE.RGBAFormat);
-texture.magFilter = THREE.NearestFilter;
-texture.minFilter = THREE.NearestFilter;

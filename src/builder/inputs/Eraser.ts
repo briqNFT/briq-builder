@@ -1,22 +1,22 @@
 import { MouseInputState } from './BuilderInputState';
-import { previewCube } from '../graphics/PreviewCube'
+import getPreviewCube from '../graphics/PreviewCube'
 import { store } from '../../store/Store'
 
-import * as THREE from 'three'
+import { THREE } from '../../three';
 
 export class EraserInput extends MouseInputState
 {
     lastClickPos: [number, number, number] | undefined;
 
     onEnter() {
-        previewCube.visible = false;
-        previewCube.scale.set(1.1, 1.1, 1.1);
-        (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);
+        getPreviewCube().visible = false;
+        getPreviewCube().scale.set(1.1, 1.1, 1.1);
+        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);
     }
 
     onExit() {
-        previewCube.scale.set(1, 1, 1);
-        previewCube.visible = false;
+        getPreviewCube().scale.set(1, 1, 1);
+        getPreviewCube().visible = false;
     }
 
     onPointerMove(event: PointerEvent)
@@ -27,11 +27,11 @@ export class EraserInput extends MouseInputState
         
         // If the position is on the ground the intersection didn't return a cell.
         if (pos[1] < 0)
-            previewCube.visible = false;
+            getPreviewCube().visible = false;
         else
         {
-            previewCube.visible = true;
-            previewCube.position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
+            getPreviewCube().visible = true;
+            getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
         }
     }
 
@@ -71,12 +71,12 @@ export class EraserMultiInput extends MouseInputState
             throw new Error("Error: EraserMultiInput must have a well defined event position on entry");
         
         this.fsm.orbitControls.enabled = false;
-        previewCube.visible = true;
-        (previewCube.material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);
+        getPreviewCube().visible = true;
+        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(0x962400);
     }
 
     onExit() {
-        previewCube.visible = false;
+        getPreviewCube().visible = false;
         this.fsm.orbitControls.enabled = true;
     }
 
@@ -86,8 +86,8 @@ export class EraserMultiInput extends MouseInputState
         if (!pos)
             return;
 
-        previewCube.scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1.1, Math.abs(this.lastClickPos[1] - pos[1]) + 1.1, Math.abs(this.lastClickPos[2] - pos[2]) + 1.1);
-        previewCube.position.set(
+        getPreviewCube().scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1.1, Math.abs(this.lastClickPos[1] - pos[1]) + 1.1, Math.abs(this.lastClickPos[2] - pos[2]) + 1.1);
+        getPreviewCube().position.set(
             ((this.lastClickPos[0] + pos[0]) / 2) + 0.5,
             ((this.lastClickPos[1] + pos[1]) / 2) + 0.5,
             ((this.lastClickPos[2] + pos[2]) / 2) + 0.5,
