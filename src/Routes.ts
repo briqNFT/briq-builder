@@ -1,12 +1,17 @@
-import Builder from './components/builder/Builder.vue'
 import Legal from './components/Legal.vue'
-import Admin from './components/Admin.vue'
-import SetBrowser from './components/builder/set_browser/SetBrowser.vue'
-import ShareView from './components/builder/share/Share.vue'
-import Gallery from './components/builder/gallery/Gallery.vue'
 import LandingPage from './components/landing_page/LandingPage.vue'
-import Debug from './components/debug/Debug.vue'
 import Team from './components/team/Team.vue'
+
+var loader;
+async function loadExtraPages()
+{
+    loader = await import('./Dispatch');
+    await loader.Store.isLoaded;
+}
+
+// After a few seconds, preload the rest of the JS anyways,
+// under the assumption that the user might want it soon anyways.
+setTimeout(loadExtraPages, 5000);
 
 export const routes = [
     {
@@ -15,34 +20,34 @@ export const routes = [
         component: LandingPage,
     },
     {
-        path: "/builder",
-        name: "Builder",
-        component: Builder,
-    },
-    {
         path: "/legal",
         name: "Legal",
         component: Legal,
     },
     {
-        path: "/admin",
-        name: "Admin",
-        component: Admin,
+        path: "/team",
+        name: "Team",
+        component: Team
     },
     {
-        path: "/browse_sets",
-        name: "Browse Sets",
-        component: SetBrowser
+        path: "/builder",
+        name: "Builder",
+        component: async () => { await loadExtraPages(); return loader.Builder },
+    },
+    {
+        path: "/admin",
+        name: "Admin",
+        component: async () => { await loadExtraPages(); return loader.Admin },
     },
     {
         path: "/debug/:address?",
         name: "Debug",
-        component: Debug
+        component: async () => { await loadExtraPages(); return loader.Debug },
     },
     {
         path: "/share",
         name: "Share",
-        component: ShareView,
+        component: async () => { await loadExtraPages(); return loader.Share },
         props(route: any) {
             return route.query || {}
         }
@@ -50,11 +55,6 @@ export const routes = [
     {
         path: "/gallery",
         name: "Gallery",
-        component: Gallery,
-    },
-    {
-        path: "/team",
-        name: "Team",
-        component: Team
+        component: async () => { await loadExtraPages(); return loader.Gallery },
     },
 ];

@@ -4,7 +4,7 @@ import { createApp } from 'vue'
 import './index.css'
 
 import App from './App.vue'
-let app = createApp(App);
+export var app = createApp(App);
 
 // Routing
 import { createWebHistory, createRouter } from "vue-router";
@@ -24,15 +24,9 @@ import Hotkey from './components/generic/Hotkey.vue';
 app.component("Btn", Button);
 app.component("Hotkey", Hotkey);
 
-// Load general store
-import { store } from './store/Store'
-app.use(store);
-
-import { THREE } from './three';
 async function start()
 {
-    await THREE;
-    app.mount('#app')    
+    app.mount('#app')
 }
 
 start();

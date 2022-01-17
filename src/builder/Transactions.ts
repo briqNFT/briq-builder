@@ -1,5 +1,3 @@
-import * as starknet from 'starknet';
-
 import { reactive, watch, watchEffect, toRef } from 'vue';
 import { store } from "../store/Store";
 

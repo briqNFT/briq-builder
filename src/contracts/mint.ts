@@ -1,9 +1,4 @@
-import { getSelectorFromName } from 'starknet/utils/stark';
-import { toBN } from 'starknet/utils/number';
-
-import { AddTransactionResponse } from 'starknet';
-
-import { Args, Contract, Provider, Signer } from 'starknet';
+import type { Provider, Signer } from 'starknet';
 
 import MintABI from './mint_proxy_abi.json'
 import ExtendedContract from './Abstraction';
