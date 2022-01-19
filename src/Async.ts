@@ -51,6 +51,11 @@ export async function ignoreOutdated<T>(func: (...args: any[]) => Promise<T>): P
     return ret!;
 }
 
+export function isOutdated(error: any)
+{
+    return error instanceof OutdatedPromiseError;
+}
+
 /**
  * Similar to watchEffect, but awaitable. Given watchEffect runs immediately (but executes on next tick I think), this shouldn't be too slow.
  * Convenient in case you want to await on an async side-effect.

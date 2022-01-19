@@ -80,7 +80,7 @@ export default defineComponent({
     },
     props: ["metadata"],
     emits: ["close"],
-    inject: ["messages", "reportError"],
+    inject: ["messages", "reportError", "chainBriqs"],
     async mounted() {
         this.tx = transactionsManager.get("mint_proxy").filter(x => x.isOk())?.[0];
         if (this.tx)
@@ -123,7 +123,7 @@ export default defineComponent({
                 mintProxyStore.canMint = false;
                 mintProxyStore.hasMinted = true;
                 this.messages.pushMessage("Starting briqs successfully claimed !");
-                this.$store.dispatch('builderData/get_briqs');
+                this.chainBriqs.loadFromChain();
                 return;
             }
             setTimeout(async () => {

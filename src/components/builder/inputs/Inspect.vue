@@ -9,7 +9,7 @@ import { pushModal } from "../../Modals.vue";
         <template v-if="selection.selectedBriqs.length <= 2">
             <div  class="bg-briq dark:bg-briq-darker rounded-md px-2 py-1" v-for="briqId of selection.selectedBriqs">
                 <p class="text-sm tracking-tighter break-all">{{ getBriqIdentifier(selection.set?.briqsDB.get(briqId).id) }}</p>
-                <Btn :disabled="$store.state.builderData.briqsDB.briqs.size === 0" @click="openSwapModal(briqId)">Swap briq</Btn>
+                <Btn :disabled="briqsDB.briqs.size === 0" @click="openSwapModal(briqId)">Swap briq</Btn>
             </div>
         </template>
         <template v-else="">
@@ -31,10 +31,12 @@ import { builderInputFsm } from "../../../builder/inputs/BuilderInput"
 
 import { defineComponent } from 'vue';
 export default defineComponent({
+    inject: ["chainBriqs"],
     data() {
         return {
             fsm: builderInputFsm.state.gui,
             selection: builderInputFsm.store.selectionMgr,
+            briqsDB: this.chainBriqs.DB,
         };
     },
     methods: {
@@ -49,7 +51,7 @@ export default defineComponent({
                 await this.$store.dispatch("builderData/swap_briqs", [[briqId, choice.briq.id]]);
         },
         getBriqIdentifier(id: string) {
-            if (this.$store.state.builderData.briqsDB.briqs.has(id))
+            if (this.briqsDB.briqs.has(id))
                 return id;
             return "Temporary briq";
         }

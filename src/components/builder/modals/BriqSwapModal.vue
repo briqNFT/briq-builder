@@ -27,12 +27,13 @@ export default defineComponent({
             selectedBriq: undefined as Briq | undefined,
         }
     },
+    inject: ["chainBriqs"],
     emits: ["close"],
     props: ["metadata"],
     computed: {
         briqs() {
             let ret: Array<Briq> = [];
-            (this.$store.state.builderData.briqsDB as BriqsDB).briqs.forEach((x: Briq) => {
+            this.chainBriqs.DB.briqs.forEach((x: Briq) => {
                 if (this.metadata.exclude && this.metadata.exclude.indexOf(x.id) !== -1)
                     return;
                 if (x.partOfSet())

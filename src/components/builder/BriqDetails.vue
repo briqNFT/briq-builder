@@ -2,7 +2,7 @@
     <div class="px-4 py-2 text-right">
         <h3 class="w-full">Briq details</h3>
         <p>Total briqs owned: {{ balance }} 
-            <button :disabled="fetchingBriqs" @click="getBalance(); $store.dispatch('builderData/try_fetching_user_data')">
+            <button :disabled="fetchingBriqs" @click="getBalance(); chainBriqs.loadFromChain()">
                 <i :class="'fas ' + (fetchingBriqs ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
             </button>
         </p>
@@ -25,7 +25,7 @@ export default defineComponent({
     data() {
         return {
             data: this.$store.state.builderData,
-            briqsDB: this.$store.state.builderData.briqsDB,
+            briqsDB: this.chainBriqs.DB,
             balance: undefined as undefined | number,
         };
     },
@@ -34,7 +34,7 @@ export default defineComponent({
             this.getBalance();
         })
     },
-    inject: ['messages'],
+    inject: ['messages', 'chainBriqs'],
     computed: {
         chainSets() {
             return setsManager.setList.map(x => setsManager.setsInfo[x]).filter(x => x.status !== 'LOCAL');

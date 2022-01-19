@@ -1,6 +1,4 @@
-import { toRef, watchEffect } from 'vue'
-
-import { Briq, BriqsDB } from './BriqsDB';
+import type { Briq, BriqsDB } from './BriqsDB';
 import { SetData } from './SetData';
 
 import { registerUndoableAction } from "./UndoRedo"
@@ -29,8 +27,6 @@ export var builderDataStore = (() => {
         namespaced: true,
         state: () => ({
             currentSet: initSet,
-            briqsDB: new BriqsDB(),
-            fetchingBriqs: false,
         }),
         actions: {
             initialize: {
@@ -38,33 +34,6 @@ export var builderDataStore = (() => {
                 handler: async ({ state, dispatch, commit, getters, rootState }: any) => {
                     setupSync();
                 },
-            },
-            async try_fetching_user_data({ state, dispatch, rootState }: any, data: any)
-            {
-                if (!try_fetching_user_data_func)
-                try_fetching_user_data_func = (async () => {
-                    await dispatch("get_briqs");
-                    try_fetching_user_data_func = undefined;
-                })();
-                await try_fetching_user_data_func;
-            },
-            async get_briqs({ commit, state, rootState }: any)
-            {
-                if (!contractStore.briq)
-                    return;
-                try {
-                    commit("fetching_briqs", true);
-                    let bricks = (await contractStore.briq.get_all_tokens_for_owner(rootState.wallet.userWalletAddress));
-                    commit("set_briqs", bricks);
-                    pushMessage("Successfully fetched " + bricks.length/3 + " briqs");
-                }
-                catch(err)
-                {
-                    pushMessage("Error fetching briqs - see console for details");
-                    reportError(err);
-                    console.error(err);
-                }
-                commit("fetching_briqs", false);
             },
             ////////////
             //// Local set Management
@@ -85,9 +54,9 @@ export var builderDataStore = (() => {
             {
                 commit("change_set_name", payload);
             },
-            swap_for_real_briqs({ commit }: any)
+            swap_for_real_briqs({ commit }: any, data: { briqsDB: BriqsDB })
             {
-                commit("swap_for_real_briqs");
+                commit("swap_for_real_briqs", data);
             },
             swap_for_fake_briqs({ commit }: any)
             {
@@ -119,7 +88,7 @@ export var builderDataStore = (() => {
                 commit("undo_clear", data);
             },
 
-            swap_briqs({ commit }: any, data: Array<[string, string]>)
+            swap_briqs({ commit }: any, data: { briqsDB: BriqsDB, swaps: Array<[string, string]>})
             {
                 commit("swap_briqs", data);
             },
@@ -155,16 +124,6 @@ export var builderDataStore = (() => {
                 state.currentSet.deserialize(data);
                 inputStore.selectionMgr.clear();
                 dispatchBuilderAction("select_set", state.currentSet);
-            },
-                        
-            fetching_briqs(state: any, data: boolean)
-            {
-                state.fetchingBriqs = data;
-            },
-            
-            set_briqs(state: any, data: string[])
-            {
-                state.briqsDB.parseChainData(data);
             },
             
             place_briq(state: any, data: any)
@@ -232,9 +191,9 @@ export var builderDataStore = (() => {
             {
                 data.set.name = data.name;
             },
-            swap_for_real_briqs(state: any)
+            swap_for_real_briqs(state: any, data: { briqsDB: BriqsDB })
             {
-                state.currentSet.swapForRealBriqs(state.briqsDB);
+                state.currentSet.swapForRealBriqs(data.briqsDB);
                 inputStore.selectionMgr.clear();
             },
             swap_for_fake_briqs(state: any)
@@ -255,11 +214,11 @@ export var builderDataStore = (() => {
                 dispatchBuilderAction("select_set", state.currentSet);
             },
 
-            swap_briqs(state: any, data: Array<[string, string]>)
+            swap_briqs(state: any, data: { briqsDB: BriqsDB, swaps: Array<[string, string]>})
             {
-                for (let [ogId, newId] of data)
+                for (let [ogId, newId] of data.swaps)
                 {
-                    state.currentSet.swapBriq(ogId, state.briqsDB.get(newId));
+                    state.currentSet.swapBriq(ogId, data.briqsDB.get(newId));
                     inputStore.selectionMgr.replace(ogId, newId);
                 }
                 dispatchBuilderAction("select_set", state.currentSet);

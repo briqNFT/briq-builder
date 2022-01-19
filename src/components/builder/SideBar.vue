@@ -42,13 +42,14 @@ export default defineComponent({
             inputStore
         };
     },
+    inject: ["chainBriqs"],
     computed: {
         editMode() {
             return !inputStore.forceInput && setsManager.getInfo(this.$store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
         },
         getNbBriqs() {
             let total = 0;
-            this.$store.state.builderData.briqsDB.briqs.forEach(x => total += +(!x.partOfSet()));
+            this.chainBriqs.DB.briqs.forEach(x => total += +(!x.partOfSet()));
             if (!total)
                 return '0 briqs left';
             for (let mat in this.$store.state.builderData.currentSet.usedByMaterial)
