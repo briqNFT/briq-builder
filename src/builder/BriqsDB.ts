@@ -49,16 +49,23 @@ export class Briq
         this.color = data.color;
         return this;
     }
+
+    clone(): Briq
+    {
+        let ret = new Briq(this.id, this.material, this.set);
+        ret.color = this.color;
+        ret.onChain = this.onChain;
+        return ret;
+    }
+
 }
 
 export class BriqsDB
 {
     briqs: Map<string, Briq>
-    chainDb?: BriqsDB
-    constructor(chainDb?: BriqsDB)
+    constructor()
     {
         this.briqs = new Map();
-        this.chainDb = chainDb;
     }
 
     deserializeBriq(data: any): Briq
@@ -116,23 +123,5 @@ export class BriqsDB
         let briq = new Briq(id, material, set);
         this.briqs.set(briq.id, briq);
         return briq;
-    }
-
-    cloneBriq(id: string, from: BriqsDB): Briq
-    {
-        let br = from.get(id)!;
-        let ret = new Briq(id, br.material, br.set);
-        ret.color = br.color;
-        return ret;
-    }
-
-    getAvailableBriq(material: number): string | undefined
-    {
-        for (let briq of this.briqs.values())
-        {
-            if (!briq.set && briq.material === material)
-                return briq.id;
-        }
-        return undefined;
     }
 }
