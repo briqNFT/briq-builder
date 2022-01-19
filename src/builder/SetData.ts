@@ -10,15 +10,12 @@ export class SetData
 
     regionSize: number;
     // Indexed by region & cell
-    briqs: Map<number, Map<number, string>>;
+    briqs: Map<number, Map<number, Briq>>;
 
     usedByMaterial: { [key:string]: number };
 
-    // This briqsDB is unique to the set.
-    briqsDB: BriqsDB
-
     // Region/Cell ID of each briq, by ID
-    briqPos: Map<string, [number, number]>;
+    // briqPos: Map<string, [number, number]>;
 
     constructor(id: string)
     {
@@ -29,17 +26,12 @@ export class SetData
         this.regionSize = 10;
         this.briqs = new Map();
         this.usedByMaterial = {};
-
-        this.briqsDB = new BriqsDB();
-        this.briqPos = new Map();
     }
 
     reset()
     {
         this.briqs = new Map();
         this.usedByMaterial = {};
-        this.briqsDB.reset();
-        this.briqPos = new Map();
     }
 
     serialize()
@@ -50,8 +42,7 @@ export class SetData
         ret.regionSize = 10;
         ret.briqs = [];
         this.briqs.forEach((region, regionId) => {
-            region.forEach((cellId, cellPos) => {
-                let cell = this.briqsDB.get(cellId)!;
+            region.forEach((cell, cellPos) => {
                 let data = {
                     pos: this.to3DPos(regionId, cellPos),
                     data: cell.serialize()
@@ -71,7 +62,7 @@ export class SetData
         this.regionSize = data.regionSize;
         for (let briq of data.briqs)
         {
-            let cell = this.briqsDB.deserializeBriq(briq.data);
+            let cell = new Briq().deserialize(briq.data);
             this.placeBriq(briq.pos[0], briq.pos[1], briq.pos[2], cell.color, cell.material, cell.id);
         }
         return this;
@@ -87,14 +78,27 @@ export class SetData
     forEach(callable: (cell: Briq, pos: [number, number, number]) => any)
     {
         this.briqs.forEach((region, regionId) => {
-            region.forEach((cellId, cellPos) => {
-                let cell = this.briqsDB.get(cellId);
-                if (!cell)
-                    throw new Error("Impossible");
+            region.forEach((briq, cellPos) => {
                 let pos = this.to3DPos(regionId, cellPos);
-                callable(cell, pos);
+                callable(briq, pos);
             });
         });
+    }
+
+    getNbBriqs()
+    {
+        let nb = 0;
+        this.briqs.forEach((region, _) => nb += region.size);
+        return nb;
+    }
+
+    getAllBriqs()
+    {
+        let ret = [] as Briq[];
+        this.briqs.forEach((region, regionId) => {
+            region.forEach((briq, _) => ret.push(briq));
+        });
+        return ret;
     }
 
     getAt(x: number, y: number, z: number): Briq | undefined
@@ -102,12 +106,10 @@ export class SetData
         let [regionId, cellId] = this.computeIDs(x, y, z);
         if (!this.briqs.has(regionId))
             return;
-        let briqId = this.briqs.get(regionId)!.get(cellId);
-        if (!briqId)
-            return;
-        return this.briqsDB.get(briqId);
+        return this.briqs.get(regionId)!.get(cellId);
     }
 
+    /*
     swapBriq(ogId: string, nv: Briq)
     {
         let pos = this.briqPos.get(ogId);
@@ -123,6 +125,7 @@ export class SetData
         this.briqPos.delete(ogId);
         this.briqsDB.briqs.delete(ogId);
     }
+    */
 
     modifyBriq(x: number, y: number, z: number, data: any): Briq
     {
@@ -157,15 +160,11 @@ export class SetData
 
         // TODO: plan is that you can place a specific briq from the real world, but I need to handle that better
         // In particular I need to handle trying to place the same briq in 2 different spots.
-        let actualBriq = this.briqsDB.getOrCreate(briq);
-        if (!actualBriq)
-            return false;
-        actualBriq.material = cellKind;
+        let actualBriq = new Briq(briq || `${cellKind}`, cellKind, this.id);
         actualBriq.color = color;
-        actualBriq.set = this.id;
         
-        this.briqs.get(regionId)!.set(cellId, actualBriq.id);
-        this.briqPos.set(actualBriq.id, [regionId, cellId]);
+        this.briqs.get(regionId)!.set(cellId, actualBriq);
+        //this.briqPos.set(actualBriq.id, [regionId, cellId]);
 
         if (!this.usedByMaterial[cellKind])
             this.usedByMaterial[cellKind] = 0;
@@ -179,19 +178,15 @@ export class SetData
         let [regionId, cellId] = this.computeIDs(x, y, z);
         if (!this.briqs.has(regionId))
             return true;
-        let briqId = this.briqs.get(regionId)!.get(cellId);
-        if (!briqId)
-            return true;
-        let briq = this.briqsDB.get(briqId);
+        let briq = this.briqs.get(regionId)!.get(cellId);
         if (!briq)
             return true;
-        
+
         if (briq.material)
             --this.usedByMaterial[briq.material];
         
         this.briqs.get(regionId)!.delete(cellId);
-        this.briqPos.delete(briq.id);
-        this.briqsDB.briqs.delete(briq.id);
+        //this.briqPos.delete(briq.id);
 
         return true;
     }
@@ -203,8 +198,7 @@ export class SetData
             let [regionId, cellId] = this.computeIDs(pos[0] + x, pos[1] + y, pos[2] + z);
             if (!ret.has(regionId))
                 ret.set(regionId, new Map());
-            ret.get(regionId).set(cellId, briq.id);
-            this.briqPos.set(briq.id, [regionId, cellId]);
+            ret.get(regionId).set(cellId, briq);
         })
         this.briqs = ret;
     }
@@ -259,19 +253,24 @@ export class SetData
 
     swapForRealBriqs(chainDB: BriqsDB)
     {
+        let usageByTokenId = {} as { [token_id: string]: number};
+        this.forEach((cell, _) => {
+            if (!usageByTokenId[cell.id])
+                usageByTokenId[cell.id] = 0;
+                ++usageByTokenId[cell.id];
+        })
         var available_by_matos: any = {
             "1": [],
             "2": [],
             "3": [],
             "4": [],
         };
-        for (const brick of chainDB.briqs.values())
+        for (const briq of chainDB.briqs.values())
         {
-            if (brick.partOfSet())
+            if (briq.partOfSet())
                 continue;
             // Already used.
-            if (this.briqsDB.briqs.has(brick.id))
-                continue;
+
             available_by_matos[brick.material].push(brick.id);
         }
         let swaps: Array<[string, Briq]> = [];
@@ -312,4 +311,5 @@ export class SetData
             });
         });
     }
+    */
 }

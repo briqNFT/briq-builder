@@ -75,16 +75,6 @@ export class BriqsDB
         return cell;
     }
 
-    parseChainData(jsonResponse: string[])
-    {
-        for (let i = 0; i < jsonResponse.length / 3; ++i)
-        {
-            let briq = new Briq(jsonResponse[i*3 + 0], parseInt(jsonResponse[i*3 + 1], 16), jsonResponse[i*3 + 2]);
-            briq.onChain = true;
-            this.briqs.set(briq.id, briq);
-        }
-    }
-
     reset()
     {
         this.briqs = new Map();

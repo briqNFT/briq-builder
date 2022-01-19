@@ -52,8 +52,8 @@ export default defineComponent({
         briqs(): Array<[string, Briq]> {
             if (this.setup === "all")
                 return Array.from(this.chainBriqs.DB.briqs as Map<string, Briq>);
-            else if (this.setup === "current")
-                return Array.from(this.$store.state.builderData.currentSet.briqsDB.briqs as Map<string, Briq>);
+            //else if (this.setup === "current")
+            //    return Array.from(this.$store.state.builderData.currentSet.briqsDB as Map<string, Briq>);
             else
                 return [];
         }

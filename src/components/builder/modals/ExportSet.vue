@@ -45,7 +45,7 @@
                     </div>
                     <div class="flex-none w-full">
                         <h3 class="text-center">{{ set.name }}</h3>
-                        <h4 class="text-center">{{ set.briqsDB.briqs.size }} briqs</h4>
+                        <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
                         <div class="flex justify-around items-center">
                             <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-xl" :src="screenshot"/></p>
                         </div>
@@ -197,11 +197,6 @@ export default defineComponent({
             }
             return exportSet;
         },
-        briqsForExport() {
-            if (!this.exportSet)
-                return [];
-            return Array.from(this.exportSet.briqsDB.briqs.values());
-        }
     },
     methods: {
         async prepareImage(img: HTMLImageElement): Promise<string>
