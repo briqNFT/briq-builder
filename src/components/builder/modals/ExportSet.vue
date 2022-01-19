@@ -62,8 +62,8 @@
                                 <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
                                 <div v-else-if="!hasBriqsAndSets">
                                     <p>briqs need to be loaded before you can export a set.</p>
-                                    <p v-if="$store.state.builderData.fetchingBriqs">...Please wait while briqs are loading...</p>
-                                    <p v-else="">There was an error loading briqs. <button @click="$store.dispatch('builderData/try_fetching_user_data')">Click to retry</button></p>
+                                    <p v-if="chainBriqs.fetchingBriqs">...Please wait while briqs are loading...</p>
+                                    <p v-else="">There was an error loading briqs. <button @click="chainBriqs.loadFromChain()">Click to retry</button></p>
                                 </div>
                                 <p v-else="">Assemble briqs into a set on the blockchain</p>
                             </div>
@@ -132,11 +132,12 @@ export default defineComponent({
             screenshot: "" as string,
             screenshotPromise: undefined as Promise<string> | undefined,
             ogImage: "" as string,
+            briqsDB: this.chainBriqs.DB as BriqsDB,
         };
     },
     props: ["metadata"],
     emits: ["close", "hide", "show"],
-    inject: ["messages", "reportError"],
+    inject: ["messages", "reportError", "chainBriqs"],
     async beforeMount() {
         // Hide until we've screenshotted, or the window 'pops'.
         this.$emit('hide');
@@ -173,7 +174,7 @@ export default defineComponent({
         },
         hasBriqsAndSets() {
             // Assume having 0 briqs is an error.
-            return this.$store.state.builderData.briqsDB.briqs.size;
+            return this.briqsDB.briqs.size;
         },
         notEnoughBriqs() {
             // if there is no exportable set, then we have some briq-related issue.
@@ -181,16 +182,15 @@ export default defineComponent({
         },
         exportSet() {
             let data = this.set.serialize();
-            const chainBriqs: BriqsDB = this.$store.state.builderData.briqsDB;
             let exportSet = new SetData(data.id);
             exportSet.deserialize(data);
             let userCustom = [];
             exportSet.forEach((briq: Briq) => {
-                if (chainBriqs.briqs.has(briq.id))
+                if (this.briqsDB.briqs.has(briq.id))
                     userCustom.push(briq.id);
             });
             try {
-                exportSet.swapForRealBriqs(chainBriqs);
+                exportSet.swapForRealBriqs(this.briqsDB);
             }
             catch (err) {
                 return undefined;

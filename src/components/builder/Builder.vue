@@ -37,16 +37,27 @@ import contractStore from '../../Contracts';
 import { watchEffectAndWait } from '../../Async';
 
 import { pushMessage, setTooltip } from '../../Messages'
-import { defineComponent, watchEffect } from 'vue';
+import { defineComponent, reactive, watchEffect, toRef } from 'vue';
+
+import { createChainBriqs } from '../../builder/ChainBriqs';
+
+let chainBriqsDB = createChainBriqs();
 export default defineComponent({
     data() {
         return {
         };
     },
     provide: {
+        chainBriqs: chainBriqsDB,
         messages: {
             pushMessage, setTooltip
         },
+    },
+    created() {
+        chainBriqsDB.setAddress(toRef(this.$store.state.wallet, "userWalletAddress"));
+        watchEffect(() => {
+            chainBriqsDB.setContract(contractStore.briq);
+        });
     },
     async mounted() {
         setsManager.loadFromStorage();
