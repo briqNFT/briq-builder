@@ -284,10 +284,11 @@ export class SetData
                     if (set === this.id || !chainDB.briqs.get(cell.id)!.partOfSet())
                         return;
                 }
-                let newBriq = this.briqsDB.cloneBriq(available_by_matos[cell.material].splice(0, 1)[0], chainDB);
+                if (!available_by_matos[cell.material].length)
+                    throw new Error("Not enough bricks to convert to real briqs");
+                let newBriq = chainDB.get(available_by_matos[cell.material].splice(0, 1)[0])!.clone();
                 // Copy metadata from the original briq.
                 newBriq.color = cell.color;
-                newBriq.onChain = true;
                 swaps.push([cell.id, newBriq]);
             });
         });
