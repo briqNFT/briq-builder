@@ -7,7 +7,7 @@
             Click on any of see what they look like.<br/>
             Send us your own sets on <a href="https://discord.gg/kpvbDCw5pr">Discord</a> or <a href="https://twitter.com/briqs_">Twitter</a> and we'll add them here!</p>
             <div class="flex justify-center gap-10 text-5xl mt-8 mb-8">
-                <a href="https://twitter.com/briqs_" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
+                <a href="https://twitter.com/briqNFT" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
                 <a href="https://discord.gg/kpvbDCw5pr" target="_blank"><p><i class="fab fa-discord"></i></p></a>
             </div>
 

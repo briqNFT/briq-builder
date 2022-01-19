@@ -82,9 +82,9 @@ import AlphaBanner from '../AlphaBanner.vue';
                 </div>
             </div>
             <div class="flex justify-center gap-10 !my-10 text-5xl">
-                <a href="https://twitter.com/briqs_" rel="noopener" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
+                <a href="https://twitter.com/briqNFT" rel="noopener" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
                 <a href="https://discord.gg/kpvbDCw5pr" rel="noopener" target="_blank"><p><i class="fab fa-discord"></i></p></a>
-                <a href="https://github.com/S-L-Technologies/" rel="noopener" target="_blank"><p><i class="fab fa-github"></i></p></a>
+                <a href="https://github.com/briqNFT/" rel="noopener" target="_blank"><p><i class="fab fa-github"></i></p></a>
             </div>
             <div>
                 <p class="font-light">Copyright © 2021 S&L Technologies. All rights reserved. <router-link class="font-medium px-4" to="/legal">Legal terms</router-link></p>

@@ -31,9 +31,9 @@ import StarkwareIcon from '../../assets/starkware.png'
             </div>
         </div>
         <div class="flex justify-center gap-10 !my-16 py-16 text-5xl bg-briq-dark">
-            <a href="https://twitter.com/briqs_" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
+            <a href="https://twitter.com/briqNFT" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
             <a href="https://discord.gg/kpvbDCw5pr" target="_blank"><p><i class="fab fa-discord"></i></p></a>
-            <a href="https://github.com/S-L-Technologies/" target="_blank"><p><i class="fab fa-github"></i></p></a>
+            <a href="https://github.com/briqNFT/" target="_blank"><p><i class="fab fa-github"></i></p></a>
         </div>
         <div class="py-8">
             <div class="flex justify-around flex-wrap">

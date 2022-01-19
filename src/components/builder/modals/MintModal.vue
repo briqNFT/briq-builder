@@ -9,7 +9,7 @@
             <template v-if="$store.state.wallet.baseUrl.indexOf('mainnet') !== -1 ">
             <div class="font-medium text-xl">
                 <p>Mission accomplished folks !<br/>briq was working so well that mainnet costs on L1 are too high for StarkWare, so we're temporarily turning Mainnet briq off.<br/>Please switch to Testnet to use Briq!<br/>
-                <br/>Follow this <a target="_blank" href="https://twitter.com/briqs_/status/1476284938773221382?ref_src=twsrc%5Etfw" class="underline">twitter thread</a> for more information.
+                <br/>Follow this <a target="_blank" href="https://twitter.com/briqNFT/status/1476284938773221382?ref_src=twsrc%5Etfw" class="underline">twitter thread</a> for more information.
                 </p>
             </div>
             <div class="flex justify-center my-4 gap-2">

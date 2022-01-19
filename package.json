@@ -1,6 +1,8 @@
 {
   "name": "briq-builder",
   "version": "0.5.0-alpha",
+  "description": "Frontend builder for the briq protocol",
+  "homepage": "https://github.com/briqNFT/briq-builder/",
   "scripts": {
     "dev": "vite",
     "build": "vite build --outDir dist/ && vite build --ssr server/main.ts --outDir dist/server",
@@ -14,7 +16,7 @@
     "@sentry/tracing": "^6.16.1",
     "@sentry/vue": "^6.16.1",
     "connect": "^3.7.0",
-    "json-bigint": "git+https://github.com/S-L-Technologies/json-bigint.git#fix-ts",
+    "json-bigint": "git+https://github.com/briqNFT/json-bigint.git#fix-ts",
     "starknet": "^2.7.0",
     "three": "^0.133.1",
     "uuid": "^8.3.2",
