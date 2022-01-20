@@ -219,7 +219,7 @@ export var builderDataStore = (() => {
                 for (let [ogId, newId] of data.swaps)
                 {
                     state.currentSet.swapBriq(ogId, data.briqsDB.get(newId));
-                    inputStore.selectionMgr.replace(ogId, newId);
+                    inputStore.selectionMgr.replace(ogId, data.briqsDB.get(newId)!);
                 }
                 dispatchBuilderAction("select_set", state.currentSet);
             },

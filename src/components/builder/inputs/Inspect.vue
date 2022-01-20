@@ -7,9 +7,9 @@ import { pushModal } from "../../Modals.vue";
     <!-- Sidebar bit -->
     <div class="alternate-buttons">
         <template v-if="selection.selectedBriqs.length <= 2">
-            <div  class="bg-briq dark:bg-briq-darker rounded-md px-2 py-1" v-for="briqId of selection.selectedBriqs">
-                <p class="text-sm tracking-tighter break-all">{{ getBriqIdentifier(selection.set?.briqsDB.get(briqId).id) }}</p>
-                <Btn :disabled="briqsDB.briqs.size === 0" @click="openSwapModal(briqId)">Swap briq</Btn>
+            <div  class="bg-briq dark:bg-briq-darker rounded-md px-2 py-1" v-for="briq of selection.selectedBriqs">
+                <p class="text-sm tracking-tighter break-all">{{ briq.id }}</p>
+                <Btn :disabled="briqsDB.briqs.size === 0" @click="openSwapModal(briq.temp_id)">Swap briq</Btn>
             </div>
         </template>
         <template v-else="">
@@ -51,9 +51,7 @@ export default defineComponent({
                 await this.$store.dispatch("builderData/swap_briqs", [[briqId, choice.briq.id]]);
         },
         getBriqIdentifier(id: string) {
-            if (this.briqsDB.briqs.has(id))
-                return id;
-            return "Temporary briq";
+            return id;
         }
     },
 })

@@ -7,11 +7,15 @@ export class Briq
     set: string;
     onChain: boolean;
 
+    // TEMPORARY - until we've updated to fungible tokens.
+    temp_id: string;
+
     color: string;
 
     constructor(id: string, material: number, set: string)
     {
-        this.id = id;
+        this.temp_id = id;
+        this.id = "0x1";
         this.material = material;
         this.set = set;
         this.onChain = false;
@@ -26,12 +30,13 @@ export class Briq
     serialize()
     {
         let ret: any = {
+            id: this.id,
             material: this.material,
             set: this.set,
             color: this.color
         }
         if (this.onChain)
-            ret.briq = this.id;
+            ret.briq = this.temp_id;
         return ret;
     }
 
@@ -39,11 +44,15 @@ export class Briq
     {
         if (data.briq)
         {
-            this.id = data.briq;
+            this.temp_id = data.briq;
+            this.id = "0x1";
             this.onChain = true;
         }
         else
-            this.id = hexUuid();
+        {
+            this.temp_id = hexUuid();
+            this.id = "0x1";
+        }
         this.material = data.material;
         this.set = data.set;
         this.color = data.color;
@@ -54,10 +63,15 @@ export class Briq
     {
         let ret = new Briq(this.id, this.material, this.set);
         ret.color = this.color;
+        ret.temp_id = this.temp_id;
         ret.onChain = this.onChain;
         return ret;
     }
 
+    getMaterial()
+    {
+        return 1;
+    }
 }
 
 export class BriqsDB
