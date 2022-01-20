@@ -1,4 +1,6 @@
+import { number } from 'starknet';
 import { Briq, BriqsDB } from './BriqsDB'
+import type { ChainBriqs } from './ChainBriqs';
 
 import { cellSize } from './Constants';
 
@@ -126,6 +128,17 @@ export class SetData
         this.briqsDB.briqs.delete(ogId);
     }
     */
+    _swapBriq(regionId: number, cellId: number, briq: Briq)
+    {
+        let og = this.briqs.get(regionId)?.get(cellId);
+        if (!og)
+            throw new Error(`Could not find original briq at ${this.to3DPos(regionId, cellId)}`);
+        this.briqs.get(regionId)?.set(cellId, briq);
+        if (og.getMaterial() === briq.getMaterial())
+            return;
+        --this.usedByMaterial[og.getMaterial()];
+        ++this.usedByMaterial[briq.getMaterial()];
+    }
 
     modifyBriq(x: number, y: number, z: number, data: any): Briq
     {
@@ -160,7 +173,7 @@ export class SetData
 
         // TODO: plan is that you can place a specific briq from the real world, but I need to handle that better
         // In particular I need to handle trying to place the same briq in 2 different spots.
-        let actualBriq = new Briq(briq || `${cellKind}`, cellKind, this.id);
+        let actualBriq = new Briq(briq || "0x1", cellKind, this.id);
         actualBriq.color = color;
         
         this.briqs.get(regionId)!.set(cellId, actualBriq);
@@ -251,50 +264,38 @@ export class SetData
         ];
     }
 
-    swapForRealBriqs(chainDB: BriqsDB)
+    swapForRealBriqs(chainBriqs: ChainBriqs)
     {
-        let usageByTokenId = {} as { [token_id: string]: number};
+        let usageByTokenId = {} as { [token_id: string]: { need: number, used: number } };
         this.forEach((cell, _) => {
             if (!usageByTokenId[cell.id])
-                usageByTokenId[cell.id] = 0;
-                ++usageByTokenId[cell.id];
+                usageByTokenId[cell.id] = { need: 0, used: 0};
+            if (cell.onChain)
+                ++usageByTokenId[cell.id].used;
+            else
+                ++usageByTokenId[cell.id].need;
         })
-        var available_by_matos: any = {
-            "1": [],
-            "2": [],
-            "3": [],
-            "4": [],
-        };
-        for (const briq of chainDB.briqs.values())
+        let candidates = {} as { [material: number]: Briq[] };
+        for (let token_id in usageByTokenId)
         {
-            if (briq.partOfSet())
-                continue;
-            // Already used.
-
-            available_by_matos[brick.material].push(brick.id);
+            let briqs = chainBriqs.getBriqs(token_id, usageByTokenId[token_id].need);
+            candidates[briqs[0].getMaterial()] = briqs;
         }
-        let swaps: Array<[string, Briq]> = [];
+        let swaps: Array<[number, number, Briq]> = [];
         this.briqs.forEach((region, regionId) => {
-            region.forEach((cellId, cellPos) => {
-                let cell = this.briqsDB.get(cellId)!;
-                if (cell.onChain)
-                {
-                    let set = chainDB.briqs.get(cell.id)!.set;
-                    if (set === this.id || !chainDB.briqs.get(cell.id)!.partOfSet())
-                        return;
-                }
-                if (!available_by_matos[cell.material].length)
-                    throw new Error("Not enough bricks to convert to real briqs");
-                let newBriq = chainDB.get(available_by_matos[cell.material].splice(0, 1)[0])!.clone();
-                // Copy metadata from the original briq.
-                newBriq.color = cell.color;
-                swaps.push([cell.id, newBriq]);
+            region.forEach((briq, cellId) => {
+                if (briq.onChain)
+                    return;
+                let matos = briq.getMaterial();
+                if (!candidates[matos].length)
+                    throw new Error("Not enough briqs to swap");
+                swaps.push([regionId, cellId, candidates[matos].splice(0, 1)[0]]);
             });
         });
         for (let swap of swaps)
-            this.swapBriq(swap[0], swap[1]);
+            this._swapBriq(swap[0], swap[1], swap[2]);
     }
-
+    /*
     swapForFakeBriqs()
     {
         this.briqs.forEach((region, regionId) => {

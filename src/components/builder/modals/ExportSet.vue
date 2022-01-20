@@ -132,7 +132,6 @@ export default defineComponent({
             screenshot: "" as string,
             screenshotPromise: undefined as Promise<string> | undefined,
             ogImage: "" as string,
-            briqsDB: this.chainBriqs.DB as BriqsDB,
         };
     },
     props: ["metadata"],
@@ -174,7 +173,7 @@ export default defineComponent({
         },
         hasBriqsAndSets() {
             // Assume having 0 briqs is an error.
-            return this.briqsDB.briqs.size;
+            return this.chainBriqs.getNbBriqs();
         },
         notEnoughBriqs() {
             // if there is no exportable set, then we have some briq-related issue.
@@ -184,13 +183,8 @@ export default defineComponent({
             let data = this.set.serialize();
             let exportSet = new SetData(data.id);
             exportSet.deserialize(data);
-            let userCustom = [];
-            exportSet.forEach((briq: Briq) => {
-                if (this.briqsDB.briqs.has(briq.id))
-                    userCustom.push(briq.id);
-            });
             try {
-                exportSet.swapForRealBriqs(this.briqsDB);
+                exportSet.swapForRealBriqs(this.chainBriqs);
             }
             catch (err) {
                 return undefined;

@@ -15,7 +15,7 @@ import Hotkey from '../generic/Hotkey.vue';
                 <div v-else="" class="inline-block text-sm leading-3">Unsupported<br/>network</div>
                 <template v-if="isConnected && contractStore.briq">
                     <i v-if="transactionsManager.anyPending() || chainBriqs.fetchingBriqs" class="fas fa-spinner animate-spin-slow"></i>
-                    <i v-if="!transactionsManager.anyPending() && !chainBriqs.fetchingBriqs && chainBriqs.DB.briqs.size > 0" class="fas fa-check"></i>
+                    <i v-if="!transactionsManager.anyPending() && !chainBriqs.fetchingBriqs && chainBriqs.getNbBriqs() > 0" class="fas fa-check"></i>
                 </template>
             </Btn>
             <div :class="'my-2 ' + (expanded ? 'pointer-events-auto': 'hidden')">

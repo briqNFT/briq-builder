@@ -1,4 +1,5 @@
 import type { SetData } from "../SetData";
+import type { Briq } from "../BriqsDB";
 
 import { THREE } from '../../three';
 
@@ -40,7 +41,7 @@ export const selectionRender = new SelectionRender();
 
 export class SelectionManager
 {
-    selectedBriqs: Array<string> = [];
+    selectedBriqs: Array<Briq> = [];
     set: SetData | undefined;
 
     selectSet(set: SetData)
@@ -64,7 +65,7 @@ export class SelectionManager
             this.clear();
             return;
         }
-        this.selectedBriqs = [briq.id];
+        this.selectedBriqs = [briq];
 
         if (selectionRender.mesh)
         {
@@ -74,7 +75,7 @@ export class SelectionManager
         }
     }
 
-    replace(ov: string, nv: string)
+    replace(ov: string, nv: Briq)
     {
         let ix = this.selectedBriqs.indexOf(ov);
         if (ix !== -1)

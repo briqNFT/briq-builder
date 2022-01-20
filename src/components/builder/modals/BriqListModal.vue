@@ -9,6 +9,7 @@
                 <!-- TODO -->
                 <!--<Btn v-for="set of sets" @click="setup = 'set'">Set {{ set }}</Btn>-->
             </div>
+            {{ chainBriqs.byTokenId }}
             <div class="h-5/6 overflow-auto">
                 <table class="text-justify font-mono text-xs">
                     <tr><th>ID</th><th>Color</th><th>Material</th><th>Set</th></tr>
@@ -39,7 +40,7 @@ import { setsManager } from '../../../builder/SetsManager';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
-    ionject: ["chainBriqs"],
+    inject: ["chainBriqs"],
     data() {
         return {
             setup: "all",
