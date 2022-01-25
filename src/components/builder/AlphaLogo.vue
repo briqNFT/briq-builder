@@ -14,7 +14,7 @@
     content: "alpha";
     font-style: italic;
 
-    @apply bg-briq-light px-2 py-0.5 text-deep-blue text-sm;
+    @apply bg-briq-light dark:bg-briq-dark px-2 py-0.5 text-deep-blue text-sm;
     position: absolute;
     bottom: 0;
     right: 0;

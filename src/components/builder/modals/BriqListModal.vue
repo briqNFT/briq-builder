@@ -14,9 +14,9 @@
                     <tr><th>ID</th><th>Color</th><th>Material</th><th>Set</th></tr>
                     <tr v-for="[id, briq] of briqs">
                         <td>{{ id }}</td>
-                        <td class="bg-briq-light bg-opacity-30">{{ briq.color }}</td>
+                        <td class="bg-briq-light dark:bg-briq-dark bg-opacity-30">{{ briq.color }}</td>
                         <td>{{ briq.material }}</td>
-                        <td class="bg-briq-light bg-opacity-30">{{ briq.set }}</td>
+                        <td class="bg-briq-light dark:bg-briq-dark bg-opacity-30">{{ briq.set }}</td>
                     </tr>
                 </table>
            </div>

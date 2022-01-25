@@ -14,7 +14,7 @@ import AlphaBanner from '../AlphaBanner.vue';
 </script>
 
 <template>
-    <div class="w-full h-full bg-briq text-white text-lg relative text-center font-sans alternate-buttons">
+    <div class="w-full h-full bg-briq dark:bg-briq-darker text-white dark:text-gray-200 text-lg relative text-center font-sans alternate-buttons">
         <Header></Header>
         <div class="row">
             <div class="flex flex-wrap justify-around md:my-6 my-10">
@@ -24,12 +24,12 @@ import AlphaBanner from '../AlphaBanner.vue';
                         <button @click="$router.push({ name: 'Builder' })"><span class="px-4 py-1 inline-block">Build</span></button>
                     </div>
                 </div>
-                <div class="centerall flex-1"><GMIcon class="lg:scale-100 scale-75"/></div>
+                <div class="centerall flex-1"><GMIcon class="lg:scale-100 scale-75 dark:opacity-80"/></div>
             </div>
         </div>
-        <div class="bg-briq-dark my-20 row">
+        <div class="bg-briq-dark dark:bg-briq-darkest my-20 row">
             <div class="flex flex-wrap justify-between">
-                <div class="md:centerleft centerall flex-auto"><ComposableIcon/></div>
+                <div class="md:centerleft centerall flex-auto"><ComposableIcon class="dark:opacity-80"/></div>
                 <div class="md:centerright centerall flex-initial">
                     <h2>NFTs should be composable</h2>
                     <p>briqs can be combined to create NFTs called sets.<br/>
@@ -39,7 +39,7 @@ import AlphaBanner from '../AlphaBanner.vue';
                 </div>
             </div>
         </div>
-        <div class="row bg-briq-dark my-20">
+        <div class="row bg-briq-dark dark:bg-briq-darkest my-20">
             <div class="flex flex-wrap justify-between">
                 <div class="centerall md:centerleft flex-initial">
                     <h2>NFTs should be interoperable</h2>
@@ -48,12 +48,12 @@ import AlphaBanner from '../AlphaBanner.vue';
                     Your NFTs are not stuck in a data silo, they can always be reused for something new.<br/>
                     briqs are NFTs that matter.</p>
                 </div>
-                <div class="centerall md:centerright flex-auto"><InteroperableIcon/></div>
+                <div class="centerall md:centerright flex-auto"><InteroperableIcon class="dark:opacity-80"/></div>
             </div>
         </div>
-        <div class="row bg-briq-dark my-20">
+        <div class="row bg-briq-dark dark:bg-briq-darkest my-20">
             <div class="flex flex-wrap justify-between">
-                <div class="centerall md:centerleft flex-auto"><OnChainIcon/></div>
+                <div class="centerall md:centerleft flex-auto"><OnChainIcon class="dark:opacity-80"/></div>
                 <div class="centerall md:centerright flex-initial">
                     <h2>NFTs should be On-Chain</h2>
                     <p>briqs and sets are stored on-chain for everyone to reuse.<br/>
@@ -143,7 +143,7 @@ button {
     content: "alpha";
     font-style: italic;
 
-    @apply bg-briq-light px-2 py-0.5 text-deep-blue text-sm;
+    @apply bg-briq-light dark:bg-briq px-2 py-0.5 text-deep-blue text-sm;
     position: absolute;
     top: 0;
     right: 0;

@@ -7,7 +7,7 @@ import { pushModal } from "../../Modals.vue";
     <!-- Sidebar bit -->
     <div class="alternate-buttons">
         <template v-if="selection.selectedBriqs.length <= 2">
-            <div  class="bg-briq rounded-md px-2 py-1" v-for="briqId of selection.selectedBriqs">
+            <div  class="bg-briq dark:bg-briq-darker rounded-md px-2 py-1" v-for="briqId of selection.selectedBriqs">
                 <p class="text-sm tracking-tighter break-all">{{ getBriqIdentifier(selection.set?.briqsDB.get(briqId).id) }}</p>
                 <Btn :disabled="$store.state.builderData.briqsDB.briqs.size === 0" @click="openSwapModal(briqId)">Swap briq</Btn>
             </div>
@@ -18,7 +18,7 @@ import { pushModal } from "../../Modals.vue";
     </div>
     <!-- Follows the mouse -->
     <div v-if="fsm?.briq" class="fixed pointer-events-none" :style="{ 'left': `${fsm.curX+20}px`, 'top': `${fsm.curY+20}px` }">
-        <div class="w-auto min-w-32 h-32 bg-briq p-2 rounded-md shadow-md">
+        <div class="w-auto min-w-32 h-32 bg-briq dark:bg-briq-darker p-2 rounded-md shadow-md">
         <h4>Briq: <span class="tracking-tighter">{{ getBriqIdentifier(fsm?.briq?.id ?? '') }}</span></h4>
         <p>Color: {{ fsm.briq.color }}</p>
         <p>Material: {{ mapMat(fsm.briq.material) }}</p>

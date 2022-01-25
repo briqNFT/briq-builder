@@ -5,7 +5,7 @@
             <h2 class="text-center w-full">Export set</h2>
             <h3 class="text-center">{{ metadata.set }}</h3>
             <div class="flex flex-nowrap items-center gap-3">
-                <div class="w-full bg-briq-light rounded-md flex justify-around items-center p-2 my-4">
+                <div class="w-full bg-briq-light dark:bg-briq-darkest rounded-md flex justify-around items-center p-2 my-4">
                     <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'METADATA'"><i :class="getStepIcon('METADATA')"></i>Details</button>
                     <i class="text-sm fas fa-arrow-right"></i>
                     <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'PREVIEW'"><i :class="getStepIcon('PREVIEW')"></i>Preview</button>
@@ -79,14 +79,14 @@
                             <div class="my-8"></div>
                             <p v-if="exporting === 'DONE'">You’ve successfully signed your transaction! It is now pending on StarkNet.<br />You can now close this modal.</p>
                             <p v-if="exporting === 'ERROR'">There was an error while exporting your set.<br/>The following step failed: {{ errorStep }}. Full error:<br/>
-                                <span class="bg-briq-light p-1 text-sm font-light tracking-tight">{{ errorDetails.toString() }}</span>
+                                <span class="bg-briq-light dark:bg-briq-darkest p-1 text-sm font-light tracking-tight">{{ errorDetails.toString() }}</span>
                             </p>
                             <Btn class="my-2" v-if="exporting === 'ERROR'" @click="exporting = 'METADATA'; errorStep = undefined">Start over</Btn>
                         </div>
                     </div>
                 </div>
             </div>
-            <div :class="'w-full bg-briq-light rounded-md flex justify-between items-center p-2 my-2' + (step(exporting) < step('SIGNING') ? '' : ' invisible')">
+            <div :class="'w-full bg-briq-light dark:bg-briq-darkest rounded-md flex justify-between items-center p-2 my-2' + (step(exporting) < step('SIGNING') ? '' : ' invisible')">
                 <Btn :disabled="step(exporting) > step('CONFIRMATION') || step(exporting) <= step('METADATA')" @click="exporting = exportSteps[step(exporting) - 1]"><span class="mx-4">Back</span></Btn>
                 <Btn v-if="step(exporting) < step('CONFIRMATION')" @click="exporting = exportSteps[step(exporting) + 1]"><span class="mx-4">Next</span></Btn>
             </div>

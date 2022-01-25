@@ -23,13 +23,13 @@ import AlphaLogo from './../AlphaLogo.vue';
             </div>
         </div>
         <div v-if="loadingStatus === 'loading'" class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
-            <div class="rounded-md bg-briq px-8 py-4">
+            <div class="rounded-md dark:bg-briq-dark px-8 py-4">
                 <h2 class="text-center p-2">Loading</h2>
                 <p class="text-lg">Set {{ set_id ?? '' }} is currently loading...</p>
             </div>
         </div>
         <div v-else-if="loadingStatus === 'error'" class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
-            <div class="rounded-md bg-briq px-8 py-4">
+            <div class="rounded-md bg-briq dark:bg-briq-dark px-8 py-4">
                 <h2 class="text-center p-2">Error loading set</h2>
                 <p class="text-lg">{{ loadingData.text }}</p>
                 <p class="alternate-buttons m-2"><router-link :to="{ name: 'Builder' }"><Btn class="m-auto block">Return to builder</Btn></router-link></p>

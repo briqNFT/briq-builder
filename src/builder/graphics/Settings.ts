@@ -1,11 +1,13 @@
 import { reactive, watchEffect, markRaw } from 'vue';
 
+import { useDarkMode } from '../../DarkMode';
+
 const store = reactive({
     useSAO: false,
     useRealAA: true,
-    planeColor: "#a93a00",
-    gridColor: "#eaeaea",
-    backgroundColor: "#eaeaea",
+    planeColor: useDarkMode() ? "#591f00" : "#a93a00",
+    gridColor: useDarkMode() ? "#999999" : "#eaeaea",
+    backgroundColor: useDarkMode() ? "#1e2229" : "#eaeaea",
     showBorders: false,
     showPlane: true,
     showGrid: true,
@@ -15,9 +17,9 @@ const store = reactive({
 export function resetStore() {
     store.useSAO = false;
     store.useRealAA = true;
-    store.planeColor = "#a93a00";
-    store.gridColor = "#eaeaea";
-    store.backgroundColor = "#eaeaea";
+    store.planeColor = useDarkMode() ? "#591f00" : "#a93a00";
+    store.gridColor = useDarkMode() ? "#999999" : "#eaeaea";
+    store.backgroundColor = useDarkMode() ? "#1e2229" : "#eaeaea";
     store.showBorders = false;
     store.showPlane = true;
     store.showGrid = true;

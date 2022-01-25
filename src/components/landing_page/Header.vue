@@ -1,5 +1,5 @@
 <template>
-    <div class="header m-auto flex justify-between items-center font-semibold text-white text-lg text-center font-sans alternate-buttons">
+    <div class="header m-auto flex justify-between items-center font-semibold text-white dark:text-gray-200 text-lg text-center font-sans alternate-buttons">
         <div class="text-xl">
             <a href="/"><h2 class="briq-logo">briq</h2></a>
         </div>
@@ -40,7 +40,7 @@ button {
     content: "alpha";
     font-style: italic;
 
-    @apply bg-briq-light px-2 py-0.5 text-deep-blue text-sm;
+    @apply bg-briq-light dark:bg-briq px-2 py-0.5 text-deep-blue text-sm;
     position: absolute;
     top: -1rem;
     right: -1rem;
