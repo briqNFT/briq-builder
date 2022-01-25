@@ -137,7 +137,7 @@ export default defineComponent({
             pushModal(ExportSet, { set: this.set.id });
         },
         openHelp() {
-            window.open('https://insidious-ginger-0f9.notion.site/briq-help-center-4a4958337970483dbfc2c1184290b42f','_blank');
+            window.open('https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f','_blank');
         }
     }
 })

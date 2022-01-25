@@ -7,7 +7,7 @@
             <div class="flex gap-4 flex-wrap justify-center md:justify-end">
                 <a href="/team"><p>Team</p></a>
                 <a href="/gallery"><p>Gallery</p></a>
-                <a href="https://insidious-ginger-0f9.notion.site/briq-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
+                <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
             </div>
             <div class="alpha-pill flex-none">
                 <button class="flex-none" @click="$router.push({ name: 'Builder' })"><span class="px-2">App</span></button>
