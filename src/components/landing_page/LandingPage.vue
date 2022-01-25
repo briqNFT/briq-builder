@@ -19,7 +19,7 @@ import AlphaBanner from '../AlphaBanner.vue';
         <div class="row">
             <div class="flex flex-wrap justify-around md:my-6 my-10">
                 <div class="centerall flex-1">
-                    <p class="md:my-4 my-8 text-2xl">Briq is NFT matter.<br/>Briqs build NFTs that matter.<br/>Seize the briqs of construction.</p>
+                    <p class="md:my-4 my-8 text-2xl">briq is NFT matter.<br/>briqs build NFTs that matter.<br/>Seize the briqs of construction.</p>
                     <div class="alpha-pill py-4 px-3">
                         <button @click="$router.push({ name: 'Builder' })"><span class="px-4 py-1 inline-block">Build</span></button>
                     </div>
@@ -31,22 +31,22 @@ import AlphaBanner from '../AlphaBanner.vue';
             <div class="flex flex-wrap justify-between">
                 <div class="md:centerleft centerall flex-auto"><ComposableIcon/></div>
                 <div class="md:centerright centerall flex-initial">
-                    <h2>NFTS should be composable</h2>
-                    <p>Briqs can be combined to create NFTs called sets.<br/>
+                    <h2>NFTs should be composable</h2>
+                    <p>briqs can be combined to create NFTs called sets.<br/>
                     Sets can be disassembled to get the briqs back and create something new.<br/>
                     Sets can be combined to create even more complex structures.<br/>
-                    Briqs are NFT matter.</p>
+                    briqs are NFT matter.</p>
                 </div>
             </div>
         </div>
         <div class="row bg-briq-dark my-20">
             <div class="flex flex-wrap justify-between">
                 <div class="centerall md:centerleft flex-initial">
-                    <h2>NFTS should be interoperable</h2>
-                    <p>Briqs and sets can be used in any game and can be interpreted as you see fit.<br/>
+                    <h2>NFTs should be interoperable</h2>
+                    <p>briqs and sets can be used in any game and can be interpreted as you see fit.<br/>
                     Build a car and race. Tear it apart and build a plane.<br/>
                     Your NFTs are not stuck in a data silo, they can always be reused for something new.<br/>
-                    Briqs are NFTs that matter.</p>
+                    briqs are NFTs that matter.</p>
                 </div>
                 <div class="centerall md:centerright flex-auto"><InteroperableIcon/></div>
             </div>
@@ -55,9 +55,9 @@ import AlphaBanner from '../AlphaBanner.vue';
             <div class="flex flex-wrap justify-between">
                 <div class="centerall md:centerleft flex-auto"><OnChainIcon/></div>
                 <div class="centerall md:centerright flex-initial">
-                    <h2>NFTS should be On-Chain</h2>
-                    <p>Briqs and sets are stored on-chain for everyone to reuse.<br/>
-                    Briqs don’t have shape, or color, they are up to interpretation.<br/>
+                    <h2>NFTs should be On-Chain</h2>
+                    <p>briqs and sets are stored on-chain for everyone to reuse.<br/>
+                    briqs don’t have shape, or color, they are up to interpretation.<br/>
                     Feel free to use briqs in any way you want.<br/>
                     Seize the briqs of construction.</p>
                 </div>

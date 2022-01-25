@@ -3,7 +3,7 @@
         <h1 class="text-center">briq debug page</h1>
         <div>
             <p class="!text-xl !font-semibold py-8">
-            This page will help you debug potential problems with Briqs.<br/>
+            This page will help you debug potential problems with briqs.<br/>
             Keep in mind that StarkNet is currently in Alpha and rather slow.<br />
             Transactions on TestNet can take several minutes, and on mainnet several hours.
             </p>
@@ -28,7 +28,7 @@
                 <span v-else-if="mintTest === true && +mintTestData > 0"><i class="fas fa-check text-green-900"></i> minted</span>
                 <span v-else-if="mintTest === true"><i class="far fa-circle text-blue-900"></i> not minted yet</span>
             </p>
-            <p>Briq balance:
+            <p>briq balance:
                 <span v-if="briqsTest === undefined"><i class="fas fa-spinner animate-spin-slow"></i></span>
                 <span v-if="briqsTest === false"><i class="fas fa-times text-red-900"></i><br/>Error: <span class="font-mono">{{ briqsTestData }}</span></span>
                 <span v-if="briqsTest === true"><i class="fas fa-check text-green-900"></i> {{ briqsTestData }} briqs</span>

@@ -10,9 +10,9 @@ import Hotkey from '../generic/Hotkey.vue';
         <Hotkey name="briqListModal" :data="{ key: 'b', ctrl: true }" :handler="() => pushModal(BriqListModal)"/>
         <div class="overflow-auto flex flex-nowrap flex-col justify-start content-end">
             <Btn class="pointer-events-auto flex items-center gap-2 text-center" @click="mainBtnClick" :tooltip="mainBtnTooltip">
-                <div v-if="!isConnected">Connect Wallet</div>
+                <div v-if="!isConnected">Connect wallet</div>
                 <div v-else-if="isConnected && contractStore.briq" class="inline-block text-sm leading-3">{{ userAddress }}<br/>{{ userNet }}</div>
-                <div v-else="" class="inline-block text-sm leading-3">Unsupported<br/>Network</div>
+                <div v-else="" class="inline-block text-sm leading-3">Unsupported<br/>network</div>
                 <template v-if="isConnected && contractStore.briq">
                     <i v-if="transactionsManager.anyPending() || builderData.fetchingBriqs" class="fas fa-spinner animate-spin-slow"></i>
                     <i v-if="!transactionsManager.anyPending() && !builderData.fetchingBriqs && builderData.briqsDB.briqs.size > 0" class="fas fa-check"></i>
