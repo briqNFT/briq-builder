@@ -36,7 +36,7 @@
                 <input type="checkbox" :checked="selected"/>
             </div>
             <div @click.stop="$emit('open', undefined)" v-if="openDetails"
-                class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-briq w-full rounded-md p-4 border-2 border-briq-light"
+                class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-briq dark:bg-briq-darkest w-full rounded-md p-4 border-2 border-briq-light dark:border-briq-dark"
             >
                 <template v-if="!setInfo.isLocalOnly()">
                     <Btn tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>

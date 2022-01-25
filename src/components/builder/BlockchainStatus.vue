@@ -24,10 +24,10 @@ import Hotkey from '../generic/Hotkey.vue';
                 </div>
             </div>
         </div>
-        <div :class="'relative bg-briq rounded-md ' + (expanded ? 'pointer-events-auto' : 'hidden')">
+        <div :class="'relative bg-briq dark:bg-briq-darker rounded-md ' + (expanded ? 'pointer-events-auto' : 'hidden')">
             <BriqDetails/>
         </div>
-        <div :class="'my-2 relative bg-briq rounded-md ' + (expanded ? 'pointer-events-auto' : 'hidden')">
+        <div :class="'my-2 relative bg-briq dark:bg-briq-darker rounded-md ' + (expanded ? 'pointer-events-auto' : 'hidden')">
             <TransactionsMin/>
         </div>
     </div>

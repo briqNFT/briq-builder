@@ -4,7 +4,7 @@ import Modals from '../../Modals.vue';
 </script>
 
 <template>
-    <div :class="'bg-briq alternate-buttons visible px-8 py-4 md:container md:mx-auto'"
+    <div :class="'bg-briq dark:bg-briq-darker alternate-buttons visible px-8 py-4 md:container md:mx-auto'"
         @click="openDetails = undefined"
     >
         <button v-if="asModal" class="float-right text-2xl" @click="$emit('close')">X</button>
@@ -29,11 +29,6 @@ import Modals from '../../Modals.vue';
                 @open="(x: string) => openDetails = x"
                 @selectSet="(val: boolean) => onSelectSet(setId, val)"
             />
-            <!--
-            <div v-for="i in 10" class="w-full h-40 bg-briq rounded-md p-4" :key="i">
-                <h4 class="text-center">Test Item</h4>
-            </div>
-            -->
         </div>
     </div>
 </template>

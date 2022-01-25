@@ -1,6 +1,6 @@
 <template>
     <div class="fixed bottom-0 left-0 px-4 py-2" style="z-index: 1000">
-        <p class="bg-briq rounded-2xl my-2 px-2 text-lg font-normal">
+        <p class="bg-briq dark:bg-briq-darker rounded-2xl my-2 px-2 text-lg font-normal">
             <button @click="openLog" class="min-w-[0.7rem]">+</button> 
             {{ lastMessage ? lastMessage : tooltip }}
         </p>
@@ -10,7 +10,7 @@
 <style scoped>
 </style>
 <script lang="ts">
-import { messagesStore } from '../Messages'
+import { messagesStore } from '../Messages'
 import { pushModal } from './Modals.vue';
 
 import MessagesLog from './MessagesLog.vue';

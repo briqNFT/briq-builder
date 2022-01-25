@@ -13,6 +13,11 @@
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.planeColor"/> Base Plane Color</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.gridColor"/> Grid Color</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.backgroundColor"/> Background Color</p>
+                <p><select v-model="darkModeStore.forcedMode">
+                    <option value="">OS Default</option>
+                    <option value="dark">Dark Mode</option>
+                    <option value="light">Light Mode</option>
+                </select></p>
             </div>
             <Btn @click="resetToDefault">Reset to defaults</Btn>
             <Btn class="mx-2" @click="resetToLast" :disabled="!mayUndo">Undo changes</Btn>
@@ -32,6 +37,7 @@
 <script lang="ts">
 import { resetStore } from '../../../builder/graphics/Settings';
 import builderSettings from '../../../builder/graphics/Settings';
+import { darkModeStore } from '../../../DarkMode';
 
 var initState;
 
@@ -40,6 +46,7 @@ export default defineComponent({
     data() {
         return {
             builderSettings,
+            darkModeStore,
             mayUndo: false,
         };
     },

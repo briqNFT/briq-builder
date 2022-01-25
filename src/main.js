@@ -1,5 +1,8 @@
 import { createApp } from 'vue'
 
+// Import dark mode
+import { DARKMODE_MEDIA } from './DarkMode';
+
 // Load Tailwind CSS
 import './index.css'
 
