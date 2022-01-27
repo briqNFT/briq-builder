@@ -1,4 +1,4 @@
-import type { Briq } from './Briq
+import { Briq } from './Briq'
 import { SetData } from './SetData';
 
 import { registerUndoableAction } from "./UndoRedo"
@@ -19,6 +19,7 @@ import contractStore from '../Contracts';
 import { inputStore } from './inputs/InputStore';
 import { setsManager } from './SetsManager';
 import { ChainBriqs } from './ChainBriqs';
+import { number } from 'starknet';
 
 let initSet = new SetData(hexUuid());
 
@@ -59,17 +60,8 @@ export var builderDataStore = (() => {
             ////////////
             //// Briq manipulation stuff
             ////////////
-            place_briq: ({ commit }: any, data: any) => {
-                commit("place_briq", data);
-            },
-            undo_place_briq: ({ commit }: any, data: any) => {
-                commit("undo_place_briq", data);        
-            },
-            place_multiple_briqs: ({ commit }: any, data: any) => {
-                commit("place_multiple_briqs", data);
-            },
-            undo_place_multiple_briqs: ({ commit }: any, data: any) => {
-                commit("undo_place_multiple_briqs", data);        
+            place_briqs: ({ commit }: any, data: any) => {
+                commit("place_briqs", data);
             },
             set_briq_color: ({ commit }: any, data: any) => {
                 commit("set_briq_color", data);
@@ -118,73 +110,30 @@ export var builderDataStore = (() => {
                 inputStore.selectionMgr.clear();
                 dispatchBuilderAction("select_set", state.currentSet);
             },
-            
-            place_briq(state: any, data: any)
-            {
-                let ok = state.currentSet.placeBriq(...data.pos, data.color, data.voxelId);
-                if (ok)
-                    dispatchBuilderAction("place_briq", data);
-                else // Fail to prevent the action from being stored in the history.
-                    throw new Error();
-                inputStore.selectionMgr.clear();
-            },
-            undo_place_briq(state: any, data: any)
-            {
-                if (data.undoData.briq)
-                {
-                    state.currentSet.placeBriq(...data.payload.pos, "", 0);
-                    state.currentSet.placeBriq(...data.payload.pos, data.undoData.briq.color, data.undoData.briq.material);
-                }
-                else
-                {
-                    state.currentSet.placeBriq(...data.payload.pos, "", 0);   
-                }
-                dispatchBuilderAction("place_briq", { pos: data.payload.pos, color: data?.undoData?.briq?.color ?? "", voxelId: data?.undoData?.briq?.material ?? 0 });
-                inputStore.selectionMgr.clear();
-            },
-            
-            place_multiple_briqs(state: any, data: any)
-            {
-                for (let briqData of data)
-                {
-                    let ok = state.currentSet.placeBriq(...briqData.pos, briqData.color, briqData.voxelId);
-                    if (ok)
-                        dispatchBuilderAction("place_briq", briqData);
-                }
-                inputStore.selectionMgr.clear();
-            },
-            undo_place_multiple_briqs(state: any, data: any)
-            {
-                for (let briqData of data)
-                {
-                    if (briqData.briq)
-                    {
-                        state.currentSet.placeBriq(...briqData.pos, "", 0);
-                        state.currentSet.placeBriq(...briqData.pos, briqData.briq.color, briqData.briq.material);
-                    }
-                    else
-                    {
-                        state.currentSet.placeBriq(...briqData.pos, "", 0);   
-                    }
-                    dispatchBuilderAction("place_briq", { pos: briqData.pos, color: briqData?.briq?.color ?? "", voxelId: briqData?.briq?.material ?? 0 });    
-                }
-                inputStore.selectionMgr.clear();
-            },
-            
-            set_briq_color(state: any, data: any)
-            {
-                for (let d of data)
-                {
-                    let cell = state.currentSet.modifyBriq(...d.pos, d);
-                    dispatchBuilderAction("place_briq", { ...cell.serialize(), pos: d.pos });
-                }
-            },
-            
             change_set_name(state: any, data: any)
             {
                 data.set.name = data.name;
             },
-            
+                        
+            place_briqs(state: any, data: { pos: [number, number, number], color?: string, material?: string }[])
+            {
+                for (let briqData of data)
+                {
+                    let briq = briqData.color ? new Briq(briqData.material, briqData.color) : undefined;
+                    if (!state.currentSet.placeBriq(...briqData.pos, briq))
+                        // Fail to prevent the action from being stored in the history.
+                        throw new Error();
+                }
+                dispatchBuilderAction("place_briqs", data);
+                inputStore.selectionMgr.clear();
+            },
+
+            set_briq_color(state: any, data: any)
+            {
+                for (let d of data)
+                    state.currentSet.modifyBriq(...d.pos, d);
+                dispatchBuilderAction("place_briqs", data);
+            },
             clear: (state: any) => {
                 state.currentSet.reset();
                 inputStore.selectionMgr.clear();
@@ -218,45 +167,23 @@ export var builderDataStore = (() => {
     };
 })();
 
-registerUndoableAction("builderData/place_briq", "builderData/undo_place_briq", {
-    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
-        let cell = (state.builderData.currentSet as SetData).getAt(...payload.pos as [number, number, number]);
-        if (cell)
-        transientActionState.cell = cell;
-    },
-    onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
-        await store.dispatch("push_command_to_history", {
-            action: "builderData/place_briq",
-            redoData: payload,
-            undoData: {
-                payload,
-                undoData: {
-                    briq: (transientActionState.cell as Briq)?.serialize() ?? null
-                }
-            }
-        });
-    }
-}, (data: any) => !data?.redoData?.voxelId ? "Remove briq" : "Place briq");
-
-
-registerUndoableAction("builderData/place_multiple_briqs", "builderData/undo_place_multiple_briqs", {
-    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
-        transientActionState.data = [];
-        for (let briq of payload)
+registerUndoableAction("builderData/place_briqs", "builderData/place_briqs", {
+    onBefore: ({ transientActionState }: any, payload: { pos: [number, number, number], color?: string, material?: string }[], state: any) => {
+        transientActionState.cells = [];
+        for (let data of payload)
         {
-            let cell = (state.builderData.currentSet as SetData).getAt(...briq.pos as [number, number, number]);
-            if (cell)
-            transientActionState.data.push(cell);
+            let cell = (state.builderData.currentSet as SetData).getAt(...data.pos);
+            transientActionState.cells.push({ pos: data.pos, color: cell?.color, material: cell?.material });
         }
     },
     onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
         await store.dispatch("push_command_to_history", {
-            action: "builderData/place_multiple_briqs",
+            action: "builderData/place_briqs",
             redoData: payload,
-            undoData: (payload as Array<any>).map((x, i) => ({ ...x, briq: transientActionState.data[i]})),
+            undoData: transientActionState.cells
         });
     }
-}, (data: any) => !data?.redoData?.[0]?.voxelId ? "Remove multiple briqs" : "Place multiple briqs");
+}, (data: any) => !data.redoData[0]?.color ? "Remove briq" : "Place briq");
 
 registerUndoableAction("builderData/set_briq_color", "builderData/set_briq_color", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {

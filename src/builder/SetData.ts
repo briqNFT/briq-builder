@@ -1,7 +1,10 @@
-import { Briq } from './Briq
+import { number } from 'starknet';
+import { Briq } from './Briq';
 import type { ChainBriqs } from './ChainBriqs';
 
 import { cellSize } from './Constants';
+
+const SET_DATA_VERSION = 1;
 
 export class SetData
 {
@@ -41,6 +44,7 @@ export class SetData
         ret.id = this.id;
         ret.name = this.name;
         ret.regionSize = 10;
+        ret.version = SET_DATA_VERSION;
         ret.briqs = [];
         this.briqs.forEach((region, regionId) => {
             region.forEach((cell, cellPos) => {
@@ -61,10 +65,15 @@ export class SetData
         this.reset();
         this.name = data.name;
         this.regionSize = data.regionSize;
+        let version = data.version;
         for (let briq of data.briqs)
         {
-            let cell = new Briq().deserialize(briq.data);
-            this.placeBriq(briq.pos[0], briq.pos[1], briq.pos[2], cell.color, cell.material, cell.id);
+            let cell = new Briq();
+            if (version === SET_DATA_VERSION)
+                cell.deserialize(briq.data);
+            else
+                cell.deserializeV0(briq.data);
+            this.placeBriq(briq.pos[0], briq.pos[1], briq.pos[2], cell);
         }
         return this;
     }
@@ -110,23 +119,6 @@ export class SetData
         return this.briqs.get(regionId)!.get(cellId);
     }
 
-    /*
-    swapBriq(ogId: string, nv: Briq)
-    {
-        let pos = this.briqPos.get(ogId);
-        if (!pos)
-            throw new Error("Unknown briq");
-        if (this.briqPos.has(nv.id))
-            throw new Error("Brick already placed");
-        let old = this.briqsDB.briqs.get(ogId);
-        nv.color = old!.color;
-        this.briqsDB.add(nv);
-        this.briqs.get(pos[0])!.set(pos[1], nv.id);
-        this.briqPos.set(nv.id, pos);
-        this.briqPos.delete(ogId);
-        this.briqsDB.briqs.delete(ogId);
-    }
-    */
     _swapBriq(pos: [number, number, number], briq: Briq)
     {
         let [regionId, cellId] = this.computeIDs(...pos);
@@ -152,15 +144,15 @@ export class SetData
         return cell;
     }
 
-    placeBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: string): boolean
+    placeBriq(x: number, y: number, z: number, briq?: Briq): boolean
     {
-        if (cellKind > 0)
-            return this.doPlaceBriq(x, y, z, color, cellKind, briq);
+        if (briq)
+            return this.doPlaceBriq(x, y, z, briq);
         else
             return this.doRemoveBriq(x, y, z);
     }
 
-    doPlaceBriq(x: number, y: number, z: number, color: string, cellKind: number, briq?: string): boolean
+    doPlaceBriq(x: number, y: number, z: number, briq: Briq): boolean
     {
         if (Math.abs(x) > cellSize || Math.abs(z) > cellSize || y < 0)
             return false;
@@ -171,17 +163,12 @@ export class SetData
         else if (!!this.briqs.get(regionId)?.get(cellId))
             return false;
 
-        // TODO: plan is that you can place a specific briq from the real world, but I need to handle that better
-        // In particular I need to handle trying to place the same briq in 2 different spots.
-        let actualBriq = new Briq(briq || "0x1", cellKind, this.id);
-        actualBriq.color = color;
-        
-        this.briqs.get(regionId)!.set(cellId, actualBriq);
+        this.briqs.get(regionId)!.set(cellId, briq);
         //this.briqPos.set(actualBriq.id, [regionId, cellId]);
 
-        if (!this.usedByMaterial[cellKind])
-            this.usedByMaterial[cellKind] = 0;
-        ++this.usedByMaterial[cellKind];
+        if (!this.usedByMaterial[briq.material])
+            this.usedByMaterial[briq.material] = 0;
+        ++this.usedByMaterial[briq.material];
 
         return true;
     }
@@ -266,20 +253,25 @@ export class SetData
 
     swapForRealBriqs(chainBriqs: ChainBriqs)
     {
-        let usageByMaterial = {} as { [material: string]: { need: [number, number, number][], ft_balance: number, nft_ids: string[] } };
+        let usageByMaterial = {} as { [material: string]: { ft_balance: number, nft_ids: string[] } };
+        let positions = [] as any[];
         this.forEach((cell, pos) => {
             if (!usageByMaterial[cell.material])
-                usageByMaterial[cell.material] = { need: [], ft_balance: 0, nft_ids: [] };
-            if (cell.onChain && cell.id == cell.material)
-                ++usageByMaterial[cell.material].ft_balance;
-            else if (cell.onChain)
+                usageByMaterial[cell.material] = { ft_balance: 0, nft_ids: [] };
+            if (cell.id)
                 usageByMaterial[cell.material].nft_ids.push(cell.id);
             else
-                usageByMaterial[cell.material].need.push(pos);
+                ++usageByMaterial[cell.material].ft_balance;
+            positions.push(pos);
         })
         let swaps = chainBriqs.findRealBriqs(usageByMaterial);
-        for (let swap of swaps)
-            this._swapBriq(swap.pos, swap.newBriq);
+        for (let i = 0; i < swaps.length; ++i)
+        {
+            let nft = swaps[i];
+            this._swapBriq(positions[i], nft);
+            if (!swaps.length)
+                return;
+        };
     }
 
     /*

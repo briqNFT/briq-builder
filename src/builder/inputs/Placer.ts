@@ -39,7 +39,7 @@ export class PlacerInput extends MouseInputState
     onPointerDown(event: PointerEvent)
     {
         if (event.shiftKey)
-            this.fsm.switchTo("place_multi", { x: event.clientX, y: event.clientY });
+            this.fsm.switchTo("place_multi", { x: event.clientX, y: event.clientY });
     }
 
     async onPointerUp(event: PointerEvent)
@@ -54,7 +54,8 @@ export class PlacerInput extends MouseInputState
             return;
         const voxelId = removing ? 0 : pickerData.material;
         try {
-            await store.dispatch("builderData/place_briq", { pos: pos, color: removing ? '' : inputStore.currentColor, voxelId: voxelId });
+            let data = removing ? { pos } : { pos, color: inputStore.currentColor, voxelId };
+            await store.dispatch("builderData/place_briqs", [data]);
             // Update the preview cursor in a few milliseconds to let the world update.
             // Use the 'non event updating version' so the cube doesn't accidentally jump back.
             setTimeout(() => this.onPointerMove(event), 100);
@@ -108,8 +109,8 @@ export class PlacerMultiInput extends MouseInputState
             for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
                 for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
                     if (!store.state.builderData.currentSet.getAt(x, y, z))
-                        briqs.push({ pos: [x, y, z], color: inputStore.currentColor, voxelId: pickerData.material });
-        await store.dispatch("builderData/place_multiple_briqs", briqs);
+                        briqs.push({ pos: [x, y, z], color: inputStore.currentColor, material: pickerData.material });
+        await store.dispatch("builderData/place_briqs", briqs);
 
         this.fsm.switchTo("place");
     }

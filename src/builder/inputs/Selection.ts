@@ -1,5 +1,5 @@
 import type { SetData } from "../SetData";
-import type { Briq } from "../Briq
+import type { Briq } from '../Briq';
 
 import { THREE } from '../../three';
 
