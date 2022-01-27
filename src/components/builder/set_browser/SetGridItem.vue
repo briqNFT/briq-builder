@@ -146,7 +146,7 @@ export default defineComponent({
             return !this.disableButtons && this.setInfo.isOnChain();
         },
         canMint() {
-            return this.setInfo.local?.briqsDB?.briqs?.size > 0 && !this.disableButtons;
+            //return this.setInfo.local?.briqsDB?.briqs?.size > 0 && !this.disableButtons;
         },
         canSelectSet() {
             return !this.isCurrent;
@@ -172,7 +172,7 @@ export default defineComponent({
         async disassemble() {
             try {
                 this.disableButtons = true;
-                let TX = await contractStore.set.disassemble(this.$store.state.wallet.userWalletAddress, "" + this.setInfo.id, Array.from(this.setInfo.chain.briqsDB.briqs.keys()));
+                //let TX = await contractStore.set.disassemble(this.$store.state.wallet.userWalletAddress, "" + this.setInfo.id, Array.from(this.setInfo.chain.briqsDB.briqs.keys()));
                 new Transaction(TX.transaction_hash, "disassembly", { setId: this.setInfo.id });
                 this.messages.pushMessage("Disassembly transaction sent - Hash " + TX.transaction_hash);
             }
@@ -208,7 +208,7 @@ export default defineComponent({
         },
         async deleteSet() {
             // Ask for confirmation on non-empty sets.
-            if (this.setInfo.status === "LOCAL" && this.setInfo?.local?.briqsDB?.briqs?.size > 0)
+            if (this.setInfo.status === "LOCAL" && (this.setInfo?.local?.getNbBriqs() ?? 0) > 0)
             {
                 let btn = await pushModal(TextModal, {
                     "title": "Confirm delete?",

@@ -41,22 +41,22 @@ import { defineComponent, reactive, watchEffect, toRef } from 'vue';
 
 import { createChainBriqs } from '../../builder/ChainBriqs';
 
-let chainBriqsDB = createChainBriqs();
+let chainBriqs = createChainBriqs();
 export default defineComponent({
     data() {
         return {
         };
     },
     provide: {
-        chainBriqs: chainBriqsDB,
+        chainBriqs: chainBriqs,
         messages: {
             pushMessage, setTooltip
         },
     },
     created() {
-        chainBriqsDB.setAddress(toRef(this.$store.state.wallet, "userWalletAddress"));
+        chainBriqs.setAddress(toRef(this.$store.state.wallet, "userWalletAddress"));
         watchEffect(() => {
-            chainBriqsDB.setContract(contractStore.briq);
+            chainBriqs.setContract(contractStore.briq);
         });
     },
     async mounted() {

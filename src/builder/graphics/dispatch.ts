@@ -1,6 +1,6 @@
 // Temp method until I find a better system.
 
-import { Briq } from '../BriqsDB';
+import { Briq } from '../Briq
 
 import { store } from '../../store/Store'
 

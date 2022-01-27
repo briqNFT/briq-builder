@@ -27,7 +27,7 @@ td {
 </style>
 
 <script lang="ts">
-import type { Briq } from '../../builder/BriqsDB'
+import type { Briq } from '../../builder/Briq'
 
 import { defineComponent, ref } from 'vue';
 export default defineComponent({

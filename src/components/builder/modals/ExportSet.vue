@@ -97,7 +97,7 @@
 <script lang="ts">
 import { downloadData, downloadJSON, fetchData } from '../../../url'
 import { SetData } from '../../../builder/SetData';
-import type { Briq, BriqsDB } from '../../../builder/BriqsDB';
+import type { Briq } from '../../../builder/Briq';
 
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
 

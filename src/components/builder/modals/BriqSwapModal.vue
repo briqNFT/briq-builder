@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import BriqTable from '../BriqTable.vue';
-import type { Briq, BriqsDB } from '../../../builder/BriqsDB';
+import type { Briq } from '../../../builder/Briq';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -33,6 +33,7 @@ export default defineComponent({
     computed: {
         briqs() {
             let ret: Array<Briq> = [];
+            /*
             this.chainBriqs.DB.briqs.forEach((x: Briq) => {
                 if (this.metadata.exclude && this.metadata.exclude.indexOf(x.id) !== -1)
                     return;
@@ -40,6 +41,7 @@ export default defineComponent({
                     return;
                 ret.push(x)
             })
+            */
             return ret;
         }
     },

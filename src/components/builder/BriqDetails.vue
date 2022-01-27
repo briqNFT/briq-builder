@@ -28,7 +28,6 @@ export default defineComponent({
     data() {
         return {
             data: this.$store.state.builderData,
-            briqsDB: this.chainBriqs.DB,
             balance: undefined as undefined | number,
         };
     },
