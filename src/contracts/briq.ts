@@ -1,7 +1,7 @@
 import type { AddTransactionResponse } from 'starknet';
 import type { Provider, Signer } from 'starknet';
 
-import BriqABI from './briq_abi.json'
+import BriqABI from './testnet/proxy_briq_backend.json'
 
 import ExtendedContract from './Abstraction'
 
@@ -12,27 +12,13 @@ export default class BriqContract extends ExtendedContract
         super(BriqABI, address, provider)
     }
 
-    async initialize(set_contract_address: string, mint_contract_address: string)
+    async balanceDetailsOf(owner: string, material: string)
     {
-        if (!((this.provider as Signer).address))
-            throw new Error("Provider is not a signer");
-        return await this.invoke("initialize", { set_contract_address, mint_contract_address });
+        return (await this.call("balanceDetailsOf", { owner, material })) as { ft_balance: string, nft_ids: string[] };
     }
 
-    async get_all_tokens_for_owner(owner: string)
+    async balanceOf(owner: string, material: string)
     {
-        return (await this.call("get_all_tokens_for_owner", { owner: owner })).bricks;
-    }
-
-    async mint_multiple(material: number, token_start: number, nb: number): Promise<AddTransactionResponse>
-    {
-        if (!((this.provider as Signer).address))
-            throw new Error("Provider is not a signer");
-        return await this.invoke("mint_multiple", { owner: (this.provider as Signer).address, material: "" + material, token_start: "" + token_start, nb: "" + nb });
-    }
-
-    async balance_of(owner: string)
-    {
-        return (await this.call("balance_of", { owner })).res;
+        return parseInt((await this.call("balanceOf", { owner, material })).balance as string, 16);
     }
 }

@@ -20,7 +20,10 @@ import contractStore from '../../Contracts';
 import { reportError } from '../../Monitoring';
 import { ticketing } from '../../Async';
 
+import { MATERIAL_GENESIS } from '../../builder/ChainBriqs';
+
 import { defineComponent, watchEffect } from 'vue';
+import { ChainBriqs } from '../../builder/ChainBriqs';
 export default defineComponent({
     data() {
         return {
@@ -49,7 +52,7 @@ export default defineComponent({
     methods: {
         getBalance: ticketing(async function(this: any) {
             this.balance = undefined;
-            this.balance = parseInt(await contractStore.briq?.balance_of(this.$store.state.wallet.userWalletAddress), 16) || 0;
+            this.balance = await contractStore.briq?.balanceOf(this.$store.state.wallet.userWalletAddress, MATERIAL_GENESIS) || 0;
         }),
         updateChainContracts() {
             if (!contractStore.set)

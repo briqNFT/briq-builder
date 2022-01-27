@@ -1,6 +1,6 @@
 import type { Provider, Signer } from 'starknet';
 
-import MintABI from './mint_proxy_abi.json'
+import MintABI from './testnet/mint.json'
 import ExtendedContract from './Abstraction';
 
 export default class MintContract extends ExtendedContract
@@ -12,7 +12,7 @@ export default class MintContract extends ExtendedContract
 
     async has_minted(user: string): boolean
     {
-        return !!parseInt((await this.call("has_minted", { user })).res, 16);
+        return parseInt((await this.call("amountMinted", { user })).res, 16) > 0;
     }
 
     async mint(user: string)

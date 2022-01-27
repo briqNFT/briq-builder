@@ -6,25 +6,31 @@ import { ticketing, isOutdated } from "../Async";
 import { pushMessage } from "../Messages";
 import { reportError } from "../Monitoring";
 
+// TODO: there can technically be more than whatever is supported by number
+type BALANCE = { ft_balance: number, nft_ids: string[] };
+
+export const MATERIAL_GENESIS = "0x1"
+
 class NotEnoughBriqs extends Error
 {
-    token_id: string;
-    constructor(token_id: string)
+    material: string;
+    constructor(material: string)
     {
-        super(`Not enough Briqs with token_id ${token_id}`);
-        this.token_id = token_id;
+        super(`Not enough Briqs with material ${material}`);
+        this.material = material;
     }
 }
+
 
 /**
  * Responsible for maintaining the state of 'on-chain' briqs, as opposed to local set-briqs.
  */
-class ChainBriqs
+export class ChainBriqs
 {
     fetchingBriqs = false;
 
     DB = new BriqsDB();
-    byTokenId: { [token_id: string]: number} = {};
+    byMaterial: { [material: string]: BALANCE } = {};
 
     briqContract: undefined | IBriqContract;
     addr: undefined | string;
@@ -48,7 +54,7 @@ class ChainBriqs
     }
 
     _getTokens = ticketing(async function (this: ChainBriqs) {
-        return await this.briqContract!.get_all_tokens_for_owner(this.addr!) as string[];
+        return await this.briqContract!.balanceDetailsOf(this.addr!, MATERIAL_GENESIS)
     });
 
     async loadFromChain()
@@ -61,9 +67,9 @@ class ChainBriqs
         }
         console.log("CHAIN BRIQS - LOADING ", this.briqContract?.connectedTo, this.addr);
         try {
-            let bricks = await this._getTokens();
-            this.parseChainData(bricks);
-            console.log("CHAIN BRIQS - LOADED ", bricks);
+            let balance = await this._getTokens();
+            this.parseChainData(balance);
+            console.log("CHAIN BRIQS - LOADED ", balance);
         }
         catch(err)
         {
@@ -76,48 +82,61 @@ class ChainBriqs
         this.fetchingBriqs = false;
     }
 
-    parseChainData(jsonResponse: string[])
+    parseChainData(balanceJSON: { ft_balance: string, nft_ids: string[] })
     {
-        this.byTokenId = {};
-        for (let i = 0; i < jsonResponse.length / 3; ++i)
-        {
-            let briq = new Briq(jsonResponse[i*3 + 0], parseInt(jsonResponse[i*3 + 1], 16), jsonResponse[i*3 + 2]);
-            briq.temp_id = briq.id;
-            briq.id = "0x1";
-            briq.onChain = true;
-            this.DB.briqs.set(briq.temp_id, briq);
-            if (briq.partOfSet())
-                continue;
-            if (!this.byTokenId[briq.id])
-                this.byTokenId[briq.id] = 0;
-            ++this.byTokenId[briq.id];
-        }
+        this.byMaterial = {};
+        this.byMaterial[MATERIAL_GENESIS] = { ft_balance: parseInt(balanceJSON.ft_balance, 16), nft_ids: balanceJSON.nft_ids };
+    }
+
+    _getNbBriqs(material: string)
+    {
+        return this.byMaterial[material].ft_balance + this.byMaterial[material].nft_ids.length;
     }
 
     getNbBriqs()
     {
         let ret = 0;
-        for (let tid in this.byTokenId)
-            ret += this.byTokenId[tid];
+        for (let material in this.byMaterial)
+            ret += this._getNbBriqs(material);
         return ret;
     }
 
-    getBriqs(token_id: string, need: number)
+    findRealBriqs(usageByMaterial: { [material: string]: { need: [number, number, number][], ft_balance: number, nft_ids: string[] } })
     {
-        if (this.byTokenId[token_id] < need)
-            throw new NotEnoughBriqs(token_id);
-        let ret = [];
-        for (let i = 0; i < need; ++i)
+        let swaps = [];
+        for (let mat in usageByMaterial)
         {
-            let br = new Briq(token_id, 1, "")
-            br.onChain = true;
-            ret.push(br);
+            if (!usageByMaterial[mat].need.length)
+                continue;
+            let need = usageByMaterial[mat].need.length;
+            if (!this.byMaterial[mat])
+                throw new NotEnoughBriqs(mat);
+            let copy = Object.assign({}, this.byMaterial[mat]);
+            copy.ft_balance -= usageByMaterial[mat].ft_balance;
+            copy.nft_ids = copy.nft_ids.filter(x => usageByMaterial[mat].nft_ids.indexOf(x) === -1);
+            for (let i = 0; i < need; ++i)
+            {
+                let br: Briq;
+                if (copy.ft_balance > 0)
+                {
+                    --copy.ft_balance;
+                    br = new Briq(mat, parseInt(mat, 16), "")
+                    br.id = mat;
+                }
+                else if (copy.nft_ids.length)
+                {
+                    br = new Briq(copy.nft_ids.pop()!, parseInt(mat, 16), "")
+                    br.id = br.temp_id;
+                }
+                else
+                    throw new NotEnoughBriqs(mat);
+                br.onChain = true;
+                swaps.push({ pos: usageByMaterial[mat].need[i], newBriq: br });
+            }
         }
-        return ret;
+        return swaps;
     }
 }
-
-export type { ChainBriqs };
 
 export function createChainBriqs()
 {
