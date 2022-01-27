@@ -128,8 +128,9 @@ export class SetData
         this.briqsDB.briqs.delete(ogId);
     }
     */
-    _swapBriq(regionId: number, cellId: number, briq: Briq)
+    _swapBriq(pos: [number, number, number], briq: Briq)
     {
+        let [regionId, cellId] = this.computeIDs(...pos);
         let og = this.briqs.get(regionId)?.get(cellId);
         if (!og)
             throw new Error(`Could not find original briq at ${this.to3DPos(regionId, cellId)}`);
@@ -266,35 +267,22 @@ export class SetData
 
     swapForRealBriqs(chainBriqs: ChainBriqs)
     {
-        let usageByTokenId = {} as { [token_id: string]: { need: number, used: number } };
-        this.forEach((cell, _) => {
-            if (!usageByTokenId[cell.id])
-                usageByTokenId[cell.id] = { need: 0, used: 0};
-            if (cell.onChain)
-                ++usageByTokenId[cell.id].used;
+        let usageByMaterial = {} as { [material: string]: { need: [number, number, number][], ft_balance: number, nft_ids: string[] } };
+        this.forEach((cell, pos) => {
+            if (!usageByMaterial[cell.material])
+                usageByMaterial[cell.material] = { need: [], ft_balance: 0, nft_ids: [] };
+            if (cell.onChain && cell.id == cell.material)
+                ++usageByMaterial[cell.material].ft_balance;
+            else if (cell.onChain)
+                usageByMaterial[cell.material].nft_ids.push(cell.id);
             else
-                ++usageByTokenId[cell.id].need;
+                usageByMaterial[cell.material].need.push(pos);
         })
-        let candidates = {} as { [material: number]: Briq[] };
-        for (let token_id in usageByTokenId)
-        {
-            let briqs = chainBriqs.getBriqs(token_id, usageByTokenId[token_id].need);
-            candidates[briqs[0].getMaterial()] = briqs;
-        }
-        let swaps: Array<[number, number, Briq]> = [];
-        this.briqs.forEach((region, regionId) => {
-            region.forEach((briq, cellId) => {
-                if (briq.onChain)
-                    return;
-                let matos = briq.getMaterial();
-                if (!candidates[matos].length)
-                    throw new Error("Not enough briqs to swap");
-                swaps.push([regionId, cellId, candidates[matos].splice(0, 1)[0]]);
-            });
-        });
+        let swaps = chainBriqs.findRealBriqs(usageByMaterial);
         for (let swap of swaps)
-            this._swapBriq(swap[0], swap[1], swap[2]);
+            this._swapBriq(swap.pos, swap.newBriq);
     }
+
     /*
     swapForFakeBriqs()
     {
