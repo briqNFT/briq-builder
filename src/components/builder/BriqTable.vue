@@ -3,15 +3,23 @@
     <table class="text-justify font-mono text-xs">
         <tr>
             <th>ID</th>
-            <th v-if="show('color')">Color</th>
             <th v-if="show('material')">Material</th>
+            <th v-if="show('color')">Color</th>
             <th v-if="show('set')">Set</th>
         </tr>
         <tr v-for="briq, i of briqs" @click="onClick(i)" @dblclick="onDoubleClick(i)" :class="i == selected ? 'bg-briq-light' : '' ">
+        <template v-if="isActualBriq(briq)">
             <td>{{ briq.id }}</td>
-            <td v-if="show('color')" class="bg-briq-light bg-opacity-30">{{ briq.color }}</td>
-            <td v-if="show('material')">{{ briq.material }}</td>
-            <td v-if="show('set')" class="bg-briq-light bg-opacity-30">{{ briq.set }}</td>
+            <td v-if="show('material')" class="bg-briq-light dark:bg-briq-darker  bg-opacity-30">{{ briq.material }}</td>
+            <td v-if="show('color')">{{ briq.color }}</td>
+            <td v-if="show('set')" class="bg-briq-light dark:bg-briq-darker  bg-opacity-30">{{ briq.set }}</td>
+        </template>
+        <template v-else="">
+            <td>{{ briq.token_id || "Fungible x" + briq.qty }}</td>
+            <td v-if="show('material')" class="bg-briq-light dark:bg-briq-darker bg-opacity-30">{{ briq.material }}</td>
+            <td v-if="show('color')"></td>
+            <td v-if="show('set')" class="bg-briq-light dark:bg-briq-darker bg-opacity-30"></td>
+        </template>
         </tr>
     </table>
 </div>
@@ -27,7 +35,7 @@ td {
 </style>
 
 <script lang="ts">
-import type { Briq } from '../../builder/Briq'
+import { Briq } from '../../builder/Briq';
 
 import { defineComponent, ref } from 'vue';
 export default defineComponent({
@@ -39,6 +47,9 @@ export default defineComponent({
     emits: ["highlight", "select"],
     props: ["briqs", "columns"],
     methods: {
+        isActualBriq(d: any) {
+            return (d instanceof Briq);
+        },
         show(col: string) {
             if (!this.columns)
                 return true;

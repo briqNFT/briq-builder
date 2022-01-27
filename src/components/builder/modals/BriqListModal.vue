@@ -10,17 +10,7 @@
                 <!--<Btn v-for="set of sets" @click="setup = 'set'">Set {{ set }}</Btn>-->
             </div>
             {{ chainBriqs.byTokenId }}
-            <div class="h-5/6 overflow-auto">
-                <table class="text-justify font-mono text-xs">
-                    <tr><th>ID</th><th>Color</th><th>Material</th><th>Set</th></tr>
-                    <tr v-for="[id, briq] of briqs">
-                        <td>{{ id }}</td>
-                        <td class="bg-briq-light dark:bg-briq-dark bg-opacity-30">{{ briq.color }}</td>
-                        <td>{{ briq.material }}</td>
-                        <td class="bg-briq-light dark:bg-briq-dark bg-opacity-30">{{ briq.set }}</td>
-                    </tr>
-                </table>
-           </div>
+            <BriqTable :briqs="briqs"/>
         </div>
     </div>
 </template>
@@ -37,6 +27,7 @@ td {
 <script lang="ts">
 import type { Briq } from '../../../builder/Briq'
 import { setsManager } from '../../../builder/SetsManager';
+import BriqTable from '../BriqTable.vue';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -50,17 +41,18 @@ export default defineComponent({
         sets(): Array<string> {
             return setsManager.setList;
         },
-        briqs(): Array<[string, Briq]> {
-            //if (this.setup === "all")
-            //    return Array.from(this.chainBriqs.DB.briqs as Map<string, Briq>);
-            //else if (this.setup === "current")
-            //    return Array.from(this.$store.state.builderData.currentSet.briqsDB as Map<string, Briq>);
-            //else
-            //   return [];
+        briqs(): ({ material: string, qty: number } | { material: string, token_id: string })[] {
+            if (this.setup === "all")
+                return this.chainBriqs.getBalanceDetails();
+            else if (this.setup === "current")
+                return this.$store.state.builderData.currentSet.serialize().briqs.map((x: any) => ({ material: x.data.material, token_id: x?.data?.id, qty: 1 }));
+            else
+               return [];
         }
     },
     methods: {},
     props: ["metadata"],
     emits: ["close"],
+    components: { BriqTable }
 })
 </script>

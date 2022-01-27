@@ -2,6 +2,8 @@ import { number } from 'starknet';
 import { Briq } from './Briq';
 import type { ChainBriqs } from './ChainBriqs';
 
+import { computeHashOnElements } from 'starknet/utils/hash';
+
 import { cellSize } from './Constants';
 
 const SET_DATA_VERSION = 1;
@@ -10,7 +12,8 @@ export class SetData
 {
     id: string;
     name: string;
-    onChain: boolean;
+    
+    chainId: string | undefined;
 
     regionSize: number;
     // Indexed by region & cell
@@ -25,7 +28,6 @@ export class SetData
     {
         this.id = id;
         this.name = "";
-        this.onChain = false;
 
         this.regionSize = 10;
         this.briqs = new Map();
@@ -41,6 +43,8 @@ export class SetData
     serialize()
     {
         let ret: any = {};
+        if (this.chainId)
+            ret.chainId = this.chainId;
         ret.id = this.id;
         ret.name = this.name;
         ret.regionSize = 10;
@@ -62,6 +66,7 @@ export class SetData
     {
         if (data.id && this.id !== data.id)
             throw new Error("Set tried to load data from the wrong set");
+        this.chainId = data.chainId;
         this.reset();
         this.name = data.name;
         this.regionSize = data.regionSize;
@@ -77,9 +82,9 @@ export class SetData
         }
         return this;
     }
-
+    
     getName() {
-        return this.name || this.id;
+        return this.name || this.chainId || "Local set";
     }
 
     ////////////////////////////////////////////////

@@ -97,7 +97,8 @@
 <script lang="ts">
 import { downloadData, downloadJSON, fetchData } from '../../../url'
 import { SetData } from '../../../builder/SetData';
-import type { Briq } from '../../../builder/Briq';
+
+import { computeHashOnElements } from 'starknet/utils/hash';
 
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
 
@@ -132,6 +133,7 @@ export default defineComponent({
             screenshot: "" as string,
             screenshotPromise: undefined as Promise<string> | undefined,
             ogImage: "" as string,
+            setId: "" as string,
         };
     },
     props: ["metadata"],
@@ -141,8 +143,10 @@ export default defineComponent({
         // Hide until we've screenshotted, or the window 'pops'.
         this.$emit('hide');
 
+        this.setId = this.metadata.set;
+
         this.name = this.set.name;
-        this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.metadata.set)?.[0];
+        this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.setId)?.[0];
         if (this.notEnoughBriqs)
             this.exporting = 'PRECHECKS';
         let img = new Image();
@@ -160,7 +164,7 @@ export default defineComponent({
     },
     computed: {
         setInfo() {
-            return setsManager.setsInfo[this.metadata.set];
+            return setsManager.setsInfo[this.setId];
         },
         set() {
             return this.setInfo.local!;
@@ -239,7 +243,7 @@ export default defineComponent({
         async retakeScreenshot() {
             let img = new Image();
             //this.$emit('hide');
-            img.src = await pushModal(ScreenshotVue, { set: this.metadata.set }) as string;
+            img.src = await pushModal(ScreenshotVue, { set: this.setId }) as string;
             //this.$emit('show');
             await img.decode();
             this.ogImage = img.src;
@@ -254,7 +258,7 @@ export default defineComponent({
             this.screenshot = await this.screenshotPromise;
         },
         async rename() {
-            await pushModal(RenameSet, { set: this.metadata.set });
+            await pushModal(RenameSet, { set: this.setId });
         },
         exportSetLocally: function () {
             downloadJSON(this.set.serialize(), this.set.id + ".json");
@@ -268,7 +272,12 @@ export default defineComponent({
                     throw new Error("The set could not be exported");
                 // Update the name in case it changed.
                 this.exportSet.name = this.set.name;
+                let token_hint = this.exportSet.id;
+                this.exportSet.chainId = computeHashOnElements([this.$store.state.wallet.userWalletAddress, token_hint]);
+
                 let data = this.exportSet.serialize();
+
+                console.log(data);
 
                 const message = {
                     domain: {
@@ -295,7 +304,7 @@ export default defineComponent({
 
                 await fetchData("store_set", {
                     owner: this.$store.state.wallet.userWalletAddress,
-                    token_id: data.id,
+                    token_id: data.chainId,
                     data: data,
                     message_hash: await this.$store.state.wallet.signer.hashMessage(message),
                     signature: signature,
@@ -304,8 +313,11 @@ export default defineComponent({
 
                 // Debug
                 //downloadJSON(data, data.id + ".json")
-                let TX = await contractStore.set.mint(this.$store.state.wallet.userWalletAddress, data.id, data.briqs.map(x => x.data.briq));
-                new Transaction(TX.transaction_hash, "export_set", { setId: data.id });
+                let TX = await contractStore.set.assemble(this.$store.state.wallet.userWalletAddress, token_hint, data.briqs.map((x: any) => x.data));
+                
+                // Mark the transaction as waiting.
+                new Transaction(TX.transaction_hash, "export_set", { setId: data.chainId });
+                
                 this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
 
                 this.exporting = 'WAITING_FOR_CONFIRMATION';
@@ -321,12 +333,12 @@ export default defineComponent({
                         }
                     }, 3000);
                 });
-                this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
-                await this.$store.dispatch("builderData/update_set", data);
+                this.messages.pushMessage("Set exported " + data.chainId + " - TX " + TX.transaction_hash);
 
-                setsManager.getInfo(data.id).status = 'ONCHAIN_LOADED';
-                setsManager.getInfo(data.id).chain = this.exportSet;
-                await this.$store.dispatch("builderData/select_set", data.id);
+                setsManager.onSetMinted(this.set.id, this.exportSet)
+                this.setId = this.exportSet.chainId;
+                this.$store.dispatch("builderData/select_set", this.exportSet.chainId);
+
                 this.exporting = 'DONE';
             }
             catch (err) {

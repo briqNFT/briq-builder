@@ -74,11 +74,4 @@ export class SelectionManager
             selectionRender.mesh!.position.set(Math.floor(x) + 0.5, Math.floor(y) + 0.5, Math.floor(z) + 0.5);
         }
     }
-
-    replace(ov: string, nv: Briq)
-    {
-        let ix = this.selectedBriqs.indexOf(ov);
-        if (ix !== -1)
-            this.selectedBriqs.splice(ix, 1, nv);
-    }
 }

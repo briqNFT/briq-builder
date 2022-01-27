@@ -137,7 +137,7 @@ export default defineComponent({
             if (!contractStore.set || !this.set_id)
                 return;
             try {
-                let author = (await contractStore.set.call("owner_of", { token_id: this.set_id })).res;
+                let author = (await contractStore.set.ownerOf(this.set_id));
                 if (author && author !== "0x0")
                     this.author = author;
             } catch(_) {}

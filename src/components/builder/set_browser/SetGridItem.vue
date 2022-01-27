@@ -172,7 +172,7 @@ export default defineComponent({
         async disassemble() {
             try {
                 this.disableButtons = true;
-                //let TX = await contractStore.set.disassemble(this.$store.state.wallet.userWalletAddress, "" + this.setInfo.id, Array.from(this.setInfo.chain.briqsDB.briqs.keys()));
+                let TX = await contractStore.set.disassemble(this.$store.state.wallet.userWalletAddress, this.setInfo.id, this.setInfo.chain);
                 new Transaction(TX.transaction_hash, "disassembly", { setId: this.setInfo.id });
                 this.messages.pushMessage("Disassembly transaction sent - Hash " + TX.transaction_hash);
             }
