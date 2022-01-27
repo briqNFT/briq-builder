@@ -51,7 +51,7 @@ export class EraserInput extends MouseInputState
         if (!pos || pos[1] < 0)
             return;
 
-        await store.dispatch("builderData/place_briq", { pos: pos, color: "", voxelId: 0 });
+        await store.dispatch("builderData/place_briqs", [{ pos: pos }]);
         // Update the preview cursor in a few milliseconds to let the world update.
         // Use the 'non event updating version' so the cube doesn't accidentally jump back.
         setTimeout(() => this.onPointerMove(event), 100);
@@ -105,8 +105,8 @@ export class EraserMultiInput extends MouseInputState
             for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
                 for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
                     if (store.state.builderData.currentSet.getAt(x, y, z))
-                        actionData.push({ pos: [x, y, z], color: "", voxelId: 0 });
-        await store.dispatch("builderData/place_multiple_briqs", actionData);
+                        actionData.push({ pos: [x, y, z] });
+        await store.dispatch("builderData/place_briqs", actionData);
         this.fsm.switchTo("erase");
     }
 }

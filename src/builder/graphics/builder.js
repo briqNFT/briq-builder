@@ -308,10 +308,13 @@ export async function main(canvas) {
           voxWorld.updateVoxelGeometry(...cell.pos);
         }
       }
-      else if (item.action === "place_briq")
+      else if (item.action === "place_briqs")
       {
-        voxWorld.setVoxel(...item.payload.pos, item.payload.color)
-        voxWorld.updateVoxelGeometry(...item.payload.pos);
+        for (let data of item.payload)
+        {
+          voxWorld.setVoxel(...data.pos, data?.color ?? "")
+          voxWorld.updateVoxelGeometry(...data.pos);  
+        }
       }
       else if (item.action === "reset")
       {

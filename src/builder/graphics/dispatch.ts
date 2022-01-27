@@ -1,6 +1,6 @@
 // Temp method until I find a better system.
 
-import { Briq } from '../Briq
+import { Briq } from '../Briq';
 
 import { store } from '../../store/Store'
 
@@ -15,7 +15,7 @@ const preprocessor: { [key: string]: (payload: any) => any } = {
         })
         return data;
     },
-    "place_briq": (payload: any) => {
+    "place_briqs": (payload: { pos: [number, number, number], color?: string, material?: string }[]) => {
         return payload;
     },
 };

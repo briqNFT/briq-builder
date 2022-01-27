@@ -9,7 +9,7 @@ export class Briq
     // Off-chain metadata
     color: string;
 
-    // On-chain ID. If present, this briq is assumed to be on-chain
+    // NFT ID. If present, this briq is assumed to be an on-chain NFT.
     id: string | undefined;
 
     constructor(material: string = "0x1", color: string = "#C94A00")
@@ -18,7 +18,7 @@ export class Briq
         this.color = color;
     }
 
-    setChainId(id: string)
+    setNFTid(id: string)
     {
         this.id = id;
         return this;

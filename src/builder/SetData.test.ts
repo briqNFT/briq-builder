@@ -2,6 +2,7 @@ jest.mock('./../Meta')
 
 import { SetData } from './SetData';
 import { ChainBriqs } from './ChainBriqs';
+import { Briq } from './Briq';
 
 describe('Test SetData', () => {
     it('should calculate positions correctly', () => {
@@ -17,52 +18,50 @@ describe('Test SetData', () => {
         }
     })
 
-    it('should replace briqs correctly 1', () => {
+    it('should should find real briqs correctly. ', () => {
         let chain = new ChainBriqs();
         chain.parseChainData({ ft_balance: "0xf", nft_ids: ["0xcafe", "0xfade"] });
 
         {
             let swaps = chain.findRealBriqs({ 
-                "0x1": { need: [[0, 0, 1], [0, 0, 2]], ft_balance: 10, nft_ids: ["0xcafe"] }
+                "0x1": { ft_balance: 10, nft_ids: ["0xcafe"] }
             });
-            expect(swaps.length).toEqual(2);
-            expect(swaps[0].pos).toEqual([0, 0, 1]);
-            expect(swaps[0].newBriq.id).toEqual("0x1");
-            expect(swaps[1].pos).toEqual([0, 0, 2]);
-            expect(swaps[1].newBriq.id).toEqual("0x1");
+            // All fungible, nothing to do.
+            expect(swaps.length).toEqual(0);
         }
         {
             expect(() => chain.findRealBriqs({ 
-                "0x2": { need: [[0, 0, 1], [0, 0, 2]], ft_balance: 10, nft_ids: ["0xcafe"] }
+                "0x2": { ft_balance: 10, nft_ids: ["0xcafe"] }
             })).toThrowError();
         }
         {
             expect(() => chain.findRealBriqs({ 
-                "0x1": { need: [[0, 0, 1], [0, 0, 2]], ft_balance: 15, nft_ids: ["0xcafe"] }
+                "0x1": { ft_balance: 20, nft_ids: ["0xcafe"] }
+            })).toThrowError();
+        }
+        {
+            expect(() => chain.findRealBriqs({ 
+                "0x1": { ft_balance: 0, nft_ids: ["0xdead"] }
             })).toThrowError();
         }
         {
             let swaps = chain.findRealBriqs({ 
-                "0x1": { need: [[0, 0, 1], [0, 0, 2]], ft_balance: 14, nft_ids: ["0xcafe"] }
+                "0x1": { ft_balance: 16, nft_ids: ["0xcafe"] }
             });
-            expect(swaps.length).toEqual(2);
-            expect(swaps[0].pos).toEqual([0, 0, 1]);
-            expect(swaps[0].newBriq.id).toEqual("0x1");
-            expect(swaps[1].pos).toEqual([0, 0, 2]);
-            expect(swaps[1].newBriq.id).toEqual("0xfade");
+            expect(swaps.length).toEqual(1);
+            expect(swaps[0].id).toEqual("0xfade");
         }
     })
 
-    it('should replace briqs correctly 2', () => {
+    it('should replace briqs correctly', () => {
         let chain = new ChainBriqs();
         chain.parseChainData({ ft_balance: "0x1", nft_ids: ["0xcafe", "0xfade"] });
         
         let data = new SetData("");
-        data.placeBriq(0, 0, 0, "#ffffff", "0x1");
-        data.placeBriq(0, 0, 1, "#ffffff", "0x1");
+        data.placeBriq(0, 0, 0, new Briq("0x1"));
+        data.placeBriq(0, 0, 1, new Briq("0x1"));
 
-        console.log(data.serialize().briqs.map(x => x.data));
         data.swapForRealBriqs(chain);
-        console.log(data.serialize().briqs.map(x => x.data));
+        expect(data.serialize().briqs.map((x: any) => x.data?.id)).toEqual(["0xfade", undefined]);
     })
 })

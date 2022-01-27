@@ -1,4 +1,4 @@
-import { Briq } from "./Briq
+import { Briq } from './Briq';
 import type IBriqContract from '../contracts/briq';
 import { reactive, watchEffect } from "vue";
 import type { Ref } from "vue";
@@ -21,6 +21,15 @@ class NotEnoughBriqs extends Error
     }
 }
 
+class NFTNotAvailable extends Error
+{
+    token_id: string;
+    constructor(token_id: string)
+    {
+        super(`The NFT ${token_id} is not available, the set cannot be minted.`);
+        this.token_id = token_id;
+    }
+}
 
 /**
  * Responsible for maintaining the state of 'on-chain' briqs, as opposed to local set-briqs.
@@ -100,38 +109,35 @@ export class ChainBriqs
         return ret;
     }
 
-    findRealBriqs(usageByMaterial: { [material: string]: { need: [number, number, number][], ft_balance: number, nft_ids: string[] } })
+    /**
+     * Chcek that we have enough on-chain briqs available,
+     * and if not return NFTs that can be used to complement.
+     * Note that this function won't swap existing NFTs that are unavailable.
+     * @param usageByMaterial entry balance
+     * @returns a list of NFT briqs to replace.
+     */
+    findRealBriqs(usageByMaterial: { [material: string]: { ft_balance: number, nft_ids: string[] } })
     {
-        let swaps = [];
+        let swaps = [] as Briq[];
         for (let mat in usageByMaterial)
         {
-            if (!usageByMaterial[mat].need.length)
-                continue;
-            let need = usageByMaterial[mat].need.length;
             if (!this.byMaterial[mat])
                 throw new NotEnoughBriqs(mat);
-            let copy = Object.assign({}, this.byMaterial[mat]);
-            copy.ft_balance -= usageByMaterial[mat].ft_balance;
-            copy.nft_ids = copy.nft_ids.filter(x => usageByMaterial[mat].nft_ids.indexOf(x) === -1);
+            let chainBalance = Object.assign({}, this.byMaterial[mat]);
+            // Check that the NFTs we want to lay down are available.
+            for (let nft of usageByMaterial[mat].nft_ids)
+                if (chainBalance.nft_ids.indexOf(nft) === -1)
+                    throw new NFTNotAvailable(nft);
+            chainBalance.ft_balance -= usageByMaterial[mat].ft_balance;
+            // At this point if we have enough fungible we're good.
+            if (chainBalance.ft_balance >= 0)
+                continue;
+            // Otherwise we'll use leftover NFTs.
+            let need = -chainBalance.ft_balance;
+            if (need > chainBalance.nft_ids.length)
+                throw new NotEnoughBriqs(mat);
             for (let i = 0; i < need; ++i)
-            {
-                let br: Briq;
-                if (copy.ft_balance > 0)
-                {
-                    --copy.ft_balance;
-                    br = new Briq(mat, parseInt(mat, 16), "")
-                    br.id = mat;
-                }
-                else if (copy.nft_ids.length)
-                {
-                    br = new Briq(copy.nft_ids.pop()!, parseInt(mat, 16), "")
-                    br.id = br.temp_id;
-                }
-                else
-                    throw new NotEnoughBriqs(mat);
-                br.onChain = true;
-                swaps.push({ pos: usageByMaterial[mat].need[i], newBriq: br });
-            }
+                swaps.push(new Briq(mat).setNFTid(chainBalance.nft_ids.pop()!))
         }
         return swaps;
     }

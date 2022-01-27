@@ -1,7 +1,7 @@
 import { MouseInputState } from './BuilderInputState';
 import { store } from '../../store/Store'
 import type { SetData } from '../SetData'
-import type { Briq } from "../Briq.js
+import type { Briq } from '../Briq.js';
 import { selectionRender } from './Selection';
 
 export class InspectInput extends MouseInputState
