@@ -1,4 +1,4 @@
-import type { Briq, BriqsDB } from './BriqsDB';
+import type { Briq } from './Briq
 import { SetData } from './SetData';
 
 import { registerUndoableAction } from "./UndoRedo"
@@ -18,6 +18,7 @@ import contractStore from '../Contracts';
 
 import { inputStore } from './inputs/InputStore';
 import { setsManager } from './SetsManager';
+import { ChainBriqs } from './ChainBriqs';
 
 let initSet = new SetData(hexUuid());
 
@@ -54,14 +55,6 @@ export var builderDataStore = (() => {
             {
                 commit("change_set_name", payload);
             },
-            swap_for_real_briqs({ commit }: any, data: { briqsDB: BriqsDB })
-            {
-                commit("swap_for_real_briqs", data);
-            },
-            swap_for_fake_briqs({ commit }: any)
-            {
-                commit("swap_for_fake_briqs");
-            },
             
             ////////////
             //// Briq manipulation stuff
@@ -88,7 +81,7 @@ export var builderDataStore = (() => {
                 commit("undo_clear", data);
             },
 
-            swap_briqs({ commit }: any, data: { briqsDB: BriqsDB, swaps: Array<[string, string]>})
+            swap_briqs({ commit }: any, data: { chainBriqs: ChainBriqs, swaps: Array<[string, string]>})
             {
                 commit("swap_briqs", data);
             },
@@ -191,16 +184,6 @@ export var builderDataStore = (() => {
             {
                 data.set.name = data.name;
             },
-            swap_for_real_briqs(state: any, data: { briqsDB: BriqsDB })
-            {
-                state.currentSet.swapForRealBriqs(data.briqsDB);
-                inputStore.selectionMgr.clear();
-            },
-            swap_for_fake_briqs(state: any)
-            {
-                state.currentSet.swapForFakeBriqs();
-                inputStore.selectionMgr.clear();
-            },
             
             clear: (state: any) => {
                 state.currentSet.reset();
@@ -214,6 +197,7 @@ export var builderDataStore = (() => {
                 dispatchBuilderAction("select_set", state.currentSet);
             },
 
+            /*
             swap_briqs(state: any, data: { briqsDB: BriqsDB, swaps: Array<[string, string]>})
             {
                 for (let [ogId, newId] of data.swaps)
@@ -223,6 +207,7 @@ export var builderDataStore = (() => {
                 }
                 dispatchBuilderAction("select_set", state.currentSet);
             },
+            */
 
             move_all_briqs(state: any, data: any) {
                 state.currentSet.moveAll(data.x ?? 0, data.y ?? 0, data.z ?? 0);

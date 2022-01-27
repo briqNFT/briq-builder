@@ -1,5 +1,4 @@
-import { number } from 'starknet';
-import { Briq, BriqsDB } from './BriqsDB'
+import { Briq } from './Briq
 import type { ChainBriqs } from './ChainBriqs';
 
 import { cellSize } from './Constants';

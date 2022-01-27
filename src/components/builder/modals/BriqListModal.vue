@@ -35,7 +35,7 @@ td {
 </style>
 
 <script lang="ts">
-import type { Briq } from '../../../builder/BriqsDB'
+import type { Briq } from '../../../builder/Briq'
 import { setsManager } from '../../../builder/SetsManager';
 
 import { defineComponent } from 'vue';
@@ -51,8 +51,8 @@ export default defineComponent({
             return setsManager.setList;
         },
         briqs(): Array<[string, Briq]> {
-            if (this.setup === "all")
-                return Array.from(this.chainBriqs.DB.briqs as Map<string, Briq>);
+            //if (this.setup === "all")
+            //    return Array.from(this.chainBriqs.DB.briqs as Map<string, Briq>);
             //else if (this.setup === "current")
             //    return Array.from(this.$store.state.builderData.currentSet.briqsDB as Map<string, Briq>);
             else

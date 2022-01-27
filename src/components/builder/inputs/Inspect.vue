@@ -9,7 +9,7 @@ import { pushModal } from "../../Modals.vue";
         <template v-if="selection.selectedBriqs.length <= 2">
             <div  class="bg-briq dark:bg-briq-darker rounded-md px-2 py-1" v-for="briq of selection.selectedBriqs">
                 <p class="text-sm tracking-tighter break-all">{{ briq.id }}</p>
-                <Btn :disabled="briqsDB.briqs.size === 0" @click="openSwapModal(briq.temp_id)">Swap briq</Btn>
+                <Btn :disabled="!chainBriqs.getNbBriqs()" @click="openSwapModal(briq.temp_id)">Swap briq</Btn>
             </div>
         </template>
         <template v-else="">
@@ -36,7 +36,6 @@ export default defineComponent({
         return {
             fsm: builderInputFsm.state.gui,
             selection: builderInputFsm.store.selectionMgr,
-            briqsDB: this.chainBriqs.DB,
         };
     },
     methods: {

@@ -1,4 +1,4 @@
-import { Briq, BriqsDB } from "./BriqsDB";
+import { Briq } from "./Briq
 import type IBriqContract from '../contracts/briq';
 import { reactive, watchEffect } from "vue";
 import type { Ref } from "vue";
@@ -29,7 +29,6 @@ export class ChainBriqs
 {
     fetchingBriqs = false;
 
-    DB = new BriqsDB();
     byMaterial: { [material: string]: BALANCE } = {};
 
     briqContract: undefined | IBriqContract;
