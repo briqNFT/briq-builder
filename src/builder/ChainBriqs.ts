@@ -109,6 +109,19 @@ export class ChainBriqs
         return ret;
     }
 
+    getBalanceDetails(): ({ material: string, qty: number } | { material: string, token_id: string })[]
+    {
+        let ret = [];
+        for (let mat in this.byMaterial)
+        {
+            if (this.byMaterial[mat].ft_balance)
+                ret.push({ material: mat, qty: this.byMaterial[mat].ft_balance });
+            for (let token_id of this.byMaterial[mat].nft_ids)
+                ret.push({ material: mat, token_id })
+        }
+        return ret;
+    }
+
     /**
      * Chcek that we have enough on-chain briqs available,
      * and if not return NFTs that can be used to complement.

@@ -45,7 +45,7 @@ export class SetInfo {
         this.id = data.id;
         this.chain_owner = data.chain_owner;
         if (data.local)
-            this.local = new SetData(this.id).deserialize(data.local);
+            this.local = new SetData(data.id).deserialize(data.local);
         // TODO: check coherence.
         return this;
     }
@@ -116,7 +116,7 @@ export class SetInfo {
     }
 
     async checkActuallyOnChain(setContract: SetContract) {
-        let owner = await setContract.owner_of(this.id);
+        let owner = await setContract.ownerOf(this.id);
         if (!owner || owner === "0x0")
         {
             this.chain_owner = '';
@@ -164,7 +164,7 @@ class SetsManager
     }
 
     getSets = ticketing(async function(setContract: SetContract, owner: string) {
-        return await setContract.get_all_tokens_for_owner(owner);
+        return await setContract.balanceDetailsOf(owner);
     })
 
     async loadOnChain(setContract: SetContract, owner: string) {
@@ -289,6 +289,21 @@ class SetsManager
         delete data.id;
         copy.deserialize(data);
         return copy;
+    }
+
+    onSetMinted(oldSetId: string, newSet: SetData) {
+        if (!newSet.chainId)
+            throw new Error("Set was minted but has no chain ID");
+        newSet.id = newSet.chainId!;
+
+        let idx = this.setList.indexOf(oldSetId);
+        this.setList.splice(idx, 1, newSet.id);
+        this.setsInfo[newSet.id] = this.setsInfo[oldSetId];
+        delete this.setsInfo[oldSetId];
+    
+        this.setsInfo[newSet.id].status = 'ONCHAIN_LOADED';
+        this.setsInfo[newSet.id].chain = newSet;
+        this.setsInfo[newSet.id].local = newSet;
     }
 };
 
