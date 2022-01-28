@@ -79,13 +79,13 @@ export default class SetContract extends ExtendedContract
             ...nfts
         ]);
     }
-    /*
-    async transfer_from(sender: string, recipient: string, token_id: string, bricks: Array<string>)
+
+    async transferOneNFT(sender: string, recipient: string, token_id: string)
     {
         if (!((this.provider as Signer).address))
            throw new Error("Provider is not a signer");
-        return await this.invoke("transfer_from", { sender, recipient, token_id, bricks });
-    }*/
+        return await this.invoke("transferOneNFT", { sender, recipient, token_id });
+    }
 
     async ownerOf(token_id: string)
     {

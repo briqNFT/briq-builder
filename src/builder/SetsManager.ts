@@ -87,7 +87,7 @@ export class SetInfo {
         try {
             data = await this._fetchFromChain(this.id);
             try {
-                data = new SetData(data.id).deserialize(data);
+                data = new SetData(this.id).deserialize(data);
             } catch(err) {
                 reportError(err as Error, "Error while parsing set data from chain");
             }
@@ -292,10 +292,6 @@ class SetsManager
     }
 
     onSetMinted(oldSetId: string, newSet: SetData) {
-        if (!newSet.chainId)
-            throw new Error("Set was minted but has no chain ID");
-        newSet.id = newSet.chainId!;
-
         let idx = this.setList.indexOf(oldSetId);
         this.setList.splice(idx, 1, newSet.id);
         this.setsInfo[newSet.id] = this.setsInfo[oldSetId];

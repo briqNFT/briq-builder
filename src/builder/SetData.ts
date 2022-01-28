@@ -12,8 +12,6 @@ export class SetData
 {
     id: string;
     name: string;
-    
-    chainId: string | undefined;
 
     regionSize: number;
     // Indexed by region & cell
@@ -43,8 +41,6 @@ export class SetData
     serialize()
     {
         let ret: any = {};
-        if (this.chainId)
-            ret.chainId = this.chainId;
         ret.id = this.id;
         ret.name = this.name;
         ret.regionSize = 10;
@@ -64,9 +60,12 @@ export class SetData
 
     deserialize(data: any): SetData
     {
+        // TEMP CODE
+        if (data.chainId)
+            data.id = data.chainId;
+
         if (data.id && this.id !== data.id)
             throw new Error("Set tried to load data from the wrong set");
-        this.chainId = data.chainId;
         this.reset();
         this.name = data.name;
         this.regionSize = data.regionSize;
@@ -84,7 +83,7 @@ export class SetData
     }
     
     getName() {
-        return this.name || this.chainId || "Local set";
+        return this.name || this.id;
     }
 
     ////////////////////////////////////////////////
