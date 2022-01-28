@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import SetGridItem from './SetGridItem.vue';
-import Modals from '../../Modals.vue';
 </script>
 
 <template>
