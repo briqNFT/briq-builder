@@ -5,6 +5,7 @@ import type { EffectComposer as EffectComposerType } from 'three/examples/jsm/po
 import type { RenderPass as RenderPassType } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import type { SSAARenderPass as SSAARenderPassType } from 'three/examples/jsm/postprocessing/SSAARenderPass.js';
 import type { SAOPass as SAOPassType } from 'three/examples/jsm/postprocessing/SAOPass.js';
+import { logDebug } from './Messages';
 
 // This is a lie.
 export var THREE: typeof THREETYPES;
@@ -23,6 +24,6 @@ async function setup() {
     RenderPass = wrapper.RenderPass;
     SSAARenderPass = wrapper.SSAARenderPass;
     SAOPass = wrapper.SAOPass;
-    console.log("Successfully dynamically loaded three.js");
+    logDebug("Successfully dynamically loaded three.js");
 }
 export  var THREE_SETUP = setup();

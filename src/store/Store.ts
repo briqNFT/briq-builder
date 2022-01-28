@@ -5,6 +5,7 @@ import { walletStore } from "../Wallet";
 import { UndoRedo, undoRedoStore } from "../builder/UndoRedo";
 
 import { DEV } from '../Meta'
+import { logDebug } from "../Messages";
 
 export const store = createStore({
     modules: {
@@ -28,7 +29,7 @@ export var isLoaded = (() => {
 
 export function setLoaded()
 {
-    console.log("store laoded");
+    logDebug("VueX Store Loaded");
     resolveLoading();
 }
 

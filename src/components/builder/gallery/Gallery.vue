@@ -53,7 +53,6 @@ export default defineComponent({
     methods: {
         loadMore() {
             this.loadUpTo += 40;
-            console.log("load more");
         }
     }
 });
