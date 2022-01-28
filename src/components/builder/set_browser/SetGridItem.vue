@@ -146,7 +146,7 @@ export default defineComponent({
             return !this.disableButtons && this.setInfo.isOnChain();
         },
         canMint() {
-            //return this.setInfo.local?.briqsDB?.briqs?.size > 0 && !this.disableButtons;
+            return this.setInfo.local?.getNbBriqs() > 0 && !this.disableButtons;
         },
         canSelectSet() {
             return !this.isCurrent;

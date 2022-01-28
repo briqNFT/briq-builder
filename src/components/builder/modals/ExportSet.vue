@@ -273,11 +273,9 @@ export default defineComponent({
                 // Update the name in case it changed.
                 this.exportSet.name = this.set.name;
                 let token_hint = this.exportSet.id;
-                this.exportSet.chainId = computeHashOnElements([this.$store.state.wallet.userWalletAddress, token_hint]);
+                this.exportSet.id = computeHashOnElements([this.$store.state.wallet.userWalletAddress, token_hint]);
 
                 let data = this.exportSet.serialize();
-
-                console.log(data);
 
                 const message = {
                     domain: {
@@ -304,7 +302,7 @@ export default defineComponent({
 
                 await fetchData("store_set", {
                     owner: this.$store.state.wallet.userWalletAddress,
-                    token_id: data.chainId,
+                    token_id: data.id,
                     data: data,
                     message_hash: await this.$store.state.wallet.signer.hashMessage(message),
                     signature: signature,
@@ -316,7 +314,7 @@ export default defineComponent({
                 let TX = await contractStore.set.assemble(this.$store.state.wallet.userWalletAddress, token_hint, data.briqs.map((x: any) => x.data));
                 
                 // Mark the transaction as waiting.
-                new Transaction(TX.transaction_hash, "export_set", { setId: data.chainId });
+                new Transaction(TX.transaction_hash, "export_set", { setId: data.id });
                 
                 this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
 
@@ -333,11 +331,11 @@ export default defineComponent({
                         }
                     }, 3000);
                 });
-                this.messages.pushMessage("Set exported " + data.chainId + " - TX " + TX.transaction_hash);
+                this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
 
                 setsManager.onSetMinted(this.set.id, this.exportSet)
-                this.setId = this.exportSet.chainId;
-                this.$store.dispatch("builderData/select_set", this.exportSet.chainId);
+                this.setId = this.exportSet.id;
+                this.$store.dispatch("builderData/select_set", this.exportSet.id);
 
                 this.exporting = 'DONE';
             }

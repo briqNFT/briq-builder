@@ -31,7 +31,7 @@ export default defineComponent({
     inject: ["messages", "reportError"],
     computed: {
         formatOk() {
-            return this.target.match(/^0x[abcdef0-9]{63}$/gi);
+            return this.target.match(/^0x[abcdef0-9]{63,64}$/gi);
         }
     },
     methods: {
@@ -40,9 +40,8 @@ export default defineComponent({
             if (!this.formatOk)
                 return;
             try {
-                let bricks = this.metadata.data.serialize().briqs.map(x => x.data.briq);
-                let tx = await contractStore.set.transfer_from(this.$store.state.wallet.userWalletAddress, this.target, this.metadata.setId, bricks);
-                new Transaction(tx.transaction_hash, 'disassembly', { setId: this.metadata.setId });
+                let tx = await contractStore.set?.transferOneNFT(this.$store.state.wallet.userWalletAddress, this.target, this.metadata.setId);
+                new Transaction(tx.transaction_hash, 'transfer', { setId: this.metadata.setId });
                 this.messages.pushMessage("Set transfer ongoing - " + tx.transaction_hash);   
             }
             catch(err)
