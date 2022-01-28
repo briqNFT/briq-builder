@@ -9,7 +9,7 @@ import { reportError } from '../Monitoring';
 import { fetchData } from '../url';
 
 import { toRef, watch, watchEffect } from 'vue';
-import { pushMessage } from '../Messages';
+import { logDebug, pushMessage } from '../Messages';
 
 export type SET_STATUS = "ONCHAIN_ONLY" | "ONCHAIN_LOADED" | "ONCHAIN_EDITING" | "LOCAL";
 
@@ -216,7 +216,6 @@ class SetsManager
             }
             if (contractStore.set && wallet.userWalletAddress)
             {
-                //console.log("LOADING CHAIN SETS", contractStore.set.connectedTo, wallet.userWalletAddress);
                 setsManager.loadOnChain(contractStore.set, wallet.userWalletAddress);
             }
         })
@@ -314,18 +313,18 @@ watchEffect(() => {
             continue;
         storageHandlers[sid] = watchEffect(() => {
             let info = setsManager.setsInfo[sid];
-            console.log("SET STORAGE HANDLER - Serializing set ", sid);
+            logDebug("SET STORAGE HANDLER - Serializing set ", sid);
             if (!info || info.status === 'ONCHAIN_ONLY')
             {
                 // Delete
                 if (window.localStorage.getItem("briq_set_" + sid))
                 {
-                    console.log("SET STORAGE HANDLER - deleted local set");
+                    logDebug("SET STORAGE HANDLER - deleted local set");
                     window.localStorage.removeItem("briq_set_" + sid);
                 }
                 if (!info)
                 {
-                    console.log("SET STORAGE HANDLER - unwatching ", sid);
+                    logDebug("SET STORAGE HANDLER - unwatching ", sid);
                     storageHandlers[sid]();
                     delete storageHandlers[sid];
                 }

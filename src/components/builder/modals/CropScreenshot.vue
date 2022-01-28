@@ -86,7 +86,6 @@ export default defineComponent({
         async crop() {
             let c = document.createElement("canvas");
             let ctx = c.getContext("2d")!;
-            console.log("out:", this.ex - this.sx, this.ey - this.sy);
             c.width = (this.ex - this.sx) / this.$refs.image.clientWidth * this.$refs.image.naturalWidth;
             c.height = (this.ey - this.sy) / this.$refs.image.clientHeight * this.$refs.image.naturalHeight;
             ctx.drawImage(this.$refs.image,

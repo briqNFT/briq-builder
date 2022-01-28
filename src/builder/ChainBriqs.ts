@@ -3,7 +3,7 @@ import type IBriqContract from '../contracts/briq';
 import { reactive, watchEffect } from "vue";
 import type { Ref } from "vue";
 import { ticketing, isOutdated } from "../Async";
-import { pushMessage } from "../Messages";
+import { logDebug, pushMessage } from "../Messages";
 import { reportError } from "../Monitoring";
 
 // TODO: there can technically be more than whatever is supported by number
@@ -51,14 +51,14 @@ export class ChainBriqs
     setContract(contract?: IBriqContract)
     {
         this.briqContract = contract;
-        console.log("CHAIN BRIQS - CONTRACT IS ", contract);
+        logDebug("CHAIN BRIQS - CONTRACT IS ", contract);
     }
 
     setAddress(addr: Ref<string>)
     {
         // Because we are reactive, this will get unwrapped silently. Typescript complains.
         this.addr = addr as unknown as string;
-        console.log("CHAIN BRIQS - ADDRESS IS ", addr, addr.value);
+        logDebug("CHAIN BRIQS - ADDRESS IS ", addr, addr.value);
     }
 
     _getTokens = ticketing(async function (this: ChainBriqs) {
@@ -73,11 +73,11 @@ export class ChainBriqs
             // TODO: reset briqs.
             return;
         }
-        console.log("CHAIN BRIQS - LOADING ", this.briqContract?.connectedTo, this.addr);
+        logDebug("CHAIN BRIQS - LOADING ", this.briqContract?.connectedTo, this.addr);
         try {
             let balance = await this._getTokens();
             this.parseChainData(balance);
-            console.log("CHAIN BRIQS - LOADED ", balance);
+            logDebug("CHAIN BRIQS - LOADED ", balance);
         }
         catch(err)
         {
@@ -123,7 +123,7 @@ export class ChainBriqs
     }
 
     /**
-     * Chcek that we have enough on-chain briqs available,
+     * Check that we have enough on-chain briqs available,
      * and if not return NFTs that can be used to complement.
      * Note that this function won't swap existing NFTs that are unavailable.
      * @param usageByMaterial entry balance
