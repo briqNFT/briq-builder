@@ -5,6 +5,7 @@ import { pushModal } from "../../Modals.vue";
 
 <template>
     <!-- Sidebar bit -->
+    <!--
     <div class="alternate-buttons">
         <template v-if="selection.selectedBriqs.length <= 2">
             <div  class="bg-briq dark:bg-briq-darker rounded-md px-2 py-1" v-for="briq of selection.selectedBriqs">
@@ -16,6 +17,7 @@ import { pushModal } from "../../Modals.vue";
             <p>TODO</p>
         </template>
     </div>
+    -->
     <!-- Follows the mouse -->
     <div v-if="fsm?.briq" class="fixed pointer-events-none" :style="{ 'left': `${fsm.curX+20}px`, 'top': `${fsm.curY+20}px` }">
         <div class="w-auto min-w-32 h-32 bg-briq dark:bg-briq-darker p-2 rounded-md shadow-md">
