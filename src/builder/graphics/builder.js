@@ -1,8 +1,6 @@
 
 import { tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
 
-import { cellSize } from '../Constants'
-
 import VoxelWorld from './VoxelWorld';
 export var voxWorld;
 
@@ -28,6 +26,11 @@ export var orbitControls = {
   controls: undefined,
 };
 
+function getCanvasSize()
+{
+  return Math.max(5, builderSettings.canvasSize);
+};
+
 /**
  * 
  * @param {number} x - % of canvas, left to right
@@ -46,13 +49,13 @@ export function getCameraRay(xin, yin)
 }
 
 function generateGrid() {
-  var gridXZ = new THREE.GridHelper(cellSize*2+1, cellSize*2+1, builderSettings.gridColor, builderSettings.gridColor);
+  var gridXZ = new THREE.GridHelper(getCanvasSize()*2+1, getCanvasSize()*2+1, builderSettings.gridColor, builderSettings.gridColor);
   gridXZ.position.set(1/2, 0, 1/2);
   return gridXZ;
 }
 
 function generatePlane(scene) {
-  var geometry = new THREE.PlaneBufferGeometry(cellSize*2+1, cellSize*2+1);
+  var geometry = new THREE.PlaneBufferGeometry(getCanvasSize()*2+1, getCanvasSize()*2+1);
   var material = new THREE.MeshPhongMaterial( {color: builderSettings.planeColor, side: THREE.DoubleSide });
   var planeXZ = new THREE.Mesh(geometry, material);
   planeXZ.receiveShadow = true;
@@ -98,7 +101,7 @@ import getPreviewCube from './PreviewCube'
 
 export function resetCamera()
 {
-    camera.position.set(cellSize * 0.3, cellSize * 0.8, -cellSize * 1.4);
+    camera.position.set(getCanvasSize() * 0.3, getCanvasSize() * 0.8, -getCanvasSize() * 1.4);
     orbitControls.controls.target.set(1/2, 1, 1/2);
     orbitControls.controls.update();
 }
@@ -208,10 +211,10 @@ function addLight(scene, x, y, z) {
   lightSpot.shadow.bias = -0.005;
   lightSpot.shadow.camera.near = 0.1;
   lightSpot.shadow.camera.far = 50;
-  lightSpot.shadow.camera.left=-cellSize*1.3;
-  lightSpot.shadow.camera.right=cellSize*1.3;
-  lightSpot.shadow.camera.bottom=-cellSize;
-  lightSpot.shadow.camera.top=cellSize*3;
+  lightSpot.shadow.camera.left=-getCanvasSize()*1.3;
+  lightSpot.shadow.camera.right=getCanvasSize()*1.3;
+  lightSpot.shadow.camera.bottom=-getCanvasSize();
+  lightSpot.shadow.camera.top=getCanvasSize()*3;
   lightSpot.shadow.mapSize.width = 1024;
   lightSpot.shadow.mapSize.height = 1024;
   scene.add(lightSpot);
@@ -270,7 +273,7 @@ export async function main(canvas) {
   resetCamera();
   
   voxWorld = new VoxelWorld({
-    cellSize,
+    cellSize: 10,
     tileSize,
     nbMaterial,
     tileTextureHeight,

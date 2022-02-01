@@ -12,6 +12,7 @@ const store = reactive({
     showPlane: true,
     showGrid: true,
     transparentBackground: false,
+    canvasSize: 10,
 });
 
 export function resetStore() {
@@ -24,6 +25,7 @@ export function resetStore() {
     store.showPlane = true;
     store.showGrid = true;
     store.transparentBackground = false;
+    store.canvasSize = 10;
 }
 
 for (let key in store)
