@@ -56,6 +56,11 @@ class Palette
             Object.assign(this.colors, DEFAULT_COLORS);
     }
 
+    getNbColors()
+    {
+        return Object.keys(this.colors).length;
+    }
+
     getFirstColor()
     {
         return Object.keys(this.colors)[0];

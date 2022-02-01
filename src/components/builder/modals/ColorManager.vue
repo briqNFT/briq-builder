@@ -5,14 +5,14 @@
             <h2 class="text-center">Color Manager</h2>
             <div>
                 <p v-for="col, key in palette.colors" class="my-1">
-                    <Btn noStyle="true" :class="'mx-1 font-semibold ' + (usedColors[key] > 0 ? 'text-gray-600' : '')" :disabled="usedColors[key] > 0" @click="deleteColor(key)"><i class="fas fa-times"></i></Btn>
+                    <Btn noStyle="true" :class="'mx-1 font-semibold ' + (usedColors[key] > 0 ? 'text-gray-600' : '')" :disabled="palette.getNbColors() == 1 || usedColors[key] > 0" @click="deleteColor(key)"><i class="fas fa-times"></i></Btn>
                     <Btn noStyle="true" class="mx-1 font-semibold" @click="replaceColor(key)"><i class="far fa-edit"></i></Btn>
                     <span class="w-6 h-6 mx-1 inline-flex justify-center align-center font-bold" :style="{ 'borderRadius': '50%', 'backgroundColor': key }">{{ usedColors[key] ?? 0 }}</span>
                     <span class="font-mono">{{ col }}</span>
                 </p>
             </div>
-            <Btn class="float-left" @click="resetAll">Reset to default colors</Btn>
-            <Btn class="float-left" @click="keepActive">Keep only set colors</Btn>
+            <Btn class="float-left;" @click="resetAll">Reset to default colors</Btn>
+            <Btn class="float-left mx-2" :disabled="!$store.state.builderData.currentSet.getNbBriqs()" @click="keepActive">Keep only set colors</Btn>
             <Btn class="float-right" @click="$emit('close')">Close</Btn>
         </div>
     </div>
