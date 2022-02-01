@@ -39,7 +39,6 @@ export default defineComponent({
 <style scoped>
 #ga-popup {
     width: 17rem;
-    background: #fff;
     box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
     border: 2px solid #ccc;
     margin:0;
@@ -48,7 +47,7 @@ export default defineComponent({
     bottom:1rem;
     right:1rem;
     z-index:100;
-    @apply text-deep-blue;
+    @apply bg-gray-200 dark:bg-gray-400 text-deep-blue;
 }
 .buttons {
     display:flex;

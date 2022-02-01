@@ -11,7 +11,7 @@
             class="flex min-h-screen w-screen overflow-auto absolute top-0 justify-center items-center invisible"
         >
             <component :metadata="data.metadata" :is="data.modal"
-                :class="'container rounded-lg bg-briq dark:bg-briq-darker alternate-buttons mx-auto my-8 px-8 py-4 shadow-xl relative ' + (visible ? 'visible' : 'invisible')"
+                :class="'container rounded-lg bg-base alternate-buttons mx-auto my-8 px-8 py-4 shadow-xl relative ' + (visible ? 'visible' : 'invisible')"
                 @close="close"
                 @hide="toggleVisibility(false)"
                 @show="toggleVisibility(true)"

@@ -14,20 +14,20 @@ import AlphaBanner from '../AlphaBanner.vue';
 </script>
 
 <template>
-    <div class="w-full h-full bg-briq dark:bg-briq-darker text-white dark:text-gray-200 text-lg relative text-center font-sans alternate-buttons">
+    <div class="w-full h-full bg-base text-white dark:text-gray-200 text-lg relative text-center font-sans alternate-buttons">
         <Header></Header>
         <div class="row">
             <div class="flex flex-wrap justify-around md:my-6 my-10">
                 <div class="centerall flex-1">
                     <p class="md:my-4 my-8 text-2xl">briq is NFT matter.<br/>briqs build NFTs that matter.<br/>Seize the briqs of construction.</p>
                     <div class="alpha-pill py-4 px-3">
-                        <button @click="$router.push({ name: 'Builder' })"><span class="px-4 py-1 inline-block">Build</span></button>
+                        <Btn @click="$router.push({ name: 'Builder' })"><span class="px-4 py-1 inline-block">Build</span></Btn>
                     </div>
                 </div>
                 <div class="centerall flex-1"><GMIcon class="lg:scale-100 scale-75 dark:opacity-80"/></div>
             </div>
         </div>
-        <div class="bg-briq-dark dark:bg-briq-darkest my-20 row">
+        <div class="bg-darker my-20 row">
             <div class="flex flex-wrap justify-between">
                 <div class="md:centerleft centerall flex-auto"><ComposableIcon class="dark:opacity-80"/></div>
                 <div class="md:centerright centerall flex-initial">
@@ -39,7 +39,7 @@ import AlphaBanner from '../AlphaBanner.vue';
                 </div>
             </div>
         </div>
-        <div class="row bg-briq-dark dark:bg-briq-darkest my-20">
+        <div class="row bg-darker my-20">
             <div class="flex flex-wrap justify-between">
                 <div class="centerall md:centerleft flex-initial">
                     <h2>NFTs should be interoperable</h2>
@@ -51,7 +51,7 @@ import AlphaBanner from '../AlphaBanner.vue';
                 <div class="centerall md:centerright flex-auto"><InteroperableIcon class="dark:opacity-80"/></div>
             </div>
         </div>
-        <div class="row bg-briq-dark dark:bg-briq-darkest my-20">
+        <div class="row bg-darker my-20">
             <div class="flex flex-wrap justify-between">
                 <div class="centerall md:centerleft flex-auto"><OnChainIcon class="dark:opacity-80"/></div>
                 <div class="centerall md:centerright flex-initial">
@@ -131,10 +131,6 @@ svg {
     @apply drop-shadow-xl;
 }
 
-button {
-    @apply btn;
-}
-
 .alpha-pill {
     position: relative
 }
@@ -143,7 +139,7 @@ button {
     content: "alpha";
     font-style: italic;
 
-    @apply bg-briq-light dark:bg-briq px-2 py-0.5 text-deep-blue text-sm;
+    @apply bg-accent px-2 py-0.5 text-deep-blue text-sm;
     position: absolute;
     top: 0;
     right: 0;

@@ -2,9 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+html:not(.dark) {
+    --color-base: 235 86 0;
+    --color-accent: 247 137 74;
+    --color-darker: 201 74 0;
+    --color-text: 255 255 255;
+}
+
+html.dark {
+    --color-base: 117 41 0;
+    --color-accent: 155 56 3;
+    --color-darker: 50 20 0;
+    --color-text: 220 220 220;
+}
+
 @layer base {
     body {
-        @apply text-white dark:text-gray-200 font-sans font-light bg-briq dark:bg-briq-darker;
+        @apply text-text font-sans font-light bg-base;
     }
     h1 {
         @apply text-7xl font-medium;
@@ -22,12 +36,12 @@
 
     /* Overwrite the default outline color */
     button, a {
-        @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-briq-dark dark:focus-visible:ring-black;
+        @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-darker;
     }
 
     .btn {
-        @apply bg-briq dark:bg-briq-darker rounded px-3 py-1;
-        @apply border-2 border-briq dark:border-briq-darker;
+        @apply bg-base rounded px-3 py-1;
+        @apply border-base border-2;
         @apply shadow-sm;
         @apply font-light;
         min-height: 2.5rem;
@@ -36,7 +50,7 @@
         @apply border-b-2 border-deep-blue;
     }
     .btn:not(:disabled):active {
-        @apply border-2 border-deep-blue bg-briq-light dark:bg-briq-dark;
+        @apply border-2 border-deep-blue bg-accent;
     }
     .btn:disabled {
         @apply bg-gray-300 dark:bg-gray-700;
@@ -44,13 +58,13 @@
     }
 
     .alternate-buttons .btn {
-        @apply font-semibold border-white dark:border-briq-darkest rounded-lg border-4 px-1;
+        @apply font-semibold border-text rounded-lg border-4 px-1;
     }    
     .alternate-buttons .btn:not(:disabled):hover {
-        @apply border-4 border-deep-blue dark:border-black;
+        @apply border-4 border-darker;
     }
     .alternate-buttons .btn:not(:disabled):active {
-        @apply border-4 bg-briq-light dark:bg-briq-darkest;
+        @apply border-4 bg-accent;
     }
 
     .alternate-buttons .btn:disabled {
@@ -58,6 +72,6 @@
     }
 
     input, select {
-        @apply rounded px-2 py-0.5 text-deep-blue bg-white dark:bg-briq-darkest;
+        @apply rounded px-2 py-0.5 bg-white text-black dark:bg-darker dark:text-text;
     }
 }
