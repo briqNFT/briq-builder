@@ -196,9 +196,7 @@ function recreateRenderer(canvas, scene, camera)
 };
 
 function addLight(scene, x, y, z) {
-    const color = 0xFFFFFF;
-    const intensity = 1.0;
-    const lightSpot = new THREE.DirectionalLight(color, intensity, 18);
+    const lightSpot = new THREE.DirectionalLight(builderSettings.lightColor, 1.0, 18);
     lightSpot.position.set(x, y, z);
     lightSpot.castShadow = true;
     lightSpot.shadow.bias = -0.005;
@@ -212,7 +210,7 @@ function addLight(scene, x, y, z) {
     lightSpot.shadow.mapSize.height = 1024;
     scene.add(lightSpot);
     
-    const ambientLight = new THREE.AmbientLight(color, 0.7);
+    const ambientLight = new THREE.AmbientLight(builderSettings.ambientColor, 1.5);
     scene.add(ambientLight);
 }
 
