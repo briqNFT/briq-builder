@@ -7,7 +7,7 @@
 <script lang="ts">
 import Button from "../../generic/Button.vue";
 
-import { resetCamera } from '../../../builder/graphics/builder.js'
+import { resetCamera } from '../../../builder/graphics/Builder'
 
 import { defineComponent } from 'vue';
 export default defineComponent({

@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 
-import { getCameraRay, voxWorld } from "../graphics/builder.js"
+import { getCameraRay, voxWorld } from "../graphics/Builder"
 import type { BuilderInputFSM } from './BuilderInput'
 
 export class BuilderInputState

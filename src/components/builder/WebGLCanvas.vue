@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts">
-import { main, orbitControls } from "../../builder/graphics/builder.js"
+import { main, orbitControls } from "../../builder/graphics/Builder"
 
 import { builderInputFsm } from "../../builder/inputs/BuilderInput"
 import { inputStore } from '../../builder/inputs/InputStore'

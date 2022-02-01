@@ -42,7 +42,7 @@
 </style>
 
 <script lang="ts">
-import { takeScreenshot } from '../../../builder/graphics/builder.js';
+import { takeScreenshot } from '../../../builder/graphics/Builder';
 import { downloadData } from '../../../url';
 import builderSettings from '../../../builder/graphics/Settings';
 import { pushModal } from '../../Modals.vue';

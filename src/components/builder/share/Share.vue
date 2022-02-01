@@ -63,7 +63,7 @@ import { pushMessage, setTooltip } from '../../../Messages';
 import { pushModal } from '../../Modals.vue';
 import Settings from '../modals/Settings.vue';
 import Screenshot from './Screenshot.vue';
-import { dispatchBuilderAction } from '../../../builder/graphics/dispatch';
+import { dispatchBuilderAction } from '../../../builder/graphics/Dispatch';
 import { SetData } from '../../../builder/SetData';
 import { inputStore } from '../../../builder/inputs/InputStore';
 import { getProvider, getProviderForNetwork } from '../../../Provider';

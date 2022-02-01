@@ -2,10 +2,10 @@
 import { tileSize, tileTextureHeight, nbMaterial } from '../../materials.js'
 
 import VoxelWorld from './VoxelWorld';
-export var voxWorld;
+export var voxWorld: VoxelWorld;
 
 import { store } from "../../store/Store"
-import { dispatchedActions } from './dispatch'
+import { dispatchedActions } from './Dispatch'
 
 import { watchEffect } from 'vue';
 import builderSettings from './Settings';
@@ -19,7 +19,7 @@ import {
   SAOPass,
 } from '../../three';
 
-var camera;
+var camera: THREE.Camera;
 
 // OrbitControls, exported so we can pass them to inputs.
 export var orbitControls = {
@@ -79,11 +79,6 @@ import daylight_Right from '../../assets/skybox/Daylight-Box_Right.jpg'
 import daylight_Top from '../../assets/skybox/Daylight-Box_Top.jpg'
 
 function generateSkybox(scene) {
-
-  const ctex = new THREE.DataTexture([255, 255, 255, 255], 1, 1, THREE.RGBAFormat);
-  ctex.magFilter = THREE.NearestFilter;
-  ctex.minFilter = THREE.NearestFilter;
-
   const loader = new THREE.CubeTextureLoader();
   const texture = loader.load([
     daylight_Right,
@@ -93,7 +88,6 @@ function generateSkybox(scene) {
     daylight_Front,
     daylight_Back
   ]);
-  texture.color = 0xc94a00;
   return texture;
 }
 

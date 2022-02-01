@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { takeScreenshot } from '../../../builder/graphics/builder.js';
+import { takeScreenshot } from '../../../builder/graphics/Builder';
 import { inputStore } from '../../../builder/inputs/InputStore';
 import { pushModal, setOnlyShowLast } from '../../Modals.vue';
 import SettingsVue from './Settings.vue';
