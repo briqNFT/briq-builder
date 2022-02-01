@@ -5,9 +5,9 @@ import MintContract from './contracts/mint'
 const ADDRESSES = {
     // Alpha4-goerli
     "https://alpha4.starknet.io": {
-        briq: "0x02c0d7186487303a155ba16aa1e1d2925095dfb91442ba16006e1ddabc8a7b90",
-        set: "0x0107f6b6e846898ca1bd081f55b07cba4b80ad4965ff1ecae1e9c7455e2e4089",
-        mint: "0x052b56963dc6e992a988bfbba3446106cdb67e4d9e5542b58d3593037d756bb1",
+        briq: "0x04c3dc11b871736d8ec247f093303ab0be50adbe577bb7ca21b42b763bcb529e",
+        set: "0x00e28377151a81d5333d794dd019798ed673bbd9be7c2c6544c0bf5536a7f7b3",
+        mint: "0x03f22d16de350e92d2f4ee40f5dce3ca91bde5218d538424d640ad12fe71e01e",
     },
     "https://alpha-mainnet.starknet.io": {
         briq: "0x03c5c2e0c3e6f48c5fa286876418450304ae5da85d333bcbf35ca495d10939c5",
