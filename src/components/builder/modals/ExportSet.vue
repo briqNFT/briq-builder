@@ -95,10 +95,8 @@
 </template>
 
 <script lang="ts">
-import { downloadData, downloadJSON, fetchData } from '../../../url'
+import getBaseUrl, { downloadData, downloadJSON, fetchData } from '../../../url'
 import { SetData } from '../../../builder/SetData';
-
-import { computeHashOnElements } from 'starknet/utils/hash';
 
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
 
@@ -273,7 +271,7 @@ export default defineComponent({
                 // Update the name in case it changed.
                 this.exportSet.name = this.set.name;
                 let token_hint = this.exportSet.id;
-                this.exportSet.id = computeHashOnElements([this.$store.state.wallet.userWalletAddress, token_hint]);
+                this.exportSet.id = contractStore.set.precomputeTokenId(this.$store.state.wallet.userWalletAddress, token_hint);
 
                 let data = this.exportSet.serialize();
 
@@ -311,7 +309,11 @@ export default defineComponent({
 
                 // Debug
                 //downloadJSON(data, data.id + ".json")
-                let TX = await contractStore.set.assemble(this.$store.state.wallet.userWalletAddress, token_hint, data.briqs.map((x: any) => x.data));
+                let TX = await contractStore.set.assemble(this.$store.state.wallet.userWalletAddress,
+                    token_hint,
+                    data.briqs.map((x: any) => x.data),
+                    getBaseUrl() + "/store_get/" + data.id
+                );
                 
                 // Mark the transaction as waiting.
                 new Transaction(TX.transaction_hash, "export_set", { setId: data.id });
