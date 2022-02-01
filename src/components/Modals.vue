@@ -18,8 +18,11 @@ let store = reactive({
 });
 
 let identifier = 0;
-export async function pushModal(modal: any, metadata?: any)
+// By default, pushModal won't push the same modal.
+export async function pushModal(modal: any, metadata?: any, force?: boolean)
 {
+    if (!force && store.modals.length && store.modals[store.modals.length - 1].modal === modal)
+        return;
     let ident = ++identifier;
     let result = await new Promise((res) => {
         let data = markRaw({
