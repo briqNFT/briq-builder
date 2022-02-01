@@ -13,6 +13,8 @@ const store = reactive({
     showGrid: true,
     transparentBackground: false,
     canvasSize: 10,
+    lightColor: "#888888",
+    ambientColor: "#888888",
 });
 
 export function resetStore() {
@@ -26,6 +28,8 @@ export function resetStore() {
     store.showGrid = true;
     store.transparentBackground = false;
     store.canvasSize = 10;
+    store.lightColor = "#888888";
+    store.ambientColor = "#888888";
 }
 
 for (let key in store)
