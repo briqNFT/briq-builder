@@ -3,7 +3,7 @@ import SetGridItem from './SetGridItem.vue';
 </script>
 
 <template>
-    <div :class="'bg-briq dark:bg-briq-darker alternate-buttons visible px-8 py-4 md:container md:mx-auto'"
+    <div :class="'bg-base alternate-buttons visible px-8 py-4 md:container md:mx-auto'"
         @click="openDetails = undefined"
     >
         <button v-if="asModal" class="float-right text-2xl" @click="$emit('close')">X</button>

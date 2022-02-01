@@ -1,8 +1,5 @@
 import { createApp } from 'vue'
 
-// Import dark mode
-import { DARKMODE_MEDIA } from './DarkMode';
-
 // Load Tailwind CSS
 import './index.css'
 
@@ -29,7 +26,7 @@ app.component("Hotkey", Hotkey);
 
 async function start()
 {
-    app.mount('#app')
+    app.mount('#app');
 }
 
 start();

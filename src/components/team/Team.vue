@@ -11,7 +11,7 @@ import StarkwareIcon from '../../assets/starkware.png'
 <template>
     <div class="">
         <Header></Header>
-        <h1 class="text-center overflow-auto my-4 py-8 lg:py-12 font-display !text-8xl font-semibold bg-briq-dark">Team</h1>
+        <h1 class="text-center overflow-auto my-4 py-8 lg:py-12 font-display !text-8xl font-semibold bg-darker">Team</h1>
         <!--<h1 class="text-center my-8 font-display !text-6xl font-medium">the team</h1>-->
         <div class="my-8 lg:my-16 overflow-auto flex flex-around flex-wrap md:flex-nowrap text-center container m-auto">
             <div class="flex-1 flex flex-col items-center">
@@ -30,7 +30,7 @@ import StarkwareIcon from '../../assets/starkware.png'
                 <h3 class="py-2 md:py-4"><a href="https://twitter.com/wraitii">@wraitii</a></h3>
             </div>
         </div>
-        <div class="flex justify-center gap-10 !my-16 py-16 text-5xl bg-briq-dark">
+        <div class="flex justify-center gap-10 !my-16 py-16 text-5xl bg-darker">
             <a href="https://twitter.com/briqNFT" target="_blank"><p><i class="fab fa-twitter"></i></p></a>
             <a href="https://discord.gg/kpvbDCw5pr" target="_blank"><p><i class="fab fa-discord"></i></p></a>
             <a href="https://github.com/briqNFT/" target="_blank"><p><i class="fab fa-github"></i></p></a>

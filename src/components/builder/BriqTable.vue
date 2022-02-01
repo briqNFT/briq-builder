@@ -7,18 +7,18 @@
             <th v-if="show('color')">Color</th>
             <th v-if="show('set')">Set</th>
         </tr>
-        <tr v-for="briq, i of briqs" @click="onClick(i)" @dblclick="onDoubleClick(i)" :class="i == selected ? 'bg-briq-light' : '' ">
+        <tr v-for="briq, i of briqs" @click="onClick(i)" @dblclick="onDoubleClick(i)" :class="i == selected ? 'bg-accent' : '' ">
         <template v-if="isActualBriq(briq)">
             <td>{{ briq.id }}</td>
-            <td v-if="show('material')" class="bg-briq-light dark:bg-briq-darker  bg-opacity-30">{{ briq.material }}</td>
+            <td v-if="show('material')" class="bg-accent  bg-opacity-30">{{ briq.material }}</td>
             <td v-if="show('color')">{{ briq.color }}</td>
-            <td v-if="show('set')" class="bg-briq-light dark:bg-briq-darker  bg-opacity-30">{{ briq.set }}</td>
+            <td v-if="show('set')" class="bg-accent  bg-opacity-30">{{ briq.set }}</td>
         </template>
         <template v-else="">
             <td>{{ briq.token_id || "Fungible x" + briq.qty }}</td>
-            <td v-if="show('material')" class="bg-briq-light dark:bg-briq-darker bg-opacity-30">{{ briq.material }}</td>
+            <td v-if="show('material')" class="bg-accent bg-opacity-30">{{ briq.material }}</td>
             <td v-if="show('color')"></td>
-            <td v-if="show('set')" class="bg-briq-light dark:bg-briq-darker bg-opacity-30"></td>
+            <td v-if="show('set')" class="bg-accent bg-opacity-30"></td>
         </template>
         </tr>
     </table>

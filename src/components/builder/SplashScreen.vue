@@ -41,7 +41,7 @@ export default defineComponent({
 #floatingMenu
 {
   @apply fixed w-full h-full flex flex-wrap justify-center content-center text-center;
-  @apply bg-briq dark:bg-briq-darker;
+  @apply bg-base;
   z-index:10000;
   transition: all 1s;
 }

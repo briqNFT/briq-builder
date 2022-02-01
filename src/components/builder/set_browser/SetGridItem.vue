@@ -1,6 +1,6 @@
 <template>
     <div v-if="!isFiltered"
-        :class="'w-full relative flex flex-col bg-briq-dark rounded-md px-4 py-2 border-4' + (isCurrent ? ' border-deep-blue' : ' border-briq-dark')"
+        :class="'w-full relative flex flex-col bg-darker rounded-md px-4 py-2 border-4' + (isCurrent ? ' border-deep-blue' : ' border-darker')"
          @click="$emit('selectSet', !selected)"
     >
         <div class="flex flex-nowrap items-center">
@@ -36,7 +36,7 @@
                 <input type="checkbox" :checked="selected"/>
             </div>
             <div @click.stop="$emit('open', undefined)" v-if="openDetails"
-                class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-briq dark:bg-briq-darkest w-full rounded-md p-4 border-2 border-briq-light dark:border-briq-dark"
+                class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-base w-full rounded-md p-4 border-2 border-accent"
             >
                 <template v-if="!setInfo.isLocalOnly()">
                     <Btn tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>

@@ -8,7 +8,7 @@ import { pushModal } from "../../Modals.vue";
     <!--
     <div class="alternate-buttons">
         <template v-if="selection.selectedBriqs.length <= 2">
-            <div  class="bg-briq dark:bg-briq-darker rounded-md px-2 py-1" v-for="briq of selection.selectedBriqs">
+            <div  class="bg-base rounded-md px-2 py-1" v-for="briq of selection.selectedBriqs">
                 <p class="text-sm tracking-tighter break-all">{{ briq?.id ?? "Fungible briq" }}</p>
                 <Btn :disabled="!chainBriqs.getNbBriqs()" @click="openSwapModal(briq.temp_id)">Swap briq</Btn>
             </div>
@@ -20,7 +20,7 @@ import { pushModal } from "../../Modals.vue";
     -->
     <!-- Follows the mouse -->
     <div v-if="fsm?.briq" class="fixed pointer-events-none" :style="{ 'left': `${fsm.curX+20}px`, 'top': `${fsm.curY+20}px` }">
-        <div class="w-auto min-w-32 h-32 bg-briq dark:bg-briq-darker p-2 rounded-md shadow-md">
+        <div class="w-auto min-w-32 h-32 bg-base p-2 rounded-md shadow-md">
         <h4 v-if="fsm?.briq?.id">briq: <span class="tracking-tighter">{{ fsm?.briq?.id }}</span></h4>
         <h4 v-else="">Fungible briq</h4>
         <p>Color: {{ fsm.briq.color }}</p>
