@@ -1,5 +1,5 @@
 <template>
-    <div class="md:w-1/2 w-auto">
+    <div class="md:w-1/2 xl:w-1/3 w-auto">
         <div class="relative h-full">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Settings</h3>
