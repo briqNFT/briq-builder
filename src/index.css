@@ -61,7 +61,7 @@ html.dark {
         @apply font-semibold border-text rounded-lg border-4 px-1;
     }    
     .alternate-buttons .btn:not(:disabled):hover {
-        @apply border-4 border-darker;
+        @apply border-4 border-deep-blue;
     }
     .alternate-buttons .btn:not(:disabled):active {
         @apply border-4 bg-accent;
