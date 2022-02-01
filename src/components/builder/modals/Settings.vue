@@ -18,6 +18,7 @@
                     <option value="dark">Dark Mode</option>
                     <option value="light">Light Mode</option>
                 </select></p>
+                <p><label><input type="range" min="5" max="100" v-model="builderSettings.canvasSize"/> Canvas size</label></p>
             </div>
             <Btn @click="resetToDefault">Reset to defaults</Btn>
             <Btn class="mx-2" @click="resetToLast" :disabled="!mayUndo">Undo changes</Btn>

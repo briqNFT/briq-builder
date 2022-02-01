@@ -4,8 +4,6 @@ import type { ChainBriqs } from './ChainBriqs';
 
 import { computeHashOnElements } from 'starknet/utils/hash';
 
-import { cellSize } from './Constants';
-
 const SET_DATA_VERSION = 1;
 
 export class SetData
@@ -158,9 +156,6 @@ export class SetData
 
     doPlaceBriq(x: number, y: number, z: number, briq: Briq): boolean
     {
-        if (Math.abs(x) > cellSize || Math.abs(z) > cellSize || y < 0)
-            return false;
-
         let [regionId, cellId] = this.computeIDs(x, y, z);
         if (!this.briqs.has(regionId))
             this.briqs.set(regionId, new Map());

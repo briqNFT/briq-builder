@@ -12,9 +12,8 @@ import { palettesMgr } from './Palette';
 import { setupSync } from './StarknetSync';
 
 import { hexUuid } from '../Uuid';
-import { cellSize } from './Constants';
 
-import contractStore from '../Contracts';
+import builderSettings from './graphics/Settings';
 
 import { inputStore } from './inputs/InputStore';
 import { setsManager } from './SetsManager';
@@ -22,6 +21,12 @@ import { ChainBriqs } from './ChainBriqs';
 import { number } from 'starknet';
 
 let initSet = new SetData(hexUuid());
+
+function isWithinBounds(x: number, y: number, z: number)
+{
+    let size = builderSettings.canvasSize;
+    return Math.abs(x) <= size && Math.abs(y) >= 0 && Math.abs(z) <= size;
+}
 
 var try_fetching_user_data_func;
 export var builderDataStore = (() => {
@@ -80,11 +85,7 @@ export var builderDataStore = (() => {
 
             move_all_briqs({ state, commit }: any, data: any) {
                 state.currentSet.forEach((briq, pos) => {
-                    if (pos[0] + data.x < -cellSize || pos[0] + data.x > cellSize)
-                        throw new Error("cannot");
-                    if (pos[2] + data.z < -cellSize || pos[2] + data.z > cellSize)
-                        throw new Error("cannot");
-                    if (pos[1] + data.y < 0)
+                    if (!isWithinBounds(pos[0] + data.x, pos[1] + data.y, pos[2] + data.z))
                         throw new Error("cannot");
                 });
                 commit("move_all_briqs", data);
@@ -120,6 +121,8 @@ export var builderDataStore = (() => {
                 for (let briqData of data)
                 {
                     let briq = briqData.color ? new Briq(briqData.material, briqData.color) : undefined;
+                    if (!isWithinBounds(...briqData.pos))
+                        throw new Error("cannot");
                     if (!state.currentSet.placeBriq(...briqData.pos, briq))
                         // Fail to prevent the action from being stored in the history.
                         throw new Error();
