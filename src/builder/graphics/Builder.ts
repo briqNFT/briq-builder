@@ -217,13 +217,15 @@ function addLight(scene, x, y, z) {
   scene.add(ambientLight);
 }
 
-var scene;
+var scene: THREE.Scene;
 
 import { selectionRender } from '../inputs/Selection';
 
 function setupScene(voxWorld)
 {
-  const scene = new THREE.Scene();
+  if (!scene)
+    scene = new THREE.Scene();
+  scene.clear();
 
   addLight(scene, -1*5,  2*5,  -3*5);
 
@@ -277,12 +279,17 @@ export async function main(canvas) {
   scene = setupScene(voxWorld);
 
   var renderer, composer;
+
   // Recreate the renderer whenever things change.
   watchEffect(() => {
-    updateScene();
     if (renderer)
       renderer.dispose();
     [renderer, composer] = recreateRenderer(canvas, scene, camera);
+  })
+
+  // Recreate the scene whenever necessary.
+  watchEffect(() => {
+    updateScene();
   })
 
   let renderRequested = false;
