@@ -5,7 +5,7 @@ import { registerUndoableAction } from "./UndoRedo"
 import { pushMessage } from '../Messages';
 import { reportError } from '../Monitoring';
 
-import { dispatchBuilderAction } from "./graphics/dispatch";
+import { dispatchBuilderAction } from "./graphics/Dispatch";
 
 import { palettesMgr } from './Palette';
 

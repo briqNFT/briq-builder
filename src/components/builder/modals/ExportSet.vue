@@ -109,7 +109,7 @@ import { pushModal } from '../../Modals.vue';
 
 import { VERSION } from '../../../Meta';
 
-import { takeScreenshot } from '../../../builder/graphics/builder.js';
+import { takeScreenshot } from '../../../builder/graphics/Builder';
 import ScreenshotVue from './Screenshot.vue';
 import CropScreenshotVue from './CropScreenshot.vue';
 
