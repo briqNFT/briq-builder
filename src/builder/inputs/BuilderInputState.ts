@@ -1,7 +1,9 @@
 import { reactive } from 'vue';
 
+import builderSettings from '../graphics/Settings';
 import { getCameraRay, voxWorld } from "../graphics/Builder"
 import type { BuilderInputFSM } from './BuilderInput'
+import { number } from 'starknet';
 
 export class BuilderInputState
 {
@@ -63,6 +65,18 @@ export class MouseInputState extends BuilderInputState
         return intersection.position.map((v, ndx) => {
             return Math.floor(v + intersection.normal[ndx] * (overlay ? -0.5 : +0.5));
         });
+    }
+
+    isWithinBounds(x: number, y: number, z: number)
+    {
+        return Math.abs(x) <= builderSettings.canvasSize && Math.abs(z) <= builderSettings.canvasSize && y >= 0;
+    }
+
+    clampToBounds(x: number, y: number, z: number): [number, number, number]
+    {
+        x = x < -builderSettings.canvasSize ? -builderSettings.canvasSize : (x > builderSettings.canvasSize ? +builderSettings.canvasSize : x);
+        z = z < -builderSettings.canvasSize ? -builderSettings.canvasSize : (z > builderSettings.canvasSize ? +builderSettings.canvasSize : z);
+        return [x, y, z];
     }
 
     override _onPointerMove(event: PointerEvent) {

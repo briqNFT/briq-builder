@@ -46,7 +46,7 @@ export class PainterInput extends MouseInputState
             return;
         
         let pos = this.getIntersectionPos(this.curX, this.curY, true);
-        if (!pos || pos[1] < 0)
+        if (!pos || !this.isWithinBounds(...pos))
             return;
 
         // Left-click paints, right-click samples the briq color.
@@ -71,10 +71,10 @@ export class PainterMultiInput extends MouseInputState
         this.curX = data.x;
         this.curY = data.y;
 
-        this.lastClickPos = this.getIntersectionPos(this.curX, this.curY, true)!;
+        this.lastClickPos = this.clampToBounds(...this.getIntersectionPos(this.curX, this.curY, true)!);
         if (!this.lastClickPos)
             throw new Error("Error: PainterMultiInput must have a well defined event position on entry");
-        
+
         this.fsm.orbitControls.enabled = false;
         getPreviewCube().visible = true;
     }
@@ -89,7 +89,12 @@ export class PainterMultiInput extends MouseInputState
         let pos = this.getIntersectionPos(this.curX, this.curY, true);
         if (!pos)
             return;
+        pos = this.clampToBounds(...pos);
 
+        if (this.lastClickPos[1] === -1 && pos[1] === -1)
+            pos[1] = 0;
+
+        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
         getPreviewCube().scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1.1, Math.abs(this.lastClickPos[1] - pos[1]) + 1.1, Math.abs(this.lastClickPos[2] - pos[2]) + 1.1);
         getPreviewCube().position.set(
             ((this.lastClickPos[0] + pos[0]) / 2) + 0.5,
@@ -100,19 +105,27 @@ export class PainterMultiInput extends MouseInputState
 
     async onPointerUp(event: PointerEvent)
     {
-        let pos = this.getIntersectionPos(this.curX, this.curY, true);
-        if (!pos)
-            return;
+        try
+        {
+            let pos = this.getIntersectionPos(this.curX, this.curY, true);
+            if (!pos)
+                return;
 
-        let actionData = [];
-        for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
-            for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
-                for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
-                {
-                    if (store.state.builderData.currentSet.getAt(x, y, z))
-                        actionData.push({ pos: [x, y, z], color: inputStore.currentColor });
-                }
-        await store.dispatch("builderData/set_briq_color", actionData);
-        this.fsm.switchTo("paint");
+            if (this.lastClickPos[1] === -1 && pos[1] === -1)
+                pos[1] = 0;
+            pos = this.clampToBounds(...pos);
+    
+            let actionData = [];
+            for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
+                for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
+                    for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
+                    {
+                        if (store.state.builderData.currentSet.getAt(x, y, z))
+                            actionData.push({ pos: [x, y, z], color: inputStore.currentColor });
+                    }
+            await store.dispatch("builderData/set_briq_color", actionData);
+        } finally {
+            this.fsm.switchTo("paint");
+        }
     }
 }

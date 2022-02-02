@@ -3,8 +3,6 @@ import getPreviewCube from '../graphics/PreviewCube'
 import { inputStore } from "./InputStore";
 import { store } from '../../store/Store'
 
-import builderSettings from '../graphics/Settings';
-
 import { THREE } from '../../three';
 
 const MATERIAL = "0x1";
@@ -28,7 +26,7 @@ export class PlacerInput extends MouseInputState
         if (!pos)
             return;
         getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-        if (Math.abs(pos[0]) <= builderSettings.canvasSize && Math.abs(pos[2]) <= builderSettings.canvasSize && pos[1] >= 0)
+        if (this.isWithinBounds(...pos))
         {
             getPreviewCube().visible = true;
             (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
@@ -51,7 +49,7 @@ export class PlacerInput extends MouseInputState
         
         const removing = event.button !== 0;
         const pos = this.getIntersectionPos(this.curX, this.curY, removing);
-        if (!pos)
+        if (!pos || !this.isWithinBounds(...pos))
             return;
         try {
             let data = removing ? { pos } : { pos, color: inputStore.currentColor, material: MATERIAL };
@@ -71,7 +69,7 @@ export class PlacerMultiInput extends MouseInputState
         this.curX = data.x;
         this.curY = data.y;
 
-        this.lastClickPos = this.getIntersectionPos(this.curX, this.curY)!;
+        this.lastClickPos = this.clampToBounds(...this.getIntersectionPos(this.curX, this.curY)!);
         if (!this.lastClickPos)
             throw new Error("Error: PlacerMultiInput must have a well defined event position on entry");
         
@@ -89,6 +87,7 @@ export class PlacerMultiInput extends MouseInputState
         let pos = this.getIntersectionPos(this.curX, this.curY);
         if (!pos)
             return;
+        pos = this.clampToBounds(...pos);
 
         getPreviewCube().scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1, Math.abs(this.lastClickPos[1] - pos[1]) + 1, Math.abs(this.lastClickPos[2] - pos[2]) + 1);
         getPreviewCube().position.set(
@@ -100,18 +99,22 @@ export class PlacerMultiInput extends MouseInputState
 
     async onPointerUp(event: PointerEvent)
     {
-        let pos = this.getIntersectionPos(this.curX, this.curY);
-        if (!pos)
-            return;
+        try
+        {
+            let pos = this.getIntersectionPos(this.curX, this.curY);
+            if (!pos)
+                return;
+            pos = this.clampToBounds(...pos);
 
-        let briqs = [];
-        for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
-            for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
-                for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
-                    if (!store.state.builderData.currentSet.getAt(x, y, z))
-                        briqs.push({ pos: [x, y, z], color: inputStore.currentColor, material: MATERIAL });
-        await store.dispatch("builderData/place_briqs", briqs);
-
-        this.fsm.switchTo("place");
+            let briqs = [];
+            for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
+                for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
+                    for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
+                        if (!store.state.builderData.currentSet.getAt(x, y, z))
+                            briqs.push({ pos: [x, y, z], color: inputStore.currentColor, material: MATERIAL });
+            await store.dispatch("builderData/place_briqs", briqs);
+        } finally {
+            this.fsm.switchTo("place");
+        }
     }
 }
