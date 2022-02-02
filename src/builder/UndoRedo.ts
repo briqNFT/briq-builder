@@ -61,7 +61,7 @@ export const undoRedoStore = {
         undo_history: async ({ dispatch, commit, state }: any) => {
             if (state.command_index < 0)
                 return;
-            await dispatch(undoActions[state.command_history[state.command_index].action], state.command_history[state.command_index].undoData);
+            await commit(undoActions[state.command_history[state.command_index].action], state.command_history[state.command_index].undoData);
             pushMessage("Undo complete - " + getHumanOutput(state.command_history[state.command_index].action, state.command_history[state.command_index]));
             commit("undo_history");
         },
@@ -69,7 +69,7 @@ export const undoRedoStore = {
             if (state.command_index + 1 >= state.command_history.length)
                 return;
             // Kind of ugly but should work fine as this is synchronous.
-            await dispatch(state.command_history[state.command_index + 1].action, state.command_history[state.command_index + 1].redoData);
+            await commit(state.command_history[state.command_index + 1].action, state.command_history[state.command_index + 1].redoData);
             commit("redo_history");
             pushMessage("Redo complete - " + getHumanOutput(state.command_history[state.command_index].action, state.command_history[state.command_index]));
         },

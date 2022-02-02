@@ -58,6 +58,9 @@ export var builderDataStore = (() => {
             //// Briq manipulation stuff
             ////////////
             place_briqs: ({ commit }: any, data: any) => {
+                for (let briqData of data)
+                    if (briqData.color && !isWithinBounds(...briqData.pos))
+                        throw new Error("cannot");
                 commit("place_briqs", data);
             },
             set_briq_color: ({ commit }: any, data: any) => {
@@ -110,9 +113,6 @@ export var builderDataStore = (() => {
                         
             place_briqs(state: any, data: { pos: [number, number, number], color?: string, material?: string }[])
             {
-                for (let briqData of data)
-                    if (!isWithinBounds(...briqData.pos))
-                        throw new Error("cannot");
                 for (let briqData of data)
                 {
                     let briq = briqData.color ? new Briq(briqData.material, briqData.color) : undefined;
