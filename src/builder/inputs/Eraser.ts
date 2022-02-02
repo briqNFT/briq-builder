@@ -26,7 +26,7 @@ export class EraserInput extends MouseInputState
             return;
         
         // If the position is on the ground the intersection didn't return a cell.
-        if (pos[1] < 0 || !this.isWithinBounds(...pos))
+        if (pos[1] < 0)
             getPreviewCube().visible = false;
         else
         {
@@ -66,7 +66,7 @@ export class EraserMultiInput extends MouseInputState
         this.curX = data.x;
         this.curY = data.y;
 
-        this.lastClickPos = this.clampToBounds(...this.getIntersectionPos(this.curX, this.curY, true)!);
+        this.lastClickPos = this.getIntersectionPos(this.curX, this.curY, true)!;
         if (!this.lastClickPos)
             throw new Error("Error: EraserMultiInput must have a well defined event position on entry");
         
@@ -85,7 +85,6 @@ export class EraserMultiInput extends MouseInputState
         let pos = this.getIntersectionPos(this.curX, this.curY, true);
         if (!pos)
             return;
-        pos = this.clampToBounds(...pos);
 
         if (this.lastClickPos[1] === -1 && pos[1] === -1)
             pos[1] = 0;
@@ -105,7 +104,6 @@ export class EraserMultiInput extends MouseInputState
             let pos = this.getIntersectionPos(this.curX, this.curY, true);
             if (!pos)
                 return;
-            pos = this.clampToBounds(...pos);
 
             // Make it so that floor-squares have at least one-cell of erasing.
             if (this.lastClickPos[1] === -1 && pos[1] === -1)
