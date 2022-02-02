@@ -167,7 +167,7 @@ export default defineComponent({
     methods: {
         copyShareLink() {
             let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";
-            let link = getShareLink(network, this.setInfo.chain);
+            let link = getShareLink(network, this.setInfo.id);
             navigator.clipboard.writeText(link);
             this.messages.pushMessage("Copied sharing link to clipboard");
         },

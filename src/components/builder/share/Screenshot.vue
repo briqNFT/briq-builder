@@ -49,6 +49,7 @@ import { pushModal } from '../../Modals.vue';
 import Settings from '../modals/Settings.vue';
 
 import { defineComponent, watch } from 'vue';
+import { getShareLink } from '../Sharing';
 export default defineComponent({
     data() {
         return {
@@ -72,8 +73,8 @@ export default defineComponent({
         this.builderSettings.transparentBackground = false;
     },
     computed: {
-        link() {
-            return window.location.href.replace("http://", "https://");
+        link() {            
+            return encodeURIComponent(getShareLink("testnet", this.metadata.setData.id));
         },
         image() {
             // Goes first for reactivity.

@@ -9,8 +9,6 @@ import { dispatchBuilderAction } from "./graphics/Dispatch";
 
 import { palettesMgr } from './Palette';
 
-import { setupSync } from './StarknetSync';
-
 import { hexUuid } from '../Uuid';
 
 import builderSettings from './graphics/Settings';
@@ -36,12 +34,6 @@ export var builderDataStore = (() => {
             currentSet: initSet,
         }),
         actions: {
-            initialize: {
-                root: true,
-                handler: async ({ state, dispatch, commit, getters, rootState }: any) => {
-                    setupSync();
-                },
-            },
             ////////////
             //// Local set Management
             ////////////

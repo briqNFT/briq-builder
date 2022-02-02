@@ -141,7 +141,7 @@ class SetsManager
     /**
      * Load all sets from local storage. Note that this doesn't clear any preloaded sets (such as on-chain ones).
      */
-    async loadFromStorage(setContract: SetContract) {
+    async loadFromStorage() {
         for (let [sid, setData] of Object.entries(window.localStorage))
         {
             if (!sid.startsWith("briq_set"))

@@ -121,3 +121,18 @@ export default class SetContract extends ExtendedContract
         return (await this.call("ownerOf", { token_id })).owner as string;
     }
 }
+
+import LegacySetABI from './testnet-legacy/set_abi.json'
+
+export class LegacySetContract extends ExtendedContract
+{
+    constructor(address: string, provider: Provider)
+    {
+        super(LegacySetABI, address, provider)
+    }
+
+    async ownerOf(token_id: string)
+    {
+        return (await this.call("owner_of", { token_id })).res as string;
+    }
+}
