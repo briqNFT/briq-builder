@@ -42,9 +42,9 @@ if (PROD)
     setupDefaultProvider();
 else
 {
-    fetch('http://localhost:4999/status').then(() => {
+    fetch('http://localhost:5000/is_alive').then(() => {
         provider = new Provider();
-        provider.baseUrl = "http://localhost:4999";
+        provider.baseUrl = "http://localhost:5000";
         provider.feederGatewayUrl = `${provider.baseUrl}/feeder_gateway`;
         provider.gatewayUrl = `${provider.baseUrl}/gateway`;
         provider = new Provider(provider);
