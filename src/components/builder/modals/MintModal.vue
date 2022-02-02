@@ -13,7 +13,7 @@
                 </p>
             </div>
             <div class="flex justify-center my-4 gap-2">
-                <button class="btn" :disabled="true">I Want to Briq Free</button>
+                <button class="btn" :disabled="true">I want to briq free</button>
             </div>
 
             </template>
@@ -23,7 +23,7 @@
                 If you're on main-net, try on testnet, or retry later.</p>
             </div>
             <div class="flex justify-center my-4 gap-2">
-                <button class="btn" :disabled="true">I Want to Briq Free</button>
+                <button class="btn" :disabled="true">I want to briq free</button>
             </div>
 
             </template>
@@ -34,7 +34,7 @@
             </div>
             <div class="flex justify-center my-4 gap-2">
                 <a :href="voyagerLink" target="_blank"><Btn>Check Voyager</Btn></a>
-                <button class="btn" :disabled="true">I Want to Briq Free</button>
+                <button class="btn" :disabled="true">I want to briq free</button>
             </div>
 
             </template>
@@ -52,7 +52,7 @@
                 Error details: <br/> <span class="font-mono text-xs tracking-tighter">{{ errorDetails }}</span></p>
             </div>
             <div class="flex justify-center my-4">
-                <button class="btn" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I Want to Briq Free</button>
+                <button class="btn" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I want to briq free</button>
                 <button class="btn" v-if="status === 'ok'" @click="$emit('close')">Start Building</button>
             </div>
             </template>
