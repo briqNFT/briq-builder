@@ -4,7 +4,7 @@
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full py-4">Welcome to briq</h2>
             <div class="my-4">
-                <p>We’re currently in <a href="">Alpha test</a> on StarkNet TestNet. Claim 100 free briqs to start your building journey.</p>
+                <p>We’re currently in <a href="">Alpha test</a> on StarkNet TestNet. Claim 1000 free briqs to start your building journey.</p>
             </div>
             <template v-if="$store.state.wallet.baseUrl.indexOf('mainnet') !== -1 ">
             <div class="font-medium text-xl">
@@ -42,13 +42,13 @@
             <div class="font-medium">
                 <p v-if="status == 'calling'">Status: ...Minting briqs...</p>
                 <p v-if="status == 'polling'">Status: ...Waiting for transaction to validate...<br/>
-<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
+<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{ txHash }}</a></span></p>
                 <p v-if="status == 'pending'">Status: ...Transaction pending...<br/>
-<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
+<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{ txHash }}</a></span></p>
                 <p v-if="status == 'ok'">Status: Transaction complete!<br/>
-<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span></p>
+<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{ txHash }}</a></span></p>
                 <p v-if="status == 'error'">Status: Error while minting.
-<span v-if="txHash"><br/>Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash">{{ txHash }}</a></span>
+<span v-if="txHash"><br/>Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{ txHash }}</a></span>
                 Error details: <br/> <span class="font-mono text-xs tracking-tighter">{{ errorDetails }}</span></p>
             </div>
             <div class="flex justify-center my-4">
