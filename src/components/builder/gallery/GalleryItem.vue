@@ -1,6 +1,6 @@
 <template>
     <div>
-        <a :href="`/share?set_id=${setId}&network=testnet&version=1`" target="_blank">
+        <a :href="getRelativeShareLink('testnet', setId, version)" target="_blank">
             <div v-if="setData" class="bg-accent rounded-md px-4 py-2 h-full w-full flex flex-col hover:outline-4 hover:outline hover:outline-darker">
                 <h3 class="text-center break-all">{{ setData?.name || setId }}</h3>
                 <div class="flex-1 flex flex-col justify-center min-h-[2rem] my-2">
@@ -34,6 +34,7 @@ import { SetData } from '../../../builder/SetData';
 import getBaseUrl, { fetchData } from '../../../url';
 
 import { reactive } from 'vue';
+import { getRelativeShareLink } from '../Sharing';
 const setImageCache = reactive({} as { [set: string]: string });
 
 export default defineComponent({
@@ -44,7 +45,7 @@ export default defineComponent({
             loadingImage: true,
         }
     },
-    props:["load", "setId"],
+    props:["load", "setId", "version"],
     async beforeMount() {
         this.loadData();
     },
@@ -54,6 +55,7 @@ export default defineComponent({
         }
     },
     methods: {
+        getRelativeShareLink,
         async loadData() {
             if (!this.load)
                 return;
