@@ -21,7 +21,7 @@
                     <option value="light">Light Mode</option>
                 </select></p>
                 <label><p class="flex items-center"><span class="inline-flex items-center font-semibold text-xs bg-accent rounded-md px-1 mr-2">11 <input type="range" min="5" step="5" max="100" v-model="builderSettings.canvasSize"/> 201</span>
-                Canvas size ({{ `${builderSettings.canvasSize}x${builderSettings.canvasSize}` }})</p></label>
+                Canvas size ({{ `${builderSettings.canvasSize * 2 + 1}x${builderSettings.canvasSize * 2 + 1}` }})</p></label>
             </div>
             <Btn @click="resetToDefault">Reset to defaults</Btn>
             <Btn class="mx-2" @click="resetToLast" :disabled="!mayUndo">Undo changes</Btn>

@@ -26,7 +26,7 @@ export class EraserInput extends MouseInputState
             return;
         
         // If the position is on the ground the intersection didn't return a cell.
-        if (pos[1] < 0)
+        if (pos[1] < 0 || !this.isWithinBounds(...pos))
             getPreviewCube().visible = false;
         else
         {
@@ -66,7 +66,7 @@ export class EraserMultiInput extends MouseInputState
         this.curX = data.x;
         this.curY = data.y;
 
-        this.lastClickPos = this.getIntersectionPos(this.curX, this.curY, true)!;
+        this.lastClickPos = this.clampToBounds(...this.getIntersectionPos(this.curX, this.curY, true)!);
         if (!this.lastClickPos)
             throw new Error("Error: EraserMultiInput must have a well defined event position on entry");
         
@@ -85,6 +85,10 @@ export class EraserMultiInput extends MouseInputState
         let pos = this.getIntersectionPos(this.curX, this.curY, true);
         if (!pos)
             return;
+        pos = this.clampToBounds(...pos);
+
+        if (this.lastClickPos[1] === -1 && pos[1] === -1)
+            pos[1] = 0;
 
         getPreviewCube().scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1.1, Math.abs(this.lastClickPos[1] - pos[1]) + 1.1, Math.abs(this.lastClickPos[2] - pos[2]) + 1.1);
         getPreviewCube().position.set(
@@ -96,17 +100,26 @@ export class EraserMultiInput extends MouseInputState
 
     async onPointerUp(event: PointerEvent)
     {
-        let pos = this.getIntersectionPos(this.curX, this.curY, true);
-        if (!pos)
-            return;
+        try
+        {
+            let pos = this.getIntersectionPos(this.curX, this.curY, true);
+            if (!pos)
+                return;
+            pos = this.clampToBounds(...pos);
 
-        let actionData = [];
-        for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
-            for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
-                for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
-                    if (store.state.builderData.currentSet.getAt(x, y, z))
-                        actionData.push({ pos: [x, y, z] });
-        await store.dispatch("builderData/place_briqs", actionData);
-        this.fsm.switchTo("erase");
+            // Make it so that floor-squares have at least one-cell of erasing.
+            if (this.lastClickPos[1] === -1 && pos[1] === -1)
+                pos[1] = 0;
+    
+            let actionData = [];
+            for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
+                for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
+                    for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
+                        if (store.state.builderData.currentSet.getAt(x, y, z))
+                            actionData.push({ pos: [x, y, z] });
+            await store.dispatch("builderData/place_briqs", actionData);
+        } finally {
+            this.fsm.switchTo("erase");
+        }
     }
 }

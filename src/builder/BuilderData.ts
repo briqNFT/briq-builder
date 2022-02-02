@@ -111,13 +111,12 @@ export var builderDataStore = (() => {
             place_briqs(state: any, data: { pos: [number, number, number], color?: string, material?: string }[])
             {
                 for (let briqData of data)
-                {
-                    let briq = briqData.color ? new Briq(briqData.material, briqData.color) : undefined;
                     if (!isWithinBounds(...briqData.pos))
                         throw new Error("cannot");
-                    if (!state.currentSet.placeBriq(...briqData.pos, briq))
-                        // Fail to prevent the action from being stored in the history.
-                        throw new Error();
+                for (let briqData of data)
+                {
+                    let briq = briqData.color ? new Briq(briqData.material, briqData.color) : undefined;
+                    state.currentSet.placeBriq(...briqData.pos, briq);
                 }
                 dispatchBuilderAction("place_briqs", data);
                 inputStore.selectionMgr.clear();
