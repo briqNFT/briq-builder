@@ -3,7 +3,11 @@ import SetContract, { LegacySetContract }from './contracts/set'
 import MintContract from './contracts/mint'
 
 const ADDRESSES = {
-    // Alpha4-goerli
+    "localhost": {
+        briq: "0x0514cf1db1f4e04f72db048dcad28226ebf6ad437619c49614bafaa140be733e",
+        set: "0x058d6c220944d72f66eaff61e21dadd40dfd8ef04cea49b47f0b6fb11692371c",
+        mint: "0x05bf33f741986346c4013551c388c5630d0da6953348654d0d48e04d8628960b",
+    },
     "starknet-testnet": {
         briq: "0x04c3dc11b871736d8ec247f093303ab0be50adbe577bb7ca21b42b763bcb529e",
         set: "0x00e28377151a81d5333d794dd019798ed673bbd9be7c2c6544c0bf5536a7f7b3",
@@ -22,6 +26,11 @@ const ADDRESSES = {
 }
 
 const IMPL = {
+    "localhost": {
+        briq: BriqContract,
+        set: SetContract,
+        mint: MintContract,
+    },
     "starknet-testnet": {
         briq: BriqContract,
         set: SetContract,
@@ -52,6 +61,7 @@ export default contractStore;
 var selectedNetwork = ref("");
 
 const NETWORK_MAPPING = {
+    "http://localhost:5000": "localhost",
     "https://alpha4.starknet.io": "starknet-testnet",
     "https://alpha-mainnet.starknet.io": "starknet-mainnet",
 } as { [baseUrl: string]: string };
@@ -73,7 +83,7 @@ export function watchSignerChanges(walletStore: any)
         let network = selectedNetwork?.value || NETWORK_MAPPING[walletStore.baseUrl];
         let addr = walletStore.baseUrl && ADDRESSES?.[network];
         let impl = walletStore.baseUrl && IMPL?.[network];
-        logDebug("SWITCHING TO NETWORK", network);
+        logDebug("SWITCHING TO NETWORK", network, walletStore.baseUrl);
         if (addr)
         {
             contractStore.briq = new impl.briq(addr.briq, signer.value ? signer : provider);

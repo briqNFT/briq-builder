@@ -5,7 +5,7 @@ export const VERSION = import.meta.env.VERSION;
 
 export default function getBaseUrl()
 {
-    var baseUrl = "http://localhost:5000"
+    var baseUrl = "http://localhost:5050"
     if (PROD)
         baseUrl = "https://api." + window.location.hostname.replace("www.", "");
     return baseUrl
