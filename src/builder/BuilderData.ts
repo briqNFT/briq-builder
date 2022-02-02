@@ -24,7 +24,7 @@ import { watch, toRef } from 'vue';
 function isWithinBounds(x: number, y: number, z: number)
 {
     let size = builderSettings.canvasSize;
-    return Math.abs(x) <= size && y >= 0 && Math.abs(z) <= size;
+    return x >= -size && x < size && y >= 0 && z >= -size && z < size;
 }
 
 //watch(toRef(builderSettings, "canvasSize"), (nv, ov) => {    

@@ -48,21 +48,21 @@ export function getCameraRay(xin, yin)
 }
 
 function generateGrid() {
-    var gridXZ = new THREE.GridHelper(getCanvasSize()*2+1, getCanvasSize()*2+1, builderSettings.gridColor, builderSettings.gridColor);
-    gridXZ.position.set(1/2, 0, 1/2);
+    var gridXZ = new THREE.GridHelper(getCanvasSize()*2, getCanvasSize()*2, builderSettings.gridColor, builderSettings.gridColor);
+    gridXZ.position.set(0, 0, 0);
     return gridXZ;
 }
 
 function generatePlane(scene) {
-    var geometry = new THREE.PlaneBufferGeometry(getCanvasSize()*2+1, getCanvasSize()*2+1);
+    var geometry = new THREE.PlaneBufferGeometry(getCanvasSize()*2, getCanvasSize()*2);
     var material = new THREE.MeshPhongMaterial( {color: builderSettings.planeColor, side: THREE.DoubleSide });
     var planeXZ = new THREE.Mesh(geometry, material);
     planeXZ.receiveShadow = true;
-    planeXZ.position.set(1/2, 0, 1/2);
+    planeXZ.position.set(0, 0, 0);
     planeXZ.rotateX( - Math.PI / 2);
     
     var planeUnderside = new THREE.Mesh(geometry, material);
-    planeUnderside.position.set(1/2, -0.001, 1/2);
+    planeUnderside.position.set(0, -0.001, 0);
     planeUnderside.rotateX( - Math.PI / 2);
     planeUnderside.rotateY(Math.PI);
     
@@ -95,7 +95,7 @@ import getPreviewCube from './PreviewCube'
 export function resetCamera()
 {
     camera.position.set(getCanvasSize() * 0.3, getCanvasSize() * 0.8, -getCanvasSize() * 1.4);
-    orbitControls.controls.target.set(1/2, 1, 1/2);
+    orbitControls.controls.target.set(0, 1, 0);
     orbitControls.controls.update();
 }
 
