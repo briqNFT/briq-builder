@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import MiddleModal from './MiddleModal.vue';
+import Modal from './Modal.vue';
 </script>
 
 <template>
     <div class="absolute top-0 left-0 h-screen w-screen invisible">
-        <MiddleModal v-for="data, index in store.modals" :key="data.id" :data="data" :class="(onlyShowLast ? (index === store.modals.length - 1 ? '' : 'hidden') : '')">
-        </MiddleModal>
+        <Modal v-for="data, index in store.modals" :key="data.id" :data="data" :class="(onlyShowLast ? (index === store.modals.length - 1 ? '' : 'hidden') : '')">
+        </Modal>
     </div>
 </template>
 
