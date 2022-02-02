@@ -96,6 +96,7 @@ const setImageCache = reactive({} as { [set: string]: string });
 import { defineComponent } from 'vue';
 import getBaseUrl, { fetchData } from '../../../url';
 import { pushModal } from '../../Modals.vue';
+import { getShareLink } from '../Sharing';
 export default defineComponent({
     data() {
         return {
@@ -166,7 +167,8 @@ export default defineComponent({
     methods: {
         copyShareLink() {
             let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";
-            navigator.clipboard.writeText(`${window.location.hostname}/share?set_id=${this.setId}&network=${network}&version=1`);
+            let link = getShareLink(network, this.setInfo.chain);
+            navigator.clipboard.writeText(link);
             this.messages.pushMessage("Copied sharing link to clipboard");
         },
         async disassemble() {

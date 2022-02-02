@@ -53,6 +53,7 @@ import ExportSetVue from './modals/ExportSet.vue';
 import { inputStore } from '../../builder/inputs/InputStore';
 
 import { defineComponent } from 'vue';
+import { getShareLink } from './Sharing';
 export default defineComponent({
     inject: ["messages"],
     computed: {
@@ -69,7 +70,8 @@ export default defineComponent({
         },
         copyShareLink() {
             let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";
-            navigator.clipboard.writeText(`${window.location.hostname}/share?set_id=${this.$store.state.builderData.currentSet.id}&network=${network}&version=1`);
+            let link = getShareLink(network, this.$store.state.builderData.currentSet);
+            navigator.clipboard.writeText(link);
             this.messages.pushMessage("Copied sharing link to clipboard");
         },
     }

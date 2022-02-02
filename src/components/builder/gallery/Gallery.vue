@@ -16,10 +16,21 @@
                 :key="set"
                 :setId="set"
                 :load="index < loadUpTo"
+                :version="2"
+            />
+        </div>
+        <h1 class="text-center mt-16">Older gallery items</h1>
+        <p class="text-center my-4">These sets were minted before Alpha 0.6</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <GalleryItem v-for="set, index in oldGalleryItems"
+                :key="set"
+                :setId="set"
+                :load="index + galleryItems.length < loadUpTo"
+                :version="1"
             />
         </div>
         <div ref="scrollMore" class="flex justify-center my-8">
-            <Btn v-if="loadUpTo < galleryItems.length" @click="loadMore"><h2>Load More</h2></Btn>
+            <Btn v-if="loadUpTo < galleryItems.length + oldGalleryItems.length" @click="loadMore"><h2>Load More</h2></Btn>
         </div>
     </div>
 </template>
@@ -33,12 +44,14 @@ export default defineComponent({
     data() {
         return {
             galleryItems: [],
+            oldGalleryItems: [],
             loadUpTo: 40,
             observer: undefined as any,
         };
     },
     async beforeMount() {
         this.galleryItems = (await fetchData("gallery_items"))?.sets || [];
+        this.oldGalleryItems = [];
     },
     mounted() {
         this.observer = new IntersectionObserver((entries, observer) => {
