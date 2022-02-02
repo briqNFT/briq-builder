@@ -70,7 +70,7 @@ import { getProvider, getProviderForNetwork } from '../../../Provider';
 import { fetchData } from '../../../url';
 import { reportError } from '../../../Monitoring';
 import { ticketing } from '../../../Async';
-import contractStore from '../../../Contracts';
+import contractStore, { forceNetwork } from '../../../Contracts';
 
 import { defineComponent, watchEffect } from 'vue';
 export default defineComponent({
@@ -83,7 +83,7 @@ export default defineComponent({
             author: "",
         };
     },
-    props: ["set_id", "network"],
+    props: ["set_id", "network", "version"],
     provide: {
         messages: {
             pushMessage, setTooltip
@@ -91,6 +91,10 @@ export default defineComponent({
     },
     async mounted() {
         // this.$store.dispatch("wallet/force_provider", getProviderForNetwork(this.network));
+
+        if (this.version == 1 && this.network == "testnet")
+            forceNetwork("starknet-testnet-legacy");
+
         watchEffect(() => {
             this.fetchAuthor();
         })
@@ -125,6 +129,10 @@ export default defineComponent({
             };
             reportError(err, "Failed to load set in Share");
         }
+    },
+    unmounted()
+    {
+        forceNetwork();
     },
     methods: {
         openHelp() {

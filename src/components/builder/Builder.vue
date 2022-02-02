@@ -36,6 +36,8 @@ import { setsManager, checkForInitialGMSet } from '../../builder/SetsManager';
 import contractStore from '../../Contracts';
 import { watchEffectAndWait } from '../../Async';
 
+import { setupSync } from '../../builder/StarknetSync';
+
 import { pushMessage, setTooltip } from '../../Messages'
 import { defineComponent, reactive, watchEffect, toRef } from 'vue';
 
@@ -60,6 +62,7 @@ export default defineComponent({
         });
     },
     async mounted() {
+        setupSync();
         setsManager.loadFromStorage();
         let set = checkForInitialGMSet();
         if (set)
