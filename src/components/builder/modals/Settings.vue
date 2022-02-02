@@ -41,16 +41,17 @@
 <script lang="ts">
 import { resetStore } from '../../../builder/graphics/Settings';
 import builderSettings from '../../../builder/graphics/Settings';
-import { darkModeStore } from '../../../DarkMode';
+import { darkModeStore, useDarkMode } from '../../../DarkMode';
 
 var initState;
 
-import { defineComponent, nextTick } from 'vue';
+import { defineComponent, nextTick, toRef } from 'vue';
 export default defineComponent({
     data() {
         return {
             builderSettings,
             darkModeStore,
+            forceMode: toRef(darkModeStore, "forcedMode"),
             mayUndo: false,
         };
     },
@@ -71,6 +72,20 @@ export default defineComponent({
                 this.mayUndo = true;
             },
             deep: true,
+        },
+        forceMode() {
+            if (useDarkMode() && builderSettings.planeColor === "#a93a00" && builderSettings.gridColor === "#eaeaea" && builderSettings.backgroundColor === "#eaeaea")
+            {
+                builderSettings.planeColor = "#591f00";
+                builderSettings.gridColor = "#999999";
+                builderSettings.backgroundColor = "#1e2229";
+            }
+            else if (!useDarkMode() && builderSettings.planeColor === "#591f00" && builderSettings.gridColor === "#999999" && builderSettings.backgroundColor === "#1e2229")
+            {
+                builderSettings.planeColor = "#a93a00";
+                builderSettings.gridColor = "#eaeaea";
+                builderSettings.backgroundColor = "#eaeaea";
+            }
         }
     },
     methods: {
