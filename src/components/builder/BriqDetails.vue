@@ -1,8 +1,8 @@
 <template>
     <div class="px-4 py-2 text-right">
         <h3 class="w-full">Briq details</h3>
-        <p>Available briqs: {{ balance }}
-            <button :disabled="fetchingBriqs" @click="getBalance(); chainBriqs.loadFromChain()">
+        <p>Available briqs: {{ chainBriqs.getBalance() }}
+            <button :disabled="fetchingBriqs" @click="chainBriqs.loadFromChain()">
                 <i :class="'fas ' + (fetchingBriqs ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
             </button>
         </p>
@@ -28,13 +28,7 @@ export default defineComponent({
     data() {
         return {
             data: this.$store.state.builderData,
-            balance: undefined as undefined | number,
         };
-    },
-    beforeMount() {
-        watchEffect(() => {
-            this.getBalance();
-        })
     },
     inject: ['messages', 'chainBriqs'],
     computed: {
@@ -45,14 +39,10 @@ export default defineComponent({
             return setsManager.fetchingChainSets;
         },
         fetchingBriqs() {
-            return this.balance === undefined;
+            return this.chainBriqs.fetchingBriqs;
         }
     },
     methods: {
-        getBalance: ticketing(async function(this: any) {
-            this.balance = undefined;
-            this.balance = await contractStore.briq?.balanceOf(this.$store.state.wallet.userWalletAddress, MATERIAL_GENESIS) || 0;
-        }),
         updateChainContracts() {
             if (!contractStore.set)
             {

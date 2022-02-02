@@ -4,9 +4,9 @@ import MintContract from './contracts/mint'
 
 const ADDRESSES = {
     "localhost": {
-        briq: "0x0514cf1db1f4e04f72db048dcad28226ebf6ad437619c49614bafaa140be733e",
-        set: "0x058d6c220944d72f66eaff61e21dadd40dfd8ef04cea49b47f0b6fb11692371c",
-        mint: "0x05bf33f741986346c4013551c388c5630d0da6953348654d0d48e04d8628960b",
+        briq: "0x05877d55d7a7ae8f65d6b3d059cfa68557b2a2fcd84ba04a9dcc46a55edf161a",
+        set: "0x0706e8ffb66f5485d02e3c064975fd58f8c3e7367b92d0f509055c4cce288f7b",
+        mint: "0x0549b84101aacd11fa4cfba50dcc2b2d4a6af46fe06cd4d60e3cbf7bb3ac3c4c",
     },
     "starknet-testnet": {
         briq: "0x04c3dc11b871736d8ec247f093303ab0be50adbe577bb7ca21b42b763bcb529e",
