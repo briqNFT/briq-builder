@@ -5,6 +5,7 @@ import type { Ref } from "vue";
 import { ticketing, isOutdated } from "../Async";
 import { logDebug, pushMessage } from "../Messages";
 import { reportError } from "../Monitoring";
+import { number } from 'starknet';
 
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number, nft_ids: string[] };
@@ -43,8 +44,10 @@ export class ChainBriqs
     briqContract: undefined | IBriqContract;
     addr: undefined | string;
 
+    fastBalance: number = 0;
+
     watch() {
-        watchEffect(() => this.loadFromChain());
+        watchEffect(() => { this.loadFromChain(); this.updateFastBalance(); } );
         return this;
     }
 
@@ -96,9 +99,26 @@ export class ChainBriqs
         this.byMaterial[MATERIAL_GENESIS] = { ft_balance: parseInt(balanceJSON.ft_balance, 16), nft_ids: balanceJSON.nft_ids };
     }
 
+    _getBalance = ticketing(async function (this: ChainBriqs) {
+        return await this.briqContract!.balanceOf(this.addr!, MATERIAL_GENESIS)
+    });
+
+    async updateFastBalance()
+    {
+        if (!this.briqContract || !this.addr)
+        {
+            this.fastBalance = 0;
+            return;
+        }
+        try {
+            this.fastBalance = await this._getBalance();
+        }
+        catch(_){}
+    }
+
     _getNbBriqs(material: string)
     {
-        return this.byMaterial[material].ft_balance + this.byMaterial[material].nft_ids.length;
+        return this.byMaterial?.[material]?.ft_balance ?? 0 + this.byMaterial?.[material]?.nft_ids?.length ?? 0;
     }
 
     getNbBriqs()
@@ -107,6 +127,11 @@ export class ChainBriqs
         for (let material in this.byMaterial)
             ret += this._getNbBriqs(material);
         return ret;
+    }
+
+    getBalance()
+    {
+        return this.getNbBriqs() || this.fastBalance;
     }
 
     getBalanceDetails(): ({ material: string, qty: number } | { material: string, token_id: string })[]

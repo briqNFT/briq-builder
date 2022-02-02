@@ -6,13 +6,13 @@
             <h3 class="text-center">{{ metadata.set }}</h3>
             <div class="flex flex-nowrap items-center gap-3">
                 <div class="w-full bg-accent rounded-md flex justify-around items-center p-2 my-4">
-                    <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'METADATA'"><i :class="getStepIcon('METADATA')"></i>Details</button>
+                    <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'METADATA'"><i :class="getStepIcon('METADATA')"></i>Details</button>
                     <i class="text-sm fas fa-arrow-right"></i>
-                    <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'PREVIEW'"><i :class="getStepIcon('PREVIEW')"></i>Preview</button>
+                    <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'PREVIEW'"><i :class="getStepIcon('PREVIEW')"></i>Preview</button>
                     <i class="text-sm fas fa-arrow-right"></i>
-                    <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'CONFIRMATION'"><i :class="getStepIcon('CONFIRMATION')"></i>Confirmation</button>
+                    <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'CONFIRMATION'"><i :class="getStepIcon('CONFIRMATION')"></i>Confirmation</button>
                     <i class="text-sm fas fa-arrow-right"></i>
-                    <button class="flex flex-col justify-center items-center text-sm md:text-base" :disabled="true"><i :class="getStepIcon('DONE')"></i> Export</button>
+                    <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="true"><i :class="getStepIcon('DONE')"></i> Export</button>
                 </div>
             </div>
             <div class="overflow-hidden w-full">

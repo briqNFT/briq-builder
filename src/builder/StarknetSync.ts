@@ -18,7 +18,10 @@ export function setupSync()
             store.dispatch("wallet/set_starknet_contract_address", addr);
         } catch(err)
         {
-            store.dispatch("wallet/set_starknet_contract_address", undefined);
+            if (store.state.wallet.baseUrl.search("localhost") !== -1)
+                store.dispatch("wallet/set_starknet_contract_address", "0xCAFEFADE");
+            else
+                store.dispatch("wallet/set_starknet_contract_address", undefined);
         }
     });
 }
