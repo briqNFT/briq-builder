@@ -8,10 +8,10 @@
         </div>
         <Hotkey name="escape" :handler="() => close()"/>
         <div
-            class="flex min-h-screen w-screen overflow-auto absolute top-0 justify-center items-center invisible"
+            :class="'flex min-h-screen w-screen overflow-auto absolute top-0 invisible ' + modalAlignment"
         >
             <component :metadata="data.metadata" :is="data.modal"
-                :class="'container rounded-lg bg-base alternate-buttons mx-auto my-8 px-8 py-4 shadow-xl relative ' + (visible ? 'visible' : 'invisible')"
+                :class="'container rounded-lg bg-base alternate-buttons m-8 px-8 py-4 shadow-xl relative ' + (visible ? 'visible' : 'invisible')"
                 @close="close"
                 @hide="toggleVisibility(false)"
                 @show="toggleVisibility(true)"
@@ -32,6 +32,9 @@ export default defineComponent({
     computed: {
         modalBackground() {
             return { background: this.data?.metadata?.background || "rgba(0, 0, 0, 0.3)" };
+        },
+        modalAlignment() {
+            return this.data?.metadata?.align || 'justify-center items-center';
         }
     },
     methods: {
