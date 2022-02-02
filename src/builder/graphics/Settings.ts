@@ -5,6 +5,7 @@ import { useDarkMode } from '../../DarkMode';
 const store = reactive({
     useSAO: false,
     useRealAA: true,
+    // If you change these, change settings.vue
     planeColor: useDarkMode() ? "#591f00" : "#a93a00",
     gridColor: useDarkMode() ? "#999999" : "#eaeaea",
     backgroundColor: useDarkMode() ? "#1e2229" : "#eaeaea",
