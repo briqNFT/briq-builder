@@ -8,7 +8,7 @@ export const darkModeStore = reactive({
 
 export function useDarkMode()
 {
-    return (darkModeStore.forcedMode === "dark") || DARKMODE_MEDIA;
+    return darkModeStore.forcedMode ? darkModeStore.forcedMode === "dark" : DARKMODE_MEDIA;
 }
 
 
