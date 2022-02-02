@@ -16,15 +16,19 @@ import builderSettings from './graphics/Settings';
 import { inputStore } from './inputs/InputStore';
 import { setsManager } from './SetsManager';
 import { ChainBriqs } from './ChainBriqs';
-import { number } from 'starknet';
 
 let initSet = new SetData(hexUuid());
+
+import { watch, toRef } from 'vue';
 
 function isWithinBounds(x: number, y: number, z: number)
 {
     let size = builderSettings.canvasSize;
-    return Math.abs(x) <= size && Math.abs(y) >= 0 && Math.abs(z) <= size;
+    return Math.abs(x) <= size && y >= 0 && Math.abs(z) <= size;
 }
+
+//watch(toRef(builderSettings, "canvasSize"), (nv, ov) => {    
+//})
 
 var try_fetching_user_data_func;
 export var builderDataStore = (() => {
@@ -54,6 +58,11 @@ export var builderDataStore = (() => {
                 commit("change_set_name", payload);
             },
             
+            // Hack
+            set_canvas_size(_: unknown, payload: { value: number, before: number })
+            {
+            },
+
             ////////////
             //// Briq manipulation stuff
             ////////////
@@ -80,7 +89,7 @@ export var builderDataStore = (() => {
 
             move_all_briqs({ state, commit }: any, data: any) {
                 state.currentSet.forEach((briq, pos) => {
-                    if (!isWithinBounds(pos[0] + data.x, pos[1] + data.y, pos[2] + data.z))
+                    if (!isWithinBounds(pos[0] + (data.x || 0), pos[1] + (data.y || 0), pos[2] + (data.z || 0)))
                         throw new Error("cannot");
                 });
                 commit("move_all_briqs", data);
@@ -156,6 +165,12 @@ export var builderDataStore = (() => {
                 state.currentSet.moveAll(data.x ?? 0, data.y ?? 0, data.z ?? 0);
                 dispatchBuilderAction("select_set", state.currentSet);
             },
+
+            // hack:
+            set_canvas_size(state: unknown, data: { value: number, before: number })
+            {
+                builderSettings.canvasSize = data.value;
+            }
         },
         getters: {},
     };
@@ -237,3 +252,15 @@ registerUndoableAction("builderData/move_all_briqs", "builderData/move_all_briqs
         });
     }
 }, (data: any) => "Move all briqs");
+
+registerUndoableAction("builderData/set_canvas_size", "builderData/set_canvas_size", {
+    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
+    },
+    onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
+        await store.dispatch("push_command_to_history", {
+            action: "builderData/set_canvas_size",
+            redoData: payload,
+            undoData: { value: payload.before }
+        });
+    }
+}, (data: any) => "Change canvas size");

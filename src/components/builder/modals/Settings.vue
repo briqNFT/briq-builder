@@ -58,6 +58,13 @@ export default defineComponent({
     mounted() {
         initState = JSON.parse(JSON.stringify(this.builderSettings));
     },
+    unmounted() {
+        if (builderSettings.canvasSize != initState.canvasSize)
+            this.$store.dispatch("builderData/set_canvas_size", {
+                value: this.builderSettings.canvasSize,
+                before: initState.canvasSize,
+            });
+    },
     watch: {
         builderSettings: {
             handler() {
