@@ -12,6 +12,9 @@ export class Briq
     // NFT ID. If present, this briq is assumed to be an on-chain NFT.
     id: string | undefined;
 
+    // Temp code for the migration.
+    legacy_id: string | undefined;
+
     constructor(material: string = "0x1", color: string = "#C94A00")
     {
         this.material = material;
@@ -54,10 +57,10 @@ export class Briq
     // Legacy deserializer to parse old sets.
     deserializeV0(data: any)
     {
-        this.material = data.material;
+        this.material = "0x" + data.material;
         this.color = data.color;
         if (data.briq)
-            this.id = data.briq;
+            this.legacy_id = data.briq;
         return this;
     }
 

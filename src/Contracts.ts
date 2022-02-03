@@ -2,7 +2,7 @@ import BriqContract from './contracts/briq'
 import SetContract, { LegacySetContract }from './contracts/set'
 import MintContract from './contracts/mint'
 
-const ADDRESSES = {
+export const ADDRESSES = {
     "localhost": {
         briq: "0x05877d55d7a7ae8f65d6b3d059cfa68557b2a2fcd84ba04a9dcc46a55edf161a",
         set: "0x0706e8ffb66f5485d02e3c064975fd58f8c3e7367b92d0f509055c4cce288f7b",
