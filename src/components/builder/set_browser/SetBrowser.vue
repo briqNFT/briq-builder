@@ -28,9 +28,39 @@ import SetGridItem from './SetGridItem.vue';
                 @open="(x: string) => openDetails = x"
                 @selectSet="(val: boolean) => onSelectSet(setId, val)"
             />
+            <div v-for="oldSet of oldSets"
+                class="w-full relative flex flex-col bg-darker rounded-md px-4 py-2 border-4 border-darker"
+            >
+                <div class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-md p-4 flex justify-center items-center">
+                    <button @click="openMigrateModal(oldSet)">
+                        <p class="font-semibold text-center -rotate-[30deg] bg-base bg-opacity-80 px-4 rounded-xl">Migration Needed!<br/>Click here<br/>to migrate set</p>
+                    </button>
+                </div>
+                <div class="flex flex-nowrap items-center">
+                    <h3 class="flex-auto text-center my-1 break-all">{{ oldSetsData?.[oldSet]?.getName() || oldSet }}</h3>
+                </div>
+                <div class="flex-1 flex justify-center min-h-[2rem] my-2">
+                    <img v-if="oldSetsImg?.[oldSet]" :src="oldSetsImg?.[oldSet].currentSrc" class="rounded-md"/>
+                    <div v-else="" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider"><p>No Image</p></div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.imagePlaceholder
+{
+    background: repeating-linear-gradient(
+        -45deg,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0), 10px,
+        rgba(247, 137, 74, 0.5) 10px,
+        rgba(247, 137, 74, 0.5) 15px
+    );
+}
+</style>
+
 
 <script lang="ts">
 import { setsManager } from '../../../builder/SetsManager';
@@ -39,18 +69,29 @@ import { SetData } from '../../../builder/SetData';
 import { pushModal } from '../../Modals.vue'
 import TextModal from '../../generic/TextModal.vue';
 
-import { defineComponent } from 'vue';
+import { legacySetsMgr } from './LegacySetsMgr';
+import MigrateSet from '../modals/MigrateSet.vue';
+
+import { defineComponent, toRef } from 'vue';
 export default defineComponent({
     data() {
         return {
             searchText: "",
             openDetails: undefined as undefined | string,
-            selected: {} as { [setId: string]: boolean }
+            selected: {} as { [setId: string]: boolean },
+            //oldSets: ["0xtoto"],//toRef(legacySetsMgr, 'oldSets'),
+            //oldSetsData: {"Oxtoto": {}},//toRef(legacySetsMgr, 'oldSetsData'),
+            //oldSetsImg: {}, //toRef(legacySetsMgr, 'oldSetsImg'),
+            oldSets: toRef(legacySetsMgr, 'oldSets'),
+            oldSetsData: toRef(legacySetsMgr, 'oldSetsData'),
+            oldSetsImg: toRef(legacySetsMgr, 'oldSetsImg'),
         }
     },
     props: ["metadata"],
     emits: ["close"],
     inject: ['messages'],
+    async mounted() {
+    },
     computed: {
         asModal() {
             return this?.metadata?.asModal;
@@ -69,6 +110,13 @@ export default defineComponent({
         }
     },
     methods: {
+        openMigrateModal(sid: string) {
+            pushModal(MigrateSet, {
+                set: sid,
+                setData: this.oldSetsData[sid],
+                img: this.oldSetsImg[sid],
+            });
+        },
         createSet() {
             setsManager.createLocalSet();
         },

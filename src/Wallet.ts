@@ -14,6 +14,8 @@ import { IWallet } from './wallets/IWallet';
 import { getProvider, setProvider } from './Provider';
 import { watchSignerChanges } from './Contracts'
 
+import { legacySetsMgr } from './components/builder/set_browser/LegacySetsMgr';
+
 export const walletStore = {
     namespaced: true,
     state: () => ({
@@ -110,7 +112,8 @@ export const walletStore = {
         {
             state.signer = data.signer;
             state.userWalletAddress = data.addr;
-        },
+            legacySetsMgr.setup(state);
+            },
 
         set_starknet_contract_address(state: any, data: string)
         {

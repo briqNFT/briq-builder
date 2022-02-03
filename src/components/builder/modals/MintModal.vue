@@ -4,7 +4,7 @@
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full py-4">Welcome to briq</h2>
             <div class="my-4">
-                <p>We’re currently in <a href="">Alpha test</a> on StarkNet TestNet. Claim 1000 free briqs to start your building journey.</p>
+                <p>We’re currently in <a href="">Alpha test</a> on StarkNet TestNet.<br/>Claim 1000 free briqs to start your building journey.</p>
             </div>
             <template v-if="$store.state.wallet.baseUrl.indexOf('mainnet') !== -1 ">
             <div class="font-medium text-xl">

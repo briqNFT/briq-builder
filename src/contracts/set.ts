@@ -131,8 +131,20 @@ export class LegacySetContract extends ExtendedContract
         super(LegacySetABI, address, provider)
     }
 
+    async balanceDetailsOf(owner: string): Promise<string[]>
+    {
+        return (await this.call("get_all_tokens_for_owner", { owner: owner })).tokens as string[];
+    }
+
     async ownerOf(token_id: string)
     {
         return (await this.call("owner_of", { token_id })).res as string;
+    }
+
+    async disassemble(owner: string, token_id: string, bricks: Array<string>)
+    {
+        if (!((this.provider as Signer).address))
+            throw new Error("Provider is not a signer");
+        return await this.invoke("disassemble", { owner, token_id, bricks });
     }
 }
