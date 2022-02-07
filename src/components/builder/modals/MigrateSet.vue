@@ -105,6 +105,7 @@ export default defineComponent({
         if (this.notEnoughBriqs)
             this.exporting = 'PRECHECKS';
 
+        if (this.metadata.img)
         {
             let c = document.createElement('canvas');
             c.height = this.metadata.img.naturalHeight;
