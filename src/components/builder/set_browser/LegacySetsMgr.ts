@@ -15,7 +15,8 @@ class LegacySetsMgr
         this.legacyContract = new LegacySetContract(ADDRESSES['starknet-testnet-legacy'].set, store.signer);
         let sets = await this.legacyContract.balanceDetailsOf(store.userWalletAddress);
         for (let set of sets)
-        this.oldSets.push(set);
+            this.oldSets.push(set);
+        console.log("LEGACY SETS - ", sets);
         let fetchSetData = async (sid: string) => {
             let data = (await fetchData("store_get/" + sid)).data;
             return new SetData(sid).deserialize(data);
