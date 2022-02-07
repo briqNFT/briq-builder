@@ -34,6 +34,9 @@ export default class SetContract extends ExtendedContract
         // Hash is 0x prefixed string. JS numbers are not big enough to parse this, and I'm lazy.
         // We need to 0 out the last 59 bits, which means zero out the last 14 chars (14*4 = 56), and bit-and the 15th last with b1000 == 8.
         hash = (hash.substring(0, 48) + (parseInt(hash[48], 16) & 8).toString(16)).padEnd(63, "0");
+        // Remove leading zeroes.
+        if (hash[0] === "0")
+            hash = hash.replace(/^0+/, '');
         return "0x" + hash;
     }
 
@@ -72,6 +75,7 @@ export default class SetContract extends ExtendedContract
             }
             split_uri.push("0x" + s.join(""));
         }
+
         return await (this.provider as Signer).invokeFunction(this.connectedTo!, getSelectorFromName("assemble"), [
             owner,
             token_id_hint,
