@@ -249,7 +249,8 @@ export default defineComponent({
                 });
                 legacySetsMgr.legacyContract.disassemble(this.$store.state.wallet.userWalletAddress, this.setId, ids);
 
-                setsManager.onSetMinted(this.set.id, this.exportSet)
+                let info = setsManager.onSetMinted(null, this.exportSet);
+                info.chain_owner = this.$store.state.wallet.userWalletAddress;
                 this.setId = this.exportSet.id;
                 this.$store.dispatch("builderData/select_set", this.exportSet.id);
 
