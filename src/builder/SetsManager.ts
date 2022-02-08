@@ -290,15 +290,20 @@ class SetsManager
         return copy;
     }
 
-    onSetMinted(oldSetId: string, newSet: SetData) {
-        let idx = this.setList.indexOf(oldSetId);
-        this.setList.splice(idx, 1, newSet.id);
-        this.setsInfo[newSet.id] = this.setsInfo[oldSetId];
-        delete this.setsInfo[oldSetId];
-    
+    onSetMinted(oldSetId: string | null, newSet: SetData) {
+        let idx = this.setList.indexOf(oldSetId || "");
+        if (idx !== -1)
+        {
+            this.setList.splice(idx, 1, newSet.id);
+            this.setsInfo[newSet.id] = this.setsInfo[oldSetId!];
+            delete this.setsInfo[oldSetId!];
+        }
+
         this.setsInfo[newSet.id].status = 'ONCHAIN_LOADED';
         this.setsInfo[newSet.id].chain = newSet;
         this.setsInfo[newSet.id].local = newSet;
+
+        return this.setsInfo[newSet.id];
     }
 };
 
