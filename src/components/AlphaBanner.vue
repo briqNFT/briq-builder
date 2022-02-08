@@ -3,7 +3,7 @@
         <div class="bg-accent rounded-bl-lg rounded-br-lg inline-block relative">
             <p class="inline-block px-8 py-1 shadow-lg"><span class="briq-logo">briq</span> is in alpha on StarkWare testnet!
             <span class="visible md:hidden"><br/></span>
-            Read our announcement <a target="blank_" class="underline" href='https://www.notion.so/briqnft/Alpha-paper-fd11fbbb6ac449129797e5f4ecb24d7a'>here</a></p>
+            Read our announcement <a target="blank_" class="underline" href='https://briqnft.notion.site/Alpha-paper-fd11fbbb6ac449129797e5f4ecb24d7a'>here</a></p>
             <button class="absolute top-1 right-1" @click="closePopup">X</button>
         </div>
     </div>
