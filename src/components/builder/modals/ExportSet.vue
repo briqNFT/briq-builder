@@ -132,6 +132,8 @@ export default defineComponent({
             screenshotPromise: undefined as Promise<string> | undefined,
             ogImage: "" as string,
             setId: "" as string,
+
+            _exportSet: undefined as SetData | undefined,
         };
     },
     props: ["metadata"],
@@ -182,6 +184,8 @@ export default defineComponent({
             return this.hasBriqsAndSets && !this.exportSet;
         },
         exportSet() {
+            if (this._exportSet)
+                return this._exportSet;
             let data = this.set.serialize();
             let exportSet = new SetData(data.id);
             exportSet.deserialize(data);
@@ -189,9 +193,10 @@ export default defineComponent({
                 exportSet.swapForRealBriqs(this.chainBriqs);
             }
             catch (err) {
-                return undefined;
+                return;
             }
-            return exportSet;
+            this._exportSet = exportSet;
+            return this._exportSet;
         },
     },
     methods: {
@@ -335,7 +340,8 @@ export default defineComponent({
                 });
                 this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
 
-                setsManager.onSetMinted(this.set.id, this.exportSet)
+                let info = setsManager.onSetMinted(this.set.id, this.exportSet)
+                info.chain_owner = this.$store.state.wallet.userWalletAddress;
                 this.setId = this.exportSet.id;
                 this.$store.dispatch("builderData/select_set", this.exportSet.id);
 

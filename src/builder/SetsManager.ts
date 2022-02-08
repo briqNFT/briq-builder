@@ -296,6 +296,7 @@ class SetsManager
         {
             this.setList.splice(idx, 1, newSet.id);
             this.setsInfo[newSet.id] = this.setsInfo[oldSetId!];
+            this.setsInfo[newSet.id].id = newSet.id;
             delete this.setsInfo[oldSetId!];
         }
         else
