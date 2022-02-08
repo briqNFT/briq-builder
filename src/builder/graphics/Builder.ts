@@ -62,7 +62,7 @@ function generatePlane(scene) {
     planeXZ.rotateX( - Math.PI / 2);
     
     var planeUnderside = new THREE.Mesh(geometry, material);
-    planeUnderside.position.set(0, -0.001, 0);
+    planeUnderside.position.set(0, -0.05, 0);
     planeUnderside.rotateX( - Math.PI / 2);
     planeUnderside.rotateY(Math.PI);
     
