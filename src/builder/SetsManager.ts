@@ -298,6 +298,8 @@ class SetsManager
             this.setsInfo[newSet.id] = this.setsInfo[oldSetId!];
             delete this.setsInfo[oldSetId!];
         }
+        else
+            this.setsInfo[newSet.id] = new SetInfo(newSet.id);
 
         this.setsInfo[newSet.id].status = 'ONCHAIN_LOADED';
         this.setsInfo[newSet.id].chain = newSet;

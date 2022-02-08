@@ -45,6 +45,7 @@
                             <p>3 - Waiting for transaction to be received: <i :class="getStepIcon('WAITING_FOR_CONFIRMATION')"></i></p>
                             <p class="mx-8">Hash: {{ pending_transaction?.hash ? '' : '(pending)' }}<span class="tracking-tighter text-sm font-light">{{ pending_transaction?.hash }}</span></p>
                             <p class="mx-8">Status: {{ pending_transaction?.status ?? '(pending)' }}</p>
+                            <p>4 - Disassembling older set: <i :class="getStepIcon('DISASSEMBLING')"></i></p>
                             <div class="my-8"></div>
                             <p v-if="exporting === 'DONE'">You’ve successfully signed your transaction! It is now pending on StarkNet.<br />You can now close this modal.</p>
                             <p v-if="exporting === 'ERROR'">There was an error while exporting your set.<br/>The following step failed: {{ errorStep }}. Full error:<br/>
@@ -247,7 +248,7 @@ export default defineComponent({
                 this.set.forEach((briq, _) => {
                     ids.push(briq.legacy_id);
                 });
-                legacySetsMgr.legacyContract.disassemble(this.$store.state.wallet.userWalletAddress, this.setId, ids);
+                await legacySetsMgr.legacyContract.disassemble(this.$store.state.wallet.userWalletAddress, this.setId, ids);
 
                 let info = setsManager.onSetMinted(null, this.exportSet);
                 info.chain_owner = this.$store.state.wallet.userWalletAddress;
