@@ -17,7 +17,7 @@
                         <h3 class="text-center">{{ set.name }}</h3>
                         <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
                         <div class="flex justify-around items-center">
-                            <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-xl" :src="metadata.img.currentSrc"/></p>
+                            <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-xl" :src="metadata?.img?.currentSrc"/></p>
                         </div>
                         <div class="flex justify-around my-8">
                             <div class="flex flex-col justify-start basis-1/2 text-center">

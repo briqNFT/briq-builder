@@ -8,8 +8,45 @@ class LegacySetsMgr
     oldSets = [] as string[];
     oldSetsData = {} as { [sid: string]: SetData };
     oldSetsImg = {} as { [sid: string]: string };
+
+    ignoredSets = [] as string[];
+
     legacyContract!: LegacySetContract;
     
+    constructor()
+    {
+        this.ignoredSets = (() => {
+            try {
+                return JSON.parse(window.localStorage.getItem("legacy_sets_ignored")) || [];
+            } catch(_) { return []; }
+        })();
+    }
+
+    ignoreSet(sid: string)
+    {
+        let idx = this.ignoredSets.indexOf(sid);
+        if (idx === -1)
+        {
+            this.ignoredSets.push(sid);
+            window.localStorage.setItem("legacy_sets_ignored", JSON.stringify(this.ignoredSets));
+        }
+    }
+
+    resetIgnoredSets()
+    {
+        this.ignoredSets = [];
+        window.localStorage.setItem("legacy_sets_ignored", JSON.stringify(this.ignoredSets));
+    }
+
+    getSetsToMaybeMigrate()
+    {
+        let ret = [] as string[];
+        for (let sid of this.oldSets)
+            if (this.ignoredSets.indexOf(sid) === -1)
+                ret.push(sid);
+        return ret;
+    }
+
     async setup(store: any)
     {
         this.legacyContract = new LegacySetContract(ADDRESSES['starknet-testnet-legacy'].set, store.signer);
