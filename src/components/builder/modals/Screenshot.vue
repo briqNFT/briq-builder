@@ -66,7 +66,7 @@ export default defineComponent({
             this.$emit('close', await this.screenshotPromise!);
         },
         openSettings() {
-            pushModal(SettingsVue);
+            pushModal(SettingsVue, { background: 'rgba(0, 0, 0, 0.1)', align: 'justify-end items-start' });
         }
     }
 })

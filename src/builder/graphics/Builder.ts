@@ -148,7 +148,7 @@ function recreateRenderer(canvas, scene, camera)
 {
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !!builderSettings.useRealAA });
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap ;//THREE.PCFShadowMap;
     
     renderer.setClearColor(0x000000);
     renderer.setClearAlpha(0);
@@ -198,15 +198,15 @@ function addLight(scene, x, y, z) {
     const lightSpot = new THREE.DirectionalLight(builderSettings.lightColor, 1.0, 18);
     lightSpot.position.set(x, y, z);
     lightSpot.castShadow = true;
-    lightSpot.shadow.bias = -0.005;
+    lightSpot.shadow.bias = builderSettings.canvasSize > 30 ? -0.01 : -0.005;
     lightSpot.shadow.camera.near = 0.1;
     lightSpot.shadow.camera.far = 50;
     lightSpot.shadow.camera.left=-getCanvasSize()*1.3;
     lightSpot.shadow.camera.right=getCanvasSize()*1.3;
     lightSpot.shadow.camera.bottom=-getCanvasSize();
     lightSpot.shadow.camera.top=getCanvasSize()*3;
-    lightSpot.shadow.mapSize.width = 1024;
-    lightSpot.shadow.mapSize.height = 1024;
+    lightSpot.shadow.mapSize.width = builderSettings.canvasSize > 30 ? 2048 : 1024;
+    lightSpot.shadow.mapSize.height = builderSettings.canvasSize > 30 ? 2048 : 1024;
     scene.add(lightSpot);
     
     const ambientLight = new THREE.AmbientLight(builderSettings.ambientColor, 1.5);
