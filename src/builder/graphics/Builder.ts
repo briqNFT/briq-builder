@@ -55,16 +55,15 @@ function generateGrid() {
 
 function generatePlane(scene) {
     var geometry = new THREE.PlaneBufferGeometry(getCanvasSize()*2, getCanvasSize()*2);
-    var material = new THREE.MeshPhongMaterial( {color: builderSettings.planeColor, side: THREE.DoubleSide });
+    var material = new THREE.MeshPhongMaterial({ color: builderSettings.planeColor, side: THREE.FrontSide });
     var planeXZ = new THREE.Mesh(geometry, material);
     planeXZ.receiveShadow = true;
-    planeXZ.position.set(0, 0, 0);
+    planeXZ.position.set(0, -0.01, 0);
     planeXZ.rotateX( - Math.PI / 2);
     
     var planeUnderside = new THREE.Mesh(geometry, material);
-    planeUnderside.position.set(0, -0.05, 0);
-    planeUnderside.rotateX( - Math.PI / 2);
-    planeUnderside.rotateY(Math.PI);
+    planeUnderside.position.set(0, -0.015, 0);
+    planeUnderside.rotateX(Math.PI / 2);
     
     scene.add(planeXZ);
     scene.add(planeUnderside);
@@ -257,8 +256,8 @@ export async function main(canvas) {
     
     const fov = 75;
     const aspect = 2;  // the canvas default
-    const near = 0.1;
-    const far = 1000;
+    const near = 0.5;
+    const far = 500;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     
     orbitControls.controls = new OrbitControls(camera, canvas);
