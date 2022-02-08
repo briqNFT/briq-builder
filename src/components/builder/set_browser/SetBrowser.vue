@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SetGridItem from './SetGridItem.vue';
+import Tooltip from '../../generic/Tooltip.vue';
 </script>
 
 <template>
@@ -14,6 +15,7 @@ import SetGridItem from './SetGridItem.vue';
                 <Btn tooltip="Create a new WIP set." @click="createSet"><i class="far fa-file"></i> New</Btn>
                 <Btn tooltip="Import a local set." @click="importSet"><i class="fas fa-file-import"></i> Import from file</Btn>
                 <Btn tooltip="Delete all selected sets." @click="deleteAll" :disabled="!canDelete"><i class="far fa-trash-alt"></i> Delete local sets</Btn>
+                <Btn v-if="canResetMigrationPrompt" tooltip="Un-hide all hidden legacy sets." @click="resetMigrationPrompt"><i class="fas fa-eye"></i> Show hidden legacy sets</Btn>
                 <!--
                 <Btn tooltip="Disassemble all selected sets." @click="disassembleAll" :disabled="!canDisassemble"><i class="far fa-trash-alt"></i> Disassemble all</Btn>
                 -->
@@ -28,7 +30,7 @@ import SetGridItem from './SetGridItem.vue';
                 @open="(x: string) => openDetails = x"
                 @selectSet="(val: boolean) => onSelectSet(setId, val)"
             />
-            <div v-for="oldSet of oldSets"
+            <div v-for="oldSet of legacySets"
                 class="w-full relative flex flex-col bg-darker rounded-md px-4 py-2 border-4 border-darker"
             >
                 <div class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-md p-4 flex justify-center items-center">
@@ -43,6 +45,9 @@ import SetGridItem from './SetGridItem.vue';
                     <img v-if="oldSetsImg?.[oldSet]" :src="oldSetsImg?.[oldSet].currentSrc" class="rounded-md"/>
                     <div v-else="" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider"><p>No Image</p></div>
                 </div>
+                <Tooltip tooltip="Ignore this set and hide the migration prompt.">
+                    <button @click="hideMigrationPrompt(oldSet)" class="absolute top-0 right-0 px-4 py-4 font-semibold"><i class="fas fa-eye-slash"></i></button>
+                </Tooltip>
             </div>
         </div>
     </div>
@@ -79,10 +84,6 @@ export default defineComponent({
             searchText: "",
             openDetails: undefined as undefined | string,
             selected: {} as { [setId: string]: boolean },
-            //oldSets: ["0xtoto"],//toRef(legacySetsMgr, 'oldSets'),
-            //oldSetsData: {"Oxtoto": {}},//toRef(legacySetsMgr, 'oldSetsData'),
-            //oldSetsImg: {}, //toRef(legacySetsMgr, 'oldSetsImg'),
-            oldSets: toRef(legacySetsMgr, 'oldSets'),
             oldSetsData: toRef(legacySetsMgr, 'oldSetsData'),
             oldSetsImg: toRef(legacySetsMgr, 'oldSetsImg'),
         }
@@ -93,6 +94,13 @@ export default defineComponent({
     async mounted() {
     },
     computed: {
+        legacySets() {
+            return legacySetsMgr.getSetsToMaybeMigrate();
+        },
+        canResetMigrationPrompt() {
+            return legacySetsMgr.ignoredSets.length;
+        },
+        //
         asModal() {
             return this?.metadata?.asModal;
         },
@@ -117,6 +125,15 @@ export default defineComponent({
                 img: this.oldSetsImg[sid],
             });
         },
+        hideMigrationPrompt(sid: string)
+        {
+            legacySetsMgr.ignoreSet(sid);
+        },
+        resetMigrationPrompt()
+        {
+            legacySetsMgr.resetIgnoredSets();
+        },
+        //
         createSet() {
             setsManager.createLocalSet();
         },
