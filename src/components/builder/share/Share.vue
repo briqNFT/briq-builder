@@ -71,6 +71,7 @@ import { fetchData } from '../../../url';
 import { reportError } from '../../../Monitoring';
 import { ticketing } from '../../../Async';
 import contractStore, { forceNetwork } from '../../../Contracts';
+import builderSettings from '../../../builder/graphics/Settings';
 
 import { defineComponent, watchEffect } from 'vue';
 export default defineComponent({
@@ -88,6 +89,12 @@ export default defineComponent({
         messages: {
             pushMessage, setTooltip
         },
+    },
+    beforeMount() {
+        builderSettings.setSaveSettings(false);
+    },
+    unmounted() {
+        builderSettings.setSaveSettings(true);
     },
     async mounted() {
         // this.$store.dispatch("wallet/force_provider", getProviderForNetwork(this.network));
@@ -114,6 +121,8 @@ export default defineComponent({
         }
         try {
             let data = await fetchData("store_get/" + this.set_id);
+            for (let key in data?.data?.recommendedSettings ?? {})
+                builderSettings[key] = data.data.recommendedSettings[key];
             let set = new SetData(data.data.id)
             set.deserialize(data.data);
             this.setData = set;

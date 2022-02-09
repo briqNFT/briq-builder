@@ -2,8 +2,6 @@ import { number } from 'starknet';
 import { Briq } from './Briq';
 import type { ChainBriqs } from './ChainBriqs';
 
-import { computeHashOnElements } from 'starknet/utils/hash';
-
 const SET_DATA_VERSION = 1;
 
 export class SetData
@@ -43,6 +41,7 @@ export class SetData
         ret.name = this.name;
         ret.regionSize = 10;
         ret.version = SET_DATA_VERSION;
+
         ret.briqs = [];
         this.briqs.forEach((region, regionId) => {
             region.forEach((cell, cellPos) => {

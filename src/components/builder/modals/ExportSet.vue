@@ -109,6 +109,8 @@ import { pushModal } from '../../Modals.vue';
 
 import { VERSION } from '../../../Meta';
 
+import builderSettings from '../../../builder/graphics/Settings';
+
 import { takeScreenshot } from '../../../builder/graphics/Builder';
 import ScreenshotVue from './Screenshot.vue';
 import CropScreenshotVue from './CropScreenshot.vue';
@@ -279,6 +281,8 @@ export default defineComponent({
                 this.exportSet.id = contractStore.set.precomputeTokenId(this.$store.state.wallet.userWalletAddress, token_hint);
 
                 let data = this.exportSet.serialize();
+
+                data.recommendedSettings = builderSettings.getSettingsForSetExport();
 
                 const message = {
                     domain: {
