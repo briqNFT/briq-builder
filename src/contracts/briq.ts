@@ -1,7 +1,7 @@
 import type { AddTransactionResponse } from 'starknet';
 import type { Provider, Signer } from 'starknet';
 
-import BriqABI from './testnet/briq_backend.json'
+import BriqABI from './testnet/briq_impl.json'
 
 import ExtendedContract from './Abstraction'
 
@@ -15,7 +15,7 @@ export default class BriqContract extends ExtendedContract
     // Admin stuff
     async setSet(contractStore: any)
     {
-        return (await this.invoke("setSetBackendAddress", { address: contractStore.set.connectedTo }));
+        return (await this.invoke("setSetAddress", { address: contractStore.set.connectedTo }));
     }
     
     async setMint(contractStore: any)
