@@ -57,7 +57,7 @@ export const walletStore = {
 
                 watchEffect(() => {
                     // TODO: switch to IDB
-                    console.log("Writing address ", state.userWalletAddress);
+                    logDebug("Writing address ", state.userWalletAddress);
                     window.localStorage.setItem("user_address", state.userWalletAddress);
                 });
             }

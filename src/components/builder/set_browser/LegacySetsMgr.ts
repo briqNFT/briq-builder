@@ -53,7 +53,7 @@ class LegacySetsMgr
         let sets = await this.legacyContract.balanceDetailsOf(store.userWalletAddress);
         for (let set of sets)
             this.oldSets.push(set);
-        console.log("LEGACY SETS - ", sets);
+        logDebug("LEGACY SETS - ", sets);
         let fetchSetData = async (sid: string) => {
             let data = (await fetchData("store_get/" + sid)).data;
             return new SetData(sid).deserialize(data);
@@ -77,4 +77,5 @@ class LegacySetsMgr
 }
 
 import { reactive } from 'vue';
+import { logDebug } from '../../../Messages';
 export const legacySetsMgr = reactive(new LegacySetsMgr());
