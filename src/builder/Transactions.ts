@@ -1,7 +1,7 @@
 import { reactive, watch, watchEffect, toRef } from 'vue';
 import { store } from "../store/Store";
 
-const CURR_VERSION = 1;
+const CURR_VERSION = 2;
 
 var provider = toRef(store.state.wallet, "provider");
 var address = toRef(store.state.wallet, "userWalletAddress");
@@ -35,12 +35,17 @@ class TransactionsManager
             if (txs.version !== CURR_VERSION)
                 throw new Error("bad version");
             for (let txdata of txs.txs)
+            {
+                // TX is too old, skip
+                if (Date.now() - txs.metadata?.timestamp > 3600*24)
+                    continue;
                 new Transaction(...txdata);
+            }
             this.transactions.forEach(x => x.poll());
         }
         catch(err)
         {
-            console.warn(err);
+            console.warn("Failed to load transactions:", err);
             window.localStorage.removeItem("transactions_" + getUserAddress());
         }
     }
@@ -70,7 +75,7 @@ class TransactionsManager
             return;
         window.localStorage.setItem("transactions_" + getUserAddress(), JSON.stringify({
             version: CURR_VERSION,
-            txs: this.transactions.map(x => [x.hash, x.keyword, x.metadata, x.status])
+            txs: this.transactions.map(x => [x.hash, x.keyword, x.status, x.metadata])
         }))
     }
 
@@ -94,7 +99,7 @@ type TxStatus = "UNKNOWN" | "PENDING" | "ERROR" | "ACCEPTED";
 
 export class Transaction
 {
-    status: TxStatus = "UNKNOWN";
+    status: TxStatus;
     hash: string;
     keyword: string;
     mgr: TransactionsManager;
@@ -102,16 +107,16 @@ export class Transaction
 
     refreshing: boolean = false;
 
-    constructor(hash: string, keyword: string, metadata?: any, status?: TxStatus)
+    constructor(hash: string, keyword: string, status?: TxStatus, metadata?: any)
     {
         this.hash = hash;
         this.keyword = keyword;
-        this.metadata = metadata;
         this.mgr = transactionsManager;
         this.mgr.add(this, keyword);
-        // Assume status is correct.
-        if (status)
-            this.status = status;
+
+        this.metadata = metadata || {};
+        this.metadata.timestamp = Date.now();
+        this.status = status || "UNKNOWN";
     }
 
     delete()
