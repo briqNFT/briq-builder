@@ -39,7 +39,6 @@
 </style>
 
 <script lang="ts">
-import { resetStore } from '../../../builder/graphics/Settings';
 import builderSettings from '../../../builder/graphics/Settings';
 import { darkModeStore, useDarkMode } from '../../../DarkMode';
 
@@ -90,13 +89,11 @@ export default defineComponent({
     },
     methods: {
         resetToDefault() {
-            resetStore();
+            builderSettings.reset();
         },
         resetToLast() {
             for (let k in initState)
-            {
                 this.builderSettings[k] = initState[k];
-            }
             nextTick(() => this.mayUndo = false);
         }
     }
