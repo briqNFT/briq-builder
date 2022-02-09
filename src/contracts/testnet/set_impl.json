@@ -2,23 +2,6 @@
     {
         "members": [
             {
-                "name": "token_id",
-                "offset": 0,
-                "type": "felt"
-            },
-            {
-                "name": "qty",
-                "offset": 1,
-                "type": "felt"
-            }
-        ],
-        "name": "FTSpec",
-        "size": 2,
-        "type": "struct"
-    },
-    {
-        "members": [
-            {
                 "name": "low",
                 "offset": 0,
                 "type": "felt"
@@ -34,61 +17,21 @@
         "type": "struct"
     },
     {
-        "data": [
+        "members": [
             {
-                "name": "_from",
+                "name": "token_id",
+                "offset": 0,
                 "type": "felt"
             },
             {
-                "name": "_to",
-                "type": "felt"
-            },
-            {
-                "name": "_token_id",
+                "name": "qty",
+                "offset": 1,
                 "type": "felt"
             }
         ],
-        "keys": [],
-        "name": "transfer_token",
-        "type": "event"
-    },
-    {
-        "data": [
-            {
-                "name": "_from",
-                "type": "felt"
-            },
-            {
-                "name": "_to",
-                "type": "felt"
-            },
-            {
-                "name": "_value",
-                "type": "felt"
-            }
-        ],
-        "keys": [],
-        "name": "transfer_value",
-        "type": "event"
-    },
-    {
-        "data": [
-            {
-                "name": "_id",
-                "type": "felt"
-            },
-            {
-                "name": "_value_len",
-                "type": "felt"
-            },
-            {
-                "name": "_value",
-                "type": "felt*"
-            }
-        ],
-        "keys": [],
-        "name": "uri",
-        "type": "event"
+        "name": "FTSpec",
+        "size": 2,
+        "type": "struct"
     },
     {
         "inputs": [
@@ -140,7 +83,7 @@
             },
             {
                 "name": "token_id_",
-                "type": "felt"
+                "type": "Uint256"
             }
         ],
         "keys": [],
@@ -173,7 +116,7 @@
                 "type": "felt"
             }
         ],
-        "name": "setBriqBackendAddress",
+        "name": "setBriqAddress",
         "outputs": [],
         "type": "function"
     },
@@ -260,7 +203,7 @@
                 "type": "felt"
             }
         ],
-        "name": "tokenUri_",
+        "name": "tokenURI_",
         "outputs": [
             {
                 "name": "uri_len",
@@ -328,7 +271,7 @@
                 "type": "felt*"
             }
         ],
-        "name": "setTokenUri",
+        "name": "setTokenURI",
         "outputs": [],
         "type": "function"
     },
@@ -550,7 +493,7 @@
                 "type": "Uint256"
             }
         ],
-        "name": "tokenUri",
+        "name": "tokenURI",
         "outputs": [
             {
                 "name": "uri_len",
@@ -579,7 +522,7 @@
                 "type": "Uint256"
             }
         ],
-        "name": "transfer",
+        "name": "transferFrom",
         "outputs": [],
         "type": "function"
     },

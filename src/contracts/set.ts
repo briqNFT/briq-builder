@@ -5,7 +5,7 @@ import { getSelectorFromName } from 'starknet/utils/stark';
 
 import { computeHashOnElements } from 'starknet/utils/hash';
 
-import SetABI from './testnet/set_backend.json'
+import SetABI from './testnet/set_impl.json'
 import ExtendedContract from './Abstraction'
 
 export default class SetContract extends ExtendedContract
@@ -18,7 +18,7 @@ export default class SetContract extends ExtendedContract
     // Admin stuff
     async setBriq(contractStore: any)
     {
-        return (await this.invoke("setBriqBackendAddress", { address: contractStore.briq.connectedTo }));
+        return (await this.invoke("setBriqAddress", { address: contractStore.briq.connectedTo }));
     }
 
     async balanceDetailsOf(owner: string): Promise<string[]>
