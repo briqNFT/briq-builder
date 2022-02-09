@@ -198,7 +198,7 @@ export default defineComponent({
         getMint: ticketing(async function () {
             return await this.provider.callContract({
                 contract_address: this.mintContract.connectedTo,
-                entry_point_selector: getSelectorFromName("has_minted"),
+                entry_point_selector: getSelectorFromName("amountMinted"),
                 calldata: [toBN(this.addr.substr(2,), "hex").toString()],
             });
         }),
@@ -217,8 +217,8 @@ export default defineComponent({
         getBalance: ticketing(async function () {
             return await this.provider.callContract({
                 contract_address: this.briqContract!.connectedTo,
-                entry_point_selector: getSelectorFromName("balance_of"),
-                calldata: [toBN(this.addr.substr(2,), "hex").toString()],
+                entry_point_selector: getSelectorFromName("balanceOf"),
+                calldata: [toBN(this.addr.substr(2,), "hex").toString(), "1"],
             });
         }),
         checkBalance() {
@@ -236,7 +236,7 @@ export default defineComponent({
         getSets: ticketing(async function () {
             return await this.provider.callContract({
                 contract_address: this.setContract!.connectedTo,
-                entry_point_selector: getSelectorFromName("balance_of"),
+                entry_point_selector: getSelectorFromName("balanceOf_"),
                 calldata: [toBN(this.addr.substr(2,), "hex").toString()],
             });
         }),
