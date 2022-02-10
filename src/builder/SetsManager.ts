@@ -14,6 +14,8 @@ import { logDebug, pushMessage } from '../Messages';
 
 export type SET_STATUS = "ONCHAIN_ONLY" | "ONCHAIN_LOADED" | "ONCHAIN_EDITING" | "LOCAL";
 
+const SETINFO_VERSION = 1;
+
 export class SetInfo {
     id: string;
     local?: SetData;
@@ -32,6 +34,7 @@ export class SetInfo {
 
     serialize() {
         return {
+            version: SETINFO_VERSION,
             id: this.id,
             status: this.status,
             chain_owner: this.chain_owner,
