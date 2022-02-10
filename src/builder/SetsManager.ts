@@ -4,7 +4,7 @@ import SetContract from '../contracts/set';
 import { SetData} from './SetData';
 
 import { hexUuid } from '../Uuid';
-import { ignoreOutdated, ticketing } from '../Async';
+import { ignoreOutdated, isOutdated, ticketing } from '../Async';
 import { reportError } from '../Monitoring';
 import { fetchData } from '../url';
 
@@ -92,6 +92,8 @@ export class SetInfo {
                 reportError(err as Error, "Error while parsing set data from chain");
             }
         } catch(err) {
+            if (isOutdated(err))
+                return;
             reportError(err as Error, "Error while loading chain set data");
         }
         if (data)
