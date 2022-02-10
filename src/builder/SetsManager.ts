@@ -1,7 +1,8 @@
 
 import { reactive, WatchStopHandle } from 'vue';
 import SetContract from '../contracts/set';
-import { SetData} from './SetData';
+import { SetData } from './SetData';
+import { Briq } from './Briq';
 
 import { hexUuid } from '../Uuid';
 import { ignoreOutdated, isOutdated, ticketing } from '../Async';
@@ -355,37 +356,37 @@ export function checkForInitialGMSet()
         window.localStorage.setItem("has_initial_gm_set", "true")
         let set = new SetData(hexUuid());
         set.name = "GM";
-        const data: { "pos": [number, number, number], "color": string, "voxelId": number }[] = [
-            {"pos":[4,0,0],"color":"#c5ac73","voxelId":1},
-            {"pos":[3,0,0],"color":"#c5ac73","voxelId":1},
-            {"pos":[2,0,0],"color":"#c5ac73","voxelId":1},
-            {"pos":[1,0,0],"color":"#c5ac73","voxelId":1},
-            {"pos":[1,1,0],"color":"#e6de83","voxelId":1},
-            {"pos":[1,2,0],"color":"#e6de83","voxelId":1},
-            {"pos":[2,2,0],"color":"#e6de83","voxelId":1},
-            {"pos":[4,1,0],"color":"#62bdf6","voxelId":1},
-            {"pos":[4,2,0],"color":"#62bdf6","voxelId":1},
-            {"pos":[4,3,0],"color":"#62bdf6","voxelId":1},
-            {"pos":[4,4,0],"color":"#e6de83","voxelId":1},
-            {"pos":[3,4,0],"color":"#416aac","voxelId":1},
-            {"pos":[2,4,0],"color":"#416aac","voxelId":1},
-            {"pos":[1,4,0],"color":"#416aac","voxelId":1},
-            {"pos":[-1,0,0],"color":"#394183","voxelId":1},
-            {"pos":[-5,0,0],"color":"#416aac","voxelId":1},
-            {"pos":[-5,1,0],"color":"#416aac","voxelId":1},
-            {"pos":[-5,2,0],"color":"#416aac","voxelId":1},
-            {"pos":[-5,3,0],"color":"#416aac","voxelId":1},
-            {"pos":[-5,4,0],"color":"#416aac","voxelId":1},
-            {"pos":[-1,1,0],"color":"#394183","voxelId":1},
-            {"pos":[-1,2,0],"color":"#394183","voxelId":1},
-            {"pos":[-1,3,0],"color":"#394183","voxelId":1},
-            {"pos":[-1,4,0],"color":"#394183","voxelId":1},
-            {"pos":[-2,4,0],"color":"#e6de83","voxelId":1},
-            {"pos":[-4,4,0],"color":"#e6de83","voxelId":1},
-            {"pos":[-3,3,0],"color":"#c5ac73","voxelId":1}
+        const data: { "pos": [number, number, number], "color": string }[] = [
+            {"pos":[4,0,0],"color":"#c5ac73"},
+            {"pos":[3,0,0],"color":"#c5ac73"},
+            {"pos":[2,0,0],"color":"#c5ac73"},
+            {"pos":[1,0,0],"color":"#c5ac73"},
+            {"pos":[1,1,0],"color":"#e6de83"},
+            {"pos":[1,2,0],"color":"#e6de83"},
+            {"pos":[2,2,0],"color":"#e6de83"},
+            {"pos":[4,1,0],"color":"#62bdf6"},
+            {"pos":[4,2,0],"color":"#62bdf6"},
+            {"pos":[4,3,0],"color":"#62bdf6"},
+            {"pos":[4,4,0],"color":"#e6de83"},
+            {"pos":[3,4,0],"color":"#416aac"},
+            {"pos":[2,4,0],"color":"#416aac"},
+            {"pos":[1,4,0],"color":"#416aac"},
+            {"pos":[-1,0,0],"color":"#394183"},
+            {"pos":[-5,0,0],"color":"#416aac"},
+            {"pos":[-5,1,0],"color":"#416aac"},
+            {"pos":[-5,2,0],"color":"#416aac"},
+            {"pos":[-5,3,0],"color":"#416aac"},
+            {"pos":[-5,4,0],"color":"#416aac"},
+            {"pos":[-1,1,0],"color":"#394183"},
+            {"pos":[-1,2,0],"color":"#394183"},
+            {"pos":[-1,3,0],"color":"#394183"},
+            {"pos":[-1,4,0],"color":"#394183"},
+            {"pos":[-2,4,0],"color":"#e6de83"},
+            {"pos":[-4,4,0],"color":"#e6de83"},
+            {"pos":[-3,3,0],"color":"#c5ac73"}
         ];
         for (let briqData of data)
-            set.placeBriq(...briqData.pos, briqData.color, briqData.voxelId);
+            set.placeBriq(...briqData.pos, new Briq("0x1", briqData.color));
         setsManager.registerLocalSet(set);
         return set;
     }
