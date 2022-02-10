@@ -1,6 +1,7 @@
 import type { SetData } from './SetData';
 
 import { reactive, watchEffect } from 'vue';
+import { logDebug } from '../Messages';
 
 const DEFAULT_COLORS = {
     "#c5ac73": "#c5ac73",
@@ -32,17 +33,30 @@ class Palette
 
     serialize()
     {
-        window.localStorage.setItem("palette", JSON.stringify(this.colors));
+        window.localStorage.setItem("palette", JSON.stringify({
+            "version": 1,
+            "colors": this.colors,
+        }));
     }
 
     deserialize()
     {
         this.reset(false);
         try {
-            Object.assign(this.colors, JSON.parse(window.localStorage.getItem("palette")!));
+            let data = JSON.parse(window.localStorage.getItem("palette")!);
+            if (data.version)
+                Object.assign(this.colors, data.colors);
+            else
+                Object.assign(this.colors, data);
+            if (!Object.keys(this.colors).length)
+            {
+                logDebug("PALETTE - resetting colors as none were found.");
+                this.reset();
+            }
         }
         catch(_)
         {
+            logDebug("PALETTE - resetting colors following unknown errors.");
             this.reset();
         }
     }
