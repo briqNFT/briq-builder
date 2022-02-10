@@ -67,7 +67,7 @@ export default defineComponent({
             return this.wallet.userWalletAddress;
         },
         wipSets() {
-            return setsManager.setList.map(x => setsManager.setsInfo[x].local).filter(x => x);
+            return setsManager.setList.map(x => setsManager.setsInfo?.[x]?.local).filter(x => x);
         }
     },
     methods: {

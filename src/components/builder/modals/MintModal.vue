@@ -148,11 +148,16 @@ export default defineComponent({
             }
             catch(err)
             {
+                if (err?.message === "User abort") {
+                    this.messages.pushMessage("Minting aborted.");
+                    this.errorDetails = "Aborted by user.";
+                } else {
+                    console.error(err);
+                    this.reportError(err);
+                    this.messages.pushMessage("Error while minting briqs - see console for details.");
+                    this.errorDetails = err?.toString() ?? err;
+                }
                 this.status = "error";
-                this.errorDetails = err?.toString() ?? err;
-                console.error(err);
-                this.reportError(err);
-                this.messages.pushMessage("Error while minting briqs - see console for details.");
             }
         }
     }
