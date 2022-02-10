@@ -197,8 +197,17 @@ class SetsManager
                 }
             });
         } catch(err) {
-            console.log(err);
-            pushMessage("Error loading sets from chain - see console for details");
+            if (err?.message === "Network Error")
+            {
+                pushMessage("Error loading sets from chain - the connection to starknet timed out");
+                console.error(err);
+            }
+            else
+            {
+                console.log(err);
+                pushMessage("Error loading sets from chain - see console for details");
+                reportError(err as Error);
+            }
         }
         this.fetchingChainSets = false;
     };

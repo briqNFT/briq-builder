@@ -86,9 +86,17 @@ export class ChainBriqs
         {
             if (isOutdated(err))
                 return;
-            pushMessage("Error fetching briqs - see console for details");
-            reportError(err as Error);
-            console.error(err);
+            if (err?.message === "Network Error")
+            {
+                pushMessage("Error fetching briqs - the connection to starknet timed out");
+                console.error(err);
+            }
+            else
+            {
+                pushMessage("Error fetching briqs - see console for details");
+                reportError(err as Error);
+                console.error(err);
+            }
         }
         this.fetchingBriqs = false;
     }
