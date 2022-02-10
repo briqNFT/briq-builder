@@ -23,7 +23,7 @@
                     </div>
                     <div class="justify-self-end flex-none">
                         <Btn v-if="setInfo?.status === 'ONCHAIN_LOADED'" tooltip="This set is already on-chain" :disabled="true"><i class="fas fa-cloud-upload-alt"></i> Mint on Chain</Btn>
-                        <Btn v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Mint your set as an NFT on-chain" :disabled="!$store.state.builderData.currentSet.getNbBriqs()" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Mint on Chain</Btn>
+                        <Btn v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Mint your set as an NFT on-chain" :disabled="!canMint" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Mint on Chain</Btn>
                     </div>
                 </div>
             </div>
@@ -62,6 +62,9 @@ export default defineComponent({
         },
         forceInput() {
             return inputStore.forceInput;
+        },
+        canMint(): boolean {
+            return this.$store.state.builderData.currentSet.getNbBriqs() > 0;
         }
     },
     methods: {

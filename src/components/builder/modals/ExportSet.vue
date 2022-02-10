@@ -20,8 +20,10 @@
                     <div class="flex-none w-full">
                         <h2 class="text-center">Error</h2>
                         <div class="text-lg font-semibold">
-                            <p v-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
+                            <p v-if="!hasAccount">You haven't connected your wallet!<br/>briq currently supports Argent-X on Starknet Testnet. Click on the 'Connect' button for instructions.</p>
+                            <p v-else-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
                             <p v-else-if="transactionPending">An export is already ongoign - see Transaction {{ pending_transaction?.hash }}</p>
+                            <p v-else-if="needMinting">You have not yet minted any briqs!<br/>Click <button @click="openMintModal" class="underline">here</button> to claim your briqs.</p>
                             <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
                         </div>
                     </div>
@@ -106,6 +108,7 @@ import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
 import RenameSet from '../modals/RenameSet.vue';
 import { pushModal } from '../../Modals.vue';
+import { mintProxyStore } from '../../../builder/MintProxy';
 
 import { VERSION } from '../../../Meta';
 
@@ -114,6 +117,7 @@ import builderSettings from '../../../builder/graphics/Settings';
 import { takeScreenshot } from '../../../builder/graphics/Builder';
 import ScreenshotVue from './Screenshot.vue';
 import CropScreenshotVue from './CropScreenshot.vue';
+import MintModalVue from './MintModal.vue';
 
 type ExportSteps = 'PRECHECKS' | 'METADATA' | 'PREVIEW' | 'CONFIRMATION' | 'SIGNING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'ERROR' | 'DONE';
 const exportSteps = ['PRECHECKS', 'METADATA', 'PREVIEW', 'CONFIRMATION', 'SIGNING', 'SENDING_TRANSACTION', 'WAITING_FOR_CONFIRMATION', 'ERROR', 'DONE'];
@@ -149,7 +153,7 @@ export default defineComponent({
 
         this.name = this.set.name;
         this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.setId)?.[0];
-        if (this.notEnoughBriqs)
+        if (!this.hasAccount || this.needMinting || this.notEnoughBriqs)
             this.exporting = 'PRECHECKS';
         let img = new Image();
         if (this.metadata.screenshot)
@@ -176,6 +180,12 @@ export default defineComponent({
         },
         transactionPending() {
             return this.pending_transaction?.isPending() ?? false;
+        },
+        hasAccount() {
+            return !!this.$store.state.wallet.signer;
+        },
+        needMinting() {
+            return !mintProxyStore.hasMinted;
         },
         hasBriqsAndSets() {
             // Assume having 0 briqs is an error.
@@ -244,6 +254,9 @@ export default defineComponent({
                 return 'far fa-circle';
             else
                 return 'fas fa-check';
+        },
+        async openMintModal() {
+            await pushModal(MintModalVue);
         },
         async retakeScreenshot() {
             let img = new Image();
