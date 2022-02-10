@@ -352,10 +352,15 @@ export default defineComponent({
                 this.exporting = 'DONE';
             }
             catch (err) {
-                this.messages.pushMessage("Error while exporting set - check browser console for details");
-                this.reportError(err);
-                console.error(err);
-                this.errorDetails = err;
+                if (err?.message === "User abort") {
+                    this.messages.pushMessage("Export aborted.");
+                    this.errorDetails = "Aborted by user.";
+                } else {
+                    this.messages.pushMessage("Error while exporting set - check browser console for details");
+                    this.reportError(err);
+                    console.error(err);
+                    this.errorDetails = err;
+                }
                 this.errorStep = this.exporting;
                 this.exporting = 'ERROR';
             }
