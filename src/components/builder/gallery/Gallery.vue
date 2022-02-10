@@ -50,8 +50,14 @@ export default defineComponent({
         };
     },
     async beforeMount() {
-        this.galleryItems = (await fetchData("gallery_items"))?.sets || [];
-        this.oldGalleryItems = [];
+        let data = await fetchData("gallery_items");
+        if (data?.version !== 2)
+            this.galleryItems = data.sets;
+        else
+        {
+            this.galleryItems = data.sets;
+            this.oldGalleryItems = data.sets_v06;
+        }
     },
     mounted() {
         this.observer = new IntersectionObserver((entries, observer) => {
