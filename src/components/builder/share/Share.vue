@@ -127,6 +127,7 @@ export default defineComponent({
             set.deserialize(data.data);
             this.setData = set;
             dispatchBuilderAction("select_set", set);
+            dispatchBuilderAction("put_all_in_view");
             this.loadingStatus = "loaded";
         }
         catch(err)

@@ -1,3 +1,4 @@
+import { number } from 'starknet';
 import { THREE } from '../../three';
 
 import { MaterialByColor } from './Materials';
@@ -52,6 +53,22 @@ export default class VoxelWorld {
         const cellY = Math.floor(y / cellSize);
         const cellZ = Math.floor(z / cellSize);
         return `${cellX},${cellY},${cellZ}`;
+    }
+
+    getAABB() {
+        let min = [0, 0, 0];
+        let max = [0, 0, 0];
+        for (let cell in this.cells)
+        {
+            let pos = cell.split(',').map(i => +i) as [number, number, number];
+            if (pos[0] < min[0]) min[0] = pos[0];
+            if (pos[0] > max[0]) max[0] = pos[0];
+            if (pos[1] < min[1]) min[1] = pos[1];
+            if (pos[1] > max[1]) max[1] = pos[1];
+            if (pos[2] < min[2]) min[2] = pos[2];
+            if (pos[2] > max[2]) max[2] = pos[2];
+        }
+        return [min.map(i => i * this.cellSize), max.map(i => i * this.cellSize)];
     }
     
     addCellForVoxel(x, y, z) {

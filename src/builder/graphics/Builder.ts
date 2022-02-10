@@ -320,6 +320,16 @@ export async function main(canvas) {
             {
                 voxWorld.reset();
             }
+            else if (item.action === "put_all_in_view")
+            {
+                let aabb = voxWorld.getAABB();
+                let center = [aabb[0][0] + aabb[1][0], aabb[0][1] + aabb[1][1], aabb[0][2] + aabb[1][2]];
+                let bounds = Math.max(aabb[1][0] - aabb[0][0], aabb[1][1] - aabb[0][1], aabb[1][2] - aabb[0][2]);
+                bounds = Math.max(5, bounds);
+                camera.position.set(bounds * 0.25, bounds * 0.7, -bounds * 1.2);
+                orbitControls.controls.target.set(0, center[1]/2, 0);
+                orbitControls.controls.update();
+            }
         }
         dispatchedActions.length = 0;
         
