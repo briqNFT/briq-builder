@@ -50,6 +50,9 @@ export default defineComponent({
     },
     methods: {
         onResize() {
+            // Wait until we're setup.
+            if (!this.$refs.overlay.parentNode)
+                return;
             this.$refs.overlay.parentNode.style.width = `${this.$refs.image.width}px`;
             this.$refs.overlay.parentNode.style.height = `${this.$refs.image.height}px`;
             this.reset();
