@@ -42,7 +42,7 @@ import Tooltip from '../../generic/Tooltip.vue';
                     <h3 class="flex-auto text-center my-1 break-all">{{ oldSetsData?.[oldSet]?.getName() || oldSet }}</h3>
                 </div>
                 <div class="flex-1 flex justify-center min-h-[2rem] my-2">
-                    <img v-if="oldSetsImg?.[oldSet]" :src="oldSetsImg?.[oldSet].currentSrc" class="rounded-md"/>
+                    <div v-if="oldSetsImg?.[oldSet]" class="flex flex-col justify-center"><img :src="oldSetsImg?.[oldSet].currentSrc" class="rounded-md"/></div>
                     <div v-else="" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider"><p>No Image</p></div>
                 </div>
                 <Tooltip tooltip="Ignore this set and hide the migration prompt.">
