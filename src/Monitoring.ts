@@ -34,14 +34,14 @@ export async function setupMonitoring(app: any, router: any)
 
 /**
  * Manual exception reporting. Adds more info to the stack trace for easier tracking.
- * @param err Error to track
+ * @param err Error to track. Can be 'string' because of an ArgentX bug.
  * @param reason A richer reason for the error for easier reading in Sentry.
  */
-export function reportError(err: Error, reason?: string)
+export function reportError(err: Error | string, reason?: string)
 {
     let richError = new Error();
-    richError.name = err.name;
-    richError.message = (reason ? `(${reason})\n` : "") + err.message;
+    richError.name = (err instanceof Error) ? err?.name || "Unknown error" : err;
+    richError.message = (reason ? `(${reason})\n` : "") + err?.message;
     richError.stack += err?.stack ? "\n" + err?.stack : "";
     if (DEV)
         console.log("reporting error >> ", richError)

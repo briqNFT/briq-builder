@@ -375,9 +375,9 @@ export default defineComponent({
                     this.errorDetails = "Aborted by user.";
                 } else {
                     this.messages.pushMessage("Error while exporting set - check browser console for details");
-                    this.reportError(err);
-                    console.error(err);
                     this.errorDetails = err;
+                    console.error(err);
+                    this.reportError(err);
                 }
                 this.errorStep = this.exporting;
                 this.exporting = 'ERROR';
