@@ -1,11 +1,11 @@
 <template>
-    <div class="md:w-2/5 w-auto">
+    <div class="">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Rename set</h3>
             <p>Set {{ metadata.set }}</p>
-            <p>Current name: {{ set.name }}</p>
-            <p>New name: <input v-model="name" type="text"/></p>
+            <p class="break-all">Current name: {{ set.name }}</p>
+            <p>New name: <input v-model="name" type="text" maxlength="200" minlength="1" size="60"/></p>
             <button class="btn float-right" @click="save">Save</button>
         </div>
     </div>

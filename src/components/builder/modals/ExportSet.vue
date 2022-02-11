@@ -22,15 +22,16 @@
                         <div class="text-lg font-semibold">
                             <p v-if="!hasAccount">You haven't connected your wallet!<br/>briq currently supports Argent-X on Starknet Testnet. Click on the 'Connect' button for instructions.</p>
                             <p v-else-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
-                            <p v-else-if="transactionPending">An export is already ongoign - see Transaction {{ pending_transaction?.hash }}</p>
+                            <p v-else-if="transactionPending">An export is already ongoing - see Transaction {{ pending_transaction?.hash }}</p>
                             <p v-else-if="needMinting">You have not yet minted any briqs!<br/>Click <button @click="openMintModal" class="underline">here</button> to claim your briqs.</p>
-                            <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
+                            <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.<br/>
+                            You can disassemble a set to get briqs back and build again, <a href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f#2d0d637eabcc4f83b4bed745962af3ef" target="blank_" class="underline font-normal">click here to learn more</a></p>
                         </div>
                     </div>
                     <div class="flex-none w-full">
                         <div class="my-2 flex flex-col gap-2">
                             <h3 class="font-medium">Set name <button @click="rename"><i class="far fa-edit"></i></button></h3>
-                            <h2>{{ set.name }}</h2>
+                            <h2 class="break-all">{{ set.name }}</h2>
                             <div class="my-4"></div>
                             <h3 class="font-medium">Set description <button :disabled="true"><i class="far fa-edit"></i></button></h3>
                             <p class="text-lg">{{ "COMING SOON! Descriptions are not supported yet..." }}</p>
@@ -46,7 +47,7 @@
                         </div>
                     </div>
                     <div class="flex-none w-full">
-                        <h3 class="text-center">{{ set.name }}</h3>
+                        <h3 class="text-center break-all">{{ set.name }}</h3>
                         <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
                         <div class="flex justify-around items-center">
                             <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-xl" :src="screenshot"/></p>
@@ -283,18 +284,23 @@ export default defineComponent({
         exportSetOnChain: async function () {
             if (!contractStore.set)
                 return;
-            this.exporting = 'SIGNING';
             try {
                 if (!this.exportSet)
                     throw new Error("The set could not be exported");
                 // Update the name in case it changed.
                 this.exportSet.name = this.set.name;
+
+                if (this.set.name.length > 200)
+                    throw new Error("Set name too long, max length is 200 characters.");
+
                 let token_hint = this.exportSet.id;
                 this.exportSet.id = contractStore.set.precomputeTokenId(this.$store.state.wallet.userWalletAddress, token_hint);
 
                 let data = this.exportSet.serialize();
 
                 data.recommendedSettings = builderSettings.getSettingsForSetExport();
+
+                this.exporting = 'SIGNING';
 
                 const message = {
                     domain: {
