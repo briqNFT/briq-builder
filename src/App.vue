@@ -27,7 +27,7 @@ export default defineComponent({
     created()
     {
         watchEffect(() => {
-            watchForDarkMode(this.$route.name === 'Landing');
+            watchForDarkMode(this.$route.name !== 'Builder' && this.$route.name !== 'Share');
         });
     }
 })
