@@ -37,7 +37,7 @@ class TransactionsManager
             for (let txdata of txs.txs)
             {
                 // TX is too old, skip
-                if (Date.now() - txs.metadata?.timestamp > 3600*24)
+                if (Date.now() - txdata?.[3]?.timestamp > 3600*24)
                     continue;
                 new Transaction(...txdata);
             }
@@ -111,12 +111,15 @@ export class Transaction
     {
         this.hash = hash;
         this.keyword = keyword;
-        this.mgr = transactionsManager;
-        this.mgr.add(this, keyword);
 
         this.metadata = metadata || {};
-        this.metadata.timestamp = Date.now();
+        if (!this.metadata.timestamp)
+            this.metadata.timestamp = Date.now();
         this.status = status || "UNKNOWN";
+
+        // Keep these last as they trigger the serialization.
+        this.mgr = transactionsManager;
+        this.mgr.add(this, keyword);
     }
 
     delete()
