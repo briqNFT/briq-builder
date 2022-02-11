@@ -150,7 +150,10 @@ export default defineComponent({
             {
                 if (err?.message === "User abort") {
                     this.messages.pushMessage("Minting aborted.");
-                    this.errorDetails = "Aborted by user.";
+                    this.errorDetails = "Aborted by user";
+                } else if (err === "Timeout") {
+                    this.messages.pushMessage("Error while minting briqs - wallet timeout.");
+                    this.errorDetails = "Wallet timeout";
                 } else {
                     console.error(err);
                     this.reportError(err);

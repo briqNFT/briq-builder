@@ -372,7 +372,10 @@ export default defineComponent({
             catch (err) {
                 if (err?.message === "User abort") {
                     this.messages.pushMessage("Export aborted.");
-                    this.errorDetails = "Aborted by user.";
+                    this.errorDetails = "Aborted by user";
+                } else if (err === "Timeout") {
+                    this.messages.pushMessage("Error while exporting set - wallet timeout.");
+                    this.errorDetails = "Wallet timeout";
                 } else {
                     this.messages.pushMessage("Error while exporting set - check browser console for details");
                     this.errorDetails = err;
