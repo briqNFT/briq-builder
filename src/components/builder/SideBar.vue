@@ -48,9 +48,11 @@ export default defineComponent({
             return !inputStore.forceInput && setsManager.getInfo(this.$store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
         },
         getNbBriqs() {
+            if (this.chainBriqs.status === 'ERROR')
+                return 'Error loading briqs';
+            if (this.chainBriqs.status === 'NOT_LOADED')
+                return 'briqs not loaded';
             let total = this.chainBriqs.getNbBriqs();
-            if (!total)
-                return '0 briqs left';
             for (let mat in this.$store.state.builderData.currentSet.usedByMaterial)
                 total -= this.$store.state.builderData.currentSet.usedByMaterial[mat];
             if (total === 1)

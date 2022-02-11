@@ -90,7 +90,7 @@
             </div>
             <div :class="'w-full bg-accent rounded-md flex justify-between items-center p-2 my-2' + (step(exporting) < step('SIGNING') ? '' : ' invisible')">
                 <Btn :disabled="step(exporting) > step('CONFIRMATION') || step(exporting) <= step('METADATA')" @click="exporting = exportSteps[step(exporting) - 1]"><span class="mx-4">Back</span></Btn>
-                <Btn v-if="step(exporting) < step('CONFIRMATION')" @click="exporting = exportSteps[step(exporting) + 1]"><span class="mx-4">Next</span></Btn>
+                <Btn :disabled="step(exporting) == step('PRECHECKS')" v-if="step(exporting) < step('CONFIRMATION')" @click="exporting = exportSteps[step(exporting) + 1]"><span class="mx-4">Next</span></Btn>
             </div>
         </div>
     </div>
@@ -188,8 +188,7 @@ export default defineComponent({
             return !mintProxyStore.hasMinted;
         },
         hasBriqsAndSets() {
-            // Assume having 0 briqs is an error.
-            return this.chainBriqs.getNbBriqs();
+            return this.chainBriqs.status === 'OK';
         },
         notEnoughBriqs() {
             // if there is no exportable set, then we have some briq-related issue.

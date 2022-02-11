@@ -46,6 +46,14 @@ export class ChainBriqs
 
     fastBalance: number = 0;
 
+    status = 'NOT_LOADED' as 'NOT_LOADED' | 'OK' | 'ERROR';
+
+    reset() {
+        this.status = 'NOT_LOADED';
+        this.fastBalance = 0;
+        this.byMaterial = {};
+    }
+
     watch() {
         watchEffect(() => { this.loadFromChain(); this.updateFastBalance(); } );
         return this;
@@ -73,13 +81,14 @@ export class ChainBriqs
         this.fetchingBriqs = true;
         if (!this.briqContract || !this.addr)
         {
-            // TODO: reset briqs.
+            this.reset();
             return;
         }
         logDebug("CHAIN BRIQS - LOADING ", this.briqContract?.connectedTo, this.addr);
         try {
             let balance = await this._getTokens();
             this.parseChainData(balance);
+            this.status = 'OK';
             logDebug("CHAIN BRIQS - LOADED ", balance);
         }
         catch(err)
@@ -87,16 +96,14 @@ export class ChainBriqs
             if (isOutdated(err))
                 return;
             if (err?.message === "Network Error")
-            {
                 pushMessage("Error fetching briqs - the connection to starknet timed out");
-                console.error(err);
-            }
             else
             {
                 pushMessage("Error fetching briqs - see console for details");
                 reportError(err as Error);
-                console.error(err);
             }
+            console.error(err);
+            this.status = 'ERROR';
         }
         this.fetchingBriqs = false;
     }
@@ -115,7 +122,7 @@ export class ChainBriqs
     {
         if (!this.briqContract || !this.addr)
         {
-            this.fastBalance = 0;
+            this.reset();
             return;
         }
         try {
