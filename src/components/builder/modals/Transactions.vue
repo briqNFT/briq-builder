@@ -3,7 +3,7 @@
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h3 class="text center w-full">Transactions</h3>
-            <p v-for="tx in transactionsManager.transactions">{{ tx.hash }} - {{ tx.status }}
+            <p v-for="tx in txs">{{ tx.hash }} - {{ tx.status }}
             <Btn @click="tx.poll()">Poll</Btn>
             <Btn @click="tx.delete()">X</Btn>
             </p>
@@ -18,9 +18,14 @@ import { defineComponent } from 'vue';
 import Button from '../../generic/Button.vue';
 export default defineComponent({
     data() {
-        return {
-            transactionsManager
-        };
+    },
+    computed: {
+        txs() {
+            let txs = transactionsManager.transactions.slice();
+            console.log("TXS", txs);
+            txs = txs.sort((a, b) => a?.metadata?.timestamp - b?.metadata?.timestamp || 0);
+            return txs;
+        }
     },
     props: ["metadata"],
     emits: ["close"],

@@ -1,7 +1,7 @@
 import { reactive, watch, watchEffect, toRef } from 'vue';
 import { store } from "../store/Store";
 
-const CURR_VERSION = 2;
+const CURR_VERSION = 3;
 
 var provider = toRef(store.state.wallet, "provider");
 var address = toRef(store.state.wallet, "userWalletAddress");
@@ -37,7 +37,7 @@ class TransactionsManager
             for (let txdata of txs.txs)
             {
                 // TX is too old, skip
-                if (Date.now() - txdata?.[3]?.timestamp > 3600*24)
+                if (Date.now() - txdata?.[3]?.timestamp > 1000*3600*24)
                     continue;
                 new Transaction(...txdata);
             }
@@ -75,7 +75,7 @@ class TransactionsManager
             return;
         window.localStorage.setItem("transactions_" + getUserAddress(), JSON.stringify({
             version: CURR_VERSION,
-            txs: this.transactions.map(x => [x.hash, x.keyword, x.status, x.metadata])
+            txs: this.transactions.map(x => [x.hash, x.keyword, x.metadata, x.status])
         }))
     }
 
@@ -107,7 +107,7 @@ export class Transaction
 
     refreshing: boolean = false;
 
-    constructor(hash: string, keyword: string, status?: TxStatus, metadata?: any)
+    constructor(hash: string, keyword: string, metadata?: any, status?: TxStatus)
     {
         this.hash = hash;
         this.keyword = keyword;
