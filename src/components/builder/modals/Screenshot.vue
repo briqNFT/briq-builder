@@ -3,13 +3,13 @@
         <h2 class="visible text-center text-[5rem] opacity-50 pointer-events-none">SCREENSHOTTING</h2>
         <teleport to="#inputComp">
             <div class="flex flex-col my-4 gap-2">
-                <Btn class="border-accent border-4 hover:!border-b-4 active:!border-4" @click="returnScreen"><i class="fas fa-camera"></i> Take Screenshot</Btn>
-                <Btn @click="$emit('close')"><i class="fas fa-ban"></i> Cancel</Btn>
-            </div>
-            <div class="flex flex-col my-4 gap-2">
                 <Btn @click="openSettings">Open Settings</Btn>
                 <Btn v-if="!builderSettings.transparentBackground" @click="builderSettings.transparentBackground = true">Set transparent<br/>background</Btn>
                 <Btn v-if="builderSettings.transparentBackground" @click="builderSettings.transparentBackground = false">Set opaque<br/>background</Btn>
+            </div>
+            <div class="flex flex-col my-4 gap-2">
+                <Btn @click="$emit('close')"><i class="fas fa-ban"></i> Cancel</Btn>
+                <Btn @click="returnScreen"><i class="fas fa-camera"></i> Take Screenshot</Btn>
             </div>
         </teleport>
     </div>
