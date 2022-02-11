@@ -1,4 +1,4 @@
-import type { Signer, Provider } from 'starknet';
+import type { Signer, Provider } from 'starknet';
 
 type StarknetWindowObject =
   | {
@@ -7,7 +7,8 @@ type StarknetWindowObject =
       provider: Provider
       selectedAddress: string,
       on: CallableFunction,
-      isConnected: true
+      isConnected: true,
+      isPreauthorized: () => Promise<boolean>
     }
   | {
       enable: () => Promise<string[]>
@@ -15,10 +16,10 @@ type StarknetWindowObject =
       provider: Provider
       selectedAddress?: string,
       on: CallableFunction,
-      isConnected: false
+      isConnected: false,
+      isPreauthorized: () => Promise<boolean>
     }
 
-import type { Store } from 'vuex';
 import { IWallet, WalletConnectionError, WalletNotAvailable } from './IWallet'
 
 export async function getStarknetObject()
@@ -51,6 +52,14 @@ export default class ArgentXWallet extends IWallet
         if (error instanceof WalletNotAvailable)
             return "ArgentX Wallet extension is not installed or not available";
         return error?.toString();
+    }
+
+    async canEnableSilently()
+    {
+        let swo: StarknetWindowObject = (globalThis as any)?.["starknet"];
+        if (!swo)
+            return false;
+        return await swo.isPreauthorized();
     }
 
     async enable(): Promise<[string, Provider, Signer]>

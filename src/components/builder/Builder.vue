@@ -101,6 +101,11 @@ export default defineComponent({
     methods: {
         onLoaded() {
             // TODO: maybe wait for more specific things?
+            // TODO: deduplicate this code
+            let address = window.localStorage.getItem("user_address");
+            // Explicit disconnect.
+            if (address === "")
+                return;
             if (!this.$store.state.wallet.signer)
                 pushModal(WalletSelectorVue)
         }

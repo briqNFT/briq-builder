@@ -4,7 +4,7 @@ import { Provider } from 'starknet';
 import type { Signer } from 'starknet';
 
 import { logDebug, logDebugDelay } from './Messages'
-import { noParallel } from './Async';
+import { noParallel, ticketing } from './Async';
 
 import ManualWallet from './wallets/ManualWallet'
 import ArgentXWallet, { getStarknetObject } from './wallets/ArgentX'
@@ -32,17 +32,14 @@ export const walletStore = {
             handler: async ({ state, dispatch, commit, getters }: any) => {
                 logDebugDelay(() => ["STARTING WALLET CONNECT", window.localStorage.getItem("user_address")]);
 
-                if (window.localStorage.getItem("user_address"))
-                {
-                    // If we have a user address stored, try immediately enabling the wallet.
-                    await dispatch("enable_wallet");
-                    // If we failed, try again in case we just loaded too quickly.
-                    if (!state.signer)
-                        getStarknetObject().then(() => {
-                            if (!state.signer)
-                                dispatch("enable_wallet");
-                        }).catch(() => logDebug("Argent appears unavailable"));
-                }
+                await dispatch("try_enabling_wallet_silently");
+
+                // If we failed, try again once we've loaded the object, just in case we arrived here too quickly.
+                if (!state.signer)
+                    getStarknetObject().then(() => {
+                        if (!state.signer)
+                            dispatch("try_enabling_wallet_silently");
+                    }).catch(() => logDebug("Argent appears unavailable"));
 
                 // Fallback to regular provider if that failed.
                 if (!state.signer)
@@ -62,6 +59,16 @@ export const walletStore = {
                 });
             }
         },
+        try_enabling_wallet_silently: ticketing(async function({ dispatch, commit }: any) {
+            // For now the only available wallet is Argent.
+            let argx = new ArgentXWallet();
+            let address = window.localStorage.getItem("user_address");
+            // Explicit disconnect.
+            if (address === "")
+                return;
+            if (argx.isLikelyAvailable() && (argx.canEnableSilently() || address))
+                await dispatch("enable_wallet");
+        }),
         enable_wallet: noParallel(async ({ dispatch, commit }: any) => {
             // For now the only available wallet is Argent.
             let argx = new ArgentXWallet();
