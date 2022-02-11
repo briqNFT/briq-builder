@@ -28,7 +28,7 @@ export async function setupMonitoring(app: any, router: any)
         // Sample 5% of transactions for performance.
         tracesSampleRate: 0.05,
         // % of errors to report
-        sampleRate: 1.0,
+        sampleRate: 0.33,
     });
 }
 
