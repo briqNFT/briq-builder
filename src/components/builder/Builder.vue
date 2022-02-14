@@ -11,6 +11,7 @@ import MintProxy from './MintProxy.vue';
 import AlphaBanner from '../AlphaBanner.vue';
 import AlphaLogo from './AlphaLogo.vue';
 import SetToolbar from './SetToolbar.vue';
+import CursorTooltip from '../generic/CursorTooltip.vue';
 </script>
 
 <template>
@@ -27,6 +28,7 @@ import SetToolbar from './SetToolbar.vue';
     <Modals/>
     <Messages/>
     <AlphaBanner/>
+    <CursorTooltip/>
 </template>
 
 <script lang="ts">

@@ -2,7 +2,7 @@
     <div class="fixed bottom-0 left-0 px-4 py-2" style="z-index: 1000">
         <p class="bg-base rounded-2xl my-2 px-2 text-lg font-normal">
             <button @click="openLog" class="min-w-[0.7rem]">+</button> 
-            {{ lastMessage ? lastMessage : tooltip }}
+            {{ lastMessage }}
         </p>
     </div>
 </template>
@@ -19,9 +19,8 @@ import { defineComponent, toRef } from "vue";
 export default defineComponent({
     data() {
         return {
-            tooltip: toRef(messagesStore, "tooltip"),
             messages: toRef(messagesStore, "messages"),
-            lastMessage: undefined as undefined | string,
+            lastMessage: undefined as undefined | string,
             timeoutLM: undefined as undefined | number,
         }
     },
@@ -35,7 +34,7 @@ export default defineComponent({
                 this.lastMessage = newV[newV.length - 1];
                 if (this.timeoutLM)
                     clearTimeout(this.timeoutLM);
-                this.timeoutLM = setTimeout(() => { this.lastMessage = undefined; }, this.tooltip ? 2000: 6000);
+                this.timeoutLM = setTimeout(() => { this.lastMessage = undefined; }, 6000);
             }
         }
     },

@@ -13,7 +13,6 @@ import BlockchainStatus from './BlockchainStatus.vue';
             <Btn class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Btn>
             <div class="my-2">
                 <div class="flex flex-col flex-nowrap gap-1">
-                    <Btn @click="openHelp">Help</Btn>
                     <Btn @click="pushModal(Settings, { background: 'rgba(0, 0, 0, 0.1)', align: 'justify-end items-start' })">Settings</Btn>
                     <Btn @click="$router.push({ path: '/legal' })">Legal / Privacy</Btn>
                     <Btn @click="$router.push({ path: '/' })">Home</Btn>
@@ -136,9 +135,6 @@ export default defineComponent({
         exportSet: function() {
             pushModal(ExportSet, { set: this.set.id });
         },
-        openHelp() {
-            window.open('https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f','_blank');
-        }
     }
 })
 </script>
