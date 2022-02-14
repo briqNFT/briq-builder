@@ -26,11 +26,19 @@ export default class BriqContract extends ExtendedContract
 
     async balanceDetailsOf(owner: string, material: string)
     {
-        return (await this.call("balanceDetailsOf", { owner, material })) as { ft_balance: string, nft_ids: string[] };
+        try {
+            return (await this.call("balanceDetailsOf", { owner, material })) as { ft_balance: string, nft_ids: string[] };
+        } catch(err) {
+            throw err;
+        }
     }
 
     async balanceOf(owner: string, material: string)
     {
-        return parseInt((await this.call("balanceOf", { owner, material })).balance as string, 16);
+        try {
+            return parseInt((await this.call("balanceOf", { owner, material })).balance as string, 16);
+        } catch(err) {
+            throw err;
+        }
     }
 }

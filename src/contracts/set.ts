@@ -18,12 +18,20 @@ export default class SetContract extends ExtendedContract
     // Admin stuff
     async setBriq(contractStore: any)
     {
-        return (await this.invoke("setBriqAddress", { address: contractStore.briq.connectedTo }));
+        try {
+            return (await this.invoke("setBriqAddress", { address: contractStore.briq.connectedTo }));
+        } catch (err) {
+            throw err;
+        }
     }
 
     async balanceDetailsOf(owner: string): Promise<string[]>
     {
-        return (await this.call("balanceDetailsOf", { owner: owner })).token_ids as string[];
+        try {
+            return (await this.call("balanceDetailsOf", { owner: owner })).token_ids as string[];
+        } catch (err) {
+            throw err;
+        }
     }
 
     // TODO: add URI
@@ -143,12 +151,20 @@ export class LegacySetContract extends ExtendedContract
 
     async balanceDetailsOf(owner: string): Promise<string[]>
     {
-        return (await this.call("get_all_tokens_for_owner", { owner: owner })).tokens as string[];
+        try {
+            return (await this.call("get_all_tokens_for_owner", { owner: owner })).tokens as string[];
+        } catch (err) {
+            return [];
+        }
     }
 
     async ownerOf(token_id: string)
     {
-        return (await this.call("owner_of", { token_id })).res as string;
+        try {
+            return (await this.call("owner_of", { token_id })).res as string;
+        } catch (err) {
+            return "0x0";
+        }
     }
 
     async disassemble(owner: string, token_id: string, bricks: Array<string>)

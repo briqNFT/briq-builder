@@ -10,9 +10,13 @@ export default class MintContract extends ExtendedContract
         super(MintABI, address, provider)
     }
 
-    async has_minted(user: string): boolean
+    async has_minted(user: string): Promise<boolean>
     {
-        return parseInt((await this.call("amountMinted", { user })).res, 16) > 0;
+        try {
+            return parseInt((await this.call("amountMinted", { user })).res as string, 16) > 0;
+        } catch(err) {
+            throw err;
+        }
     }
 
     async mint(user: string)
