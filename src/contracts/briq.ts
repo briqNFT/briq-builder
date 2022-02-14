@@ -23,6 +23,10 @@ export default class BriqContract extends ExtendedContract
         return (await this.invoke("setMintContract", { address: contractStore.mint.connectedTo }));
     }
     
+    async mint(owner: string, qty: number)
+    {
+        return await this.invoke("mintFT", { owner: owner, material: "1", qty: `${qty}` });
+    }
 
     async balanceDetailsOf(owner: string, material: string)
     {
