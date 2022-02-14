@@ -6,12 +6,13 @@ import lightMapTex from '../../assets/lightmap.png'
 import builderSettings from './Settings'
 
 import { watchEffect } from 'vue';
+
 export class MaterialByColor {
     index: number;
     colorIndex: { [key: string]: number };
     indexMaterial: { [key: number]: THREE.Material };
 
-    material: THREE.Material;
+    material: THREE.MeshLambertMaterial;
     lightMapTexture: THREE.Texture;
 
     constructor()
@@ -41,7 +42,7 @@ export class MaterialByColor {
 
     setLightMap(val: boolean)
     {
-        this.material.lightMap = val ? this.lightMapTexture : undefined;
+        this.material.lightMap = val ? this.lightMapTexture : null;
     }
 
     getIndex(color: string)
@@ -73,9 +74,10 @@ export class MaterialByColor {
             data[i*4+3] = 255;
             ++i;
         }
-        const texture = new THREE.DataTexture(data, 16, 16, THREE.RGBAFormat);
+        const texture = new THREE.DataTexture(data, 16, 16, THREE.RGBAFormat, THREE.UnsignedByteType);
         texture.magFilter = THREE.NearestFilter;
         texture.minFilter = THREE.NearestFilter;
+        texture.needsUpdate = true;
         this.material.map = texture;
         this.material.needsUpdate = true;
     }

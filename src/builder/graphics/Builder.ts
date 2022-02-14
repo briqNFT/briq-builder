@@ -150,8 +150,7 @@ function recreateRenderer(canvas, scene, camera)
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap ;//THREE.PCFShadowMap;
     
-    renderer.setClearColor(0x000000);
-    renderer.setClearAlpha(0);
+    renderer.setClearColor(0x000000, 0);
     
     const composer = new EffectComposer(renderer);
     if (builderSettings.useRealAA)
@@ -226,7 +225,9 @@ function setupScene(voxWorld)
     addLight(scene, -1*5,  2*5,  -3*5);
     
     if (!builderSettings.transparentBackground)
-    scene.background = new THREE.Color(builderSettings.backgroundColor);
+        scene.background = new THREE.Color(builderSettings.backgroundColor);
+    else
+        scene.background = null;
     
     if (builderSettings.showPlane)
     {
