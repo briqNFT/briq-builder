@@ -107,6 +107,8 @@ export var builderDataStore = (() => {
                 inputStore.selectionMgr.selectSet(state.currentSet);
                 if (info.status === 'ONCHAIN_LOADED')
                     inputStore.currentInput = 'camera';
+                else
+                    inputStore.currentInput = 'place';
                 dispatchBuilderAction("select_set", state.currentSet);
             },
             update_set(state: any, data: any)
