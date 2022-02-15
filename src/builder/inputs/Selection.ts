@@ -71,6 +71,20 @@ export class SelectionManager
         selectionRender.update(this);
     }
 
+    select(briqs: Briq[], add: boolean = false)
+    {
+        if (add)
+        {
+            for (let briq of briqs)
+                if (!this.selectedBriqs.find(x => x === briq))
+                    this.selectedBriqs.push(briq);
+        }
+        else
+            this.selectedBriqs = briqs;
+
+        selectionRender.update(this);
+    }
+
     selectAt(x: number, y: number, z: number)
     {
         let briq = this.set?.getAt(x, y, z);
@@ -93,6 +107,17 @@ export class SelectionManager
         if (item)
             return;
         this.selectedBriqs.push(briq);
+        selectionRender.update(this);
+    }
+
+    remove(x: number, y: number, z: number)
+    {
+        let briq = this.set?.getAt(x, y, z);
+        if (!briq)
+            return;
+        let idx = this.selectedBriqs.findIndex(x => x === briq);
+        if (idx !== -1)
+            this.selectedBriqs.splice(idx, 1);
         selectionRender.update(this);
     }
 }
