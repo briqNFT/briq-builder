@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { messagesStore } from '../Messages'
+import { messagesStore } from '../Messages'
 
 import { defineComponent, toRef } from "vue";
 export default defineComponent({
