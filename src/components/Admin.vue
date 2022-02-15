@@ -79,7 +79,7 @@ export default defineComponent({
                 pushMessage("No address");
                 return;
             }
-            pushMessage((await contractStore.briq?.mint(address, qty))?.toString() ?? "Failed to mint, contract is unset");
+            pushMessage(JSON.stringify((await contractStore.briq?.mint(address, qty))) ?? "Failed to mint, contract is unset");
         },
         async setImpl(contract: any, address: string) {
             let tx = await (this.$store.state.wallet.signer as Signer).invokeFunction(
@@ -87,7 +87,7 @@ export default defineComponent({
                 getSelectorFromName("setImplementation"),
                 [address]
             );
-            pushMessage("" + tx);
+            pushMessage(JSON.stringify(tx));
         }
     }
 })
