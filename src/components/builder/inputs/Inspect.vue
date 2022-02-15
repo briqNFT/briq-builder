@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BriqSwapModal from '../modals/BriqSwapModal.vue';
 import { pushModal } from "../../Modals.vue";
+import { featureFlags } from "../../../FeatureFlags";
 </script>
 
 <template>
@@ -17,7 +18,7 @@ import { pushModal } from "../../Modals.vue";
             <p>TODO</p>
         </template>
         -->
-        <div class="font-mono text-sm grid grid-cols-2 gap-1">
+        <div v-if="showMove" class="font-mono text-sm grid grid-cols-2 gap-1">
             <Btn @click="moveX(1)">X+1</Btn>
             <Btn @click="moveX(-1)">X-1</Btn>
             <Btn @click="moveY(1)">Y+1</Btn>
@@ -55,6 +56,11 @@ export default defineComponent({
             fsm: builderInputFsm.state.gui,
             selection: builderInputFsm.store.selectionMgr,
         };
+    },
+    computed: {
+        showMove() {
+            return featureFlags.briq_select_movement;
+        }
     },
     methods: {
         move(obj: { [key in 'x' | 'y' | 'z']?: number})
