@@ -9,7 +9,7 @@ export default class MetamaskWallet extends IWallet
 
     getErrorMessage(error: Error): string
     {
-        return "Metamask is currently not available on starkware.";
+        return "Metamask is currently not available on StarkNet.";
     }
     
     async enable(contractStore: any): Promise<void>
