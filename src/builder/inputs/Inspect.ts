@@ -41,10 +41,18 @@ export class InspectInput extends MouseInputState
         if (mov > 10)
             return;
 
-            const pos = this.getIntersectionPos(this.curX, this.curY, true);
-        if (!pos || pos[1] < 0)
-            this.fsm.store.selectionMgr.clear();
+        const pos = this.getIntersectionPos(this.curX, this.curY, true);
+        if (event.shiftKey)
+        {
+            if (pos && pos[1] >= 0)
+                this.fsm.store.selectionMgr.add(...pos);
+        }
         else
-            this.fsm.store.selectionMgr.selectAt(...pos);
+        {
+            if (!pos || pos[1] < 0)
+                this.fsm.store.selectionMgr.clear();
+            else
+                this.fsm.store.selectionMgr.selectAt(...pos);
+        }
     }
 }

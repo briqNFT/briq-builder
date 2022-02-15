@@ -1,3 +1,4 @@
+import { number } from 'starknet';
 import { hexUuid } from '../Uuid';
 
 export class Briq
@@ -14,6 +15,8 @@ export class Briq
 
     // Temp code for the migration.
     legacy_id: string | undefined;
+
+    position: undefined | [number, number, number] = undefined;
 
     constructor(material: string = "0x1", color: string = "#C94A00")
     {

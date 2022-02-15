@@ -127,6 +127,8 @@ export class SetData
         if (!og)
             throw new Error(`Could not find original briq at ${this.to3DPos(regionId, cellId)}`);
         this.briqs.get(regionId)?.set(cellId, briq);
+        briq.position = pos;
+        og.position = undefined;
         if (og.getMaterial() === briq.getMaterial())
             return;
         --this.usedByMaterial[og.getMaterial()];
@@ -162,7 +164,7 @@ export class SetData
             return false;
 
         this.briqs.get(regionId)!.set(cellId, briq);
-        //this.briqPos.set(actualBriq.id, [regionId, cellId]);
+        briq.position = [x, y, z];
 
         if (!this.usedByMaterial[briq.material])
             this.usedByMaterial[briq.material] = 0;
@@ -184,9 +186,27 @@ export class SetData
             --this.usedByMaterial[briq.material];
         
         this.briqs.get(regionId)!.delete(cellId);
-        //this.briqPos.delete(briq.id);
+        briq.position = undefined;
 
         return true;
+    }
+
+    moveBriqs(x: number, y: number, z: number, briqs: Briq[])
+    {
+        // Horribly inefficient lol.
+        let ret = new Map();
+        this.forEach((briq, pos) => {
+            let [regionId, cellId] = briqs.find(x => x === briq) ?
+                this.computeIDs(pos[0] + x, pos[1] + y, pos[2] + z) :
+                this.computeIDs(pos[0], pos[1], pos[2]);
+            if (!ret.has(regionId))
+                ret.set(regionId, new Map());
+            if (ret.get(regionId).get(cellId))
+                throw new Error("briq already placed on cell");
+            ret.get(regionId).set(cellId, briq);
+        })
+        this.briqs = ret;
+        this.forEach((briq, pos) => briq.position = pos);
     }
 
     moveAll(x: number, y: number, z: number)
@@ -199,6 +219,7 @@ export class SetData
             ret.get(regionId).set(cellId, briq);
         })
         this.briqs = ret;
+        this.forEach((briq, pos) => briq.position = pos);
     }
 
     computeRegionId(x: number, y: number, z: number)

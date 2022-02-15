@@ -21,19 +21,29 @@ class SelectionRender
             return;
         let parent = new THREE.Object3D();
         this.parent = parent;
-
-        var geometry =  new THREE.BoxGeometry(1, 1, 1);
-        var material = new THREE.MeshPhongMaterial( {color: 0x002496, opacity:0.5, transparent: true });
-        var planeXZ = new THREE.Mesh(geometry, material);
-        planeXZ.position.set(0, 0, 0);
-        planeXZ.visible = false;
-        // Increase render order to sort out transparecy issues.
-        planeXZ.renderOrder = 1;
-        this.mesh = planeXZ;
-        this.parent.add(this.mesh);
         this.scene.add(parent);
     }
     
+    update(selMgr: SelectionManager)
+    {
+        if (!this.parent)
+            return;
+
+        this.parent.remove(...this.parent.children);
+
+        var geometry =  new THREE.BoxGeometry(1.02, 1.02, 1.02);
+        var material = new THREE.MeshPhongMaterial( {color: 0x002496, opacity:0.5, transparent: true });
+        for (let briq of selMgr.selectedBriqs)
+        {
+            var planeXZ = new THREE.Mesh(geometry, material);
+            planeXZ.position.set(briq.position[0] + 0.5, briq.position[1] + 0.5, briq.position[2] + 0.5);
+            planeXZ.visible = true;
+            // Increase render order to sort out transparecy issues.
+            planeXZ.renderOrder = 1;
+            this.parent.add(planeXZ);
+        }
+    }
+
     show() { if (!this.parent) { return }; this.parent.visible = true; }
     hide() { if (!this.parent) { return }; this.parent.visible = false; }
 }
@@ -50,11 +60,15 @@ export class SelectionManager
         this.clear();
     }
 
+    updateGraphics()
+    {
+        selectionRender.update(this);   
+    }
+
     clear()
     {
         this.selectedBriqs = [];
-        if (selectionRender.mesh)
-            selectionRender.mesh.visible = false;
+        selectionRender.update(this);
     }
 
     selectAt(x: number, y: number, z: number)
@@ -67,11 +81,18 @@ export class SelectionManager
         }
         this.selectedBriqs = [briq];
 
-        if (selectionRender.mesh)
-        {
-            selectionRender.mesh!.visible = true;
-            selectionRender.mesh!.scale.set(1.1, 1.1, 1.1);
-            selectionRender.mesh!.position.set(Math.floor(x) + 0.5, Math.floor(y) + 0.5, Math.floor(z) + 0.5);
-        }
+        selectionRender.update(this);
+    }
+
+    add(x: number, y: number, z: number)
+    {
+        let briq = this.set?.getAt(x, y, z);
+        if (!briq)
+            return;
+        let item = this.selectedBriqs.find(x => x === briq);
+        if (item)
+            return;
+        this.selectedBriqs.push(briq);
+        selectionRender.update(this);
     }
 }
