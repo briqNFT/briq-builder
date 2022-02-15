@@ -175,13 +175,17 @@ export default defineComponent({
 
         async customCall() {
             this.cc_pending = true;
-            this.customResult = "";
-            let tx = await (this.$store.state.wallet.provider as Provider).callContract({
-                contract_address: (this.cc_contract === "set" ? contractStore.set : contractStore.briq).connectedTo,
-                entry_point_selector: getSelectorFromName(this.selector),
-                calldata: this.calldata.split(",").map((x: string) => toBN(x.trim()).toString())
-            });
-            this.customResult = tx;
+            try {
+                this.customResult = "";
+                let tx = await (this.$store.state.wallet.provider as Provider).callContract({
+                    contract_address: (this.cc_contract === "set" ? contractStore.set : contractStore.briq).connectedTo,
+                    entry_point_selector: getSelectorFromName(this.selector),
+                    calldata: this.calldata.split(",").map((x: string) => toBN(x.trim()).toString())
+                });
+                this.customResult = tx;
+            } catch(err) {
+                this.customResult = err.toString();
+            }
             this.cc_pending = false;
         },
 
