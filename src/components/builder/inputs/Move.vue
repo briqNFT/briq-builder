@@ -24,30 +24,17 @@ export default defineComponent({
     },
     inject: ["messages"],
     methods: {
-        moveX(delta: number)
+        move(obj: { [key in 'x' | 'y' | 'z']?: number})
         {
             try {
-                this.$store.dispatch("builderData/move_all_briqs", { x: delta });
+                this.$store.dispatch("builderData/move_all_briqs", obj);
             } catch(err) {
                 this.messages.pushMessage("Cannot move set, briqs would be out of bounds");
             }
         },
-        moveY(delta: number)
-        {
-            try {
-                this.$store.dispatch("builderData/move_all_briqs", { y: delta });
-            } catch(err) {
-                this.messages.pushMessage("Cannot move set, briqs would be out of bounds");
-            }
-        },
-        moveZ(delta: number)
-        {
-            try {
-                this.$store.dispatch("builderData/move_all_briqs", { z: delta });
-            } catch(err) {
-                this.messages.pushMessage("Cannot move set, briqs would be out of bounds");
-            }
-        }
+        moveX(delta: number) { this.move({ x: delta }); },
+        moveY(delta: number) { this.move({ y: delta }); },
+        moveZ(delta: number) { this.move({ z: delta }); },
     }
 })
 </script>

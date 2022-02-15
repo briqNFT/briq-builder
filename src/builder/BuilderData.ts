@@ -20,6 +20,7 @@ import { ChainBriqs } from './ChainBriqs';
 let initSet = new SetData(hexUuid());
 
 import { watch, toRef } from 'vue';
+import { number } from 'starknet';
 
 function isWithinBounds(x: number, y: number, z: number)
 {
@@ -44,10 +45,12 @@ export var builderDataStore = (() => {
             select_set({ commit }: any, data: any)
             {
                 commit("select_set", data);
+                inputStore.selectionMgr.clear();
             },
             update_set({ commit }: any, data: any)
             {
                 commit("update_set", data);
+                inputStore.selectionMgr.clear();
             },
             
             ////////////
@@ -77,22 +80,36 @@ export var builderDataStore = (() => {
             },
             clear: ({ commit }: any) => {
                 commit("clear");
+                inputStore.selectionMgr.clear();
             },
             undo_clear: ({ commit }: any, data: any) => {
                 commit("undo_clear", data);
+                inputStore.selectionMgr.clear();
             },
 
             swap_briqs({ commit }: any, data: { chainBriqs: ChainBriqs, swaps: Array<[string, string]>})
             {
                 commit("swap_briqs", data);
+                inputStore.selectionMgr.clear();
             },
 
+            move_briqs({ state, commit }: any, data: { delta: { x?: number, y?: number, z?: number }, briqs: Briq[]}) {
+                state.currentSet.forEach((briq, pos) => {
+                    if (!data.briqs.find(x => x === briq))
+                        return;
+                    if (!isWithinBounds(pos[0] + (data.delta.x || 0), pos[1] + (data.delta.y || 0), pos[2] + (data.delta.z || 0)))
+                        throw new Error("cannot, would go out of bounds");
+                });
+                commit("move_briqs", data);
+                inputStore.selectionMgr.updateGraphics();
+            },
             move_all_briqs({ state, commit }: any, data: any) {
                 state.currentSet.forEach((briq, pos) => {
                     if (!isWithinBounds(pos[0] + (data.x || 0), pos[1] + (data.y || 0), pos[2] + (data.z || 0)))
                         throw new Error("cannot");
                 });
                 commit("move_all_briqs", data);
+                inputStore.selectionMgr.updateGraphics();
             },
         },
         mutations: {
@@ -162,6 +179,11 @@ export var builderDataStore = (() => {
                 dispatchBuilderAction("select_set", state.currentSet);
             },
             */
+
+            move_briqs(state: any, data: { delta: { x?: number, y?: number, z?: number }, briqs: Briq[]}) {
+                state.currentSet.moveBriqs(data.delta.x ?? 0, data.delta.y ?? 0, data.delta.z ?? 0, data.briqs);
+                dispatchBuilderAction("select_set", state.currentSet);
+            },
 
             move_all_briqs(state: any, data: any) {
                 state.currentSet.moveAll(data.x ?? 0, data.y ?? 0, data.z ?? 0);
