@@ -40,6 +40,14 @@
             </p>
         </div>
         <div class="my-4">
+            <h2>Custom Read Call:</h2>
+            <p><select v-model="cc_contract"><option value="set">set</option><option value="briq">briq</option></select></p>
+            <p>Function: <input type="text" v-model="selector"/></p>
+            <p>Calldata (csv): <input type="text" v-model="calldata"/></p>
+            <p><Btn :disabled="cc_pending" @click="customCall">Call</Btn><i v-if="cc_pending" class="fas fa-spinner animate-spin"></i></p>
+            <p v-if="customResult">Result: {{ JSON.stringify(customResult) }}</p>
+        </div>
+        <div class="my-4">
             <h2>Transaction debug:</h2>
             <input v-model="tempTx" type="text" size="80"/> <Btn :disabled="!tempTx.match(/^0x[a-fA-F0-9]{63}$/gi)" @click="addTx(tempTx)">See Tx info</Btn>
             <p class="!text-sm" v-for="tx in transactionsToDebug">- {{ tx }}
@@ -98,6 +106,12 @@ export default defineComponent({
             mintContract: toRef(contractStore, "mint"),
 
             tempTx: "",
+
+            cc_contract: "set",
+            selector: "",
+            calldata: "",
+            customResult: "",
+            cc_pending: false,
 
             reachabilityTest: undefined as undefined | boolean,
             reachabilityTestData: "",
@@ -158,6 +172,19 @@ export default defineComponent({
             else
                 return toRef(this.$store.state.wallet, "userWalletAddress");
         },
+
+        async customCall() {
+            this.cc_pending = true;
+            this.customResult = "";
+            let tx = await (this.$store.state.wallet.provider as Provider).callContract({
+                contract_address: (this.cc_contract === "set" ? contractStore.set : contractStore.briq).connectedTo,
+                entry_point_selector: getSelectorFromName(this.selector),
+                calldata: this.calldata.split(",").map((x: string) => toBN(x.trim()).toString())
+            });
+            this.customResult = tx;
+            this.cc_pending = false;
+        },
+
         addTx(tx: string) {
             if (this.transactionsToDebug.indexOf(tx) === -1)
                 this.transactionsToDebug.splice(0, 0, tx);
