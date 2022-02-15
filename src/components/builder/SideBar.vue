@@ -12,7 +12,7 @@ import InputComp from './InputComp.vue'
                 @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'"><i class="fas fa-paint-brush"/></Btn>
             <Btn v-if="editMode" tooltip="In 'Erase' mode, left-click to delete briqs, hold SHIFT to delete multiple briqs."
                 @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="far fa-trash-alt"/></Btn>
-            <Btn v-if="editMode" tooltip="In 'Select' mode, you can select briqs and swap them for others"
+            <Btn v-if="editMode" tooltip="In 'Select' mode, left-click or shift-click to select briqs, right-click to unselect."
                 @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-mouse-pointer"></i></Btn>
             <Btn tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots"
                 @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-video"/></Btn>
