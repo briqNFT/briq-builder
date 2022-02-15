@@ -18,6 +18,8 @@ let mgr = new HotkeyManager();
 // Some basic hotkeys available everywhere
 mgr.register("escape", { code: "Escape" });
 
+import { setForceDebug } from './Messages';
+
 import { defineComponent, watchEffect } from 'vue';
 export default defineComponent({
     provide: {
@@ -29,6 +31,11 @@ export default defineComponent({
         watchEffect(() => {
             watchForDarkMode(this.$route.name !== 'Builder' && this.$route.name !== 'Share');
         });
+    },
+    mounted() {
+        let params = (new URL(window.location)).searchParams;
+        if (params.get("debug"))
+            setForceDebug();
     }
 })
 </script>
