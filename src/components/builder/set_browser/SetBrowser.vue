@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SetGridItem from './SetGridItem.vue';
 import Tooltip from '../../generic/Tooltip.vue';
+import { hexUuid } from '../../../Uuid';
 </script>
 
 <template>
@@ -146,6 +147,7 @@ export default defineComponent({
                     let file = await fileHandle.getFile();
                     let contents = JSON.parse(await file.text());
                     let set = new SetData(contents.id).deserialize(contents);
+                    set.id = hexUuid();
                     setsManager.registerLocalSet(set);
                 }
                 catch(err) {

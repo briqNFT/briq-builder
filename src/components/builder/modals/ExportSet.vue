@@ -3,7 +3,7 @@
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full">Export set</h2>
-            <h3 class="text-center">{{ metadata.set }}</h3>
+            <h3 class="text-center">{{ setId }}</h3>
             <div class="flex flex-nowrap items-center gap-3">
                 <div class="w-full bg-accent rounded-md flex justify-around items-center p-2 my-4">
                     <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'METADATA'"><i :class="getStepIcon('METADATA')"></i>Details</button>
@@ -293,7 +293,7 @@ export default defineComponent({
                 if (this.set.name.length > 200)
                     throw new Error("Set name too long, max length is 200 characters.");
 
-                let token_hint = this.exportSet.id;
+                let token_hint = this.set.id;
                 this.exportSet.id = contractStore.set.precomputeTokenId(this.$store.state.wallet.userWalletAddress, token_hint);
 
                 let data = this.exportSet.serialize();
