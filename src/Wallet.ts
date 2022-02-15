@@ -30,15 +30,16 @@ export const walletStore = {
         initialize: {
             root: true,
             handler: async ({ state, dispatch, commit, getters }: any) => {
-                logDebugDelay(() => ["STARTING WALLET CONNECT", window.localStorage.getItem("user_address")]);
+                let storedAddress = window.localStorage.getItem("user_address");
+                logDebugDelay(() => ["STARTING WALLET CONNECT", storedAddress]);
 
-                await dispatch("try_enabling_wallet_silently");
+                await dispatch("try_enabling_wallet_silently", storedAddress);
 
                 // If we failed, try again once we've loaded the object, just in case we arrived here too quickly.
                 if (!state.signer)
                     getStarknetObject().then(() => {
                         if (!state.signer)
-                            dispatch("try_enabling_wallet_silently");
+                            dispatch("try_enabling_wallet_silently", storedAddress);
                     }).catch(() => logDebug("Argent appears unavailable"));
 
                 // Fallback to regular provider if that failed.
@@ -59,10 +60,10 @@ export const walletStore = {
                 });
             }
         },
-        try_enabling_wallet_silently: ticketing(async function({ dispatch, commit }: any) {
+        try_enabling_wallet_silently: ticketing(async function({ dispatch, commit }: any, data: string) {
             // For now the only available wallet is Argent.
             let argx = new ArgentXWallet();
-            let address = window.localStorage.getItem("user_address");
+            let address = data;
             // Explicit disconnect.
             if (address === "")
                 return;
