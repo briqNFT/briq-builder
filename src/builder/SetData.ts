@@ -219,7 +219,7 @@ export class SetData
         // Horribly inefficient lol.
         let ret = new Map();
         this.forEach((briq, pos) => {
-            let [regionId, cellId] = briqs.find(x => x === briq) ?
+            let [regionId, cellId] = briqs.find(x => x._uuid === briq._uuid) ?
                 this.computeIDs(pos[0] + x, pos[1] + y, pos[2] + z) :
                 this.computeIDs(pos[0], pos[1], pos[2]);
             if (!ret.has(regionId))

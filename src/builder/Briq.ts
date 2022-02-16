@@ -16,10 +16,14 @@ export class Briq
     // Temp code for the migration.
     legacy_id: string | undefined;
 
+    // Transient state
+    _uuid: string;
     position: undefined | [number, number, number] = undefined;
 
     constructor(material: string = "0x1", color: string = "#C94A00")
     {
+        // Unique identifier for the builder.
+        this._uuid = hexUuid();
         this.material = material;
         this.color = color;
     }

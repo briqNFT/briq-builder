@@ -76,7 +76,7 @@ export class SelectionManager
         if (add)
         {
             for (let briq of briqs)
-                if (!this.selectedBriqs.find(x => x === briq))
+                if (!this.selectedBriqs.find(x => x._uuid === briq._uuid))
                     this.selectedBriqs.push(briq);
         }
         else
@@ -103,7 +103,7 @@ export class SelectionManager
         let briq = this.set?.getAt(x, y, z);
         if (!briq)
             return;
-        let item = this.selectedBriqs.find(x => x === briq);
+        let item = this.selectedBriqs.find(x => x._uuid === briq._uuid);
         if (item)
             return;
         this.selectedBriqs.push(briq);
@@ -115,7 +115,7 @@ export class SelectionManager
         let briq = this.set?.getAt(x, y, z);
         if (!briq)
             return;
-        let idx = this.selectedBriqs.findIndex(x => x === briq);
+        let idx = this.selectedBriqs.findIndex(x => x._uuid === briq._uuid);
         if (idx !== -1)
             this.selectedBriqs.splice(idx, 1);
         selectionRender.update(this);
