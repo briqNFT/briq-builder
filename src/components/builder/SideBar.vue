@@ -53,6 +53,8 @@ export default defineComponent({
             if (this.chainBriqs.status === 'NOT_LOADED')
                 return 'briqs not loaded';
             let total = this.chainBriqs.getNbBriqs();
+            // Vue reactiveness, this is opt-in for performance.
+            this.$store.state.builderData.currentSet.usedByMaterial_;
             for (let mat in this.$store.state.builderData.currentSet.usedByMaterial)
                 total -= this.$store.state.builderData.currentSet.usedByMaterial[mat];
             if (total === 1)

@@ -1,5 +1,7 @@
 import { pushMessage } from '../Messages'
 
+import { markRaw } from 'vue';
+
 type Hook = (localData: any, payload: any, state: any) => void;
 
 const undoActions: { [key: string]: string } = {};
@@ -86,7 +88,7 @@ export const undoRedoStore = {
         },
         push_command_to_history: (state: any, data: any) => {
             state.command_history = state.command_history.slice(0, state.command_index + 1);
-            state.command_history.push(data);
+            state.command_history.push(markRaw(data));
             ++state.command_index;
         },
         undo_history: (state: any) => {

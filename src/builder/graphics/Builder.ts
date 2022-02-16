@@ -311,11 +311,13 @@ export async function main(canvas) {
             }
             else if (item.action === "place_briqs")
             {
+                let cells = new Set();
                 for (let data of item.payload)
                 {
-                    voxWorld.setVoxel(...data.pos, data?.color ?? "")
-                    voxWorld.updateVoxelGeometry(...data.pos);  
+                    voxWorld.setVoxel(...data.pos, data?.color ?? "");
+                    cells.add(voxWorld.computeCellId(...data.pos));
                 }
+                cells.forEach(x => voxWorld.updateCellGeometry(...x.split(',').map(x => +x * voxWorld.cellSize)));
             }
             else if (item.action === "reset")
             {

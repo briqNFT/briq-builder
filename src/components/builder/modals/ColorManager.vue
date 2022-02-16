@@ -65,11 +65,12 @@ export default defineComponent({
             let [res, name] = result;
             this.palette.colors[res] = name;
             let awaits = [];
+            let data = [] as any[];
             this.$store.state.builderData.currentSet.forEach((cell, pos) => {
                 if (cell.color === col)
-                    awaits.push(this.$store.dispatch("builderData/set_briq_color", [{ pos, color: res }]));
+                    data.push({ pos, color: res });
             });
-            await Promise.all(awaits);
+            await this.$store.dispatch("builderData/set_briq_color", data);
             this.deleteColor(col, true);
             this.currentColor = res;
         },

@@ -1,9 +1,9 @@
-import { number } from 'starknet';
 import { Briq } from './Briq';
 import type { ChainBriqs } from './ChainBriqs';
 
-const SET_DATA_VERSION = 1;
+import { markRaw } from 'vue';
 
+const SET_DATA_VERSION = 1;
 export class SetData
 {
     id: string;
@@ -11,12 +11,15 @@ export class SetData
 
     regionSize: number;
     // Indexed by region & cell
-    briqs: Map<number, Map<number, Briq>>;
+    briqs!: Map<number, Map<number, Briq>>;
 
-    usedByMaterial: { [key:string]: number };
+    usedByMaterial!: { [key:string]: number };
 
     // Region/Cell ID of each briq, by ID
     // briqPos: Map<string, [number, number]>;
+
+    briqs_!: number;
+    usedByMaterial_!: number;
 
     constructor(id: string)
     {
@@ -24,14 +27,17 @@ export class SetData
         this.name = "";
 
         this.regionSize = 10;
-        this.briqs = new Map();
-        this.usedByMaterial = {};
+        this.reset();
     }
 
     reset()
     {
-        this.briqs = new Map();
-        this.usedByMaterial = {};
+        // For performance reasons, the maps are not reactive.
+        // However, setData increments briqs_/usedByMaterial_ when those change, so you can react to that.
+        this.briqs = markRaw(new Map());
+        this.briqs_ = 0;
+        this.usedByMaterial = markRaw({});
+        this.usedByMaterial_ = 0;
     }
 
     serialize()
@@ -52,6 +58,10 @@ export class SetData
                 ret.briqs.push(data);
             });
         });
+        // Reactivity
+        this.briqs_;
+        this.usedByMaterial_;
+
         return ret;
     }
 
@@ -88,6 +98,7 @@ export class SetData
 
     forEach(callable: (cell: Briq, pos: [number, number, number]) => any)
     {
+        this.briqs_;
         this.briqs.forEach((region, regionId) => {
             region.forEach((briq, cellPos) => {
                 let pos = this.to3DPos(regionId, cellPos);
@@ -98,6 +109,7 @@ export class SetData
 
     getNbBriqs()
     {
+        this.briqs_;
         let nb = 0;
         this.briqs.forEach((region, _) => nb += region.size);
         return nb;
@@ -105,6 +117,7 @@ export class SetData
 
     getAllBriqs()
     {
+        this.briqs_;
         let ret = [] as Briq[];
         this.briqs.forEach((region, regionId) => {
             region.forEach((briq, _) => ret.push(briq));
@@ -114,6 +127,7 @@ export class SetData
 
     getAt(x: number, y: number, z: number): Briq | undefined
     {
+        this.briqs_;
         let [regionId, cellId] = this.computeIDs(x, y, z);
         if (!this.briqs.has(regionId))
             return;
@@ -129,10 +143,12 @@ export class SetData
         this.briqs.get(regionId)?.set(cellId, briq);
         briq.position = pos;
         og.position = undefined;
+        this.briqs_ += 1;
         if (og.getMaterial() === briq.getMaterial())
             return;
         --this.usedByMaterial[og.getMaterial()];
         ++this.usedByMaterial[briq.getMaterial()];
+        this.usedByMaterial_ += 1;
     }
 
     modifyBriq(x: number, y: number, z: number, data: any): Briq
@@ -143,6 +159,7 @@ export class SetData
         if (data.color)
         {
             cell.color = data.color;
+            this.briqs_ += 1;
         }
         return cell;
     }
@@ -170,6 +187,9 @@ export class SetData
             this.usedByMaterial[briq.material] = 0;
         ++this.usedByMaterial[briq.material];
 
+        this.briqs_ += 1;
+        this.usedByMaterial_ += 1;
+
         return true;
     }
 
@@ -188,6 +208,9 @@ export class SetData
         this.briqs.get(regionId)!.delete(cellId);
         briq.position = undefined;
 
+        this.briqs_ += 1;
+        this.usedByMaterial_ += 1;
+
         return true;
     }
 
@@ -205,8 +228,10 @@ export class SetData
                 throw new Error("briq already placed on cell");
             ret.get(regionId).set(cellId, briq);
         })
-        this.briqs = ret;
+        this.briqs = markRaw(ret);
         this.forEach((briq, pos) => briq.position = pos);
+
+        this.briqs_ += 1;
     }
 
     moveAll(x: number, y: number, z: number)
@@ -218,8 +243,10 @@ export class SetData
                 ret.set(regionId, new Map());
             ret.get(regionId).set(cellId, briq);
         })
-        this.briqs = ret;
+        this.briqs = markRaw(ret);
         this.forEach((briq, pos) => briq.position = pos);
+
+        this.briqs_ += 1;
     }
 
     computeRegionId(x: number, y: number, z: number)
