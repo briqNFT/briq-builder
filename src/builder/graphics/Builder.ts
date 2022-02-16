@@ -18,7 +18,7 @@ import {
     SAOPass,
 } from '../../three';
 
-var camera: THREE.Camera;
+export var camera: THREE.Camera;
 
 // OrbitControls, exported so we can pass them to inputs.
 export var orbitControls = {
@@ -215,11 +215,14 @@ function addLight(scene, x, y, z) {
 var scene: THREE.Scene;
 
 import { selectionRender } from '../inputs/Selection';
+import { Object3D } from 'three';
+
+export var inputObjects = new Object3D();
 
 function setupScene(voxWorld)
 {
     if (!scene)
-    scene = new THREE.Scene();
+        scene = new THREE.Scene();
     scene.clear();
     
     addLight(scene, -1*5,  2*5,  -3*5);
@@ -236,7 +239,9 @@ function setupScene(voxWorld)
         generatePlane(scene);
     }
     scene.add(getPreviewCube());
-    
+
+    scene.add(inputObjects);
+
     voxWorld.scene = scene;
     for (let cid in voxWorld.cellIdToMesh)
     scene.add(voxWorld.cellIdToMesh[cid]);

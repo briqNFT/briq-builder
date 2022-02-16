@@ -6,11 +6,17 @@ import { selectionRender } from './Selection';
 import getPreviewCube from '../graphics/PreviewCube'
 import { THREE } from '../../three';
 
+import { camera, inputObjects } from '../graphics/Builder';
+
+import { featureFlags } from "../../FeatureFlags";
+
 export class InspectInput extends MouseInputState
 {
     gui!: { briq: Briq | undefined, curX: number, curY: number };
 
     lastClickPos: [number, number, number] | undefined;
+
+    mesh!: THREE.Object3D;
 
     override onEnter()
     {
@@ -20,11 +26,46 @@ export class InspectInput extends MouseInputState
             curY: 0,
         });
         selectionRender.show();
+
+        if (featureFlags.briq_select_movement)
+        {
+            this.mesh = new THREE.Object3D();
+            {
+                let geometry =  new THREE.BoxGeometry(0.1, 1, 0.1);
+                let material = new THREE.MeshPhongMaterial( {color: 0x002496, opacity: 1.0 });
+                let mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(0, 0.5, 0);
+                mesh.userData = { dir: "y" };
+                this.mesh.add(mesh);
+            }
+            {
+                let geometry =  new THREE.BoxGeometry(0.1, 0.1, 1);
+                let material = new THREE.MeshPhongMaterial( {color: 0x962400, opacity: 1.0 });
+                let mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(0, 0, 0.5);
+                mesh.userData = { dir: "z" };
+                this.mesh.add(mesh);
+            }
+            {
+                let geometry =  new THREE.BoxGeometry(1, 0.1, 0.1);
+                let material = new THREE.MeshPhongMaterial( {color: 0x009624, opacity: 1.0 });
+                let mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(0.5, 0, 0);
+                mesh.userData = { dir: "x" };
+                this.mesh.add(mesh);
+            }
+            this.mesh.position.set(0, 5, 0);
+            this.mesh.visible = true;
+            // Increase render order to sort out transparecy issues.
+            //this.mesh.renderOrder = 2;
+            inputObjects.add(this.mesh);
+        }
     }
 
     override onExit() {
         this.gui.briq = undefined;
         selectionRender.hide();
+        inputObjects.remove(this.mesh);
     }
 
     async onPointerMove(event: PointerEvent)
@@ -43,7 +84,18 @@ export class InspectInput extends MouseInputState
     async onPointerDown(event: PointerEvent)
     {
         if (event.shiftKey)
+        {
             this.fsm.switchTo("inspect_multi", { x: event.clientX, y: event.clientY });
+            return;
+        }
+        if (!featureFlags.briq_select_movement)
+            return;
+        let rc = new THREE.Raycaster();
+        rc.setFromCamera({ x: (event.clientX / window.innerWidth - 0.5) * 2, y: -(event.clientY / window.innerHeight - 0.5) * 2 }, camera);
+        let objects = rc.intersectObject(this.mesh, true);
+        if (!objects.length)
+            return;
+        this.fsm.switchTo("drag", { x: event.clientX, y: event.clientY, direction: objects[0].object.userData.dir });
     }
 
     async onPointerUp(event: PointerEvent)
@@ -141,6 +193,44 @@ export class InspectMultiInput extends MouseInputState
                             briqs.push(briq);
                     }
             this.fsm.store.selectionMgr.select(briqs, true);
+        } finally {
+            this.fsm.switchTo("inspect");
+        }
+    }
+}
+
+export class DragInput extends MouseInputState
+{
+    startX!: number;
+    startY!: number;
+
+    direction!: string;
+
+    onEnter(data: any) {
+        this.curX = data.x;
+        this.curY = data.y;
+        this.startX = this.curX;
+        this.startY = this.curY;
+
+        this.direction = data.direction;
+
+        this.fsm.orbitControls.enabled = false;
+    }
+
+    onExit() {
+        this.fsm.orbitControls.enabled = true;
+    }
+
+    async onPointerMove(event: PointerEvent)
+    {
+        //console.log(event.clientX - this.startX, event.clientY - this.startY);
+    }
+
+    async onPointerUp(event: PointerEvent)
+    {
+        try
+        {
+            await store.dispatch("builderData/move_briqs", { delta: { [this.direction]: -Math.sign(event.clientX - this.startX) }, briqs: this.fsm.store.selectionMgr.selectedBriqs })
         } finally {
             this.fsm.switchTo("inspect");
         }
