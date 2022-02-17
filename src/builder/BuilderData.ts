@@ -265,6 +265,18 @@ registerUndoableAction("builderData/clear", "builderData/undo_clear", {
 }, (data: any) => "Clear all briqs");
 
 
+registerUndoableAction("builderData/move_briqs", "builderData/move_briqs", {
+    onBefore: ({ transientActionState }: any, payload: any, state: any) => {
+    },
+    onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
+        await store.dispatch("push_command_to_history", {
+            action: "builderData/move_briqs",
+            redoData: payload,
+            undoData: { delta: { x: (-payload.delta?.x) || 0, y: (-payload.delta?.y) || 0, z: (-payload.delta?.z) || 0 }, briqs: payload.briqs }
+        });
+    }
+}, (data: any) => "Move briqs");
+
 registerUndoableAction("builderData/move_all_briqs", "builderData/move_all_briqs", {
     onBefore: ({ transientActionState }: any, payload: any, state: any) => {
     },
