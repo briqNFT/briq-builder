@@ -40,6 +40,7 @@ import { watchEffectAndWait } from '../../Async';
 
 import { setupSync } from '../../builder/StarknetSync';
 
+import { builderInputFsm } from "../../builder/inputs/BuilderInput"
 import { pushMessage, setTooltip } from '../../Messages'
 import { defineComponent, reactive, watchEffect, toRef } from 'vue';
 
@@ -66,6 +67,7 @@ export default defineComponent({
     async mounted() {
         setupSync();
         setsManager.loadFromStorage();
+        await builderInputFsm.waitForInit;
         let set = checkForInitialGMSet();
         if (set)
             await this.$store.dispatch("builderData/select_set", set.id);

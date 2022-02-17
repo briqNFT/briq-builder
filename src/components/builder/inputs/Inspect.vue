@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import BriqSwapModal from '../modals/BriqSwapModal.vue';
 import { pushModal } from "../../Modals.vue";
-import { featureFlags } from "../../../FeatureFlags";
-import { dispatchBuilderAction } from "../../../builder/graphics/Dispatch";
 </script>
 
 <template>
@@ -19,9 +17,9 @@ import { dispatchBuilderAction } from "../../../builder/graphics/Dispatch";
             <p>TODO</p>
         </template>
         -->
-        <div class="flex flex-col">
+        <div class="flex flex-col gap-1">
             <Btn @click="resetCamera">Reset Camera</Btn>
-            <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length">Center on<br />Selection</Btn>
+            <Btn class="leading-4" @click="centerCamera" :disabled="!selection.selectedBriqs.length">Center on<br />Selection</Btn>
             <Btn @click="selectAll">Select All</Btn>
         </div>
     </div>
@@ -48,12 +46,16 @@ import { builderInputFsm } from "../../../builder/inputs/BuilderInput"
 import type { Briq } from "../../../builder/Briq";
 import { resetCamera } from '../../../builder/graphics/Builder'
 
+import { featureFlags } from "../../../FeatureFlags";
+import { dispatchBuilderAction } from "../../../builder/graphics/Dispatch";
+import { inputStore } from "../../../builder/inputs/InputStore";
+
 import { defineComponent } from 'vue';
 export default defineComponent({
     inject: ["chainBriqs", "messages"],
     data() {
         return {
-            selection: builderInputFsm.store.selectionMgr,
+            selection: inputStore.selectionMgr,
         };
     },
     computed: {

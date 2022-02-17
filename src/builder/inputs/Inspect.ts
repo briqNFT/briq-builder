@@ -10,6 +10,7 @@ import { camera, inputObjects } from '../graphics/Builder';
 
 import { featureFlags } from "../../FeatureFlags";
 import { pushMessage } from '../../Messages';
+import { setsManager } from '../SetsManager';
 
 import { watchEffect } from 'vue';
 
@@ -80,6 +81,10 @@ export class InspectInput extends MouseInputState
 
     mesh!: THREE.Object3D;
 
+    _canMove() {
+        return featureFlags.briq_select_movement && setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
+    }
+
     override onEnter()
     {
         this.setGuiData({
@@ -90,20 +95,22 @@ export class InspectInput extends MouseInputState
         });
         selectionRender.show();
 
-        if (featureFlags.briq_select_movement)
+        if (this._canMove())
         {
             this.mesh = getMovementHelperMesh();
             this.mesh.position.set(0, 5, 0);
-            watchEffect(() => {
-                let avgPos = calculatePos(this.fsm.store.selectionMgr);
-                this.gui.focusPos = avgPos;
-                this.mesh.visible = !!avgPos;
-                if (avgPos)
-                    this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);    
-            })
-
             inputObjects.add(this.mesh);
         }
+        watchEffect(() => {
+            let avgPos = calculatePos(this.fsm.store.selectionMgr);
+            this.gui.focusPos = avgPos;
+            if (!this.mesh)
+                return;
+            this.mesh.visible = !!avgPos;
+            if (avgPos)
+                this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);    
+        })
+
     }
 
     override onExit() {
@@ -135,7 +142,7 @@ export class InspectInput extends MouseInputState
         if (!this.fsm.store.selectionMgr.selectedBriqs.length)
             return;
 
-        if (!featureFlags.briq_select_movement)
+        if (!this._canMove())
             return;
         let rc = new THREE.Raycaster();
         rc.setFromCamera({ x: (event.clientX / window.innerWidth - 0.5) * 2, y: -(event.clientY / window.innerHeight - 0.5) * 2 }, camera);
@@ -168,8 +175,6 @@ export class InspectInput extends MouseInputState
             else
                 this.fsm.store.selectionMgr.add(...pos);
         }
-        if (!featureFlags.briq_select_movement)
-            return;
     }
 }
 
@@ -265,15 +270,13 @@ export class DragInput extends MouseInputState
         this.startPos = data.startPos;
         this.direction = data.direction;
 
-        if (featureFlags.briq_select_movement)
-        {
-            this.mesh = getMovementHelperMesh();
-            this.mesh.position.set(this.startPos.x, this.startPos.y, this.startPos.z);
-            this.mesh.visible = true;
-            // Increase render order to sort out transparecy issues.
-            //this.mesh.renderOrder = 2;
-            inputObjects.add(this.mesh);
-        }
+        this.mesh = getMovementHelperMesh();
+        this.mesh.position.set(this.startPos.x, this.startPos.y, this.startPos.z);
+        this.mesh.visible = true;
+        // Increase render order to sort out transparecy issues.
+        //this.mesh.renderOrder = 2;
+        inputObjects.add(this.mesh);
+
         let briqs = this.fsm.store.selectionMgr.selectedBriqs;
         this.min = briqs[0].position!.slice();
         this.max = briqs[0].position!.slice();
@@ -289,11 +292,13 @@ export class DragInput extends MouseInputState
 
         selectionRender.show();
         this.fsm.orbitControls.enabled = false;
+        document.body.style.cursor = 'grab';
     }
 
     onExit() {
         selectionRender.hide();
         selectionRender.parent.position.set(0, 0, 0);
+        document.body.style.cursor = "auto";
         this.fsm.orbitControls.enabled = true;
         inputObjects.remove(this.mesh);
     }

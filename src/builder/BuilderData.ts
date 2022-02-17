@@ -123,7 +123,7 @@ export var builderDataStore = (() => {
                 palettesMgr.updateForSet(state.currentSet);
                 inputStore.selectionMgr.selectSet(state.currentSet);
                 if (info.status === 'ONCHAIN_LOADED')
-                    inputStore.currentInput = 'camera';
+                    inputStore.currentInput = 'inspect';
                 else
                     inputStore.currentInput = 'place';
                 dispatchBuilderAction("select_set", state.currentSet);

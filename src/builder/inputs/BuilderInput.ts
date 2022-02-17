@@ -15,12 +15,15 @@ export class BuilderInputFSM
 
     gui: any;
 
+    _initialisePromise: any;
+
     initialize(canv: HTMLCanvasElement, oc: OrbitControls, store: typeof inputStore)
     {
         this.canvas = canv;
         this.orbitControls = oc;
         this.store = store;
         this.gui = reactive({});
+        this._initialisePromise();
     }
 
     switchTo(state: string, data?: object)
@@ -30,6 +33,12 @@ export class BuilderInputFSM
         this.state = new inputMap[state](this, this.canvas);
         this.state._onEnter(data);
     }
+
+    waitForInit = (() => {
+        return new Promise((resolve, reject) => {
+            this._initialisePromise = resolve;
+        });
+    })();
 
     //
 

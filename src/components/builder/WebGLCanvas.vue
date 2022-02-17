@@ -10,6 +10,7 @@ import { builderInputFsm } from "../../builder/inputs/BuilderInput"
 import { inputStore } from '../../builder/inputs/InputStore'
 
 import { defineComponent, toRef } from 'vue';
+import { logDebug } from "../../Messages";
 export default defineComponent({
     data() {
         return {
