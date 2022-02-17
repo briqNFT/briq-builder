@@ -9,6 +9,51 @@ import { THREE } from '../../three';
 import { camera, inputObjects } from '../graphics/Builder';
 
 import { featureFlags } from "../../FeatureFlags";
+import { Vector3 } from 'three';
+import { number } from 'starknet';
+import { pushMessage } from '../../Messages';
+
+var getMovementHelperMesh = (() => {
+    let mainMesh: THREE.Object3D;
+    return () => {
+        if (mainMesh)
+            return mainMesh;
+        mainMesh = new THREE.Object3D();
+        const RO = 2;
+        // Marked transparent for sorting.
+        mainMesh.renderOrder = RO;
+        {
+            let geometry =  new THREE.BoxGeometry(0.2, 2, 0.2);
+            let material = new THREE.MeshPhongMaterial( { color: 0x002496, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let mesh = new THREE.Mesh(geometry, material);
+            mesh.renderOrder = RO;
+            mesh.position.set(0, 1.0, 0);
+            mesh.userData = { dir: "y" };
+            mainMesh.add(mesh);
+        }
+        {
+            let geometry =  new THREE.BoxGeometry(0.2, 0.2, 2);
+            let material = new THREE.MeshPhongMaterial( { color: 0x962400, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let mesh = new THREE.Mesh(geometry, material);
+            mesh.renderOrder = RO;
+            mesh.position.set(0, 0, 1.0);
+            mesh.userData = { dir: "z" };
+            mainMesh.add(mesh);
+        }
+        {
+            let geometry =  new THREE.BoxGeometry(2, 0.2, 0.2);
+            let material = new THREE.MeshPhongMaterial( { color: 0x009624, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let mesh = new THREE.Mesh(geometry, material);
+            mesh.renderOrder = RO;
+            mesh.position.set(1.0, 0, 0);
+            mesh.userData = { dir: "x" };
+            mainMesh.add(mesh);
+        }
+        mainMesh.position.set(0, 5, 0);
+        mainMesh.visible = true;
+        return mainMesh;
+    };
+})();
 
 export class InspectInput extends MouseInputState
 {
@@ -29,35 +74,13 @@ export class InspectInput extends MouseInputState
 
         if (featureFlags.briq_select_movement)
         {
-            this.mesh = new THREE.Object3D();
-            {
-                let geometry =  new THREE.BoxGeometry(0.1, 1, 0.1);
-                let material = new THREE.MeshPhongMaterial( {color: 0x002496, opacity: 1.0 });
-                let mesh = new THREE.Mesh(geometry, material);
-                mesh.position.set(0, 0.5, 0);
-                mesh.userData = { dir: "y" };
-                this.mesh.add(mesh);
-            }
-            {
-                let geometry =  new THREE.BoxGeometry(0.1, 0.1, 1);
-                let material = new THREE.MeshPhongMaterial( {color: 0x962400, opacity: 1.0 });
-                let mesh = new THREE.Mesh(geometry, material);
-                mesh.position.set(0, 0, 0.5);
-                mesh.userData = { dir: "z" };
-                this.mesh.add(mesh);
-            }
-            {
-                let geometry =  new THREE.BoxGeometry(1, 0.1, 0.1);
-                let material = new THREE.MeshPhongMaterial( {color: 0x009624, opacity: 1.0 });
-                let mesh = new THREE.Mesh(geometry, material);
-                mesh.position.set(0.5, 0, 0);
-                mesh.userData = { dir: "x" };
-                this.mesh.add(mesh);
-            }
+            this.mesh = getMovementHelperMesh();
             this.mesh.position.set(0, 5, 0);
-            this.mesh.visible = true;
-            // Increase render order to sort out transparecy issues.
-            //this.mesh.renderOrder = 2;
+            let avgPos = this._calculatePos();
+            this.mesh.visible = !!avgPos;
+            if (avgPos)
+                this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);
+
             inputObjects.add(this.mesh);
         }
     }
@@ -66,6 +89,21 @@ export class InspectInput extends MouseInputState
         this.gui.briq = undefined;
         selectionRender.hide();
         inputObjects.remove(this.mesh);
+    }
+
+    _calculatePos() {
+        if (!this.fsm.store.selectionMgr.selectedBriqs.length)
+            return
+        let avgPos = new THREE.Vector3();
+        for (let briq of this.fsm.store.selectionMgr.selectedBriqs)
+        {
+            avgPos.x += briq.position![0];
+            avgPos.y += briq.position![1];
+            avgPos.z += briq.position![2];
+        }
+        avgPos.divideScalar(this.fsm.store.selectionMgr.selectedBriqs.length);
+        avgPos.addScalar(0.5);
+        return avgPos;
     }
 
     async onPointerMove(event: PointerEvent)
@@ -88,6 +126,9 @@ export class InspectInput extends MouseInputState
             this.fsm.switchTo("inspect_multi", { x: event.clientX, y: event.clientY });
             return;
         }
+        if (!this.fsm.store.selectionMgr.selectedBriqs.length)
+            return;
+
         if (!featureFlags.briq_select_movement)
             return;
         let rc = new THREE.Raycaster();
@@ -95,7 +136,9 @@ export class InspectInput extends MouseInputState
         let objects = rc.intersectObject(this.mesh, true);
         if (!objects.length)
             return;
-        this.fsm.switchTo("drag", { x: event.clientX, y: event.clientY, direction: objects[0].object.userData.dir });
+
+        let avgPos = this._calculatePos();
+        this.fsm.switchTo("drag", { x: event.clientX, y: event.clientY, startPos: avgPos, direction: objects[0].object.userData.dir });
     }
 
     async onPointerUp(event: PointerEvent)
@@ -112,21 +155,20 @@ export class InspectInput extends MouseInputState
             else
                 this.fsm.store.selectionMgr.remove(...pos);
         }
-        else if (true)
+        else
         {
             if (!pos || pos[1] < 0)
                 this.fsm.store.selectionMgr.clear();
             else
                 this.fsm.store.selectionMgr.add(...pos);
         }
-        else
-        {
-            if (!pos || pos[1] < 0)
-                this.fsm.store.selectionMgr.clear();
-            else
-                this.fsm.store.selectionMgr.selectAt(...pos);
-        }
-    }
+        if (!featureFlags.briq_select_movement)
+            return;
+        let avgPos = this._calculatePos();
+        this.mesh.visible = !!avgPos;
+        if (avgPos)
+            this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);
+}
 }
 
 export class InspectMultiInput extends MouseInputState
@@ -204,7 +246,13 @@ export class DragInput extends MouseInputState
     startX!: number;
     startY!: number;
 
+    startPos!: THREE.Vector3;
+
     direction!: string;
+    mesh!: THREE.Object3D;
+
+    min!: [number, number, number];
+    max!: [number, number, number];
 
     onEnter(data: any) {
         this.curX = data.x;
@@ -212,25 +260,109 @@ export class DragInput extends MouseInputState
         this.startX = this.curX;
         this.startY = this.curY;
 
+        this.startPos = data.startPos;
         this.direction = data.direction;
 
+        if (featureFlags.briq_select_movement)
+        {
+            this.mesh = getMovementHelperMesh();
+            this.mesh.position.set(this.startPos.x, this.startPos.y, this.startPos.z);
+            this.mesh.visible = true;
+            // Increase render order to sort out transparecy issues.
+            //this.mesh.renderOrder = 2;
+            inputObjects.add(this.mesh);
+        }
+        let briqs = this.fsm.store.selectionMgr.selectedBriqs;
+        this.min = briqs[0].position!.slice();
+        this.max = briqs[0].position!.slice();
+        for (let i = 1; i < briqs.length; ++i)
+        {
+            if (briqs[i].position![0] > this.max[0]) this.max[0] = briqs[i].position![0];
+            if (briqs[i].position![0] < this.min[0]) this.min[0] = briqs[i].position![0];
+            if (briqs[i].position![1] > this.max[1]) this.max[1] = briqs[i].position![1];
+            if (briqs[i].position![1] < this.min[1]) this.min[1] = briqs[i].position![1];
+            if (briqs[i].position![2] > this.max[2]) this.max[2] = briqs[i].position![2];
+            if (briqs[i].position![2] < this.min[2]) this.min[2] = briqs[i].position![2];
+        }
+
+        selectionRender.show();
         this.fsm.orbitControls.enabled = false;
     }
 
     onExit() {
+        selectionRender.hide();
+        selectionRender.parent.position.set(0, 0, 0);
         this.fsm.orbitControls.enabled = true;
+        inputObjects.remove(this.mesh);
+    }
+
+    _getDelta(event: PointerEvent)
+    {
+        let plane = new THREE.Plane(this.direction === "y" ? new THREE.Vector3(camera.position.x - this.startPos.x, 0, camera.position.z - this.startPos.z) : new THREE.Vector3(0, 1, 0),
+        this.direction === "y" ? 0 : -this.startPos.y);
+
+        if (this.direction === "y")
+            plane.constant = -plane.distanceToPoint(this.startPos);
+
+        let rc = new THREE.Raycaster();
+        rc.setFromCamera({ x: (event.clientX / window.innerWidth - 0.5) * 2, y: -(event.clientY / window.innerHeight - 0.5) * 2 }, camera);
+        var intersects = new THREE.Vector3();
+        rc.ray.intersectPlane(plane, intersects);
+        let t = { [this.direction]: 1};
+        let ray = new THREE.Ray(
+            new THREE.Vector3(
+                (t?.x ?? 0) * -100000 + this.startPos.x,
+                (t?.y ?? 0) * -100000 + this.startPos.y,
+                (t?.z ?? 0) * -100000 + this.startPos.z
+            ),
+            new THREE.Vector3(t?.x ?? 0, t?.y ?? 0, t?.z ?? 0)
+        );
+        ray.closestPointToPoint(intersects, intersects);
+
+        return intersects;
+    }
+
+    _clampDelta(res: THREE.Vector3)
+    {
+        let m1 = [this.min[0] - res.x, this.min[1] - res.y, this.min[2] - res.z];
+        let m2 = [this.max[0] - res.x, this.max[1] - res.y, this.max[2] - res.z];
+        let mi = this.clampToBounds(...m1);
+        let mj = this.clampToBounds(...m2);
+        if (m1[0] !== mi[0] || m1[1] !== mi[1] || m1[2] !== mi[2])
+        {
+            res.x -= mi[0] - m1[0] >= 0 ? mi[0] - m1[0] : mj[0] - m2[0];
+            res.y -= mi[1] - m1[1] >= 0 ? mi[1] - m1[1] : mj[1] - m2[1];
+            res.z -= mi[2] - m1[2] >= 0 ? mi[2] - m1[2] : mj[2] - m2[2];
+        }
+        else if (m2[0] !== mj[0] || m2[1] !== mj[1] || m2[2] !== mj[2])
+        {
+            res.x -= mj[0] - m2[0];
+            res.y -= mj[1] - m2[1];
+            res.z -= mj[2] - m2[2];
+        }
     }
 
     async onPointerMove(event: PointerEvent)
     {
-        //console.log(event.clientX - this.startX, event.clientY - this.startY);
+        let intersects = this._getDelta(event);
+        this.mesh.position.set(intersects.x, intersects.y, intersects.z);
+        let res = new Vector3().subVectors(this.startPos, intersects);
+        res.round();
+        this._clampDelta(res);
+        selectionRender.parent.position.set(-res.x, -res.y, -res.z);
     }
 
     async onPointerUp(event: PointerEvent)
     {
         try
         {
-            await store.dispatch("builderData/move_briqs", { delta: { [this.direction]: -Math.sign(event.clientX - this.startX) }, briqs: this.fsm.store.selectionMgr.selectedBriqs })
+            let intersects = this._getDelta(event);
+            let res = new Vector3().subVectors(this.startPos, intersects);
+            res.round();
+            this._clampDelta(res);
+            await store.dispatch("builderData/move_briqs", { delta: { [this.direction]: -res?.[this.direction] }, briqs: this.fsm.store.selectionMgr.selectedBriqs })
+        } catch(err) {
+            pushMessage(err);
         } finally {
             this.fsm.switchTo("inspect");
         }

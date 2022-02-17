@@ -77,7 +77,7 @@ export class MouseInputState extends BuilderInputState
     {
         x = x < -builderSettings.canvasSize ? -builderSettings.canvasSize : (x >= builderSettings.canvasSize ? +builderSettings.canvasSize - 1 : x);
         z = z < -builderSettings.canvasSize ? -builderSettings.canvasSize : (z >= builderSettings.canvasSize ? +builderSettings.canvasSize - 1 : z);
-        return [x, y, z];
+        return [x, Math.max(y, 0), z];
     }
 
     override _onPointerMove(event: PointerEvent) {
