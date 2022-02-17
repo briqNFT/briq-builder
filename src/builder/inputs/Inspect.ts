@@ -4,7 +4,7 @@ import type { SetData } from '../SetData'
 import type { Briq } from '../Briq.js';
 import { SelectionManager, selectionRender } from './Selection';
 import getPreviewCube from '../graphics/PreviewCube'
-import { THREE } from '../../three';
+import { THREE, BufferGeometryUtils } from '../../three';
 
 import { camera, inputObjects } from '../graphics/Builder';
 
@@ -23,8 +23,12 @@ var getMovementHelperMesh = (() => {
         const RO = 2;
         // Marked transparent for sorting.x
         mainMesh.renderOrder = RO;
+
+        let cone = new THREE.ConeGeometry(0.4, 1.0);
+        cone.translate(0, 1.5, 0);
+        let geometry = BufferGeometryUtils.mergeBufferGeometries([new THREE.BoxGeometry(0.2, 2, 0.2), cone]);
+
         {
-            let geometry =  new THREE.BoxGeometry(0.2, 2, 0.2);
             let material = new THREE.MeshPhongMaterial( { color: 0x002496, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
             let mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
@@ -33,20 +37,20 @@ var getMovementHelperMesh = (() => {
             mainMesh.add(mesh);
         }
         {
-            let geometry =  new THREE.BoxGeometry(0.2, 0.2, 2);
             let material = new THREE.MeshPhongMaterial( { color: 0x962400, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
             let mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.position.set(0, 0, 1.0);
+            mesh.rotateX(Math.PI/2);
             mesh.userData = { dir: "z" };
             mainMesh.add(mesh);
         }
         {
-            let geometry =  new THREE.BoxGeometry(2, 0.2, 0.2);
             let material = new THREE.MeshPhongMaterial( { color: 0x009624, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
             let mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.position.set(1.0, 0, 0);
+            mesh.rotateZ(-Math.PI/2);
             mesh.userData = { dir: "x" };
             mainMesh.add(mesh);
         }
