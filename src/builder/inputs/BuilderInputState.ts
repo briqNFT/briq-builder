@@ -9,11 +9,13 @@ export class BuilderInputState
 {
     fsm: BuilderInputFSM;
     canvas: HTMLCanvasElement;
-    gui: any;
+
     constructor(fsm : BuilderInputFSM, canvas: HTMLCanvasElement) {
         this.fsm = fsm;
         this.canvas = canvas;
-        this.gui = reactive({});
+        this.gui = fsm.gui;
+        for (let key in this.gui)
+            delete this.gui[key];
     }
 
     setGuiData(data: any)

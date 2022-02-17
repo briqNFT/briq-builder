@@ -101,8 +101,8 @@ export class SetData
         this.briqs_;
         this.briqs.forEach((region, regionId) => {
             region.forEach((briq, cellPos) => {
-                let pos = this.to3DPos(regionId, cellPos);
-                callable(briq, pos);
+                //let pos = this.to3DPos(regionId, cellPos);
+                callable(briq, briq.position!);
             });
         });
     }
@@ -216,21 +216,31 @@ export class SetData
 
     moveBriqs(x: number, y: number, z: number, briqs: Briq[])
     {
-        // Horribly inefficient lol.
-        let ret = new Map();
+        // Not the best algo I think but it's OK.
         this.forEach((briq, pos) => {
-            let [regionId, cellId] = briqs.find(x => x._uuid === briq._uuid) ?
-                this.computeIDs(pos[0] + x, pos[1] + y, pos[2] + z) :
-                this.computeIDs(pos[0], pos[1], pos[2]);
+            briq._ex_pos = briq.position!.slice();
+        });
+        briqs.forEach(briq => {
+            briq.position![0] += x;
+            briq.position![1] += y;
+            briq.position![2] += z;
+        });
+        let ret = new Map();
+        this.forEach((briq) => {
+            let [regionId, cellId] = this.computeIDs(briq.position[0], briq.position[1], briq.position[2]);
             if (!ret.has(regionId))
                 ret.set(regionId, new Map());
             if (ret.get(regionId).get(cellId))
+            {
+                this.forEach((briq, pos) => {
+                    briq.position = briq._ex_pos;
+                });
+                this.briqs_ += 1;
                 throw new Error("briq already placed on cell");
+            }
             ret.get(regionId).set(cellId, briq);
-        })
+        });
         this.briqs = markRaw(ret);
-        this.forEach((briq, pos) => briq.position = pos);
-
         this.briqs_ += 1;
     }
 

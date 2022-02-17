@@ -12,12 +12,8 @@ import InputComp from './InputComp.vue'
                 @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'"><i class="fas fa-paint-brush"/></Btn>
             <Btn v-if="editMode" tooltip="In 'Erase' mode, left-click to delete briqs, hold SHIFT to delete multiple briqs."
                 @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="far fa-trash-alt"/></Btn>
-            <Btn v-if="editMode" tooltip="In 'Select' mode, left-click or shift-click to select briqs, right-click to unselect."
+            <Btn v-if="editMode" tooltip="'Select' mode can be used to move or inspect briqs. Left-click to select, right-click to unselect."
                 @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-mouse-pointer"></i></Btn>
-            <Btn tooltip="Use 'Camera' mode to adjust the camera for e.g. screenshots"
-                @click="inputStore.currentInput = 'camera'" :disabled="inputStore.currentInput === 'camera'"><i class="fas fa-video"/></Btn>
-            <Btn v-if="editMode" tooltip="Use 'Move' mode to move all briqs in the set"
-                @click="inputStore.currentInput = 'move'" :disabled="inputStore.currentInput === 'move'"><i class="fas fa-arrows-alt"></i></Btn>
         </div>
         <div id="inputComp" class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch pointer-events-auto">
             <InputComp/>

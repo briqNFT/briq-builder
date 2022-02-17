@@ -94,12 +94,12 @@ export var builderDataStore = (() => {
             },
 
             move_briqs({ state, commit }: any, data: { delta: { x?: number, y?: number, z?: number }, briqs: Briq[]}) {
-                state.currentSet.forEach((briq, pos) => {
-                    if (!data.briqs.find(x => x._uuid === briq._uuid))
-                        return;
+                for (let briq of data.briqs)
+                {
+                    let pos = briq.position;
                     if (!isWithinBounds(pos[0] + (data.delta.x || 0), pos[1] + (data.delta.y || 0), pos[2] + (data.delta.z || 0)))
                         throw new Error("cannot, would go out of bounds");
-                });
+                }
                 commit("move_briqs", data);
                 inputStore.selectionMgr.updateGraphics();
             },

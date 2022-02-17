@@ -5,6 +5,7 @@ import { inputMap } from '../../builder/inputs/InputMap'
 
 import type { inputStore } from './InputStore';
 
+import { reactive } from 'vue';
 export class BuilderInputFSM
 {
     state!: BuilderInputState;
@@ -12,11 +13,14 @@ export class BuilderInputFSM
     orbitControls!: OrbitControls;
     store!: typeof inputStore;
 
+    gui: any;
+
     initialize(canv: HTMLCanvasElement, oc: OrbitControls, store: typeof inputStore)
     {
         this.canvas = canv;
         this.orbitControls = oc;
         this.store = store;
+        this.gui = reactive({});
     }
 
     switchTo(state: string, data?: object)

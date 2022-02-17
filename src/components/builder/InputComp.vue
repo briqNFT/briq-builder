@@ -23,8 +23,6 @@ export default defineComponent({
                 "paint": Place,
                 "erase": Erase,
                 "inspect": Inspect,
-                "camera": Camera,
-                "move": Move
             })
         };
     }

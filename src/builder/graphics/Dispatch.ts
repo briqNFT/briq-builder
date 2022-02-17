@@ -22,5 +22,5 @@ const preprocessor: { [key: string]: (payload: any) => any } = {
 
 export function dispatchBuilderAction(action: string, payload?: any)
 {
-    dispatchedActions.push({ action, payload: preprocessor?.[action]?.(payload) });
+    dispatchedActions.push({ action, payload: preprocessor?.[action]?.(payload) ?? payload });
 };

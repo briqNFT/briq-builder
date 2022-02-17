@@ -308,11 +308,13 @@ export async function main(canvas) {
             if (item.action === "select_set")
             {
                 voxWorld.reset();
-                for (let cell of item.payload)
+                let cells = new Set();
+                for (let data of item.payload)
                 {
-                    voxWorld.setVoxel(...cell.pos, cell.color)
-                    voxWorld.updateVoxelGeometry(...cell.pos);
+                    voxWorld.setVoxel(...data.pos, data?.color ?? "");
+                    cells.add(voxWorld.computeCellId(...data.pos));
                 }
+                cells.forEach(x => voxWorld.updateCellGeometry(...x.split(',').map(x => +x * voxWorld.cellSize)));
             }
             else if (item.action === "place_briqs")
             {
@@ -327,6 +329,11 @@ export async function main(canvas) {
             else if (item.action === "reset")
             {
                 voxWorld.reset();
+            }
+            else if (item.action === "set_camera_target")
+            {
+                console.log(item);
+                orbitControls.controls.target.set(...item.payload.target);
             }
             else if (item.action === "put_all_in_view")
             {

@@ -2,16 +2,16 @@ import { MouseInputState } from './BuilderInputState';
 import { store } from '../../store/Store'
 import type { SetData } from '../SetData'
 import type { Briq } from '../Briq.js';
-import { selectionRender } from './Selection';
+import { SelectionManager, selectionRender } from './Selection';
 import getPreviewCube from '../graphics/PreviewCube'
 import { THREE } from '../../three';
 
 import { camera, inputObjects } from '../graphics/Builder';
 
 import { featureFlags } from "../../FeatureFlags";
-import { Vector3 } from 'three';
-import { number } from 'starknet';
 import { pushMessage } from '../../Messages';
+
+import { watchEffect } from 'vue';
 
 var getMovementHelperMesh = (() => {
     let mainMesh: THREE.Object3D;
@@ -20,7 +20,7 @@ var getMovementHelperMesh = (() => {
             return mainMesh;
         mainMesh = new THREE.Object3D();
         const RO = 2;
-        // Marked transparent for sorting.
+        // Marked transparent for sorting.x
         mainMesh.renderOrder = RO;
         {
             let geometry =  new THREE.BoxGeometry(0.2, 2, 0.2);
@@ -55,9 +55,26 @@ var getMovementHelperMesh = (() => {
     };
 })();
 
+function calculatePos(selectionMgr: SelectionManager) {
+    if (!selectionMgr.selectedBriqs.length)
+        return;
+    // Reactivity
+    store.state.builderData.currentSet.briqs_;
+    let avgPos = new THREE.Vector3();
+    for (let briq of selectionMgr.selectedBriqs)
+    {
+        avgPos.x += briq.position![0];
+        avgPos.y += briq.position![1];
+        avgPos.z += briq.position![2];
+    }
+    avgPos.divideScalar(selectionMgr.selectedBriqs.length);
+    avgPos.addScalar(0.5);
+    return avgPos;
+}
+
 export class InspectInput extends MouseInputState
 {
-    gui!: { briq: Briq | undefined, curX: number, curY: number };
+    gui!: { briq: Briq | undefined, curX: number, curY: number, focusPos: Vector3 | undefined };
 
     lastClickPos: [number, number, number] | undefined;
 
@@ -69,6 +86,7 @@ export class InspectInput extends MouseInputState
             briq: undefined,
             curX: 0,
             curY: 0,
+            focusPos: undefined,
         });
         selectionRender.show();
 
@@ -76,10 +94,13 @@ export class InspectInput extends MouseInputState
         {
             this.mesh = getMovementHelperMesh();
             this.mesh.position.set(0, 5, 0);
-            let avgPos = this._calculatePos();
-            this.mesh.visible = !!avgPos;
-            if (avgPos)
-                this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);
+            watchEffect(() => {
+                let avgPos = calculatePos(this.fsm.store.selectionMgr);
+                this.gui.focusPos = avgPos;
+                this.mesh.visible = !!avgPos;
+                if (avgPos)
+                    this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);    
+            })
 
             inputObjects.add(this.mesh);
         }
@@ -89,21 +110,6 @@ export class InspectInput extends MouseInputState
         this.gui.briq = undefined;
         selectionRender.hide();
         inputObjects.remove(this.mesh);
-    }
-
-    _calculatePos() {
-        if (!this.fsm.store.selectionMgr.selectedBriqs.length)
-            return
-        let avgPos = new THREE.Vector3();
-        for (let briq of this.fsm.store.selectionMgr.selectedBriqs)
-        {
-            avgPos.x += briq.position![0];
-            avgPos.y += briq.position![1];
-            avgPos.z += briq.position![2];
-        }
-        avgPos.divideScalar(this.fsm.store.selectionMgr.selectedBriqs.length);
-        avgPos.addScalar(0.5);
-        return avgPos;
     }
 
     async onPointerMove(event: PointerEvent)
@@ -137,7 +143,7 @@ export class InspectInput extends MouseInputState
         if (!objects.length)
             return;
 
-        let avgPos = this._calculatePos();
+        let avgPos = calculatePos(this.fsm.store.selectionMgr);
         this.fsm.switchTo("drag", { x: event.clientX, y: event.clientY, startPos: avgPos, direction: objects[0].object.userData.dir });
     }
 
@@ -164,11 +170,7 @@ export class InspectInput extends MouseInputState
         }
         if (!featureFlags.briq_select_movement)
             return;
-        let avgPos = this._calculatePos();
-        this.mesh.visible = !!avgPos;
-        if (avgPos)
-            this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);
-}
+    }
 }
 
 export class InspectMultiInput extends MouseInputState
@@ -346,7 +348,7 @@ export class DragInput extends MouseInputState
     {
         let intersects = this._getDelta(event);
         this.mesh.position.set(intersects.x, intersects.y, intersects.z);
-        let res = new Vector3().subVectors(this.startPos, intersects);
+        let res = new THREE.Vector3().subVectors(this.startPos, intersects);
         res.round();
         this._clampDelta(res);
         selectionRender.parent.position.set(-res.x, -res.y, -res.z);
@@ -357,7 +359,7 @@ export class DragInput extends MouseInputState
         try
         {
             let intersects = this._getDelta(event);
-            let res = new Vector3().subVectors(this.startPos, intersects);
+            let res = new THREE.Vector3().subVectors(this.startPos, intersects);
             res.round();
             this._clampDelta(res);
             await store.dispatch("builderData/move_briqs", { delta: { [this.direction]: -res?.[this.direction] }, briqs: this.fsm.store.selectionMgr.selectedBriqs })

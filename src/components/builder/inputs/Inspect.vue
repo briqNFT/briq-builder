@@ -2,6 +2,7 @@
 import BriqSwapModal from '../modals/BriqSwapModal.vue';
 import { pushModal } from "../../Modals.vue";
 import { featureFlags } from "../../../FeatureFlags";
+import { dispatchBuilderAction } from "../../../builder/graphics/Dispatch";
 </script>
 
 <template>
@@ -18,13 +19,10 @@ import { featureFlags } from "../../../FeatureFlags";
             <p>TODO</p>
         </template>
         -->
-        <div v-if="showMove" class="font-mono text-sm grid grid-cols-2 gap-1">
-            <Btn @click="moveX(1)">X+1</Btn>
-            <Btn @click="moveX(-1)">X-1</Btn>
-            <Btn @click="moveY(1)">Y+1</Btn>
-            <Btn @click="moveY(-1)">Y-1</Btn>
-            <Btn @click="moveZ(1)">Z+1</Btn>
-            <Btn @click="moveZ(-1)">Z-1</Btn>
+        <div class="flex flex-col">
+            <Btn @click="resetCamera">Reset Camera</Btn>
+            <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length">Center on<br />Selection</Btn>
+            <Btn @click="selectAll">Select All</Btn>
         </div>
     </div>
     <!-- Follows the mouse -->
@@ -47,22 +45,35 @@ button {
 
 <script lang="ts">
 import { builderInputFsm } from "../../../builder/inputs/BuilderInput"
+import type { Briq } from "../../../builder/Briq";
+import { resetCamera } from '../../../builder/graphics/Builder'
 
 import { defineComponent } from 'vue';
 export default defineComponent({
     inject: ["chainBriqs", "messages"],
     data() {
         return {
-            fsm: builderInputFsm.state.gui,
             selection: builderInputFsm.store.selectionMgr,
         };
     },
     computed: {
+        fsm() {
+            return builderInputFsm.state.gui;
+        },
         showMove() {
             return featureFlags.briq_select_movement;
         }
     },
     methods: {
+        resetCamera,
+        centerCamera() {
+            dispatchBuilderAction("set_camera_target", { target: [this.fsm.focusPos.x, this.fsm.focusPos.y, this.fsm.focusPos.z] });
+        },
+        selectAll() {
+            let briqs = [] as Briq[];
+            this.$store.state.builderData.currentSet.forEach((briq: Briq) => { briqs.push(briq) });
+            this.selection.select(briqs);
+        },
         move(obj: { [key in 'x' | 'y' | 'z']?: number})
         {
             try {
