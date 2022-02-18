@@ -31,9 +31,11 @@ export class BuilderInputState
     _onEnter(data?: object) { this.onEnter(data); }
     _onExit() { this.onExit(); }
 
+    async onFrame() {}
     async onPointerMove(event: PointerEvent) {}
     async onPointerDown(event: PointerEvent) {}
     async onPointerUp(event: PointerEvent) {}
+    async _onFrame() { await this.onFrame(); }
     async _onPointerMove(event: PointerEvent) { await this.onPointerMove(event); }
     async _onPointerDown(event: PointerEvent) { await this.onPointerDown(event); }
     async _onPointerUp(event: PointerEvent) { await this.onPointerUp(event); }

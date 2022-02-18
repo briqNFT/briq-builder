@@ -69,6 +69,8 @@ function generatePlane(scene) {
     scene.add(planeUnderside);
 }
 
+
+/*
 import daylight_Back from '../../assets/skybox/Daylight-Box_Back.jpg'
 import daylight_Bottom from '../../assets/skybox/Daylight-Box_Bottom.jpg'
 import daylight_Front from '../../assets/skybox/Daylight-Box_Front.jpg'
@@ -88,6 +90,7 @@ function generateSkybox(scene) {
     ]);
     return texture;
 }
+*/
 
 import getPreviewCube from './PreviewCube'
 
@@ -257,6 +260,61 @@ function updateScene()
     scene = setupScene(voxWorld);
 }
 
+var renderer, composer;
+
+export function render() {
+    resizeRendererToDisplaySize(renderer, composer, camera);
+    
+    orbitControls.controls.update();
+    
+    for (let item of dispatchedActions)
+    {
+        if (item.action === "select_set")
+        {
+            voxWorld.reset();
+            let cells = new Set();
+            for (let data of item.payload)
+            {
+                voxWorld.setVoxel(...data.pos, data?.color ?? "");
+                cells.add(voxWorld.computeCellId(...data.pos));
+            }
+            cells.forEach(x => voxWorld.updateCellGeometry(...x.split(',').map(x => +x * voxWorld.cellSize)));
+        }
+        else if (item.action === "place_briqs")
+        {
+            let cells = new Set();
+            for (let data of item.payload)
+            {
+                voxWorld.setVoxel(...data.pos, data?.color ?? "");
+                cells.add(voxWorld.computeCellId(...data.pos));
+            }
+            cells.forEach(x => voxWorld.updateCellGeometry(...x.split(',').map(x => +x * voxWorld.cellSize)));
+        }
+        else if (item.action === "reset")
+        {
+            voxWorld.reset();
+        }
+        else if (item.action === "set_camera_target")
+        {
+            console.log(item);
+            orbitControls.controls.target.set(...item.payload.target);
+        }
+        else if (item.action === "put_all_in_view")
+        {
+            let aabb = voxWorld.getAABB();
+            let center = [aabb[0][0] + aabb[1][0], aabb[0][1] + aabb[1][1], aabb[0][2] + aabb[1][2]];
+            let bounds = Math.max(aabb[1][0] - aabb[0][0], aabb[1][1] - aabb[0][1], aabb[1][2] - aabb[0][2]);
+            bounds = Math.max(5, bounds);
+            camera.position.set(bounds * 0.25, bounds * 0.7, -bounds * 1.2);
+            orbitControls.controls.target.set(0, center[1]/2, 0);
+            orbitControls.controls.update();
+        }
+    }
+    dispatchedActions.length = 0;
+    
+    composer.render();
+}
+
 export async function main(canvas) {
     await THREE_SETUP;
     
@@ -276,81 +334,20 @@ export async function main(canvas) {
         nbMaterial,
         tileTextureHeight,
     });
-    const world = voxWorld;
-    
     scene = setupScene(voxWorld);
-    
-    var renderer, composer;
-    
+
     // Recreate the renderer whenever things change.
     watchEffect(() => {
         if (renderer)
         renderer.dispose();
         [renderer, composer] = recreateRenderer(canvas, scene, camera);
     })
-    
+
     // Recreate the scene whenever necessary.
     watchEffect(() => {
         updateScene();
     })
-    
-    let renderRequested = false;
-    
-    function render() {
-        renderRequested = undefined;
-        
-        resizeRendererToDisplaySize(renderer, composer, camera);
-        
-        orbitControls.controls.update();
-        
-        for (let item of dispatchedActions)
-        {
-            if (item.action === "select_set")
-            {
-                voxWorld.reset();
-                let cells = new Set();
-                for (let data of item.payload)
-                {
-                    voxWorld.setVoxel(...data.pos, data?.color ?? "");
-                    cells.add(voxWorld.computeCellId(...data.pos));
-                }
-                cells.forEach(x => voxWorld.updateCellGeometry(...x.split(',').map(x => +x * voxWorld.cellSize)));
-            }
-            else if (item.action === "place_briqs")
-            {
-                let cells = new Set();
-                for (let data of item.payload)
-                {
-                    voxWorld.setVoxel(...data.pos, data?.color ?? "");
-                    cells.add(voxWorld.computeCellId(...data.pos));
-                }
-                cells.forEach(x => voxWorld.updateCellGeometry(...x.split(',').map(x => +x * voxWorld.cellSize)));
-            }
-            else if (item.action === "reset")
-            {
-                voxWorld.reset();
-            }
-            else if (item.action === "set_camera_target")
-            {
-                console.log(item);
-                orbitControls.controls.target.set(...item.payload.target);
-            }
-            else if (item.action === "put_all_in_view")
-            {
-                let aabb = voxWorld.getAABB();
-                let center = [aabb[0][0] + aabb[1][0], aabb[0][1] + aabb[1][1], aabb[0][2] + aabb[1][2]];
-                let bounds = Math.max(aabb[1][0] - aabb[0][0], aabb[1][1] - aabb[0][1], aabb[1][2] - aabb[0][2]);
-                bounds = Math.max(5, bounds);
-                camera.position.set(bounds * 0.25, bounds * 0.7, -bounds * 1.2);
-                orbitControls.controls.target.set(0, center[1]/2, 0);
-                orbitControls.controls.update();
-            }
-        }
-        dispatchedActions.length = 0;
-        
-        composer.render();
-        requestAnimationFrame(render);
-    }
+
     render();
     
     canvas.addEventListener('touchstart', (event) => {

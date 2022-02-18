@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts">
-import { main, orbitControls } from "../../builder/graphics/Builder"
+import { main, orbitControls, render } from "../../builder/graphics/Builder"
 
 import { builderInputFsm } from "../../builder/inputs/BuilderInput"
 import { inputStore } from '../../builder/inputs/InputStore'
@@ -23,8 +23,14 @@ export default defineComponent({
         this.currentInput = toRef(inputStore, 'currentInput');
         builderInputFsm.initialize(this.$refs.canvas as HTMLCanvasElement, orbitControls.controls, inputStore);
         this.setup = true;
+        this.frame();
     },
     methods: {
+        frame() {
+            render();
+            builderInputFsm.onFrame();
+            requestAnimationFrame(() => this.frame());
+        },
         onPointerMove: async function(event) {
             await builderInputFsm.onPointerMove(event);
         },

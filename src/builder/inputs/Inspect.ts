@@ -12,7 +12,7 @@ import { featureFlags } from "../../FeatureFlags";
 import { pushMessage } from '../../Messages';
 import { setsManager } from '../SetsManager';
 
-import { watchEffect } from 'vue';
+import { watchEffect, WatchStopHandle } from 'vue';
 
 var getMovementHelperMesh = (() => {
     let mainMesh: THREE.Object3D;
@@ -85,6 +85,8 @@ export class InspectInput extends MouseInputState
 
     mesh!: THREE.Object3D;
 
+    meshWatcher!: WatchStopHandle;
+
     _canMove() {
         return featureFlags.briq_select_movement && setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
     }
@@ -105,7 +107,7 @@ export class InspectInput extends MouseInputState
             this.mesh.position.set(0, 5, 0);
             inputObjects.add(this.mesh);
         }
-        watchEffect(() => {
+        this.meshWatcher = watchEffect(() => {
             let avgPos = calculatePos(this.fsm.store.selectionMgr);
             this.gui.focusPos = avgPos;
             if (!this.mesh)
@@ -118,9 +120,15 @@ export class InspectInput extends MouseInputState
     }
 
     override onExit() {
+        this.meshWatcher();
         this.gui.briq = undefined;
         selectionRender.hide();
         inputObjects.remove(this.mesh);
+    }
+
+    override async onFrame() {
+        let distance = camera.position.distanceTo(this.mesh.position);
+        this.mesh.scale.setScalar(Math.max(1, distance / 30.0));
     }
 
     async onPointerMove(event: PointerEvent)

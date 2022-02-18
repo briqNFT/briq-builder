@@ -42,6 +42,12 @@ export class BuilderInputFSM
 
     //
 
+    async onFrame()
+    {
+        if (this.state)
+            await this.state._onFrame();
+    }
+
     async onPointerMove(event: PointerEvent)
     {
         await this.state._onPointerMove(event);
