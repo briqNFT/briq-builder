@@ -127,6 +127,9 @@ export class InspectInput extends MouseInputState
     }
 
     override async onFrame() {
+        // In view-only mode, the mesh isn't defined, so early-exit.
+        if (!this.mesh)
+            return;
         let distance = camera.position.distanceTo(this.mesh.position);
         this.mesh.scale.setScalar(Math.max(1, distance / 30.0));
     }
