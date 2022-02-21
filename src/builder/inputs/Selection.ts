@@ -75,9 +75,23 @@ export class SelectionManager
     {
         if (add)
         {
-            for (let briq of briqs)
-                if (!this.selectedBriqs.find(x => x._uuid === briq._uuid))
-                    this.selectedBriqs.push(briq);
+            let ret = [];
+            let set = {};
+            this.selectedBriqs.forEach(briq => {
+                if (!set[briq._uuid])
+                {
+                    set[briq._uuid] = 1;
+                    ret.push(briq);
+                }
+            });
+            briqs.forEach(briq => {
+                if (!set[briq._uuid])
+                {
+                    set[briq._uuid] = 1;
+                    ret.push(briq);
+                }
+            })
+            this.selectedBriqs = ret;
         }
         else
             this.selectedBriqs = briqs;
