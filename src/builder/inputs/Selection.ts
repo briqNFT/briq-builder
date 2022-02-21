@@ -33,15 +33,13 @@ class SelectionRender
 
         var geometry =  new THREE.BoxGeometry(1.02, 1.02, 1.02);
         var material = new THREE.MeshPhongMaterial( {color: 0x002496, opacity:0.5, transparent: true });
+
+        let mesh = new THREE.InstancedMesh(geometry, material, selMgr.selectedBriqs.length);
+        mesh.renderOrder = 1;
+        let i = 0;
         for (let briq of selMgr.selectedBriqs)
-        {
-            var planeXZ = new THREE.Mesh(geometry, material);
-            planeXZ.position.set(briq.position[0] + 0.5, briq.position[1] + 0.5, briq.position[2] + 0.5);
-            planeXZ.visible = true;
-            // Increase render order to sort out transparecy issues.
-            planeXZ.renderOrder = 1;
-            this.parent.add(planeXZ);
-        }
+            mesh.setMatrixAt(i++, new THREE.Matrix4().setPosition(briq.position[0] + 0.5, briq.position[1] + 0.5, briq.position[2] + 0.5));
+        this.parent.add(mesh);
     }
 
     show() { if (!this.parent) { return }; this.parent.visible = true; }
