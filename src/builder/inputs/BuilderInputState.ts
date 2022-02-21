@@ -1,9 +1,6 @@
-import { reactive } from 'vue';
-
 import builderSettings from '../graphics/Settings';
 import { getCameraRay, voxWorld } from "../graphics/Builder"
 import type { BuilderInputFSM } from './BuilderInput'
-import { number } from 'starknet';
 
 export class BuilderInputState
 {
@@ -69,6 +66,10 @@ export class MouseInputState extends BuilderInputState
         return intersection.position.map((v, ndx) => {
             return Math.floor(v + intersection.normal[ndx] * (overlay ? -0.5 : +0.5));
         });
+    }
+
+    canvasSize() {
+        return builderSettings.canvasSize;
     }
 
     isWithinBounds(x: number, y: number, z: number)

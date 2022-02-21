@@ -426,33 +426,24 @@ export class DragInput extends MouseInputState
         return intersects;
     }
 
-    _clampDelta(res: THREE.Vector3)
-    {
-        let m1 = [this.min[0] - res.x, this.min[1] - res.y, this.min[2] - res.z];
-        let m2 = [this.max[0] - res.x, this.max[1] - res.y, this.max[2] - res.z];
-        let mi = this.clampToBounds(...m1);
-        let mj = this.clampToBounds(...m2);
-        if (m1[0] !== mi[0] || m1[1] !== mi[1] || m1[2] !== mi[2])
-        {
-            res.x -= mi[0] - m1[0] >= 0 ? mi[0] - m1[0] : mj[0] - m2[0];
-            res.y -= mi[1] - m1[1] >= 0 ? mi[1] - m1[1] : mj[1] - m2[1];
-            res.z -= mi[2] - m1[2] >= 0 ? mi[2] - m1[2] : mj[2] - m2[2];
-        }
-        else if (m2[0] !== mj[0] || m2[1] !== mj[1] || m2[2] !== mj[2])
-        {
-            res.x -= mj[0] - m2[0];
-            res.y -= mj[1] - m2[1];
-            res.z -= mj[2] - m2[2];
-        }
+    _specialClamp(res: THREE.Vector3) {
+        let x = (this.max[0] - this.min[0] + 1) / 2;
+        let y = (this.max[1] - this.min[1] + 1) / 2;
+        let z = (this.max[2] - this.min[2] + 1) / 2;
+        let canvasSize = this.canvasSize();
+        res.x = res.x < -canvasSize + x ? -canvasSize + x : (res.x >= canvasSize - x ? +canvasSize - x : res.x);
+        res.z = res.z < -canvasSize + z ? -canvasSize + z : (res.z >= canvasSize - z ? +canvasSize - z : res.z);
+        res.y = res.y < y ? y : res.y;
+        return res;
     }
 
     async onPointerMove(event: PointerEvent)
     {
         let intersects = this._getDelta(event);
-        this.mesh.position.set(intersects.x, intersects.y, intersects.z);
+        this._specialClamp(intersects);
         let res = new THREE.Vector3().subVectors(this.startPos, intersects);
+        this.mesh.position.set(intersects.x, intersects.y, intersects.z);
         res.round();
-        this._clampDelta(res);
         selectionRender.parent.position.set(-res.x, -res.y, -res.z);
     }
 
@@ -461,9 +452,9 @@ export class DragInput extends MouseInputState
         try
         {
             let intersects = this._getDelta(event);
+            this._specialClamp(intersects);
             let res = new THREE.Vector3().subVectors(this.startPos, intersects);
             res.round();
-            this._clampDelta(res);
             await store.dispatch("builderData/move_briqs", { delta: { [this.direction]: -res?.[this.direction] }, briqs: this.fsm.store.selectionMgr.selectedBriqs })
         } catch(err) {
             pushMessage(err);
