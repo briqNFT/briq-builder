@@ -6,6 +6,7 @@ import type { RenderPass as RenderPassType } from 'three/examples/jsm/postproces
 import type { SSAARenderPass as SSAARenderPassType } from 'three/examples/jsm/postprocessing/SSAARenderPass.js';
 import type { SAOPass as SAOPassType } from 'three/examples/jsm/postprocessing/SAOPass.js';
 import type bgu from 'three/examples/jsm/utils/BufferGeometryUtils';
+import type { SelectionBox as SelectionBoxType} from './three_wrapper';
 
 import { logDebug } from './Messages';
 
@@ -18,6 +19,7 @@ export var RenderPass: typeof RenderPassType;
 export var SSAARenderPass: typeof SSAARenderPassType;
 export var SAOPass: typeof SAOPassType;
 export var BufferGeometryUtils: typeof bgu;
+export var SelectionBox: typeof SelectionBoxType;
 
 async function setup() {
     let wrapper = await import ('./three_wrapper');
@@ -28,6 +30,7 @@ async function setup() {
     SSAARenderPass = wrapper.SSAARenderPass;
     SAOPass = wrapper.SAOPass;
     BufferGeometryUtils = wrapper.BufferGeometryUtils;
+    SelectionBox = wrapper.SelectionBox;
     logDebug("Successfully dynamically loaded three.js");
 }
 export  var THREE_SETUP = setup();

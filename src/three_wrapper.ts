@@ -4,4 +4,5 @@ export { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 export { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 export { SSAARenderPass } from 'three/examples/jsm/postprocessing/SSAARenderPass.js';
 export { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass.js';
-export * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils';
+export * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+export { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox.js';

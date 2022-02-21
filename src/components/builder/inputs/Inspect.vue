@@ -23,6 +23,14 @@ import { pushModal } from "../../Modals.vue";
             <Btn @click="selectAll">Select All</Btn>
         </div>
     </div>
+    <div v-if="fsm.selectionBox"
+        class="bg-opacity-50 bg-white border-2 border-solid border-black fixed pointer-events-none"
+        :style="{
+            'left': `${Math.min(fsm.curX, fsm.startX)}px`,
+            'top': `${Math.min(fsm.curY, fsm.startY)}px`,
+            'width': `${Math.abs(fsm.curX - fsm.startX)}px`,
+            'height': `${Math.abs(fsm.curY - fsm.startY)}px` }">
+    </div>
     <!-- Follows the mouse -->
     <div v-if="fsm?.briq" class="fixed pointer-events-none" :style="{ 'left': `${fsm.curX+20}px`, 'top': `${fsm.curY+20}px` }">
         <div class="w-auto min-w-32 h-32 bg-base p-2 rounded-md shadow-md">
