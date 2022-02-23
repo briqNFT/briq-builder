@@ -53,6 +53,7 @@
 
                 <Btn v-if="setInfo.status === 'LOCAL'" tooltip="Delete this set." class="bg-transparent" :disabled="disableButtons" @click="deleteSet"><i class="fas fa-trash-alt"></i> Delete</Btn>
                 <Btn tooltip="Load the set in the builder, to be edited." class="bg-transparent" :disabled="!canSelectSet" @click="selectSet"><i class="fas fa-folder-open"></i> Load in Builder</Btn>
+                <Btn @click="toVox"><i class="fas fa-folder-open"></i> TO VOX</Btn>
             </div>
         </div>
     </div>
@@ -97,6 +98,7 @@ import { defineComponent } from 'vue';
 import getBaseUrl, { fetchData } from '../../../url';
 import { pushModal } from '../../Modals.vue';
 import { getShareLink } from '../Sharing';
+import { toVOX } from '../../../Vox';
 export default defineComponent({
     data() {
         return {
@@ -207,6 +209,10 @@ export default defineComponent({
             if (!this.setInfo.local)
                 await this.setInfo.loadLocally();
             await this.$store.dispatch("builderData/select_set", this.setId);
+        },
+        toVox()
+        {
+            downloadData(toVOX(this.setData!), "application/octet-stream", "out.vox")
         },
         async deleteSet() {
             // Ask for confirmation on non-empty sets.
