@@ -84,6 +84,8 @@ export const walletStore = {
                     commit("set_provider", provider);
                     commit("set_signer", { provider, signer, addr });
                     argx.watchForChanges(async () => {
+                        // Disconnect first to reset addresses.
+                        await dispatch("disconnect");
                         await dispatch("enable_wallet");
                     })
                     return true;
