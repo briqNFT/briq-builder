@@ -43,6 +43,7 @@
                     <Btn tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="transferSet"><i class="fas fa-dolly"></i> Transfer</Btn>
                     <Btn tooltip="Make a local copy of the set that you can then modify and re-export." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="duplicateSet(setInfo.chain!)"><i class="fas fa-copy"></i> Duplicate</Btn>
                     <Btn tooltip="Delete the set, the briqs can then be reused." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="disassemble"><i class="fas fa-magic"></i> Disassemble</Btn>
+                    <Btn tooltip="Download the set data as JSON or 3D models" @click="openDownloadModal" :disabled="disableButtons || !setInfo.chain"><i class="fas fa-download"></i> Download</Btn>
                 </template>
                 <template v-else="">
                     <Btn tooltip="" class="bg-transparent" :disabled="!canMint" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Mint on Chain</Btn>
@@ -53,7 +54,6 @@
 
                 <Btn v-if="setInfo.status === 'LOCAL'" tooltip="Delete this set." class="bg-transparent" :disabled="disableButtons" @click="deleteSet"><i class="fas fa-trash-alt"></i> Delete</Btn>
                 <Btn tooltip="Load the set in the builder, to be edited." class="bg-transparent" :disabled="!canSelectSet" @click="selectSet"><i class="fas fa-folder-open"></i> Load in Builder</Btn>
-                <Btn @click="toVox"><i class="fas fa-folder-open"></i> TO VOX</Btn>
             </div>
         </div>
     </div>
@@ -83,9 +83,10 @@ import contractStore from '../../../Contracts';
 import { SetData } from '../../../builder/setData';
 import { setsManager, SetInfo } from '../../../builder/SetsManager';
 
-import ExportSetVue from '../modals/ExportSet.vue';
 import { reportError } from '../../../Monitoring';
 
+import ExportSetVue from '../modals/ExportSet.vue';
+import DownloadSetVue from '../modals/DownloadSet.vue';
 import RenameSetVue from '../modals/RenameSet.vue';
 import Tooltip from '../../generic/Tooltip.vue';
 
@@ -94,11 +95,11 @@ const DEFAULT_INFO = new SetInfo("");
 import { reactive } from 'vue';
 const setImageCache = reactive({} as { [set: string]: string });
 
-import { defineComponent } from 'vue';
 import getBaseUrl, { fetchData } from '../../../url';
 import { pushModal } from '../../Modals.vue';
 import { getShareLink } from '../Sharing';
-import { toVOX } from '../../../Vox';
+
+import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
@@ -210,9 +211,9 @@ export default defineComponent({
                 await this.setInfo.loadLocally();
             await this.$store.dispatch("builderData/select_set", this.setId);
         },
-        toVox()
+        async openDownloadModal()
         {
-            downloadData(toVOX(this.setData!), "application/octet-stream", "out.vox")
+            await pushModal(DownloadSetVue, { setId: this.setId, data: this.setInfo.chain });
         },
         async deleteSet() {
             // Ask for confirmation on non-empty sets.

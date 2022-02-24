@@ -31,7 +31,7 @@ export async function fetchData(endpoint: string, body?: object): Promise<any>
     return req.json();
 }
 
-function doDownload(url: string, filename: string)
+export function doDownload(url: string, filename: string)
 {
      let link = document.createElement('a');
      link.href = url;
