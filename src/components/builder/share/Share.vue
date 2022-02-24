@@ -10,13 +10,16 @@ import AlphaLogo from './../AlphaLogo.vue';
 <template>
     <SplashScreen/>
     <div>
-        <WebGLCanvas style="height:calc(100vh - 200px)"/>
-        <div class="text-center py-4 font-display">
-            <div class="">
-                <h1 class="my-2">{{ setData?.name }}</h1>
-                <p class="font-lightest my-2">{{ setData?.id }}</p>
+        <div class="relative" style="height:calc(100vh - 140px)">
+            <WebGLCanvas class="!h-full"/>
+            <AlphaLogo/>
+        </div>
+        <div class="text-center py-2 font-display min-h-[140px]">
+            <div class="flex flex-col">
+                <h2 class="my-1">{{ setData?.name }}</h2>
+                <p class="font-lightest text-sm my-1 break-all">{{ setData?.id }}</p>
                 <template v-if="author">
-                    <p class="tracking-tighter font-mono self-align-center mx-2 text-2xl font-lightest break-all">
+                    <p class="tracking-tighter font-mono self-align-center mx-2 text-md font-lightest break-all">
                         by {{ author }}
                     </p>
                 </template>
@@ -35,7 +38,6 @@ import AlphaLogo from './../AlphaLogo.vue';
                 <p class="alternate-buttons m-2"><router-link :to="{ name: 'Builder' }"><Btn class="m-auto block">Return to builder</Btn></router-link></p>
             </div>
         </div>
-        <AlphaLogo/>
         <div class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none">
             <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fab fa-twitter"></i> Tweet</Btn>
             <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fas fa-camera"></i> Take Screenshot</Btn>
