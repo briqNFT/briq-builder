@@ -354,6 +354,7 @@ export class DragInput extends MouseInputState
     startY!: number;
 
     startPos!: THREE.Vector3;
+    initialOffset!: THREE.Vector3;
 
     direction!: string;
     mesh!: THREE.Object3D;
@@ -370,11 +371,12 @@ export class DragInput extends MouseInputState
         this.startPos = data.startPos;
         this.direction = data.direction;
 
+        // The click may not be at the startPos origin, so we need to account for that offset.
+        this.initialOffset = this._getDelta({ clientX: this.curX, clientY: this.curY } as unknown as PointerEvent).sub(this.startPos);
+
         this.mesh = getMovementHelperMesh();
         this.mesh.position.set(this.startPos.x, this.startPos.y, this.startPos.z);
         this.mesh.visible = true;
-        // Increase render order to sort out transparecy issues.
-        //this.mesh.renderOrder = 2;
         inputObjects.add(this.mesh);
 
         let briqs = this.fsm.store.selectionMgr.selectedBriqs;
@@ -430,19 +432,22 @@ export class DragInput extends MouseInputState
     }
 
     _specialClamp(res: THREE.Vector3) {
-        let x = (this.max[0] - this.min[0] + 1) / 2;
-        let y = (this.max[1] - this.min[1] + 1) / 2;
-        let z = (this.max[2] - this.min[2] + 1) / 2;
+        let x0 = this.startPos.x - this.min[0];
+        let y0 = this.startPos.y - this.min[1];
+        let z0 = this.startPos.z - this.min[2];
+        let x1 = this.max[0] - this.startPos.x + 1;
+        let z1 = this.max[2] - this.startPos.z + 1;
         let canvasSize = this.canvasSize();
-        res.x = res.x < -canvasSize + x ? -canvasSize + x : (res.x >= canvasSize - x ? +canvasSize - x : res.x);
-        res.z = res.z < -canvasSize + z ? -canvasSize + z : (res.z >= canvasSize - z ? +canvasSize - z : res.z);
-        res.y = res.y < y ? y : res.y;
+        res.x = res.x < -canvasSize + x0 ? -canvasSize + x0 : (res.x >= canvasSize - x1 ? +canvasSize - x1 : res.x);
+        res.z = res.z < -canvasSize + z0 ? -canvasSize + z0 : (res.z >= canvasSize - z1 ? +canvasSize - z1 : res.z);
+        res.y = res.y < y0 ? y0 : res.y;
         return res;
     }
 
     async onPointerMove(event: PointerEvent)
     {
         let intersects = this._getDelta(event);
+        intersects.sub(this.initialOffset);
         this._specialClamp(intersects);
         let res = new THREE.Vector3().subVectors(this.startPos, intersects);
         this.mesh.position.set(intersects.x, intersects.y, intersects.z);
@@ -455,6 +460,7 @@ export class DragInput extends MouseInputState
         try
         {
             let intersects = this._getDelta(event);
+            intersects.sub(this.initialOffset);
             this._specialClamp(intersects);
             let res = new THREE.Vector3().subVectors(this.startPos, intersects);
             res.round();
