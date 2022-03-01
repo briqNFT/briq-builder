@@ -286,7 +286,18 @@ export function render() {
             for (let data of item.payload)
             {
                 voxWorld.setVoxel(...data.pos, data?.color ?? "");
-                cells.add(voxWorld.computeCellId(...data.pos));
+                let reg = new Set();
+                reg.add(voxWorld.computeCellId(...data.pos));
+                // We might need to update neighboring regions because the meshes are optimised (no inside faces).
+                reg.add(voxWorld.computeCellId(data.pos[0] - 1, data.pos[1] - 1, data.pos[2] - 1));
+                reg.add(voxWorld.computeCellId(data.pos[0] - 1, data.pos[1] - 1, data.pos[2] + 1));
+                reg.add(voxWorld.computeCellId(data.pos[0] - 1, data.pos[1] + 1, data.pos[2] - 1));
+                reg.add(voxWorld.computeCellId(data.pos[0] - 1, data.pos[1] + 1, data.pos[2] + 1));
+                reg.add(voxWorld.computeCellId(data.pos[0] + 1, data.pos[1] - 1, data.pos[2] + 1));
+                reg.add(voxWorld.computeCellId(data.pos[0] + 1, data.pos[1] - 1, data.pos[2] - 1));
+                reg.add(voxWorld.computeCellId(data.pos[0] + 1, data.pos[1] + 1, data.pos[2] + 1));
+                reg.add(voxWorld.computeCellId(data.pos[0] + 1, data.pos[1] + 1, data.pos[2] - 1));
+                reg.forEach(x => cells.add(x));
             }
             cells.forEach(x => voxWorld.updateCellGeometry(...x.split(',').map(x => +x * voxWorld.cellSize)));
         }
