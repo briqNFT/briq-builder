@@ -41,6 +41,7 @@ export class HotkeyManager
     {
         window.addEventListener('keydown', (event) => this.onKeyDown(event));
         window.addEventListener('keyup', (event) => this.onKeyUp(event));
+        window.addEventListener('blur', (event) => this.onBlur(event));
     }
 
     /**
@@ -206,5 +207,16 @@ export class HotkeyManager
                 if (!fired[hk])
                     this.maybeFireHotkey(hk, DOWN);
         }
+    }
+
+    onBlur()
+    {
+        this.alt = false;
+        this.shift = false;
+        this.ctrl = false;
+        for (let code in this.activeCodes)
+            this.activeCodes[code] = true;
+        for (let key in this.activeKeys)
+            this.activeKeys[key] = true;
     }
 };
