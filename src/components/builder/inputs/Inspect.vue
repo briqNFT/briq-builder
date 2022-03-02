@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BriqSwapModal from '../modals/BriqSwapModal.vue';
 import { pushModal } from "../../Modals.vue";
+import Hotkey from "../../generic/Hotkey.vue";
 </script>
 
 <template>
@@ -22,6 +23,9 @@ import { pushModal } from "../../Modals.vue";
             <Btn class="leading-4" @click="centerCamera" :disabled="!selection.selectedBriqs.length">Center on<br />Selection</Btn>
             <Btn @click="selectAll">Select All</Btn>
             <Btn v-if="featureFlags.briq_copy_paste" :disabled="!selection.selectedBriqs.length" @click="copy">Copy</Btn>
+            <Btn :disabled="!selection.selectedBriqs.length" @click="deleteBriqs">Delete</Btn>
+            <Hotkey name="delete-1" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"></Hotkey>
+            <Hotkey name="delete-2" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"></Hotkey>
         </div>
     </div>
     <div v-if="fsm.selectionBox"
@@ -78,6 +82,10 @@ export default defineComponent({
         },
         copy() {
             builderInputFsm.switchTo("copy_paste");
+        },
+        async deleteBriqs() {
+            await this.$store.dispatch("builderData/place_briqs", this.selection.selectedBriqs.map(briq => ({ pos: briq.position })));
+            this.messages.pushMessage("briqs deleted");
         },
         selectAll() {
             let briqs = [] as Briq[];
