@@ -23,6 +23,11 @@ export async function setupMonitoring(app: any, router: any)
                 tracingOrigins: ["localhost", "briq.construction","sltech.company", /^\//],
             }),
         ],
+        beforeSend(event: SentryType.Event) {
+            if ((event.message?.indexOf("Timeout") ?? -1) !== -1 || (event.message?.indexOf("Network Error") ?? -1) !== -1)
+                return null;
+            return event;
+        },
         // Still report vue errors in the console.
         logErrors: true,
         // Sample 5% of transactions for performance.
