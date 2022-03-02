@@ -22,8 +22,8 @@ import Hotkey from "../../generic/Hotkey.vue";
             <Btn @click="resetCamera">Reset Camera</Btn>
             <Btn class="leading-4" @click="centerCamera" :disabled="!selection.selectedBriqs.length">Center on<br />Selection</Btn>
             <Btn @click="selectAll">Select All</Btn>
-            <Btn v-if="featureFlags.briq_copy_paste" :disabled="!selection.selectedBriqs.length" @click="copy">Copy</Btn>
-            <Btn :disabled="!selection.selectedBriqs.length" @click="deleteBriqs">Delete</Btn>
+            <Btn v-if="featureFlags.briq_copy_paste" :disabled="!selection.selectedBriqs.length" @click="copy" tooltip="Copy selected briqs. Hotkey: Ctrl + C">Copy</Btn>
+            <Btn :disabled="!selection.selectedBriqs.length" @click="deleteBriqs" tooltip="Delete selected briqs. Hotkey: delete/backspace">Delete</Btn>
             <Hotkey name="delete-1" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"></Hotkey>
             <Hotkey name="delete-2" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"></Hotkey>
         </div>
