@@ -10,6 +10,8 @@ enum KEY_SETUP {
     DOWN
 };
 
+export type HotkeyHandle = [string, number];
+
 /**
  * Simple hotkey system - listens to key pressed, once all keys of a hotkey are active, it goes live.
  * For simplicity reasons only shift / control / alt are registered as modifier keys.
@@ -86,7 +88,7 @@ export class HotkeyManager
      * @param callback Callback to call
      * @returns the identifier for unsubscription. Use as an opaque type recommended.
      */
-    subscribe(hotkeyName: string, callback: () => void): [string, number]
+    subscribe(hotkeyName: string, callback: () => void): HotkeyHandle
     {
         let data = this.hotkeys[hotkeyName];
         if (!data)
@@ -108,7 +110,7 @@ export class HotkeyManager
         return [hotkeyName, id];
     }
 
-    unsubscribe(handler: [string, number])
+    unsubscribe(handler: HotkeyHandle)
     {
         let idx = this.callbacks[handler[0]].findIndex(x => x[0] == handler[1]);
         if (idx === -1)

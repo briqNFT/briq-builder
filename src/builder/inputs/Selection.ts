@@ -6,7 +6,6 @@ import { THREE } from '../../three';
 class SelectionRender
 {
     scene: THREE.Scene | undefined;
-    mesh!: THREE.Mesh;
     parent!: THREE.Object3D;
 
     setScene(scene: THREE.Scene)

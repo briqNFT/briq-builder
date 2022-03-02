@@ -21,6 +21,7 @@ import { pushModal } from "../../Modals.vue";
             <Btn @click="resetCamera">Reset Camera</Btn>
             <Btn class="leading-4" @click="centerCamera" :disabled="!selection.selectedBriqs.length">Center on<br />Selection</Btn>
             <Btn @click="selectAll">Select All</Btn>
+            <Btn v-if="featureFlags.briq_copy_paste" :disabled="!selection.selectedBriqs.length" @click="copy">Copy</Btn>
         </div>
     </div>
     <div v-if="fsm.selectionBox"
@@ -54,13 +55,12 @@ import { builderInputFsm } from "../../../builder/inputs/BuilderInput"
 import type { Briq } from "../../../builder/Briq";
 import { resetCamera } from '../../../builder/graphics/Builder'
 
-import { featureFlags } from "../../../FeatureFlags";
 import { dispatchBuilderAction } from "../../../builder/graphics/Dispatch";
 import { inputStore } from "../../../builder/inputs/InputStore";
 
 import { defineComponent } from 'vue';
 export default defineComponent({
-    inject: ["chainBriqs", "messages"],
+    inject: ["chainBriqs", "messages", "featureFlags"],
     data() {
         return {
             selection: inputStore.selectionMgr,
@@ -70,14 +70,14 @@ export default defineComponent({
         fsm() {
             return builderInputFsm.state.gui;
         },
-        showMove() {
-            return featureFlags.briq_select_movement;
-        }
     },
     methods: {
         resetCamera,
         centerCamera() {
             dispatchBuilderAction("set_camera_target", { target: [this.fsm.focusPos.x, this.fsm.focusPos.y, this.fsm.focusPos.z] });
+        },
+        copy() {
+            builderInputFsm.switchTo("copy_paste");
         },
         selectAll() {
             let briqs = [] as Briq[];

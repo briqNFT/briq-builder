@@ -12,6 +12,7 @@ import { inputStore } from '../../builder/inputs/InputStore'
 import { defineComponent, toRef } from 'vue';
 import { logDebug } from "../../Messages";
 export default defineComponent({
+    inject: ["hotkeyMgr"],
     data() {
         return {
             currentInput: undefined,
@@ -21,7 +22,7 @@ export default defineComponent({
     async mounted() {
         await main(this.$refs.canvas);
         this.currentInput = toRef(inputStore, 'currentInput');
-        builderInputFsm.initialize(this.$refs.canvas as HTMLCanvasElement, orbitControls.controls, inputStore);
+        builderInputFsm.initialize(this.$refs.canvas as HTMLCanvasElement, orbitControls.controls, inputStore, this.hotkeyMgr);
         this.setup = true;
         this.frame();
     },

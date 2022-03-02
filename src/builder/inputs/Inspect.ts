@@ -11,6 +11,7 @@ import { camera, inputObjects } from '../graphics/Builder';
 import { featureFlags } from "../../FeatureFlags";
 import { pushMessage } from '../../Messages';
 import { setsManager } from '../SetsManager';
+import type { HotkeyManager, HotkeyHandle } from '../../Hotkeys';
 
 import { watchEffect, WatchStopHandle } from 'vue';
 
@@ -85,10 +86,17 @@ export class InspectInput extends MouseInputState
 
     mesh!: THREE.Object3D;
 
+    copyHotkey!: HotkeyHandle;
+
     meshWatcher!: WatchStopHandle;
 
     _canMove() {
-        return featureFlags.briq_select_movement && setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
+        return setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
+    }
+
+    _canCopyPaste()
+    {
+        return featureFlags.briq_copy_paste && this.fsm.store.selectionMgr.selectedBriqs.length;
     }
 
     override onEnter()
@@ -117,6 +125,8 @@ export class InspectInput extends MouseInputState
                 this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);    
         })
 
+        this.fsm.hotkeyMgr.register("copy", { code: "KeyC", ctrl: true, onDown: true });
+        this.copyHotkey = this.fsm.hotkeyMgr.subscribe("copy", () => this._canCopyPaste() ? this.fsm.switchTo("copy_paste") : null);
     }
 
     override onExit() {
@@ -124,6 +134,7 @@ export class InspectInput extends MouseInputState
         this.gui.briq = undefined;
         selectionRender.hide();
         inputObjects.remove(this.mesh);
+        this.fsm.hotkeyMgr.unsubscribe(this.copyHotkey);
     }
 
     override async onFrame() {
