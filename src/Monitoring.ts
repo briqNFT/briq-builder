@@ -30,10 +30,10 @@ export async function setupMonitoring(app: any, router: any)
         },
         // Still report vue errors in the console.
         logErrors: true,
-        // Sample 5% of transactions for performance.
-        tracesSampleRate: 0.05,
+        // % of transactions to sample for performance.
+        tracesSampleRate: 0.0,
         // % of errors to report
-        sampleRate: 0.33,
+        sampleRate: 0.1,
     });
 }
 
