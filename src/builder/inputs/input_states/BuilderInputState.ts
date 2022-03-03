@@ -1,6 +1,6 @@
-import builderSettings from '../graphics/Settings';
-import { getCameraRay, voxWorld } from "../graphics/Builder"
-import type { BuilderInputFSM } from './BuilderInput'
+import builderSettings from '../../graphics/Settings';
+import { getCameraRay, voxWorld } from "../../graphics/Builder"
+import type { BuilderInputFSM } from '../BuilderInput'
 
 export class BuilderInputState
 {

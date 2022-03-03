@@ -1,9 +1,9 @@
 import { MouseInputState } from './BuilderInputState';
 import { VoxelAlignedSelection } from './Selecting';
-import getPreviewCube from '../graphics/PreviewCube'
-import { store } from '../../store/Store';
+import getPreviewCube from '../../graphics/PreviewCube'
+import { store } from '../../../store/Store';
 
-import { THREE } from '../../three';
+import { THREE } from '../../../three';
 
 export class EraserInput extends MouseInputState
 {
@@ -20,7 +20,7 @@ export class EraserInput extends MouseInputState
         getPreviewCube().visible = false;
     }
 
-    onPointerMove(event: PointerEvent)
+    async onPointerMove(event: PointerEvent)
     {
         let pos = this.getIntersectionPos(this.curX, this.curY, true);
         if (!pos)

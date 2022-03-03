@@ -1,11 +1,11 @@
 import { MouseInputState } from './BuilderInputState';
-import getPreviewCube from '../graphics/PreviewCube'
-import { inputStore } from "./InputStore";
-import { store } from '../../store/Store';
+import getPreviewCube from '../../graphics/PreviewCube'
+import { inputStore } from "../InputStore";
+import { store } from '../../../store/Store';
 
-import type { SetData } from '../SetData';
+import type { SetData } from '../../SetData';
 
-import { THREE } from '../../three';
+import { THREE } from '../../../three';
 import { VoxelAlignedSelection } from './Selecting';
 
 import { watchEffect } from 'vue';

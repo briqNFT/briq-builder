@@ -1,9 +1,9 @@
 import { MouseInputState } from './BuilderInputState';
-import getPreviewCube from '../graphics/PreviewCube'
-import { inputStore } from "./InputStore";
-import { store } from '../../store/Store'
+import getPreviewCube from '../../graphics/PreviewCube'
+import { inputStore } from "../InputStore";
+import { store } from '../../../store/Store'
 
-import { THREE } from '../../three';
+import { THREE } from '../../../three';
 import { VoxelAlignedSelection } from './Selecting';
 
 import { watchEffect } from 'vue';
@@ -23,7 +23,7 @@ export class PlacerInput extends MouseInputState
         getPreviewCube().visible = false;
     }
 
-    onPointerMove(event: PointerEvent)
+    async onPointerMove(event: PointerEvent)
     {
         const pos = this.getIntersectionPos(this.curX, this.curY);
         if (!pos)
@@ -38,7 +38,7 @@ export class PlacerInput extends MouseInputState
             getPreviewCube().visible = false;
     }
 
-    onPointerDown(event: PointerEvent)
+    async onPointerDown(event: PointerEvent)
     {
         if (event.shiftKey)
             this.fsm.switchTo("place_multi", { x: event.clientX, y: event.clientY });

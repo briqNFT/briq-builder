@@ -1,12 +1,12 @@
 import { MouseInputState } from './BuilderInputState';
-import { selectionRender } from './Selection';
-import { THREE, SelectionBox as ThreeSelectionBox } from '../../three';
-import getPreviewCube from '../graphics/PreviewCube';
+import { selectionRender } from '../Selection';
+import { THREE, SelectionBox as ThreeSelectionBox } from '../../../three';
+import getPreviewCube from '../../graphics/PreviewCube';
 
-import { store } from '../../store/Store'
-import { camera } from '../graphics/Builder';
-import type { HotkeyHandle } from '../../Hotkeys';
-import type { Briq } from '../Briq';
+import { store } from '../../../store/Store'
+import { camera } from '../../graphics/Builder';
+import type { HotkeyHandle } from '../../../Hotkeys';
+import type { Briq } from '../../Briq';
 
 export class BoxSelection extends MouseInputState
 {
