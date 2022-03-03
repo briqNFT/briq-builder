@@ -4,6 +4,9 @@ import { inputStore } from "./InputStore";
 import { store } from '../../store/Store'
 
 import { THREE } from '../../three';
+import { VoxelAlignedSelection } from './Selecting';
+
+import { watchEffect } from 'vue';
 
 const MATERIAL = "0x1";
 
@@ -61,60 +64,24 @@ export class PlacerInput extends MouseInputState
     }
 }
 
-export class PlacerMultiInput extends MouseInputState
+export class PlacerMultiInput extends VoxelAlignedSelection
 {
-    lastClickPos!: [number, number, number];
-
     onEnter(data: any) {
-        this.curX = data.x;
-        this.curY = data.y;
+        this.extruding = true;
+        super.onEnter(data);
+        this.switchBackTo = "place";
 
-        this.lastClickPos = this.clampToBounds(...this.getIntersectionPos(this.curX, this.curY)!);
-        if (!this.lastClickPos)
-            throw new Error("Error: PlacerMultiInput must have a well defined event position on entry");
-        
-        this.fsm.orbitControls.enabled = false;
-        getPreviewCube().visible = true;
+        watchEffect(() => {
+            (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
+        })
     }
-
-    onExit() {
-        getPreviewCube().visible = false;
-        this.fsm.orbitControls.enabled = true;
-    }
-
-    onPointerMove(event: PointerEvent)
-    {
-        let pos = this.getIntersectionPos(this.curX, this.curY);
-        if (!pos)
-            return;
-        pos = this.clampToBounds(...pos);
-
-        getPreviewCube().scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1, Math.abs(this.lastClickPos[1] - pos[1]) + 1, Math.abs(this.lastClickPos[2] - pos[2]) + 1);
-        getPreviewCube().position.set(
-            ((this.lastClickPos[0] + pos[0]) / 2) + 0.5,
-            ((this.lastClickPos[1] + pos[1]) / 2) + 0.5,
-            ((this.lastClickPos[2] + pos[2]) / 2) + 0.5,
-        );
-    }
-
-    async onPointerUp(event: PointerEvent)
-    {
-        try
-        {
-            let pos = this.getIntersectionPos(this.curX, this.curY);
-            if (!pos)
-                return;
-            pos = this.clampToBounds(...pos);
-
-            let briqs = [];
-            for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
-                for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
-                    for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
-                        if (!store.state.builderData.currentSet.getAt(x, y, z))
-                            briqs.push({ pos: [x, y, z], color: inputStore.currentColor, material: MATERIAL });
-            await store.dispatch("builderData/place_briqs", briqs);
-        } finally {
-            this.fsm.switchTo("place");
-        }
+    async doAction(pos: [number, number, number]) {
+        let briqs = [];
+        for (let x = Math.min(this.initialClickPos[0], pos[0]); x <= Math.max(this.initialClickPos[0], pos[0]); ++x)
+            for (let y = Math.min(this.initialClickPos[1], pos[1]); y <= Math.max(this.initialClickPos[1], pos[1]); ++y)
+                for (let z = Math.min(this.initialClickPos[2], pos[2]); z <= Math.max(this.initialClickPos[2], pos[2]); ++z)
+                    if (!store.state.builderData.currentSet.getAt(x, y, z))
+                        briqs.push({ pos: [x, y, z], color: inputStore.currentColor, material: MATERIAL });
+        await store.dispatch("builderData/place_briqs", briqs);
     }
 }

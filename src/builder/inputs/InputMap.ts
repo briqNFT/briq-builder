@@ -6,7 +6,6 @@ import { EraserInput, EraserMultiInput } from './Eraser';
 import { PainterInput, PainterMultiInput } from './Painter';
 import { InspectInput, InspectMultiInput, DragInput } from './Inspect';
 import { SelectionBox } from './Selecting';
-import { MoveInput } from './Move';
 import { CopyPasteInput } from './CopyPaste';
 
 export const inputMap: { [key: string]: typeof BuilderInputState } = {
@@ -20,7 +19,6 @@ export const inputMap: { [key: string]: typeof BuilderInputState } = {
     "inspect_multi": InspectMultiInput,
     "drag": DragInput,
     "camera": CameraOnlyInput,
-    "move": MoveInput,
     "selection_box": SelectionBox,
     "copy_paste": CopyPasteInput
 };

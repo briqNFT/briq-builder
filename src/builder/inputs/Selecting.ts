@@ -1,6 +1,7 @@
 import { MouseInputState } from './BuilderInputState';
 import { selectionRender } from './Selection';
 import { THREE, SelectionBox as ThreeSelectionBox } from '../../three';
+import getPreviewCube from '../graphics/PreviewCube';
 
 import { store } from '../../store/Store'
 import { camera } from '../graphics/Builder';
@@ -93,4 +94,86 @@ export class SelectionBox extends MouseInputState
             this.fsm.switchTo(this.switchBackTo);
         }
     }
+}
+
+export class VoxelAlignedSelection extends MouseInputState
+{
+    initialClickPos!: [number, number, number];
+    currentClickPos!: [number, number, number] | undefined;
+    switchBackTo!: string;
+
+    extruding = false; // Whether to get the intersection pos or extrude by a briq.
+    shouldClampToBounds = true;
+
+    onEnter(data: any) {
+        this.curX = data.x;
+        this.curY = data.y;
+
+        this.initialClickPos = this.getIntersectionPos(this.curX, this.curY, !this.extruding)!;
+        if (!this.initialClickPos)
+            throw new Error("Error: VoxelAlignedSelection must have a well defined event position on entry");
+        if (this.initialClickPos[1] < 0)
+            this.initialClickPos[1] = 0;
+
+        if (this.shouldClampToBounds)
+            this.initialClickPos = this.clampToBounds(...this.initialClickPos);
+        
+        this.fsm.orbitControls.enabled = false;
+        getPreviewCube().visible = true;
+    }
+
+    onExit() {
+        getPreviewCube().visible = false;
+        this.fsm.orbitControls.enabled = true;
+    }
+
+    updatePreviewCube()
+    {
+        if (!this.currentClickPos)
+            return;
+
+        getPreviewCube().scale.set(Math.abs(this.initialClickPos[0] - this.currentClickPos[0]) + 1.1, Math.abs(this.initialClickPos[1] - this.currentClickPos[1]) + 1.1, Math.abs(this.initialClickPos[2] - this.currentClickPos[2]) + 1.1);
+        getPreviewCube().position.set(
+            ((this.initialClickPos[0] + this.currentClickPos[0]) / 2) + 0.5,
+            ((this.initialClickPos[1] + this.currentClickPos[1]) / 2) + 0.5,
+            ((this.initialClickPos[2] + this.currentClickPos[2]) / 2) + 0.5,
+        );
+    }
+
+    async onPointerMove(event: PointerEvent)
+    {
+        this.currentClickPos = this.getIntersectionPos(this.curX, this.curY, !this.extruding);
+        if (!this.currentClickPos)
+            return;
+        if (this.shouldClampToBounds)
+            this.currentClickPos = this.clampToBounds(...this.currentClickPos);
+
+        // Make it so that selecting floor-squares does something.
+        if (!this.shouldClampToBounds && this.initialClickPos[1] === 0 && this.currentClickPos[1] === -1)
+            this.currentClickPos[1] = 0;
+
+        this.updatePreviewCube();
+    }
+
+    async onPointerUp(event: PointerEvent)
+    {
+        try
+        {
+            this.currentClickPos = this.getIntersectionPos(this.curX, this.curY, !this.extruding);
+            if (!this.currentClickPos)
+                return;
+            if (this.shouldClampToBounds)
+                this.currentClickPos = this.clampToBounds(...this.currentClickPos);
+    
+            // Make it so that selecting floor-squares does something.
+            if (!this.shouldClampToBounds && this.initialClickPos[1] === 0 && this.currentClickPos[1] === -1)
+                this.currentClickPos[1] = 0;
+            this.doAction(this.currentClickPos);
+        } finally {
+            this.fsm.switchTo(this.switchBackTo);
+        }
+    }
+
+    // Override me
+    async doAction(pos: [number, number, number]) {}
 }
