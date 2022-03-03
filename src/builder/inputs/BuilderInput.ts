@@ -1,5 +1,5 @@
 import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { BuilderInputState, MouseInputState } from './BuilderInputState'
+import { BuilderInputState, MouseInputState } from './input_states/BuilderInputState';
 
 import { inputMap } from '../../builder/inputs/InputMap'
 

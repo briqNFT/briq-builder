@@ -1,14 +1,11 @@
 import { MouseInputState } from './BuilderInputState';
-import { store } from '../../store/Store'
+import { store } from '../../../store/Store'
 
-import type { SetData } from '../SetData'
-import type { Briq } from '../Briq.js';
+import type { HotkeyHandle } from '../../../Hotkeys';
 
-import type { HotkeyManager, HotkeyHandle } from '../../Hotkeys';
-
-import { SelectionManager, selectionRender } from './Selection';
-import { THREE } from '../../three';
-import { pushMessage } from '../../Messages';
+import { SelectionManager, selectionRender } from '../Selection';
+import { THREE } from '../../../three';
+import { pushMessage } from '../../../Messages';
 
 export class CopyPasteInput extends MouseInputState {
     lastClickPos: [number, number, number] | undefined;
