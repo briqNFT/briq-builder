@@ -35,7 +35,7 @@ import CursorTooltip from '../generic/CursorTooltip.vue';
 import WalletSelectorVue from '../WalletSelector.vue';
 
 import { setsManager, checkForInitialGMSet } from '../../builder/SetsManager';
-import contractStore from '../../Contracts';
+import contractStore from '@/chain/Contracts';
 import { watchEffectAndWait } from '../../Async';
 
 import { setupSync } from '../../builder/StarknetSync';

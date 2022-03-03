@@ -8,5 +8,8 @@
         "strict": true,
         "incremental": true,
         "types": ["vite/client", "@types/jest", "@types/three", "@types/uuid", "vite-svg-loader"],
+        "paths": {
+            "@/*": ["./src/*"]
+        }
     }
 }

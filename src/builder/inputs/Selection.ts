@@ -1,7 +1,7 @@
 import type { SetData } from "../SetData";
 import type { Briq } from '../Briq';
 
-import { THREE } from '../../three';
+import { THREE } from '@/three';
 
 class SelectionRender
 {

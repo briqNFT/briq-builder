@@ -1,11 +1,11 @@
 import { MouseInputState } from './BuilderInputState';
-import { store } from '../../../store/Store'
+import { store } from '@/store/Store'
 
-import type { HotkeyHandle } from '../../../Hotkeys';
+import type { HotkeyHandle } from '@/Hotkeys';
 
 import { SelectionManager, selectionRender } from '../Selection';
-import { THREE } from '../../../three';
-import { pushMessage } from '../../../Messages';
+import { THREE } from '@/three';
+import { pushMessage } from '@/Messages';
 
 export class CopyPasteInput extends MouseInputState {
     lastClickPos: [number, number, number] | undefined;

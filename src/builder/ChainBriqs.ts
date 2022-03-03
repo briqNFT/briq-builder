@@ -1,5 +1,5 @@
 import { Briq } from './Briq';
-import type IBriqContract from '../contracts/briq';
+import type IBriqContract from '../chain/contracts/briq';
 import { reactive, watchEffect } from "vue";
 import type { Ref } from "vue";
 import { ticketing, isOutdated } from "../Async";

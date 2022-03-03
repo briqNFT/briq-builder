@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { setsManager } from '../../builder/SetsManager';
-import contractStore from '../../Contracts';
+import contractStore from '@/chain/Contracts';
 import { reportError } from '../../Monitoring';
 import { ticketing } from '../../Async';
 

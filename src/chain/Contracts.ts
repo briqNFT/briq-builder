@@ -49,7 +49,7 @@ const IMPL = {
 }
 
 import { reactive, watchEffect, toRef, ref } from 'vue';
-import { logDebug } from './Messages'
+import { logDebug } from '../Messages'
 const contractStore = reactive({
     briq: undefined as undefined | BriqContract,
     mint: undefined as undefined | MintContract,

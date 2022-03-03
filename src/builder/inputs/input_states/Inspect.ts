@@ -1,17 +1,17 @@
 import { MouseInputState } from './BuilderInputState';
-import { store } from '../../../store/Store';
-import type { SetData } from '../../SetData';
-import type { Briq } from '../../Briq';
+import { store } from '@/store/Store';
+import type { SetData } from '@/builder/SetData';
+import type { Briq } from '@/builder/Briq';
 import { selectionRender } from '../Selection';
-import getPreviewCube from '../../graphics/PreviewCube'
-import { THREE, BufferGeometryUtils } from '../../../three';
+import getPreviewCube from '@/builder/graphics/PreviewCube'
+import { THREE, BufferGeometryUtils } from '@/three';
 
 import { camera, inputObjects } from '../../graphics/Builder';
 
-import { featureFlags } from '../../../FeatureFlags';
-import { pushMessage } from '../../../Messages';
-import { setsManager } from '../../SetsManager';
-import type { HotkeyHandle } from '../../../Hotkeys';
+import { featureFlags } from '@/FeatureFlags';
+import { pushMessage } from '@/Messages';
+import { setsManager } from '@/builder/SetsManager';
+import type { HotkeyHandle } from '@/Hotkeys';
 
 import { watchEffect, WatchStopHandle } from 'vue';
 import { BoxSelection, VoxelAlignedSelection } from './Selecting';

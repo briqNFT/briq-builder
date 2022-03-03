@@ -65,7 +65,7 @@ import { mintProxyStore } from '../../../builder/MintProxy';
 import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
 import type { Provider } from 'starknet';
-import contractStore from '../../../Contracts';
+import contractStore from '@/chain/Contracts';
 
 import { defineComponent } from 'vue';
 export default defineComponent({

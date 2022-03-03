@@ -1,5 +1,5 @@
 import type { Provider, Signer } from 'starknet';
-import type { SetData } from '../builder/SetData';
+import type { SetData } from '../../builder/SetData';
 import { getSelectorFromName } from 'starknet/utils/stark';
 
 

@@ -1,4 +1,3 @@
-import { number } from 'starknet';
 import { hexUuid } from '../Uuid';
 
 export class Briq

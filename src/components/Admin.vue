@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import contractStore from '../Contracts';
+import contractStore from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages'
 import { defineComponent } from 'vue';
 import type { Provider, Signer } from 'starknet';
