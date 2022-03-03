@@ -1,6 +1,6 @@
 import { store } from "../store/Store";
 
-import { setupMintProxy } from './MintProxy'
+import { setupMintProxy } from '@/chain/MintProxy'
 
 import contractStore from '@/chain/Contracts';
 

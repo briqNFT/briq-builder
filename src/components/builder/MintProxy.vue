@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { mintProxyStore } from '../../builder/MintProxy'
+import { mintProxyStore } from '@/chain/MintProxy'
 import { pushModal } from '../Modals.vue';
 import MintModalVue from './modals/MintModal.vue';
 
