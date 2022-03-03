@@ -14,6 +14,7 @@ import { setsManager } from '../SetsManager';
 import type { HotkeyManager, HotkeyHandle } from '../../Hotkeys';
 
 import { watchEffect, WatchStopHandle } from 'vue';
+import { BoxSelection, VoxelAlignedSelection } from './Selecting';
 
 var getMovementHelperMesh = (() => {
     let mainMesh: THREE.Object3D;
@@ -148,11 +149,12 @@ export class InspectInput extends MouseInputState
 
     async onPointerDown(event: PointerEvent)
     {
-        if (event.shiftKey)
+        if (event.altKey || event.shiftKey)
         {
-            this.fsm.switchTo("selection_box", { switchBackTo: "inspect", x: event.clientX, y: event.clientY });
+            this.fsm.switchTo(event.altKey ? "inspect_va" : "inspect_box", { switchBackTo: "inspect", x: event.clientX, y: event.clientY });
             return;
         }
+
         if (!this.fsm.store.selectionMgr.selectedBriqs.length)
             return;
 
@@ -192,73 +194,49 @@ export class InspectInput extends MouseInputState
     }
 }
 
-export class InspectMultiInput extends MouseInputState
+export class BoxSelect extends BoxSelection
 {
-    lastClickPos!: [number, number, number];
-
     onEnter(data: any) {
-        this.curX = data.x;
-        this.curY = data.y;
-
-        this.lastClickPos = this.getIntersectionPos(this.curX, this.curY, true)!;
-        if (!this.lastClickPos)
-            throw new Error("Error: InspectMultiInput must have a well defined event position on entry");
-
-        this.fsm.orbitControls.enabled = false;
-
+        super.onEnter(data);
+        this.switchBackTo = "inspect";
         selectionRender.show();
-        getPreviewCube().visible = true;
-        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(0x002496);
     }
 
     onExit() {
-        getPreviewCube().visible = false;
-        this.fsm.orbitControls.enabled = true;
+        super.onExit();
         selectionRender.hide();
     }
 
-    async onPointerMove(event: PointerEvent)
-    {
-        let pos = this.getIntersectionPos(this.curX, this.curY, true);
-        if (!pos)
-            return;
+    async doAction(briqs: Briq[]) {
+        this.fsm.store.selectionMgr.select(briqs, true);
+    }
+}
 
-        if (this.lastClickPos[1] === -1 && pos[1] === -1)
-            pos[1] = 0;
-
-        getPreviewCube().scale.set(Math.abs(this.lastClickPos[0] - pos[0]) + 1.1, Math.abs(this.lastClickPos[1] - pos[1]) + 1.1, Math.abs(this.lastClickPos[2] - pos[2]) + 1.1);
-        getPreviewCube().position.set(
-            ((this.lastClickPos[0] + pos[0]) / 2) + 0.5,
-            ((this.lastClickPos[1] + pos[1]) / 2) + 0.5,
-            ((this.lastClickPos[2] + pos[2]) / 2) + 0.5,
-        );
+export class VASelect extends VoxelAlignedSelection
+{
+    onEnter(data: any) {
+        super.onEnter(data);
+        this.switchBackTo = "inspect";
+        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(0x002496);
+        selectionRender.show();
     }
 
-    async onPointerUp(event: PointerEvent)
-    {
-        try
-        {
-            let pos = this.getIntersectionPos(this.curX, this.curY, true);
-            if (!pos)
-                return;
+    onExit() {
+        super.onExit();
+        selectionRender.hide();
+    }
 
-            // Make it so that floor-squares have at least one-cell of erasing.
-            if (this.lastClickPos[1] === -1 && pos[1] === -1)
-                pos[1] = 0;
-
-            let briqs = [];
-            for (let x = Math.min(this.lastClickPos[0], pos[0]); x <= Math.max(this.lastClickPos[0], pos[0]); ++x)
-                for (let y = Math.min(this.lastClickPos[1], pos[1]); y <= Math.max(this.lastClickPos[1], pos[1]); ++y)
-                    for (let z = Math.min(this.lastClickPos[2], pos[2]); z <= Math.max(this.lastClickPos[2], pos[2]); ++z)
-                    {
-                        let briq = store.state.builderData.currentSet.getAt(x, y, z);
-                        if (briq)
-                            briqs.push(briq);
-                    }
-            this.fsm.store.selectionMgr.select(briqs, true);
-        } finally {
-            this.fsm.switchTo("inspect");
-        }
+    async doAction(pos: [number, number, number]) {
+        let briqs = [];
+        for (let x = Math.min(this.initialClickPos[0], pos[0]); x <= Math.max(this.initialClickPos[0], pos[0]); ++x)
+            for (let y = Math.min(this.initialClickPos[1], pos[1]); y <= Math.max(this.initialClickPos[1], pos[1]); ++y)
+                for (let z = Math.min(this.initialClickPos[2], pos[2]); z <= Math.max(this.initialClickPos[2], pos[2]); ++z)
+                {
+                    let briq = store.state.builderData.currentSet.getAt(x, y, z);
+                    if (briq)
+                        briqs.push(briq);
+                }
+        this.fsm.store.selectionMgr.select(briqs, true);
     }
 }
 

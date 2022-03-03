@@ -4,8 +4,7 @@ import { CameraOnlyInput } from './CameraOnly';
 import { PlacerInput, PlacerMultiInput } from './Placer';
 import { EraserInput, EraserMultiInput } from './Eraser';
 import { PainterInput, PainterMultiInput } from './Painter';
-import { InspectInput, InspectMultiInput, DragInput } from './Inspect';
-import { SelectionBox } from './Selecting';
+import { InspectInput, BoxSelect, VASelect, DragInput } from './Inspect';
 import { CopyPasteInput } from './CopyPaste';
 
 export const inputMap: { [key: string]: typeof BuilderInputState } = {
@@ -16,9 +15,9 @@ export const inputMap: { [key: string]: typeof BuilderInputState } = {
     "paint": PainterInput,
     "paint_multi": PainterMultiInput,
     "inspect": InspectInput,
-    "inspect_multi": InspectMultiInput,
+    "inspect_va": VASelect,
+    "inspect_box": BoxSelect,
     "drag": DragInput,
     "camera": CameraOnlyInput,
-    "selection_box": SelectionBox,
     "copy_paste": CopyPasteInput
 };
