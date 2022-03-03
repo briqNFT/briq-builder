@@ -2,7 +2,7 @@ import { store } from "../store/Store";
 
 import { setupMintProxy } from './MintProxy'
 
-import contractStore from "../Contracts";
+import contractStore from '@/chain/Contracts';
 
 import { watchEffect } from 'vue';
 export function setupSync()

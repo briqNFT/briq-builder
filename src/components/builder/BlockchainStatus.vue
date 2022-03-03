@@ -34,12 +34,12 @@ import Hotkey from '../generic/Hotkey.vue';
 </template>
 
 <script lang="ts">
+import contractStore from '@/chain/Contracts';
 import { pushModal } from '../Modals.vue';
 
 import WalletSelectorVue from '../WalletSelector.vue';
 import { transactionsManager } from '../../builder/Transactions';
-import contractStore from '../../Contracts';
-import { defineComponent } from "vue";
+import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
@@ -76,7 +76,7 @@ export default defineComponent({
                 pushModal(WalletSelectorVue);
         },
     }
-})
+});
 </script>
 
 <style scoped>

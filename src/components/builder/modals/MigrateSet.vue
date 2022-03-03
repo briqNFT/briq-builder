@@ -66,7 +66,7 @@ import { SetData } from '../../../builder/SetData';
 
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
 
-import contractStore from '../../../Contracts';
+import contractStore from '@/chain/Contracts';
 
 import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';

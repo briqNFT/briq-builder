@@ -1,7 +1,6 @@
-//import * as THREE from 'three';
-import { THREE } from '../../three';
+import { THREE } from '@/three';
 
-import lightMapTex from '../../assets/lightmap.png'
+import lightMapTex from '@/assets/lightmap.png'
 
 import builderSettings from './Settings'
 

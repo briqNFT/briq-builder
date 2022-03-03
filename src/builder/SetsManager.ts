@@ -1,6 +1,6 @@
 
 import { reactive, WatchStopHandle } from 'vue';
-import SetContract from '../contracts/set';
+import SetContract from '../chain/contracts/set';
 import { SetData } from './SetData';
 import { Briq } from './Briq';
 

@@ -1,5 +1,5 @@
 import { number } from 'starknet';
-import { THREE } from '../../three';
+import { THREE } from '@/three';
 
 import { MaterialByColor } from './Materials';
 export default class VoxelWorld {

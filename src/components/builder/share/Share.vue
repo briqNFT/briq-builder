@@ -72,7 +72,7 @@ import { getProvider, getProviderForNetwork } from '../../../Provider';
 import { fetchData } from '../../../url';
 import { reportError } from '../../../Monitoring';
 import { ticketing } from '../../../Async';
-import contractStore, { forceNetwork } from '../../../Contracts';
+import contractStore, { forceNetwork } from '@/chain/Contracts';
 import builderSettings from '../../../builder/graphics/Settings';
 
 import { defineComponent, watchEffect } from 'vue';

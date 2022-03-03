@@ -78,7 +78,7 @@ import TransferSet from '../modals/TransferSet.vue';
 
 import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
-import contractStore from '../../../Contracts';
+import contractStore from '@/chain/Contracts';
 
 import { SetData } from '../../../builder/setData';
 import { setsManager, SetInfo } from '../../../builder/SetsManager';

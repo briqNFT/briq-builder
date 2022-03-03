@@ -28,7 +28,7 @@ var names = Object.keys(materialData);
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { adminStore, isOk } from '../Admin'
-import contractStore from '../Contracts';
+import contractStore from '@/chain/Contracts';
 
 export default defineComponent({
     data() {

@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import type MintContract from '../contracts/mint';
+import type MintContract from '../chain/contracts/mint';
 
 import { ticketing, OutdatedPromiseError } from '../Async';
 

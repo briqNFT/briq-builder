@@ -1,9 +1,9 @@
 import { MouseInputState } from './BuilderInputState';
 import { VoxelAlignedSelection } from './Selecting';
-import getPreviewCube from '../../graphics/PreviewCube'
-import { store } from '../../../store/Store';
+import getPreviewCube from '@/builder/graphics/PreviewCube';
+import { store } from '@/store/Store';
 
-import { THREE } from '../../../three';
+import { THREE } from '@/three';
 
 export class EraserInput extends MouseInputState
 {

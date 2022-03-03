@@ -1,6 +1,6 @@
 import { SetData } from '../../../builder/SetData';
-import { ADDRESSES } from '../../../Contracts';
-import { LegacySetContract } from '../../../contracts/set';
+import { ADDRESSES } from '@/chain/Contracts';
+import { LegacySetContract } from '../../../chain/contracts/set';
 import getBaseUrl, { fetchData } from '../../../url';
 
 class LegacySetsMgr

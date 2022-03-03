@@ -12,7 +12,7 @@ import MetamaskWallet from './wallets/Metamask'
 import { IWallet } from './wallets/IWallet';
 
 import { getProvider, setProvider } from './Provider';
-import { watchSignerChanges } from './Contracts'
+import { watchSignerChanges } from '@/chain/Contracts';
 
 import { legacySetsMgr } from './components/builder/set_browser/LegacySetsMgr';
 

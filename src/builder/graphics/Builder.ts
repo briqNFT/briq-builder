@@ -16,7 +16,7 @@ import {
     RenderPass,
     SSAARenderPass,
     SAOPass,
-} from '../../three';
+} from '@/three';
 
 export var camera: THREE.Camera;
 
