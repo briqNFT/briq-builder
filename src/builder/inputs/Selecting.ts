@@ -5,13 +5,16 @@ import getPreviewCube from '../graphics/PreviewCube';
 
 import { store } from '../../store/Store'
 import { camera } from '../graphics/Builder';
+import type { HotkeyHandle } from '../../Hotkeys';
+import type { Briq } from '../Briq';
 
-export class SelectionBox extends MouseInputState
+export class BoxSelection extends MouseInputState
 {
     startX!: number;
     startY!: number;
 
     switchBackTo!: string;
+    cancelHotkey!: HotkeyHandle;
 
     onEnter(data: any) {
         this.switchBackTo = data.switchBackTo;
@@ -27,13 +30,15 @@ export class SelectionBox extends MouseInputState
         this.fsm.gui.startY = this.startY;
 
         this.fsm.gui.selectionBox = true;
-        
+    
         this.fsm.orbitControls.enabled = false;
 
         selectionRender.show();
+        this.cancelHotkey = this.fsm.hotkeyMgr.subscribe("escape", () => { this.fsm.switchTo(this.switchBackTo); })
     }
 
     onExit() {
+        this.fsm.hotkeyMgr.unsubscribe(this.cancelHotkey);
         selectionRender.hide();
         this.fsm.orbitControls.enabled = true;
         this.fsm.gui.selectionBox = false;
@@ -89,11 +94,14 @@ export class SelectionBox extends MouseInputState
                 if (frustum.intersectsBox(cbox))
                     ret.push(briq);
             });
-            this.fsm.store.selectionMgr.select(ret, true);
+            await this.doAction(ret);
         } finally {
             this.fsm.switchTo(this.switchBackTo);
         }
     }
+
+    // Override me
+    async doAction(briqs: Briq[]) {}
 }
 
 export class VoxelAlignedSelection extends MouseInputState
@@ -101,6 +109,7 @@ export class VoxelAlignedSelection extends MouseInputState
     initialClickPos!: [number, number, number];
     currentClickPos!: [number, number, number] | undefined;
     switchBackTo!: string;
+    cancelHotkey!: HotkeyHandle;
 
     extruding = false; // Whether to get the intersection pos or extrude by a briq.
     shouldClampToBounds = true;
@@ -117,12 +126,17 @@ export class VoxelAlignedSelection extends MouseInputState
 
         if (this.shouldClampToBounds)
             this.initialClickPos = this.clampToBounds(...this.initialClickPos);
-        
+
+        this.currentClickPos = this.initialClickPos;
+        this.updatePreviewCube();
+
         this.fsm.orbitControls.enabled = false;
         getPreviewCube().visible = true;
+        this.cancelHotkey = this.fsm.hotkeyMgr.subscribe("escape", () => { this.fsm.switchTo(this.switchBackTo); })
     }
 
     onExit() {
+        this.fsm.hotkeyMgr.unsubscribe(this.cancelHotkey);
         getPreviewCube().visible = false;
         this.fsm.orbitControls.enabled = true;
     }
@@ -168,7 +182,7 @@ export class VoxelAlignedSelection extends MouseInputState
             // Make it so that selecting floor-squares does something.
             if (!this.shouldClampToBounds && this.initialClickPos[1] === 0 && this.currentClickPos[1] === -1)
                 this.currentClickPos[1] = 0;
-            this.doAction(this.currentClickPos);
+            await this.doAction(this.currentClickPos);
         } finally {
             this.fsm.switchTo(this.switchBackTo);
         }
