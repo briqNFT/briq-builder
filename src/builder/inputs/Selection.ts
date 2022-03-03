@@ -62,6 +62,24 @@ export class SelectionManager
         selectionRender.update(this);   
     }
 
+    /**
+     * Calculate the center position of the selection, using real briq centers and not voxel coordinates.
+     * @returns the position, or undefined if there is no selection.
+     */
+     getCenterPos() {
+        if (!this.selectedBriqs.length)
+            return;
+        let avgPos = new THREE.Vector3();
+        for (let briq of this.selectedBriqs) {
+            avgPos.x += briq.position![0];
+            avgPos.y += briq.position![1];
+            avgPos.z += briq.position![2];
+        }
+        avgPos.divideScalar(this.selectedBriqs.length);
+        avgPos.addScalar(0.5);
+        return avgPos;
+    }
+
     clear()
     {
         this.selectedBriqs = [];

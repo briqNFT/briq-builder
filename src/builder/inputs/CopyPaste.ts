@@ -10,30 +10,12 @@ import { SelectionManager, selectionRender } from './Selection';
 import { THREE } from '../../three';
 import { pushMessage } from '../../Messages';
 
-function calculatePos(selectionMgr: SelectionManager) {
-    if (!selectionMgr.selectedBriqs.length)
-        return;
-    // Reactivity
-    store.state.builderData.currentSet.briqs_;
-    let avgPos = new THREE.Vector3();
-    for (let briq of selectionMgr.selectedBriqs) {
-        avgPos.x += briq.position![0];
-        avgPos.y += briq.position![1];
-        avgPos.z += briq.position![2];
-    }
-    avgPos.divideScalar(selectionMgr.selectedBriqs.length);
-    avgPos.addScalar(0.5);
-    return avgPos;
-}
-
-
 export class CopyPasteInput extends MouseInputState {
     lastClickPos: [number, number, number] | undefined;
 
     selectionCenter!: THREE.Vector3
     min!: [number, number, number];
     max!: [number, number, number];
-
 
     ColorOK = new THREE.Color(0x002496);
     ColorNOK = new THREE.Color(0xFF00000);
@@ -43,7 +25,7 @@ export class CopyPasteInput extends MouseInputState {
 
     override onEnter() {
         selectionRender.show();
-        this.selectionCenter = calculatePos(this.fsm.store.selectionMgr)!;
+        this.selectionCenter = this.fsm.store.selectionMgr.getCenterPos();
         if (!this.selectionCenter)
             throw new Error("Entered copy paste with no selection");
 
