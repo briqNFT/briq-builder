@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts">
-import { mintProxyStore } from '../../../builder/MintProxy';
+import { mintProxyStore } from '@/chain/MintProxy';
 import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
 import type { Provider } from 'starknet';

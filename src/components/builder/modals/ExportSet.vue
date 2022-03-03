@@ -109,7 +109,7 @@ import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
 import RenameSet from '../modals/RenameSet.vue';
 import { pushModal } from '../../Modals.vue';
-import { mintProxyStore } from '../../../builder/MintProxy';
+import { mintProxyStore } from '@/chain/MintProxy';
 
 import { VERSION } from '../../../Meta';
 

@@ -38,7 +38,7 @@ import { setsManager, checkForInitialGMSet } from '../../builder/SetsManager';
 import contractStore from '@/chain/Contracts';
 import { watchEffectAndWait } from '../../Async';
 
-import { setupSync } from '../../builder/StarknetSync';
+import { setupSync } from '@/chain/StarknetSync';
 
 import { builderInputFsm } from "../../builder/inputs/BuilderInput"
 import { pushMessage, setTooltip } from '../../Messages'
