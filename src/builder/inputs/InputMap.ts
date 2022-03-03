@@ -4,7 +4,8 @@ import { CameraOnlyInput } from './CameraOnly';
 import { PlacerInput, PlacerMultiInput } from './Placer';
 import { EraserInput, EraserMultiInput } from './Eraser';
 import { PainterInput, PainterMultiInput } from './Painter';
-import { InspectInput, InspectMultiInput, DragInput, SelectionBox } from './Inspect';
+import { InspectInput, InspectMultiInput, DragInput } from './Inspect';
+import { SelectionBox } from './Selecting';
 import { MoveInput } from './Move';
 import { CopyPasteInput } from './CopyPaste';
 

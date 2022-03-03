@@ -68,7 +68,6 @@ export class MouseInputState extends BuilderInputState
         });
     }
 
-
     getIntersectionPos(x: number, y: number, overlay = false): [number, number, number] | undefined
     {
         return this._getIntersectionPos(x, y, overlay)?.map(x => Math.floor(x));
