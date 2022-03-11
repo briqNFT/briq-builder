@@ -66,11 +66,13 @@ export class CopyPasteInput extends MouseInputState {
     }
 
     async onPointerMove() {
-        let pos = this._getIntersectionPos(this.curX, this.curY);
-        if (!pos || pos[1] < 0) {
+        let intersection = this._getIntersectionPos(this.curX, this.curY);
+        if (!intersection)
             return;
-        }
-        this._specialClamp(pos);
+        let pos = intersection.position.map((v, ndx) => {
+            return v + intersection.normal[ndx] * (this.max[ndx] - this.min[ndx] + 1) / 2;
+        });
+        pos = this._specialClamp(pos);
         selectionRender.parent.position.set(
             Math.round(pos[0] - this.selectionCenter.x),
             Math.round(pos[1] - this.selectionCenter.y),
@@ -109,12 +111,16 @@ export class CopyPasteInput extends MouseInputState {
 
     async doPaste()
     {
-        let pos = this._getIntersectionPos(this.curX, this.curY);
-        if (!pos || pos[1] < 0) {
+        let intersection = this._getIntersectionPos(this.curX, this.curY);
+        if (!intersection)
+        {
             this.fsm.switchTo("inspect");
             return;
         }
-        this._specialClamp(pos);
+        let pos = intersection.position.map((v, ndx) => {
+            return v + intersection.normal[ndx] * (this.max[ndx] - this.min[ndx] + 1) / 2;
+        });
+        pos = this._specialClamp(pos);
         Math.round(pos[0] - this.selectionCenter.x);
         Math.round(pos[1] - this.selectionCenter.y);
         Math.round(pos[2] - this.selectionCenter.z);

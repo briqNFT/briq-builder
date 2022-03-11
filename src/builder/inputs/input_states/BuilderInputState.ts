@@ -57,20 +57,21 @@ export class MouseInputState extends BuilderInputState
         ]
     }
 
-    _getIntersectionPos(x: number, y: number, overlay = false): [number, number, number] | undefined
+    _getIntersectionPos(x: number, y: number, overlay = false)
     {
         let [start, end] = getCameraRay(...this.getCanvasRelativePosition(x, y));
         const intersection = voxWorld.intersectRay(start, end);
-        if (!intersection)
-            return undefined;
-        return intersection.position.map((v, ndx) => {
-            return v + intersection.normal[ndx] * (overlay ? -0.5 : +0.5);
-        });
+        return intersection;
     }
 
     getIntersectionPos(x: number, y: number, overlay = false): [number, number, number] | undefined
     {
-        return this._getIntersectionPos(x, y, overlay)?.map(x => Math.floor(x));
+        let intersection = this._getIntersectionPos(x, y, overlay);
+        if (!intersection)
+            return undefined;
+        return intersection.position.map((v, ndx) => {
+            return Math.floor(v + intersection.normal[ndx] * (overlay ? -0.5 : +0.5));
+        });
     }
 
     canvasSize() {

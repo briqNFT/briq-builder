@@ -4,7 +4,7 @@ import { reactive, watchEffect } from 'vue';
 import { logDebug } from "./Messages";
 
 export const featureFlags = reactive({
-    briq_copy_paste: false,
+    briq_copy_paste: true,
 });
 
 const admins = [
@@ -20,11 +20,9 @@ async function checkOnStore() {
         if (admins.indexOf(store?.store?.state?.wallet?.userWalletAddress) !== -1)
         {
             // Admin-only.
-            featureFlags.briq_copy_paste = true;
         }
         else
         {
-            featureFlags.briq_copy_paste = false;
         }
     })
 };
