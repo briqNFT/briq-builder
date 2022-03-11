@@ -95,7 +95,6 @@ async function test(testVar: string, testDataVar: string, test: CallableFunction
 
 const callContract = function(provider: Provider, address: string, entryPoint: string, data: any[])
 {
-    console.log(provider);
     if (!provider.estimateFee)
         return provider.callContract({
             contract_address: address,
@@ -184,8 +183,8 @@ export default defineComponent({
     },
     methods: {
         getAddr() {
-            if (this.$route.params.address)
-                return this.$route.params.address;
+            if (this.$route.params.getAddress())
+                return this.$route.params.getAddress();
             else
                 return toRef(this.$store.state.wallet, "userWalletAddress");
         },
@@ -196,7 +195,7 @@ export default defineComponent({
                 this.customResult = "";
                 let tx = await callContract(
                     this.$store.state.wallet.provider,
-                    (this.cc_contract === "set" ? contractStore.set : contractStore.briq).connectedTo,
+                    (this.cc_contract === "set" ? contractStore.set : contractStore.briq).getAddress(),
                     this.selector,
                     this.calldata.split(",").filter(x => x).map((x: string) => toBN(x.trim()).toString())
                 );
@@ -245,7 +244,7 @@ export default defineComponent({
             }
         },
         getMint: ticketing(async function () {
-            return await callContract(this.provider, this.mintContract.connectedTo, "amountMinted", [toBN(this.addr.substr(2,), "hex").toString()]);
+            return await callContract(this.provider, this.mintContract.getAddress(), "amountMinted", [toBN(this.addr.substr(2,), "hex").toString()]);
         }),
         checkMint() {
             test.call(this, "mintTest", "mintTestData", async () => {
@@ -260,7 +259,7 @@ export default defineComponent({
             })
         },
         getBalance: ticketing(async function () {
-            return await callContract(this.provider, this.briqContract!.connectedTo, "balanceOf", [toBN(this.addr.substr(2,), "hex").toString(), "1"]);
+            return await callContract(this.provider, this.briqContract!.getAddress(), "balanceOf", [toBN(this.addr.substr(2,), "hex").toString(), "1"]);
         }),
         checkBalance() {
             test.call(this, "briqsTest", "briqsTestData", async () => {
@@ -275,7 +274,7 @@ export default defineComponent({
             })
         },
         getSets: ticketing(async function () {
-            return await callContract(this.provider, this.setContract!.connectedTo, "balanceOf_", [toBN(this.addr.substr(2,), "hex").toString()]);
+            return await callContract(this.provider, this.setContract!.getAddress(), "balanceOf_", [toBN(this.addr.substr(2,), "hex").toString()]);
         }),
         checkBalanceSets() {
             test.call(this, "setsTest", "setsTestData", async () => {

@@ -86,9 +86,9 @@ export function watchSignerChanges(walletStore: any)
         logDebug("SWITCHING TO NETWORK", network, walletStore.baseUrl);
         if (addr)
         {
-            contractStore.briq = new impl.briq(addr.briq, signer.value ? signer : provider);
-            contractStore.set = new impl.set(addr.set, signer.value ? signer : provider);
-            contractStore.mint = new impl.mint(addr.mint, signer.value ? signer : provider);
+            contractStore.briq = new impl.briq(addr.briq, signer.value ? signer.value : provider.value);
+            contractStore.set = new impl.set(addr.set, signer.value ? signer.value : provider.value);
+            contractStore.mint = new impl.mint(addr.mint, signer.value ? signer.value : provider.value);
         }
         else
         {

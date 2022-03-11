@@ -230,9 +230,9 @@ class SetsManager
                 }
             }
             if (contractStore.set && wallet.userWalletAddress)
-            {
                 setsManager.loadOnChain(contractStore.set, wallet.userWalletAddress);
-            }
+        }, {
+            immediate: true,
         })
     }
 

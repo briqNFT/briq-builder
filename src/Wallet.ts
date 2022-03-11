@@ -1,4 +1,4 @@
-import { reactive, watchEffect } from 'vue'
+import { watchEffect, markRaw } from 'vue'
 
 import { Provider } from 'starknet';
 import type { Signer } from 'starknet';
@@ -81,8 +81,8 @@ export const walletStore = {
                     let [addr, provider, signer] = await argx.enable();
                     logDebug("ARGENT-X ENABLED:", addr, provider, signer);
                     // Update the provider (may be mainnet or testnet).
-                    commit("set_provider", provider);
-                    commit("set_signer", { provider, signer, addr });
+                    commit("set_provider", markRaw(provider));
+                    commit("set_signer", { provider: markRaw(provider), signer: markRaw(signer), addr });
                     argx.watchForChanges(async () => {
                         // Disconnect first to reset addresses.
                         await dispatch("disconnect");
@@ -118,12 +118,13 @@ export const walletStore = {
             state.baseUrl = state.provider.baseUrl;
             setProvider(data);
         },
+
         set_signer(state: any, data: { provider: Provider, signer: Signer, addr: string })
         {
             state.signer = data.signer;
             state.userWalletAddress = data.addr;
             legacySetsMgr.setup(state);
-            },
+        },
 
         set_starknet_contract_address(state: any, data: string)
         {

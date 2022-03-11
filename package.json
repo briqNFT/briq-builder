@@ -18,7 +18,7 @@
     "@sentry/vue": "^6.16",
     "connect": "^3.7",
     "json-bigint": "git+https://github.com/briqNFT/json-bigint.git#fix-ts",
-    "starknet": "^2.9.0",
+    "starknet": "^3.5.0",
     "three": "^0.137",
     "uuid": "^8",
     "vite": "^2.6",

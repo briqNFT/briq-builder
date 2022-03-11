@@ -1,4 +1,5 @@
 import type { Signer, Provider } from 'starknet';
+import { getSelectorFromName } from 'starknet/utils/hash';
 
 type StarknetWindowObject =
   | {
@@ -38,6 +39,26 @@ export async function getStarknetObject()
     })
 }
 
+const proxyProvider = function(provider: any) {
+    return new Proxy(provider, {
+        get(target, key)
+        {
+            if (key === "callContract")
+            {
+                return async (...args) =>  {
+                    let wrapped_args = {
+                        contract_address: args[0].contractAddress,
+                        entry_point_selector: getSelectorFromName(args[0].entrypoint),
+                        calldata: args[0].calldata,
+                    }
+                    return await target.callContract(wrapped_args);
+                }
+            }
+            return Reflect.get(target, key);
+        }
+    })
+}
+
 export default class ArgentXWallet extends IWallet
 {
     isLikelyAvailable(): boolean
@@ -69,7 +90,12 @@ export default class ArgentXWallet extends IWallet
             throw new WalletNotAvailable();
         await swo.enable();
         if (swo.isConnected)
-            return [swo.signer!.address, swo.provider, swo.signer];
+        {
+            if (swo.account) // Argent 3
+                return [swo.signer!.address, swo.provider, swo.account];
+            else // Argent 2
+                return [swo.signer!.address, proxyProvider(swo.provider), proxyProvider(swo.signer)];
+        }
         else
             throw new WalletConnectionError();
     }

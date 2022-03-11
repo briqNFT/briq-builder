@@ -10,7 +10,7 @@ export const mintProxyStore = reactive({
 });
 
 var getData = ticketing(async function(contract: MintContract, address: string) {
-    let contractOk = contract.provider.getCode(address);
+    let contractOk = contract.contract.providerOrAccount.getCode(address);
     let minted = contract.has_minted(address);
     return {
         contractOk: ((await contractOk)?.bytecode?.length ?? 0) > 0,
@@ -32,6 +32,7 @@ export async function setupMintProxy(contract: MintContract, address: string)
     }
     catch(err)
     {
+        console.error(err);
         if (err instanceof OutdatedPromiseError)
             return;
         res.contractOk = false;
