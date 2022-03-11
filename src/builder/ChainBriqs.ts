@@ -84,7 +84,7 @@ export class ChainBriqs
             this.reset();
             return;
         }
-        logDebug("CHAIN BRIQS - LOADING ", this.briqContract?.connectedTo, this.addr);
+        logDebug("CHAIN BRIQS - LOADING ", this.briqContract?.address, this.addr);
         try {
             let balance = await this._getTokens();
             this.parseChainData(balance);
@@ -111,7 +111,7 @@ export class ChainBriqs
     parseChainData(balanceJSON: { ft_balance: string, nft_ids: string[] })
     {
         this.byMaterial = {};
-        this.byMaterial[MATERIAL_GENESIS] = { ft_balance: parseInt(balanceJSON.ft_balance, 16), nft_ids: balanceJSON.nft_ids };
+        this.byMaterial[MATERIAL_GENESIS] = { ft_balance: balanceJSON.ft_balance, nft_ids: balanceJSON.nft_ids };
     }
 
     _getBalance = ticketing(async function (this: ChainBriqs) {

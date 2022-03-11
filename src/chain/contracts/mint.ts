@@ -1,19 +1,24 @@
-import type { Provider, Signer } from 'starknet';
+import type { Provider, AccountInterface } from 'starknet';
 
 import MintABI from './testnet/mint.json'
 import ExtendedContract from './Abstraction';
 
-export default class MintContract extends ExtendedContract
+export default class MintContract
 {
+    contract: ExtendedContract;
     constructor(address: string, provider: Provider)
     {
-        super(MintABI, address, provider)
+        this.contract = new ExtendedContract(MintABI, address, provider);
+    }
+
+    getAddress() {
+        return this.contract.address;
     }
 
     async has_minted(user: string): Promise<boolean>
     {
         try {
-            return parseInt((await this.call("amountMinted", { user })).res as string, 16) > 0;
+            return parseInt((await this.contract.amountMinted(user))) > 0;
         } catch(err) {
             throw err;
         }
@@ -21,8 +26,6 @@ export default class MintContract extends ExtendedContract
 
     async mint(user: string)
     {
-        if (!((this.provider as Signer).address))
-            throw new Error("Provider is not a signer");
-        return await this.invoke("mint", { user });
+        return await this.contract.mint(user);
     }
 }

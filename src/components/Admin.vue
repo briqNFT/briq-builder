@@ -16,9 +16,9 @@
         </div>
         <div>
             <h3>Contract initialisation</h3>
-            <p class="font-mono">Set proxy : {{ contractStore.set?.connectedTo }} -> {{ getSetImpl }}</p>
+            <p class="font-mono">Set proxy : {{ contractStore.set?.getAddress() }} -> {{ getSetImpl }}</p>
             <p><input v-model="newSetImpl" type="text"> <Btn @click="setImpl(contractStore.set, newSetImpl)">Set new implementation</Btn></p>
-            <p class="font-mono">Briq proxy: {{ contractStore.briq?.connectedTo }} -> {{ getBriqImpl }}</p>
+            <p class="font-mono">Briq proxy: {{ contractStore.briq?.getAddress() }} -> {{ getBriqImpl }}</p>
             <p><input v-model="newBriqImpl" type="text"> <Btn @click="setImpl(contractStore.briq, newBriqImpl)">Set new implementation</Btn></p>
 
         </div>
@@ -53,18 +53,18 @@ export default defineComponent({
             return messagesStore.messages;
         },
         getSetImpl() {
-            if (contractStore?.set?.connectedTo)
+            if (contractStore?.set?.getAddress())
                 (this.$store.state.wallet.provider as Provider).callContract({
-                    contract_address: contractStore.set.connectedTo,
+                    contract_address: contractStore.set.getAddress(),
                     entry_point_selector: getSelectorFromName("getImplementation"),
                     calldata: []
                 }).then(rep => this._setImpl = rep.result[0]);
             return this._setImpl;
         },
         getBriqImpl() {
-            if (contractStore?.briq?.connectedTo)
+            if (contractStore?.briq?.getAddress())
                 (this.$store.state.wallet.provider as Provider).callContract({
-                    contract_address: contractStore.briq.connectedTo,
+                    contract_address: contractStore.briq.getAddress(),
                     entry_point_selector: getSelectorFromName("getImplementation"),
                     calldata: []
                 }).then(rep => this._briqImpl = rep.result[0]);
@@ -83,7 +83,7 @@ export default defineComponent({
         },
         async setImpl(contract: any, address: string) {
             let tx = await (this.$store.state.wallet.signer as Signer).invokeFunction(
-                contract.connectedTo,
+                contract.getAddress(),
                 getSelectorFromName("setImplementation"),
                 [address]
             );
