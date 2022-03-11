@@ -12,6 +12,28 @@ export default class ExtendedContract extends Contract
         super(abi, address, provider)
     }
 
+    public async call(method: string, args: Args = {}) {
+        if (!this.provider.getPubKey)
+            return await super.call(method, args);
+        // ensure contract is connected
+        //assert(this.connectedTo !== null, 'contract isnt connected to an address');
+    
+        // validate method and args
+        this.validateMethodAndArgs('CALL', method, args);
+    
+        // compile calldata
+        //const entrypointSelector = getSelectorFromName(method);
+        const calldata = compileCalldata(args);
+    
+        return this.provider
+          .callContract({
+            contractAddress: this.connectedTo,
+            calldata,
+            entrypoint: method,
+          })
+          .then((x) => this.parseResponse(method, x.result));
+    }
+
     override private parseResponse(method: string, response: (string | string[])[]): Args {
         const methodAbi = this.abi.find((abi) => abi.name === method)!;
         let out: Args = {};
