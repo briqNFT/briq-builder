@@ -218,9 +218,8 @@ function addLight(scene, x, y, z) {
 var scene: THREE.Scene;
 
 import { selectionRender } from '../inputs/Selection';
-import { Object3D } from 'three';
 
-export var inputObjects = new Object3D();
+export var inputObjects : THREE.Object3D;
 
 function setupScene(voxWorld)
 {
@@ -329,6 +328,8 @@ export function render() {
 export async function main(canvas) {
     await THREE_SETUP;
     
+    inputObjects = new THREE.Object3D();
+
     const fov = 75;
     const aspect = 2;  // the canvas default
     const near = 0.5;
