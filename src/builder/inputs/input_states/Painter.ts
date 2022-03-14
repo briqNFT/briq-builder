@@ -6,7 +6,7 @@ import { store } from '@/store/Store';
 import type { SetData } from '@/builder/SetData';
 
 import { THREE } from '@/three';
-import { VoxelAlignedSelection } from './Selecting';
+import { VoxelAlignedSelection } from './SelectHelpers';
 
 import { watchEffect } from 'vue';
 

@@ -15,7 +15,7 @@ export class CopyPasteInput extends MouseInputState {
     max!: [number, number, number];
 
     ColorOK = new THREE.Color(0x002496);
-    ColorNOK = new THREE.Color(0xFF00000);
+    ColorOverlay = new THREE.Color(0xFFAA000);
 
     cancelHotkey!: HotkeyHandle;
     pasteHotkey!: HotkeyHandle;
@@ -78,7 +78,8 @@ export class CopyPasteInput extends MouseInputState {
             Math.round(pos[1] - this.selectionCenter.y),
             Math.round(pos[2] - this.selectionCenter.z),
         );
-        let ok = true;
+        // Color the mesh if there is an overlay.
+        let overlay = true;
         for (let briq of this.fsm.store.selectionMgr.selectedBriqs) {
             let bp = [
                 Math.round(pos[0] + briq.position![0] - this.selectionCenter.x),
@@ -86,11 +87,11 @@ export class CopyPasteInput extends MouseInputState {
                 Math.round(pos[2] + briq.position![2] - this.selectionCenter.z),
             ];
             if (store.state.builderData.currentSet.getAt(...bp)) {
-                ok = false;
+                overlay = false;
                 break;
             }
         }
-        selectionRender.parent.children[0].material.color = ok ? this.ColorOK : this.ColorNOK;
+        selectionRender.parent.children[0].material.color = overlay ? this.ColorOK : this.ColorOverlay;
     }
 
     async onPointerDown(event: PointerEvent) {
@@ -124,6 +125,8 @@ export class CopyPasteInput extends MouseInputState {
         Math.round(pos[0] - this.selectionCenter.x);
         Math.round(pos[1] - this.selectionCenter.y);
         Math.round(pos[2] - this.selectionCenter.z);
+
+        let didOverlay = false;
         let data = [];
         let positions = [];
         for (let briq of this.fsm.store.selectionMgr.selectedBriqs) {
@@ -132,17 +135,23 @@ export class CopyPasteInput extends MouseInputState {
                 Math.round(pos[1] + briq.position![1] - this.selectionCenter.y),
                 Math.round(pos[2] + briq.position![2] - this.selectionCenter.z),
             ];
-            positions.push(bp);
-            if (store.state.builderData.currentSet.getAt(...bp)) {
-                pushMessage("Cannot paste here");
-                return;
+            if (store.state.builderData.currentSet.getAt(...bp) && this.fsm.store.briqOverlayMode === 'KEEP')
+            {
+                didOverlay = true;
+                continue;
             }
+            positions.push(bp);
             data.push({ pos: bp, color: briq.color, material: briq.material });
         }
         await store.dispatch('builderData/place_briqs', data);
+
+        if (didOverlay && this.fsm.store.briqOverlayMode === 'KEEP')
+            pushMessage("Some briqs were not placed because they overlayed existing briqs");
+
         this.fsm.store.selectionMgr.clear();
         for (let p of positions)
             this.fsm.store.selectionMgr.add(...p);
+        
         this.fsm.switchTo("inspect");
     }
 }

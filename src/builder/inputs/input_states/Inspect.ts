@@ -14,7 +14,7 @@ import { setsManager } from '@/builder/SetsManager';
 import type { HotkeyHandle } from '@/Hotkeys';
 
 import { watchEffect, WatchStopHandle } from 'vue';
-import { BoxSelection, VoxelAlignedSelection } from './Selecting';
+import { BoxSelection, VoxelAlignedSelection } from './SelectHelpers';
 
 var getMovementHelperMesh = (() => {
     let mainMesh: THREE.Object3D;
@@ -80,7 +80,7 @@ export class InspectInput extends MouseInputState
 
     _canCopyPaste()
     {
-        return featureFlags.briq_copy_paste && this.fsm.store.selectionMgr.selectedBriqs.length;
+        return this.fsm.store.selectionMgr.selectedBriqs.length;
     }
 
     override onEnter()
@@ -151,7 +151,12 @@ export class InspectInput extends MouseInputState
     {
         if (event.altKey || event.shiftKey)
         {
-            this.fsm.switchTo(event.altKey ? "inspect_va" : "inspect_box", { switchBackTo: "inspect", x: event.clientX, y: event.clientY });
+            let mode = this.fsm.store.defaultSelectionMethod === 'BOX' ? (
+                event.altKey ? "inspect_va" : "inspect_box"
+            ) : (
+                event.altKey ? "inspect_box" : "inspect_va"
+            );
+            this.fsm.switchTo(mode, { switchBackTo: "inspect", x: event.clientX, y: event.clientY });
             return;
         }
 
@@ -254,6 +259,9 @@ export class DragInput extends MouseInputState
     min!: [number, number, number];
     max!: [number, number, number];
 
+    ColorOK = new THREE.Color(0x002496);
+    ColorOverlay = new THREE.Color(0xFFAA000);
+
     onEnter(data: any) {
         this.curX = data.x;
         this.curY = data.y;
@@ -345,6 +353,21 @@ export class DragInput extends MouseInputState
         this.mesh.position.set(intersects.x, intersects.y, intersects.z);
         res.round();
         selectionRender.parent.position.set(-res.x, -res.y, -res.z);
+
+        // Color the mesh if there is an overlay.
+        let overlay = true;
+        for (let briq of this.fsm.store.selectionMgr.selectedBriqs) {
+            let bp = [
+                Math.round(-res.x + briq.position![0]),
+                Math.round(-res.y + briq.position![1]),
+                Math.round(-res.z + briq.position![2]),
+            ];
+            if (store.state.builderData.currentSet.getAt(...bp)) {
+                overlay = false;
+                break;
+            }
+        }
+        selectionRender.parent.children[0].material.color = overlay ? this.ColorOK : this.ColorOverlay;
     }
 
     async onPointerUp(event: PointerEvent)
@@ -356,7 +379,11 @@ export class DragInput extends MouseInputState
             this._specialClamp(intersects);
             let res = new THREE.Vector3().subVectors(this.startPos, intersects);
             res.round();
-            await store.dispatch("builderData/move_briqs", { delta: { [this.direction]: -res?.[this.direction] }, briqs: this.fsm.store.selectionMgr.selectedBriqs })
+            await store.dispatch("builderData/move_briqs", {
+                delta: { [this.direction]: -res?.[this.direction] },
+                briqs: this.fsm.store.selectionMgr.selectedBriqs,
+                allow_overwrite: this.fsm.store.briqOverlayMode === 'OVERWRITE',
+            })
         } catch(err) {
             pushMessage(err);
         } finally {

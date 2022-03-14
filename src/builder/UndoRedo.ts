@@ -4,14 +4,12 @@ import { markRaw } from 'vue';
 
 type Hook = (localData: any, payload: any, state: any) => void;
 
-const undoActions: { [key: string]: string } = {};
 const onBefore: { [key: string]: Hook } = {};
 const onAfter: { [key: string]: Hook } = {};
 const humanOutputs: { [key: string]: (data: any) => string } = {};
 
-export function registerUndoableAction(action: string, undoAction: string, hooks: { onBefore?: Hook, onAfter?: Hook }, humanOutput?: (data: any) => string)
+export function registerUndoableAction(action: string, hooks: { onBefore?: Hook, onAfter?: Hook }, humanOutput?: (data: any) => string)
 {
-    undoActions[action] = undoAction;
     if (hooks.onBefore)
         onBefore[action] = hooks.onBefore;
     if (hooks.onAfter)
@@ -63,15 +61,15 @@ export const undoRedoStore = {
         undo_history: async ({ dispatch, commit, state }: any) => {
             if (state.command_index < 0)
                 return;
-            await commit(undoActions[state.command_history[state.command_index].action], state.command_history[state.command_index].undoData);
+            await state.command_history[state.command_index].undo();
+            // Must be done before undoing or we lose the state.
             pushMessage("Undo complete - " + getHumanOutput(state.command_history[state.command_index].action, state.command_history[state.command_index]));
             commit("undo_history");
         },
         redo_history: async ({ dispatch, commit, state }: any) => {
             if (state.command_index + 1 >= state.command_history.length)
                 return;
-            // Kind of ugly but should work fine as this is synchronous.
-            await commit(state.command_history[state.command_index + 1].action, state.command_history[state.command_index + 1].redoData);
+            await state.command_history[state.command_index + 1].redo();
             commit("redo_history");
             pushMessage("Redo complete - " + getHumanOutput(state.command_history[state.command_index].action, state.command_history[state.command_index]));
         },

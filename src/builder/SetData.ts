@@ -178,7 +178,7 @@ export class SetData
         if (!this.briqs.has(regionId))
             this.briqs.set(regionId, new Map());
         else if (!!this.briqs.get(regionId)?.get(cellId))
-            return false;
+            this.doRemoveBriq(x, y, z);
 
         this.briqs.get(regionId)!.set(cellId, briq);
         briq.position = [x, y, z];

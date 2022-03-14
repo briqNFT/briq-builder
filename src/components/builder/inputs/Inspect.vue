@@ -18,15 +18,33 @@ import Hotkey from "../../generic/Hotkey.vue";
             <p>TODO</p>
         </template>
         -->
+        <h4 class="bg-accent rounded-md px-2 py-1 mb-1 text-center font-semibold">Camera</h4>
         <div class="flex flex-col gap-1">
-            <Btn @click="resetCamera">Reset Camera</Btn>
-            <Btn class="leading-4" @click="centerCamera" :disabled="!selection.selectedBriqs.length">Center on<br />Selection</Btn>
+            <Btn @click="resetCamera" class="tracking-tighter">Reset Camera</Btn>
+            <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length" class="leading-4" >Center on<br />Selection</Btn>
+        </div>
+        <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Selection</h4>
+        <div class="flex flex-col gap-1">
+            <div class="flex gap-1 justify-begin" v-if="featureFlags.early1_5_access">
+                <Btn :disabled="inputStore.defaultSelectionMethod !== 'BOX'" @click="inputStore.defaultSelectionMethod = 'VOXEL'"
+                    tooltip="Shift-click selects briqs in a briq-aware mode. Use shift+alt for box selection."><i class="fas fa-cubes"></i></Btn>
+                <Btn :disabled="inputStore.defaultSelectionMethod === 'BOX'" @click="inputStore.defaultSelectionMethod = 'BOX'"
+                    tooltip="Shift-click selects briqs within a box on the screen. Use shift+alt for briq-aware selection."><i class="fas fa-vector-square"></i></Btn>
+            </div>
             <Btn @click="selectAll">Select All</Btn>
-            <Btn v-if="featureFlags.briq_copy_paste" :disabled="!selection.selectedBriqs.length" @click="copy" tooltip="Copy selected briqs. Hotkey: Ctrl + C">Copy</Btn>
+            <Btn :disabled="!selection.selectedBriqs.length" @click="copy" tooltip="Copy selected briqs. Hotkey: Ctrl + C">Copy</Btn>
             <Btn :disabled="!selection.selectedBriqs.length" @click="deleteBriqs" tooltip="Delete selected briqs. Hotkey: delete/backspace">Delete</Btn>
             <Hotkey name="delete-1" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"></Hotkey>
             <Hotkey name="delete-2" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"></Hotkey>
         </div>
+        <template  v-if="featureFlags.early1_5_access">
+        <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Move / Copy</h4>
+        <div class="flex flex-col gap-1 my-2">
+            <Btn tooltip="Overwrite any existing briq when moving or pasting briqs. If off, existing briqs will instead be kept.">
+                <label><input type="checkbox" v-model="overlayMode"> Overwrite</label>
+            </Btn>
+        </div>
+        </template>
     </div>
     <div v-if="fsm.selectionBox"
         class="bg-opacity-50 bg-white border-2 border-solid border-black fixed pointer-events-none"
@@ -68,12 +86,21 @@ export default defineComponent({
     data() {
         return {
             selection: inputStore.selectionMgr,
+            inputStore,
         };
     },
     computed: {
         fsm() {
             return builderInputFsm.state.gui;
         },
+        overlayMode: {
+            get() {
+                return inputStore.briqOverlayMode === 'OVERWRITE';
+            },
+            set(v: boolean) {
+                inputStore.briqOverlayMode = v ? 'OVERWRITE' : 'KEEP';
+            }
+        }
     },
     methods: {
         resetCamera,

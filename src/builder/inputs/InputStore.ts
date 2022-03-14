@@ -10,4 +10,6 @@ export const inputStore = reactive({
     palettesMgr,
     selectionMgr: new SelectionManager(),
     currentColor: palettesMgr.getCurrent().getFirstColor(),
+    defaultSelectionMethod: 'VOXEL' as ('BOX' | 'VOXEL'),
+    briqOverlayMode: 'KEEP' as ('KEEP' | 'OVERWRITE'),
 });

@@ -1,5 +1,5 @@
 import { MouseInputState } from './BuilderInputState';
-import { VoxelAlignedSelection } from './Selecting';
+import { VoxelAlignedSelection } from './SelectHelpers';
 import getPreviewCube from '@/builder/graphics/PreviewCube';
 import { store } from '@/store/Store';
 

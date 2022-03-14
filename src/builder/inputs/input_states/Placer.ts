@@ -4,7 +4,7 @@ import { inputStore } from "../InputStore";
 import { store } from '@/store/Store'
 
 import { THREE } from '@/three';
-import { VoxelAlignedSelection } from './Selecting';
+import { VoxelAlignedSelection } from './SelectHelpers';
 
 import { watchEffect } from 'vue';
 
