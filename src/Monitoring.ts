@@ -5,6 +5,7 @@ import { APP_ENV, DEV } from './Meta';
 
 export async function setupMonitoring(app: any, router: any)
 {
+    return;
     if (APP_ENV === "dev")
         return;
     
