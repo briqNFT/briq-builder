@@ -1,5 +1,6 @@
 import { hexUuid } from '../Uuid';
 
+import { MATERIAL_GENESIS } from './ChainBriqs';
 export class Briq
 {
     // Chain metadata
@@ -44,7 +45,7 @@ export class Briq
         // No need to serialize the set, we don't store briqs outside of sets.
         let ret: any = {
             material: this.material,
-            color: this.color
+            color: this.color,
         }
         if (this.id)
             ret.id = this.id;
@@ -53,8 +54,10 @@ export class Briq
 
     deserialize(data: any)
     {
-        this.material = data.material;
-        this.color = data.color;
+        // Set some sane default values to recover from weird states.
+        // (we had cases where briqs had no colors).
+        this.material = data.material || MATERIAL_GENESIS;
+        this.color = data.color || "#000000";
         if (data.id)
             this.id = data.id;
         return this;
