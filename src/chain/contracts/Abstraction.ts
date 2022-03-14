@@ -13,7 +13,7 @@ export default class ExtendedContract extends Contract
     }
 
     public async call(method: string, args: Args = {}) {
-        if (!this.provider.getPubKey)
+        if (!this.provider.estimateFee)
             return await super.call(method, args);
         // ensure contract is connected
         //assert(this.connectedTo !== null, 'contract isnt connected to an address');
