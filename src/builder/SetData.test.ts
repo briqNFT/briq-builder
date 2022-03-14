@@ -18,6 +18,15 @@ describe('Test SetData', () => {
         }
     })
 
+    it('should overwrite briqs correctly', () => {
+        let data = new SetData("");
+        data.placeBriq(0, 0, 0, new Briq("0x1", "0xfafafa"));
+        data.placeBriq(0, 0, 0, new Briq("0x1", "0xafafaf"));
+        expect(data.getAt(0, 0, 0)?.color).toEqual("0xafafaf");
+    })
+});
+
+describe('Test SetData replacing briqs', () => {
     it('should should find real briqs correctly. ', () => {
         let chain = new ChainBriqs();
         chain.parseChainData({ ft_balance: "0xf", nft_ids: ["0xcafe", "0xfade"] });
