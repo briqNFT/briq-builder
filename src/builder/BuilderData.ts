@@ -95,7 +95,6 @@ export var builderDataStore = (() => {
                 commit("place_briqs", data);
             },
             async move_briqs({ state, commit, dispatch }: any, data: { delta: { x?: number, y?: number, z?: number }, briqs: Briq[], allow_overwrite: boolean}) {
-                console.log(data);
                 for (let briq of data.briqs)
                 {
                     let pos = briq.position;
@@ -106,6 +105,8 @@ export var builderDataStore = (() => {
                 let targets = [];
                 let removal = [];
                 let add = [];
+
+                let selectAtPos = [];
                 for (let briq of data.briqs)
                 {
                     let targetPos = [briq.position[0] + (data.delta.x || 0), briq.position[1] + (data.delta.y || 0), briq.position[2] + (data.delta.z || 0)];
@@ -115,18 +116,24 @@ export var builderDataStore = (() => {
                     
                     removal.push({ pos: briq.position });
                     add.push({ pos: targetPos, color: briq.color, material: briq.material, allow_overwrite: data.allow_overwrite });
+                    if (!targetCell || data.allow_overwrite)
+                        selectAtPos.push(targetPos);
                 }
-                commit("place_briqs", removal);
-                commit("place_briqs", add);
+                const _do = () => {
+                    inputStore.selectionMgr.clear();
+                    commit("place_briqs", removal);
+                    commit("place_briqs", add);
+                    selectAtPos.forEach(x => inputStore.selectionMgr.add(...x))
+                };
+                _do();
                 await store.dispatch("push_command_to_history", {
                     action: "builderData/move_briqs",
                     undo: () => {
                         commit("place_briqs", moved);
                         commit("place_briqs", targets);
                     },
-                    redo: async () => {
-                        commit("place_briqs", removal);
-                        commit("place_briqs", add);
+                    redo: () => {
+                        _do();
                     },
                 });
                 inputStore.selectionMgr.updateGraphics();
