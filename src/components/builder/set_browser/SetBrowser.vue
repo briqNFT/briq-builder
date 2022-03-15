@@ -14,7 +14,7 @@ import { hexUuid } from '../../../Uuid';
             <p><input class="w-full" v-model="searchText" type="text" placeholder="Search by set ID or set name"/></p>
             <p class="flex gap-2 my-4">
                 <Btn tooltip="Create a new WIP set." @click="createSet"><i class="far fa-file"></i> New</Btn>
-                <Btn tooltip="Import a local set." @click="importSet"><i class="fas fa-file-import"></i> Import from file</Btn>
+                <Btn tooltip="Import a local set or a .vox file" @click="importSet"><i class="fas fa-file-import"></i> Import from file</Btn>
                 <Btn tooltip="Delete all selected sets." @click="deleteAll" :disabled="!canDelete"><i class="far fa-trash-alt"></i> Delete local sets</Btn>
                 <Btn v-if="canResetMigrationPrompt" tooltip="Un-hide all hidden legacy sets." @click="resetMigrationPrompt"><i class="fas fa-eye"></i> Show hidden legacy sets</Btn>
                 <!--
@@ -71,6 +71,8 @@ import { hexUuid } from '../../../Uuid';
 <script lang="ts">
 import { setsManager } from '../../../builder/SetsManager';
 import { SetData } from '../../../builder/SetData';
+
+import ImportVoxModal from '../modals/ImportVoxModal.vue';
 
 import { pushModal } from '../../Modals.vue'
 import TextModal from '../../generic/TextModal.vue';
@@ -145,10 +147,17 @@ export default defineComponent({
                 try
                 {
                     let file = await fileHandle.getFile();
-                    let contents = JSON.parse(await file.text());
-                    let set = new SetData(contents.id).deserialize(contents);
-                    set.id = hexUuid();
-                    setsManager.registerLocalSet(set);
+                    if ((file.name as string).endsWith(".vox"))
+                    {
+                        await pushModal(ImportVoxModal, { file: file, fileData: file.arrayBuffer() });
+                    }
+                    else
+                    {
+                        let contents = JSON.parse(await file.text());
+                        let set = new SetData(contents.id).deserialize(contents);
+                        set.id = hexUuid();
+                        setsManager.registerLocalSet(set);
+                    }
                 }
                 catch(err) {
                     this.messages.pushMessage("Error while loading file " + fileHandle.name + " - " + err.message);

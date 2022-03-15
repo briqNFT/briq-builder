@@ -62,6 +62,7 @@ import Hotkey from "../../generic/Hotkey.vue";
         <h4 v-else="">Fungible briq</h4>
         <p>Color: {{ fsm.briq.color }}</p>
         <p>Material: {{ mapMat(fsm.briq.material) }}</p>
+        <p>Position: {{ JSON.stringify(fsm.briq.position) }}</p>
         </div>
     </div>
 </template>
