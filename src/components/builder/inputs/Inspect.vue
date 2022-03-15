@@ -40,8 +40,9 @@ import Hotkey from "../../generic/Hotkey.vue";
         <template  v-if="featureFlags.early1_5_access">
         <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Move / Copy</h4>
         <div class="flex flex-col gap-1 my-2">
-            <Btn tooltip="Overwrite any existing briq when moving or pasting briqs. If off, existing briqs will instead be kept.">
-                <label><input type="checkbox" v-model="overlayMode"> Overwrite</label>
+            <Btn tooltip="Overwrite any existing briq when moving or pasting briqs. If off, existing briqs will instead be kept."
+                @click="overlayMode = !overlayMode">
+                <label class="pointer-events-none"><input type="checkbox" v-model="overlayMode"> Overwrite</label>
             </Btn>
         </div>
         </template>
