@@ -2,7 +2,7 @@
     <div class="md:w-2/5 w-auto" style="height:60%;">
         <div class="relative h-full">
             <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h3 class="text-center w-full">Briq Details</h3>
+            <h3 class="text-center w-full">briq Details</h3>
             <div class="flex gap-2">
                 <Btn @click="setup = 'all'">On-chain</Btn>
                 <Btn @click="setup = 'current'">Local set</Btn>

@@ -1,6 +1,6 @@
 <template>
     <div class="px-4 py-2 text-right">
-        <h3 class="w-full">Briq details</h3>
+        <h3 class="w-full">briq details</h3>
         <p>Available briqs: {{ chainBriqs.getBalance() }}
             <button :disabled="fetchingBriqs" @click="chainBriqs.loadFromChain()">
                 <i :class="'fas ' + (fetchingBriqs ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
