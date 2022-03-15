@@ -29,7 +29,7 @@ class Settings
     reset()
     {
         this.useSAO = false;
-        this.useRealAA = true;
+        this.useRealAA = false;
         // If you change these, change settings.vue
         this.planeColor = useDarkMode() ? "#591f00" : "#a93a00";
         this.gridColor = useDarkMode() ? "#999999" : "#eaeaea";
