@@ -17,11 +17,13 @@ import { inputStore } from './inputs/InputStore';
 import { setsManager } from './SetsManager';
 import { ChainBriqs } from './ChainBriqs';
 
+import { store } from '@/store/Store';
+
+import { THREE } from '@/three';
+import { Vector3 } from 'three';
+
 let initSet = new SetData(hexUuid());
 
-import { watch, toRef } from 'vue';
-import { number } from 'starknet';
-import { store } from '@/store/Store';
 
 function isWithinBounds(x: number, y: number, z: number)
 {
@@ -148,6 +150,89 @@ export var builderDataStore = (() => {
                 commit("move_all_briqs", data);
                 inputStore.selectionMgr.updateGraphics();
             },
+
+            async rotate_briqs({ state, commit, dispatch }: any, data: { axis: 'x' | 'y' | 'z', angle: number, rotationCenter: THREE.Vector3, briqs: Briq[], allow_overwrite: boolean}) {
+                let targetPos = {};
+                let pv = new THREE.Vector3();
+                let rot = new THREE.Quaternion();
+                rot.setFromAxisAngle(new THREE.Vector3(data.axis === "x", data.axis === "y", data.axis === "z"), data.angle);
+                for (let briq of data.briqs)
+                {
+                    pv.x = briq.position![0] + 0.5;
+                    pv.y = briq.position![1] + 0.5;
+                    pv.z = briq.position![2] + 0.5;
+                    let pos = pv.sub(data.rotationCenter);
+                    pos.applyQuaternion(rot);
+                    pos.add(data.rotationCenter);
+                    pos.x -= 0.5;
+                    pos.y -= 0.5;
+                    pos.z -= 0.5;
+
+                    // TODO: this can lead to duplicates or 'holes' in the target.
+                    // NB: because of numerical instability and rounding, we do a first pass of rounding.
+                    targetPos[briq._uuid] = { pos: pos.clone().multiplyScalar(2).round().divideScalar(2).round(), color: briq.color, material: briq.material };
+                    if (!isWithinBounds(targetPos[briq._uuid].pos.x, targetPos[briq._uuid].pos.y, targetPos[briq._uuid].pos.z))
+                        throw new Error("Cannot rotate, briqs would go out-of-bounds");
+                    targetPos[briq._uuid].pos = [targetPos[briq._uuid].pos.x, targetPos[briq._uuid].pos.y, targetPos[briq._uuid].pos.z];
+                }
+
+                let replacedBriqs = {} as { [key: string]: any };
+                for (let uid in targetPos)
+                {
+                    let briq = state.currentSet.getAt(...targetPos[uid].pos);
+                    // Ignore briqs that are part of the movement.
+                    if (briq && !targetPos[briq._uuid] && data.allow_overwrite)
+                        replacedBriqs[briq._uuid] = { pos: briq.position, color: briq.color, material: briq.material };
+                    else if (briq && !targetPos[briq._uuid] && !data.allow_overwrite)
+                        targetPos[uid] = undefined;
+                }
+                
+                let originalBriqs = [];
+                for (let briq of data.briqs)
+                    originalBriqs.push({ pos: briq.position, color: briq.color, material: briq.material })
+
+                const _do = function() {
+                    // Remove OG briqs
+                    let b = originalBriqs;
+                    commit("place_briqs", b.map(x => ({ pos: x.pos })))
+
+                    // Place new briqs.
+                    b = [];
+                    for (let uid in targetPos)
+                        if (targetPos[uid])
+                            b.push({ pos: targetPos[uid].pos, color: targetPos[uid].color, material: targetPos[uid].material, allow_overwrite: data.allow_overwrite })
+                    commit("place_briqs", b)
+
+                    let br = [];
+                    for (let uid in targetPos)
+                        if (targetPos[uid])
+                            br.push(state.currentSet.getAt(...targetPos[uid].pos));
+                    inputStore.selectionMgr.select(br);
+                    inputStore.selectionMgr.updateGraphics();
+                }
+                _do();
+                await store.dispatch("push_command_to_history", {
+                    action: "builderData/rotate_briqs",
+                    undo: () => {
+                        let b = [];
+                        for (let uid in targetPos)
+                            if (targetPos[uid])
+                                b.push({ pos: targetPos[uid].pos })
+                        commit("place_briqs", b)
+
+                        commit("place_briqs", originalBriqs);
+
+                        commit("place_briqs", Object.values(replacedBriqs));
+
+                        let br = originalBriqs.map(x => state.currentSet.getAt(...x.pos));
+                        inputStore.selectionMgr.select(br);
+                        inputStore.selectionMgr.updateGraphics();
+                    },
+                    redo: () => {
+                        _do();
+                    },
+                });
+            },
         },
         mutations: {
             select_set(state: any, data: string)
@@ -243,6 +328,7 @@ export var builderDataStore = (() => {
 })();
 
 registerUndoableAction("builderData/move_briqs", {}, () => "Move briqs")
+registerUndoableAction("builderData/rotate_briqs", {}, () => "Rotate briqs")
 
 registerUndoableAction("builderData/place_briqs", {
     onBefore: ({ transientActionState }: any, payload: { pos: [number, number, number], color?: string, material?: string }[], state: any) => {

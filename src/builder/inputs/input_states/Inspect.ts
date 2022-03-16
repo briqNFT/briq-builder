@@ -16,6 +16,53 @@ import type { HotkeyHandle } from '@/Hotkeys';
 import { watchEffect, WatchStopHandle } from 'vue';
 import { BoxSelection, VoxelAlignedSelection } from './SelectHelpers';
 
+var getRotationHelperMesh = (() => {
+    let mainMesh: THREE.Object3D;
+    return () => {
+        if (mainMesh)
+            return mainMesh;
+        mainMesh = new THREE.Object3D();
+        const RO = 2;
+        // Marked transparent for sorting.x
+        mainMesh.renderOrder = RO;
+
+        let cone = new THREE.TorusGeometry(4.0, 0.1, 6, 20);
+        //cone.translate(0, 1.5, 0);
+        let geometry = cone;
+
+        {
+            let material = new THREE.MeshPhongMaterial( { color: 0x002496, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let mesh = new THREE.Mesh(geometry, material);
+            mesh.renderOrder = RO;
+            mesh.rotateX(Math.PI/2);
+            //mesh.position.set(0, 1.0, 0.5);
+            mesh.userData = { dir: "y" };
+            mainMesh.add(mesh);
+        }
+        {
+            let material = new THREE.MeshPhongMaterial( { color: 0x962400, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let mesh = new THREE.Mesh(geometry, material);
+            mesh.renderOrder = RO;
+            //mesh.position.set(0, 0.5, 1.0);
+            //mesh.rotateX(Math.PI/2);
+            mesh.userData = { dir: "z" };
+            mainMesh.add(mesh);
+        }
+        {
+            let material = new THREE.MeshPhongMaterial( { color: 0x009624, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let mesh = new THREE.Mesh(geometry, material);
+            mesh.renderOrder = RO;
+            //mesh.position.set(1.0, 0.5, 0.5);
+            mesh.rotateY(-Math.PI/2);
+            mesh.userData = { dir: "x" };
+            mainMesh.add(mesh);
+        }
+        mainMesh.position.set(0, 5, 0);
+        mainMesh.visible = true;
+        return mainMesh;
+    };
+})();
+
 var getMovementHelperMesh = (() => {
     let mainMesh: THREE.Object3D;
     return () => {
@@ -69,6 +116,7 @@ export class InspectInput extends MouseInputState
     lastClickPos: [number, number, number] | undefined;
 
     mesh!: THREE.Object3D;
+    otherMesh!: THREE.Object3D;
 
     copyHotkey!: HotkeyHandle;
 
@@ -97,7 +145,9 @@ export class InspectInput extends MouseInputState
         if (this._canMove())
         {
             this.mesh = getMovementHelperMesh();
+            this.otherMesh = getRotationHelperMesh();
             inputObjects.add(this.mesh);
+            inputObjects.add(this.otherMesh);
         }
 
         // Update the movement gizmo when needed.
@@ -109,8 +159,12 @@ export class InspectInput extends MouseInputState
             if (!this.mesh)
                 return;
             this.mesh.visible = !!avgPos;
+            this.otherMesh.visible = !!avgPos;
             if (avgPos)
-                this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);    
+            {
+                this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);
+                this.otherMesh.position.set(avgPos.x, avgPos.y, avgPos.z);
+            }
         })
 
         this.fsm.hotkeyMgr.register("copy", { code: "KeyC", ctrl: true, onDown: true });
@@ -123,6 +177,7 @@ export class InspectInput extends MouseInputState
         this.gui.briq = undefined;
         selectionRender.hide();
         inputObjects.remove(this.mesh);
+        inputObjects.remove(this.otherMesh);
         this.fsm.hotkeyMgr.unsubscribe(this.copyHotkey);
     }
 
@@ -132,6 +187,7 @@ export class InspectInput extends MouseInputState
             return;
         let distance = camera.position.distanceTo(this.mesh.position);
         this.mesh.scale.setScalar(Math.max(1, distance / 30.0));
+        this.otherMesh.scale.setScalar(Math.max(1, distance / 30.0));
     }
 
     async onPointerMove(event: PointerEvent)
@@ -149,6 +205,25 @@ export class InspectInput extends MouseInputState
 
     async onPointerDown(event: PointerEvent)
     {
+        if (this._canMove())
+        {
+            let rc = new THREE.Raycaster();
+            rc.setFromCamera({ x: (event.clientX / window.innerWidth - 0.5) * 2, y: -(event.clientY / window.innerHeight - 0.5) * 2 }, camera);
+            let avgPos = this.fsm.store.selectionMgr.getCenterPos();
+            let objects = rc.intersectObject(this.mesh, true);
+            if (objects.length)
+            {
+                this.fsm.switchTo("drag", { x: event.clientX, y: event.clientY, startPos: avgPos, direction: objects[0].object.userData.dir });
+                return;
+            }
+            objects = rc.intersectObject(this.otherMesh, true);
+            if (objects.length)
+            {
+                this.fsm.switchTo("rotate", { x: event.clientX, y: event.clientY, startPos: avgPos, direction: objects[0].object.userData.dir });
+                return;
+            }
+        }
+
         if (event.altKey || event.shiftKey)
         {
             let mode = this.fsm.store.defaultSelectionMethod === 'BOX' ? (
@@ -159,20 +234,6 @@ export class InspectInput extends MouseInputState
             this.fsm.switchTo(mode, { switchBackTo: "inspect", x: event.clientX, y: event.clientY });
             return;
         }
-
-        if (!this.fsm.store.selectionMgr.selectedBriqs.length)
-            return;
-
-        if (!this._canMove())
-            return;
-        let rc = new THREE.Raycaster();
-        rc.setFromCamera({ x: (event.clientX / window.innerWidth - 0.5) * 2, y: -(event.clientY / window.innerHeight - 0.5) * 2 }, camera);
-        let objects = rc.intersectObject(this.mesh, true);
-        if (!objects.length)
-            return;
-
-        let avgPos = this.fsm.store.selectionMgr.getCenterPos();
-        this.fsm.switchTo("drag", { x: event.clientX, y: event.clientY, startPos: avgPos, direction: objects[0].object.userData.dir });
     }
 
     async onPointerUp(event: PointerEvent)
@@ -385,6 +446,182 @@ export class DragInput extends MouseInputState
                 allow_overwrite: this.fsm.store.briqOverlayMode === 'OVERWRITE',
             })
         } catch(err) {
+            console.error(err);
+            pushMessage(err);
+        } finally {
+            this.fsm.switchTo("inspect");
+        }
+    }
+}
+
+export class RotateInput extends MouseInputState
+{
+    startX!: number;
+    startY!: number;
+
+    startPos!: THREE.Vector3;
+    initialOffset!: THREE.Vector3;
+
+    direction!: string;
+    mesh!: THREE.Object3D;
+
+    min!: [number, number, number];
+    max!: [number, number, number];
+
+    ColorOK = new THREE.Color(0x002496);
+    ColorNOK = new THREE.Color(0xFF0000);
+    ColorOverlay = new THREE.Color(0xFFAA000);
+
+    onEnter(data: any) {
+        this.curX = data.x;
+        this.curY = data.y;
+        this.startX = this.curX;
+        this.startY = this.curY;
+
+        this.startPos = data.startPos;
+        this.direction = data.direction;
+
+        // The click may not be at the startPos origin, so we need to account for that offset.
+        this.initialOffset = this._getDelta({ clientX: this.curX, clientY: this.curY } as unknown as PointerEvent).sub(this.startPos);
+
+        this.mesh = getRotationHelperMesh();
+        this.mesh.position.set(this.startPos.x, this.startPos.y, this.startPos.z);
+        this.mesh.visible = true;
+        inputObjects.add(this.mesh);
+
+        let briqs = this.fsm.store.selectionMgr.selectedBriqs;
+        this.min = briqs[0].position!.slice();
+        this.max = briqs[0].position!.slice();
+        for (let i = 1; i < briqs.length; ++i)
+        {
+            if (briqs[i].position![0] > this.max[0]) this.max[0] = briqs[i].position![0];
+            if (briqs[i].position![0] < this.min[0]) this.min[0] = briqs[i].position![0];
+            if (briqs[i].position![1] > this.max[1]) this.max[1] = briqs[i].position![1];
+            if (briqs[i].position![1] < this.min[1]) this.min[1] = briqs[i].position![1];
+            if (briqs[i].position![2] > this.max[2]) this.max[2] = briqs[i].position![2];
+            if (briqs[i].position![2] < this.min[2]) this.min[2] = briqs[i].position![2];
+        }
+
+        selectionRender.show();
+        this.fsm.orbitControls.enabled = false;
+        document.body.style.cursor = 'grab';
+    }
+
+    onExit() {
+        selectionRender.hide();
+        selectionRender.parent.position.set(0, 0, 0);
+        selectionRender.parent.children[0].position.set(0, 0, 0);
+        selectionRender.parent.children[0].rotation.set(0, 0, 0);
+        selectionRender.parent.children[0].material.color = this.ColorOK;
+        document.body.style.cursor = "auto";
+        this.fsm.orbitControls.enabled = true;
+        inputObjects.remove(this.mesh);
+    }
+
+    _getDelta(event: PointerEvent)
+    {
+        let plane = new THREE.Plane(new THREE.Vector3(this.direction === "x", this.direction === "y", this.direction === "z"), -this.startPos[this.direction]);
+        let rc = new THREE.Raycaster();
+        rc.setFromCamera({ x: (event.clientX / window.innerWidth - 0.5) * 2, y: -(event.clientY / window.innerHeight - 0.5) * 2 }, camera);
+        var intersects = new THREE.Vector3();
+        if (!rc.ray.intersectPlane(plane, intersects))
+        {
+            // Depending on viewpoints, the user can aim off-place. In that case, assume the closest point to a rather faraway point in that direction.
+            rc.ray.at(10000, intersects);
+            let res = new THREE.Vector3();
+            plane.projectPoint(intersects, res);
+            intersects = res;
+        }
+        return intersects;
+    }
+
+    _specialClamp(res: THREE.Vector3) {
+        let x0 = this.startPos.x - this.min[0];
+        let y0 = this.startPos.y - this.min[1];
+        let z0 = this.startPos.z - this.min[2];
+        let x1 = this.max[0] - this.startPos.x + 1;
+        let z1 = this.max[2] - this.startPos.z + 1;
+        let canvasSize = this.canvasSize();
+        res.x = res.x < -canvasSize + x0 ? -canvasSize + x0 : (res.x >= canvasSize - x1 ? +canvasSize - x1 : res.x);
+        res.z = res.z < -canvasSize + z0 ? -canvasSize + z0 : (res.z >= canvasSize - z1 ? +canvasSize - z1 : res.z);
+        res.y = res.y < y0 ? y0 : res.y;
+        return res;
+    }
+
+    /* Straight from SO 'cause I can't geometry */
+    rotateAboutPoint(obj: THREE.Object3D, point: THREE.Vector3, axis: THREE.Vector3, theta: number, pointIsWorld: boolean) {
+        pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
+    
+        if(pointIsWorld)
+            obj.parent!.localToWorld(obj.position); // compensate for world coordinate
+    
+        obj.position.sub(point); // remove the offset
+        obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+        obj.position.add(point); // re-add the offset
+    
+        if(pointIsWorld)
+            obj.parent!.worldToLocal(obj.position); // undo world coordinates compensation
+    
+        obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+    }
+
+    async onPointerMove(event: PointerEvent)
+    {
+        let intersects = this._getDelta(event).sub(this.startPos);
+        // Get the signed angle (from SO)
+        let crossP = this.initialOffset.clone().cross(intersects);
+        let angle = Math.atan2(
+            crossP.dot(new THREE.Vector3(this.direction === "x", this.direction === "y", this.direction === "z")),
+            intersects.dot(this.initialOffset)
+        );
+        
+        if (!event.shiftKey)
+            angle = Math.round(angle * 2 / Math.PI) * Math.PI / 2;
+
+        selectionRender.parent.children[0].position.set(0, 0, 0);
+        selectionRender.parent.children[0].rotation.set(0, 0, 0);
+        this.rotateAboutPoint(selectionRender.parent.children[0], this.startPos, new THREE.Vector3(this.direction === "x", this.direction === "y", this.direction === "z"), angle, true)
+
+        // Color the mesh if there is an overlap or OOB.
+        let rot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(this.direction === "x", this.direction === "y", this.direction === "z"), angle);
+        let overlap = false;
+        let inBound = true;
+        let v = new THREE.Vector3();
+        for (let briq of this.fsm.store.selectionMgr.selectedBriqs) {
+            v.x = briq.position![0];
+            v.y = briq.position![1];
+            v.z = briq.position![2];
+            v.sub(this.startPos);
+            v.applyQuaternion(rot);
+            v.add(this.startPos);
+            if (!overlap && store.state.builderData.currentSet.getAt(Math.round(v.x), Math.round(v.y), Math.round(v.z)))
+                overlap = true;
+            if (inBound && !this.isWithinBounds(Math.round(v.x), Math.round(v.y), Math.round(v.z)))
+                inBound = false;
+        }
+        selectionRender.parent.children[0].material.color = inBound ? (overlap ? this.ColorOverlay : this.ColorOK) : this.ColorNOK;
+    }
+
+    async onPointerUp(event: PointerEvent)
+    {
+        try
+        {
+            let intersects = this._getDelta(event).sub(this.startPos);
+            // Get the signed angle (from SO)
+            let crossP = this.initialOffset.clone().cross(intersects);
+            let angle = Math.atan2(
+                crossP.dot(new THREE.Vector3(this.direction === "x", this.direction === "y", this.direction === "z")),
+                intersects.dot(this.initialOffset)
+            );
+            await store.dispatch("builderData/rotate_briqs", {
+                axis: this.direction,
+                angle: event.shiftKey ? angle : Math.round(angle * 2 / Math.PI) * Math.PI / 2,
+                rotationCenter: this.startPos,
+                briqs: this.fsm.store.selectionMgr.selectedBriqs,
+                allow_overwrite: this.fsm.store.briqOverlayMode === 'OVERWRITE',
+            })
+        } catch(err) {
+            console.error(err);
             pushMessage(err);
         } finally {
             this.fsm.switchTo("inspect");
