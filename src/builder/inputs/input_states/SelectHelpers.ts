@@ -119,19 +119,19 @@ export class VoxelAlignedSelection extends MouseInputState
         this.curY = data.y;
 
         this.initialClickPos = this.getIntersectionPos(this.curX, this.curY, !this.extruding)!;
-        if (!this.initialClickPos)
-            throw new Error("Error: VoxelAlignedSelection must have a well defined event position on entry");
-        if (this.initialClickPos[1] < 0)
+        if (this.initialClickPos)
+        {
+            if (this.initialClickPos[1] < 0)
             this.initialClickPos[1] = 0;
 
-        if (this.shouldClampToBounds)
-            this.initialClickPos = this.clampToBounds(...this.initialClickPos);
+            if (this.shouldClampToBounds)
+                this.initialClickPos = this.clampToBounds(...this.initialClickPos);
+        }
 
         this.currentClickPos = this.initialClickPos;
         this.updatePreviewCube();
 
         this.fsm.orbitControls.enabled = false;
-        getPreviewCube().visible = true;
         this.cancelHotkey = this.fsm.hotkeyMgr.subscribe("escape", () => { this.fsm.switchTo(this.switchBackTo); })
     }
 
@@ -144,8 +144,11 @@ export class VoxelAlignedSelection extends MouseInputState
     updatePreviewCube()
     {
         if (!this.currentClickPos)
+        {
+            getPreviewCube().visible = false;
             return;
-
+        }
+        getPreviewCube().visible = true;
         getPreviewCube().scale.set(Math.abs(this.initialClickPos[0] - this.currentClickPos[0]) + 1.1, Math.abs(this.initialClickPos[1] - this.currentClickPos[1]) + 1.1, Math.abs(this.initialClickPos[2] - this.currentClickPos[2]) + 1.1);
         getPreviewCube().position.set(
             ((this.initialClickPos[0] + this.currentClickPos[0]) / 2) + 0.5,
@@ -159,8 +162,16 @@ export class VoxelAlignedSelection extends MouseInputState
         this.currentClickPos = this.getIntersectionPos(this.curX, this.curY, !this.extruding);
         if (!this.currentClickPos)
             return;
+
         if (this.shouldClampToBounds)
             this.currentClickPos = this.clampToBounds(...this.currentClickPos);
+
+        if (!this.initialClickPos)
+        {
+            this.initialClickPos = this.currentClickPos;
+            if (this.initialClickPos[1] < 0)
+                this.initialClickPos[1] = 0;
+        }
 
         // Make it so that selecting floor-squares does something.
         if (!this.shouldClampToBounds && this.initialClickPos[1] === 0 && this.currentClickPos[1] === -1)
