@@ -183,8 +183,8 @@ export default defineComponent({
     },
     methods: {
         getAddr() {
-            if (this.$route.params.getAddress())
-                return this.$route.params.getAddress();
+            if (this.$route.params.address)
+                return this.$route.params.address;
             else
                 return toRef(this.$store.state.wallet, "userWalletAddress");
         },
