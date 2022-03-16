@@ -8,11 +8,19 @@ describe('Test SetData', () => {
     it('should calculate positions correctly', () => {
         let data = new SetData("");
 
+        {
+            let x = data.regionSize * data.regionSize - 1;
+            let y = data.regionSize * data.regionSize - 1;
+            let z = data.regionSize * data.regionSize - 1;
+            let [regionId, cellId] = data.computeIDs(x, y, z);
+            expect(data.to3DPos(regionId, cellId)).toEqual([x, y, z]);
+        }
+
         for (let i = 0; i < 20; ++i)
         {
-            let x = Math.floor(Math.random() * 100 - 50);
-            let y = Math.floor(Math.random() * 100 - 50);
-            let z = Math.floor(Math.random() * 100 - 50);
+            let x = Math.floor(Math.random() * data.regionSize * 2 - data.regionSize);
+            let y = Math.floor(Math.random() * data.regionSize * 2 - data.regionSize);
+            let z = Math.floor(Math.random() * data.regionSize * 2 - data.regionSize);
             let [regionId, cellId] = data.computeIDs(x, y, z);
             expect(data.to3DPos(regionId, cellId)).toEqual([x, y, z]);    
         }

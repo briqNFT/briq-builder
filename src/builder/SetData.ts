@@ -3,6 +3,14 @@ import type { ChainBriqs } from './ChainBriqs';
 
 import { markRaw } from 'vue';
 
+/**
+ * Because of how indices are computed for the 3D->1D bijection, we can support set sizes up to Region_Size^2
+ * However we have an upper limit because of the Javascript max int, of about 2^53-1.
+ * This works for values up to 10^5, which end up being 8*10^5^3, which is slightly under 2^53.
+ * (NB: the actual limit is slightly higher but I don't think we care at this point.)
+ */
+const REGION_SIZE = 100000;
+
 const SET_DATA_VERSION = 1;
 export class SetData
 {
@@ -26,7 +34,7 @@ export class SetData
         this.id = id;
         this.name = "";
 
-        this.regionSize = 10;
+        this.regionSize = REGION_SIZE;
         this.reset();
     }
 
@@ -45,7 +53,7 @@ export class SetData
         let ret: any = {};
         ret.id = this.id;
         ret.name = this.name;
-        ret.regionSize = 10;
+        ret.regionSize = this.regionSize;
         ret.version = SET_DATA_VERSION;
 
         ret.briqs = [];
