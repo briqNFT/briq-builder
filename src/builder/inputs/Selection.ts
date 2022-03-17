@@ -82,8 +82,10 @@ export class SelectionManager
 
     clear()
     {
+        let oldL = this.selectedBriqs.length;
         this.selectedBriqs = [];
-        selectionRender.update(this);
+        if (oldL)
+            selectionRender.update(this);
     }
 
     select(briqs: Briq[], add: boolean = false)

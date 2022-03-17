@@ -124,7 +124,8 @@ export var builderDataStore = (() => {
                     inputStore.selectionMgr.clear();
                     commit("place_briqs", removal);
                     commit("place_briqs", add);
-                    selectAtPos.forEach(x => inputStore.selectionMgr.add(...x))
+                    let br = selectAtPos.forEach(x => state.currentSet.getAt(...x));
+                    inputStore.selectionMgr.select(br);
                 };
                 _do();
                 await store.dispatch("push_command_to_history", {
