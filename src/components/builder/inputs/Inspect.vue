@@ -25,7 +25,7 @@ import Hotkey from "../../generic/Hotkey.vue";
         </div>
         <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Selection</h4>
         <div class="flex flex-col gap-1">
-            <div class="flex gap-1 justify-begin" v-if="featureFlags.early1_5_access">
+            <div class="flex gap-1 justify-begin">
                 <Btn :disabled="inputStore.defaultSelectionMethod !== 'BOX'" @click="inputStore.defaultSelectionMethod = 'VOXEL'"
                     tooltip="Shift-click selects briqs in a briq-aware mode. Use shift+alt for box selection."><i class="fas fa-cubes"></i></Btn>
                 <Btn :disabled="inputStore.defaultSelectionMethod === 'BOX'" @click="inputStore.defaultSelectionMethod = 'BOX'"
@@ -37,7 +37,6 @@ import Hotkey from "../../generic/Hotkey.vue";
             <Hotkey name="delete-1" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"></Hotkey>
             <Hotkey name="delete-2" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"></Hotkey>
         </div>
-        <template  v-if="featureFlags.early1_5_access">
         <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Move / Copy</h4>
         <div class="flex flex-col gap-1 my-2">
             <Btn tooltip="Overwrite any existing briq when moving or pasting briqs. If off, existing briqs will instead be kept."
@@ -45,7 +44,6 @@ import Hotkey from "../../generic/Hotkey.vue";
                 <label class="pointer-events-none"><input type="checkbox" v-model="overlayMode"> Overwrite</label>
             </Btn>
         </div>
-        </template>
     </div>
     <div v-if="fsm.selectionBox"
         class="bg-opacity-50 bg-white border-2 border-solid border-black fixed pointer-events-none"
