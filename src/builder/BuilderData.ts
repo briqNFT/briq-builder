@@ -124,7 +124,7 @@ export var builderDataStore = (() => {
                     inputStore.selectionMgr.clear();
                     commit("place_briqs", removal);
                     commit("place_briqs", add);
-                    let br = selectAtPos.forEach(x => state.currentSet.getAt(...x));
+                    let br = selectAtPos.map(x => state.currentSet.getAt(...x));
                     inputStore.selectionMgr.select(br);
                 };
                 _do();
