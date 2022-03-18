@@ -76,7 +76,7 @@ export default class VoxelWorld {
         let cell = this.cells[cellId];
         if (!cell) {
             const {cellSize} = this;
-            cell = new Uint8Array(cellSize * cellSize * cellSize);
+            cell = new Uint16Array(cellSize * cellSize * cellSize);
             this.cells[cellId] = cell;
         }
         return cell;

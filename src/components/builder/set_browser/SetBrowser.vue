@@ -157,6 +157,7 @@ export default defineComponent({
                         let set = new SetData(contents.id).deserialize(contents);
                         set.id = hexUuid();
                         setsManager.registerLocalSet(set);
+                        await this.$store.dispatch("builderData/select_set", set.id);
                     }
                 }
                 catch(err) {

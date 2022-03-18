@@ -14,6 +14,8 @@ export class MaterialByColor {
     material: THREE.MeshLambertMaterial;
     lightMapTexture: THREE.Texture;
 
+    size = 256;
+
     constructor()
     {
         this.index = 1;
@@ -49,18 +51,21 @@ export class MaterialByColor {
         if (color in this.colorIndex)
             return this.colorIndex[color];
         this.colorIndex[color] = this.index++;
+        if (this.index >= this.size * this.size)
+            throw new Error("ERROR - too many colors - only up to " + this.size * this.size + " colors are currently supported");
         this.updateTexture();
         return this.colorIndex[color];
     }
 
     getUV(index: number, uv: [number, number]): [number, number]
     {
-        return [((index % 16) + uv[0]*0.9) / 16 + 0.001, (Math.floor(index / 16) + uv[1]*0.9) / 16 + 0.001];
+        // We're using nearest filter, so make sure the UVs end up dead in the middle of the texture pixel.
+        return [((index % this.size) + uv[0]*0.2 + 0.4) / this.size, (Math.floor(index / this.size) + uv[1]*0.2 + 0.4) / this.size];
     }
 
     updateTexture()
     {
-        const data = new Uint8Array(16*16 * 4); // RGBA
+        const data = new Uint8Array(this.size * this.size * 4); // RGBA
         let i = 0;
         for (let col in this.colorIndex)
         {
@@ -73,7 +78,7 @@ export class MaterialByColor {
             data[i*4+3] = 255;
             ++i;
         }
-        const texture = new THREE.DataTexture(data, 16, 16, THREE.RGBAFormat, THREE.UnsignedByteType);
+        const texture = new THREE.DataTexture(data, this.size, this.size, THREE.RGBAFormat, THREE.UnsignedByteType);
         texture.magFilter = THREE.NearestFilter;
         texture.minFilter = THREE.NearestFilter;
         texture.needsUpdate = true;
