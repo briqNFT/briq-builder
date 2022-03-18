@@ -16,6 +16,8 @@ import {
     RenderPass,
     SSAARenderPass,
     SAOPass,
+    ShaderPass,
+    CopyShader,
 } from '@/three';
 
 export var camera: THREE.Camera;
@@ -191,7 +193,24 @@ function recreateRenderer(canvas, scene, camera)
         }
         */
     }
-    resizeRendererToDisplaySize(renderer, composer, camera);
+    {
+        let overlayScene = new THREE.Scene();
+        overlayScene.add(overlayObjects);
+        addLight(overlayScene, -1*5,  2*5,  -3*5);
+        const renderPass = new RenderPass(overlayScene, camera);
+        renderPass.clear = false;
+        renderPass.clearDepth = true;
+        composer.addPass(renderPass);
+    }    
+    
+    /* ThreeJS auto-renders the final pass to the screen directly, which breaks my scene layering. */
+    /* Instead, add a manual 'write to screen' pass */
+    {
+        var copyPass = new ShaderPass(CopyShader);
+        composer.addPass(copyPass);
+    }
+    console.log(composer);
+    //resizeRendererToDisplaySize(renderer, composer, camera);
     _takeScreenshot = _createTakeScreenshot(renderer, composer);
     return [renderer, composer];
 };
@@ -219,7 +238,7 @@ var scene: THREE.Scene;
 
 import { selectionRender } from '../inputs/Selection';
 
-export var inputObjects : THREE.Object3D;
+export var overlayObjects : THREE.Object3D;
 
 function setupScene(voxWorld)
 {
@@ -241,8 +260,6 @@ function setupScene(voxWorld)
         generatePlane(scene);
     }
     scene.add(getPreviewCube());
-
-    scene.add(inputObjects);
 
     voxWorld.scene = scene;
     for (let cid in voxWorld.cellIdToMesh)
@@ -328,7 +345,7 @@ export function render() {
 export async function main(canvas) {
     await THREE_SETUP;
     
-    inputObjects = new THREE.Object3D();
+    overlayObjects = new THREE.Object3D();
 
     const fov = 75;
     const aspect = 2;  // the canvas default
