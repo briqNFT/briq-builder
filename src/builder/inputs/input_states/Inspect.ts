@@ -146,6 +146,7 @@ export class InspectInput extends MouseInputState
         {
             this.mesh = getMovementHelperMesh();
             this.otherMesh = getRotationHelperMesh();
+            this.otherMesh.visible = featureFlags.rotate;
             overlayObjects.add(this.mesh);
             overlayObjects.add(this.otherMesh);
         }
@@ -159,7 +160,7 @@ export class InspectInput extends MouseInputState
             if (!this.mesh)
                 return;
             this.mesh.visible = !!avgPos;
-            this.otherMesh.visible = !!avgPos;
+            this.otherMesh.visible = !!avgPos && featureFlags.rotate;
             if (avgPos)
             {
                 this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);
