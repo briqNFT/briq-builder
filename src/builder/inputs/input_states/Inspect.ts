@@ -6,7 +6,7 @@ import { selectionRender } from '../Selection';
 import getPreviewCube from '@/builder/graphics/PreviewCube'
 import { THREE, BufferGeometryUtils } from '@/three';
 
-import { camera, inputObjects } from '../../graphics/Builder';
+import { camera, overlayObjects } from '../../graphics/Builder';
 
 import { featureFlags } from '@/FeatureFlags';
 import { pushMessage } from '@/Messages';
@@ -26,12 +26,12 @@ var getRotationHelperMesh = (() => {
         // Marked transparent for sorting.x
         mainMesh.renderOrder = RO;
 
-        let cone = new THREE.TorusGeometry(4.0, 0.1, 6, 20);
+        let cone = new THREE.TorusGeometry(4.0, 0.2, 6, 20);
         //cone.translate(0, 1.5, 0);
         let geometry = cone;
 
         {
-            let material = new THREE.MeshPhongMaterial( { color: 0x002496, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let material = new THREE.MeshPhongMaterial( { color: 0x002496, opacity: 0.9, transparent: true });
             let mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.rotateX(Math.PI/2);
@@ -40,7 +40,7 @@ var getRotationHelperMesh = (() => {
             mainMesh.add(mesh);
         }
         {
-            let material = new THREE.MeshPhongMaterial( { color: 0x962400, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let material = new THREE.MeshPhongMaterial( { color: 0x962400, opacity: 0.9, transparent: true });
             let mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             //mesh.position.set(0, 0.5, 1.0);
@@ -49,7 +49,7 @@ var getRotationHelperMesh = (() => {
             mainMesh.add(mesh);
         }
         {
-            let material = new THREE.MeshPhongMaterial( { color: 0x009624, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let material = new THREE.MeshPhongMaterial( { color: 0x009624, opacity: 0.9, transparent: true });
             let mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             //mesh.position.set(1.0, 0.5, 0.5);
@@ -78,7 +78,7 @@ var getMovementHelperMesh = (() => {
         let geometry = BufferGeometryUtils.mergeBufferGeometries([new THREE.BoxGeometry(0.2, 2, 0.2), cone]);
 
         {
-            let material = new THREE.MeshPhongMaterial( { color: 0x002496, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let material = new THREE.MeshPhongMaterial( { color: 0x002496, opacity: 0.9, transparent: true });
             let mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.position.set(0, 1.0, 0);
@@ -86,7 +86,7 @@ var getMovementHelperMesh = (() => {
             mainMesh.add(mesh);
         }
         {
-            let material = new THREE.MeshPhongMaterial( { color: 0x962400, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let material = new THREE.MeshPhongMaterial( { color: 0x962400, opacity: 0.9, transparent: true });
             let mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.position.set(0, 0, 1.0);
@@ -95,7 +95,7 @@ var getMovementHelperMesh = (() => {
             mainMesh.add(mesh);
         }
         {
-            let material = new THREE.MeshPhongMaterial( { color: 0x009624, opacity: 0.9, transparent: true, depthWrite: false, depthTest: false, });
+            let material = new THREE.MeshPhongMaterial( { color: 0x009624, opacity: 0.9, transparent: true });
             let mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.position.set(1.0, 0, 0);
@@ -146,8 +146,8 @@ export class InspectInput extends MouseInputState
         {
             this.mesh = getMovementHelperMesh();
             this.otherMesh = getRotationHelperMesh();
-            inputObjects.add(this.mesh);
-            inputObjects.add(this.otherMesh);
+            overlayObjects.add(this.mesh);
+            overlayObjects.add(this.otherMesh);
         }
 
         // Update the movement gizmo when needed.
@@ -176,8 +176,8 @@ export class InspectInput extends MouseInputState
         this.meshWatcher();
         this.gui.briq = undefined;
         selectionRender.hide();
-        inputObjects.remove(this.mesh);
-        inputObjects.remove(this.otherMesh);
+        overlayObjects.remove(this.mesh);
+        overlayObjects.remove(this.otherMesh);
         this.fsm.hotkeyMgr.unsubscribe(this.copyHotkey);
     }
 
@@ -338,7 +338,7 @@ export class DragInput extends MouseInputState
         this.mesh = getMovementHelperMesh();
         this.mesh.position.set(this.startPos.x, this.startPos.y, this.startPos.z);
         this.mesh.visible = true;
-        inputObjects.add(this.mesh);
+        overlayObjects.add(this.mesh);
 
         let briqs = this.fsm.store.selectionMgr.selectedBriqs;
         this.min = briqs[0].position!.slice();
@@ -363,7 +363,7 @@ export class DragInput extends MouseInputState
         selectionRender.parent.position.set(0, 0, 0);
         document.body.style.cursor = "auto";
         this.fsm.orbitControls.enabled = true;
-        inputObjects.remove(this.mesh);
+        overlayObjects.remove(this.mesh);
     }
 
     _getDelta(event: PointerEvent)
@@ -487,7 +487,7 @@ export class RotateInput extends MouseInputState
         this.mesh = getRotationHelperMesh();
         this.mesh.position.set(this.startPos.x, this.startPos.y, this.startPos.z);
         this.mesh.visible = true;
-        inputObjects.add(this.mesh);
+        overlayObjects.add(this.mesh);
 
         let briqs = this.fsm.store.selectionMgr.selectedBriqs;
         this.min = briqs[0].position!.slice();
@@ -515,7 +515,7 @@ export class RotateInput extends MouseInputState
         selectionRender.parent.children[0].material.color = this.ColorOK;
         document.body.style.cursor = "auto";
         this.fsm.orbitControls.enabled = true;
-        inputObjects.remove(this.mesh);
+        overlayObjects.remove(this.mesh);
     }
 
     _getDelta(event: PointerEvent)
