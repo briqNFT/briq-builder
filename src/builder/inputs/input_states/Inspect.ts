@@ -566,41 +566,49 @@ export class RotateInput extends MouseInputState
         obj.rotateOnAxis(axis, theta); // rotate the OBJECT
     }
 
+    roundAngle(angle: number)
+    {
+        let ninetyR = Math.round(angle * 2 / Math.PI) * Math.PI / 2;
+        if (Math.abs(angle) > Math.PI/8 && Math.abs(angle - ninetyR) < Math.PI / 8)
+            return [ninetyR, true];
+        return [angle, false];
+    }
+
     async onPointerMove(event: PointerEvent)
     {
         let intersects = this._getDelta(event).sub(this.startPos);
         // Get the signed angle (from SO)
         let crossP = this.initialOffset.clone().cross(intersects);
-        let angle = Math.atan2(
+        let rawAngle = Math.atan2(
             crossP.dot(new THREE.Vector3(this.direction === "x", this.direction === "y", this.direction === "z")),
             intersects.dot(this.initialOffset)
         );
-        
-        if (!event.shiftKey)
-            angle = Math.round(angle * 2 / Math.PI) * Math.PI / 2;
+        let [angle, isGoodAngle] = event.shiftKey ? [rawAngle, true] : this.roundAngle(rawAngle);
 
         selectionRender.parent.children[0].position.set(0, 0, 0);
         selectionRender.parent.children[0].rotation.set(0, 0, 0);
         this.rotateAboutPoint(selectionRender.parent.children[0], this.startPos, new THREE.Vector3(this.direction === "x", this.direction === "y", this.direction === "z"), angle, true)
 
-        // Color the mesh if there is an overlap or OOB.
+        // Color the mesh if there is an OOB.
         let rot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(this.direction === "x", this.direction === "y", this.direction === "z"), angle);
-        let overlap = false;
         let inBound = true;
-        let v = new THREE.Vector3();
-        for (let briq of this.fsm.store.selectionMgr.selectedBriqs) {
-            v.x = briq.position![0];
-            v.y = briq.position![1];
-            v.z = briq.position![2];
-            v.sub(this.startPos);
-            v.applyQuaternion(rot);
-            v.add(this.startPos);
-            if (!overlap && store.state.builderData.currentSet.getAt(Math.round(v.x), Math.round(v.y), Math.round(v.z)))
-                overlap = true;
-            if (inBound && !this.isWithinBounds(Math.round(v.x), Math.round(v.y), Math.round(v.z)))
-                inBound = false;
+        if (!event.shiftKey && !isGoodAngle)
+            inBound = false;
+        else
+        {
+            let v = new THREE.Vector3();
+            for (let briq of this.fsm.store.selectionMgr.selectedBriqs) {
+                v.x = briq.position![0];
+                v.y = briq.position![1];
+                v.z = briq.position![2];
+                v.sub(this.startPos);
+                v.applyQuaternion(rot);
+                v.add(this.startPos);
+                if (inBound && !this.isWithinBounds(Math.round(v.x), Math.round(v.y), Math.round(v.z)))
+                    inBound = false;
+            }
         }
-        selectionRender.parent.children[0].material.color = inBound ? (overlap ? this.ColorOverlay : this.ColorOK) : this.ColorNOK;
+        selectionRender.parent.children[0].material.color = inBound ? this.ColorOK : this.ColorNOK;
     }
 
     async onPointerUp(event: PointerEvent)
@@ -610,13 +618,19 @@ export class RotateInput extends MouseInputState
             let intersects = this._getDelta(event).sub(this.startPos);
             // Get the signed angle (from SO)
             let crossP = this.initialOffset.clone().cross(intersects);
-            let angle = Math.atan2(
+            let rawAngle = Math.atan2(
                 crossP.dot(new THREE.Vector3(this.direction === "x", this.direction === "y", this.direction === "z")),
                 intersects.dot(this.initialOffset)
             );
+            let [angle, isGoodAngle] = event.shiftKey ? [rawAngle, true] : this.roundAngle(rawAngle);
+            if (!isGoodAngle)
+            {
+                this.fsm.switchTo("inspect");
+                return;
+            }
             await store.dispatch("builderData/rotate_briqs", {
                 axis: this.direction,
-                angle: event.shiftKey ? angle : Math.round(angle * 2 / Math.PI) * Math.PI / 2,
+                angle: angle,
                 rotationCenter: this.startPos,
                 briqs: this.fsm.store.selectionMgr.selectedBriqs,
                 allow_overwrite: this.fsm.store.briqOverlayMode === 'OVERWRITE',
