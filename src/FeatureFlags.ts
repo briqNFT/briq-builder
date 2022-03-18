@@ -4,6 +4,7 @@ import { reactive, watchEffect } from 'vue';
 import { logDebug } from "./Messages";
 
 export const featureFlags = reactive({
+    rotate: false,
 });
 
 // No leading zeros
@@ -36,12 +37,15 @@ async function checkOnStore() {
         if (admins.indexOf(store?.store?.state?.wallet?.userWalletAddress) !== -1)
         {
             // Admin-only.
+            featureFlags.rotate = true;
         }
         else if (starBuilders.indexOf(store?.store?.state?.wallet?.userWalletAddress) !== -1)
         {
+            featureFlags.rotate = true;
         }
         else
         {
+            featureFlags.rotate = false;
         }
     })
 };
