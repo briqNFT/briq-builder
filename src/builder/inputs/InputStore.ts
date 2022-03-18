@@ -12,4 +12,7 @@ export const inputStore = reactive({
     currentColor: palettesMgr.getCurrent().getFirstColor(),
     defaultSelectionMethod: 'VOXEL' as ('BOX' | 'VOXEL'),
     briqOverlayMode: 'KEEP' as ('KEEP' | 'OVERWRITE'),
+    // If true, a fake element that grabs and stops all events is added to the DOM.
+    // Used notably so that selection ignores buttons.
+    grabFocus: false,
 });

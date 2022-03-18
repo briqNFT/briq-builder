@@ -1,6 +1,10 @@
 <template>
     <canvas id="backgroundgl" ref="canvas" v-on:pointermove="onPointerMove" v-on:pointerdown="onPointerDown"  v-on:pointerup="onPointerUp">
     </canvas>
+    <div :class="'fixed top-0 left-0 h-screen w-screen' + (fsmGrabsFocus ? '' : ' hidden')" style="z-index: 10000;"
+     v-on:pointermove="onPointerMove" v-on:pointerdown="onPointerDown"  v-on:pointerup="onPointerUp"
+    >
+    </div>
 </template>
 
 <script lang="ts">
@@ -25,6 +29,11 @@ export default defineComponent({
         builderInputFsm.initialize(this.$refs.canvas as HTMLCanvasElement, orbitControls.controls, inputStore, this.hotkeyMgr);
         this.setup = true;
         this.frame();
+    },
+    computed: {
+        fsmGrabsFocus() {
+            return inputStore.grabFocus;
+        }
     },
     methods: {
         frame() {

@@ -33,6 +33,8 @@ export class BoxSelection extends MouseInputState
     
         this.fsm.orbitControls.enabled = false;
 
+        this.fsm.store.grabFocus = true;
+
         selectionRender.show();
         this.cancelHotkey = this.fsm.hotkeyMgr.subscribe("escape", () => { this.fsm.switchTo(this.switchBackTo); })
     }
@@ -40,6 +42,7 @@ export class BoxSelection extends MouseInputState
     onExit() {
         this.fsm.hotkeyMgr.unsubscribe(this.cancelHotkey);
         selectionRender.hide();
+        this.fsm.store.grabFocus = false;
         this.fsm.orbitControls.enabled = true;
         this.fsm.gui.selectionBox = false;
     }
@@ -132,12 +135,14 @@ export class VoxelAlignedSelection extends MouseInputState
         this.updatePreviewCube();
 
         this.fsm.orbitControls.enabled = false;
+        this.fsm.store.grabFocus = true;
         this.cancelHotkey = this.fsm.hotkeyMgr.subscribe("escape", () => { this.fsm.switchTo(this.switchBackTo); })
     }
 
     onExit() {
         this.fsm.hotkeyMgr.unsubscribe(this.cancelHotkey);
         getPreviewCube().visible = false;
+        this.fsm.store.grabFocus = false;
         this.fsm.orbitControls.enabled = true;
     }
 
