@@ -209,7 +209,6 @@ function recreateRenderer(canvas, scene, camera)
         var copyPass = new ShaderPass(CopyShader);
         composer.addPass(copyPass);
     }
-    console.log(composer);
     //resizeRendererToDisplaySize(renderer, composer, camera);
     _takeScreenshot = _createTakeScreenshot(renderer, composer);
     return [renderer, composer];
