@@ -212,13 +212,13 @@ export class InspectInput extends MouseInputState
             rc.setFromCamera({ x: (event.clientX / window.innerWidth - 0.5) * 2, y: -(event.clientY / window.innerHeight - 0.5) * 2 }, camera);
             let avgPos = this.fsm.store.selectionMgr.getCenterPos();
             let objects = rc.intersectObject(this.mesh, true);
-            if (objects.length)
+            if (objects.length && this.mesh.visible)
             {
                 this.fsm.switchTo("drag", { x: event.clientX, y: event.clientY, startPos: avgPos, direction: objects[0].object.userData.dir });
                 return;
             }
             objects = rc.intersectObject(this.otherMesh, true);
-            if (objects.length)
+            if (objects.length && this.otherMesh.visible)
             {
                 this.fsm.switchTo("rotate", { x: event.clientX, y: event.clientY, startPos: avgPos, direction: objects[0].object.userData.dir });
                 return;
