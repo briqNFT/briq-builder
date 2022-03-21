@@ -24,6 +24,7 @@ import SettingsVue from './Settings.vue';
 import builderSettings from '../../../builder/graphics/Settings';
 
 import { defineComponent } from 'vue';
+import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 export default defineComponent({
     data() {
         return {
@@ -35,14 +36,14 @@ export default defineComponent({
     },
     mounted() {
         this.oldInput = inputStore.currentInput;
-        inputStore.currentInput = "camera";
+        builderInputFsm.switchTo("inspect");
         inputStore.forceInput = true;
         // Hide the modal itself (the teleported stuff isn't affected)
         this.$emit('hide');
         setOnlyShowLast(true);
     },
     unmounted() {
-        inputStore.currentInput = this.oldInput;
+        builderInputFsm.switchTo(this.oldInput);
         inputStore.forceInput = false;
         setOnlyShowLast(false);
         this.builderSettings.transparentBackground = false;

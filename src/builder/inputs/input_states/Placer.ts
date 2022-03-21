@@ -7,9 +7,9 @@ import { THREE } from '@/three';
 import { VoxelAlignedSelection } from './SelectHelpers';
 
 import { watchEffect } from 'vue';
-import { MATERIAL_GENESIS } from '@/builder/ChainBriqs';
+import { CONF } from '@/Conf';
 
-const MATERIAL = MATERIAL_GENESIS;
+const MATERIAL = CONF.defaultMaterial;
 
 export class PlacerInput extends MouseInputState
 {
@@ -84,5 +84,43 @@ export class PlacerMultiInput extends VoxelAlignedSelection
                     if (!store.state.builderData.currentSet.getAt(x, y, z))
                         briqs.push({ pos: [x, y, z], color: inputStore.currentColor, material: MATERIAL });
         await store.dispatch("builderData/place_briqs", briqs);
+    }
+}
+
+export class NFTPlacerInput extends PlacerInput
+{
+    token_data!: { material: string, token_id: string };
+
+    onEnter(data: { material: string, token_id: string })
+    {
+        super.onEnter();
+        this.token_data = data;
+        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(0x002496);
+    }
+    
+    async onPointerMove(event: PointerEvent)
+    {
+        super.onPointerMove(event);
+        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(0x002496);
+    }
+
+    async onPointerUp(event: PointerEvent)
+    {
+        let mov = Math.abs(event.clientX - this.lastClickX) + Math.abs(event.clientY - this.lastClickY);
+        if (mov > 10)
+            return;
+        
+        const removing = event.button !== 0;
+        const pos = this.getIntersectionPos(this.curX, this.curY, removing);
+        if (!pos || !this.isWithinBounds(...pos))
+            return;
+        try {
+            let data = removing ? { pos } : { pos, color: inputStore.currentColor, material: this.token_data.material, id: this.token_data.token_id };
+            await store.dispatch("builderData/place_briqs", [data]);
+            // Update the preview cursor in a few milliseconds to let the world update.
+            // Use the 'non event updating version' so the cube doesn't accidentally jump back.
+            setTimeout(() => this.onPointerMove(event), 100);
+            this.fsm.switchTo("place");
+        } catch(_) {}
     }
 }

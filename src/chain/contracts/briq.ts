@@ -1,6 +1,8 @@
 import type { AddTransactionResponse } from 'starknet';
 import type { Provider, Signer } from 'starknet';
 
+import { toHex } from 'starknet/utils/number';
+
 import BriqABI from './testnet/briq_impl.json'
 
 import ExtendedContract from './Abstraction'
@@ -40,7 +42,7 @@ export default class BriqContract
             let res = await this.contract.balanceDetailsOf(owner, material);
             return {
                 ft_balance: parseInt(res.ft_balance),
-                nft_ids: res.nft_ids.toString() as string[]
+                nft_ids: res.nft_ids.map(x => toHex(x)) as string[]
             }
         } catch(err) {
             throw err;

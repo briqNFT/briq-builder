@@ -20,8 +20,16 @@
             <p><input v-model="newSetImpl" type="text"> <Btn @click="setImpl(contractStore.set, newSetImpl)">Set new implementation</Btn></p>
             <p class="font-mono">Briq proxy: {{ contractStore.briq?.getAddress() }} -> {{ getBriqImpl }}</p>
             <p><input v-model="newBriqImpl" type="text"> <Btn @click="setImpl(contractStore.briq, newBriqImpl)">Set new implementation</Btn></p>
-
         </div>
+        <div class="my-4">
+            <h3>Custom Write Call:</h3>
+            <p><select v-model="cc_contract"><option value="set">set</option><option value="briq">briq</option></select></p>
+            <p>Function: <input type="text" v-model="selector"/></p>
+            <p>Calldata (csv): <input type="text" v-model="calldata"/></p>
+            <p><Btn :disabled="cc_pending" @click="customCall">Call</Btn><i v-if="cc_pending" class="fas fa-spinner animate-spin"></i></p>
+            <p v-if="customResult">Result: {{ JSON.stringify(customResult) }}</p>
+        </div>
+
     </div>
 </template>
 
@@ -62,6 +70,12 @@ export default defineComponent({
 
             newSetImpl: "",
             newBriqImpl: "",
+
+            cc_contract: "set",
+            selector: "",
+            calldata: "",
+            customResult: "",
+            cc_pending: false,
         }
     },
     computed: {
@@ -95,7 +109,7 @@ export default defineComponent({
         async setImpl(contract: any, address: string) {
             if (this.$store.state.wallet.signer.signer)
             {
-                (this.$store.state.wallet.signer as AccountInterface).execute({
+                await (this.$store.state.wallet.signer as AccountInterface).execute({
                     contractAddress: contract.getAddress(),
                     entrypoint: "setImplementation",
                     calldata: []
@@ -110,7 +124,23 @@ export default defineComponent({
                 );
                 pushMessage(JSON.stringify(tx));
             }
-        }
+        },
+
+        async customCall() {
+            this.cc_pending = true;
+            try {
+                this.customResult = "";
+                let tx = await (this.$store.state.wallet.signer as AccountInterface).execute({
+                    contractAddress: (this.cc_contract === "set" ? contractStore.set : contractStore.briq).getAddress(),
+                    entrypoint: this.selector,
+                    calldata: this.calldata.split(",").filter(x => x).map((x: string) => toBN(x.trim()).toString())
+                });
+                this.customResult = `${tx.code} ${tx.transaction_hash}`;
+            } catch(err) {
+                this.customResult = err.toString();
+            }
+            this.cc_pending = false;
+        },
     }
 })
 </script>

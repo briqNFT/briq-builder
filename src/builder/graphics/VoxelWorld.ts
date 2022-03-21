@@ -4,27 +4,27 @@ import { THREE } from '@/three';
 import { MaterialByColor } from './Materials';
 export default class VoxelWorld {
     cellSize: number;
-    tileSize: number;
-    nbMaterial: number;
     materialByColor: MaterialByColor;
-    tileTextureHeight: number;
     cellSliceSize: number;
     cells: object;//Map<number, Uint8Array>;
     cellIdToMesh: Object;
-    scene: any;
+
+    dirtyCells: Set<string>;
+
+    object: THREE.Object3D;
+
     static faces: Array<any>;
     
-    constructor(options) {
+    constructor(options: { cellSize: number }) {
         this.cellSize = options.cellSize;
-        this.tileSize = options.tileSize;
-        this.nbMaterial = options.nbMaterial;
-        this.tileTextureHeight = options.tileTextureHeight;
         const {cellSize} = this;
         this.cellSliceSize = cellSize * cellSize;
         this.cells = {};
-        
         this.cellIdToMesh = {};
-        this.scene = null;
+
+        this.dirtyCells = new Set();
+
+        this.object = new THREE.Object3D();
 
         this.materialByColor = new MaterialByColor();
     }
@@ -37,6 +37,12 @@ export default class VoxelWorld {
             this.updateCellGeometry(...cell.split(',').map(x => +x * this.cellSize));
     }
 
+    updateDirty()
+    {
+        this.dirtyCells.forEach(x => this.updateCellGeometry(...x.split(',').map(x => +x * this.cellSize)));
+        this.dirtyCells.clear();
+    }
+
     computeVoxelOffset(x, y, z) {
         const {cellSize, cellSliceSize} = this;
         const voxelX = THREE.MathUtils.euclideanModulo(x, cellSize) | 0;
@@ -47,11 +53,12 @@ export default class VoxelWorld {
         voxelX;
     }
     
+    _computeCellCoords(x: number, y: number, z: number) {
+        return [Math.floor(x / this.cellSize), Math.floor(y / this.cellSize), Math.floor(z / this.cellSize)];
+    }
+
     computeCellId(x, y, z) {
-        const {cellSize} = this;
-        const cellX = Math.floor(x / cellSize);
-        const cellY = Math.floor(y / cellSize);
-        const cellZ = Math.floor(z / cellSize);
+        const [cellX, cellY, cellZ] = this._computeCellCoords(x, y, z);
         return `${cellX},${cellY},${cellZ}`;
     }
 
@@ -97,6 +104,17 @@ export default class VoxelWorld {
         const voxelOffset = this.computeVoxelOffset(x, y, z);
         const v = this.materialByColor.getIndex(color);
         cell[voxelOffset] = v;
+
+        this.dirtyCells.add(this.computeCellId(x, y, z));
+        // We might need to update neighboring regions because the meshes are optimised (no inside faces).
+        this.dirtyCells.add(this.computeCellId(x - 1, y - 1, z - 1));
+        this.dirtyCells.add(this.computeCellId(x - 1, y - 1, z + 1));
+        this.dirtyCells.add(this.computeCellId(x - 1, y + 1, z - 1));
+        this.dirtyCells.add(this.computeCellId(x - 1, y + 1, z + 1));
+        this.dirtyCells.add(this.computeCellId(x + 1, y - 1, z + 1));
+        this.dirtyCells.add(this.computeCellId(x + 1, y - 1, z - 1));
+        this.dirtyCells.add(this.computeCellId(x + 1, y + 1, z + 1));
+        this.dirtyCells.add(this.computeCellId(x + 1, y + 1, z - 1));
     }
     
     getVoxel(x, y, z) {
@@ -109,7 +127,7 @@ export default class VoxelWorld {
     }
     
     generateGeometryDataForCell(cellX, cellY, cellZ) {
-        const {cellSize, tileSize, tileTextureHeight} = this;
+        const { cellSize } = this;
 
         const positions = [];
         const normals = [];
@@ -197,8 +215,8 @@ export default class VoxelWorld {
             this.cellIdToMesh[cellId] = mesh;
             mesh.castShadow = true;
             mesh.receiveShadow = true;
-            this.scene.add(mesh);
             mesh.position.set(cellX * this.cellSize, cellY * this.cellSize, cellZ * this.cellSize);
+            this.object.add(mesh);
         }
     }
     

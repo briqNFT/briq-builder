@@ -1,6 +1,6 @@
 import { hexUuid } from '../Uuid';
 
-import { MATERIAL_GENESIS } from './ChainBriqs';
+import { CONF } from '@/Conf';
 export class Briq
 {
     // Chain metadata
@@ -20,7 +20,7 @@ export class Briq
     _uuid: string;
     position: undefined | [number, number, number] = undefined;
 
-    constructor(material: string = MATERIAL_GENESIS, color: string = "#C94A00")
+    constructor(material: string = CONF.defaultMaterial, color: string = "#C94A00")
     {
         // Unique identifier for the builder.
         this._uuid = hexUuid();
@@ -28,7 +28,7 @@ export class Briq
         this.color = color;
     }
 
-    setNFTid(id: string)
+    setNFTid(id?: string)
     {
         this.id = id;
         return this;
@@ -56,7 +56,7 @@ export class Briq
     {
         // Set some sane default values to recover from weird states.
         // (we had cases where briqs had no colors).
-        this.material = data.material || MATERIAL_GENESIS;
+        this.material = data.material || CONF.defaultMaterial;
         this.color = data.color || "#000000";
         if (data.id)
             this.id = data.id;

@@ -5,12 +5,11 @@ import type { Ref } from "vue";
 import { ticketing, isOutdated } from "../Async";
 import { logDebug, pushMessage } from "../Messages";
 import { reportError } from "../Monitoring";
-import { number } from 'starknet';
+
+import { CONF } from '@/Conf';
 
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number, nft_ids: string[] };
-
-export const MATERIAL_GENESIS = "0x1"
 
 class NotEnoughBriqs extends Error
 {
@@ -73,7 +72,7 @@ export class ChainBriqs
     }
 
     _getTokens = ticketing(async function (this: ChainBriqs) {
-        return await this.briqContract!.balanceDetailsOf(this.addr!, MATERIAL_GENESIS)
+        return await this.briqContract!.balanceDetailsOf(this.addr!, CONF.defaultMaterial)
     });
 
     async loadFromChain()
@@ -111,11 +110,11 @@ export class ChainBriqs
     parseChainData(balanceJSON: { ft_balance: string, nft_ids: string[] })
     {
         this.byMaterial = {};
-        this.byMaterial[MATERIAL_GENESIS] = { ft_balance: balanceJSON.ft_balance, nft_ids: balanceJSON.nft_ids };
+        this.byMaterial[CONF.defaultMaterial] = { ft_balance: balanceJSON.ft_balance, nft_ids: balanceJSON.nft_ids };
     }
 
     _getBalance = ticketing(async function (this: ChainBriqs) {
-        return await this.briqContract!.balanceOf(this.addr!, MATERIAL_GENESIS)
+        return await this.briqContract!.balanceOf(this.addr!, CONF.defaultMaterial)
     });
 
     async updateFastBalance()
@@ -133,7 +132,7 @@ export class ChainBriqs
 
     _getNbBriqs(material: string)
     {
-        return this.byMaterial?.[material]?.ft_balance ?? 0 + this.byMaterial?.[material]?.nft_ids?.length ?? 0;
+        return (this.byMaterial?.[material]?.ft_balance ?? 0) + (this.byMaterial?.[material]?.nft_ids?.length ?? 0);
     }
 
     getNbBriqs()
@@ -156,6 +155,17 @@ export class ChainBriqs
         {
             if (this.byMaterial[mat].ft_balance)
                 ret.push({ material: mat, qty: this.byMaterial[mat].ft_balance });
+            for (let token_id of this.byMaterial[mat].nft_ids)
+                ret.push({ material: mat, token_id })
+        }
+        return ret;
+    }
+
+    getNFTs(): { material: string, token_id: string }[]
+    {
+        let ret = [];
+        for (let mat in this.byMaterial)
+        {
             for (let token_id of this.byMaterial[mat].nft_ids)
                 ret.push({ material: mat, token_id })
         }

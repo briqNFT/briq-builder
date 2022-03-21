@@ -160,6 +160,7 @@ export class CopyPasteInput extends MouseInputState {
                 continue;
             }
             positions.push(bp);
+            // Explicitly do not copy NFT ids, for those cannot be duplicated.
             data.push({ pos: bp, color: briq.color, material: briq.material });
         }
         await store.dispatch('builderData/place_briqs', data);

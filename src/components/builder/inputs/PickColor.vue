@@ -6,12 +6,26 @@ import ColorManager from '../modals/ColorManager.vue';
 
 <template>
     <!-- Flex to occupy width-->
-    <div class="grid grid-rows-2 grid-flow-col md:flex md:flex-col gap-0.5">
+    <div :class="palette.getNbColors() < 20 ? 'grid grid-rows-2 grid-flow-col md:flex md:flex-col gap-0.5' : 'grid grid-cols-3 grid-flow-row gap-0.5'">
+        <div v-if="inputStore.currentInput.indexOf('place') !== -1" class="col-span-3 flex flex-col" v-for="value, key in availableNFTs" :key="key">
+            <Btn class='h-5 min-h-0 shadow-md m-0 p-0 leading-3'
+                :tooltip="'Place keystone'"
+                @click="pickNFT(value)"
+                :style="{
+                    'backgroundColor': '#555555',
+                    'border': (inputStore.currentInput == 'place_nft' ? '3px solid black' : '0px solid black') }"
+                >
+            Keystone
+            </Btn>
+        </div>
+
         <div class="flex flex-col" v-for="value, key in palette.colors" :key="key">
             <Btn class='h-5 min-h-0 shadow-md'
                 :tooltip="'Select color ' + value"
                 @click="pickColor(key)"
-                :style="{ 'backgroundColor': key, 'border': (currentColor === key ? '3px solid black' : '0px solid black') }"
+                :style="{
+                    'backgroundColor': key,
+                    'border': (inputStore.currentInput != 'place_nft' && currentColor === key ? '3px solid black' : '0px solid black') }"
                 >
             </Btn>
         </div>
@@ -26,20 +40,36 @@ import ColorManager from '../modals/ColorManager.vue';
 import { inputStore } from '../../../builder/inputs/InputStore';
 import { palettesMgr } from '../../../builder/Palette';
 import { pushModal } from '../../Modals.vue';
+import { builderInputFsm } from "../../../builder/inputs/BuilderInput"
+import type { ChainBriqs } from '@/builder/ChainBriqs';
 
 import { defineComponent, toRef } from 'vue'
 export default defineComponent({
+    inject:["messages", "chainBriqs"],
     data() {
         return {
             currentColor: toRef(inputStore, 'currentColor'),
         }
     },
     computed: {
+        inputStore() {
+            return inputStore;
+        },
         palette() {
             return palettesMgr.getCurrent();
+        },
+        availableNFTs() {
+            let nfts = (this.chainBriqs as ChainBriqs).getNFTs();
+            let briqs = this.$store.state.builderData.currentSet.getAllBriqs();
+            let av = [];
+            for (let nft of nfts)
+            {
+                if (!briqs.find(x => x.id === nft.token_id))
+                    av.push(nft);
+            }
+            return av;
         }
     },
-    inject:["messages"],
     methods:
     {
         pushModal,
@@ -57,7 +87,12 @@ export default defineComponent({
         },
         pickColor : function(key: string) {
             this.currentColor = key;
+            if (inputStore.currentInput === "place_nft")
+                builderInputFsm.switchTo("place");
         },
+        pickNFT(nft: any) {
+            builderInputFsm.switchTo("place_nft", nft);
+        }
     }
 })
 </script>
