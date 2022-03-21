@@ -31,7 +31,7 @@ html.dark {
     }
 
     .briq-logo {
-        @apply font-display font-semibold;
+        @apply font-display font-semibold select-none;
     }
 
     /* Overwrite the default outline color */
@@ -45,6 +45,7 @@ html.dark {
         @apply shadow-sm;
         @apply font-light;
         min-height: 2.5rem;
+        @apply select-none;
     }
     .btn:not(:disabled):hover {
         @apply border-b-2 border-deep-blue;
