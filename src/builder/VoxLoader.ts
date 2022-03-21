@@ -4,9 +4,8 @@ import { SetData } from './SetData';
 import { Briq } from './Briq';
 
 import { THREE } from '@/three';
-import { number } from 'starknet';
 import { nTRN, VoxStructure } from 'vox-reader/types/types';
-import { MATERIAL_GENESIS } from '@/builder/ChainBriqs';
+import { CONF } from '@/Conf';
 
 export class VoxLoader
 {
@@ -16,7 +15,7 @@ export class VoxLoader
 
     warnings: string[] = [];
 
-    material = MATERIAL_GENESIS;
+    material = CONF.defaultMaterial;
 
     constructor(fileData: ArrayBuffer)
     {

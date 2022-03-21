@@ -1,5 +1,5 @@
 import builderSettings from '../../graphics/Settings';
-import { getCameraRay, voxWorld } from "../../graphics/Builder"
+import { getIntersectionPos } from "../../graphics/SetRendering";
 import type { BuilderInputFSM } from '../BuilderInput'
 
 export class BuilderInputState
@@ -59,9 +59,7 @@ export class MouseInputState extends BuilderInputState
 
     _getIntersectionPos(x: number, y: number, overlay = false)
     {
-        let [start, end] = getCameraRay(...this.getCanvasRelativePosition(x, y));
-        const intersection = voxWorld.intersectRay(start, end);
-        return intersection;
+        return getIntersectionPos(...this.getCanvasRelativePosition(x, y));
     }
 
     getIntersectionPos(x: number, y: number, overlay = false): [number, number, number] | undefined

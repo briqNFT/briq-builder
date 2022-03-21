@@ -79,6 +79,7 @@ import { resetCamera } from '../../../builder/graphics/Builder'
 
 import { dispatchBuilderAction } from "../../../builder/graphics/Dispatch";
 import { inputStore } from "../../../builder/inputs/InputStore";
+import { getNameFromMaterial } from '@/Conf';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -131,8 +132,8 @@ export default defineComponent({
         moveX(delta: number) { this.move({ x: delta }); },
         moveY(delta: number) { this.move({ y: delta }); },
         moveZ(delta: number) { this.move({ z: delta }); },
-        mapMat(mat: number) {
-            return "standard";
+        mapMat(mat: string) {
+            return getNameFromMaterial(mat);
         },
         async openSwapModal(briqId: string) {
             let choice = await pushModal(BriqSwapModal, {

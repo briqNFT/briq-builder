@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import Button from '../generic/Button.vue';
 import InputComp from './InputComp.vue'
+import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 </script>
 
 <template>
     <div id="sideBar" class="flex flex-nowrap flex-col mx-4 md:py-20 py-12 absolute left-0 top-0 max-w-full max-h-screen justify-top pointer-events-none">
         <div v-if="!inputStore.forceInput" class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24 pointer-events-auto">
             <Btn v-if="editMode" tooltip="In 'Place' mode, left-click to place briqs, right-click to delete, hold SHIFT to place multiple briqs."
-                @click="inputStore.currentInput = 'place'" :disabled="inputStore.currentInput === 'place'"><i class="fas fa-cube"/></Btn>
+                @click="builderInputFsm.switchTo('place')" :disabled="isPlacing"><i class="fas fa-cube"/></Btn>
             <Btn v-if="editMode" tooltip="In 'Paint' mode, left-click to repaint briqs, right-click to sample the briq color, hold SHIFT to paint multiple briqs."
-                @click="inputStore.currentInput = 'paint'" :disabled="inputStore.currentInput === 'paint'"><i class="fas fa-paint-brush"/></Btn>
+                @click="builderInputFsm.switchTo('paint')" :disabled="isPainting"><i class="fas fa-paint-brush"/></Btn>
             <Btn v-if="editMode" tooltip="In 'Erase' mode, left-click to delete briqs, hold SHIFT to delete multiple briqs."
-                @click="inputStore.currentInput = 'erase'" :disabled="inputStore.currentInput === 'erase'"><i class="far fa-trash-alt"/></Btn>
+                @click="builderInputFsm.switchTo('erase')" :disabled="isErasing"><i class="far fa-trash-alt"/></Btn>
             <Btn v-if="editMode" tooltip="'Select' mode can be used to move or inspect briqs. Left-click to select, right-click to unselect."
-                @click="inputStore.currentInput = 'inspect'" :disabled="inputStore.currentInput === 'inspect'"><i class="fas fa-mouse-pointer"></i></Btn>
+                @click="builderInputFsm.switchTo('inspect')" :disabled="isInspecting"><i class="fas fa-mouse-pointer"></i></Btn>
         </div>
         <div id="inputComp" class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch pointer-events-auto">
             <InputComp/>
@@ -35,11 +36,16 @@ import { defineComponent } from "vue";
 export default defineComponent({
     data() {
         return {
-            inputStore
         };
     },
     inject: ["chainBriqs"],
     computed: {
+        inputStore() {
+            return inputStore;
+        },
+        builderInputFsm() {
+            return builderInputFsm;
+        },
         editMode() {
             return !inputStore.forceInput && setsManager.getInfo(this.$store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
         },
@@ -56,6 +62,18 @@ export default defineComponent({
             if (total === 1)
                 return '1 briq left';
             return total + ' briqs left';
+        },
+        isPlacing() {
+            return inputStore.currentInput.indexOf('place') !== -1
+        },
+        isPainting() {
+            return inputStore.currentInput.indexOf('paint') !== -1
+        },
+        isErasing() {
+            return inputStore.currentInput.indexOf('erase') !== -1
+        },
+        isInspecting() {
+            return ["inspect", "inspect_va", "inspect_box", "drag", "rotate", "copy_paste"].indexOf(inputStore.currentInput) !== -1;
         }
     }
 })

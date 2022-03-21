@@ -12,7 +12,7 @@ import { fetchData } from '../url';
 import { toRef, watch, watchEffect } from 'vue';
 import { logDebug, pushMessage } from '../Messages';
 
-import { MATERIAL_GENESIS } from './ChainBriqs';
+import { CONF } from '@/Conf';
 
 export type SET_STATUS = "ONCHAIN_ONLY" | "ONCHAIN_LOADED" | "ONCHAIN_EDITING" | "LOCAL";
 
@@ -400,7 +400,7 @@ export function checkForInitialGMSet()
             {"pos":[-3,3,0],"color":"#c5ac73"}
         ];
         for (let briqData of data)
-            set.placeBriq(...briqData.pos, new Briq(MATERIAL_GENESIS, briqData.color));
+            set.placeBriq(...briqData.pos, new Briq(CONF.defaultMaterial, briqData.color));
         setsManager.registerLocalSet(set);
         return set;
     }

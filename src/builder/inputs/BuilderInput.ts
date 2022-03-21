@@ -43,6 +43,7 @@ export class BuilderInputFSM
             this.state.lastY = oldState.lastY;
         }
         this.state._onEnter(data);
+        this.store.currentInput = state;
     }
 
     waitForInit = (() => {

@@ -19,13 +19,11 @@ export default defineComponent({
     inject: ["hotkeyMgr"],
     data() {
         return {
-            currentInput: undefined,
             setup: false,
         }
     },
     async mounted() {
         await main(this.$refs.canvas);
-        this.currentInput = toRef(inputStore, 'currentInput');
         builderInputFsm.initialize(this.$refs.canvas as HTMLCanvasElement, orbitControls.controls, inputStore, this.hotkeyMgr);
         this.setup = true;
         this.frame();
@@ -51,19 +49,6 @@ export default defineComponent({
             await builderInputFsm.onPointerUp(event);
         }
     },
-    watch: {
-        currentInput: {
-            immediate: true,
-            handler: function(newV, oldV)
-            {
-                if (!newV)
-                    return;
-                if (this.setup)
-                    builderInputFsm.switchTo(this.currentInput);
-            }
-        }
-    }
-
 });
 </script>
 

@@ -1,7 +1,8 @@
 import { Briq } from './Briq';
 import type { ChainBriqs } from './ChainBriqs';
-
 import { markRaw } from 'vue';
+
+import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
 /**
  * Because of how indices are computed for the 3D->1D bijection, we can support set sizes up to Region_Size^2
@@ -97,12 +98,12 @@ export class SetData
         return this;
     }
     
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
     getName() {
         return this.name || this.id;
     }
-
-    ////////////////////////////////////////////////
-    ////////////////////////////////////////////////
 
     forEach(callable: (cell: Briq, pos: [number, number, number]) => any)
     {
@@ -152,6 +153,7 @@ export class SetData
         briq.position = pos;
         og.position = undefined;
         this.briqs_ += 1;
+        dispatchBuilderAction("place_briq", { set: this.id, briq: briq.serialize(), position: pos });
         if (og.getMaterial() === briq.getMaterial())
             return;
         --this.usedByMaterial[og.getMaterial()];
@@ -168,6 +170,7 @@ export class SetData
         {
             cell.color = data.color;
             this.briqs_ += 1;
+            dispatchBuilderAction("place_briq", { set: this.id, briq: cell.serialize(), position: [x, y, z] });
         }
         return cell;
     }
@@ -198,6 +201,8 @@ export class SetData
         this.briqs_ += 1;
         this.usedByMaterial_ += 1;
 
+        dispatchBuilderAction("place_briq", { set: this.id, briq: briq.serialize(), position: [x, y, z] });
+
         return true;
     }
 
@@ -218,6 +223,8 @@ export class SetData
 
         this.briqs_ += 1;
         this.usedByMaterial_ += 1;
+
+        dispatchBuilderAction("remove_briq", { set: this.id, position: [x, y, z], briq: { id: briq.id } });
 
         return true;
     }
@@ -249,21 +256,6 @@ export class SetData
             ret.get(regionId).set(cellId, briq);
         });
         this.briqs = markRaw(ret);
-        this.briqs_ += 1;
-    }
-
-    moveAll(x: number, y: number, z: number)
-    {
-        let ret = new Map();
-        this.forEach((briq, pos) => {
-            let [regionId, cellId] = this.computeIDs(pos[0] + x, pos[1] + y, pos[2] + z);
-            if (!ret.has(regionId))
-                ret.set(regionId, new Map());
-            ret.get(regionId).set(cellId, briq);
-        })
-        this.briqs = markRaw(ret);
-        this.forEach((briq, pos) => briq.position = pos);
-
         this.briqs_ += 1;
     }
 
