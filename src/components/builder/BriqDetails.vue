@@ -18,12 +18,8 @@
 import { setsManager } from '../../builder/SetsManager';
 import contractStore from '@/chain/Contracts';
 import { reportError } from '../../Monitoring';
-import { ticketing } from '../../Async';
 
-import { MATERIAL_GENESIS } from '../../builder/ChainBriqs';
-
-import { defineComponent, watchEffect } from 'vue';
-import { ChainBriqs } from '../../builder/ChainBriqs';
+import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {

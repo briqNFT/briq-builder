@@ -29,11 +29,10 @@ export default class BriqContract
         return (await this.invoke("setMintContract", { address: contractStore.mint.address }));
     }*/
 
-    /*
     async mint(owner: string, qty: number)
     {
-        return await this.mintFT(owner, "1", `${qty}`);
-    }*/
+        return await this.contract.mintFT(owner, "1", `${qty}`);
+    }
 
     async balanceDetailsOf(owner: string, material: string)
     {

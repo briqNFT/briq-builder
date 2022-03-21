@@ -6,7 +6,7 @@
         <h1 class="text-center">Admin</h1>
         <div class="h-40 max-h-40 overflow-auto">
             <h3>Messages</h3>
-            <p v-for="mess in messages">{{ mess }}</p>
+            <p class="break-all" v-for="mess in messages">{{ mess }}</p>
         </div>
         <div>
             <h3>Minting</h3>
@@ -29,8 +29,27 @@
 import contractStore from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages'
 import { defineComponent } from 'vue';
-import type { Provider, Signer } from 'starknet';
-import { getSelectorFromName } from 'starknet/utils/stark';
+import type { AccountInterface, Provider, Signer } from 'starknet';
+import { getSelectorFromName } from 'starknet/utils/hash';
+import { store } from '@/store/Store';
+import { toBN } from 'starknet/utils/number';
+
+const callContract = function(provider: Provider, address: string, entryPoint: string, data: any[])
+{
+    /*if (!provider.estimateFee)
+        return provider.callContract({
+            contract_address: address,
+            entry_point_selector: getSelectorFromName(entryPoint),
+            calldata: data
+        })
+    */
+    return provider.callContract({
+        contractAddress: address,
+        calldata: data,
+        entrypoint: entryPoint,
+    })
+}
+
 
 export default defineComponent({
     data() {
@@ -54,20 +73,12 @@ export default defineComponent({
         },
         getSetImpl() {
             if (contractStore?.set?.getAddress())
-                (this.$store.state.wallet.provider as Provider).callContract({
-                    contract_address: contractStore.set.getAddress(),
-                    entry_point_selector: getSelectorFromName("getImplementation"),
-                    calldata: []
-                }).then(rep => this._setImpl = rep.result[0]);
+                callContract(this.$store.state.wallet.provider, contractStore.set.getAddress(), "getImplementation", []).then(rep => this._setImpl = rep.result[0]);
             return this._setImpl;
         },
         getBriqImpl() {
             if (contractStore?.briq?.getAddress())
-                (this.$store.state.wallet.provider as Provider).callContract({
-                    contract_address: contractStore.briq.getAddress(),
-                    entry_point_selector: getSelectorFromName("getImplementation"),
-                    calldata: []
-                }).then(rep => this._briqImpl = rep.result[0]);
+                callContract(this.$store.state.wallet.provider, contractStore.briq.getAddress(), "getImplementation", []).then(rep => this._briqImpl = rep.result[0]);
             return this._briqImpl;
         },
     },
@@ -82,12 +93,23 @@ export default defineComponent({
             pushMessage(JSON.stringify((await contractStore.briq?.mint(address, qty))) ?? "Failed to mint, contract is unset");
         },
         async setImpl(contract: any, address: string) {
-            let tx = await (this.$store.state.wallet.signer as Signer).invokeFunction(
-                contract.getAddress(),
-                getSelectorFromName("setImplementation"),
-                [address]
-            );
-            pushMessage(JSON.stringify(tx));
+            if (this.$store.state.wallet.signer.signer)
+            {
+                (this.$store.state.wallet.signer as AccountInterface).execute({
+                    contractAddress: contract.getAddress(),
+                    entrypoint: "setImplementation",
+                    calldata: []
+                });
+            }
+            else
+            {
+                let tx = await (this.$store.state.wallet.signer as Signer).invokeFunction(
+                    toBN(contract.getAddress()).toString(),
+                    toBN(getSelectorFromName("setImplementation")).toString(),
+                    [toBN(address).toString()]
+                );
+                pushMessage(JSON.stringify(tx));
+            }
         }
     }
 })
