@@ -7,8 +7,9 @@ import { THREE } from '@/three';
 import { VoxelAlignedSelection } from './SelectHelpers';
 
 import { watchEffect } from 'vue';
+import { MATERIAL_GENESIS } from '@/builder/ChainBriqs';
 
-const MATERIAL = "0x1";
+const MATERIAL = MATERIAL_GENESIS;
 
 export class PlacerInput extends MouseInputState
 {

@@ -6,6 +6,7 @@ import { Briq } from './Briq';
 import { THREE } from '@/three';
 import { number } from 'starknet';
 import { nTRN, VoxStructure } from 'vox-reader/types/types';
+import { MATERIAL_GENESIS } from '@/builder/ChainBriqs';
 
 export class VoxLoader
 {
@@ -14,6 +15,8 @@ export class VoxLoader
     colors: string[] = [];
 
     warnings: string[] = [];
+
+    material = MATERIAL_GENESIS;
 
     constructor(fileData: ArrayBuffer)
     {
@@ -36,7 +39,7 @@ export class VoxLoader
                 let offsetY = Math.floor(this.data.SIZE[i].y / 2);    
                 for (let voxel of this.data.XYZI[i].values)
                 {
-                    let briq = new Briq("0x1", this.colors[voxel.i - 1])
+                    let briq = new Briq(this.material, this.colors[voxel.i - 1])
                     this.set.placeBriq(this.data.SIZE[i].x - voxel.x - offsetX, voxel.z, voxel.y - offsetY, briq);
                 }
             }
@@ -58,7 +61,7 @@ export class VoxLoader
             let pos = [voxel.x + offset[0] - offsetX, voxel.z + offset[2] - offsetZ, this.data.SIZE[i].y - voxel.y + offset[1] - offsetY];
             if (this.set.getAt(...pos))
                 this.warnings.push(`Overlapping briqs at ${pos}. Only one will be kept.`)
-            let briq = new Briq("0x1", this.colors[voxel.i - 1])
+            let briq = new Briq(this.material, this.colors[voxel.i - 1])
             this.set.placeBriq(...pos, briq)
         }
     }

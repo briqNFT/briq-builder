@@ -20,7 +20,7 @@ export class Briq
     _uuid: string;
     position: undefined | [number, number, number] = undefined;
 
-    constructor(material: string = "0x1", color: string = "#C94A00")
+    constructor(material: string = MATERIAL_GENESIS, color: string = "#C94A00")
     {
         // Unique identifier for the builder.
         this._uuid = hexUuid();
