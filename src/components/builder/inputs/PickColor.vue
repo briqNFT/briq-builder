@@ -6,7 +6,8 @@ import ColorManager from '../modals/ColorManager.vue';
 
 <template>
     <!-- Flex to occupy width-->
-    <div :class="palette.getNbColors() < 20 ? 'grid grid-rows-2 grid-flow-col md:flex md:flex-col gap-0.5' : 'grid grid-cols-3 grid-flow-row gap-0.5'">
+        <div class="flex-1 overflow-auto">
+    <div :class="'' + (palette.getNbColors() < 20 ? 'grid grid-rows-2 grid-flow-col md:flex md:flex-col gap-0.5' : 'grid grid-cols-3 grid-flow-row gap-0.5')">
         <div v-if="inputStore.currentInput.indexOf('place') !== -1" class="col-span-3 flex flex-col" v-for="value, key in availableNFTs" :key="key">
             <Btn class='h-5 min-h-0 shadow-md m-0 p-0 leading-3'
                 :tooltip="'Place keystone'"
@@ -30,7 +31,8 @@ import ColorManager from '../modals/ColorManager.vue';
             </Btn>
         </div>
     </div>
-    <div class="mx-1 md:mx-0 md:my-1 flex md:flex-col gap-0.5">
+    </div>
+    <div class="flex-0 mx-1 md:mx-0 md:my-1 flex md:flex-col gap-0.5">
         <Btn @click="registerNewColor" tooltip="Add a new color to the curret palette.">New Color</Btn>
         <Btn @click="pushModal(ColorManager)" tooltip="Manage the color palette. Replace or delete colors.">Manage</Btn>
     </div>
