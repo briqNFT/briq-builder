@@ -36,7 +36,7 @@ h2 {
     content: "alpha";
     font-style: italic;
 
-    @apply bg-accent px-2 py-0.5 text-deep-blue text-sm;
+    @apply bg-accent px-2 py-0.5 text-text-on-accent text-sm;
     position: absolute;
     top: -1rem;
     right: -1rem;

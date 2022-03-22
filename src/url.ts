@@ -1,4 +1,10 @@
-import { DEV, PROD } from './Meta'
+import { DEV, APP_ENV } from './Meta'
+
+function getCanonicalDomain() {
+    if (window.location.hostname.indexOf("sltech") !== -1)
+        return "sltech.company";
+        "briq.construction";
+}
 
 export default function getBaseUrl()
 {
@@ -6,10 +12,11 @@ export default function getBaseUrl()
     if (DEV && true)
         return "https://api.test.sltech.company";
 
-    var baseUrl = "http://localhost:5050"
-    if (PROD)
-        baseUrl = "https://api." + window.location.hostname.replace("www.", "");
-    return baseUrl
+    return {
+        "dev": "http://localhost:5050",
+        "test": "https://api.test.sltech.company",
+        "prod": `https://api.${getCanonicalDomain()}`,
+    }[APP_ENV];
 }
 
 var baseUrl = getBaseUrl();

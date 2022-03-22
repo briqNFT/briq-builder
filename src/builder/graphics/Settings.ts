@@ -1,7 +1,9 @@
 import { reactive, watchEffect, markRaw } from 'vue';
 
-import { useDarkMode } from '../../DarkMode';
-import { logDebug } from '../../Messages';
+import { useDarkMode } from '@/DarkMode';
+import { logDebug } from '@/Messages';
+
+import { CONF } from '@/Conf';
 
 class Settings
 {
@@ -31,9 +33,9 @@ class Settings
         this.useSAO = false;
         this.useRealAA = false;
         // If you change these, change settings.vue
-        this.planeColor = useDarkMode() ? "#591f00" : "#a93a00";
-        this.gridColor = useDarkMode() ? "#999999" : "#eaeaea";
-        this.backgroundColor = useDarkMode() ? "#1e2229" : "#eaeaea";
+        this.planeColor = useDarkMode() ? CONF.builderSettings.darkMode.planeColor : CONF.builderSettings.lightMode.planeColor;
+        this.gridColor = useDarkMode() ? CONF.builderSettings.darkMode.gridColor : CONF.builderSettings.lightMode.gridColor;
+        this.backgroundColor = useDarkMode() ? CONF.builderSettings.darkMode.backgroundColor : CONF.builderSettings.lightMode.backgroundColor;
         this.showBorders = false;
         this.showPlane = true;
         this.showGrid = true;
@@ -53,6 +55,25 @@ class Settings
             let val = window.localStorage.getItem("setting_" + key);
             if (val)
                 this[key] = JSON.parse(val);
+        }
+    }
+
+    /* Check if we need to update something */
+    onDarkModeUpdate()
+    {
+        const light = CONF.builderSettings.lightMode;
+        const dark = CONF.builderSettings.darkMode;
+        if (useDarkMode() && this.planeColor === light.planeColor && this.gridColor === light.gridColor && this.backgroundColor === light.backgroundColor)
+        {
+            builderSettings.planeColor = dark.planeColor;
+            builderSettings.gridColor = dark.gridColor;
+            builderSettings.backgroundColor = dark.backgroundColor;
+        }
+        else if (!useDarkMode() && this.planeColor === dark.planeColor && this.gridColor === dark.gridColor && this.backgroundColor === dark.backgroundColor)
+        {
+            builderSettings.planeColor = light.planeColor;
+            builderSettings.gridColor = light.gridColor;
+            builderSettings.backgroundColor = light.backgroundColor;
         }
     }
 

@@ -1,6 +1,7 @@
 import Legal from './components/Legal.vue'
 import LandingPage from './components/landing_page/LandingPage.vue'
 import Team from './components/team/Team.vue'
+import { CONF } from './Conf';
 
 var loader;
 async function loadExtraPages()
@@ -15,11 +16,6 @@ setTimeout(loadExtraPages, 5000);
 
 export const routes = [
     {
-        path: "/",
-        name: "Landing",
-        component: LandingPage,
-    },
-    {
         path: "/legal",
         name: "Legal",
         component: Legal,
@@ -28,11 +24,6 @@ export const routes = [
         path: "/team",
         name: "Team",
         component: Team
-    },
-    {
-        path: "/builder",
-        name: "Builder",
-        component: async () => { await loadExtraPages(); return loader.Builder },
     },
     {
         path: "/admin",
@@ -58,3 +49,27 @@ export const routes = [
         component: async () => { await loadExtraPages(); return loader.Gallery },
     },
 ];
+
+if (CONF.useLanding)
+{
+    routes.push({
+        path: "/",
+        name: "Landing",
+        component: LandingPage,
+    });
+    routes.push({
+        path: "/builder",
+        name: "Builder",
+        component: async () => { await loadExtraPages(); return loader.Builder },
+    });
+} else {
+    routes.push({
+        path: "/",
+        name: "Builder",
+        component: async () => { await loadExtraPages(); return loader.Builder },
+    })
+    routes.push({
+        path: "/builder",
+        redirect: "/",
+    });
+}

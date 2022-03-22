@@ -25,8 +25,9 @@ module.exports = {
             colors: {
                 base: withOpacityValue('--color-base'),
                 accent: withOpacityValue('--color-accent'),
-                text:  withOpacityValue('--color-text'),
                 darker:  withOpacityValue('--color-darker'),
+                text:  withOpacityValue('--color-text'),
+                'text-on-accent':  withOpacityValue('--color-text-on-accent'),
                 'deep-blue': '#0D0845',
                 // Not recommended:
                 'briq': "#EB5600",
