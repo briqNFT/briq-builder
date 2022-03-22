@@ -186,7 +186,7 @@ export default defineComponent({
             return !!this.$store.state.wallet.signer;
         },
         needMinting() {
-            return !mintProxyStore.hasMinted;
+            return !mintProxyStore.hasMinted && (!this.hasBriqsAndSets || this.notEnoughBriqs);
         },
         hasBriqsAndSets() {
             return this.chainBriqs.status === 'OK';
