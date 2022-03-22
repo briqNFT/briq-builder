@@ -8,7 +8,11 @@ metadata:
   annotations:
     kubernetes.io/ingress.global-static-ip-name: #@ data.values.static_ip
     networking.gke.io/v1beta1.FrontendConfig: #@ data.values.name
-    networking.gke.io/managed-certificates: #@ data.values.name + "-managed-cert"
+    #@ certificates = []
+    #@ for i in range(len(data.values.sites)):
+    #@ certificates.append(data.values.name + "-managed-cert-" + str(i))
+    #@ end
+    networking.gke.io/managed-certificates: #@ ','.join(certificates)
 spec:
   rules:
 #@ arr = data.values.sites
@@ -34,10 +38,13 @@ spec:
   redirectToHttps:
     enabled: true
     responseCodeName: "PERMANENT_REDIRECT"
+#@ arr = data.values.sites
+#@ for i in range(len(arr)):
 ---
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
-  name: #@ data.values.name + "-managed-cert"
+  name: #@ data.values.name + "-managed-cert-" + str(i)
 spec:
-  domains: #@ data.values.sites
+  domains: #@ [arr[i]]
+#@ end

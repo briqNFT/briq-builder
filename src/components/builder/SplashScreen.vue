@@ -1,6 +1,7 @@
 <template>
   <div id="floatingMenu" :class="hidden">
-    <h1 class="font-bold p-8 briq-logo">briq</h1>
+    <h1 v-if="CONF.theme === 'realms'" class="font-bold p-8 briq-logo">briq x Realms</h1>
+    <h1 v-else="" class="font-bold p-8 briq-logo">briq</h1>
     <h2>Seize the briqs of construction</h2>
     <!--
     <PickMaterial/>
@@ -20,6 +21,7 @@ export default defineComponent({
     data() {
         return localStore;
     },
+    inject: ["CONF"],
     props: ["shouldHide"],
     emit: ["done"],
     mounted: function() {

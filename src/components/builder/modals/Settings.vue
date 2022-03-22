@@ -73,18 +73,7 @@ export default defineComponent({
             deep: true,
         },
         forceMode() {
-            if (useDarkMode() && builderSettings.planeColor === "#a93a00" && builderSettings.gridColor === "#eaeaea" && builderSettings.backgroundColor === "#eaeaea")
-            {
-                builderSettings.planeColor = "#591f00";
-                builderSettings.gridColor = "#999999";
-                builderSettings.backgroundColor = "#1e2229";
-            }
-            else if (!useDarkMode() && builderSettings.planeColor === "#591f00" && builderSettings.gridColor === "#999999" && builderSettings.backgroundColor === "#1e2229")
-            {
-                builderSettings.planeColor = "#a93a00";
-                builderSettings.gridColor = "#eaeaea";
-                builderSettings.backgroundColor = "#eaeaea";
-            }
+            builderSettings.onDarkModeUpdate();
         }
     },
     methods: {

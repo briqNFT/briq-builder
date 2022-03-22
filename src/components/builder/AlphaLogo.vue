@@ -1,9 +1,20 @@
 <template>
     <div class="absolute bottom-0 right-0 p-2">
         <a target="_blank" href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3">
-            <h5 class="text-5xl font-bold drop-shadow-lg px-4 py-6 alpha-pill briq-logo">briq</h5></a>
+            <h5 v-if="CONF.theme === 'realms'" class="text-5xl font-bold drop-shadow-lg px-4 py-6 alpha-pill briq-logo flex flex-col items-center leading-[3rem]">
+                <span>briq</span><span class="text-3xl leading-[1.5rem]">x</span><span>Realms</span>
+            </h5>
+            <h5 v-else="" class="text-5xl font-bold drop-shadow-lg px-4 py-6 alpha-pill briq-logo">briq</h5>
+        </a>
     </div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from 'vue';
+export default defineComponent({
+    inject: ["CONF"],
+})
+</script>
 
 <style scoped>
 .alpha-pill {
@@ -14,7 +25,7 @@
     content: "alpha";
     font-style: italic;
 
-    @apply bg-accent px-2 py-0.5 text-deep-blue text-sm;
+    @apply bg-accent px-2 py-0.5 text-text-on-accent text-sm leading-5;
     position: absolute;
     bottom: 0;
     right: 0;
