@@ -6,6 +6,7 @@ import type { HotkeyHandle } from '@/Hotkeys';
 import { SelectionManager, selectionRender } from '../Selection';
 import { THREE } from '@/three';
 import { pushMessage } from '@/Messages';
+import { number } from 'starknet';
 
 export class CopyPasteInput extends MouseInputState {
     lastClickPos: [number, number, number] | undefined;
@@ -13,6 +14,7 @@ export class CopyPasteInput extends MouseInputState {
     selectionCenter!: THREE.Vector3
     min!: [number, number, number];
     max!: [number, number, number];
+    boundingBoxCenter!: [number, number, number];
 
     ColorOK = new THREE.Color(0x002496);
     ColorOverlay = new THREE.Color(0xFFAA000);
@@ -37,6 +39,7 @@ export class CopyPasteInput extends MouseInputState {
             if (briqs[i].position![2] > this.max[2]) this.max[2] = briqs[i].position![2];
             if (briqs[i].position![2] < this.min[2]) this.min[2] = briqs[i].position![2];
         }
+        this.boundingBoxCenter = [(this.max[0] + this.min[0]) / 2 + 0.5, (this.max[1] + this.min[1]) / 2 + 0.5,  (this.max[2] + this.min[2]) / 2 + 0.5]
         this.cancelHotkey = this.fsm.hotkeyMgr.subscribe("escape", () => { this.fsm.switchTo("inspect"); })
         this.fsm.hotkeyMgr.register("paste", { code: "KeyV", ctrl: true });
         this.pasteHotkey = this.fsm.hotkeyMgr.subscribe("paste", () => { this.doPaste(); })
@@ -53,11 +56,11 @@ export class CopyPasteInput extends MouseInputState {
     }
 
     _specialClamp(res: [number, number, number]) {
-        let x0 = this.selectionCenter.x - this.min[0];
-        let y0 = this.selectionCenter.y - this.min[1];
-        let z0 = this.selectionCenter.z - this.min[2];
-        let x1 = this.max[0] - this.selectionCenter.x + 1;
-        let z1 = this.max[2] - this.selectionCenter.z + 1;
+        let x0 = this.boundingBoxCenter[0] - this.min[0];
+        let y0 = this.boundingBoxCenter[1] - this.min[1];
+        let z0 = this.boundingBoxCenter[2] - this.min[2];
+        let x1 = this.max[0] - this.boundingBoxCenter[0] + 1;
+        let z1 = this.max[2] - this.boundingBoxCenter[2] + 1;
         let canvasSize = this.canvasSize();
         res[0] = res[0] < -canvasSize + x0 ? -canvasSize + x0 : (res[0] >= canvasSize - x1 ? +canvasSize - x1 : res[0]);
         res[2] = res[2] < -canvasSize + z0 ? -canvasSize + z0 : (res[2] >= canvasSize - z1 ? +canvasSize - z1 : res[2]);
@@ -72,19 +75,34 @@ export class CopyPasteInput extends MouseInputState {
         let pos = intersection.position.map((v, ndx) => {
             return v + intersection.normal[ndx] * (this.max[ndx] - this.min[ndx] + 1) / 2;
         });
+        let corr = [
+            this.selectionCenter.x - this.boundingBoxCenter[0],
+            this.selectionCenter.y - this.boundingBoxCenter[1],
+            this.selectionCenter.z - this.boundingBoxCenter[2],
+        ];
+        /*
+        console.log("Intersection pos", intersection.position);
+        console.log("Correction: ", corr)
+        console.log("Initial pos", pos);
+        console.log("Corrected", [pos[0] + corr[0] - this.selectionCenter.x,
+            pos[1] + corr[1] - this.selectionCenter.y,
+            pos[2] + corr[2] - this.selectionCenter.z]);
+        console.log(this.min, this.max, this.selectionCenter)
+        */
+
         pos = this._specialClamp(pos);
         selectionRender.parent.position.set(
-            Math.round(pos[0] - this.selectionCenter.x),
-            Math.round(pos[1] - this.selectionCenter.y),
-            Math.round(pos[2] - this.selectionCenter.z),
+            Math.round(pos[0] + corr[0] - this.selectionCenter.x),
+            Math.round(pos[1] + corr[1] - this.selectionCenter.y),
+            Math.round(pos[2] + corr[2] - this.selectionCenter.z),
         );
         // Color the mesh if there is an overlay.
         let overlay = true;
         for (let briq of this.fsm.store.selectionMgr.selectedBriqs) {
             let bp = [
-                Math.round(pos[0] + briq.position![0] - this.selectionCenter.x),
-                Math.round(pos[1] + briq.position![1] - this.selectionCenter.y),
-                Math.round(pos[2] + briq.position![2] - this.selectionCenter.z),
+                Math.round(pos[0] + briq.position![0] + corr[0] - this.selectionCenter.x),
+                Math.round(pos[1] + briq.position![1] + corr[1] - this.selectionCenter.y),
+                Math.round(pos[2] + briq.position![2] + corr[2] - this.selectionCenter.z),
             ];
             if (store.state.builderData.currentSet.getAt(...bp)) {
                 overlay = false;
@@ -121,19 +139,20 @@ export class CopyPasteInput extends MouseInputState {
         let pos = intersection.position.map((v, ndx) => {
             return v + intersection.normal[ndx] * (this.max[ndx] - this.min[ndx] + 1) / 2;
         });
+        let corr = [
+            this.selectionCenter.x - this.boundingBoxCenter[0],
+            this.selectionCenter.y - this.boundingBoxCenter[1],
+            this.selectionCenter.z - this.boundingBoxCenter[2],
+        ];
         pos = this._specialClamp(pos);
-        Math.round(pos[0] - this.selectionCenter.x);
-        Math.round(pos[1] - this.selectionCenter.y);
-        Math.round(pos[2] - this.selectionCenter.z);
-
         let didOverlay = false;
         let data = [];
         let positions = [];
         for (let briq of this.fsm.store.selectionMgr.selectedBriqs) {
             let bp = [
-                Math.round(pos[0] + briq.position![0] - this.selectionCenter.x),
-                Math.round(pos[1] + briq.position![1] - this.selectionCenter.y),
-                Math.round(pos[2] + briq.position![2] - this.selectionCenter.z),
+                Math.round(pos[0] + briq.position![0] + corr[0] - this.selectionCenter.x),
+                Math.round(pos[1] + briq.position![1] + corr[1] - this.selectionCenter.y),
+                Math.round(pos[2] + briq.position![2] + corr[2] - this.selectionCenter.z),
             ];
             if (store.state.builderData.currentSet.getAt(...bp) && this.fsm.store.briqOverlayMode === 'KEEP')
             {
