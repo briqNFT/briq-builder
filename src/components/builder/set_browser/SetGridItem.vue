@@ -66,8 +66,8 @@
         -45deg,
         rgba(0, 0, 0, 0),
         rgba(0, 0, 0, 0), 10px,
-        rgba(247, 137, 74, 0.5) 10px,
-        rgba(247, 137, 74, 0.5) 15px
+        rgba(var(--color-accent)) 10px,
+        rgba(var(--color-accent)) 15px
     );
 }
 </style>
