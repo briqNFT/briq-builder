@@ -5,7 +5,6 @@ import Messages from '../../Messages.vue'
 import SplashScreen from './../SplashScreen.vue'
 import AlphaBanner from '../../AlphaBanner.vue';
 import AlphaLogo from './../AlphaLogo.vue';
-import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 </script>
 
 <template>
@@ -75,6 +74,7 @@ import { reportError } from '../../../Monitoring';
 import { ticketing } from '../../../Async';
 import contractStore, { forceNetwork } from '@/chain/Contracts';
 import builderSettings from '../../../builder/graphics/Settings';
+import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 
 import { defineComponent, watchEffect } from 'vue';
 export default defineComponent({
@@ -108,8 +108,9 @@ export default defineComponent({
         watchEffect(() => {
             this.fetchAuthor();
         })
-        
-        builderInputFsm.switchTo("camera");
+
+        builderInputFsm.waitForInit.then(() => builderInputFsm.switchTo("camera"));
+
         this.setData = undefined;
         dispatchBuilderAction("reset");
 
