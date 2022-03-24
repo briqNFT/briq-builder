@@ -31,6 +31,25 @@ function generateRealms() {
     return loader.load(RealmsPic);
 }
 
+import { THREE_SETUP, GLTFLoader } from '@/three';
+
+import Keystone from '@/assets/keystone.glb?url';
+
+const loadKeystoneMesh = (() => {
+    let promise = new Promise(async (resolve, reject) => {
+        await THREE_SETUP;
+        const loader = new GLTFLoader();
+        loader.load(Keystone, (gltf: any) => {
+            let mesh = gltf.scene.children[0] as unknown as THREE.Mesh;
+            mesh.geometry.translate(0.5, 0.5, 0.5);
+            resolve(mesh);
+        }, () => {}, (error: any) => reject(error));
+    }) as Promise<THREE.Mesh>;
+    return function() {
+        return promise;
+    }
+})();
+
 var currentSet = "";
 
 var setObject: THREE.Object3D;
@@ -58,14 +77,7 @@ class briqNFT
         });
         this.mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 10, 10, 10), material);
         this.mesh.geometry.translate(0.5, 0.5, 0.5);
-        let p = this.mesh.geometry.attributes.position;
-        for (let i = 0; i < p.count; ++i)
-        {
-            let prandc = (p.getX(i) % 0.3) + (p.getY(i) % 0.1 )+ (p.getZ(i) % 0.2);
-            p.setXYZ(i, p.getX(i) + prandc / 10.0 - 0.03, p.getY(i) + prandc / 10.0 - 0.03, p.getZ(i) + prandc / 10.0 - 0.03);
-        }
-        this.mesh.geometry.computeVertexNormals();
-        p.needsUpdate = true;
+        loadKeystoneMesh().then(mesh => this.mesh.geometry = mesh.geometry );
         this.mesh.userData.nft = this.id;
     }
 

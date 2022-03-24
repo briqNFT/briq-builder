@@ -10,6 +10,8 @@ export var OrbitControls: three_wrapper.OrbitControls;
 export var SelectionBox: three_wrapper.SelectionBox;
 export var BufferGeometryUtils: three_wrapper.BufferGeometryUtils;
 
+export var GLTFLoader: three_wrapper.GLTFLoader;
+
 export var EffectComposer: three_wrapper.EffectComposer;
 export var RenderPass: three_wrapper.RenderPass;
 export var SAOPass: three_wrapper.SAOPass;
@@ -23,6 +25,7 @@ async function setup() {
     OrbitControls = wrapper.OrbitControls;
     SelectionBox = wrapper.SelectionBox;
     BufferGeometryUtils = wrapper.BufferGeometryUtils;
+    GLTFLoader = wrapper.GLTFLoader;
 
     EffectComposer = wrapper.EffectComposer;
     RenderPass = wrapper.RenderPass;
@@ -33,4 +36,4 @@ async function setup() {
 
     logDebug("Successfully dynamically loaded three.js");
 }
-export  var THREE_SETUP = setup();
+export var THREE_SETUP = setup();
