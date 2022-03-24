@@ -1,6 +1,7 @@
 name: deploy-test
 on:
   push:
+  pull_request:
 env:
   GKE_CLUSTER: sltech-briq-k8s-cluster
   GKE_ZONE: europe-west3-c
