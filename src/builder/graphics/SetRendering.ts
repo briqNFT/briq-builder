@@ -33,7 +33,7 @@ function generateRealms() {
 
 import { THREE_SETUP, GLTFLoader } from '@/three';
 
-import Keystone from '@/assets/keystone.glb?url';
+import Keystone from '@/assets/keystone-square-uv.glb?url';
 
 const loadKeystoneMesh = (() => {
     let promise = new Promise(async (resolve, reject) => {
