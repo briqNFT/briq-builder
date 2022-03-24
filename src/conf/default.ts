@@ -16,5 +16,18 @@ export const CONF = {
             gridColor: "#eaeaea",
             backgroundColor: "#eaeaea",
         }
+    },
+    defaultPalette: {
+        "#c5ac73": "#c5ac73",
+        "#e6de83": "#e6de83",
+        "#625231": "#625231",
+        "#399ccd": "#399ccd",
+        "#62bdf6": "#62bdf6",
+        "#ffeec5": "#ffeec5",
+        "#416aac": "#416aac",
+        "#394183": "#394183",
+        "#c5c5c5": "#c5c5c5",
+        "#ffffff": "#ffffff",
+        "#6a6a6a": "#6a6a6a",
     }
 }
