@@ -95,3 +95,5 @@ export const defaultModel: { "pos": [number, number, number], "color": string }[
     {"pos":[-2,10,0],"color":"#ffffff"},
     {"pos":[-3,11,0],"color":"#ffffff"}
 ];
+
+export * as RealmsLogo from '@/assets/Realms.svg';
