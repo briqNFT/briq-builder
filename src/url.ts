@@ -3,7 +3,7 @@ import { DEV, APP_ENV } from './Meta'
 function getCanonicalDomain() {
     if (window.location.hostname.indexOf("sltech") !== -1)
         return "sltech.company";
-        "briq.construction";
+    return "briq.construction";
 }
 
 export default function getBaseUrl()
