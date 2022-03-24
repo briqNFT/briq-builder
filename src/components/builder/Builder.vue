@@ -40,6 +40,8 @@ import { watchEffectAndWait } from '../../Async';
 
 import { setupSync } from '@/chain/StarknetSync';
 
+import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
+
 import { builderInputFsm } from "../../builder/inputs/BuilderInput"
 import { pushMessage, setTooltip } from '../../Messages'
 import { defineComponent, reactive, watchEffect, toRef } from 'vue';
@@ -86,6 +88,8 @@ export default defineComponent({
                 await this.$store.dispatch("builderData/select_set", set.id);
             }
         });
+
+        await dispatchBuilderAction("put_all_in_view");
 
         // For storage space optimisation, delete non-current chain-only sets.
         for (let sid in setsManager.setsInfo)

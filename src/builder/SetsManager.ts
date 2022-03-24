@@ -360,6 +360,8 @@ watchEffect(() => {
     }
 });
 
+import { defaultModel } from '@/conf/realms';
+
 // TODO: move this elsewhere?
 export function checkForInitialGMSet()
 {
@@ -370,7 +372,7 @@ export function checkForInitialGMSet()
         window.localStorage.setItem("has_initial_gm_set", "true")
         let set = new SetData(hexUuid());
         set.name = "GM";
-        const data: { "pos": [number, number, number], "color": string }[] = [
+        const data: { "pos": [number, number, number], "color": string }[] = CONF.theme === 'realms' ? defaultModel : [
             {"pos":[4,0,0],"color":"#c5ac73"},
             {"pos":[3,0,0],"color":"#c5ac73"},
             {"pos":[2,0,0],"color":"#c5ac73"},
