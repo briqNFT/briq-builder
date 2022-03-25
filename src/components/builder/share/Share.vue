@@ -61,19 +61,19 @@ import AlphaLogo from './../AlphaLogo.vue';
 </template>
 
 <script lang="ts">
-import { pushMessage, setTooltip } from '../../../Messages';
+import { pushMessage, setTooltip } from '@/Messages';
 import { pushModal } from '../../Modals.vue';
 import Settings from '../modals/Settings.vue';
 import Screenshot from './Screenshot.vue';
-import { dispatchBuilderAction } from '../../../builder/graphics/Dispatch';
-import { SetData } from '../../../builder/SetData';
-import { inputStore } from '../../../builder/inputs/InputStore';
-import { getProvider, getProviderForNetwork } from '../../../Provider';
-import { fetchData } from '../../../url';
-import { reportError } from '../../../Monitoring';
-import { ticketing } from '../../../Async';
+import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
+import { SetData } from '@/builder/SetData';
+import { inputStore } from '@/builder/inputs/InputStore';
+import { getProvider, getProviderForNetwork } from '@/chain/Provider';
+import { fetchData } from '@/url';
+import { reportError } from '@/Monitoring';
+import { ticketing } from '@/Async';
 import contractStore, { forceNetwork } from '@/chain/Contracts';
-import builderSettings from '../../../builder/graphics/Settings';
+import builderSettings from '@/builder/graphics/Settings';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 
 import { defineComponent, watchEffect } from 'vue';

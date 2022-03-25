@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import ArgentXWallet from '../../wallets/ArgentX'
+import ArgentXWallet from '@/chain/wallets/ArgentX';
 
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({

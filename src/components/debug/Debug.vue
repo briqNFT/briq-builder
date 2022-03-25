@@ -75,7 +75,7 @@ import type { Provider, CallContractTransaction } from 'starknet';
 
 import { transactionsManager } from '../../builder/Transactions';
 import contractStore from '@/chain/Contracts';
-import { getStarknetObject } from '../../wallets/ArgentX';
+import { getStarknetObject } from '@/chain/wallets/ArgentX';
 
 import { ticketing, ignoreOutdated, OutdatedPromiseError } from '../../Async';
 

@@ -3,8 +3,8 @@ import { watchEffect, markRaw } from 'vue'
 import { Provider } from 'starknet';
 import type { Signer } from 'starknet';
 
-import { logDebug, logDebugDelay } from './Messages'
-import { noParallel, ticketing } from './Async';
+import { logDebug, logDebugDelay } from '../Messages'
+import { noParallel, ticketing } from '../Async';
 
 import ManualWallet from './wallets/ManualWallet'
 import ArgentXWallet, { getStarknetObject } from './wallets/ArgentX'
@@ -14,7 +14,7 @@ import { IWallet } from './wallets/IWallet';
 import { getProvider, setProvider } from './Provider';
 import { watchSignerChanges } from '@/chain/Contracts';
 
-import { legacySetsMgr } from './components/builder/set_browser/LegacySetsMgr';
+import { legacySetsMgr } from '../components/builder/set_browser/LegacySetsMgr';
 
 import { setWalletInitComplete, walletInitComplete } from './WalletLoading';
 

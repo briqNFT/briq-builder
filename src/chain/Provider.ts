@@ -1,6 +1,6 @@
 import { Provider } from 'starknet';
 
-import { PROD } from './Meta'
+import { PROD } from '../Meta'
 
 // TODO: import from starknet?
 type NetworkName = 'mainnet-alpha' | 'goerli-alpha';

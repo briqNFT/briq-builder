@@ -1,7 +1,7 @@
 import { createStore } from "vuex";
 
 import { builderDataStore } from "../builder/BuilderData";
-import { walletStore } from "../Wallet";
+import { walletStore } from "../chain/Wallet";
 import { UndoRedo, undoRedoStore } from "../builder/UndoRedo";
 
 import { DEV } from '../Meta'

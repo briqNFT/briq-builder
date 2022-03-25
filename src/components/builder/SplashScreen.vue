@@ -18,7 +18,7 @@ import { RealmsLogo } from '@/conf/realms';
 import { defineComponent, reactive } from 'vue'
 
 import { THREE_SETUP } from '@/three';
-import { walletInitComplete } from '@/WalletLoading';
+import { walletInitComplete } from '@/chain/WalletLoading';
 
 var localStore = reactive({
   hidden: false,
