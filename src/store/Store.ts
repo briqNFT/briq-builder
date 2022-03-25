@@ -20,12 +20,7 @@ export const store = createStore({
 
 store.dispatch("initialize");
 
-var resolveLoading: any;
-export var isLoaded = (() => {
-    return new Promise(resolve => {
-        resolveLoading = resolve;
-    });
-})();
+import { resolveLoading, isLoaded } from './StoreLoading';
 
 export function setLoaded()
 {

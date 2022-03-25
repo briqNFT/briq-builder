@@ -15,7 +15,7 @@ import CursorTooltip from '../generic/CursorTooltip.vue';
 </script>
 
 <template>
-    <SplashScreen @done="onLoaded"/>
+    <!--<SplashScreen @done="onLoaded"/>-->
     <div class="fixed w-screen h-screen">
         <WebGLCanvas/>
         <AlphaLogo/>

@@ -3,24 +3,13 @@ import LandingPage from './components/landing_page/LandingPage.vue'
 import Team from './components/team/Team.vue'
 import { CONF } from './Conf';
 
+import BuilderLoader from './components/Builder/BuilderLoader.vue';
+
 var loader;
 async function loadExtraPages()
 {
     loader = await import('@/Dispatch');
     await loader.Store.isLoaded;
-}
-// Some pages know that they'll need threeJS so don't wait until Dispatch is loaded to request it.
-async function loadThreeJS()
-{
-    await import('@/three_wrapper');
-}
-
-async function loadAllExtraPages()
-{
-    let res = loadExtraPages();
-    let res2 = loadThreeJS();
-    await res2;
-    return await res;
 }
 
 // After a few seconds, preload the rest of the JS anyways,
@@ -51,7 +40,7 @@ export const routes = [
     {
         path: "/share",
         name: "Share",
-        component: async () => { await loadAllExtraPages(); return loader.Share },
+        component: async () => { await loadExtraPages(); return loader.Share },
         props(route: any) {
             return route.query || {}
         }
@@ -73,13 +62,13 @@ if (CONF.useLanding)
     routes.push({
         path: "/builder",
         name: "Builder",
-        component: async () => { await loadAllExtraPages(); return loader.Builder },
+        component: BuilderLoader,
     });
 } else {
     routes.push({
         path: "/",
         name: "Builder",
-        component: async () => { await loadAllExtraPages(); return loader.Builder },
+        component: BuilderLoader,
     })
     routes.push({
         path: "/builder",

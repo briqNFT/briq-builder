@@ -18,7 +18,7 @@ import { RealmsLogo } from '@/conf/realms';
 import { defineComponent, reactive } from 'vue'
 
 import { THREE_SETUP } from '@/three';
-import { walletInitComplete } from '@/Wallet';
+import { walletInitComplete } from '@/WalletLoading';
 
 var localStore = reactive({
   hidden: false,
@@ -38,7 +38,6 @@ export default defineComponent({
       // The purpose of the splash screen is to wait until we've loaded stuff. The relevant stuff is Three JS and checking for a wallet.
       await THREE_SETUP;
       await walletInitComplete;
-      console.log("LOADED THREE LOL");
       this.$emit("done");
       this.hidden = "shouldHide";
       setTimeout(() => {

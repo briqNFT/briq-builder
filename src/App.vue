@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import GA from './components/GA.vue';
+import GA from '@/components/GA.vue';
+import SplashScreen from '@/components/builder/SplashScreen.vue'
 import { HotkeyManager } from './Hotkeys';
 import { appendFile } from 'fs';
 </script>
@@ -7,6 +8,18 @@ import { appendFile } from 'fs';
 <template>
     <GA/>
     <router-view/>
+    <!--
+    <p>{{ $route }}</p>
+    <p>{{ $router.currentRoute }}</p>
+    <router-view v-slot="{ Component, route }">
+        <template v-if="!route.name">
+            <SplashScreen/>
+        </template>
+        <template v-else="">
+            <component :is="Component" />
+        </template>
+    </router-view>
+    -->
 </template>
 
 <script lang="ts">

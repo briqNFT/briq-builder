@@ -16,9 +16,7 @@ import { watchSignerChanges } from '@/chain/Contracts';
 
 import { legacySetsMgr } from './components/builder/set_browser/LegacySetsMgr';
 
-var _onWalletInitComplete: any;
-// Await this to wait until the wallet init process is complete.
-export var walletInitComplete = new Promise((resolve, _) => { _onWalletInitComplete = resolve; });
+import { setWalletInitComplete, walletInitComplete } from './WalletLoading';
 
 export const walletStore = {
     namespaced: true,
@@ -56,7 +54,7 @@ export const walletStore = {
                 }
 
                 // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
-                _onWalletInitComplete();
+                setWalletInitComplete();
 
                 watchSignerChanges(state);
 
