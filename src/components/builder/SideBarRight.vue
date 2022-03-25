@@ -44,6 +44,7 @@ import WalletSelectorVue from '../WalletSelector.vue';
 
 import RenameSet from './modals/RenameSet.vue';
 import ExportSet from './modals/ExportSet.vue';
+import { walletStore2 } from '@/chain/Wallet';
 
 import { defineComponent, toRef, ref } from "vue";
 export default defineComponent({
@@ -51,14 +52,15 @@ export default defineComponent({
         return {
             expanded: false,
             expandedCW: false,
-            contractStore: this.$store.state.wallet,
-            wallet: this.$store.state.wallet,
             set: toRef(this.$store.state.builderData, "currentSet"),
             transactionsManager
         };
     },
     inject: ["messages"],
     computed: {
+        wallet() {
+            return walletStore2;
+        },
         forceInput() {
             return inputStore.forceInput;
         },
@@ -77,7 +79,7 @@ export default defineComponent({
 
         CWTitle() {
             if (this.isConnected)
-                return this.contractStore.userWalletAddress.substr(0, 5) + '...' + this.contractStore.userWalletAddress.substr(-5, 5);
+                return this.wallet.userWalletAddress.substr(0, 5) + '...' + this.wallet.userWalletAddress.substr(-5, 5);
             return "Connect Wallet";
         },
         CWNet() {
@@ -95,7 +97,7 @@ export default defineComponent({
         titleText: function() {
             let ret = "Briq";
             if (this.isConnected)
-                ret += ': ' + this.contractStore.userWalletAddress.substr(0, 5) + '...' + this.contractStore.userWalletAddress.substr(-5, 5);
+                ret += ': ' + this.wallet.userWalletAddress.substr(0, 5) + '...' + this.wallet.userWalletAddress.substr(-5, 5);
             return ret;
         },
 

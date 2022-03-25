@@ -42,6 +42,9 @@ import { getSelectorFromName } from 'starknet/utils/hash';
 import { store } from '@/store/Store';
 import { toBN } from 'starknet/utils/number';
 
+import { getProvider } from '@/chain/Provider';
+import { walletStore2 } from '@/chain/Wallet';
+
 const callContract = function(provider: Provider, address: string, entryPoint: string, data: any[])
 {
     /*if (!provider.estimateFee)
@@ -87,12 +90,12 @@ export default defineComponent({
         },
         getSetImpl() {
             if (contractStore?.set?.getAddress())
-                callContract(this.$store.state.wallet.provider, contractStore.set.getAddress(), "getImplementation", []).then(rep => this._setImpl = rep.result[0]);
+                callContract(getProvider(), contractStore.set.getAddress(), "getImplementation", []).then(rep => this._setImpl = rep.result[0]);
             return this._setImpl;
         },
         getBriqImpl() {
             if (contractStore?.briq?.getAddress())
-                callContract(this.$store.state.wallet.provider, contractStore.briq.getAddress(), "getImplementation", []).then(rep => this._briqImpl = rep.result[0]);
+                callContract(getProvider(), contractStore.briq.getAddress(), "getImplementation", []).then(rep => this._briqImpl = rep.result[0]);
             return this._briqImpl;
         },
     },
@@ -107,9 +110,9 @@ export default defineComponent({
             pushMessage(JSON.stringify((await contractStore.briq?.mint(address, qty))) ?? "Failed to mint, contract is unset");
         },
         async setImpl(contract: any, address: string) {
-            if (this.$store.state.wallet.signer.signer)
+            if (walletStore2.signer.signer)
             {
-                await (this.$store.state.wallet.signer as AccountInterface).execute({
+                await (walletStore2.signer as AccountInterface).execute({
                     contractAddress: contract.getAddress(),
                     entrypoint: "setImplementation",
                     calldata: []
@@ -117,7 +120,7 @@ export default defineComponent({
             }
             else
             {
-                let tx = await (this.$store.state.wallet.signer as Signer).invokeFunction(
+                let tx = await (walletStore2.signer as Signer).invokeFunction(
                     toBN(contract.getAddress()).toString(),
                     toBN(getSelectorFromName("setImplementation")).toString(),
                     [toBN(address).toString()]
@@ -130,7 +133,7 @@ export default defineComponent({
             this.cc_pending = true;
             try {
                 this.customResult = "";
-                let tx = await (this.$store.state.wallet.signer as AccountInterface).execute({
+                let tx = await (walletStore2.signer as AccountInterface).execute({
                     contractAddress: (this.cc_contract === "set" ? contractStore.set : contractStore.briq).getAddress(),
                     entrypoint: this.selector,
                     calldata: this.calldata.split(",").filter(x => x).map((x: string) => toBN(x.trim()).toString())

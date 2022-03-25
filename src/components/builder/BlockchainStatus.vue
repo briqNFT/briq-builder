@@ -20,7 +20,7 @@ import Hotkey from '../generic/Hotkey.vue';
             </Btn>
             <div :class="'my-2 ' + (expanded ? 'pointer-events-auto': 'hidden')">
                 <div class="flex flex-col flex-nowrap gap-1">
-                    <Btn v-if="isConnected" @click="expanded = false; $store.dispatch('wallet/disconnect')">Disconnect</Btn>
+                    <Btn v-if="isConnected" @click="expanded = false; wallet.disconnect()">Disconnect</Btn>
                 </div>
             </div>
         </div>
@@ -36,6 +36,7 @@ import Hotkey from '../generic/Hotkey.vue';
 <script lang="ts">
 import contractStore from '@/chain/Contracts';
 import { pushModal } from '../Modals.vue';
+import { walletStore2 } from '@/chain/Wallet';
 
 import WalletSelectorVue from '../WalletSelector.vue';
 import { transactionsManager } from '../../builder/Transactions';
@@ -44,7 +45,7 @@ export default defineComponent({
     data() {
         return {
             expanded: false,
-            wallet: this.$store.state.wallet,
+            wallet: walletStore2,
             builderData: this.$store.state.builderData,
             contractStore: contractStore,
             transactionsManager

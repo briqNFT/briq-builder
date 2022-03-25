@@ -19,6 +19,7 @@ import Button from '../../generic/Button.vue';
 import { Transaction } from '../../../builder/Transactions';
 
 import contractStore from '@/chain/Contracts';
+import { walletStore2 } from '@/chain/Wallet';
 
 import { defineComponent, nextTick, toRef } from 'vue';
 export default defineComponent({
@@ -40,7 +41,7 @@ export default defineComponent({
             if (!this.formatOk)
                 return;
             try {
-                let tx = await contractStore.set?.transferOneNFT(this.$store.state.wallet.userWalletAddress, this.target, this.metadata.setId);
+                let tx = await contractStore.set?.transferOneNFT(walletStore2.userWalletAddress, this.target, this.metadata.setId);
                 new Transaction(tx.transaction_hash, 'transfer', { setId: this.metadata.setId });
                 this.messages.pushMessage("Set transfer ongoing - " + tx.transaction_hash);   
             }

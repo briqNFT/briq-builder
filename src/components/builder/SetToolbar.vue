@@ -52,6 +52,8 @@ import { setsManager } from '../../builder/SetsManager';
 import ExportSetVue from './modals/ExportSet.vue';
 import { inputStore } from '../../builder/inputs/InputStore';
 
+import { getCurrentNetwork } from '@/chain/Network';
+
 import { defineComponent } from 'vue';
 import { getShareLink } from './Sharing';
 export default defineComponent({
@@ -72,7 +74,7 @@ export default defineComponent({
             await pushModal(ExportSetVue, { set: this.$store.state.builderData.currentSet.id });
         },
         copyShareLink() {
-            let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";
+            let network = getCurrentNetwork() === "starknet-mainnet" ? "mainnet" : "testnet";
             let link = getShareLink(network, this.$store.state.builderData.currentSet.id);
             navigator.clipboard.writeText(link);
             this.messages.pushMessage("Copied sharing link to clipboard");

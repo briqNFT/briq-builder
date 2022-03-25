@@ -1,7 +1,6 @@
 import { watchEffect, markRaw } from 'vue'
 
-import { Provider } from 'starknet';
-import type { Signer } from 'starknet';
+import { AccountInterface, Provider } from 'starknet';
 
 import { logDebug, logDebugDelay } from '../Messages'
 import { noParallel, ticketing } from '../Async';
@@ -11,132 +10,125 @@ import ArgentXWallet, { getStarknetObject } from './wallets/ArgentX'
 import MetamaskWallet from './wallets/Metamask'
 import { IWallet } from './wallets/IWallet';
 
-import { getProvider, setProvider } from './Provider';
 import { watchSignerChanges } from '@/chain/Contracts';
 
 import { legacySetsMgr } from '../components/builder/set_browser/LegacySetsMgr';
 
 import { setWalletInitComplete, walletInitComplete } from './WalletLoading';
 
-export const walletStore = {
-    namespaced: true,
-    state: () => ({
-        // Always provide a signer, even if it's actually a provider.
-        signer: undefined as undefined | Signer,
-        provider: undefined as undefined | Provider,
-        baseUrl: "",
-        starknetAddress: "",
-        userWalletAddress: "",
-    }),
-    actions: {
-        initialize: {
-            root: true,
-            handler: async ({ state, dispatch, commit, getters }: any) => {
-                let storedAddress = window.localStorage.getItem("user_address");
-                logDebugDelay(() => ["STARTING WALLET CONNECT", storedAddress]);
+import { reactive } from 'vue';
+import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
-                await dispatch("try_enabling_wallet_silently", storedAddress);
+class WalletStore
+{
+    signer: undefined | AccountInterface = undefined;
+    userWalletAddress = "";
 
-                // If we failed, try again once we've loaded the object, just in case we arrived here too quickly.
-                if (!state.signer)
-                    getStarknetObject().then(() => {
-                        if (!state.signer)
-                            dispatch("try_enabling_wallet_silently", storedAddress);
-                    }).catch(() => logDebug("Argent appears unavailable"));
+    // Empty, because at this point we aren't a proxy to a reactive object.
+    constructor() {}
 
-                // Fallback to regular provider if that failed.
-                if (!state.signer)
-                {
-                    logDebug("FALLING BACK");
-                    let provider = await getProvider();
-                    if (!state.signer)
-                        commit("set_provider", provider);
-                }
+    async initialize()
+    {
+        let storedAddress = window.localStorage.getItem("user_address");
+        logDebugDelay(() => ["STARTING WALLET CONNECT", storedAddress]);
 
-                // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
-                setWalletInitComplete();
+        await this.tryEnablingWalletSilently(storedAddress);
 
-                watchSignerChanges(state);
+        // If we failed, try again once we've loaded the object, just in case we arrived here too quickly.
+        if (!this.signer)
+            getStarknetObject().then(() => {
+                if (!this.signer)
+                    this.tryEnablingWalletSilently(storedAddress);
+            }).catch(() => logDebug("Argent appears unavailable"));
 
-                watchEffect(() => {
-                    // TODO: switch to IDB
-                    logDebug("Writing address ", state.userWalletAddress);
-                    window.localStorage.setItem("user_address", state.userWalletAddress);
-                });
-            }
-        },
-        try_enabling_wallet_silently: ticketing(async function({ dispatch, commit }: any, data: string) {
-            // For now the only available wallet is Argent.
-            let argx = new ArgentXWallet();
-            let address = data;
-            // Explicit disconnect.
-            if (address === "")
-                return;
-            if (argx.isLikelyAvailable() && (argx.canEnableSilently() || address))
-                await dispatch("enable_wallet");
-        }),
-        enable_wallet: noParallel(async ({ dispatch, commit }: any) => {
-            // For now the only available wallet is Argent.
-            let argx = new ArgentXWallet();
-            logDebug("ARGENT-X AVAILABILITY:", argx.isLikelyAvailable());
-            if (argx.isLikelyAvailable())
-            {
-                try
-                {
-                    let [addr, provider, signer] = await argx.enable();
-                    logDebug("ARGENT-X ENABLED:", addr, provider, signer);
-                    // Update the provider (may be mainnet or testnet).
-                    commit("set_provider", markRaw(provider));
-                    commit("set_signer", { provider: markRaw(provider), signer: markRaw(signer), addr });
-                    argx.watchForChanges(async () => {
-                        // Disconnect first to reset addresses.
-                        await dispatch("disconnect");
-                        await dispatch("enable_wallet");
-                    })
-                    return true;
-                }
-                catch(err)
-                {
-                    console.warn(err);
-                }
-            }
-            return false;
-        }),
-        async disconnect({ commit }: any)
-        {
-            commit("set_signer", { addr: "", signer: undefined });
-        },
-        set_starknet_contract_address({ commit }: any, data: any)
-        {
-            commit("set_starknet_contract_address", data);
-        },
-        async force_provider({ commit }: any, data: Provider)
-        {
-            commit("set_signer", { addr: "", signer: undefined });
-            commit("set_provider", data);
-        }
-    },
-    mutations: {
-        set_provider(state: any, data: Provider)
-        {
-            state.provider = data;
-            state.baseUrl = state.provider.baseUrl;
-            setProvider(data);
-        },
+        // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
+        setWalletInitComplete();
 
-        set_signer(state: any, data: { provider: Provider, signer: Signer, addr: string })
-        {
-            state.signer = data.signer;
-            state.userWalletAddress = data.addr;
-            legacySetsMgr.setup(state);
-        },
+        watchSignerChanges(this);
 
-        set_starknet_contract_address(state: any, data: string)
-        {
-            state.starknetAddress = data;
-        },
+        watchEffect(() => {
+            // TODO: switch to IDB
+            logDebug("Writing address ", this.userWalletAddress);
+            window.localStorage.setItem("user_address", this.userWalletAddress);
+        });
     }
-};
+
+    _tryEnablingWalletSilently = ticketing(async function(data: string) {
+        // For now the only available wallet is Argent.
+        let argx = new ArgentXWallet();
+        let address = data;
+        // Explicit disconnect.
+        if (address === "")
+            return;
+        if (argx.isLikelyAvailable() && (argx.canEnableSilently() || address))
+            this.enableWallet();
+    });
+
+    tryEnablingWalletSilently(data: string) {
+        return this._tryEnablingWalletSilently.call(this, data);
+    }
+
+    _enableWallet = noParallel(async function() {
+        // For now the only available wallet is Argent.
+        let argx = new ArgentXWallet();
+        logDebug("ARGENT-X AVAILABILITY:", argx.isLikelyAvailable());
+        if (argx.isLikelyAvailable())
+        {
+            try
+            {
+                let [addr, provider, signer] = await argx.enable();
+                logDebug("ARGENT-X ENABLED:", addr, provider, signer);
+
+                this.setSigner({ provider: markRaw(provider), signer: markRaw(signer), addr });
+                argx.watchForChanges(async () => {
+                    // Disconnect first to reset addresses.
+                    await this.disconnect();
+                    await this.enableWallet();
+                })
+                return true;
+            }
+            catch(err)
+            {
+                console.warn(err);
+            }
+        }
+        return false;
+    });
+
+    enableWallet() {
+        return this._enableWallet.call(this);
+    }
+
+    setSigner(data: { provider: Provider, signer: AccountInterface, addr: string })
+    {
+        this.signer = data.signer;
+        this.userWalletAddress = data.addr;
+        legacySetsMgr.setup(this);
+    }
+
+    disconnect() {
+        this.signer = undefined;
+        this.userWalletAddress = "";
+        legacySetsMgr.setup(this);
+    }
+
+    // TODO: might want to split the signer network from the provider network?
+    getNetwork() {
+        return getCurrentNetwork();
+    }
+
+    setProviderFromSigner() {
+        if (!this.signer)
+            chooseDefaultNetwork();
+        else if (this.signer.gatewayUrl.indexOf("alpha-mainnet.starknet") !== -1)
+            setNetwork("starknet-mainnet");
+        else if (this.signer.gatewayUrl.indexOf("alpha4.starknet") !== -1)
+            setNetwork("starknet-testnet");
+    }
+}
+
+export const walletStore2 = reactive(new WalletStore());
+walletStore2.initialize();
 
 export function getPotentialWallets(): { [key: string]: { name: string, handler: new () => IWallet }}
 {

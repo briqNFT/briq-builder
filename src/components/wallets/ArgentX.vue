@@ -19,6 +19,7 @@
 
 <script lang="ts">
 import ArgentXWallet from '@/chain/wallets/ArgentX';
+import { walletStore2 } from '@/chain/Wallet';
 
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({
@@ -26,7 +27,6 @@ export default defineComponent({
         return {
             handler: new ArgentXWallet(),
             step: "initial",
-            wallet: this.$store.state.wallet,
         }
     },
     emits: ["close"],
@@ -38,6 +38,9 @@ export default defineComponent({
     },
     computed:
     {
+        wallet() {
+            return walletStore2;
+        },
         shouldShowInstallHelp() {
             return !this.handler.isLikelyAvailable();
         },
@@ -47,7 +50,7 @@ export default defineComponent({
             this.step = "connecting";
             try
             {
-                await this.$store.dispatch("wallet/enable_wallet");
+                this.wallet.enableWallet();
                 if (this.wallet.signer)
                     this.step = "connected";
             } catch(err)

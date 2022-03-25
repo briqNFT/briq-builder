@@ -104,7 +104,7 @@ import { SetData } from '../../../builder/SetData';
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
 
 import contractStore from '@/chain/Contracts';
-
+import { walletStore2 } from '@/chain/Wallet';
 import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
 import RenameSet from '../modals/RenameSet.vue';
@@ -170,6 +170,9 @@ export default defineComponent({
         });
     },
     computed: {
+        signer() {
+            return walletStore2;
+        },
         setInfo() {
             return setsManager.setsInfo[this.setId];
         },
@@ -183,7 +186,7 @@ export default defineComponent({
             return this.pending_transaction?.isPending() ?? false;
         },
         hasAccount() {
-            return !!this.$store.state.wallet.signer;
+            return !!this.wallet.signer;
         },
         needMinting() {
             return !mintProxyStore.hasMinted && (!this.hasBriqsAndSets || this.notEnoughBriqs);
@@ -294,7 +297,7 @@ export default defineComponent({
                     throw new Error("Set name too long, max length is 200 characters.");
 
                 let token_hint = this.set.id;
-                this.exportSet.id = contractStore.set.precomputeTokenId(this.$store.state.wallet.userWalletAddress, token_hint);
+                this.exportSet.id = contractStore.set.precomputeTokenId(this.wallet.userWalletAddress, token_hint);
 
                 let data = this.exportSet.serialize();
 
@@ -322,21 +325,21 @@ export default defineComponent({
                     },
                 }
 
-                let signature = await this.$store.state.wallet.signer.signMessage(message);
+                let signature = await this.wallet.signer.signMessage(message);
                 this.exporting = 'SENDING_TRANSACTION';
 
                 await fetchData("store_set", {
-                    owner: this.$store.state.wallet.userWalletAddress,
+                    owner: this.wallet.userWalletAddress,
                     token_id: data.id,
                     data: data,
-                    message_hash: await this.$store.state.wallet.signer.hashMessage(message),
+                    message_hash: await this.wallet.signer.hashMessage(message),
                     signature: signature,
                     image_base64: (await this.screenshotPromise),
                 });
 
                 // Debug
                 //downloadJSON(data, data.id + ".json")
-                let TX = await contractStore.set.assemble(this.$store.state.wallet.userWalletAddress,
+                let TX = await contractStore.set.assemble(this.wallet.userWalletAddress,
                     token_hint,
                     data.briqs.map((x: any) => x.data),
                     getBaseUrl() + "/store_get/" + data.id
@@ -363,7 +366,7 @@ export default defineComponent({
                 this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
 
                 let info = setsManager.onSetMinted(this.set.id, this.exportSet)
-                info.chain_owner = this.$store.state.wallet.userWalletAddress;
+                info.chain_owner = this.wallet.userWalletAddress;
                 this.setId = this.exportSet.id;
                 this.$store.dispatch("builderData/select_set", this.exportSet.id);
 

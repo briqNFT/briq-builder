@@ -18,6 +18,7 @@
 import { setsManager } from '../../builder/SetsManager';
 import contractStore from '@/chain/Contracts';
 import { reportError } from '../../Monitoring';
+import { walletStore2 } from '@/chain/Wallet';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -46,7 +47,7 @@ export default defineComponent({
                 reportError(new Error("Cannot update sets - the Dapp is not connected to the contract"));
                 return;
             }
-            setsManager.loadOnChain(contractStore.set, this.$store.state.wallet.userWalletAddress);
+            setsManager.loadOnChain(contractStore.set, walletStore2.userWalletAddress);
         }
     }
 })

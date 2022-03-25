@@ -79,6 +79,8 @@ import TransferSet from '../modals/TransferSet.vue';
 import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
 import contractStore from '@/chain/Contracts';
+import { walletStore2 } from '@/chain/Wallet';
+import { getCurrentNetwork } from '@/chain/Network';
 
 import { SetData } from '../../../builder/setData';
 import { setsManager, SetInfo } from '../../../builder/SetsManager';
@@ -169,7 +171,7 @@ export default defineComponent({
     },
     methods: {
         copyShareLink() {
-            let network = this.$store.state.wallet.baseUrl.indexOf("mainnet") !== -1 ? "mainnet" : "testnet";
+            let network = getCurrentNetwork() === "starknet-mainnet" ? "mainnet" : "testnet";
             let link = getShareLink(network, this.setInfo.id);
             navigator.clipboard.writeText(link);
             this.messages.pushMessage("Copied sharing link to clipboard");
@@ -177,7 +179,7 @@ export default defineComponent({
         async disassemble() {
             try {
                 this.disableButtons = true;
-                let TX = await contractStore.set.disassemble(this.$store.state.wallet.userWalletAddress, this.setInfo.id, this.setInfo.chain);
+                let TX = await contractStore.set.disassemble(walletStore2.userWalletAddress, this.setInfo.id, this.setInfo.chain);
                 new Transaction(TX.transaction_hash, "disassembly", { setId: this.setInfo.id });
                 this.messages.pushMessage("Disassembly transaction sent - Hash " + TX.transaction_hash);
             }

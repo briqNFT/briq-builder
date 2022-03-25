@@ -100,8 +100,6 @@ export default defineComponent({
         builderSettings.setSaveSettings(true);
     },
     async mounted() {
-        // this.$store.dispatch("wallet/force_provider", getProviderForNetwork(this.network));
-
         if (this.version == 1 && this.network == "testnet")
             forceNetwork("starknet-testnet-legacy");
 

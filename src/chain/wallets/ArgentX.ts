@@ -1,4 +1,4 @@
-import type { Signer, Provider } from 'starknet';
+import type { Signer, Provider, AccountInterface } from 'starknet';
 import { getSelectorFromName } from 'starknet/utils/hash';
 
 type StarknetWindowObject =
@@ -83,7 +83,7 @@ export default class ArgentXWallet extends IWallet
         return await swo.isPreauthorized();
     }
 
-    async enable(): Promise<[string, Provider, Signer]>
+    async enable(): Promise<[string, Provider, AccountInterface]>
     {
         let swo: StarknetWindowObject = (globalThis as any)?.["starknet"];
         if (!swo)

@@ -80,7 +80,11 @@ import { getStarknetObject } from '@/chain/wallets/ArgentX';
 import { ticketing, ignoreOutdated, OutdatedPromiseError } from '../../Async';
 
 import { toBN } from 'starknet/utils/number';
-import { getSelectorFromName } from 'starknet/utils/stark';
+import { getSelectorFromName } from 'starknet/utils/hash';
+
+import { getProvider } from '@/chain/Provider';
+import { getCurrentNetwork } from '@/chain/Network';
+import { walletStore2 } from '@/chain/Wallet';
 
 async function test(testVar: string, testDataVar: string, test: CallableFunction) {
     this[testVar] = undefined;
@@ -108,15 +112,10 @@ const callContract = function(provider: Provider, address: string, entryPoint: s
     })
 }
 
-
 import { defineComponent, watchEffect, watchPostEffect, toRef} from 'vue';
 export default defineComponent({
     data() {
-        return {
-            wallet: this.$store.state.wallet,
-            provider: (toRef(this.$store.state.wallet, "provider") as Provider),
-            addr: this.getAddr(),
-            
+        return {            
             briqContract: toRef(contractStore, "briq"),
             setContract: toRef(contractStore, "set"),
             mintContract: toRef(contractStore, "mint"),
@@ -148,21 +147,24 @@ export default defineComponent({
         }
     },
     computed: {
-        mainnet() {
-            return (this.provider?.gatewayUrl?.search("mainnet") ?? -1) !== -1;
+        wallet() {
+            return walletStore2;
+        },
+        addr() {
+            if (this.$route.params.address)
+                return this.$route.params.address;
+            else
+                return walletStore2.userWalletAddress;
+        },
+        provider() {
+            getCurrentNetwork();
+            return getProvider();
         },
         gateway() {
-            if (this.mainnet)
-                return "Alpha Main-net";
-            return "Alpha Testnet"
+            return getCurrentNetwork();
         }
     },
     mounted() {
-        getStarknetObject().then(() => {
-            if (!this.wallet.signer)
-                this.$store.dispatch("wallet/enable_wallet");
-        }).catch();
-
         watchEffect(() => {
             this.checkGateway();
         });
@@ -182,19 +184,12 @@ export default defineComponent({
         })
     },
     methods: {
-        getAddr() {
-            if (this.$route.params.address)
-                return this.$route.params.address;
-            else
-                return toRef(this.$store.state.wallet, "userWalletAddress");
-        },
-
         async customCall() {
             this.cc_pending = true;
             try {
                 this.customResult = "";
                 let tx = await callContract(
-                    this.$store.state.wallet.provider,
+                    getProvider(),
                     (this.cc_contract === "set" ? contractStore.set : contractStore.briq).getAddress(),
                     this.selector,
                     this.calldata.split(",").filter(x => x).map((x: string) => toBN(x.trim()).toString())

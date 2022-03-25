@@ -1,10 +1,10 @@
 import { reactive, watch, watchEffect, toRef } from 'vue';
-import { store } from "../store/Store";
+import { walletStore2 } from '@/chain/Wallet';
+import { blockchainProvider } from '@/chain/BlockchainProvider';
 
 const CURR_VERSION = 3;
 
-var provider = toRef(store.state.wallet, "provider");
-var address = toRef(store.state.wallet, "userWalletAddress");
+var address = toRef(walletStore2, "userWalletAddress");
 
 function getUserAddress(): string {
     return address.value;
@@ -129,14 +129,14 @@ export class Transaction
 
     async poll()
     {
-        if (!provider.value)
+        if (!blockchainProvider.value)
             return;
 
         if (this.refreshing)
             return;
         this.refreshing = true;
         try {
-            let status = (await provider.value.getTransactionStatus(this.hash)).tx_status;
+            let status = (await blockchainProvider.value.getTransactionStatus(this.hash)).tx_status;
             // Treat 'not received' as pending, as the TX shouldn't stay in that state for long.
             if (status === "PENDING" || status === "RECEIVED" || status === "NOT_RECEIVED")
                 this.status = "PENDING";
@@ -160,7 +160,9 @@ export class Transaction
 
     async getMetadata()
     {
-        return await provider.value.getTransaction(this.hash);
+        if (!blockchainProvider.value)
+            return undefined;
+        return await blockchainProvider.value.getTransaction(this.hash);
     }
 
     isOnChain()
@@ -175,6 +177,6 @@ export class Transaction
 }
 
 export const transactionsManager = reactive(new TransactionsManager());
-watch(provider, () => transactionsManager.loadFromStorage());
+watch(blockchainProvider, () => transactionsManager.loadFromStorage());
 watch(address, () => transactionsManager.loadFromStorage());
 transactionsManager.loadFromStorage();

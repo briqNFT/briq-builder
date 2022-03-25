@@ -46,6 +46,8 @@ import { builderInputFsm } from "../../builder/inputs/BuilderInput"
 import { pushMessage, setTooltip } from '../../Messages'
 import { defineComponent, reactive, watchEffect, toRef } from 'vue';
 
+import { walletStore2 } from '@/chain/Wallet';
+
 import { createChainBriqs } from '../../builder/ChainBriqs';
 
 let chainBriqs = createChainBriqs();
@@ -61,7 +63,7 @@ export default defineComponent({
         },
     },
     created() {
-        chainBriqs.setAddress(toRef(this.$store.state.wallet, "userWalletAddress"));
+        chainBriqs.setAddress(toRef(walletStore2, "userWalletAddress"));
         watchEffect(() => {
             chainBriqs.setContract(contractStore.briq);
         });
@@ -104,7 +106,7 @@ export default defineComponent({
         })
 
         // TODO: centralise these?
-        setsManager.watchForChain(contractStore, this.$store.state.wallet);
+        setsManager.watchForChain(contractStore, walletStore2);
     },
     methods: {
         onLoaded() {
@@ -114,7 +116,7 @@ export default defineComponent({
             // Explicit disconnect.
             if (address === "")
                 return;
-            if (!this.$store.state.wallet.signer)
+            if (!walletStore2.signer)
                 pushModal(WalletSelectorVue)
         }
     }

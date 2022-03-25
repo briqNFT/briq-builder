@@ -6,7 +6,7 @@
             <div class="my-4">
                 <p>We’re currently in <a href="">Alpha test</a> on StarkNet TestNet.<br/>Claim 1000 free briqs to start your building journey.</p>
             </div>
-            <template v-if="$store.state.wallet.baseUrl.indexOf('mainnet') !== -1 ">
+            <template v-if="wallet.getNetwork() === 'starknet-mainnet'">
             <div class="font-medium text-xl">
                 <p>Mission accomplished folks !<br/>briq was working so well that mainnet costs on L1 are too high for StarkWare, so we're temporarily turning Mainnet briq off.<br/>Please switch to Testnet to use Briq!<br/>
                 <br/>Follow this <a target="_blank" href="https://twitter.com/briqNFT/status/1476284938773221382?ref_src=twsrc%5Etfw" class="underline">twitter thread</a> for more information.
@@ -17,7 +17,7 @@
             </div>
 
             </template>
-            <template v-else-if="!$store.state.wallet.starknetAddress">
+            <template v-else-if="!blockchainProvider?.isAlive()">
             <div class="font-medium text-xl">
                 <p>Failed to reach the Starknet Gateway. This may happen because of rate-limiting on the Starknet side.<br/>
                 If you're on main-net, try on testnet, or retry later.</p>
@@ -66,6 +66,9 @@ import { Transaction, transactionsManager } from '../../../builder/Transactions'
 
 import type { Provider } from 'starknet';
 import contractStore from '@/chain/Contracts';
+import { getCurrentNetwork } from '@/chain/Network';
+import { walletStore2 } from '@/chain/Wallet';
+import { blockchainProvider } from '@/chain/BlockchainProvider';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -91,11 +94,17 @@ export default defineComponent({
         }
     },
     computed: {
+        blockchainProvider() {
+            return blockchainProvider.value;
+        },
+        wallet() {
+            return walletStore2;
+        },
         voyagerLink() {
-            if ((this.$store.state.wallet.provider as Provider).gatewayUrl.search("mainnet") !== -1)
-                return `https://voyager.online/contract/${this.$store.state.wallet.userWalletAddress}`
+            if (getCurrentNetwork() === "starknet-mainnet")
+                return `https://voyager.online/contract/${this.wallet.userWalletAddress}`
             else
-                return `https://goerli.voyager.online/contract/${this.$store.state.wallet.userWalletAddress}`
+                return `https://goerli.voyager.online/contract/${this.wallet.userWalletAddress}`
         }
     },
     methods: {
@@ -134,7 +143,7 @@ export default defineComponent({
             this.status = "calling";
             try
             {
-                let tx = contractStore.mint.mint(this.$store.state.wallet.userWalletAddress);
+                let tx = contractStore.mint.mint(this.wallet.userWalletAddress);
                 let res = await tx;
                 if (res.code !== 'TRANSACTION_RECEIVED')
                     throw new Error("Unknown error when minting, status is " + res.code + ", Tx hash " + (res?.transaction_hash ?? 'unknown'));

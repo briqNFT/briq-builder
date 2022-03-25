@@ -50,6 +50,8 @@ const IMPL = {
 
 import { reactive, watchEffect, toRef, ref } from 'vue';
 import { logDebug } from '../Messages'
+import { CHAIN_NETWORKS, getCurrentNetwork } from './Network'
+import { getProvider } from './Provider'
 const contractStore = reactive({
     briq: undefined as undefined | BriqContract,
     mint: undefined as undefined | MintContract,
@@ -58,15 +60,8 @@ const contractStore = reactive({
 
 export default contractStore;
 
-var selectedNetwork = ref("");
-
-const NETWORK_MAPPING = {
-    "http://localhost:5000": "localhost",
-    "https://alpha4.starknet.io": "starknet-testnet",
-    "https://alpha-mainnet.starknet.io": "starknet-mainnet",
-} as { [baseUrl: string]: string };
-
-export function forceNetwork(network: string = "")
+var selectedNetwork = ref("" as CHAIN_NETWORKS | undefined);
+export function forceNetwork(network?: CHAIN_NETWORKS)
 {
     selectedNetwork.value = network;
 }
@@ -77,18 +72,18 @@ export function forceNetwork(network: string = "")
 export function watchSignerChanges(walletStore: any)
 {
     let signer = toRef(walletStore, "signer");
-    let provider = toRef(walletStore, "provider");
+    let provider = getProvider();
 
     watchEffect(async () => {
-        let network = selectedNetwork?.value || NETWORK_MAPPING[walletStore.baseUrl];
-        let addr = walletStore.baseUrl && ADDRESSES?.[network];
-        let impl = walletStore.baseUrl && IMPL?.[network];
-        logDebug("SWITCHING TO NETWORK", network, walletStore.baseUrl);
+        let network = selectedNetwork.value || getCurrentNetwork();
+        let addr = network && ADDRESSES?.[network];
+        let impl = network && IMPL?.[network];
+        logDebug("SWITCHING TO NETWORK", network);
         if (addr && addr.briq)
         {
-            contractStore.briq = new impl.briq(addr.briq, signer.value ? signer.value : provider.value);
-            contractStore.set = new impl.set(addr.set, signer.value ? signer.value : provider.value);
-            contractStore.mint = new impl.mint(addr.mint, signer.value ? signer.value : provider.value);
+            contractStore.briq = new impl.briq(addr.briq, signer.value ? signer.value : provider);
+            contractStore.set = new impl.set(addr.set, signer.value ? signer.value : provider);
+            contractStore.mint = new impl.mint(addr.mint, signer.value ? signer.value : provider);
         }
         else
         {
