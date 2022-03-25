@@ -6,8 +6,21 @@ import { CONF } from './Conf';
 var loader;
 async function loadExtraPages()
 {
-    loader = await import('./Dispatch');
+    loader = await import('@/Dispatch');
     await loader.Store.isLoaded;
+}
+// Some pages know that they'll need threeJS so don't wait until Dispatch is loaded to request it.
+async function loadThreeJS()
+{
+    await import('@/three_wrapper');
+}
+
+async function loadAllExtraPages()
+{
+    let res = loadExtraPages();
+    let res2 = loadThreeJS();
+    await res2;
+    return await res;
 }
 
 // After a few seconds, preload the rest of the JS anyways,
@@ -38,7 +51,7 @@ export const routes = [
     {
         path: "/share",
         name: "Share",
-        component: async () => { await loadExtraPages(); return loader.Share },
+        component: async () => { await loadAllExtraPages(); return loader.Share },
         props(route: any) {
             return route.query || {}
         }
@@ -60,13 +73,13 @@ if (CONF.useLanding)
     routes.push({
         path: "/builder",
         name: "Builder",
-        component: async () => { await loadExtraPages(); return loader.Builder },
+        component: async () => { await loadAllExtraPages(); return loader.Builder },
     });
 } else {
     routes.push({
         path: "/",
         name: "Builder",
-        component: async () => { await loadExtraPages(); return loader.Builder },
+        component: async () => { await loadAllExtraPages(); return loader.Builder },
     })
     routes.push({
         path: "/builder",
