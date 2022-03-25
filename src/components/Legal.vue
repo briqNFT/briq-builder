@@ -32,8 +32,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { gaStore } from '../ga.js'
+import { defineComponent } from 'vue';
+import { gaStore } from '../ga.js';
 export default defineComponent({
     computed: {
         gaStore: function () { return gaStore; }

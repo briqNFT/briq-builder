@@ -1,5 +1,3 @@
-import { APP_ENV } from "./Meta";
-
 import { reactive, watchEffect } from 'vue';
 import { logDebug } from "./Messages";
 
@@ -13,7 +11,7 @@ const admins = [
     "0x6043ed114a9a1987fe65b100d0da46fe71b2470e7e5ff8bf91be5346f5e5e3",
     "0x4a9ad47f5086e917bf67077954bd62685d8746c7504026bf43bbecb1fa6dde0",
     "0x583397ff26e17af2562a7e035ee0fbda8f8cbbd1aef5c25b11ea9d8782b1179",
-]
+];
 
 const starBuilders = [
     "0x583397ff26e17af2562a7e035ee0fbda8f8cbbd1aef5c25b11ea9d8782b1179",
@@ -27,7 +25,7 @@ const starBuilders = [
     "0xe8d027b8477d8ad71535eae09d1c91d3103d9f33608fbade6c53299e378c05",
     "0x47f6cb50b946c7734de800fb4e448d84197b7078891d90b99236af00cc6f438",
     "0x7ae7bbb04f49d5a4941c2f6888d2c1e32deb62aab737d83e3104090730ed275",
-]
+];
 
 async function checkOnStore() {
     let store = (await import("./Dispatch")).Store;

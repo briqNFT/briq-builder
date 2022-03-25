@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import GA from '@/components/GA.vue';
-import SplashScreen from '@/components/builder/SplashScreen.vue'
 import { HotkeyManager } from './Hotkeys';
-import { appendFile } from 'fs';
 </script>
 
 <template>
@@ -47,4 +45,3 @@ export default defineComponent({
     }
 })
 </script>
-
