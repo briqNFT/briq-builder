@@ -5,7 +5,7 @@
     <div class="alternate-buttons container mx-auto py-4 md:py-8 px-2 font-normal text-lg">
         <div class="w-auto lg:w-3/4 mx-auto">
             <div class="py-2 md:py-4">
-                <h1 class="text-center font-bold my-2">briq</h1>
+                <h1 class="text-center my-2 briq-logo">briq</h1>
                 <h2 class="text-center text-2xl">LEGAL</h2>
             </div>
             <div class="float-right">
