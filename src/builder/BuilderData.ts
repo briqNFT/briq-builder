@@ -118,7 +118,7 @@ export var builderDataStore = (() => {
                     removal.push({ pos: briq.position });
                     add.push({ pos: targetPos, color: briq.color, material: briq.material, id: briq.id, allow_overwrite: data.allow_overwrite });
                     // This is kinda un-necessarily slow.
-                    if (!targetCell || data.allow_overwrite || data.briqs.indexOf(targetCell) !== -1)
+                    if (!targetCell || data.allow_overwrite || data.briqs.find(x => x._uuid == targetCell._uuid))
                         selectAtPos.push(targetPos);
                 }
                 const _do = () => {
