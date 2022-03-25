@@ -3,7 +3,7 @@ import LandingPage from './components/landing_page/LandingPage.vue'
 import Team from './components/team/Team.vue'
 import { CONF } from './Conf';
 
-import BuilderLoader from './components/Builder/BuilderLoader.vue';
+import BuilderLoader from './components/builder/BuilderLoader.vue';
 
 var loader;
 async function loadExtraPages()
