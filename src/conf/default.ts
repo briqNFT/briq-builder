@@ -1,3 +1,5 @@
+import './default.css';
+
 export const MATERIAL_GENESIS = "0x1"
 
 export const CONF = {

@@ -1,3 +1,5 @@
+import './realms.css';
+
 export const CONF = {
     theme: "realms",
     useLanding: false,

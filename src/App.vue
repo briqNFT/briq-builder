@@ -47,20 +47,3 @@ export default defineComponent({
 })
 </script>
 
-<style>
-html.realms.realms {
-    --color-base: 141 121 91;
-    --color-accent: 22 22 25;
-    --color-darker: 60 53 42;
-    --color-text: 220 220 220;
-    --color-text-on-accent: 220 220 220;
-}
-html.realms.realms.dark {
-    --color-base: 22 22 25;
-    --color-accent: 141 121 91;
-    --color-darker: 60 53 42;
-    --color-text: 220 220 220;
-    --color-text-on-accent: 220 220 220;
-}
-
-</style>
