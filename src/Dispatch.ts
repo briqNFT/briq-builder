@@ -1,3 +1,10 @@
+/**
+ * The purpose of this file is to leverage vite's automatic chunk splitting.
+ * The bulk of the libs (e.g. starknet.js) are not needed on the homepage,
+ * and not loading them there makes that page super-fast, and it doesn't slow the builder significantly.
+ * Three.js is also split in a similar manner.
+ */
+
 import * as StoreModule from './store/Store';
 import BuilderVue from './components/builder/Builder.vue';
 import AdminVue from './components/Admin.vue';

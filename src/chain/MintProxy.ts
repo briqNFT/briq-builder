@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
 import type MintContract from './contracts/mint';
+import { CONF } from '@/Conf';
 
 import { ticketing, OutdatedPromiseError } from '../Async';
 
@@ -20,6 +21,8 @@ var getData = ticketing(async function(contract: MintContract, address: string) 
 
 export async function setupMintProxy(contract: MintContract, address: string)
 {
+    if (CONF.theme === "realms")
+        return;
     mintProxyStore.hasMinted = false;
     mintProxyStore.canMint = false;
     mintProxyStore.walletOk = true;

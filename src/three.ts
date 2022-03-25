@@ -1,3 +1,8 @@
+/**
+ * Three.js is dynamically loaded as it's a rather hefty library and not needed on all pages.
+ * This module exists to fake typescript into thinking it's statically loaded,
+ * just query `await THREE_SETUP;` if you need to wait until three is loaded.
+ */
 import type * as THREETYPES from 'three';
 import type three_wrapper from './three_wrapper';
 
