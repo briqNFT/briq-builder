@@ -1,0 +1,15 @@
+html {
+    --color-base: 235 86 0;
+    --color-accent: 247 137 74;
+    --color-darker: 201 74 0;
+    --color-text: 255 255 255;
+    --color-text-on-accent: 13, 8, 69;
+}
+
+html.dark {
+    --color-base: 117 41 0;
+    --color-accent: 155 56 3;
+    --color-darker: 50 20 0;
+    --color-text: 220 220 220;
+    --color-text-on-accent: 13, 8, 69;
+}
