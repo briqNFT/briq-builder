@@ -17,6 +17,9 @@ import { RealmsLogo } from '@/conf/realms';
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
 
+import { THREE_SETUP } from '@/three';
+import { walletInitComplete } from '@/Wallet';
+
 var localStore = reactive({
   hidden: false,
 });
@@ -28,17 +31,19 @@ export default defineComponent({
     inject: ["CONF"],
     props: ["shouldHide"],
     emit: ["done"],
-    mounted: function() {
-        if (!this.hidden)
-        {
-          setTimeout(() => {
-              this.hidden = "shouldHide";
-              this.$emit("done");
-          }, 1000);
-          setTimeout(() => {
-              this.hidden = "noDisplay";
-          }, 2000);
-        }
+    async mounted() {
+      // If we're remounted, forget about it.
+      if (this.hidden)
+        return;
+      // The purpose of the splash screen is to wait until we've loaded stuff. The relevant stuff is Three JS and checking for a wallet.
+      await THREE_SETUP;
+      await walletInitComplete;
+      console.log("LOADED THREE LOL");
+      this.$emit("done");
+      this.hidden = "shouldHide";
+      setTimeout(() => {
+        this.hidden = "noDisplay";
+      }, 1000);
     }
 })
 </script>
@@ -49,7 +54,7 @@ export default defineComponent({
   @apply fixed w-full h-full flex flex-wrap justify-center content-center text-center;
   @apply bg-base;
   z-index:10000;
-  transition: all 1s;
+  transition: all 0.5s;
 }
 #floatingMenu > * 
 {
