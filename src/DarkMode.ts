@@ -11,7 +11,6 @@ export function useDarkMode()
     return darkModeStore.forcedMode ? darkModeStore.forcedMode === "dark" : DARKMODE_MEDIA;
 }
 
-
 var stopHandle: WatchStopHandle | undefined;
 
 export function watchForDarkMode(forceLight?: boolean)
