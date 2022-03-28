@@ -5,7 +5,6 @@ import { APP_ENV, DEV } from './Meta';
 
 export async function setupMonitoring(app: any, router: any)
 {
-    return;
     if (APP_ENV === "dev")
         return;
     
@@ -21,7 +20,7 @@ export async function setupMonitoring(app: any, router: any)
         integrations: [
             new Integrations.BrowserTracing({
                 routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-                tracingOrigins: ["localhost", "briq.construction","sltech.company", /^\//],
+                tracingOrigins: ["localhost", "realms.briq.construction", "briq.construction", "sltech.company", /^\//],
             }),
         ],
         beforeSend(event: SentryType.Event) {
