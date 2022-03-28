@@ -5,8 +5,8 @@ import { APP_ENV, DEV } from './Meta';
 
 export async function setupMonitoring(app: any, router: any)
 {
-    if (APP_ENV === "dev")
-        return;
+    //if (APP_ENV === "dev")
+    //    return;
     
     let sentryLib = await import('./sentry_wrapper');
     Sentry = sentryLib.Sentry;
@@ -24,8 +24,15 @@ export async function setupMonitoring(app: any, router: any)
             }),
         ],
         beforeSend(event: SentryType.Event) {
+            console.log("MONITOR BEFORESERND", event);
+            // Specifically filter out most network errors.
+            if (event.exception?.values?.[0]?.value?.indexOf("Network Error") !== -1)
+                if (Math.random() > 0.01)
+                    return null;
+            /*return null;
             if ((event.message?.indexOf("Timeout") ?? -1) !== -1 || (event.message?.indexOf("Network Error") ?? -1) !== -1)
                 return null;
+            */
             return event;
         },
         // Still report vue errors in the console.
@@ -33,7 +40,7 @@ export async function setupMonitoring(app: any, router: any)
         // % of transactions to sample for performance.
         tracesSampleRate: 0.0,
         // % of errors to report
-        sampleRate: 0.1,
+        sampleRate: 1.0,
     });
 }
 
