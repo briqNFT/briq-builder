@@ -170,7 +170,7 @@ export default defineComponent({
         });
     },
     computed: {
-        signer() {
+        wallet() {
             return walletStore2;
         },
         setInfo() {

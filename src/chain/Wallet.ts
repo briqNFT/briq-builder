@@ -80,6 +80,7 @@ class WalletStore
                 logDebug("ARGENT-X ENABLED:", addr, provider, signer);
 
                 this.setSigner({ provider: markRaw(provider), signer: markRaw(signer), addr });
+                this.setProviderFromSigner();
                 argx.watchForChanges(async () => {
                     // Disconnect first to reset addresses.
                     await this.disconnect();
