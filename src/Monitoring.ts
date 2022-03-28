@@ -24,15 +24,10 @@ export async function setupMonitoring(app: any, router: any)
             }),
         ],
         beforeSend(event: SentryType.Event) {
-            console.log("MONITOR BEFORESERND", event);
             // Specifically filter out most network errors.
-            if (event.exception?.values?.[0]?.value?.indexOf("Network Error") !== -1)
+            if (event.exception?.values?.[0]?.value === "Network Error" || event.exception?.values?.[0]?.value === "Timeout")
                 if (Math.random() > 0.01)
                     return null;
-            /*return null;
-            if ((event.message?.indexOf("Timeout") ?? -1) !== -1 || (event.message?.indexOf("Network Error") ?? -1) !== -1)
-                return null;
-            */
             return event;
         },
         // Still report vue errors in the console.
