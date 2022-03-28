@@ -19,9 +19,9 @@ export const ADDRESSES = {
         mint: "",
     },
     "starknet-mainnet": {
-        briq: "0x03c5c2e0c3e6f48c5fa286876418450304ae5da85d333bcbf35ca495d10939c5",
-        mint: "0x05be37356fffd6bc49940dff73bfb92d2f355f2c3e9cddef36274b844c59dfc6",
-        set: "0x03527d1810201e32d34bd2221713a9094b965c7af0be61e622714f27a937e547",
+        briq: "",
+        mint: "",
+        set: "",
     }
 }
 
