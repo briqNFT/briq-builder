@@ -84,7 +84,7 @@ export function watchSignerChanges(walletStore: any)
         let addr = walletStore.baseUrl && ADDRESSES?.[network];
         let impl = walletStore.baseUrl && IMPL?.[network];
         logDebug("SWITCHING TO NETWORK", network, walletStore.baseUrl);
-        if (addr)
+        if (addr && addr.briq)
         {
             contractStore.briq = new impl.briq(addr.briq, signer.value ? signer.value : provider.value);
             contractStore.set = new impl.set(addr.set, signer.value ? signer.value : provider.value);
