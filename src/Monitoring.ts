@@ -1,7 +1,7 @@
 import type * as SentryType from '@sentry/vue';
 var Sentry: typeof SentryType;
 
-import { APP_ENV, DEV } from './Meta';
+import { APP_ENV, DEV, VERSION } from './Meta';
 
 export async function setupMonitoring(app: any, router: any)
 {
@@ -16,6 +16,7 @@ export async function setupMonitoring(app: any, router: any)
     Sentry.init({
         app,
         dsn: "https://906eb15ca7ee4507b4e8c19d36dad8df@o1101631.ingest.sentry.io/6127679",
+        release: `briq-api-${VERSION}`,
         environment: APP_ENV,
         integrations: [
             new Integrations.BrowserTracing({
