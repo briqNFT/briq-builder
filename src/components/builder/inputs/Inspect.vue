@@ -2,7 +2,6 @@
 import BriqSwapModal from '../modals/BriqSwapModal.vue';
 import { pushModal } from "../../Modals.vue";
 import Hotkey from "../../generic/Hotkey.vue";
-import Checkbox from "@/components/generic/Checkbox.vue";
 </script>
 
 <template>
