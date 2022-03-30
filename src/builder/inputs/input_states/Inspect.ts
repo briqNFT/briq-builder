@@ -15,6 +15,7 @@ import type { HotkeyHandle } from '@/Hotkeys';
 
 import { watchEffect, WatchStopHandle } from 'vue';
 import { BoxSelection, VoxelAlignedSelection } from './SelectHelpers';
+import { inputStore } from '../InputStore';
 
 var getRotationHelperMesh = (() => {
     let mainMesh: THREE.Object3D;
@@ -123,7 +124,11 @@ export class InspectInput extends MouseInputState
     meshWatcher!: WatchStopHandle;
 
     _canMove() {
-        return setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
+        return inputStore.showMoveGizmo && setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
+    }
+
+    _canRotate() {
+        return featureFlags.rotate && inputStore.showRotateGizmo && setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
     }
 
     _canCopyPaste()
@@ -142,14 +147,12 @@ export class InspectInput extends MouseInputState
         selectionRender.show();
 
         // Register the movement gizmo on the scene.
-        if (this._canMove())
-        {
-            this.mesh = getMovementHelperMesh();
-            this.otherMesh = getRotationHelperMesh();
-            this.otherMesh.visible = featureFlags.rotate;
-            overlayObjects.add(this.mesh);
-            overlayObjects.add(this.otherMesh);
-        }
+        this.mesh = getMovementHelperMesh();
+        this.mesh.visible = this._canMove();
+        this.otherMesh = getRotationHelperMesh();
+        this.otherMesh.visible = this._canRotate();
+        overlayObjects.add(this.mesh);
+        overlayObjects.add(this.otherMesh);
 
         // Update the movement gizmo when needed.
         this.meshWatcher = watchEffect(() => {
@@ -157,10 +160,8 @@ export class InspectInput extends MouseInputState
             store.state.builderData.currentSet.briqs_;
             let avgPos = this.fsm.store.selectionMgr.getCenterPos();
             this.gui.focusPos = avgPos;
-            if (!this.mesh)
-                return;
-            this.mesh.visible = !!avgPos;
-            this.otherMesh.visible = !!avgPos && featureFlags.rotate;
+            this.mesh.visible = !!avgPos && this._canMove();
+            this.otherMesh.visible = !!avgPos && this._canRotate();
             if (avgPos)
             {
                 this.mesh.position.set(avgPos.x, avgPos.y, avgPos.z);
@@ -183,9 +184,6 @@ export class InspectInput extends MouseInputState
     }
 
     override async onFrame() {
-        // In view-only mode, the mesh isn't defined, so early-exit.
-        if (!this.mesh)
-            return;
         let distance = camera.position.distanceTo(this.mesh.position);
         this.mesh.scale.setScalar(Math.max(1, distance / 30.0));
         this.otherMesh.scale.setScalar(Math.max(1, distance / 30.0));
@@ -206,7 +204,7 @@ export class InspectInput extends MouseInputState
 
     async onPointerDown(event: PointerEvent)
     {
-        if (this._canMove())
+        if (this._canMove() || this._canRotate())
         {
             let rc = new THREE.Raycaster();
             rc.setFromCamera({ x: (event.clientX / window.innerWidth - 0.5) * 2, y: -(event.clientY / window.innerHeight - 0.5) * 2 }, camera);
@@ -264,6 +262,7 @@ export class InspectInput extends MouseInputState
 export class InspectOnlyInput extends InspectInput
 {
     _canMove() { return false; }
+    _canRotate() { return false; }
     _canCopyPaste() { return false; }
 }
 

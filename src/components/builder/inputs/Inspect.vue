@@ -2,6 +2,7 @@
 import BriqSwapModal from '../modals/BriqSwapModal.vue';
 import { pushModal } from "../../Modals.vue";
 import Hotkey from "../../generic/Hotkey.vue";
+import Checkbox from "@/components/generic/Checkbox.vue";
 </script>
 
 <template>
@@ -25,7 +26,12 @@ import Hotkey from "../../generic/Hotkey.vue";
         </div>
         <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Selection</h4>
         <div class="flex flex-col gap-1">
-            <div class="flex gap-1 justify-begin">
+            <div class="grid grid-cols-2 gap-0.5">
+                <CheckboxBtn :enabled="inputStore.showMoveGizmo" @enable="(enabled: boolean) => { inputStore.showMoveGizmo = enabled; }"
+                    tooltip="When active, show the 'movement' gizmo."><template #icon><i class="fas fa-arrows-alt"></i></template></CheckboxBtn>
+                <CheckboxBtn :enabled="inputStore.showRotateGizmo" @enable="(enabled: boolean) => { inputStore.showRotateGizmo = enabled; }"
+                    tooltip="When active, show the 'rotation' gizmo."><template #icon><i class="fas fa-sync"></i></template></CheckboxBtn>
+
                 <Btn :disabled="inputStore.defaultSelectionMethod !== 'BOX'" @click="inputStore.defaultSelectionMethod = 'VOXEL'"
                     tooltip="Shift-click selects briqs in a briq-aware mode. Use shift+alt for box selection."><i class="fas fa-cubes"></i></Btn>
                 <Btn :disabled="inputStore.defaultSelectionMethod === 'BOX'" @click="inputStore.defaultSelectionMethod = 'BOX'"
@@ -39,10 +45,9 @@ import Hotkey from "../../generic/Hotkey.vue";
         </div>
         <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Move / Copy</h4>
         <div class="flex flex-col gap-1 my-2">
-            <Btn tooltip="Overwrite any existing briq when moving or pasting briqs. If off, existing briqs will instead be kept."
-                @click="overlayMode = !overlayMode">
-                <label class="pointer-events-none"><input type="checkbox" v-model="overlayMode"> Overwrite</label>
-            </Btn>
+            <CheckboxBtn tooltip="Overwrite any existing briq when moving or pasting briqs. If off, existing briqs will instead be kept."
+                :enabled="overlayMode" @click="overlayMode = !overlayMode">Overwrite
+            </CheckboxBtn>
         </div>
     </div>
     <div v-if="fsm.selectionBox"

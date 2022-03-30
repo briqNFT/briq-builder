@@ -1,4 +1,5 @@
 import { reactive, watchEffect } from 'vue';
+import { walletStore2 } from './chain/Wallet';
 import { logDebug } from "./Messages";
 
 export const featureFlags = reactive({
@@ -28,16 +29,14 @@ const starBuilders = [
 ];
 
 async function checkOnStore() {
-    let store = (await import("./Dispatch")).Store;
-    await store.isLoaded;
-    logDebug("FEATURE_FLAGS - Store loaded");
+    logDebug("FEATURE_FLAGS - Loaded");
     watchEffect(() => {
-        if (admins.indexOf(store?.store?.state?.wallet?.userWalletAddress) !== -1)
+        if (admins.indexOf(walletStore2.userWalletAddress) !== -1)
         {
             // Admin-only.
             featureFlags.rotate = true;
         }
-        else if (starBuilders.indexOf(store?.store?.state?.wallet?.userWalletAddress) !== -1)
+        else if (starBuilders.indexOf(walletStore2.userWalletAddress) !== -1)
         {
             featureFlags.rotate = true;
         }
