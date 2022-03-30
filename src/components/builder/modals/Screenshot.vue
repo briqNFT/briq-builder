@@ -3,28 +3,36 @@
         <h2 class="visible text-center text-[5rem] opacity-50 pointer-events-none">SCREENSHOTTING</h2>
         <teleport to="#inputComp">
             <div class="flex flex-col my-4 gap-2">
+                <Btn @click="returnScreen"><i class="fas fa-camera"></i> Take Screenshot</Btn>
+                <Btn @click="$emit('close')"><i class="fas fa-ban"></i> Cancel</Btn>
+            </div>
+
+            <div class="flex flex-col my-4 gap-2">
+                <Btn @click="resetCamera">Reset Camera</Btn>
+                <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length" class="leading-4" >Center on Selection</Btn>
+            </div>
+
+            <div class="flex flex-col my-4 gap-2">
                 <Btn @click="openSettings">Open Settings</Btn>
                 <Btn v-if="!builderSettings.transparentBackground" @click="builderSettings.transparentBackground = true">Set transparent<br/>background</Btn>
                 <Btn v-if="builderSettings.transparentBackground" @click="builderSettings.transparentBackground = false">Set opaque<br/>background</Btn>
-            </div>
-            <div class="flex flex-col my-4 gap-2">
-                <Btn @click="$emit('close')"><i class="fas fa-ban"></i> Cancel</Btn>
-                <Btn @click="returnScreen"><i class="fas fa-camera"></i> Take Screenshot</Btn>
             </div>
         </teleport>
     </div>
 </template>
 
 <script lang="ts">
-import { takeScreenshot } from '../../../builder/graphics/Builder';
-import { inputStore } from '../../../builder/inputs/InputStore';
-import { pushModal, setOnlyShowLast } from '../../Modals.vue';
+import { takeScreenshot } from '@/builder/graphics/Builder';
+import { inputStore } from '@/builder/inputs/InputStore';
+import { pushModal, setOnlyShowLast } from '@/components/Modals.vue';
 import SettingsVue from './Settings.vue';
 
-import builderSettings from '../../../builder/graphics/Settings';
+import builderSettings from '@/builder/graphics/Settings';
+
+import { builderInputFsm } from '@/builder/inputs/BuilderInput';
+import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
 import { defineComponent } from 'vue';
-import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 export default defineComponent({
     data() {
         return {
@@ -36,7 +44,7 @@ export default defineComponent({
     },
     mounted() {
         this.oldInput = inputStore.currentInput;
-        builderInputFsm.switchTo("inspect");
+        builderInputFsm.switchTo("screenshot");
         inputStore.forceInput = true;
         // Hide the modal itself (the teleported stuff isn't affected)
         this.$emit('hide');
@@ -50,8 +58,21 @@ export default defineComponent({
     },
     props: ["metadata"],
     emits: ["close", "hide", "show"],
-
+    computed: {
+        selection() {
+            return inputStore.selectionMgr;
+        },
+        fsmState() {
+            return builderInputFsm.gui;
+        },
+    },
     methods: {
+        resetCamera() {
+            dispatchBuilderAction("put_all_in_view");
+        },
+        centerCamera() {
+            dispatchBuilderAction("set_camera_target", { target: [this.fsmState.focusPos.x, this.fsmState.focusPos.y, this.fsmState.focusPos.z] });
+        },
         takeScreen()
         {
             let uri = takeScreenshot();

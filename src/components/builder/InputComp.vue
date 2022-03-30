@@ -30,8 +30,9 @@ export default defineComponent({
                 "inspect_box": Inspect,
                 "drag": Inspect,
                 "rotate": Inspect,
-                "copy_paste": Inspect
+                "copy_paste": Inspect,
                 // Camera shows nothing on purpose.
+                // Empty neither
             })
         };
     }

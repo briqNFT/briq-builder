@@ -128,7 +128,7 @@ export class InspectInput extends MouseInputState
 
     _canCopyPaste()
     {
-        return this.fsm.store.selectionMgr.selectedBriqs.length;
+        return this.fsm.store.selectionMgr.selectedBriqs.length > 0;
     }
 
     override onEnter()
@@ -259,6 +259,12 @@ export class InspectInput extends MouseInputState
                 this.fsm.store.selectionMgr.add(...pos);
         }
     }
+}
+
+export class InspectOnlyInput extends InspectInput
+{
+    _canMove() { return false; }
+    _canCopyPaste() { return false; }
 }
 
 export class BoxSelect extends BoxSelection
