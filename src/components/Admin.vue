@@ -110,12 +110,12 @@ export default defineComponent({
             pushMessage(JSON.stringify((await contractStore.briq?.mint(address, qty))) ?? "Failed to mint, contract is unset");
         },
         async setImpl(contract: any, address: string) {
-            if (walletStore2.signer.signer)
+            if (walletStore2?.signer?.signer)
             {
                 await (walletStore2.signer as AccountInterface).execute({
                     contractAddress: contract.getAddress(),
                     entrypoint: "setImplementation",
-                    calldata: []
+                    calldata: [address]
                 });
             }
             else

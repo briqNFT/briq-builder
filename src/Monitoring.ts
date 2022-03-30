@@ -40,6 +40,15 @@ export async function setupMonitoring(app: any, router: any)
     });
 }
 
+export function addBreadCrumb(message: string)
+{
+    Sentry.addBreadcrumb({
+        category: "console",
+        message: message,
+        level: Sentry.Severity.Info,
+      });
+}
+
 /**
  * Manual exception reporting. Adds more info to the stack trace for easier tracking.
  * @param err Error to track. Can be 'string' because of an ArgentX bug.

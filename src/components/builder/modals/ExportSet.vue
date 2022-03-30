@@ -123,7 +123,7 @@ import MintModalVue from './MintModal.vue';
 type ExportSteps = 'PRECHECKS' | 'METADATA' | 'PREVIEW' | 'CONFIRMATION' | 'SIGNING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'ERROR' | 'DONE';
 const exportSteps = ['PRECHECKS', 'METADATA', 'PREVIEW', 'CONFIRMATION', 'SIGNING', 'SENDING_TRANSACTION', 'WAITING_FOR_CONFIRMATION', 'ERROR', 'DONE'];
 
-async function sleep() { await new Promise(res => setTimeout(res, 5000)) }
+import { addBreadCrumb } from '@/Monitoring';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -365,10 +365,14 @@ export default defineComponent({
                 });
                 this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
 
+                addBreadCrumb("Before OnSetMinted");
                 let info = setsManager.onSetMinted(this.set.id, this.exportSet)
+                addBreadCrumb("After OnSetMinted");
                 info.chain_owner = this.wallet.userWalletAddress;
                 this.setId = this.exportSet.id;
+                addBreadCrumb("After setting this.setId");
                 this.$store.dispatch("builderData/select_set", this.exportSet.id);
+                addBreadCrumb("Dispatched.");
 
                 this.exporting = 'DONE';
             }
