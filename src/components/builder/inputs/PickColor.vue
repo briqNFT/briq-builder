@@ -7,7 +7,7 @@ import ColorManager from '../modals/ColorManager.vue';
 <template>
     <!-- Flex to occupy width-->
         <div class="flex-1 overflow-auto">
-    <div :class="'' + (palette.getNbColors() < 20 ? 'grid grid-rows-2 grid-flow-col md:flex md:flex-col gap-0.5' : 'grid grid-cols-3 grid-flow-row gap-0.5')">
+    <div :class="'grid grid-rows-2 grid-flow-col gap-0.5 ' + (palette.getNbColors() < 20 ? ' md:flex md:flex-col' : ' md:grid-cols-3 md:grid-flow-row')">
         <div v-if="inputStore.currentInput.indexOf('place') !== -1" class="col-span-3 flex flex-col" v-for="value, key in availableNFTs" :key="key">
             <Btn class='h-5 min-h-0 shadow-md m-0 p-0 leading-3'
                 :tooltip="'Place keystone'"
