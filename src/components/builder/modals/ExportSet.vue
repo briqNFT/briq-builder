@@ -263,9 +263,11 @@ export default defineComponent({
         },
         async retakeScreenshot() {
             let img = new Image();
-            //this.$emit('hide');
-            img.src = await pushModal(ScreenshotVue, { set: this.setId }) as string;
-            //this.$emit('show');
+            let url = await pushModal(ScreenshotVue, { set: this.setId }) as string;
+            // Nothing to do if we cancelled.
+            if (!url)
+                return;
+            img.src = url;
             await img.decode();
             this.ogImage = img.src;
             this.screenshotPromise = this.prepareImage(img);
@@ -273,7 +275,11 @@ export default defineComponent({
         },
         async cropScreenshot() {
             let img = new Image();
-            img.src = await pushModal(CropScreenshotVue, { screenshot: this.ogImage }) as string;
+            let url = await pushModal(CropScreenshotVue, { screenshot: this.ogImage }) as string;;
+            // Nothing to do if we cancelled.
+            if (!url)
+                return;
+            img.src = url
             await img.decode();
             this.screenshotPromise = this.prepareImage(img);
             this.screenshot = await this.screenshotPromise;

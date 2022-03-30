@@ -5,8 +5,8 @@ import { APP_ENV, DEV, VERSION } from './Meta';
 
 export async function setupMonitoring(app: any, router: any)
 {
-    //if (APP_ENV === "dev")
-    //    return;
+    if (APP_ENV === "dev")
+        return;
     
     let sentryLib = await import('./sentry_wrapper');
     Sentry = sentryLib.Sentry;
