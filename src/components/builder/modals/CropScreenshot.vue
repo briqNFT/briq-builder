@@ -4,7 +4,7 @@
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full my-4">Crop Screenshot</h2>
             <div class="relative my-4">
-                <img class="cursor-crosshair" ref="image" @mousedown="onMouseDown" @mousemove="onMouseMove" @mouseup="onMouseUp" :src="metadata.screenshot"/>
+                <img class="cursor-crosshair" ref="image" @mousedown="onMouseDown" :src="metadata.screenshot"/>
                 <div class="absolute top-0 left-0 pointer-events-none overflow-hidden">
                     <div ref="overlay" class="outline-black outline opacity-50 outline-[5000px] absolute top-0 left-0">
                     </div>
@@ -15,6 +15,8 @@
                 <Btn class="my-2 float-right" @click="crop"><span class="px-4">Crop</span></Btn>
             </div>
         </div>
+        <!-- When the user clicked, overlay a screen to easily allow selecting corners & prevent input on other UI elements. -->
+        <div v-if="active" class="fixed top-0 left-0 w-screen h-screen" @mousemove="onMouseMove" @mouseup="onMouseUp"></div>
     </div>
 </template>
 
@@ -34,27 +36,43 @@ export default defineComponent({
     props: ["metadata"],
     emits: ["close"],
     mounted() {
-        this.$refs.overlay.parentNode.style.width = `${this.$refs.image.width}px`;
-        this.$refs.overlay.parentNode.style.height = `${this.$refs.image.height}px`;
+        this.overlayParent.style.width = `${this.image.width}px`;
+        this.overlayParent.style.height = `${this.image.height}px`;
         this.reset();
         watchEffect(() => {
-            this.$refs.overlay.style.left = `${this.sx}px`;
-            this.$refs.overlay.style.top = `${this.sy}px`;
-            this.$refs.overlay.style.width = `${this.ex - this.sx}px`;
-            this.$refs.overlay.style.height = `${this.ey - this.sy}px`;
+            this.overlay.style.left = `${Math.min(this.sx, this.ex)}px`;
+            this.overlay.style.top = `${Math.min(this.sy, this.ey)}px`;
+            this.overlay.style.width = `${Math.abs(this.ex - this.sx)}px`;
+            this.overlay.style.height = `${Math.abs(this.ey - this.sy)}px`;
         })
         window.addEventListener("resize", () => this.onResize());
     },
     beforeUnmount() {
         window.removeEventListener("resize", () => this.onResize());
     },
+    computed: {
+        image() {
+            return this.$refs.image as HTMLImageElement;
+        },
+        overlay() {
+            return this.$refs.overlay as HTMLElement;
+        },
+        overlayParent() {
+            return this.overlay.parentNode! as HTMLElement;
+        }
+    },
     methods: {
+        getOffset(event: MouseEvent)
+        {
+            let canvasPos = this.image.getBoundingClientRect();
+            return [Math.max(0, Math.min(canvasPos.width, event.clientX - canvasPos.x)), Math.max(0, Math.min(canvasPos.height, event.clientY - canvasPos.y))];
+        },
         onResize() {
             // Wait until we're setup.
-            if (!this.$refs.overlay.parentNode)
+            if (!this.overlayParent)
                 return;
-            this.$refs.overlay.parentNode.style.width = `${this.$refs.image.width}px`;
-            this.$refs.overlay.parentNode.style.height = `${this.$refs.image.height}px`;
+            this.overlayParent.style.width = `${this.image.width}px`;
+            this.overlayParent.style.height = `${this.image.height}px`;
             this.reset();
         },
         async onMouseDown(event: MouseEvent) {
@@ -66,12 +84,7 @@ export default defineComponent({
         async onMouseMove(event: MouseEvent) {
             if (!this.active)
                 return;
-            this.ex = event.offsetX;
-            this.ey = event.offsetY;
-            if (this.ex < this.sx)
-                this.ex = this.sx;
-            if (this.ey < this.sy)
-                this.ey = this.sy;
+            [this.ex, this.ey] = this.getOffset(event);
         },
         async onMouseUp(event: MouseEvent) {
             this.active = false;
@@ -83,17 +96,17 @@ export default defineComponent({
         },
         reset() {
             this.sx = this.sy = 0;
-            this.ex = this.$refs.image.width;
-            this.ey = this.$refs.image.height;
+            this.ex = this.image.width;
+            this.ey = this.image.height;
         },
         async crop() {
             let c = document.createElement("canvas");
             let ctx = c.getContext("2d")!;
-            c.width = (this.ex - this.sx) / this.$refs.image.clientWidth * this.$refs.image.naturalWidth;
-            c.height = (this.ey - this.sy) / this.$refs.image.clientHeight * this.$refs.image.naturalHeight;
-            ctx.drawImage(this.$refs.image,
-                -this.sx / this.$refs.image.clientWidth * this.$refs.image.naturalWidth,
-                -this.sy / this.$refs.image.clientHeight * this.$refs.image.naturalHeight
+            c.width = Math.abs(this.ex - this.sx) / this.image.clientWidth * this.image.naturalWidth;
+            c.height = Math.abs(this.ey - this.sy) / this.image.clientHeight * this.image.naturalHeight;
+            ctx.drawImage(this.image,
+                -Math.min(this.sx, this.ex) / this.image.clientWidth * this.image.naturalWidth,
+                -Math.min(this.sy, this.ey) / this.image.clientHeight * this.image.naturalHeight
             );
             let data = (await fetch(c.toDataURL("image/png"))).url;
             this.$emit('close', data);
