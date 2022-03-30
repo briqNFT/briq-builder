@@ -11,7 +11,7 @@ export const inputStore = reactive({
     selectionMgr: new SelectionManager(),
     currentColor: palettesMgr.getCurrent().getFirstColor(),
 
-    defaultSelectionMethod: 'VOXEL' as ('BOX' | 'VOXEL'),
+    defaultSelectionMethod: 'BOX' as ('BOX' | 'VOXEL'),
     showMoveGizmo: true,
     showRotateGizmo: false,
     

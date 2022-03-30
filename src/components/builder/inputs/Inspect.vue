@@ -32,10 +32,10 @@ import Checkbox from "@/components/generic/Checkbox.vue";
                 <CheckboxBtn :enabled="inputStore.showRotateGizmo" @enable="(enabled: boolean) => { inputStore.showRotateGizmo = enabled; }"
                     tooltip="When active, show the 'rotation' gizmo."><template #icon><i class="fas fa-sync"></i></template></CheckboxBtn>
 
-                <Btn :disabled="inputStore.defaultSelectionMethod !== 'BOX'" @click="inputStore.defaultSelectionMethod = 'VOXEL'"
-                    tooltip="Shift-click selects briqs in a briq-aware mode. Use shift+alt for box selection."><i class="fas fa-cubes"></i></Btn>
                 <Btn :disabled="inputStore.defaultSelectionMethod === 'BOX'" @click="inputStore.defaultSelectionMethod = 'BOX'"
                     tooltip="Shift-click selects briqs within a box on the screen. Use shift+alt for briq-aware selection."><i class="fas fa-vector-square"></i></Btn>
+                <Btn :disabled="inputStore.defaultSelectionMethod !== 'BOX'" @click="inputStore.defaultSelectionMethod = 'VOXEL'"
+                    tooltip="Shift-click selects briqs in a briq-aware mode. Use shift+alt for box selection."><i class="fas fa-cubes"></i></Btn>
             </div>
             <Btn @click="selectAll">Select All</Btn>
             <Btn :disabled="!selection.selectedBriqs.length" @click="copy" tooltip="Copy selected briqs. Hotkey: Ctrl + C">Copy</Btn>
