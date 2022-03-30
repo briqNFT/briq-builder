@@ -42,7 +42,7 @@ async function checkOnStore() {
         }
         else
         {
-            featureFlags.rotate = false;
+            featureFlags.rotate = true;
         }
     })
 };
