@@ -371,14 +371,15 @@ export default defineComponent({
                 });
                 this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
 
-                addBreadCrumb("Before OnSetMinted");
+                addBreadCrumb("Before OnSetMinted - " + this.set.id + ' vs ' + this.exportSet.id);
                 let info = setsManager.onSetMinted(this.set.id, this.exportSet)
                 addBreadCrumb("After OnSetMinted");
                 info.chain_owner = this.wallet.userWalletAddress;
                 this.setId = this.exportSet.id;
-                addBreadCrumb("After setting this.setId");
+                addBreadCrumb("After setting this.setId to " + this.setId + ' -> ' + setsManager.setsInfo?.[this.setId]);
                 this.$store.dispatch("builderData/select_set", this.exportSet.id);
                 addBreadCrumb("Dispatched.");
+
 
                 this.exporting = 'DONE';
             }
