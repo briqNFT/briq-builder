@@ -3,15 +3,12 @@
 </template>
 
 <style scoped>
-.iro >>> .IroColorPicker
-{
-}
 </style>
 
 <script lang="ts">
 import iro from '@jaames/iro';
 
-import { defineComponent } from 'vue';
+import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {

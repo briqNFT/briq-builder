@@ -5,11 +5,11 @@
             <h3 class="text center w-full">Settings</h3>
             <div class="my-4 settings">
                 <p>Settings may need reloading to apply properly.</p>
-                <p><label><input type="checkbox" v-model="builderSettings.useSAO"/> Use Screen-space Ambient Occlusion</label></p>
-                <p><label><input type="checkbox" v-model="builderSettings.useRealAA"/> Use Anti-Aliasing</label></p>
-                <p><label><input type="checkbox" v-model="builderSettings.showPlane"/> Show base plane</label></p>
-                <p><label><input type="checkbox" :disabled="!builderSettings.showPlane" v-model="builderSettings.showGrid"/> Show base grid</label></p>
-                <p><label><input type="checkbox" v-model="builderSettings.showBorders"/> Show briq borders</label></p>
+                <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.useSAO"/> Use Screen-space Ambient Occlusion</label></p>
+                <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.useRealAA"/> Use Anti-Aliasing</label></p>
+                <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.showPlane"/> Show base plane</label></p>
+                <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" :disabled="!builderSettings.showPlane" v-model="builderSettings.showGrid"/> Show base grid</label></p>
+                <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.showBorders"/> Show briq borders</label></p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.planeColor"/> Base Plane Color</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.gridColor"/> Grid Color</p>
                 <p class="flex flex-row items-center gap-1 my-0.5"><input type="color" class="p-0" v-model="builderSettings.backgroundColor"/> Background Color</p>
