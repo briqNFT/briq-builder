@@ -8,7 +8,10 @@
             <h2 class="text-center">Color Picker</h2>
             <div class="flex justify-stretch items-center flex-col w-full font-medium pt-8">
                 <ColorPicker :color="color || metadata?.color" @colorChange="(col) => { color = col; }"/>
-                <input type="text" maxlength="7" size="7" v-model="color" class="my-4">
+                <p class="flex justify-center gap-2 my-4">
+                    <span class="inline-block w-20 h-8 rounded-md border-2 border-white" :style="{ backgroundColor: color }"></span>
+                    <input class="text-center" type="text" maxlength="7" size="7" v-model="color">
+                </p>
             </div>
             <Btn class="float-right" @click="pickColor">Pick</Btn>
         </div>
