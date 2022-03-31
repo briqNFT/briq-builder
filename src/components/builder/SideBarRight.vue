@@ -15,7 +15,8 @@ import BlockchainStatus from './BlockchainStatus.vue';
                 <div class="flex flex-col flex-nowrap gap-1">
                     <Btn @click="pushModal(Settings, { background: 'rgba(0, 0, 0, 0.1)', align: 'justify-end items-start' })">Settings</Btn>
                     <Btn @click="$router.push({ path: '/legal' })">Legal / Privacy</Btn>
-                    <a href="https://briq.construction"><Btn class="w-full"><span class="briq-logo">briq</span> home</Btn></a>
+                    <a  v-if="CONF.theme === 'realms'" href="https://briq.construction"><Btn class="w-full"><span class="briq-logo">briq</span> home</Btn></a>
+                    <Btn v-else="" @click="$router.push({ path: '/' })">Home</Btn>
                     <!--<Btn @click="$router.push({ path: '/admin' })">Admin</Btn>-->
                 </div>
                 <div class="flex flex-col content-end my-4">
@@ -42,6 +43,8 @@ import { inputStore } from '../../builder/inputs/InputStore';
 
 import WalletSelectorVue from '../WalletSelector.vue';
 
+import { CONF } from '@/Conf';
+
 import RenameSet from './modals/RenameSet.vue';
 import ExportSet from './modals/ExportSet.vue';
 import { walletStore2 } from '@/chain/Wallet';
@@ -58,6 +61,9 @@ export default defineComponent({
     },
     inject: ["messages"],
     computed: {
+        CONF() {
+            return CONF;
+        },
         wallet() {
             return walletStore2;
         },
