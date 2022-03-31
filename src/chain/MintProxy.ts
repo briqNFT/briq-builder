@@ -11,9 +11,11 @@ export const mintProxyStore = reactive({
 });
 
 var getData = ticketing(async function(contract: MintContract, address: string) {
-    let contractOk = contract.contract.providerOrAccount.getCode(address);
+    let walletOk = contract.contract.providerOrAccount.getCode(address);
+    let contractOk = contract.contract.providerOrAccount.getCode(contract.contract.address);
     let minted = contract.has_minted(address);
     return {
+        walletOk: ((await walletOk)?.bytecode?.length ?? 0) > 0,
         contractOk: ((await contractOk)?.bytecode?.length ?? 0) > 0,
         minted: await minted
     };
@@ -27,6 +29,7 @@ export async function setupMintProxy(contract: MintContract, address: string)
     mintProxyStore.canMint = false;
     mintProxyStore.walletOk = true;
     let res = {
+        walletOk: false,
         contractOk: false,
         minted: false,
     };
@@ -39,11 +42,12 @@ export async function setupMintProxy(contract: MintContract, address: string)
         if (err instanceof OutdatedPromiseError)
             return;
         res.contractOk = false;
+        res.walletOk = false;
         res.minted = false;
     }
-    mintProxyStore.walletOk = res.contractOk;
+    mintProxyStore.walletOk = res.walletOk;
     if (res.minted)
         mintProxyStore.hasMinted = true;
     else
-        mintProxyStore.canMint = true;
+        mintProxyStore.canMint = res.contractOk;
 }
