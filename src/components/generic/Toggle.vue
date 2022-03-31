@@ -1,7 +1,9 @@
 <template>
-    <span :class="'custom-toggle inline-flex items-center p-[0.125em] ' + (enabled || modelValue ? 'enabled' : '')" @click="$emit('enable', !enabled); $emit('update:modelValue', !modelValue)">
+    <span :class="'custom-toggle inline-flex items-center p-[0.125em] ' + (active ? 'enabled' : '')" @click="$emit('enable', !active); $emit('update:modelValue', !active)">
 
-        <span class="indicator flex justify-center items-center"><span class="text-[0.875em]"><slot></slot></span></span>
+        <span class="indicator flex justify-center items-center"><span class="text-[0.875em]"><slot>
+            <i :class="'fas fa-check transition-opacity duration-300 ' + (active ? 'opacity-1' : 'opacity-0')"></i>
+        </slot></span></span>
     </span>
 </template>
 
@@ -22,7 +24,7 @@
 
 .custom-toggle .indicator {
     @apply shadow-md;
-    color: black;
+    @apply text-gray-500 dark:text-gray-700;
     @apply bg-white dark:bg-gray-300;
     border-radius:50%;
     position: relative;
@@ -33,6 +35,7 @@
 }
 
 .custom-toggle.enabled .indicator {
+    @apply text-gray-700 dark:text-black;
     position: relative;
     left: calc(100% - 1.25em);
 }
@@ -45,6 +48,11 @@
  */
 import { defineComponent } from "vue";
 export default defineComponent({
+    computed: {
+        active() {
+            return this.enabled || this.modelValue;
+        }
+    },
     emits: ["enable", "update:modelValue"],
     props: ["enabled", "modelValue"],
 });
