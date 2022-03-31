@@ -344,7 +344,7 @@ watchEffect(() => {
                 // Delete
                 if (window.localStorage.getItem("briq_set_" + sid))
                 {
-                    logDebug("SET STORAGE HANDLER - deleted local set");
+                    logDebug("SET STORAGE HANDLER - deleted local set", sid);
                     window.localStorage.removeItem("briq_set_" + sid);
                 }
                 if (!info)

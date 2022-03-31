@@ -42,11 +42,12 @@ export async function setupMonitoring(app: any, router: any)
 
 export function addBreadCrumb(message: string)
 {
-    Sentry.addBreadcrumb({
-        category: "console",
-        message: message,
-        level: Sentry.Severity.Info,
-      });
+    if (Sentry)
+        Sentry.addBreadcrumb({
+            category: "console",
+            message: message,
+            level: Sentry.Severity.Info,
+        });
 }
 
 /**

@@ -126,6 +126,7 @@ const exportSteps = ['PRECHECKS', 'METADATA', 'PREVIEW', 'CONFIRMATION', 'SIGNIN
 import { addBreadCrumb } from '@/Monitoring';
 
 import { defineComponent } from 'vue';
+import { logDebug } from '@/Messages';
 export default defineComponent({
     data() {
         return {
@@ -177,7 +178,9 @@ export default defineComponent({
             return setsManager.setsInfo[this.setId];
         },
         set() {
-            return this.setInfo.local!;
+            if (!this.setInfo.local)
+                logDebug("Did not find set ", this.setId, this.setInfo.local, this.setInfo.chain);
+            return this.setInfo.local;
         },
         alreadyOnChain() {
             return this.setInfo.status !== 'LOCAL' || this.pending_transaction?.isOnChain();
