@@ -1,5 +1,5 @@
 <template>
-    <div v-if="data?.modal">
+    <div v-if="data?.modal" class="fixed top-0 overflow-auto h-screen visible">
         <div
             :class="'flex h-screen w-screen overflow-auto fixed top-0 justify-center items-center ' + (visible ? 'visible' : 'invisible')"
             :style="modalBackground"
@@ -8,7 +8,7 @@
         </div>
         <Hotkey name="escape" :handler="() => close()"/>
         <div
-            :class="'flex min-h-screen w-screen overflow-auto absolute top-0 invisible ' + modalAlignment"
+            :class="'flex min-h-screen w-screen invisible ' + modalAlignment"
         >
             <component :metadata="data.metadata" :is="data.modal"
                 :class="'container rounded-lg bg-base alternate-buttons m-8 px-8 py-4 shadow-xl relative ' + (visible ? 'visible' : 'invisible')"
