@@ -1,9 +1,11 @@
 <template>
-    <canvas id="backgroundgl" ref="canvas" v-on:pointermove="onPointerMove" v-on:pointerdown="onPointerDown"  v-on:pointerup="onPointerUp">
-    </canvas>
-    <div :class="'fixed top-0 left-0 h-screen w-screen' + (fsmGrabsFocus ? '' : ' hidden')" style="z-index: 10000;"
-     v-on:pointermove="onPointerMove" v-on:pointerdown="onPointerDown"  v-on:pointerup="onPointerUp"
-    >
+    <div class="w-full h-screen block p-0 m-0">
+        <canvas class="w-full h-full" id="backgroundgl" ref="canvas" v-on:pointermove="onPointerMove" v-on:pointerdown="onPointerDown"  v-on:pointerup="onPointerUp">
+        </canvas>
+        <div :class="'fixed top-0 left-0 h-screen w-screen' + (fsmGrabsFocus ? '' : ' hidden')" style="z-index: 10000;"
+        v-on:pointermove="onPointerMove" v-on:pointerdown="onPointerDown"  v-on:pointerup="onPointerUp"
+        >
+        </div>
     </div>
 </template>
 
@@ -51,13 +53,3 @@ export default defineComponent({
     },
 });
 </script>
-
-<style scoped>
-#backgroundgl {
-  width: 100%;
-  height: 100vh;
-  display: block;
-  padding:0;
-  margin:0;
-}
-</style>
