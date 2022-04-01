@@ -3,7 +3,7 @@
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center">Color Manager</h2>
-            <div>
+            <div :class="(palette.getNbColors() > 20 ? 'md:grid md:grid-cols-2 lg:grid-cols-3' : '') + ' max-h-[80vh] overflow-auto'">
                 <p v-for="col, key in palette.colors" class="my-1">
                     <Btn noStyle="true" :class="'mx-1 font-semibold ' + (usedColors[key] > 0 ? 'text-gray-600' : '')" :disabled="palette.getNbColors() == 1 || usedColors[key] > 0" @click="deleteColor(key)"><i class="fas fa-times"></i></Btn>
                     <Btn noStyle="true" class="mx-1 font-semibold" @click="replaceColor(key)"><i class="far fa-edit"></i></Btn>
