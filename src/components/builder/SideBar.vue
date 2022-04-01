@@ -2,6 +2,7 @@
 import Button from '../generic/Button.vue';
 import InputComp from './InputComp.vue'
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
+import Tooltip from '../generic/Tooltip.vue';
 </script>
 
 <template>
@@ -23,7 +24,8 @@ import { builderInputFsm } from '@/builder/inputs/BuilderInput';
         <div v-if="editMode" position="relative w-full">
             <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-none select-none mix-blend-saturation">{{ getNbBriqs }}</p>
             <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-none select-none mix-blend-difference">{{ getNbBriqs }}</p>
-            <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-auto select-none mix-blend-overlay">{{ getNbBriqs }}</p>
+            <Tooltip tooltip="This gives you the # of briqs used in the set, out of the total available briqs."><p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-auto select-none mix-blend-overlay">
+                {{ getNbBriqs }}</p></Tooltip>
         </div>
     </div>
 </template>
@@ -57,11 +59,10 @@ export default defineComponent({
             let total = this.chainBriqs.getNbBriqs();
             // Vue reactiveness, this is opt-in for performance.
             this.$store.state.builderData.currentSet.usedByMaterial_;
+            let used = 0;
             for (let mat in this.$store.state.builderData.currentSet.usedByMaterial)
-                total -= this.$store.state.builderData.currentSet.usedByMaterial[mat];
-            if (total === 1)
-                return '1 briq left';
-            return total + ' briqs left';
+                used += this.$store.state.builderData.currentSet.usedByMaterial[mat];
+            return `${used}/${total} briqs used`;
         },
         isPlacing() {
             return inputStore.currentInput.indexOf('place') !== -1

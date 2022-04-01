@@ -39,6 +39,7 @@ import AlphaLogo from './../AlphaLogo.vue';
             </div>
         </div>
         <div v-if="!embed" class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none">
+            <Btn class="pointer-events-auto" @click="openInfoWidget">Info</Btn>
             <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fab fa-twitter"></i> Tweet</Btn>
             <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fas fa-camera"></i> Take Screenshot</Btn>
             <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
@@ -64,11 +65,10 @@ import AlphaLogo from './../AlphaLogo.vue';
 import { pushMessage, setTooltip } from '@/Messages';
 import { pushModal } from '../../Modals.vue';
 import Settings from '../modals/Settings.vue';
+import InfoWidget from '../modals/InfoWidget.vue';
 import Screenshot from './Screenshot.vue';
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 import { SetData } from '@/builder/SetData';
-import { inputStore } from '@/builder/inputs/InputStore';
-import { getProvider, getProviderForNetwork } from '@/chain/Provider';
 import { fetchData } from '@/url';
 import { reportError } from '@/Monitoring';
 import { ticketing } from '@/Async';
@@ -146,6 +146,13 @@ export default defineComponent({
     methods: {
         openHelp() {
             window.open('https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f','_blank');
+        },
+        openInfoWidget() {
+            pushModal(InfoWidget, {
+                background: false,
+                align: "justify-end items-center",
+                setData: this.setData,
+            });
         },
         openSettings() {
             pushModal(Settings);

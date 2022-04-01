@@ -1,6 +1,6 @@
 <template>
-    <div v-if="data?.modal" class="fixed top-0 overflow-auto h-screen visible">
-        <div
+    <div v-if="data?.modal" :class="'fixed top-0 overflow-auto h-screen ' + (modalBackground.background ? 'visible' : '')">
+        <div v-if="modalBackground.background"
             :class="'flex h-screen w-screen overflow-auto fixed top-0 justify-center items-center ' + (visible ? 'visible' : 'invisible')"
             :style="modalBackground"
             @mousedown.self.stop="close()"
@@ -31,7 +31,7 @@ export default defineComponent({
     props: ["data"],
     computed: {
         modalBackground() {
-            return { background: this.data?.metadata?.background || "rgba(0, 0, 0, 0.3)" };
+            return { background: this.data?.metadata?.background ?? "rgba(0, 0, 0, 0.3)" };
         },
         modalAlignment() {
             return this.data?.metadata?.align || 'justify-center items-center';
