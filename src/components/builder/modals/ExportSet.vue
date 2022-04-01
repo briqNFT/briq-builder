@@ -178,8 +178,8 @@ export default defineComponent({
             return setsManager.setsInfo[this.setId];
         },
         set() {
-            if (!this.setInfo.local)
-                logDebug("Did not find set ", this.setId, this.setInfo.local, this.setInfo.chain);
+            if (!this.setInfo)
+                logDebug("Did not find set ", this.setId, Object.keys(setsManager.setsInfo).join(' '));
             return this.setInfo.local;
         },
         alreadyOnChain() {
