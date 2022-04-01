@@ -29,14 +29,15 @@ const starBuilders = [
 ];
 
 async function checkOnStore() {
+    let wallet = (await import("./Dispatch")).Wallet;
     logDebug("FEATURE_FLAGS - Loaded");
     watchEffect(() => {
-        if (admins.indexOf(walletStore2.userWalletAddress) !== -1)
+        if (admins.indexOf(wallet.walletStore2.userWalletAddress) !== -1)
         {
             // Admin-only.
             featureFlags.rotate = true;
         }
-        else if (starBuilders.indexOf(walletStore2.userWalletAddress) !== -1)
+        else if (starBuilders.indexOf(wallet.walletStore2.userWalletAddress) !== -1)
         {
             featureFlags.rotate = true;
         }
