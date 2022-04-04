@@ -91,14 +91,16 @@ function _createTakeScreenshot(renderer, composer) {
     return function() {
         let old = getPreviewCube().visible;
         let old2 = selectionRender.parent?.visible;
+        overlayObjects.visible = false;
         getPreviewCube().visible = false;
         selectionRender.hide();
         composer.render();
         getPreviewCube().visible = old;
         if (old2)
-        selectionRender.show();
+            selectionRender.show();
         else
-        selectionRender.hide();
+            selectionRender.hide();
+        overlayObjects.visible = true;
         return renderer.domElement.toDataURL("image/png");
     };
 }
