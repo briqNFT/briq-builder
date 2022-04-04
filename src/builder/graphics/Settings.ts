@@ -10,8 +10,8 @@ class Settings
     // If false, the changes are not serialised.
     saveActive = true;
 
+    aaLevel!: '0' | 'FXAA' | '1' | '2' | '3' | '4';
     useSAO!: boolean;
-    useRealAA!: boolean;
     planeColor!: string;
     gridColor!: string;
     backgroundColor!: string;
@@ -30,8 +30,8 @@ class Settings
 
     reset()
     {
+        this.aaLevel = 'FXAA';
         this.useSAO = false;
-        this.useRealAA = false;
         // If you change these, change settings.vue
         this.planeColor = useDarkMode() ? CONF.builderSettings.darkMode.planeColor : CONF.builderSettings.lightMode.planeColor;
         this.gridColor = useDarkMode() ? CONF.builderSettings.darkMode.gridColor : CONF.builderSettings.lightMode.gridColor;
@@ -53,7 +53,7 @@ class Settings
                 continue;
 
             let val = window.localStorage.getItem("setting_" + key);
-            if (val)
+            if (val && key in this)
                 this[key] = JSON.parse(val);
         }
     }

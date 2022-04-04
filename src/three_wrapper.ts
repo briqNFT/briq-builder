@@ -13,3 +13,4 @@ export { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 export { SSAARenderPass } from 'three/examples/jsm/postprocessing/SSAARenderPass.js';
 
 export { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
+export { FXAAShader } from 'three/examples/jsm//shaders/FXAAShader.js';

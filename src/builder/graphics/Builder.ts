@@ -13,6 +13,7 @@ import {
     SAOPass,
     ShaderPass,
     CopyShader,
+    FXAAShader,
 } from '@/three';
 
 export var camera: THREE.Camera;
@@ -114,14 +115,12 @@ function resizeRendererToDisplaySize(renderer, composer, camera) {
     {
         renderer.setSize(width, height, false);
         composer.setSize(width, height);
-        /*
-        TODO: FXAA
-        if (composer.passes.length === 3)
+
+        if (builderSettings.aaLevel === 'FXAA')
         {
-            composer.passes[2].uniforms['resolution'].value.x = 1 / width;
-            composer.passes[2].uniforms['resolution'].value.y = 1 / height;
+            composer.passes[1].uniforms['resolution'].value.x = 1 / width;
+            composer.passes[1].uniforms['resolution'].value.y = 1 / height;
         }
-        */
         const canvas = renderer.domElement;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
@@ -131,23 +130,32 @@ function resizeRendererToDisplaySize(renderer, composer, camera) {
 
 function recreateRenderer(canvas, scene, camera)
 {
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !!builderSettings.useRealAA });
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap ;//THREE.PCFShadowMap;
     
     renderer.setClearColor(0x000000, 0);
     
     const composer = new EffectComposer(renderer);
-    if (builderSettings.useRealAA)
+    if (builderSettings.aaLevel !== '0' && builderSettings.aaLevel !== 'FXAA')
     {
         const renderPass = new SSAARenderPass(scene, camera);
-        renderPass.sampleLevel = 2;
+        renderPass.sampleLevel = +builderSettings.aaLevel;
         composer.addPass(renderPass);
     }
     else
     {
         const renderPass = new RenderPass(scene, camera);
         composer.addPass(renderPass);
+        if (builderSettings.aaLevel === 'FXAA')
+        {
+            var copyPass = new ShaderPass(FXAAShader);
+            let size = new THREE.Vector2();
+            renderer.getSize(size);
+            copyPass.uniforms['resolution'].value.x = 1 / size.x;
+            copyPass.uniforms['resolution'].value.y = 1 / size.y;
+            composer.addPass(copyPass);
+        }
     }
     if (builderSettings.useSAO)
     {
@@ -165,13 +173,6 @@ function recreateRenderer(canvas, scene, camera)
             saoBlurDepthCutoff: 0.01
         };
         composer.addPass(saoPass); 
-        /*
-        if (builderSettings.useRealAA)
-        {
-            let effectFXAA = new ShaderPass(FXAAShader);
-            composer.addPass( effectFXAA );   
-        }
-        */
     }
     {
         let overlayScene = new THREE.Scene();

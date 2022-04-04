@@ -23,6 +23,7 @@ export var SAOPass: three_wrapper.SAOPass;
 export var ShaderPass: three_wrapper.ShaderPass;
 export var SSAARenderPass: three_wrapper.SSAARenderPass;
 export var CopyShader: three_wrapper.CopyShader;
+export var FXAAShader: three_wrapper.FXAAShader;
 
 async function setup() {
     let wrapper = await import ('./three_wrapper');
@@ -38,6 +39,7 @@ async function setup() {
     ShaderPass = wrapper.ShaderPass;
     SSAARenderPass = wrapper.SSAARenderPass;
     CopyShader = wrapper.CopyShader;
+    FXAAShader = wrapper.FXAAShader;
 
     logDebug("Successfully dynamically loaded three.js");
 }

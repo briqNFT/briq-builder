@@ -3,8 +3,15 @@
         <template #title>Settings</template>
         <div class="my-4 settings">
             <p>Settings may need reloading to apply properly.</p>
+            <p><select v-model="builderSettings.aaLevel">
+                <option value="0">Off</option>
+                <option value="FXAA">FXAA (fast)</option>
+                <option value="1">2x SSAA</option>
+                <option value="2">4x SSAA</option>
+                <option value="3">8x SSAA</option>
+                <option value="4">16x SSAA</option>
+            </select> Anti-Aliasing</p>
             <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.useSAO"/> Use Screen-space Ambient Occlusion</label></p>
-            <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.useRealAA"/> Use Anti-Aliasing</label></p>
             <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.showPlane"/> Show base plane</label></p>
             <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" :disabled="!builderSettings.showPlane" v-model="builderSettings.showGrid"/> Show base grid</label></p>
             <p><label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.showBorders"/> Show briq borders</label></p>
