@@ -1,7 +1,8 @@
 <template>
     <div v-if="!isFiltered"
-        :class="'w-full relative flex flex-col bg-darker rounded-md px-4 py-2 border-4' + (isCurrent ? ' border-deep-blue' : ' border-darker')"
+        :class="'w-full relative flex flex-col bg-darker rounded-md hover:ring-2 ring-accent px-4 py-2 border-4' + (isCurrent ? ' border-deep-blue' : ' border-darker')"
          @click="$emit('selectSet', !selected)"
+         @dblclick="selectSet"
     >
         <div class="flex flex-nowrap items-center">
             <!--
@@ -16,7 +17,7 @@
                 <Tooltip :useCursor="true" v-if="setInfo.isEditing()" tooltip="This set is only available on this computer"><i class="fas fa-wrench"></i></Tooltip>
             </div>
 
-            <h3 class="flex-auto text-center my-1 break-all">{{ setInfo.getSet()?.getName() || setInfo.id }}</h3>
+            <h3 class="flex-auto text-center my-1 break-all"><span @dblclick.stop="" @click.stop="">{{ setInfo.getSet()?.getName() || setInfo.id }}</span></h3>
 
             <div>
                 <Tooltip :useCursor="true" v-if="setInfo.syncing" tooltip="...Syncing with StarkNet..."><i class="fas fa-spinner animate-spin-slow"></i></Tooltip>
@@ -28,7 +29,7 @@
         </div>
         <div class="flex-1 flex justify-center min-h-[2rem] my-2">
             <div v-if="imgSrc" class="flex flex-col justify-center"><img :src="imgSrc" class="rounded-md"/></div>
-            <div v-if="!imgSrc" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider"><p>No Image</p></div>
+            <div v-if="!imgSrc" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider pointer-events-none select-none"><p>No Image</p></div>
         </div>
         <div class="relative">
             <div class="flex justify-between items-center">
