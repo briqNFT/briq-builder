@@ -259,7 +259,7 @@ export default defineComponent({
         },
         async retakeScreenshot() {
             let img = new Image();
-            let url = await pushModal(ScreenshotVue, { set: this.setId }) as string;
+            let url = await pushModal(ScreenshotVue, { background: false, set: this.setId }) as string;
             // Nothing to do if we cancelled.
             if (!url)
                 return;
