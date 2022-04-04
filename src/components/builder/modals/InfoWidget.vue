@@ -2,13 +2,18 @@
     <div class="lg:w-[400px] sm:w-2/5 w-auto" style="height:60%;">
         <div class="relative h-full">
             <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h2 class="text-center w-full">Info</h2>
+            <h3 class="text-center w-full">Set Details</h3>
             <div class="h-5/6 overflow-auto">
-                <h3 class="text-center">{{ set.name }}</h3>
-                <div class="flex flex-col items-center text-lg">
-                    <div class="w-[75%]"><Chart :data="getChartData"></Chart></div>
-                    <p>{{ set?.getNbBriqs() }} briqs on a {{ bounds[1] - bounds[0] }}x{{ bounds[3] - bounds[2] }}x{{ bounds[5] - bounds[4] }} canvas</p>
+                <div class="flex flex-col items-center">
+                    <div class="w-[75%] relative">
+                        <Chart :data="getChartData"></Chart>
+                        <div class="md:absolute md:top-0 w-full h-full flex flex-col justify-center">
+                            <p class="text-center w-full font-medium">{{ set?.getNbBriqs() }} briqs<br/>
+                            {{ bounds[1] - bounds[0] }} x {{ bounds[3] - bounds[2] }} x {{ bounds[5] - bounds[4] }}</p>
+                        </div>
+                    </div>
                 </div>
+                <h2 class="text-center break-all">{{ set.name }}</h2>
             </div>
         </div>
     </div>

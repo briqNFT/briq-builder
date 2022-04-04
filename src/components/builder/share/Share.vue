@@ -39,7 +39,7 @@ import AlphaLogo from './../AlphaLogo.vue';
             </div>
         </div>
         <div v-if="!embed" class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none">
-            <Btn class="pointer-events-auto" @click="openInfoWidget">Info</Btn>
+            <Btn class="pointer-events-auto" @click="openInfoWidget"><i class="fas fa-info-circle"></i> Details</Btn>
             <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fab fa-twitter"></i> Tweet</Btn>
             <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fas fa-camera"></i> Take Screenshot</Btn>
             <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">

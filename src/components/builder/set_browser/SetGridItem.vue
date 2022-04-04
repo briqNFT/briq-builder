@@ -38,6 +38,7 @@
             <div @click.stop="$emit('open', undefined)" v-if="openDetails"
                 class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-base w-full rounded-md p-4 border-2 border-accent"
             >
+                <Btn tooltip="See details about this set." class="bg-transparent" :disabled="disableButtons" @click="openSetDetails"><i class="fas fa-info-circle"></i> Set Details</Btn>
                 <template v-if="!setInfo.isLocalOnly()">
                     <Btn tooltip="Copy the sharing link for this set." class="bg-transparent" :disabled="!canShare" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
                     <Btn tooltip="Transfer the set." class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="transferSet"><i class="fas fa-dolly"></i> Transfer</Btn>
@@ -102,6 +103,7 @@ import { pushModal } from '../../Modals.vue';
 import { getShareLink } from '../Sharing';
 
 import { defineComponent } from 'vue';
+import InfoWidgetVue from '../modals/InfoWidget.vue';
 export default defineComponent({
     data() {
         return {
@@ -170,6 +172,9 @@ export default defineComponent({
         }
     },
     methods: {
+        openSetDetails() {
+            pushModal(InfoWidgetVue, { setData: this.setInfo.local || this.setInfo.chain })
+        },
         copyShareLink() {
             let network = getCurrentNetwork() === "starknet-mainnet" ? "mainnet" : "testnet";
             let link = getShareLink(network, this.setInfo.id);

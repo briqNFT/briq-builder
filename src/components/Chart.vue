@@ -1,4 +1,5 @@
 <template>
+    <!-- TODO: show something when it's loading. -->
     <canvas ref="chart"></canvas>
 </template>
 <script lang="ts">
