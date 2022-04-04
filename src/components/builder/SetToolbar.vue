@@ -71,7 +71,7 @@ export default defineComponent({
     },
     methods: {
         async mintSet() {
-            await pushModal(ExportSetVue, { set: this.$store.state.builderData.currentSet.id });
+            await pushModal(ExportSetVue, { set: this.$store.state.builderData.currentSet });
         },
         copyShareLink() {
             let network = getCurrentNetwork() === "starknet-mainnet" ? "mainnet" : "testnet";

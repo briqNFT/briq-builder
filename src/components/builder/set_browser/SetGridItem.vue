@@ -241,7 +241,7 @@ export default defineComponent({
             setsManager.duplicateLocally(set);
         },
         async mintSet() {
-            await pushModal(ExportSetVue, { set: this.setId });
+            await pushModal(ExportSetVue, { set: this.setInfo.local });
         },
         async renameSet() {
             await pushModal(RenameSetVue, { set: this.setId });

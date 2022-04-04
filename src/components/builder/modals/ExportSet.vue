@@ -148,10 +148,8 @@ export default defineComponent({
         // Hide until we've screenshotted, or the window 'pops'.
         this.$emit('hide');
 
-        this.setId = this.metadata.set;
-
         this.name = this.set.name;
-        this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.setId)?.[0];
+        this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.set.id)?.[0];
         if (!this.hasAccount || this.needMinting || this.notEnoughBriqs)
             this.exporting = 'PRECHECKS';
         let img = new Image();
@@ -172,15 +170,13 @@ export default defineComponent({
             return walletStore2;
         },
         setInfo() {
-            return setsManager.setsInfo[this.setId];
+            return setsManager.getInfo(this.set.id);
         },
         set() {
-            if (!this.setInfo)
-                logDebug("Did not find set ", this.setId, Object.keys(setsManager.setsInfo).join(' '));
-            return this.setInfo.local;
+            return this.metadata.set;
         },
         alreadyOnChain() {
-            return this.setInfo.status !== 'LOCAL' || this.pending_transaction?.isOnChain();
+            return (this.setInfo?.status && this.setInfo?.status !== 'LOCAL') || this.pending_transaction?.isOnChain();
         },
         transactionPending() {
             return this.pending_transaction?.isPending() ?? false;
@@ -370,16 +366,11 @@ export default defineComponent({
                     }, 3000);
                 });
                 this.messages.pushMessage("Set exported " + data.id + " - TX " + TX.transaction_hash);
+                logDebug("Set exported " + data.id);
 
-                addBreadCrumb("Before OnSetMinted - " + this.set.id + ' vs ' + this.exportSet.id);
                 let info = setsManager.onSetMinted(this.set.id, this.exportSet)
-                addBreadCrumb("After OnSetMinted");
                 info.chain_owner = this.wallet.userWalletAddress;
-                this.setId = this.exportSet.id;
-                addBreadCrumb("After setting this.setId to " + this.setId + ' -> ' + setsManager.setsInfo?.[this.setId]);
                 this.$store.dispatch("builderData/select_set", this.exportSet.id);
-                addBreadCrumb("Dispatched.");
-
 
                 this.exporting = 'DONE';
             }

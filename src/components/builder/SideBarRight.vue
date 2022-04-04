@@ -44,9 +44,6 @@ import { inputStore } from '../../builder/inputs/InputStore';
 import WalletSelectorVue from '../WalletSelector.vue';
 
 import { CONF } from '@/Conf';
-
-import RenameSet from './modals/RenameSet.vue';
-import ExportSet from './modals/ExportSet.vue';
 import { walletStore2 } from '@/chain/Wallet';
 
 import { defineComponent, toRef, ref } from "vue";
@@ -136,12 +133,6 @@ export default defineComponent({
         },
         selectSet: function(setId: number) {
             this.$store.dispatch("builderData/select_set", setId);
-        },
-        rename: function() {
-            pushModal(RenameSet, { set: this.set.id });
-        },
-        exportSet: function() {
-            pushModal(ExportSet, { set: this.set.id });
         },
     }
 })
