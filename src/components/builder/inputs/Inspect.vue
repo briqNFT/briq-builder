@@ -26,9 +26,9 @@ import Hotkey from "../../generic/Hotkey.vue";
         <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Selection</h4>
         <div class="flex flex-col gap-1">
             <div class="grid grid-cols-2 gap-0.5">
-                <CheckboxBtn :enabled="inputStore.showMoveGizmo" @enable="(enabled: boolean) => { inputStore.showMoveGizmo = enabled; }"
+                <CheckboxBtn v-if="editMode" :enabled="inputStore.showMoveGizmo" @enable="(enabled: boolean) => { inputStore.showMoveGizmo = enabled; }"
                     tooltip="When active, show the 'movement' gizmo."><template #icon><i class="fas fa-arrows-alt"></i></template></CheckboxBtn>
-                <CheckboxBtn :enabled="inputStore.showRotateGizmo" @enable="(enabled: boolean) => { inputStore.showRotateGizmo = enabled; }"
+                <CheckboxBtn v-if="editMode" :enabled="inputStore.showRotateGizmo" @enable="(enabled: boolean) => { inputStore.showRotateGizmo = enabled; }"
                     tooltip="When active, show the 'rotation' gizmo."><template #icon><i class="fas fa-sync"></i></template></CheckboxBtn>
 
                 <Btn :disabled="inputStore.defaultSelectionMethod === 'BOX'" @click="inputStore.defaultSelectionMethod = 'BOX'"
@@ -37,13 +37,13 @@ import Hotkey from "../../generic/Hotkey.vue";
                     tooltip="Shift-click selects briqs in a briq-aware mode. Use shift+alt for box selection."><i class="fas fa-cubes"></i></Btn>
             </div>
             <Btn @click="selectAll">Select All</Btn>
-            <Btn :disabled="!selection.selectedBriqs.length" @click="copy" tooltip="Copy selected briqs. Hotkey: Ctrl + C">Copy</Btn>
-            <Btn :disabled="!selection.selectedBriqs.length" @click="deleteBriqs" tooltip="Delete selected briqs. Hotkey: delete/backspace">Delete</Btn>
-            <Hotkey name="delete-1" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"></Hotkey>
-            <Hotkey name="delete-2" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"></Hotkey>
+            <Btn v-if="editMode" :disabled="!selection.selectedBriqs.length" @click="copy" tooltip="Copy selected briqs. Hotkey: Ctrl + C">Copy</Btn>
+            <Btn v-if="editMode" :disabled="!selection.selectedBriqs.length" @click="deleteBriqs" tooltip="Delete selected briqs. Hotkey: delete/backspace">Delete</Btn>
+            <Hotkey v-if="editMode" name="delete-1" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"></Hotkey>
+            <Hotkey v-if="editMode" name="delete-2" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"></Hotkey>
         </div>
-        <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Move / Copy</h4>
-        <div class="flex flex-col gap-1 my-2">
+        <h4 v-if="editMode" class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Move / Copy</h4>
+        <div v-if="editMode" class="flex flex-col gap-1 my-2">
             <CheckboxBtn tooltip="Overwrite any existing briq when moving or pasting briqs. If off, existing briqs will instead be kept."
                 :enabled="overlayMode" @click="overlayMode = !overlayMode">Overwrite
             </CheckboxBtn>
@@ -80,6 +80,7 @@ button {
 import { builderInputFsm } from "../../../builder/inputs/BuilderInput"
 import type { Briq } from "../../../builder/Briq";
 import { resetCamera } from '../../../builder/graphics/Builder'
+import { setsManager } from "@/builder/SetsManager";
 
 import { dispatchBuilderAction } from "../../../builder/graphics/Dispatch";
 import { inputStore } from "../../../builder/inputs/InputStore";
@@ -95,6 +96,9 @@ export default defineComponent({
         };
     },
     computed: {
+        editMode() {
+            return !inputStore.forceInput && setsManager.getInfo(this.$store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
+        },
         fsm() {
             return builderInputFsm.state.gui;
         },

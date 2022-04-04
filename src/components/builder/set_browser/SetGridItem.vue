@@ -27,9 +27,9 @@
                 <Tooltip :useCursor="true" v-if="setInfo.isEditing()" tooltip="This set is only available on this computer"><i class="fas fa-wrench"></i></Tooltip>
             </div>
         </div>
-        <div class="flex-1 flex justify-center min-h-[2rem] my-2">
+        <div class="flex-1 flex justify-center min-h-[2rem] my-2 select-none">
             <div v-if="imgSrc" class="flex flex-col justify-center"><img :src="imgSrc" class="rounded-md"/></div>
-            <div v-if="!imgSrc" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider pointer-events-none select-none"><p>No Image</p></div>
+            <div v-if="!imgSrc" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider pointer-events-none"><p>No Image</p></div>
         </div>
         <div class="relative">
             <div class="flex justify-between items-center">
