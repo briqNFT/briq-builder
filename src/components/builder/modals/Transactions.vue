@@ -1,14 +1,11 @@
 <template>
-    <div class="md:w-3/5 w-auto">
-        <div class="relative">
-            <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h3 class="text center w-full">Transactions</h3>
-            <p v-for="tx in txs">{{ tx.hash }} - {{ tx.status }}
-            <Btn @click="tx.poll()">Poll</Btn>
-            <Btn @click="tx.delete()">X</Btn>
-            </p>
-        </div>
-    </div>
+    <Window @close="$emit('close')" class="md:!w-3/5 !w-auto">
+        <template #title>Transactions</template>
+        <p v-for="tx in txs">{{ tx.hash }} - {{ tx.status }}
+        <Btn @click="tx.poll()">Poll</Btn>
+        <Btn @click="tx.delete()">X</Btn>
+        </p>
+    </Window>
 </template>
 
 <script lang="ts">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UndoRedo from './UndoRedo.vue'
-import SetBrowser from './set_browser/SetBrowser.vue'
+import SetBrowser from './set_browser/SetBrowserContainer.vue'
 
 import HistoryLog from './modals/HistoryLog.vue'
 </script>

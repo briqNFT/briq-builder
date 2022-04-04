@@ -1,15 +1,12 @@
 <template>
-    <div class="md:w-2/5 w-auto" style="height:60%;">
-        <div class="relative h-full">
-            <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h3 class="text-center w-full">History Log</h3>
-            <div class="h-5/6 overflow-auto">
-                <p v-for="item, i in history">{{ i === index ? 'X' : ''}} {{ getHumanOutput(item.action, item) }}</p>
-                <p v-if="!history.length">No actions yet</p>
-            </div>
-            <UndoRedo/>
+    <Window @close="$emit('close')" class="md:!w-2/5 !w-auto" style="height:60%;">
+        <template #title>History Log</template>
+        <div class="h-5/6 overflow-auto">
+            <p v-for="item, i in history">{{ i === index ? 'X' : ''}} {{ getHumanOutput(item.action, item) }}</p>
+            <p v-if="!history.length">No actions yet</p>
         </div>
-    </div>
+        <UndoRedo/>
+    </Window>
 </template>
 
 <script lang="ts">

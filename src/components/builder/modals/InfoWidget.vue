@@ -1,22 +1,17 @@
 <template>
-    <div class="lg:w-[400px] sm:w-2/5 w-auto" style="height:60%;">
-        <div class="relative h-full">
-            <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h3 class="text-center w-full">Set Details</h3>
-            <div class="h-5/6 overflow-auto">
-                <div class="flex flex-col items-center">
-                    <div class="w-[75%] relative">
-                        <Chart :data="getChartData"></Chart>
-                        <div class="md:absolute md:top-0 w-full h-full flex flex-col justify-center">
-                            <p class="text-center w-full font-medium">{{ set?.getNbBriqs() }} briqs<br/>
-                            {{ bounds[1] - bounds[0] }} x {{ bounds[3] - bounds[2] }} x {{ bounds[5] - bounds[4] }}</p>
-                        </div>
-                    </div>
+    <Window @close="$emit('close')" class="lg:!w-[400px] sm:!w-2/5 !w-auto" style="height:60%;">
+        <template #title>Set Details</template>
+        <div class="flex flex-col items-center">
+            <div class="w-[75%] relative">
+                <Chart :data="getChartData"></Chart>
+                <div class="md:absolute md:top-0 w-full h-full flex flex-col justify-center">
+                    <p class="text-center w-full font-medium">{{ set?.getNbBriqs() }} briqs<br/>
+                    {{ bounds[1] - bounds[0] }} x {{ bounds[3] - bounds[2] }} x {{ bounds[5] - bounds[4] }}</p>
                 </div>
-                <h2 class="text-center break-all">{{ set.name }}</h2>
             </div>
         </div>
-    </div>
+        <h2 class="text-center break-all">{{ set.name }}</h2>
+    </Window>
 </template>
 
 <script lang="ts">

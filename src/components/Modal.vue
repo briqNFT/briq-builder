@@ -11,7 +11,7 @@
             :class="'flex min-h-screen w-screen invisible ' + modalAlignment"
         >
             <component :metadata="data.metadata" :is="data.modal"
-                :class="'container rounded-lg bg-base alternate-buttons m-8 px-8 py-4 shadow-xl relative ' + (visible ? 'visible' : 'invisible')"
+                :class="(visible ? 'visible' : 'invisible')"
                 @close="close"
                 @hide="toggleVisibility(false)"
                 @show="toggleVisibility(true)"

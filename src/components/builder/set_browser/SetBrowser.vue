@@ -5,51 +5,45 @@ import { hexUuid } from '../../../Uuid';
 </script>
 
 <template>
-    <div :class="'bg-base alternate-buttons visible px-8 py-4 md:container md:mx-auto'"
-        @click="openDetails = undefined"
-    >
-        <button v-if="asModal" class="float-right text-2xl" @click="$emit('close')">X</button>
-        <h2 class="text-center my-8">Browse sets</h2>
-        <div class="my-4">
-            <p><input class="w-full" v-model="searchText" type="text" placeholder="Search by set ID or set name"/></p>
-            <p class="flex gap-2 my-4">
-                <Btn tooltip="Create a new WIP set." @click="createSet"><i class="far fa-file"></i> New</Btn>
-                <Btn tooltip="Import a local set or a .vox file" @click="importSet"><i class="fas fa-file-import"></i> Import from file</Btn>
-                <Btn tooltip="Delete all selected sets." @click="deleteAll" :disabled="!canDelete"><i class="far fa-trash-alt"></i> Delete local sets</Btn>
-                <Btn v-if="canResetMigrationPrompt" tooltip="Un-hide all hidden legacy sets." @click="resetMigrationPrompt"><i class="fas fa-eye"></i> Show hidden legacy sets</Btn>
-                <!--
-                <Btn tooltip="Disassemble all selected sets." @click="disassembleAll" :disabled="!canDisassemble"><i class="far fa-trash-alt"></i> Disassemble all</Btn>
-                -->
-            </p>
-        </div>
-        <div class="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            <div v-if="chainSets.length === 0">Nothing here yet.</div>
-            <SetGridItem v-for="setId in chainSets" :key="setId" :setId="setId"
-                :searchText="searchText"
-                :openDetails="openDetails === setId"
-                :selected="selected[setId]"
-                @open="(x: string) => openDetails = x"
-                @selectSet="(val: boolean) => onSelectSet(setId, val)"
-            />
-            <div v-for="oldSet of legacySets"
-                class="w-full relative flex flex-col bg-darker rounded-md px-4 py-2 border-4 border-darker"
-            >
-                <div class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-md p-4 flex justify-center items-center">
-                    <button @click="openMigrateModal(oldSet)">
-                        <p class="font-semibold text-center -rotate-[30deg] bg-base bg-opacity-80 px-4 rounded-xl">Migration Needed!<br/>Click here<br/>to migrate set</p>
-                    </button>
-                </div>
-                <div class="flex flex-nowrap items-center">
-                    <h3 class="flex-auto text-center my-1 break-all">{{ oldSetsData?.[oldSet]?.getName() || oldSet }}</h3>
-                </div>
-                <div class="flex-1 flex justify-center min-h-[2rem] my-2">
-                    <div v-if="oldSetsImg?.[oldSet]" class="flex flex-col justify-center"><img :src="oldSetsImg?.[oldSet].currentSrc" class="rounded-md"/></div>
-                    <div v-else="" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider"><p>No Image</p></div>
-                </div>
-                <Tooltip tooltip="Ignore this set and hide the migration prompt.">
-                    <button @click="hideMigrationPrompt(oldSet)" class="absolute top-0 right-0 px-4 py-4 font-semibold"><i class="fas fa-eye-slash"></i></button>
-                </Tooltip>
+    <div class="my-4">
+        <p><input class="w-full" v-model="searchText" type="text" placeholder="Search by set ID or set name"/></p>
+        <p class="flex gap-2 my-4">
+            <Btn tooltip="Create a new WIP set." @click="createSet"><i class="far fa-file"></i> New</Btn>
+            <Btn tooltip="Import a local set or a .vox file" @click="importSet"><i class="fas fa-file-import"></i> Import from file</Btn>
+            <Btn tooltip="Delete all selected sets." @click="deleteAll" :disabled="!canDelete"><i class="far fa-trash-alt"></i> Delete local sets</Btn>
+            <Btn v-if="canResetMigrationPrompt" tooltip="Un-hide all hidden legacy sets." @click="resetMigrationPrompt"><i class="fas fa-eye"></i> Show hidden legacy sets</Btn>
+            <!--
+            <Btn tooltip="Disassemble all selected sets." @click="disassembleAll" :disabled="!canDisassemble"><i class="far fa-trash-alt"></i> Disassemble all</Btn>
+            -->
+        </p>
+    </div>
+    <div class="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div v-if="chainSets.length === 0">Nothing here yet.</div>
+        <SetGridItem v-for="setId in chainSets" :key="setId" :setId="setId"
+            :searchText="searchText"
+            :openDetails="openDetails === setId"
+            :selected="selected[setId]"
+            @open="(x: string) => openDetails = x"
+            @selectSet="(val: boolean) => onSelectSet(setId, val)"
+        />
+        <div v-for="oldSet of legacySets"
+            class="w-full relative flex flex-col bg-darker rounded-md px-4 py-2 border-4 border-darker"
+        >
+            <div class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-md p-4 flex justify-center items-center">
+                <button @click="openMigrateModal(oldSet)">
+                    <p class="font-semibold text-center -rotate-[30deg] bg-base bg-opacity-80 px-4 rounded-xl">Migration Needed!<br/>Click here<br/>to migrate set</p>
+                </button>
             </div>
+            <div class="flex flex-nowrap items-center">
+                <h3 class="flex-auto text-center my-1 break-all">{{ oldSetsData?.[oldSet]?.getName() || oldSet }}</h3>
+            </div>
+            <div class="flex-1 flex justify-center min-h-[2rem] my-2">
+                <div v-if="oldSetsImg?.[oldSet]" class="flex flex-col justify-center"><img :src="oldSetsImg?.[oldSet].currentSrc" class="rounded-md"/></div>
+                <div v-else="" class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider"><p>No Image</p></div>
+            </div>
+            <Tooltip tooltip="Ignore this set and hide the migration prompt.">
+                <button @click="hideMigrationPrompt(oldSet)" class="absolute top-0 right-0 px-4 py-4 font-semibold"><i class="fas fa-eye-slash"></i></button>
+            </Tooltip>
         </div>
     </div>
 </template>
@@ -92,7 +86,6 @@ export default defineComponent({
         }
     },
     props: ["metadata"],
-    emits: ["close"],
     inject: ['messages'],
     async mounted() {
     },
@@ -104,9 +97,6 @@ export default defineComponent({
             return legacySetsMgr.ignoredSets.length;
         },
         //
-        asModal() {
-            return this?.metadata?.asModal;
-        },
         chainSets: function() {
             return setsManager.setList;
         },

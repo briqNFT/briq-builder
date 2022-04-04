@@ -1,8 +1,7 @@
 <template>
-    <div class="w-1/2">
-        <div class="relative text-lg">
-            <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h2 class="text-center w-full py-4">Welcome to briq</h2>
+    <Window @close="$emit('close')" class="md:!w-1/2">
+        <template #big-title>Welcome to briq</template>
+        <div class="text-lg">
             <div class="my-4">
                 <p>We’re currently in <a href="">Alpha test</a> on StarkNet TestNet.<br/>Claim 1000 free briqs to start your building journey.</p>
             </div>
@@ -57,7 +56,7 @@
             </div>
             </template>
         </div>
-    </div>
+    </Window>
 </template>
 
 <script lang="ts">

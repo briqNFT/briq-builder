@@ -1,18 +1,11 @@
-<script setup lang="ts">
-import Button from '../../generic/Button.vue';
-</script>
-
 <template>
-    <div class="lg:w-2/3 xl:w-1/2 w-full">
-        <div class="relative">
-            <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h2 class="text-center">Transfer Set</h2>
-            <div class="my-8">
-                <input class="w-full" type="text" placeholder="Starkware Address to transfer to (hex format: 0xACDE...)" v-model="target"/>
-            </div>
-            <Btn class="float-right" :disabled="!formatOk" @click="doTransfer">Transfer</Btn>
+    <Window @close="$emit('close')" class="lg:!w-2/3 xl:!w-1/2 !w-full">
+        <template #big-title>Transfer Set</template>
+        <div class="my-8">
+            <input class="w-full" type="text" placeholder="Starkware Address to transfer to (hex format: 0xACDE...)" v-model="target"/>
         </div>
-    </div>
+        <Btn class="float-right" :disabled="!formatOk" @click="doTransfer">Transfer</Btn>
+    </Window>
 </template>
 
 <script lang="ts">

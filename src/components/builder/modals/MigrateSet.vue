@@ -1,5 +1,5 @@
 <template>
-    <div class="md:w-4/5 lg:w-3/5 xl:w-1/2 w-auto min-h-[35rem]">
+    <div class="md:!w-4/5 lg:!w-3/5 xl:!w-1/2 !w-auto min-h-[35rem] flex h-screen overflow-auto fixed top-0 justify-center items-center">
         <div class="relative">
             <button @click="$emit('close')" class="absolute right-0">X</button>
             <h2 class="text-center w-full">Migrate set</h2>

@@ -1,18 +1,15 @@
 <template>
-    <div class="md:w-2/5 w-auto" style="height:60%;">
-        <div class="relative h-full">
-            <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h3 class="text-center w-full">briq Details</h3>
-            <div class="flex gap-2">
-                <Btn @click="setup = 'all'">On-chain</Btn>
-                <Btn @click="setup = 'current'">Local set</Btn>
-                <!-- TODO -->
-                <!--<Btn v-for="set of sets" @click="setup = 'set'">Set {{ set }}</Btn>-->
-            </div>
-            {{ chainBriqs.byTokenId }}
-            <BriqTable :briqs="briqs"/>
+    <Window @close="$emit('close')" style="height:60%;">
+        <template #title>briq Details</template>
+        <div class="flex gap-2">
+            <Btn @click="setup = 'all'">On-chain</Btn>
+            <Btn @click="setup = 'current'">Local set</Btn>
+            <!-- TODO -->
+            <!--<Btn v-for="set of sets" @click="setup = 'set'">Set {{ set }}</Btn>-->
         </div>
-    </div>
+        {{ chainBriqs.byTokenId }}
+        <BriqTable :briqs="briqs"/>
+    </Window>
 </template>
 
 <style scoped>
