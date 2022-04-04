@@ -1,0 +1,5 @@
+{
+    "search.exclude": {
+        "src/assets/fontawesome6/**": true
+    }
+}

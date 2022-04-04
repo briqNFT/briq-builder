@@ -3,6 +3,8 @@ import { createApp } from 'vue'
 // Load Tailwind CSS
 import './index.css'
 
+import './FontAwesome';
+
 import App from './App.vue'
 export var app = createApp(App);
 
