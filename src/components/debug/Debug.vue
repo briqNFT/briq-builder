@@ -71,16 +71,15 @@ p {
 </style>
 
 <script lang="ts">
-import type { Provider, CallContractTransaction } from '@/Starknet';
+import type { Provider } from '@/starknet_wrapper';
 
 import { transactionsManager } from '../../builder/Transactions';
 import contractStore from '@/chain/Contracts';
-import { getStarknetObject } from '@/chain/wallets/ArgentX';
 
 import { ticketing, ignoreOutdated, OutdatedPromiseError } from '../../Async';
 
-import { toBN } from '@/Starknet';
-import { getSelectorFromName } from '@/Starknet';
+import { toBN } from '@/starknet_wrapper';
+import { getSelectorFromName } from '@/starknet_wrapper';
 
 import { getProvider } from '@/chain/Provider';
 import { getCurrentNetwork } from '@/chain/Network';

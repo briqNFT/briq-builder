@@ -1,5 +1,5 @@
-import { Args, Contract, Provider } from '@/Starknet';
-import { toBN } from '@/Starknet';
+import { Args, Contract, Provider } from '@/starknet_wrapper';
+import { toBN } from '@/starknet_wrapper';
 
 /**
  * This class exists to provide some fixes for the starknet.js API for now.

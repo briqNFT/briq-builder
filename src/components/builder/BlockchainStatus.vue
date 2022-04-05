@@ -38,7 +38,6 @@ import contractStore from '@/chain/Contracts';
 import { pushModal } from '../Modals.vue';
 import { walletStore2 } from '@/chain/Wallet';
 
-import WalletSelectorVue from '../WalletSelector.vue';
 import { transactionsManager } from '../../builder/Transactions';
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -74,7 +73,7 @@ export default defineComponent({
             if (this.isConnected)
                 this.expanded = ! this.expanded;
             else
-                pushModal(WalletSelectorVue);
+                this.wallet.openWalletSelector();
         },
     }
 });

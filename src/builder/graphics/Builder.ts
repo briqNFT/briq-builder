@@ -5,7 +5,8 @@ import { watchEffect } from 'vue';
 import builderSettings from './Settings';
 
 import {
-    THREE, THREE_SETUP,
+    threeSetupComplete,
+    THREE,
     OrbitControls,
     EffectComposer,
     RenderPass,
@@ -271,7 +272,7 @@ export function render() {
 }
 
 export async function main(canvas) {
-    await THREE_SETUP;
+    await threeSetupComplete;
     
     overlayObjects = new THREE.Object3D();
 

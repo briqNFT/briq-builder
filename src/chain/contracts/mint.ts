@@ -1,4 +1,4 @@
-import type { Provider, AccountInterface } from '@/Starknet';
+import type { Provider, AccountInterface } from '@/starknet_wrapper';
 
 import MintABI from './testnet/mint.json'
 import ExtendedContract from './Abstraction';
