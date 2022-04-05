@@ -29,9 +29,6 @@ function isWithinBounds(x: number, y: number, z: number)
     return x >= -size && x < size && y >= 0 && z >= -size && z < size;
 }
 
-//watch(toRef(builderSettings, "canvasSize"), (nv, ov) => {    
-//})
-
 var try_fetching_user_data_func;
 export var builderDataStore = (() => {
     return {
@@ -317,6 +314,7 @@ registerUndoableAction("builderData/rotate_briqs", {}, () => "Rotate briqs")
 registerUndoableAction("builderData/place_briqs", {
     onBefore: ({ transientActionState }: any, payload: { pos: [number, number, number], color?: string, material?: string, id?: string }[], state: any) => {
         transientActionState.cells = [];
+        transientActionState.selected = inputStore.selectionMgr.selectedBriqs.map(x => x.position);
         for (let data of payload)
         {
             let cell = (state.builderData.currentSet as SetData).getAt(...data.pos);
@@ -326,7 +324,11 @@ registerUndoableAction("builderData/place_briqs", {
     onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
         await store.dispatch("push_command_to_history", {
             action: "builderData/place_briqs",
-            undo: () => { store.commit("builderData/place_briqs", transientActionState.cells) },
+            undo: () => {
+                store.commit("builderData/place_briqs", transientActionState.cells);
+                inputStore.selectionMgr.clear();
+                transientActionState.selected.forEach(pos => inputStore.selectionMgr.add(...pos));
+            },
             redo: () => { store.commit("builderData/place_briqs", payload) },
             redoData: payload,
         });
