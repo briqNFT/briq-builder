@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="lg:!w-[400px] sm:!w-2/5 !w-auto" style="height:60%;">
+    <Window class="lg:!w-[400px] sm:!w-2/5 !w-auto" style="height:60%;">
         <template #title>Set Details</template>
         <div class="flex flex-col items-center">
             <div class="w-[75%] relative">
@@ -78,7 +78,6 @@ export default defineComponent({
     },
     methods: {},
     props: ["metadata"],
-    emits: ["close"],
     components: { Chart }
 })
 </script>

@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="md:!w-1/2 xl:!w-1/3 !w-auto">
+    <Window class="md:!w-1/2 xl:!w-1/3 !w-auto">
         <template #title>Settings</template>
         <div class="my-4 settings">
             <p>Settings may need reloading to apply properly.</p>
@@ -58,7 +58,6 @@ export default defineComponent({
             mayUndo: false,
         };
     },
-    emits: ["close"],
     mounted() {
         initState = JSON.parse(JSON.stringify(this.builderSettings));
     },

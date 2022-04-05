@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="md:!w-3/5 !w-auto">
+    <Window class="md:!w-3/5 !w-auto">
         <template #big-title>Color Picker</template>
         <div class="flex justify-stretch items-center flex-col w-full font-medium pt-8">
             <ColorPicker :color="color || metadata?.color" @colorChange="(col) => { color = col; }"/>

@@ -1,11 +1,11 @@
 <template>
-    <Window @close="$emit('close')" class="!w-auto xl:max-w-[49%] lg:max-w-[80%] max-w-full">
+    <Window class="!w-auto xl:max-w-[49%] lg:max-w-[80%] max-w-full">
         <template #title>Rename set</template>
         <p>Set {{ metadata.set }}</p>
         <p class="break-all">Current name: {{ set.name }}</p>
         <p class="md:block hidden">New name: <input v-model="name" type="text" maxlength="200" minlength="1" size="60"/></p>
         <p class="md:hidden block">New name: <input v-model="name" type="text" maxlength="200" minlength="1" size="30"/></p>
-        <button class="btn float-right" @click="save">Save</button>
+        <button class="btn float-right my-4" @click="save">Save</button>
     </Window>
 </template>
 
@@ -20,7 +20,6 @@ export default defineComponent({
         }
     },
     props: ["metadata"],
-    emits: ["close"],
     mounted() {
         this.name = this.set.name;
     },

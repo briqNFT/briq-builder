@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="md:!w-2/5 !w-auto" style="height:60%;">
+    <Window class="md:!w-2/5 !w-auto" style="height:60%;">
         <template #title>History Log</template>
         <div class="h-5/6 overflow-auto">
             <p v-for="item, i in history">{{ i === index ? 'X' : ''}} {{ getHumanOutput(item.action, item) }}</p>
@@ -30,7 +30,6 @@ export default defineComponent({
         getHumanOutput
     },
     props: ["metadata"],
-    emits: ["close"],
     components: { UndoRedo }
 })
 </script>

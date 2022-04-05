@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="md:!w-3/5 !w-auto">
+    <Window class="md:!w-3/5 !w-auto">
         <template #big-title>Crop Screenshot</template>
         <template #content>
             <div class="px-8">
@@ -35,7 +35,6 @@ export default defineComponent({
         };
     },
     props: ["metadata"],
-    emits: ["close"],
     mounted() {
         this.overlayParent.style.width = `${this.image.width}px`;
         this.overlayParent.style.height = `${this.image.height}px`;

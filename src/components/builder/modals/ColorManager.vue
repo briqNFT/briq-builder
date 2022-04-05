@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" size="lg:w-1/2 md:w-2/3 w-full">
+    <Window size="lg:w-1/2 md:w-2/3 w-full">
         <template #big-title>Color Manager</template>
         <div :class="(palette.getNbColors() > 20 ? 'grid grid-cols-2 lg:grid-cols-3' : '') + ' max-h-[80vh] overflow-auto'">
             <p v-for="col, key in palette.colors" class="my-1">

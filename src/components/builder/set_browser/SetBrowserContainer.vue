@@ -1,5 +1,5 @@
 <template>
-    <Window v-if="asModal" @close="$emit('close')" class="w-full md:!w-4/5">
+    <Window v-if="asModal" class="w-full md:!w-4/5">
         <template #big-title>Set Browser</template>
         <SetBrowser :metadata="metadata"></SetBrowser>
     </Window>
@@ -14,7 +14,6 @@ import SetBrowser from './SetBrowser.vue';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
-    emits: ["close"],
     props: ["metadata"],
     computed: {
         asModal() {

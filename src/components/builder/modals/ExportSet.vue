@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="md:!w-4/5 lg:!w-3/5 xl:!w-1/2 !w-auto min-h-[35rem]">
+    <Window class="md:!w-4/5 lg:!w-3/5 xl:!w-1/2 !w-auto min-h-[35rem]">
         <template #big-title>Export set</template>
         <h3 class="text-center">{{ setId }}</h3>
         <div class="flex flex-nowrap items-center gap-3">
@@ -142,7 +142,7 @@ export default defineComponent({
         };
     },
     props: ["metadata"],
-    emits: ["close", "hide", "show"],
+    emits: ["hide", "show"],
     inject: ["messages", "reportError", "chainBriqs"],
     async beforeMount() {
         // Hide until we've screenshotted, or the window 'pops'.

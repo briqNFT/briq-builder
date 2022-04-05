@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="!w-auto">
+    <Window class="!w-auto">
         <template #big-title>Download set</template>
         <div class="sm:w-max m-auto flex items-stretch flex-col font-medium gap-6 py-4 px-2">
             <div class="text-center">

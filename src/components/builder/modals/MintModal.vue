@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="md:!w-1/2">
+    <Window class="md:!w-1/2">
         <template #big-title>Welcome to briq</template>
         <div class="text-lg">
             <div class="my-4">
@@ -81,7 +81,6 @@ export default defineComponent({
         }
     },
     props: ["metadata"],
-    emits: ["close"],
     inject: ["messages", "reportError", "chainBriqs"],
     async mounted() {
         this.tx = transactionsManager.get("mint_proxy").filter(x => x.isOk())?.[0];

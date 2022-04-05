@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" style="height:60%;">
+    <Window style="height:60%;">
         <template #title>Select briq to swap.</template>
         <BriqTable class="overflow-auto" :briqs="briqs"
             :columns="['material']"
@@ -25,7 +25,6 @@ export default defineComponent({
         }
     },
     inject: ["chainBriqs"],
-    emits: ["close"],
     props: ["metadata"],
     computed: {
         briqs() {

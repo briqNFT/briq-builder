@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" style="height:60%;">
+    <Window style="height:60%;">
         <template #title>briq Details</template>
         <div class="flex gap-2">
             <Btn @click="setup = 'all'">On-chain</Btn>
@@ -49,7 +49,6 @@ export default defineComponent({
     },
     methods: {},
     props: ["metadata"],
-    emits: ["close"],
     components: { BriqTable }
 })
 </script>

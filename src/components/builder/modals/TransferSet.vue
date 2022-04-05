@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="lg:!w-2/3 xl:!w-1/2 !w-full">
+    <Window class="lg:!w-2/3 xl:!w-1/2 !w-full">
         <template #big-title>Transfer Set</template>
         <div class="my-8">
             <input class="w-full" type="text" placeholder="Starkware Address to transfer to (hex format: 0xACDE...)" v-model="target"/>

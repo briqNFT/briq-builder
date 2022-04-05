@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="!w-auto">
+    <Window class="!w-auto">
         <template #big-title>Import .vox file</template>
         <div class="w-full text-lg">
             <template v-if="!set">
@@ -44,7 +44,6 @@ export default defineComponent({
         }
     },
     props: ["metadata"],
-    emits: ["close"],
     async mounted() {
         try {
             this.loader = new VoxLoader(await this.data);

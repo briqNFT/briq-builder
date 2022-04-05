@@ -1,5 +1,5 @@
 <template>
-    <Window @close="$emit('close')" class="md:!w-3/5 !w-auto">
+    <Window class="md:!w-3/5 !w-auto">
         <template #title>Transactions</template>
         <p v-for="tx in txs">{{ tx.hash }} - {{ tx.status }}
         <Btn @click="tx.poll()">Poll</Btn>
@@ -25,7 +25,6 @@ export default defineComponent({
         }
     },
     props: ["metadata"],
-    emits: ["close"],
     components: { Button }
 })
 </script>
