@@ -1,5 +1,5 @@
 <template>
-    <div class="container rounded-lg bg-base alternate-buttons m-8 shadow-xl relative md:w-2/5 w-auto">
+    <div :class="'container rounded-lg bg-base alternate-buttons m-8 shadow-xl relative ' + size">
         <div class="relative h-full pt-2 pb-4">
             <!-- Center the title, but let it get pushed slightly left if needed for the close button.-->
             <h3 v-if="!!$slots.title" class="text-center w-full px-4 pb-2 flex justify-between">
@@ -27,4 +27,10 @@
 import { defineComponent } from 'vue';
 export default defineComponent({
     emits: ["close"],
+    props: ["size"],
+    computed: {
+        size(): string {
+            return this.$props?.size || 'md:w-2/5 w-auto';
+        }
+    }
 })</script>

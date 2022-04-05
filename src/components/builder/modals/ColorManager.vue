@@ -1,7 +1,7 @@
 <template>
-    <Window @close="$emit('close')" class="lg:!w-1/2 md:!w-2/3 !w-auto">
+    <Window @close="$emit('close')" size="lg:w-1/2 md:w-2/3 w-full">
         <template #big-title>Color Manager</template>
-        <div :class="(palette.getNbColors() > 20 ? 'md:grid md:grid-cols-2 lg:grid-cols-3' : '') + ' max-h-[80vh] overflow-auto'">
+        <div :class="(palette.getNbColors() > 20 ? 'grid grid-cols-2 lg:grid-cols-3' : '') + ' max-h-[80vh] overflow-auto'">
             <p v-for="col, key in palette.colors" class="my-1">
                 <Btn noStyle="true" :class="'mx-1 font-semibold ' + (usedColors[key] > 0 ? 'text-gray-600' : '')" :disabled="palette.getNbColors() == 1 || usedColors[key] > 0" @click="deleteColor(key)"><i class="fas fa-times"></i></Btn>
                 <Btn noStyle="true" class="mx-1 font-semibold" @click="replaceColor(key)"><i class="far fa-edit"></i></Btn>
@@ -9,9 +9,8 @@
                 <span class="font-mono">{{ col }}</span>
             </p>
         </div>
-        <Btn class="float-left;" @click="resetAll">Reset to default colors</Btn>
-        <Btn class="float-left mx-2" :disabled="!$store.state.builderData.currentSet.getNbBriqs()" @click="keepActive">Keep only set colors</Btn>
-        <Btn class="float-right" @click="$emit('close')">Close</Btn>
+        <Btn class="float-left my-4" @click="resetAll">Reset to default colors</Btn>
+        <Btn class="float-left mx-2 my-4" :disabled="!$store.state.builderData.currentSet.getNbBriqs()" @click="keepActive">Keep only set colors</Btn>
     </Window>
 </template>
 

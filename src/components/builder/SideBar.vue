@@ -22,9 +22,10 @@ import Tooltip from '../generic/Tooltip.vue';
         </div>
         <!-- Repeated 3 times for contrast -->
         <div v-if="editMode" position="relative w-full">
-            <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-none select-none mix-blend-saturation">{{ getNbBriqs }}</p>
-            <p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-none select-none mix-blend-difference">{{ getNbBriqs }}</p>
-            <Tooltip tooltip="This gives you the # of briqs used in the set, out of the total available briqs."><p class="absolute md:text-center md:w-full font-normal drop-shadow-md pointer-events-auto select-none mix-blend-overlay">
+            <p class="absolute md:text-center md:w-full text-sm font-normal drop-shadow-md pointer-events-none select-none mix-blend-saturation whitespace-pre-line">{{ getNbBriqs }}</p>
+            <p class="absolute md:text-center md:w-full text-sm font-normal drop-shadow-md pointer-events-none select-none mix-blend-difference whitespace-pre-line">{{ getNbBriqs }}</p>
+            <Tooltip tooltip="This gives you the # of briqs used in the set, out of the total available briqs.">
+                <p class="absolute md:text-center md:w-full text-sm font-normal drop-shadow-md pointer-events-auto select-none mix-blend-overlay whitespace-pre-line">
                 {{ getNbBriqs }}</p></Tooltip>
         </div>
     </div>
@@ -52,17 +53,18 @@ export default defineComponent({
             return !inputStore.forceInput && setsManager.getInfo(this.$store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
         },
         getNbBriqs() {
-            if (this.chainBriqs.status === 'ERROR')
-                return 'Error loading briqs';
-            if (this.chainBriqs.status === 'NOT_LOADED')
-                return 'briqs not loaded';
-            let total = this.chainBriqs.getNbBriqs();
+            let ret;
             // Vue reactiveness, this is opt-in for performance.
             this.$store.state.builderData.currentSet.usedByMaterial_;
             let used = 0;
             for (let mat in this.$store.state.builderData.currentSet.usedByMaterial)
                 used += this.$store.state.builderData.currentSet.usedByMaterial[mat];
-            return `${used}/${total} briqs used`;
+            if (this.chainBriqs.status === 'ERROR')
+                return `${used} briqs\nError loading chain briqs`;
+            if (this.chainBriqs.status === 'NOT_LOADED')
+                return `${used} briqs\nLoading chain briqs...`;
+            let total = this.chainBriqs.getNbBriqs();
+            return `${used}/${total} briqs`;
         },
         isPlacing() {
             return inputStore.currentInput.indexOf('place') !== -1
