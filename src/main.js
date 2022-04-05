@@ -5,6 +5,16 @@ import './index.css'
 
 import './FontAwesome';
 
+// This was needed with the initial get-starknet library. TODO: review in the future if it's still needed.
+window.gsw = true;
+
+// Fake polyfill to make starknet.js work.
+window.Buffer = {
+    alloc: function() {},
+};
+
+
+
 import App from './App.vue'
 export var app = createApp(App);
 

@@ -20,7 +20,6 @@ mgr.register("escape", { code: "Escape" });
 
 import { setForceDebug } from './Messages';
 
-import { featureFlags } from "./FeatureFlags";
 import { CONF } from './Conf';
 
 import { defineComponent, watchEffect } from 'vue';
@@ -28,7 +27,6 @@ export default defineComponent({
     provide: {
         hotkeyMgr: mgr,
         reportError,
-        featureFlags,
         CONF
     },
     created()

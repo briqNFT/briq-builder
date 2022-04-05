@@ -1,4 +1,4 @@
-import { THREE, THREE_SETUP } from '@/three';
+import { THREE } from '@/three';
 
 var previewCube: THREE.Mesh;
 function generatePreviewCube()

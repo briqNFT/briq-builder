@@ -17,7 +17,7 @@ import { RealmsLogo } from '@/conf/realms';
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
 
-import { THREE_SETUP } from '@/three';
+import { threeSetupComplete } from '@/threeLoading';
 import { walletInitComplete } from '@/chain/WalletLoading';
 import { inputInitComplete } from '@/builder/inputs/InputLoading';
 
@@ -37,7 +37,7 @@ export default defineComponent({
       if (this.hidden)
         return;
       // The purpose of the splash screen is to wait until we've loaded stuff.
-      await THREE_SETUP; // Wait until we've loaded Three JS
+      await threeSetupComplete; // Wait until we've loaded Three JS
       await walletInitComplete; // Wait until we've completed wallet init (or failed)
       await inputInitComplete; // Wait until the FSM has been setup.
       this.$emit("done");

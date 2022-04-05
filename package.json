@@ -20,6 +20,7 @@
     "chart.js": "^3.7.1",
     "connect": "^3.7",
     "fflate": "^0.7.3",
+    "get-starknet": "^0.0.8",
     "json-bigint": "git+https://github.com/briqNFT/json-bigint.git#fix-ts",
     "starknet": "^3.9",
     "three": "^0.138",

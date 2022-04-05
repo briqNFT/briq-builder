@@ -1,4 +1,4 @@
-import { THREE } from '@/three';
+import { THREE, threeSetupComplete } from '@/three';
 
 import VoxelWorld from './VoxelWorld';
 
@@ -14,14 +14,14 @@ function generateRealms() {
     return loader.load(RealmsPic);
 }
 
-import { THREE_SETUP, GLTFLoader } from '@/three';
+import { GLTFLoader } from '@/three';
 
 import Keystone from '@/assets/keystone-square-uv.glb?url';
 import { getRenderMaterial } from './MaterialsRendering';
 
 const loadKeystoneMesh = (() => {
     let promise = new Promise(async (resolve, reject) => {
-        await THREE_SETUP;
+        await threeSetupComplete;
         const loader = new GLTFLoader();
         loader.load(Keystone, (gltf: any) => {
             let mesh = gltf.scene.children[0] as unknown as THREE.Mesh;

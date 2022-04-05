@@ -75,6 +75,7 @@ import { ticketing } from '@/Async';
 import contractStore, { forceNetwork } from '@/chain/Contracts';
 import builderSettings from '@/builder/graphics/Settings';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
+import { featureFlags } from '@/FeatureFlags';
 
 import { defineComponent, watchEffect } from 'vue';
 export default defineComponent({
@@ -92,6 +93,7 @@ export default defineComponent({
         messages: {
             pushMessage, setTooltip
         },
+        featureFlags,
     },
     beforeMount() {
         builderSettings.setSaveSettings(false);

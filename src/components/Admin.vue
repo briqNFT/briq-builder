@@ -52,11 +52,10 @@
 <script lang="ts">
 import contractStore from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages'
-import { defineComponent } from 'vue';
-import type { AccountInterface, Provider, Signer } from '@/Starknet';
-import { getSelectorFromName } from '@/Starknet';
+import type { AccountInterface, Provider, Signer } from '@/starknet_wrapper';
+import { getSelectorFromName } from '@/starknet_wrapper';
 import { store } from '@/store/Store';
-import { toBN } from '@/Starknet';
+import { toBN } from '@/starknet_wrapper';
 
 import { getProvider } from '@/chain/Provider';
 import { walletStore2 } from '@/chain/Wallet';
@@ -72,13 +71,14 @@ const callContract = function(provider: Provider, address: string, entryPoint: s
             calldata: data
         })
     */
-    return provider.callContract({
-        contractAddress: address,
+   return provider.callContract({
+       contractAddress: address,
         calldata: data,
         entrypoint: entryPoint,
     })
 }
 
+        import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {

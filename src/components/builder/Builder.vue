@@ -15,7 +15,6 @@ import CursorTooltip from '../generic/CursorTooltip.vue';
 </script>
 
 <template>
-    <!--<SplashScreen @done="onLoaded"/>-->
     <div class="fixed w-screen h-screen">
         <WebGLCanvas/>
         <AlphaLogo/>
@@ -32,7 +31,7 @@ import CursorTooltip from '../generic/CursorTooltip.vue';
 </template>
 
 <script lang="ts">
-import WalletSelectorVue from '../WalletSelector.vue';
+import { featureFlags } from '@/FeatureFlags';
 
 import { setsManager, checkForInitialGMSet } from '../../builder/SetsManager';
 import contractStore from '@/chain/Contracts';
@@ -61,6 +60,7 @@ export default defineComponent({
         messages: {
             pushMessage, setTooltip
         },
+        featureFlags,
     },
     created() {
         chainBriqs.setAddress(toRef(walletStore2, "userWalletAddress"));
@@ -108,18 +108,6 @@ export default defineComponent({
         // TODO: centralise these?
         setsManager.watchForChain(contractStore, walletStore2);
     },
-    methods: {
-        onLoaded() {
-            // TODO: maybe wait for more specific things?
-            // TODO: deduplicate this code
-            let address = window.localStorage.getItem("user_address");
-            // Explicit disconnect.
-            if (address === "")
-                return;
-            if (!walletStore2.signer)
-                pushModal(WalletSelectorVue)
-        }
-    }
 });
 </script>
 

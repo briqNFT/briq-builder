@@ -1,7 +1,7 @@
-import type { AddTransactionResponse } from '@/Starknet';
-import type { Provider, Signer } from '@/Starknet';
+import type { AddTransactionResponse } from '@/starknet_wrapper';
+import type { Provider, Signer } from '@/starknet_wrapper';
 
-import { toHex } from '@/Starknet';
+import { toHex } from '@/starknet_wrapper';
 
 import BriqABI from './testnet/briq_impl.json'
 

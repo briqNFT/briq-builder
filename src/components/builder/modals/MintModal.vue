@@ -63,7 +63,7 @@
 import { mintProxyStore } from '@/chain/MintProxy';
 import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
-import type { Provider } from '@/Starknet';
+import type { Provider } from '@/starknet_wrapper';
 import contractStore from '@/chain/Contracts';
 import { getCurrentNetwork } from '@/chain/Network';
 import { walletStore2 } from '@/chain/Wallet';

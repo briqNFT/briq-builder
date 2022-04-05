@@ -1,5 +1,5 @@
 import SetContract from "./set";
-import { Signer } from '@/Starknet';
+import { Signer } from '@/starknet_wrapper';
 
 describe('Test Export', () => {
     it('should compute token ID correctly', () => {

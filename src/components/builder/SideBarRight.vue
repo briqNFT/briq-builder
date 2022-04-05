@@ -41,8 +41,6 @@ import { setsManager } from '../../builder/SetsManager';
 
 import { inputStore } from '../../builder/inputs/InputStore';
 
-import WalletSelectorVue from '../WalletSelector.vue';
-
 import { CONF } from '@/Conf';
 import { walletStore2 } from '@/chain/Wallet';
 
@@ -79,24 +77,6 @@ export default defineComponent({
         isViewOnly(sid: string) {
             return setsManager.getInfo(sid).status !== 'LOCAL';
         },
-
-        CWTitle() {
-            if (this.isConnected)
-                return this.wallet.userWalletAddress.substr(0, 5) + '...' + this.wallet.userWalletAddress.substr(-5, 5);
-            return "Connect Wallet";
-        },
-        CWNet() {
-            if (!this.isConnected)
-                return '';
-            return this.wallet.signer.baseUrl.search("mainnet") !== -1 ? 'mainnet' : 'testnet';
-        },
-        CWClick() {
-            if (this.isConnected)
-                this.expandedCW = ! this.expandedCW;
-            else
-                pushModal(WalletSelectorVue);
-        },
-
         titleText: function() {
             let ret = "Briq";
             if (this.isConnected)

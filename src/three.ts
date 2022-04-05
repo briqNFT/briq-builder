@@ -7,6 +7,8 @@ import type * as THREETYPES from 'three';
 import type three_wrapper from './three_wrapper';
 
 import { logDebug } from './Messages';
+import { setThreeLoadingComplete } from './threeLoading';
+export { threeSetupComplete } from './threeLoading';
 
 // This is a lie.
 export var THREE: typeof THREETYPES;
@@ -25,6 +27,7 @@ export var SSAARenderPass: three_wrapper.SSAARenderPass;
 export var CopyShader: three_wrapper.CopyShader;
 export var FXAAShader: three_wrapper.FXAAShader;
 
+
 async function setup() {
     let wrapper = await import ('./three_wrapper');
     THREE = wrapper.THREE;
@@ -42,5 +45,7 @@ async function setup() {
     FXAAShader = wrapper.FXAAShader;
 
     logDebug("Successfully dynamically loaded three.js");
+
+    setThreeLoadingComplete();
 }
-export var THREE_SETUP = setup();
+setup();
