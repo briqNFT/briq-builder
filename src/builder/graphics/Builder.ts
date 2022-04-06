@@ -177,7 +177,15 @@ function recreateRenderer(canvas, scene, camera)
     {
         let overlayScene = new THREE.Scene();
         overlayScene.add(overlayObjects);
-        addLight(overlayScene, -1*5,  2*5,  -3*5);
+
+        // Create similar position lights but give them default lighting settings.
+        const lightSpot = new THREE.DirectionalLight(new THREE.Color(0x888888), 1.0);
+        lightSpot.position.set(-1*5,  2*5,  -3*5);
+        lightSpot.castShadow = false;
+        overlayScene.add(lightSpot);
+        const ambientLight = new THREE.AmbientLight(0x888888, 1.5);
+        overlayScene.add(ambientLight);
+
         const renderPass = new RenderPass(overlayScene, camera);
         renderPass.clear = false;
         renderPass.clearDepth = true;

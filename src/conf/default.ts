@@ -20,6 +20,7 @@ export const CONF = {
         }
     },
     defaultPalette: {
+        // Default colours come from #138
         "#c5ac73": "#c5ac73",
         "#e6de83": "#e6de83",
         "#625231": "#625231",
