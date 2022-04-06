@@ -1,7 +1,7 @@
 <template>
     <Window class="md:!w-4/5 lg:!w-3/5 xl:!w-1/2 !w-auto min-h-[35rem]">
         <template #big-title>Export set</template>
-        <h3 class="text-center">{{ setId }}</h3>
+        <h3 class="text-center">{{ set.id }}</h3>
         <div class="flex flex-nowrap items-center gap-3">
             <div class="w-full bg-accent rounded-md flex justify-around items-center p-2 my-4">
                 <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'METADATA'"><i :class="getStepIcon('METADATA')"></i>Details</button>
@@ -136,7 +136,6 @@ export default defineComponent({
             screenshot: "" as string,
             screenshotPromise: undefined as Promise<string> | undefined,
             ogImage: "" as string,
-            setId: "" as string,
 
             _exportSet: undefined as SetData | undefined,
         };
@@ -259,7 +258,7 @@ export default defineComponent({
         },
         async retakeScreenshot() {
             let img = new Image();
-            let url = await pushModal(ScreenshotVue, { background: false, set: this.setId }) as string;
+            let url = await pushModal(ScreenshotVue, { background: false }) as string;
             // Nothing to do if we cancelled.
             if (!url)
                 return;
@@ -281,7 +280,7 @@ export default defineComponent({
             this.screenshot = await this.screenshotPromise;
         },
         async rename() {
-            await pushModal(RenameSet, { set: this.setId });
+            await pushModal(RenameSet, { set: this.set.id });
         },
         exportSetLocally: function () {
             downloadJSON(this.set.serialize(), this.set.id + ".json");
