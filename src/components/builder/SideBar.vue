@@ -3,19 +3,23 @@ import Button from '../generic/Button.vue';
 import InputComp from './InputComp.vue'
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import Tooltip from '../generic/Tooltip.vue';
+import { pushModal } from '../Modals.vue';
+import BriqBrowserVue from './modals/BriqBrowser.vue';
 </script>
 
 <template>
     <div id="sideBar" class="flex flex-nowrap flex-col mx-4 md:py-20 py-12 absolute left-0 top-0 max-w-full max-h-screen justify-top pointer-events-none">
-        <div v-if="!inputStore.forceInput" class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24 pointer-events-auto">
-            <Btn v-if="editMode" tooltip="In 'Place' mode, left-click to place briqs, right-click to delete, hold SHIFT to place multiple briqs."
+        <div v-if="!inputStore.forceInput && editMode" class="my-2 md:my-4 md:grid md:grid-rows-2 md:grid-cols-2 flex flex-row gap-1 w-24 pointer-events-auto">
+            <Btn tooltip="In 'Place' mode, left-click to place briqs, right-click to delete, hold SHIFT to place multiple briqs."
                 @click="builderInputFsm.switchTo('place')" :disabled="isPlacing"><i class="fas fa-cube"/></Btn>
-            <Btn v-if="editMode" tooltip="In 'Paint' mode, left-click to repaint briqs, right-click to sample the briq color, hold SHIFT to paint multiple briqs."
+            <Btn tooltip="In 'Paint' mode, left-click to repaint briqs, right-click to sample the briq color, hold SHIFT to paint multiple briqs."
                 @click="builderInputFsm.switchTo('paint')" :disabled="isPainting"><i class="fas fa-paint-brush"/></Btn>
-            <Btn v-if="editMode" tooltip="In 'Erase' mode, left-click to delete briqs, hold SHIFT to delete multiple briqs."
+            <Btn tooltip="In 'Erase' mode, left-click to delete briqs, hold SHIFT to delete multiple briqs."
                 @click="builderInputFsm.switchTo('erase')" :disabled="isErasing"><i class="far fa-trash-alt"/></Btn>
-            <Btn v-if="editMode" tooltip="'Select' mode can be used to move or inspect briqs. Left-click to select, right-click to unselect."
+            <Btn tooltip="'Select' mode can be used to move or inspect briqs. Left-click to select, right-click to unselect."
                 @click="builderInputFsm.switchTo('inspect')" :disabled="isInspecting"><i class="fas fa-mouse-pointer"></i></Btn>
+            <Btn class="flex-1 w-full col-span-2" tooltip="Browse the different materials of briqs you own and select which one to place"
+                @click="openBriqBrowser">briq browser</Btn>
         </div>
         <div id="inputComp" class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch pointer-events-auto">
             <InputComp/>
@@ -77,6 +81,11 @@ export default defineComponent({
         },
         isInspecting() {
             return ["inspect", "inspect_va", "inspect_box", "drag", "rotate", "copy_paste"].indexOf(inputStore.currentInput) !== -1;
+        }
+    },
+    methods: {
+        async openBriqBrowser() {
+            await pushModal(BriqBrowserVue, {});
         }
     }
 })

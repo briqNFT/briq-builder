@@ -2,6 +2,7 @@ import { reactive } from 'vue';
 
 import { SelectionManager } from './Selection';
 import { palettesMgr } from '../Palette';
+import { CONF } from '@/Conf';
 
 export const inputStore = reactive({
     currentInput: "place",
@@ -10,6 +11,7 @@ export const inputStore = reactive({
     palettesMgr,
     selectionMgr: new SelectionManager(),
     currentColor: palettesMgr.getCurrent().getFirstColor(),
+    currentMaterial: CONF.defaultMaterial,
 
     defaultSelectionMethod: 'BOX' as ('BOX' | 'VOXEL'),
     showMoveGizmo: true,

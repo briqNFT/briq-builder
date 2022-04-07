@@ -55,6 +55,7 @@ var currentSet = "";
 var setObject: THREE.Object3D;
 var voxWorld: VoxelWorld;
 
+var voxels: { [material: string]: VoxelWorld } = {};
 var nfts: { [key: string]: briqNFT } = {};
 
 class briqNFT
@@ -104,11 +105,9 @@ export function getSetObject()
 {
     if (setObject)
         return setObject;
-    voxWorld = new VoxelWorld({
-        cellSize: 10,
-    });
     setObject = new THREE.Object3D();
-    setObject.add(voxWorld.object);
+    for (let mat in voxels)
+        setObject.add(voxels[mat].object);
     return setObject;
 };
 
@@ -129,14 +128,32 @@ export function getIntersectionPos(xScreen: number, yScreen: number)
             position: [obj[0].point.x, obj[0].point.y, obj[0].point.z],
             normal: [obj[0].face?.normal.x, obj[0].face?.normal.y, obj[0].face?.normal.z],
         };
-    return voxWorld.intersectRay(start, end);
+    let closest = undefined;
+    let bestD = 0;
+    for (let mat in voxels)
+    {
+        let int = voxels[mat].intersectRay(start, end);
+        if (!int)
+            continue;
+        // TODO: improve
+        let d = rc.ray.distanceSqToPoint(new THREE.Vector3(...int.position));
+        if (!closest || d < bestD)
+        {
+            bestD = d;
+            closest = int;
+        }
+    }
+    return closest;
 }
 
 function reset()
 {
-    voxWorld.reset();
+    for (let mat in voxels)
+        voxels[mat].reset();
+    voxels = {};
     for (let id in nfts)
         nfts[id].setPos();
+    setObject.clear();
 }
 
 export function handleActions(dispatchedActions: Array<{ action: string, payload: any }>)
@@ -155,7 +172,15 @@ export function handleActions(dispatchedActions: Array<{ action: string, payload
                     nfts[data.id].setPos(data.pos);
                 }
                 else
-                    voxWorld.setVoxel(...data.pos, data?.color ?? "");
+                {
+                    if (!voxels[data.material])
+                    {
+                        voxels[data.material] = new VoxelWorld({ cellSize: 10 });
+                        setObject.add(voxels[data.material].object);
+                    }
+                    voxels[data.material].setVoxel(...data.pos, data?.color ?? "");
+                }
+                    
             }
             currentSet = item.payload.setId;
         }
@@ -177,7 +202,17 @@ export function handleActions(dispatchedActions: Array<{ action: string, payload
             }
             else
             {
-                voxWorld.setVoxel(...data.position, data?.briq?.color || "");
+                if (data.briq && !voxels[data.briq.material])
+                {
+                    voxels[data.briq.material] = new VoxelWorld({ cellSize: 10 });
+                    setObject.add(voxels[data.briq.material].object);
+                }
+                console.log(data, voxels)
+                if (data?.briq?.material)
+                    voxels[data.briq.material].setVoxel(...data.position, data?.briq?.color || "");
+                else
+                    for (let mat in voxels)
+                        voxels[mat].setVoxel(...data.position, "");
                 let reg = new Set();
             }
         }
@@ -191,6 +226,8 @@ export function handleActions(dispatchedActions: Array<{ action: string, payload
         }
         else if (item.action === "put_all_in_view")
         {
+            // TODO
+            continue;
             let aabb = voxWorld.getAABB();
             let center = [aabb[0][0] + aabb[1][0], aabb[0][1] + aabb[1][1], aabb[0][2] + aabb[1][2]];
             let bounds = Math.max(aabb[1][0] - aabb[0][0], aabb[1][1] - aabb[0][1], aabb[1][2] - aabb[0][2]);
@@ -201,5 +238,6 @@ export function handleActions(dispatchedActions: Array<{ action: string, payload
         }
     }
     dispatchedActions.length = 0;
-    voxWorld.updateDirty();
+    for (let mat in voxels)
+        voxels[mat].updateDirty();
 }
