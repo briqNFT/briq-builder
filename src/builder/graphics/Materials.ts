@@ -11,7 +11,7 @@ export class MaterialByColor {
     colorIndex: { [key: string]: number };
     indexMaterial: { [key: number]: THREE.Material };
 
-    material: THREE.MeshLambertMaterial;
+    material: THREE.MeshStandardMaterial;
     lightMapTexture: THREE.Texture;
 
     size = 256;
@@ -29,7 +29,7 @@ export class MaterialByColor {
         this.lightMapTexture.minFilter = THREE.NearestFilter;
         this.lightMapTexture.magFilter = THREE.NearestFilter;
 
-        this.material = new THREE.MeshLambertMaterial({
+        this.material = new THREE.MeshStandardMaterial({
             side: THREE.DoubleSide,
             alphaTest: 0.1,
             transparent: true,
@@ -83,6 +83,7 @@ export class MaterialByColor {
         texture.minFilter = THREE.NearestFilter;
         texture.needsUpdate = true;
         this.material.map = texture;
+        this.material.emissiveMap = texture;
         this.material.needsUpdate = true;
     }
 }

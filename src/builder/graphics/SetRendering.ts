@@ -50,6 +50,8 @@ const loadKeystoneMesh = (() => {
     }
 })();
 
+import { MaterialByColor } from './Materials';
+
 var currentSet = "";
 
 var setObject: THREE.Object3D;
@@ -156,6 +158,31 @@ function reset()
     setObject.clear();
 }
 
+function getVoxelWorld(material: string)
+{
+    if (!voxels[material])
+    {
+        voxels[material] = new VoxelWorld({ cellSize: 10, material: new MaterialByColor() });
+        setObject.add(voxels[material].object);
+        if (material === "0x3")
+            voxels[material].materialByColor.material.opacity = 0.5;
+        else if (material === "0x4")
+        {
+            voxels[material].materialByColor.material.metalness = 0.5;
+            voxels[material].materialByColor.material.roughness = 0.15;
+            voxels[material].materialByColor.material.envMap = generateSkybox();
+        }
+        else if (material === "0x5")
+        {
+            //voxels[material].materialByColor.material.emissive = voxels[material].materialByColor.material.color;
+            voxels[material].materialByColor.material.color = new THREE.Color(0x444444);
+            voxels[material].materialByColor.material.emissive = new THREE.Color(0xffffff);
+            voxels[material].materialByColor.material.emissiveIntensity = 0.8;
+        }
+    }
+    return voxels[material];
+}
+
 export function handleActions(dispatchedActions: Array<{ action: string, payload: any }>)
 {
     for (let item of dispatchedActions)
@@ -173,12 +200,7 @@ export function handleActions(dispatchedActions: Array<{ action: string, payload
                 }
                 else
                 {
-                    if (!voxels[data.material])
-                    {
-                        voxels[data.material] = new VoxelWorld({ cellSize: 10 });
-                        setObject.add(voxels[data.material].object);
-                    }
-                    voxels[data.material].setVoxel(...data.pos, data?.color ?? "");
+                    getVoxelWorld(data.material).setVoxel(...data.pos, data?.color ?? "");
                 }
                     
             }
@@ -202,18 +224,13 @@ export function handleActions(dispatchedActions: Array<{ action: string, payload
             }
             else
             {
-                if (data.briq && !voxels[data.briq.material])
-                {
-                    voxels[data.briq.material] = new VoxelWorld({ cellSize: 10 });
-                    setObject.add(voxels[data.briq.material].object);
-                }
-                console.log(data, voxels)
                 if (data?.briq?.material)
-                    voxels[data.briq.material].setVoxel(...data.position, data?.briq?.color || "");
+                {
+                    getVoxelWorld(data.briq.material).setVoxel(...data.position, data?.briq?.color || "");
+                }
                 else
                     for (let mat in voxels)
                         voxels[mat].setVoxel(...data.position, "");
-                let reg = new Set();
             }
         }
         else if (item.action === "reset")
