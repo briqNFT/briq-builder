@@ -112,11 +112,12 @@ export default defineComponent({
         async setImpl(contract: any, address: string) {
             if (walletStore2?.signer?.signer)
             {
-                await (walletStore2.signer as AccountInterface).execute({
+                let tx = await (walletStore2.signer as AccountInterface).execute({
                     contractAddress: contract.getAddress(),
                     entrypoint: "setImplementation",
                     calldata: [address]
                 });
+                pushMessage(JSON.stringify(tx));
             }
             else
             {
@@ -133,11 +134,25 @@ export default defineComponent({
             this.cc_pending = true;
             try {
                 this.customResult = "";
-                let tx = await (walletStore2.signer as AccountInterface).execute({
-                    contractAddress: (this.cc_contract === "set" ? contractStore.set : contractStore.briq).getAddress(),
-                    entrypoint: this.selector,
-                    calldata: this.calldata.split(",").filter(x => x).map((x: string) => toBN(x.trim()).toString())
-                });
+
+                if (walletStore2?.signer?.signer)
+                {
+                    let tx = await (walletStore2.signer as AccountInterface).execute({
+                        contractAddress: (this.cc_contract === "set" ? contractStore.set : contractStore.briq).getAddress(),
+                        entrypoint: this.selector,
+                        calldata: this.calldata.split(",").filter(x => x).map((x: string) => toBN(x.trim()).toString())
+                    });
+                    pushMessage(JSON.stringify(tx));
+                }
+                else
+                {
+                    let tx = await (walletStore2.signer as Signer).invokeFunction(
+                        toBN((this.cc_contract === "set" ? contractStore.set : contractStore.briq).getAddress()).toString(),
+                        toBN(getSelectorFromName(this.selector)).toString(),
+                        this.calldata.split(",").filter(x => x).map((x: string) => toBN(x.trim()).toString())
+                    );
+                    pushMessage(JSON.stringify(tx));
+                }
                 this.customResult = `${tx.code} ${tx.transaction_hash}`;
             } catch(err) {
                 this.customResult = err.toString();
