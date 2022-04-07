@@ -7,9 +7,6 @@ import { THREE } from '@/three';
 import { VoxelAlignedSelection } from './SelectHelpers';
 
 import { watchEffect } from 'vue';
-import { CONF } from '@/Conf';
-
-const MATERIAL = CONF.defaultMaterial;
 
 export class PlacerInput extends MouseInputState
 {
@@ -56,7 +53,7 @@ export class PlacerInput extends MouseInputState
         if (!pos || !this.isWithinBounds(...pos))
             return;
         try {
-            let data = removing ? { pos } : { pos, color: inputStore.currentColor, material: MATERIAL };
+            let data = removing ? { pos } : { pos, color: inputStore.currentColor, material: inputStore.currentMaterial };
             await store.dispatch("builderData/place_briqs", [data]);
             // Update the preview cursor in a few milliseconds to let the world update.
             // Use the 'non event updating version' so the cube doesn't accidentally jump back.
@@ -82,7 +79,7 @@ export class PlacerMultiInput extends VoxelAlignedSelection
             for (let y = Math.min(this.initialClickPos[1], pos[1]); y <= Math.max(this.initialClickPos[1], pos[1]); ++y)
                 for (let z = Math.min(this.initialClickPos[2], pos[2]); z <= Math.max(this.initialClickPos[2], pos[2]); ++z)
                     if (!store.state.builderData.currentSet.getAt(x, y, z))
-                        briqs.push({ pos: [x, y, z], color: inputStore.currentColor, material: MATERIAL });
+                        briqs.push({ pos: [x, y, z], color: inputStore.currentColor, material: inputStore.currentMaterial });
         await store.dispatch("builderData/place_briqs", briqs);
     }
 }
