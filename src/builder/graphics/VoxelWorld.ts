@@ -1,6 +1,7 @@
 import { THREE } from '@/three';
 
-import { MaterialByColor } from './Materials';
+import type { MaterialByColor } from './Materials';
+
 export default class VoxelWorld {
     cellSize: number;
     materialByColor: MaterialByColor;
@@ -14,7 +15,7 @@ export default class VoxelWorld {
 
     static faces: Array<any>;
     
-    constructor(options: { cellSize: number }) {
+    constructor(options: { cellSize: number, material: MaterialByColor }) {
         this.cellSize = options.cellSize;
         const {cellSize} = this;
         this.cellSliceSize = cellSize * cellSize;
@@ -25,7 +26,7 @@ export default class VoxelWorld {
 
         this.object = new THREE.Object3D();
 
-        this.materialByColor = new MaterialByColor();
+        this.materialByColor = options.material;
     }
 
     reset()
