@@ -145,7 +145,13 @@ export function getIntersectionPos(xScreen: number, yScreen: number)
             closest = int;
         }
     }
-    return closest;
+    if (closest)
+        return closest;
+    rc.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), end);
+    return {
+        position: [end.x, end.y, end.z],
+        normal: [0, 1, 0],
+    }
 }
 
 function reset()
