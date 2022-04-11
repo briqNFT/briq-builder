@@ -138,8 +138,8 @@ export function getIntersectionPos(xScreen: number, yScreen: number)
         if (!int)
             continue;
         // TODO: improve
-        let d = rc.ray.distanceSqToPoint(new THREE.Vector3(...int.position));
-        if (!closest || d < bestD)
+        let d = rc.ray.origin.distanceToSquared(new THREE.Vector3(...int.position));
+        if (!closest || d <= bestD)
         {
             bestD = d;
             closest = int;
