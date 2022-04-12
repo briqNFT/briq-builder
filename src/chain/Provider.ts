@@ -1,4 +1,4 @@
-import { Provider } from 'starknet';
+import { Provider } from '@/Starknet';
 
 import { getCurrentNetwork } from './Network';
 

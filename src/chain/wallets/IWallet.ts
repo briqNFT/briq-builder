@@ -1,4 +1,4 @@
-import type { Provider, Signer } from 'starknet';
+import type { Provider, Signer } from '@/Starknet';
 
 export abstract class IWallet
 {

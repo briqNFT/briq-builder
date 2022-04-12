@@ -1,5 +1,5 @@
-import type { Signer, Provider, AccountInterface } from 'starknet';
-import { getSelectorFromName } from 'starknet/utils/hash';
+import type { Signer, Provider, AccountInterface } from '@/Starknet';
+import { getSelectorFromName } from '@/Starknet';
 
 type StarknetWindowObject =
   | {

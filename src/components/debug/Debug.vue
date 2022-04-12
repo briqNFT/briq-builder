@@ -71,7 +71,7 @@ p {
 </style>
 
 <script lang="ts">
-import type { Provider, CallContractTransaction } from 'starknet';
+import type { Provider, CallContractTransaction } from '@/Starknet';
 
 import { transactionsManager } from '../../builder/Transactions';
 import contractStore from '@/chain/Contracts';
@@ -79,8 +79,8 @@ import { getStarknetObject } from '@/chain/wallets/ArgentX';
 
 import { ticketing, ignoreOutdated, OutdatedPromiseError } from '../../Async';
 
-import { toBN } from 'starknet/utils/number';
-import { getSelectorFromName } from 'starknet/utils/hash';
+import { toBN } from '@/Starknet';
+import { getSelectorFromName } from '@/Starknet';
 
 import { getProvider } from '@/chain/Provider';
 import { getCurrentNetwork } from '@/chain/Network';

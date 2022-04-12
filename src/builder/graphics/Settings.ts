@@ -40,7 +40,7 @@ class Settings
         this.showPlane = true;
         this.showGrid = true;
         this.transparentBackground = false;
-        this.canvasSize = 10;
+        this.canvasSize = CONF.builderSettings.canvasSize;
         this.lightColor = "#888888";
         this.ambientColor = "#888888";
     }

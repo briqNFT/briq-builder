@@ -1,5 +1,5 @@
 import SetContract from "./set";
-import { Signer } from 'starknet';
+import { Signer } from '@/Starknet';
 
 jest.mock("starknet");
 

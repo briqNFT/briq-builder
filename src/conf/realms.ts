@@ -15,7 +15,8 @@ export const CONF = {
             planeColor: "#161619",
             gridColor: "#8d795b",
             backgroundColor: "#929090",    
-        }
+        },
+        canvasSize: 20,
     },
     defaultPalette: {
         '#ffffff': 'True Ice',

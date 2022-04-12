@@ -1,6 +1,6 @@
 import { watchEffect, markRaw } from 'vue'
 
-import { AccountInterface, Provider } from 'starknet';
+import { AccountInterface, Provider } from '@/Starknet';
 
 import { logDebug, logDebugDelay } from '../Messages'
 import { noParallel, ticketing } from '../Async';

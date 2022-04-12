@@ -1,10 +1,8 @@
-import type { Provider, Signer } from 'starknet';
+import type { Provider, Signer } from '@/Starknet';
 import type { SetData } from '../../builder/SetData';
-import { getSelectorFromName } from 'starknet/utils/stark';
-import { toHex } from 'starknet/utils/number';
+import { toHex } from '@/Starknet';
 
-
-import { computeHashOnElements } from 'starknet/utils/hash';
+import { computeHashOnElements } from '@/Starknet';
 
 import SetABI from './testnet/set_impl.json'
 import ExtendedContract from './Abstraction'

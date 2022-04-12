@@ -5,6 +5,10 @@
  * Three.js is also split in a similar manner.
  */
 
+// Need to polyfill Node's Buffer API from ledger transitive dependencies.
+import { Buffer } from 'buffer';
+window.Buffer = Buffer;
+
 import * as StoreModule from './store/Store';
 import BuilderVue from './components/builder/Builder.vue';
 import AdminVue from './components/Admin.vue';

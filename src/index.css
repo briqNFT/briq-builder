@@ -58,7 +58,7 @@
         @apply dark:border-black;
     }
 
-    input, select {
+    input, select, textarea {
         @apply rounded px-2 py-0.5 bg-white text-black dark:bg-darker dark:text-text;
     }
 }

@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    <div class="alternate-buttons container px-8 py-4 m-auto">
+    <div class="alternate-buttons container px-8 py-4 m-auto main">
         <h1 class="text-center">Admin</h1>
         <div class="h-40 max-h-40 overflow-auto">
             <h3>Messages</h3>
@@ -10,9 +10,19 @@
         </div>
         <div>
             <h3>Minting</h3>
-            <label><p><input v-model="address" type="text"/> recipient</p></label>
+            <label><p><input v-model="address" type="text" size="70"/> recipient</p></label>
             <label><p><input v-model="qty" type="number"/> quantity</p></label>
-            <Btn @click="mint(address, qty)">Mint</Btn>
+            <label><p><select v-model="material">
+                <option value="1">Normal</option>
+                <option value="2">Realms</option>
+            </select> Material</p></label>
+            <Btn @click="mint(address, qty, material)">Mint</Btn>
+        </div>
+        <div>
+            <h3>Realms Minting</h3>
+            <p>One address per line.</p>
+            <label><p><textarea v-model="address" rows="5" cols="80" /> recipient</p></label>
+            <Btn @click="mintRealms(address)">Mint Realms default (20K FT, 1 NFT)</Btn>
         </div>
         <div>
             <h3>Contract initialisation</h3>
@@ -33,17 +43,25 @@
     </div>
 </template>
 
+<style scoped>
+    .main > div {
+        @apply my-4;
+    }
+</style>
+
 <script lang="ts">
 import contractStore from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages'
 import { defineComponent } from 'vue';
-import type { AccountInterface, Provider, Signer } from 'starknet';
-import { getSelectorFromName } from 'starknet/utils/hash';
+import type { AccountInterface, Provider, Signer } from '@/Starknet';
+import { getSelectorFromName } from '@/Starknet';
 import { store } from '@/store/Store';
-import { toBN } from 'starknet/utils/number';
+import { toBN } from '@/Starknet';
 
 import { getProvider } from '@/chain/Provider';
 import { walletStore2 } from '@/chain/Wallet';
+
+import { hexUuid } from '@/Uuid';
 
 const callContract = function(provider: Provider, address: string, entryPoint: string, data: any[])
 {
@@ -61,12 +79,12 @@ const callContract = function(provider: Provider, address: string, entryPoint: s
     })
 }
 
-
 export default defineComponent({
     data() {
         return {
             address: "",
             qty: 0,
+            material: 1,
 
             _setImpl: "",
             _briqImpl: "",
@@ -101,13 +119,26 @@ export default defineComponent({
     },
     methods: {
         pushMessage,
-        async mint(address: string, qty: number) {
+        async mint(address: string, qty: number, material: string) {
             if (!address)
             {
                 pushMessage("No address");
                 return;
             }
-            pushMessage(JSON.stringify((await contractStore.briq?.mint(address, qty))) ?? "Failed to mint, contract is unset");
+            pushMessage(JSON.stringify((await contractStore.briq?.mintFT(address, material, qty))) ?? "Failed to mint, contract is unset");
+        },
+        async mintRealms(address: string) {
+            if (!address)
+            {
+                pushMessage("No address");
+                return;
+            }
+            pushMessage(JSON.stringify(await (walletStore2.signer as AccountInterface).execute(
+                address.split("\n").filter(x => x).map(x => [
+                    contractStore.briq?.contract.populate("mintFT", [x, "2", "20000"]),
+                    contractStore.briq?.contract.populate("mintOneNFT", [x, "2", toBN(hexUuid())])
+                ]).flat()
+            )));
         },
         async setImpl(contract: any, address: string) {
             if (walletStore2?.signer?.signer)

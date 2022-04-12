@@ -6,7 +6,6 @@ import type { HotkeyHandle } from '@/Hotkeys';
 import { SelectionManager, selectionRender } from '../Selection';
 import { THREE } from '@/three';
 import { pushMessage } from '@/Messages';
-import { number } from 'starknet';
 
 export class CopyPasteInput extends MouseInputState {
     lastClickPos: [number, number, number] | undefined;

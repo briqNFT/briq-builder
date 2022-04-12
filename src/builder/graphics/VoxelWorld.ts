@@ -1,4 +1,3 @@
-import { number } from 'starknet';
 import { THREE } from '@/three';
 
 import { MaterialByColor } from './Materials';

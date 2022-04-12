@@ -1,7 +1,7 @@
-import type { AddTransactionResponse } from 'starknet';
-import type { Provider, Signer } from 'starknet';
+import type { AddTransactionResponse } from '@/Starknet';
+import type { Provider, Signer } from '@/Starknet';
 
-import { toHex } from 'starknet/utils/number';
+import { toHex } from '@/Starknet';
 
 import BriqABI from './testnet/briq_impl.json'
 
@@ -31,9 +31,9 @@ export default class BriqContract
         return (await this.invoke("setMintContract", { address: contractStore.mint.address }));
     }*/
 
-    async mint(owner: string, qty: number)
+    async mintFT(owner: string, material: string, qty: number)
     {
-        return await this.contract.mintFT(owner, "1", `${qty}`);
+        return await this.contract.mintFT(owner, material, `${qty}`);
     }
 
     async balanceDetailsOf(owner: string, material: string)
