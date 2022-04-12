@@ -10,7 +10,7 @@
                 <i class="text-sm fas fa-arrow-right"></i>
                 <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="step(exporting) > step('CONFIRMATION')" @click="exporting = 'CONFIRMATION'"><i :class="getStepIcon('CONFIRMATION')"></i>Confirmation</button>
                 <i class="text-sm fas fa-arrow-right"></i>
-                <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="true"><i :class="getStepIcon('DONE')"></i> Export</button>
+                <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="true"><i :class="getStepIcon('TWEET')"></i> Export</button>
             </div>
         </div>
         <div class="overflow-hidden w-full">
@@ -26,13 +26,27 @@
                         You can disassemble a set to get briqs back and build again, <a href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f#2d0d637eabcc4f83b4bed745962af3ef" target="blank_" class="underline font-normal">click here to learn more</a></p>
                     </div>
                 </div>
-                <div class="flex-none w-full">
+                <div v-if="CONF.theme !== 'realms'" class="flex-none w-full">
                     <div class="my-2 flex flex-col gap-2">
                         <h3 class="font-medium">Set name <button @click="rename"><i class="far fa-edit"></i></button></h3>
                         <h2 class="break-all">{{ set.name }}</h2>
                         <div class="my-4"></div>
                         <h3 class="font-medium">Set description <button :disabled="true"><i class="far fa-edit"></i></button></h3>
                         <p class="text-lg">{{ "COMING SOON! Descriptions are not supported yet..." }}</p>
+                    </div>
+                </div>
+                <div v-else="" class="flex-none w-full">
+                    <div class="my-2 flex flex-col">
+                        <h2 class="text-center">Select the wonder you built</h2>
+                        <div class="grid grid-cols-4 gap-1">
+                            <div v-for="data in realmsData" :key="data[0]"
+                                @click="$store.dispatch('builderData/change_set_name', { set: set, name: data[1] })"
+                                :class="'bg-darker rounded-md flex items-center flex-col p-2 select-none cursor-pointer hover:ring-2 ring-accent ' + (set.name === data[1] ? '!bg-accent' : '')">
+                                <component :is="data[2]" class="w-6 h-6"/>
+                                <h4 class="text-center text-xs">{{ data[0] }}</h4>
+                                <h3 class="text-center text-md">{{ data[1] }}</h3>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex-none w-full">
@@ -44,7 +58,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex-none w-full">
+                <div v-if="CONF.theme !== 'realms'" class="flex-none w-full">
                     <h3 class="text-center break-all">{{ set.name }}</h3>
                     <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
                     <div class="flex justify-around items-center">
@@ -70,6 +84,25 @@
                         </div>
                     </div>
                 </div>
+                <div v-else="" class="flex-none w-full">
+                    <p class="flex justify-center"><component class="w-8 h-8" :is="realmsData.find(x => x[1] === set.name)?.[2] || realmsData[0][2]"></component></p>
+                    <h4 class="text-center">{{ realmsData.find(x => x[1] === set.name)?.[0] || realmsData[0][0] }}</h4>
+                    <h3 class="text-center break-all">{{ set.name || set.id }}</h3>
+                    <div class="flex justify-around items-center">
+                        <p class="flex-initial"><img class="max-h-[25rem] m-auto rounded-xl" :src="screenshot"/></p>
+                    </div>
+                    <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
+                    <div v-if="transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs" class="flex justify-around my-2 text-center">
+                        <p v-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
+                        <p v-else-if="transactionPending">...Export is ongoing...</p>
+                        <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
+                        <div v-else-if="!hasBriqsAndSets">
+                            <p>briqs need to be loaded before you can export a set.</p>
+                            <p v-if="chainBriqs.fetchingBriqs">...Please wait while briqs are loading...</p>
+                            <p v-else="">There was an error loading briqs. <button @click="chainBriqs.loadFromChain()">Click to retry</button></p>
+                        </div>
+                    </div>
+                </div>
                 <div :class="'flex-none w-full'">
                     <div class="text-lg font-medium">
                         <p>1 - Signing: <i :class="getStepIcon('SIGNING')"></i></p>
@@ -77,9 +110,12 @@
                         <p>3 - Waiting for transaction to be received: <i :class="getStepIcon('WAITING_FOR_CONFIRMATION')"></i></p>
                         <p class="mx-8">Hash: {{ pending_transaction?.hash ? '' : '(pending)' }}<span class="tracking-tighter text-sm font-light">{{ pending_transaction?.hash }}</span></p>
                         <p class="mx-8">Status: {{ pending_transaction?.status ?? '(pending)' }}</p>
-                        <div class="my-8"></div>
-                        <p v-if="exporting === 'DONE'">You’ve successfully signed your transaction! It is now pending on StarkNet.<br />You can now close this modal.</p>
-                        <p v-if="exporting === 'ERROR'">There was an error while exporting your set.<br/>The following step failed: {{ errorStep }}. Full error:<br/>
+                        <template v-if="CONF.theme === 'realms'">
+                            <p :class="step(exporting) >= step('TWEET') ? '' : 'pointer-events-none'"><a  @click="exporting = 'DONE'" target="_blank" :href="`https://twitter.com/intent/tweet?text=${tweetContent}&url=${link}`">
+                            4 - <Btn class="mx-2" :disabled="exporting !== 'TWEET' && exporting !== 'DONE'">Tweet about it</Btn></a><span class="text-md" v-if="exporting === 'TWEET'">(or <span class="font-semibold cursor-pointer" @click="exporting = 'DONE'">skip this step</span>)</span></p>
+                        </template>
+                        <p class="mt-8" v-if="exporting === 'DONE'">You’ve successfully signed your transaction! It is now pending on StarkNet.<br />You can now close this modal.</p>
+                        <p class="mt-8" v-if="exporting === 'ERROR'">There was an error while exporting your set.<br/>The following step failed: {{ errorStep }}. Full error:<br/>
                             <span class="bg-accent p-1 text-sm font-light tracking-tight">{{ errorDetails.toString() }}</span>
                         </p>
                         <Btn class="my-2" v-if="exporting === 'ERROR'" @click="exporting = 'METADATA'; errorStep = undefined">Start over</Btn>
@@ -88,8 +124,9 @@
             </div>
         </div>
         <div :class="'w-full bg-accent rounded-md flex justify-between items-center p-2 my-2' + (step(exporting) < step('SIGNING') ? '' : ' invisible')">
-            <Btn :disabled="step(exporting) > step('CONFIRMATION') || step(exporting) <= step('METADATA')" @click="exporting = exportSteps[step(exporting) - 1]"><span class="mx-4">Back</span></Btn>
-            <Btn :disabled="step(exporting) == step('PRECHECKS')" v-if="step(exporting) < step('CONFIRMATION')" @click="exporting = exportSteps[step(exporting) + 1]"><span class="mx-4">Next</span></Btn>
+            <Btn :disabled="!canGoBack" @click="exporting = exportSteps[step(exporting) - 1]"><span class="mx-4">Back</span></Btn>
+            <Btn :disabled="!canGoForward" v-if="step(exporting) < step('CONFIRMATION')" @click="exporting = exportSteps[step(exporting) + 1]"><span class="mx-4">Next</span></Btn>
+            <Btn :disabled="transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs" v-if="CONF.theme === 'realms' && step(exporting) === step('CONFIRMATION')" @click="exportSetOnChain"><span class="mx-4">Mint</span></Btn>
         </div>
     </Window>
 </template>
@@ -112,13 +149,38 @@ import { VERSION } from '../../../Meta';
 
 import builderSettings from '../../../builder/graphics/Settings';
 
+import { CONF } from '@/Conf';
+
+import * as realms from '@/assets/realms/orders';
+
+const realmsData = [
+    ["The Order of Anger", "The Glowing Geyser", realms.Anger],
+    ["The Order of Detection", "The Immortal Hot Spring", realms.Detection],
+    ["The Order of Fury", "The Cerulean Chamber", realms.Fury],
+    ["The Order of Rage", "The Ancestral Willow", realms.Rage],
+    ["The Order of Reflection", "Pantheon Of Chaos", realms.Reflection],
+    ["The Order of the Fox", "Altar Of The Void", realms.Fox],
+    ["The Order of the Twins", "Sanctum Of The Oracle", realms.Twins],
+    ["The Order of Vitriol", "The Perpetual Fjord", realms.Vitriol],
+    ["The Order of Brilliance", "Infinity Spire", realms.Brilliance],
+    ["The Order of Enlightenment", "The Ancestral Trees", realms.Enlightenment],
+    ["The Order of Giants", "The Amaranthine Rock", realms.Giants],
+    ["The Order of Perfection", "Sanctum Of Purpose", realms.Perfection],
+    ["The Order of Power", "The Origin Oasis", realms.Power],
+    ["The Order of Protection", "The Mirror Grotto", realms.Protection],
+    ["The Order of Skill", "The Weeping Willow", realms.Skill],
+    ["The Order of Titans", "The Solemn Catacombs", realms.Titans],
+]
+
 import { takeScreenshot } from '../../../builder/graphics/Builder';
 import ScreenshotVue from './Screenshot.vue';
 import CropScreenshotVue from './CropScreenshot.vue';
 import MintModalVue from './MintModal.vue';
 
-type ExportSteps = 'PRECHECKS' | 'METADATA' | 'PREVIEW' | 'CONFIRMATION' | 'SIGNING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'ERROR' | 'DONE';
-const exportSteps = ['PRECHECKS', 'METADATA', 'PREVIEW', 'CONFIRMATION', 'SIGNING', 'SENDING_TRANSACTION', 'WAITING_FOR_CONFIRMATION', 'ERROR', 'DONE'];
+import { getShareLink } from '@/components/builder/Sharing';
+
+type ExportSteps = 'PRECHECKS' | 'METADATA' | 'PREVIEW' | 'CONFIRMATION' | 'SIGNING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'TWEET' | 'ERROR' | 'DONE';
+const exportSteps = ['PRECHECKS', 'METADATA', 'PREVIEW', 'CONFIRMATION', 'SIGNING', 'SENDING_TRANSACTION', 'WAITING_FOR_CONFIRMATION', 'TWEET', 'ERROR', 'DONE'];
 
 import { addBreadCrumb } from '@/Monitoring';
 
@@ -127,7 +189,6 @@ import { logDebug } from '@/Messages';
 export default defineComponent({
     data() {
         return {
-            name: "",
             pending_transaction: undefined as Transaction | undefined,
             exporting: 'METADATA' as ExportSteps,
             exportSteps,
@@ -147,7 +208,9 @@ export default defineComponent({
         // Hide until we've screenshotted, or the window 'pops'.
         this.$emit('hide');
 
-        this.name = this.set.name;
+        if (CONF.theme === 'realms' && !realmsData.find(x => x[1] === this.set.name))
+            await this.$store.dispatch("builderData/change_set_name", { set: this.set, name: "" })
+
         this.pending_transaction = transactionsManager.get("export_set").filter(x => x.isOk() && x?.metadata?.setId === this.set.id)?.[0];
         if (!this.hasAccount || this.needMinting || this.notEnoughBriqs)
             this.exporting = 'PRECHECKS';
@@ -165,6 +228,18 @@ export default defineComponent({
         });
     },
     computed: {
+        CONF() {
+            return CONF;
+        },
+        realmsData() {
+            return realmsData;
+        },
+        tweetContent() {
+            return encodeURIComponent(`I built the @lootrealms Wonder "${this.set.name}" with @briqNFT! We're trailblazing the way to #StarkNet layer 2 @starkwareLTD\n`);
+        },
+        link() {            
+            return encodeURIComponent(getShareLink("testnet", this.set.id));
+        },
         wallet() {
             return walletStore2;
         },
@@ -192,6 +267,12 @@ export default defineComponent({
         notEnoughBriqs() {
             // if there is no exportable set, then we have some briq-related issue.
             return this.hasBriqsAndSets && !this.exportSet;
+        },
+        canGoBack() {
+            return this.step(this.exporting) <= this.step('CONFIRMATION') && this.step(this.exporting) > this.step('METADATA');
+        },
+        canGoForward() {
+            return this.set.name && this.step(this.exporting) != this.step('PRECHECKS');
         },
         exportSet() {
             if (this._exportSet)
@@ -247,7 +328,7 @@ export default defineComponent({
                 return 'fas fa-check';
             }
             if (this.step(step) === this.step(this.exporting))
-                return 'fas fa-spinner animate-spin-slow';
+                return 'fas fa-circle';
             else if (this.step(step) > this.step(this.exporting))
                 return 'far fa-circle';
             else
@@ -371,7 +452,10 @@ export default defineComponent({
                 info.chain_owner = this.wallet.userWalletAddress;
                 this.$store.dispatch("builderData/select_set", this.exportSet.id);
 
-                this.exporting = 'DONE';
+                if (CONF.theme === 'realms')
+                    this.exporting = 'TWEET';
+                else
+                    this.exporting = 'DONE';
             }
             catch (err) {
                 if (err?.message === "User abort") {
