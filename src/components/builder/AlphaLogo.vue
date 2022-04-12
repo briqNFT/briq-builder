@@ -7,7 +7,7 @@ import { RealmsLogo } from '@/conf/realms';
         <a target="_blank" href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3">
             <h5 v-if="CONF.theme === 'realms'" class="text-5xl font-bold drop-shadow-lg px-4 py-6 alpha-pill briq-logo flex flex-col items-center leading-[3rem]">
                 <!-- style="fill: rgba(var(--color-text));" -->
-                <span>briq</span><span class="text-3xl leading-[1.5rem]">x</span><span><RealmsLogo height="3.5rem" /></span>
+                <span>briq</span><span class="text-3xl leading-[0.5rem]">x</span><span><RealmsLogo height="4.5rem" /></span>
             </h5>
             <h5 v-else="" class="text-5xl font-bold drop-shadow-lg px-4 py-6 alpha-pill briq-logo">briq</h5>
         </a>

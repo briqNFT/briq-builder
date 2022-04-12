@@ -4,7 +4,7 @@ import { RealmsLogo } from '@/conf/realms';
 
 <template>
   <div id="floatingMenu" :class="hidden">
-    <h1 v-if="CONF.theme === 'realms'" class="font-bold p-8 briq-logo font-[4rem]">briq x <RealmsLogo class="inline-block relative bottom-[8%]" height="4rem" style="fill: rgba(var(--color-text))"/></h1>
+    <h1 v-if="CONF.theme === 'realms'" class="font-bold p-8 briq-logo font-[4rem]">briq x <RealmsLogo class="inline-block relative bottom-[3%]" height="7rem" style="fill: rgba(var(--color-text))"/></h1>
     <h1 v-else="" class="font-bold p-8 briq-logo">briq</h1>
     <h2>Seize the briqs of construction</h2>
     <!--
