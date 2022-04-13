@@ -238,7 +238,7 @@ export default defineComponent({
             return encodeURIComponent(`I built the @lootrealms Wonder "${this.set.name}" with @briqNFT! We're trailblazing the way to #StarkNet layer 2 @starkwareLTD\n`);
         },
         link() {            
-            return encodeURIComponent(getShareLink("testnet", this.set.id));
+            return encodeURIComponent(getShareLink("testnet", this.exportSet?.id || ""));
         },
         wallet() {
             return walletStore2;
