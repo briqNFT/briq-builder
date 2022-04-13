@@ -155,9 +155,9 @@ import * as realms from '@/assets/realms/orders';
 
 const realmsData = [
     ["The Order of Anger", "The Glowing Geyser", realms.Anger],
-    ["The Order of Detection", "The Immortal Hot Spring", realms.Detection],
+    ["The Order of Detection", "The Pale Pillar", realms.Detection],
     ["The Order of Fury", "The Cerulean Chamber", realms.Fury],
-    ["The Order of Rage", "The Ancestral Willow", realms.Rage],
+    ["The Order of Rage", "The Pagoda of Fortune", realms.Rage],
     ["The Order of Reflection", "Pantheon Of Chaos", realms.Reflection],
     ["The Order of the Fox", "Altar Of The Void", realms.Fox],
     ["The Order of the Twins", "Sanctum Of The Oracle", realms.Twins],
