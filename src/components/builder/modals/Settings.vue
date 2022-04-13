@@ -25,7 +25,7 @@
                 <option value="dark">Dark Mode</option>
                 <option value="light">Light Mode</option>
             </select></p>
-            <label><p class="flex items-center"><span class="inline-flex items-center font-semibold text-xs bg-accent rounded-md px-1 mr-2">10 <input type="range" min="5" step="5" max="50" v-model="builderSettings.canvasSize"/> 100</span>
+            <label><p class="flex items-center"><span class="inline-flex items-center font-semibold text-xs bg-accent rounded-md px-1 mr-2">10 <input type="range" min="5" step="5" :max="CONF.builderSettings.maxCanvasSize || 50" v-model="builderSettings.canvasSize"/> {{ CONF.builderSettings.maxCanvasSize * 2 || 100 }}</span>
             Canvas size ({{ `${builderSettings.canvasSize * 2}x${builderSettings.canvasSize * 2}` }})</p></label>
         </div>
         <Btn @click="resetToDefault">Reset to defaults</Btn>
@@ -45,6 +45,8 @@
 <script lang="ts">
 import builderSettings from '../../../builder/graphics/Settings';
 import { darkModeStore, useDarkMode } from '../../../DarkMode';
+
+import { CONF } from '@/Conf';
 
 var initState;
 
@@ -77,6 +79,11 @@ export default defineComponent({
         },
         forceMode() {
             builderSettings.onDarkModeUpdate();
+        }
+    },
+    computed: {
+        CONF() {
+            return CONF;
         }
     },
     methods: {

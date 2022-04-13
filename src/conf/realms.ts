@@ -17,6 +17,7 @@ export const CONF = {
             backgroundColor: "#929090",    
         },
         canvasSize: 20,
+        maxCanvasSize: 150,
     },
     defaultPalette: {
         '#ffffff': 'True Ice',

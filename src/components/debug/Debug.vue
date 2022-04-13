@@ -99,7 +99,7 @@ async function test(testVar: string, testDataVar: string, test: CallableFunction
 
 const callContract = function(provider: Provider, address: string, entryPoint: string, data: any[])
 {
-    if (!provider.estimateFee)
+    if (!provider.getTransactionTrace)
         return provider.callContract({
             contract_address: address,
             entry_point_selector: getSelectorFromName(entryPoint),

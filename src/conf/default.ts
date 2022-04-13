@@ -19,6 +19,7 @@ export const CONF = {
             backgroundColor: "#eaeaea",
         },
         canvasSize: 10,
+        maxCanvasSize: 50,
     },
     defaultPalette: {
         // Default colours come from #138
