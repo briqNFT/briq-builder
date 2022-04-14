@@ -1,6 +1,6 @@
 {
   "name": "briq-builder",
-  "version": "1.6.1-alpha",
+  "version": "1.7.0-alpha",
   "description": "Frontend builder for the briq protocol",
   "homepage": "https://github.com/briqNFT/briq-builder/",
   "scripts": {
