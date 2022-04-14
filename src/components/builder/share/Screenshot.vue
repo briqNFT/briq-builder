@@ -1,8 +1,6 @@
 <template>
-    <div class="md:w-3/5 w-auto max-h-full overflow-auto flex">
-        <div class="relative flex flex-col w-full">
-            <button @click="$emit('close')" class="absolute right-0">X</button>
-            <h2 class="my-4 text-center w-full">Screenshot</h2>
+    <Window class="md:w-3/5 w-auto max-h-full overflow-auto">
+            <template #big-title>Screenshot</template>
             <!-- This is here just to trigger the recompute. -->
             <template v-if="image"></template>
             <div class="max-h-[40rem] overflow-auto">
@@ -24,8 +22,7 @@
                 <a target="_blank" :href="`https://twitter.com/intent/tweet?text=Check out what I built with @briqNFT!🧱 &url=${link}&via=briqNFT`">
                 <Btn @click="downloadImg"><i class="fab fa-twitter"></i> Tweet</Btn></a>
             </div>
-        </div>
-    </div>
+    </Window>
 </template>
 
 <style scoped>
