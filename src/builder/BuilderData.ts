@@ -248,6 +248,10 @@ export var builderDataStore = (() => {
             {
                 data.set.name = data.name;
             },
+            change_set_desc(state: any, data: { set: SetData, desc: string })
+            {
+                data.set.description = data.desc;
+            },
                         
             place_briqs(state: any, data: { pos: [number, number, number], color?: string, material?: string, id?: string, allow_overwrite: boolean }[])
             {

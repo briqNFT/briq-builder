@@ -17,6 +17,7 @@ export class SetData
 {
     id: string;
     name: string;
+    description: string;
 
     regionSize: number;
     // Indexed by region & cell
@@ -34,6 +35,7 @@ export class SetData
     {
         this.id = id;
         this.name = "";
+        this.description = "A set made of briqs";
 
         this.regionSize = REGION_SIZE;
         this.reset();
@@ -54,6 +56,7 @@ export class SetData
         let ret: any = {};
         ret.id = this.id;
         ret.name = this.name;
+        ret.description = this.description;
         ret.regionSize = this.regionSize;
         ret.version = SET_DATA_VERSION;
 
@@ -84,6 +87,7 @@ export class SetData
             throw new Error("Set tried to load data from the wrong set");
         this.reset();
         this.name = data.name;
+        this.description = data?.description || "";
         this.regionSize = data.regionSize;
         let version = data.version;
         for (let briq of data.briqs)

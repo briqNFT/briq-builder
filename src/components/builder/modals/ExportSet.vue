@@ -31,8 +31,8 @@
                         <h3 class="font-medium">Set name <button @click="rename"><i class="far fa-edit"></i></button></h3>
                         <h2 class="break-all">{{ set.name }}</h2>
                         <div class="my-4"></div>
-                        <h3 class="font-medium">Set description <button :disabled="true"><i class="far fa-edit"></i></button></h3>
-                        <p class="text-lg">{{ "COMING SOON! Descriptions are not supported yet..." }}</p>
+                        <h3 class="font-medium">Set description <button @click="changeDescription"><i class="far fa-edit"></i></button></h3>
+                        <p class="text-lg">{{ set.description }}</p>
                     </div>
                 </div>
                 <div v-else="" class="flex-none w-full">
@@ -40,7 +40,10 @@
                         <h2 class="text-center">Select the wonder you built</h2>
                         <div class="grid grid-cols-4 gap-1">
                             <div v-for="data in realmsData" :key="data[0]"
-                                @click="$store.dispatch('builderData/change_set_name', { set: set, name: data[1] })"
+                                @click="
+                                    $store.dispatch('builderData/change_set_name', { set: set, name: data[1] });
+                                    $store.commit('builderData/change_set_desc', { set: set, desc: `${data[1]}, the Wonder of the ${data[0]}.` });
+                                "
                                 :class="'bg-darker rounded-md flex items-center flex-col p-2 select-none cursor-pointer hover:ring-2 ring-accent ' + (set.name === data[1] ? '!bg-accent' : '')">
                                 <component :is="data[2]" class="w-6 h-6"/>
                                 <h4 class="text-center text-xs">{{ data[0] }}</h4>
@@ -142,6 +145,7 @@ import { walletStore2 } from '@/chain/Wallet';
 import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
 import RenameSet from '../modals/RenameSet.vue';
+import ChangeSetDescription from '../modals/ChangeSetDescription.vue';
 import { pushModal } from '../../Modals.vue';
 import { mintProxyStore } from '@/chain/MintProxy';
 
@@ -363,6 +367,12 @@ export default defineComponent({
         async rename() {
             await pushModal(RenameSet, { set: this.set.id });
         },
+        async changeDescription() {
+            this.$store.commit("builderData/change_set_desc", {
+                set: this.set,
+                desc: await pushModal(ChangeSetDescription, { name: this.set.name, desc: this.set.description }) || "A set made of briqs"
+            });
+        },
         exportSetLocally: function () {
             downloadJSON(this.set.serialize(), this.set.id + ".json");
         },
@@ -374,6 +384,7 @@ export default defineComponent({
                     throw new Error("The set could not be exported");
                 // Update the name in case it changed.
                 this.exportSet.name = this.set.name;
+                this.exportSet.description = this.set.description;
 
                 if (this.set.name.length > 200)
                     throw new Error("Set name too long, max length is 200 characters.");
