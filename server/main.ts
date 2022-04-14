@@ -16,6 +16,17 @@ const config = {
     port: DEV ? 3000 : 5000,
 };
 
+// TODO: reduce duplication with frontend.
+function getApiUrl(hostname: string | undefined)
+{
+    if (!hostname || hostname.indexOf("localhost") !== -1)
+        return "localhost:5050";
+    if (hostname.indexOf("test") !== -1)
+        return "api.test.sltech.company";
+    if (hostname.indexOf("sltech.company") !== -1 || hostname.indexOf("briq.construction") !== -1)
+        return "api.briq.construction";
+}
+
 async function runServer() {
     let app = connect();
     let vite: undefined | ViteDevServer;
@@ -64,11 +75,12 @@ async function runServer() {
                 try {
                     // Fetch information from the API.
                     // TODO: would perhaps be nice to not go throught the external router.
+                    const apiUrl = getApiUrl(req.headers.host);
                     data = await new Promise((resolve, reject) => {
                         try
                         {
                             let query = https.request({
-                                hostname: 'api.' + req.headers.host,
+                                hostname: apiUrl,
                                 port: 443,
                                 method: 'GET',
                                 path: '/store_get/' + setId,
@@ -84,25 +96,21 @@ async function runServer() {
                                 resp.on('end', () => {
                                     try {
                                         resolve(JSON.parse(data));
-                                    } catch(_) {
-                                        reject()
-                                    }
+                                    } catch(err) { reject(err) }
                                 });
                                 
-                                resp.on('error', err => {
-                                    reject();
-                                })
+                                resp.on('error', err => { reject(err); })
                             });
                             query.end();
-                            query.on('error', () => reject());
+                            query.on('error', (err) => { reject(err) });
                         }
-                        catch(_) { reject(); }
+                        catch(err) { reject(err); }
                     })
                     processedTemplate = processedTemplate.replace("<!--<meta-replace>-->",[
                         '<meta property="og:title" content="' + (data.data.name || data.data.id) + '">',
                         '<meta property="og:type" content="article" />',
                         '<meta property="og:description" content="Built with briqs">',
-                        '<meta property="og:image" content="https://api.' + req.headers.host + '/preview/' + setId + '">',
+                        '<meta property="og:image" content="https://' + apiUrl + '/preview/' + setId + '.png">',
                         '<meta property="og:url" content="https://' + req.headers.host + req.url + '">',
                         '<meta name="twitter:card" content="summary_large_image">',
                     ].join("\n"))
@@ -110,6 +118,7 @@ async function runServer() {
                 catch (_)
                 {
                     // Ignore error -> probably just a bad ID, will be handled by frontend.
+                    // console.error(_);
                 }
             }
     
