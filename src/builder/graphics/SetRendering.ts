@@ -171,7 +171,10 @@ function getVoxelWorld(material: string)
         voxels[material] = new VoxelWorld({ cellSize: 10, material: new MaterialByColor() });
         setObject.add(voxels[material].object);
         if (material === "0x3")
+        {
             voxels[material].materialByColor.material.opacity = 0.5;
+            voxels[material].materialByColor.material.transparent = true;
+        }
         else if (material === "0x4")
         {
             voxels[material].materialByColor.material.metalness = 0.5;

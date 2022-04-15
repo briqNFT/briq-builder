@@ -32,7 +32,7 @@ export class MaterialByColor {
         this.material = new THREE.MeshStandardMaterial({
             side: THREE.DoubleSide,
             alphaTest: 0.1,
-            transparent: true,
+            transparent: false,
         });
         this.updateTexture();
 
