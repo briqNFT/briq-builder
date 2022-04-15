@@ -8,7 +8,7 @@ let onKeyUp: Array<CallableFunction> = [];
 let hm: HotkeyManager;
 
 beforeAll(() => {
-  windowSpy = jest.spyOn(window, "window", "get");
+  windowSpy = vi.spyOn(window, "window", "get");
   windowSpy.mockImplementation(() => ({
       addEventListener: (e: string, cb: CallableFunction) => {
         if (e === "keydown")

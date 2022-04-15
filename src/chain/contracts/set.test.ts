@@ -1,8 +1,6 @@
 import SetContract from "./set";
 import { Signer } from '@/Starknet';
 
-jest.mock("starknet");
-
 describe('Test Export', () => {
     it('should compute token ID correctly', () => {
         let contract = new SetContract("0xcafe", new Signer());

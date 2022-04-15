@@ -43,6 +43,10 @@ export default defineConfig(({ mode }) => ({
         }
         */
     },
+    test: {
+        globals: true,
+        environment: 'jsdom',
+    },
     // Uncomment to see details on what's going with rollup
     plugins: [vue(), svgLoader(), injectNpmVersion()] //, analyze({ showExports: true }), visualizer({ template: "treemap", sourcemap: true })]
 }));
