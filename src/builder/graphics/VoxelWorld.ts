@@ -1,6 +1,6 @@
 import { THREE } from '@/three';
 
-import type { MaterialByColor } from './Materials';
+import type { MaterialByColor } from './MaterialByColor';
 
 export default class VoxelWorld {
     cellSize: number;

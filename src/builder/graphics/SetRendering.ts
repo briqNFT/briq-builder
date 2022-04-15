@@ -50,7 +50,7 @@ const loadKeystoneMesh = (() => {
     }
 })();
 
-import { MaterialByColor } from './Materials';
+import { MaterialByColor } from './MaterialByColor';
 
 var currentSet = "";
 
