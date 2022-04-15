@@ -72,7 +72,12 @@ export class ChainBriqs
     }
 
     _getTokens = ticketing(async function (this: ChainBriqs) {
-        return await this.briqContract!.balanceDetailsOf(this.addr!, CONF.defaultMaterial)
+        let ret = {};
+        for (let mat of CONF.briqMaterials)
+            ret[mat] = this.briqContract!.balanceDetailsOf(this.addr!, mat);
+        for (let mat of CONF.briqMaterials)
+            ret[mat] = await ret[mat];
+        return ret;
     });
 
     async loadFromChain()
@@ -107,14 +112,18 @@ export class ChainBriqs
         this.fetchingBriqs = false;
     }
 
-    parseChainData(balanceJSON: { ft_balance: string, nft_ids: string[] })
+    parseChainData(balanceJSON: { [material: string]: { ft_balance: number, nft_ids: string[] } })
     {
         this.byMaterial = {};
-        this.byMaterial[CONF.defaultMaterial] = { ft_balance: balanceJSON.ft_balance, nft_ids: balanceJSON.nft_ids };
+        for (let mat in balanceJSON)
+            this.byMaterial[mat] = { ft_balance: balanceJSON[mat].ft_balance, nft_ids: balanceJSON[mat].nft_ids };
     }
 
     _getBalance = ticketing(async function (this: ChainBriqs) {
-        return await this.briqContract!.balanceOf(this.addr!, CONF.defaultMaterial)
+        let total = 0;
+        for (let mat of CONF.briqMaterials)
+            total += await this.briqContract!.balanceOf(this.addr!, mat)
+        return total;
     });
 
     async updateFastBalance()
