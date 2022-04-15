@@ -1,7 +1,7 @@
 import * as Realms from './conf/realms';
 import * as Default from './conf/default';
 
-import MATERIALS_DATA from '@/../library/Materials'
+import MATERIALS_DATA from '@/MaterialsData';
 
 import { APP_ENV } from '@/Meta';
 
