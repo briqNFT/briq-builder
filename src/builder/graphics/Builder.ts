@@ -219,7 +219,7 @@ function addLight(scene: THREE.Scene, x: number, y: number, z: number)
     lightSpot.shadow.mapSize.height = builderSettings.canvasSize > 30 ? 2048 : 1024;
     scene.add(lightSpot);
     
-    const ambientLight = new THREE.AmbientLight(builderSettings.ambientColor, 1.5);
+    const ambientLight = new THREE.AmbientLight(builderSettings.ambientColor, 1.25);
     scene.add(ambientLight);
 }
 

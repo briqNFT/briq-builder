@@ -125,6 +125,8 @@ class WalletStore
             setNetwork("starknet-mainnet");
         else if (this.signer.gatewayUrl.indexOf("alpha4.starknet") !== -1)
             setNetwork("starknet-testnet");
+        else
+            setNetwork("localhost");
     }
 }
 

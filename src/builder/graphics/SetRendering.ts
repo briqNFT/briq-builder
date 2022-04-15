@@ -4,25 +4,7 @@ import VoxelWorld from './VoxelWorld';
 
 import { camera, orbitControls } from './Builder';
 
-import daylight_Back from '@/assets/skybox/Daylight-Box_Back.jpg'
-import daylight_Bottom from '@/assets/skybox/Daylight-Box_Bottom.jpg'
-import daylight_Front from '@/assets/skybox/Daylight-Box_Front.jpg'
-import daylight_Left from '@/assets/skybox/Daylight-Box_Left.jpg'
-import daylight_Right from '@/assets/skybox/Daylight-Box_Right.jpg'
-import daylight_Top from '@/assets/skybox/Daylight-Box_Top.jpg'
-
-function generateSkybox() {
-    const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-        daylight_Right,
-        daylight_Left,
-        daylight_Top,
-        daylight_Bottom,
-        daylight_Front,
-        daylight_Back
-    ]);
-    return texture;
-}
+import { generateSkybox } from './Skybox';
 
 import RealmsPic from '@/assets/realms.png';
 
@@ -34,6 +16,7 @@ function generateRealms() {
 import { THREE_SETUP, GLTFLoader } from '@/three';
 
 import Keystone from '@/assets/keystone-square-uv.glb?url';
+import { getRenderMaterial } from './MaterialsRendering';
 
 const loadKeystoneMesh = (() => {
     let promise = new Promise(async (resolve, reject) => {
@@ -49,8 +32,6 @@ const loadKeystoneMesh = (() => {
         return promise;
     }
 })();
-
-import { MaterialByColor } from './MaterialByColor';
 
 var currentSet = "";
 
@@ -168,26 +149,8 @@ function getVoxelWorld(material: string)
 {
     if (!voxels[material])
     {
-        voxels[material] = new VoxelWorld({ cellSize: 10, material: new MaterialByColor() });
+        voxels[material] = new VoxelWorld({ cellSize: 10, material: getRenderMaterial(material) });
         setObject.add(voxels[material].object);
-        if (material === "0x3")
-        {
-            voxels[material].materialByColor.material.opacity = 0.5;
-            voxels[material].materialByColor.material.transparent = true;
-        }
-        else if (material === "0x4")
-        {
-            voxels[material].materialByColor.material.metalness = 0.5;
-            voxels[material].materialByColor.material.roughness = 0.15;
-            voxels[material].materialByColor.material.envMap = generateSkybox();
-        }
-        else if (material === "0x5")
-        {
-            //voxels[material].materialByColor.material.emissive = voxels[material].materialByColor.material.color;
-            voxels[material].materialByColor.material.color = new THREE.Color(0x444444);
-            voxels[material].materialByColor.material.emissive = new THREE.Color(0xffffff);
-            voxels[material].materialByColor.material.emissiveIntensity = 0.8;
-        }
     }
     return voxels[material];
 }
