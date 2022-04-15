@@ -1,6 +1,4 @@
 
-jest.mock('../Meta');
-
 import { SetData } from './SetData'
 import { setsManager } from './SetsManager';
 

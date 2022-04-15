@@ -1,11 +1,9 @@
-jest.mock('./../Meta')
-
 import { SetData } from './SetData';
 import { ChainBriqs } from './ChainBriqs';
 import { Briq } from './Briq';
 
 describe('Test SetData', () => {
-    it('should calculate positions correctly', () => {
+    test('should calculate positions correctly', () => {
         let data = new SetData("");
 
         {
@@ -26,7 +24,7 @@ describe('Test SetData', () => {
         }
     })
 
-    it('should overwrite briqs correctly', () => {
+    test('should overwrite briqs correctly', () => {
         let data = new SetData("");
         data.placeBriq(0, 0, 0, new Briq("0x1", "0xfafafa"));
         data.placeBriq(0, 0, 0, new Briq("0x1", "0xafafaf"));
