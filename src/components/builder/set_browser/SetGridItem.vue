@@ -51,6 +51,7 @@
                     <Btn tooltip="" class="bg-transparent" :disabled="!canMint" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Mint on Chain</Btn>
                     <Btn tooltip="" class="bg-transparent" :disabled="disableButtons" @click="renameSet"><i class="fas fa-file-signature"></i> Rename</Btn>
                     <Btn tooltip="Duplicate the set." class="bg-transparent" :disabled="disableButtons" @click="duplicateSet(setInfo.local!)"><i class="fas fa-copy"></i> Duplicate</Btn>
+                    <Btn tooltip="Download the set data as JSON" @click="downloadAsJSON" :disabled="disableButtons"><i class="fas fa-download"></i> Download</Btn>
                 </template>
                 <Btn v-if="setInfo.status === 'ONCHAIN_EDITING'" tooltip="Revert to onchain-set" class="bg-transparent" :disabled="disableButtons || !setInfo.chain" @click="deleteSet">Revert to on-chain version</Btn>
 
@@ -99,7 +100,7 @@ const DEFAULT_INFO = new SetInfo("");
 import { reactive } from 'vue';
 const setImageCache = reactive({} as { [set: string]: string });
 
-import getBaseUrl, { fetchData } from '../../../url';
+import getBaseUrl, { downloadData, fetchData } from '@/url';
 import { pushModal } from '../../Modals.vue';
 import { getShareLink } from '../Sharing';
 
@@ -222,6 +223,10 @@ export default defineComponent({
         async openDownloadModal()
         {
             await pushModal(DownloadSetVue, { setId: this.setId, data: this.setInfo.chain });
+        },
+        async downloadAsJSON()
+        {
+            downloadData(JSON.stringify(this.setInfo.local?.serialize(), undefined, 4), "application/json", this.setInfo.local!.getName() + ".json")
         },
         async deleteSet() {
             // Ask for confirmation on non-empty sets.
