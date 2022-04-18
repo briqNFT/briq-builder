@@ -71,6 +71,8 @@ import ImportVoxModal from '../modals/ImportVoxModal.vue';
 import { pushModal } from '../../Modals.vue'
 import TextModal from '../../generic/TextModal.vue';
 
+import { CONF } from '@/Conf';
+
 import { legacySetsMgr } from './LegacySetsMgr';
 import MigrateSet from '../modals/MigrateSet.vue';
 
@@ -144,6 +146,9 @@ export default defineComponent({
                     else
                     {
                         let contents = JSON.parse(await file.text());
+                        // For now, overwrite briqs in Realms/default
+                        for (let briq of contents.briqs)
+                            briq.data.material = CONF.theme === "realms" ? "0x2" : "0x1";
                         let set = new SetData(contents.id).deserialize(contents);
                         set.id = hexUuid();
                         setsManager.registerLocalSet(set);
@@ -152,7 +157,7 @@ export default defineComponent({
                 }
                 catch(err) {
                     this.messages.pushMessage("Error while loading file " + fileHandle.name + " - " + err.message);
-                    console.log(err);
+                    console.error(err);
                 }
             }
         },
