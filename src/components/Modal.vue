@@ -39,6 +39,9 @@ export default defineComponent({
     },
     methods: {
         close(data?: any) {
+            // Handle pseudo-native close event
+            if (data instanceof Event)
+                this.data.callback();
             this.data.callback(data);
         },
         toggleVisibility(value: boolean) {
