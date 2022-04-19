@@ -108,7 +108,7 @@ export default defineComponent({
             this.fetchAuthor();
         })
 
-        builderInputFsm.waitForInit.then(() => builderInputFsm.switchTo("camera"));
+        builderInputFsm.waitForInit().then(() => builderInputFsm.switchTo("camera"));
 
         this.setData = undefined;
         dispatchBuilderAction("reset");
