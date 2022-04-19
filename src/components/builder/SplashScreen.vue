@@ -19,7 +19,7 @@ import { defineComponent, reactive } from 'vue'
 
 import { THREE_SETUP } from '@/three';
 import { walletInitComplete } from '@/chain/WalletLoading';
-import { builderInputFsm } from '@/builder/inputs/BuilderInput';
+import { inputInitComplete } from '@/builder/inputs/InputLoading';
 
 var localStore = reactive({
   hidden: false,
@@ -39,7 +39,7 @@ export default defineComponent({
       // The purpose of the splash screen is to wait until we've loaded stuff.
       await THREE_SETUP; // Wait until we've loaded Three JS
       await walletInitComplete; // Wait until we've completed wallet init (or failed)
-      await builderInputFsm.waitForInit; // Wait until the FSM has been setup.
+      await inputInitComplete; // Wait until the FSM has been setup.
       this.$emit("done");
       this.hidden = "shouldHide";
       setTimeout(() => {

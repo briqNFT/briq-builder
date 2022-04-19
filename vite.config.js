@@ -1,6 +1,8 @@
 import { defineConfig, Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
+import analyze from 'rollup-plugin-analyzer'
+import { visualizer } from "rollup-plugin-visualizer";
 
 svgLoader({
     svgoConfig: {
@@ -26,7 +28,7 @@ export default defineConfig(({ mode }) => ({
     },
     build: {
         target: "es2020",
-        sourcemap: mode === "production",
+        sourcemap: true,
         minify: mode === "production",
         /*
         rollupOptions: {
@@ -41,5 +43,6 @@ export default defineConfig(({ mode }) => ({
         }
         */
     },
-    plugins: [vue(), svgLoader(), injectNpmVersion()]
+    // Uncomment to see details on what's going with rollup
+    plugins: [vue(), svgLoader(), injectNpmVersion()] //, analyze({ showExports: true }), visualizer({ template: "treemap", sourcemap: true })]
 }));

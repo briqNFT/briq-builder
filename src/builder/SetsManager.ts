@@ -14,6 +14,8 @@ import { logDebug, pushMessage } from '../Messages';
 
 import { CONF } from '@/Conf';
 
+import * as fflate from 'fflate';
+
 export type SET_STATUS = "ONCHAIN_ONLY" | "ONCHAIN_LOADED" | "ONCHAIN_EDITING" | "LOCAL";
 
 const SETINFO_VERSION = 1;
@@ -35,12 +37,15 @@ export class SetInfo {
     }
 
     serialize() {
+        const raw = JSON.stringify(this.local?.serialize());
+        // Use compression to get 10-20x size gains, since Chrome prevents local storage above 5MB.
+        const data = fflate.strFromU8(fflate.zlibSync(fflate.strToU8(raw)), true);
         return {
             version: SETINFO_VERSION,
             id: this.id,
             status: this.status,
             chain_owner: this.chain_owner,
-            local: this.local?.serialize(),
+            local: data,
         }
     }
 
@@ -51,7 +56,15 @@ export class SetInfo {
         this.id = data.id;
         this.chain_owner = data.chain_owner;
         if (data.local)
-            this.local = new SetData(data.id).deserialize(data.local);
+        {
+            try {
+                const raw = fflate.strFromU8(fflate.unzlibSync(fflate.strToU8(data.local, true)))
+                this.local = new SetData(data.id).deserialize(JSON.parse(raw));
+            } catch(_) {
+                // Assume older version of the storage.
+                this.local = new SetData(data.id).deserialize(data.local);
+            }
+        }
         // TODO: check coherence.
         return this;
     }

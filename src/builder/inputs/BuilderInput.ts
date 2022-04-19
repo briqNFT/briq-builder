@@ -7,6 +7,8 @@ import type { inputStore } from './InputStore';
 import type { HotkeyManager } from '../../Hotkeys';
 
 import { reactive } from 'vue';
+import { inputInitComplete, setInputInitComplete } from './InputLoading';
+
 export class BuilderInputFSM
 {
     state!: BuilderInputState;
@@ -26,7 +28,7 @@ export class BuilderInputFSM
         this.store = store;
         this.hotkeyMgr = hotkeyMgr;
         this.gui = reactive({});
-        this._initialisePromise();
+        setInputInitComplete();
     }
 
     switchTo(state: string, data?: object)
@@ -46,11 +48,9 @@ export class BuilderInputFSM
         this.store.currentInput = state;
     }
 
-    waitForInit = (() => {
-        return new Promise((resolve, reject) => {
-            this._initialisePromise = resolve;
-        });
-    })();
+    waitForInit() {
+        return inputInitComplete;
+    }
 
     //
 
