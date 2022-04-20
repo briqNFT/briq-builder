@@ -1,13 +1,11 @@
 <template>
     <div class="flex flex-col">
-        <Btn @click="resetCamera">Reset Camera</Btn>
+        <Btn @click="putAllInView">Reset Camera</Btn>
     </div>
 </template>
 
 <script lang="ts">
-import Button from "../../generic/Button.vue";
-
-import { resetCamera } from '../../../builder/graphics/Builder'
+import { dispatchBuilderAction } from "@/builder/graphics/Dispatch";
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -15,9 +13,10 @@ export default defineComponent({
         return {
         };
     },
-    components: { Button },
     methods: {
-        resetCamera
+        putAllInView() {
+            dispatchBuilderAction("put_all_in_view");
+        }
     }
 })
 </script>

@@ -75,7 +75,7 @@ function generateSkybox(scene) {
 
 import getPreviewCube from './PreviewCube'
 
-export function resetCamera()
+function resetCamera()
 {
     camera.position.set(getCanvasSize() * 0.3, getCanvasSize() * 0.8, -getCanvasSize() * 1.4);
     orbitControls.controls.target.set(0, 1, 0);
