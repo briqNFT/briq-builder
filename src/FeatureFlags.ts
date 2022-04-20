@@ -1,9 +1,8 @@
 import { reactive, watchEffect } from 'vue';
-import { walletStore2 } from './chain/Wallet';
 import { logDebug } from "./Messages";
 
 export const featureFlags = reactive({
-    rotate: false,
+    multiMaterials: false,
 });
 
 // No leading zeros
@@ -35,15 +34,15 @@ async function checkOnStore() {
         if (admins.indexOf(wallet.walletStore2.userWalletAddress) !== -1)
         {
             // Admin-only.
-            featureFlags.rotate = true;
+            featureFlags.multiMaterials = true;
         }
         else if (starBuilders.indexOf(wallet.walletStore2.userWalletAddress) !== -1)
         {
-            featureFlags.rotate = true;
+            featureFlags.multiMaterials = false;
         }
         else
         {
-            featureFlags.rotate = true;
+            featureFlags.multiMaterials = false;
         }
     })
 };
