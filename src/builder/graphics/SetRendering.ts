@@ -36,7 +36,6 @@ const loadKeystoneMesh = (() => {
 var currentSet = "";
 
 var setObject: THREE.Object3D;
-var voxWorld: VoxelWorld;
 
 var voxels: { [material: string]: VoxelWorld } = {};
 var nfts: { [key: string]: briqNFT } = {};
@@ -215,14 +214,21 @@ export function handleActions(dispatchedActions: Array<{ action: string, payload
         }
         else if (item.action === "put_all_in_view")
         {
-            // TODO
-            continue;
-            let aabb = voxWorld.getAABB();
-            let center = [aabb[0][0] + aabb[1][0], aabb[0][1] + aabb[1][1], aabb[0][2] + aabb[1][2]];
-            let bounds = Math.max(aabb[1][0] - aabb[0][0], aabb[1][1] - aabb[0][1], aabb[1][2] - aabb[0][2]);
-            bounds = Math.max(5, bounds);
-            camera.position.set(bounds * 0.25, bounds * 0.7, -bounds * 1.2);
-            orbitControls.controls.target.set(0, center[1]/2, 0);
+            let min = [0, 0, 0];
+            let max = [0, 0, 0];
+            for (let mat in voxels)
+            {
+                let voxWorld = voxels[mat];
+                let [mi, ma] = voxWorld.getAABB();
+                min = min.map((x, i) => Math.min(x, mi[i]));
+                max = max.map((x, i) => Math.max(x, ma[i]));
+            }
+            
+            let center = [0, 1, 2].map(i => (min[i] + max[i]) / 2);
+            let distance = Math.max(5, ...[0, 1, 2].map(i => (max[i] - center[i])));
+            camera.position.set(center[0] + distance * 0.25, center[1] + distance * 0.7, -center[2] + distance * 1.2);
+            // Center on a lower portion of the center because that _generally_ works better to gravity-center.
+            orbitControls.controls.target.set(center[0], center[1] / 2, center[2]);
             orbitControls.controls.update();
         }
     }

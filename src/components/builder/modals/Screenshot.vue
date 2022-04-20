@@ -8,7 +8,7 @@
             </div>
 
             <div class="flex flex-col my-4 gap-2">
-                <Btn @click="resetCamera">Reset Camera</Btn>
+                <Btn @click="putAllInView">Reset Camera</Btn>
                 <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length" class="leading-4" >Center on Selection</Btn>
             </div>
 
@@ -67,7 +67,7 @@ export default defineComponent({
         },
     },
     methods: {
-        resetCamera() {
+        putAllInView() {
             dispatchBuilderAction("put_all_in_view");
         },
         centerCamera() {

@@ -20,7 +20,7 @@ import Hotkey from "../../generic/Hotkey.vue";
         -->
         <h4 class="bg-accent rounded-md px-2 py-1 mb-1 text-center font-semibold">Camera</h4>
         <div class="flex flex-col gap-1">
-            <Btn @click="resetCamera" class="tracking-tighter">Reset Camera</Btn>
+            <Btn @click="putAllInView" class="tracking-tighter">Reset Camera</Btn>
             <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length" class="leading-4" >Center on<br />Selection</Btn>
         </div>
         <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Selection</h4>
@@ -79,7 +79,6 @@ button {
 <script lang="ts">
 import { builderInputFsm } from "../../../builder/inputs/BuilderInput"
 import type { Briq } from "../../../builder/Briq";
-import { resetCamera } from '../../../builder/graphics/Builder'
 import { setsManager } from "@/builder/SetsManager";
 
 import { dispatchBuilderAction } from "../../../builder/graphics/Dispatch";
@@ -112,7 +111,9 @@ export default defineComponent({
         }
     },
     methods: {
-        resetCamera,
+        putAllInView() {
+            dispatchBuilderAction("put_all_in_view");
+        },
         centerCamera() {
             dispatchBuilderAction("set_camera_target", { target: [this.fsm.focusPos.x, this.fsm.focusPos.y, this.fsm.focusPos.z] });
         },
