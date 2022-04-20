@@ -18,7 +18,7 @@ import BriqBrowserVue from './modals/BriqBrowser.vue';
                 @click="builderInputFsm.switchTo('erase')" :disabled="isErasing"><i class="far fa-trash-alt"/></Btn>
             <Btn tooltip="'Select' mode can be used to move or inspect briqs. Left-click to select, right-click to unselect."
                 @click="builderInputFsm.switchTo('inspect')" :disabled="isInspecting"><i class="fas fa-mouse-pointer"></i></Btn>
-            <Btn class="flex-1 w-full col-span-2" tooltip="Browse the different materials of briqs you own and select which one to place"
+            <Btn v-if="featureFlags.multiMaterials" class="flex-1 w-full col-span-2" tooltip="Browse the different materials of briqs you own and select which one to place"
                 @click="openBriqBrowser">briq browser</Btn>
         </div>
         <div id="inputComp" class="flex md:flex-col max-w-full overflow-auto flex-row justify-stretch align-stretch content-stretch pointer-events-auto">
@@ -45,7 +45,7 @@ export default defineComponent({
         return {
         };
     },
-    inject: ["chainBriqs"],
+    inject: ["chainBriqs", "featureFlags"],
     computed: {
         inputStore() {
             return inputStore;

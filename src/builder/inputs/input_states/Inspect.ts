@@ -128,7 +128,7 @@ export class InspectInput extends MouseInputState
     }
 
     _canRotate() {
-        return featureFlags.rotate && inputStore.showRotateGizmo && setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
+        return inputStore.showRotateGizmo && setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED';
     }
 
     _canCopyPaste()
