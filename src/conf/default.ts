@@ -1,11 +1,13 @@
 import './default.css';
 
+import { APP_ENV } from '@/Meta';
+
 export const MATERIAL_GENESIS = "0x1"
 
 export const CONF = {
     theme: "default",
     useLanding: true,
-    briqMaterials: ["0x1", "0x3", "0x4", "0x5", "0x6"],
+    briqMaterials: APP_ENV === "dev" ? ["0x1", "0x3", "0x4", "0x5", "0x6"] : ["0x1"],
     defaultMaterial: MATERIAL_GENESIS,
     builderSettings: {
         darkMode: {
