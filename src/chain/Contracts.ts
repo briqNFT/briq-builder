@@ -12,6 +12,7 @@ export const ADDRESSES = {
         briq: "0x01317354276941f7f799574c73fd8fe53fa3f251084b4c04d88cf601b6bd915e",
         set: "0x0266b1276d23ffb53d99da3f01be7e29fa024dd33cd7f7b1eb7a46c67891c9d0",
         mint: "0x0578fd3377d865b7798140731b53258b1270ac19c37a3916645f80e0e4c8ad69",
+        multicall: "0x047d851c70b1447ee8b9e54b3c4ce619a4a8bf56ea5a6fd6a19b21e98f360b73",
     },
     "starknet-testnet-legacy": {
         set: "0x01618ffcb9f43bfd894eb4a176ce265323372bb4d833a77e20363180efca3a65",
@@ -35,6 +36,7 @@ const IMPL = {
         briq: BriqContract,
         set: SetContract,
         mint: MintContract,
+        multicall: MulticallContract,
     },
     "starknet-testnet-legacy": {
         set: LegacySetContract,
@@ -52,6 +54,7 @@ import { reactive, watchEffect, toRef, ref } from 'vue';
 import { logDebug } from '../Messages'
 import { CHAIN_NETWORKS, getCurrentNetwork } from './Network'
 import { getProvider } from './Provider'
+import MulticallContract from './contracts/Multicall'
 const contractStore = reactive({
     briq: undefined as undefined | BriqContract,
     mint: undefined as undefined | MintContract,
