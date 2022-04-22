@@ -3,8 +3,9 @@ import { THREE } from '@/three';
 import VoxelWorld from './VoxelWorld';
 
 import { camera, orbitControls } from './Builder';
-
 import { generateSkybox } from './Skybox';
+
+import builderSettings from './Settings';
 
 import RealmsPic from '@/assets/realms.png';
 
@@ -154,6 +155,11 @@ function getVoxelWorld(material: string)
     return voxels[material];
 }
 
+function getCanvasSize()
+{
+    return Math.max(5, builderSettings.canvasSize);
+};
+
 export function handleActions(dispatchedActions: Array<{ action: string, payload: any }>)
 {
     for (let item of dispatchedActions)
@@ -226,6 +232,11 @@ export function handleActions(dispatchedActions: Array<{ action: string, payload
             
             let center = [0, 1, 2].map(i => (min[i] + max[i]) / 2);
             let distance = Math.max(5, ...[0, 1, 2].map(i => (max[i] - center[i])));
+            if (Math.abs(center[0] / getCanvasSize()) < 0.5)
+                center[0] = 0.0;
+            center[1] = Math.max(0, center[1]);
+            if (Math.abs(center[2] / getCanvasSize()) < 0.5)
+                center[2] = 0.0;
             camera.position.set(center[0] + distance * 0.25, center[1] + distance * 0.7, -center[2] + distance * 1.2);
             // Center on a lower portion of the center because that _generally_ works better to gravity-center.
             orbitControls.controls.target.set(center[0], center[1] / 2, center[2]);
