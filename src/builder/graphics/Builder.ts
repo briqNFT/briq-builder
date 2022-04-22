@@ -210,7 +210,7 @@ function addLight(scene: THREE.Scene, x: number, y: number, z: number)
     lightSpot.castShadow = true;
     lightSpot.shadow.bias = builderSettings.canvasSize > 30 ? -0.01 : -0.005;
     lightSpot.shadow.camera.near = 0.1;
-    lightSpot.shadow.camera.far = 50;
+    lightSpot.shadow.camera.far = getCanvasSize()*2;
     lightSpot.shadow.camera.left=-getCanvasSize()*1.3;
     lightSpot.shadow.camera.right=getCanvasSize()*1.3;
     lightSpot.shadow.camera.bottom=-getCanvasSize();
