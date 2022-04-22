@@ -58,4 +58,22 @@ export default class BriqContract
             throw err;
         }
     }
+
+    /*
+    async multiBalanceOf(owner: string)
+    {
+        const materials = await (async () => {
+            try {
+                return await this.contract.materialsOf(owner).materials.map(x => x.toString());
+            } catch(_) {
+                console.error(_);
+                return [];
+            }
+        })();
+        
+        let stuff = [];
+        for (let material of materials)
+            stuff.push(this.contract.populate("balanceDetailsOf", [owner, material]));
+        console.log(stuff);
+    }*/
 }
