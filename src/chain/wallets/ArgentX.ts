@@ -92,7 +92,7 @@ export default class ArgentXWallet extends IWallet
         if (swo.isConnected)
         {
             if (swo.account) // Argent 3
-                return [swo.signer!.address, swo.provider, swo.account];
+                return [swo.account.address, swo.provider, swo.account];
             else // Argent 2
                 return [swo.signer!.address, proxyProvider(swo.provider), proxyProvider(swo.signer)];
         }
