@@ -8,7 +8,7 @@
                 <input class="text-center" type="text" maxlength="7" size="7" v-model="color">
             </p>
         </div>
-        <Btn class="float-right my-4" @click="pickColor">Pick</Btn>
+        <Btn class="float-right my-4" @click="pickColor" :disabled="!goodColor">Pick</Btn>
     </Window>
 </template>
 
@@ -36,5 +36,8 @@ export default defineComponent({
         }
     },
     computed: {
+        goodColor() {
+            return this.color && this.color.match(/^\#[abcdef0-9]{6}$/i);
+        }
     }
 })</script>
