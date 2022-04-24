@@ -1,12 +1,14 @@
 # Overview
 
-WebApp to access the brq builder, see https://briq.construction/.  
+WebApp to access the briq builder, see https://briq.construction/.  
 The `briq protocol` server is required for some starknet interaction (see https://github.com/briqNFT/briq-protocol).  
 
 The WebApp exposes a Three.js builder to display the briqs and build constructions with them.
 # Setup
 
 `npm install` then `npm run dev`
+
+Tests can be run with `npm test`, though they are fairly lacking at the moment.
 
 ## Repository structure
 #### infra/
