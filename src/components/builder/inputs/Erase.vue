@@ -8,13 +8,12 @@
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
-        return {
-        };
+        return {};
     },
     methods: {
         async clear() {
-            await this.$store.dispatch("builderData/clear");
-        }
-    }
-})
+            await this.$store.dispatch('builderData/clear');
+        },
+    },
+});
 </script>

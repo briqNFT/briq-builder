@@ -1,7 +1,7 @@
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 
 // Load Tailwind CSS
-import './index.css'
+import './index.css';
 
 import './FontAwesome';
 
@@ -10,17 +10,15 @@ window.gsw = true;
 
 // Fake polyfill to make starknet.js work.
 window.Buffer = {
-    alloc: function() {},
+    alloc: function () {},
 };
 
-
-
-import App from './App.vue'
+import App from './App.vue';
 export var app = createApp(App);
 
 // Routing
-import { createWebHistory, createRouter } from "vue-router";
-import { routes } from './Routes'
+import { createWebHistory, createRouter } from 'vue-router';
+import { routes } from './Routes';
 const router = createRouter({
     history: createWebHistory(),
     routes,
@@ -37,14 +35,13 @@ import Hotkey from './components/generic/Hotkey.vue';
 import Window from './components/generic/Window.vue';
 
 // Load general components
-app.component("Btn", Button);
-app.component("Hotkey", Hotkey);
-app.component("CheckboxBtn", CheckboxBtn);
-app.component("Toggle", Toggle);
-app.component("Window", Window);
+app.component('Btn', Button);
+app.component('Hotkey', Hotkey);
+app.component('CheckboxBtn', CheckboxBtn);
+app.component('Toggle', Toggle);
+app.component('Window', Window);
 
-async function start()
-{
+async function start() {
     app.mount('#app');
 }
 

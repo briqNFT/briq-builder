@@ -1,5 +1,1 @@
-
-export function multicall()
-{
-
-}
+export function multicall() {}

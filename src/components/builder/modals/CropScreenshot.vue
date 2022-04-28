@@ -4,10 +4,11 @@
         <template #content>
             <div class="px-8">
                 <div class="relative my-4">
-                    <img class="cursor-crosshair" ref="image" @mousedown="onMouseDown" :src="metadata.screenshot"/>
+                    <img class="cursor-crosshair" ref="image" @mousedown="onMouseDown" :src="metadata.screenshot">
                     <div class="absolute top-0 left-0 pointer-events-none overflow-hidden">
-                        <div ref="overlay" class="outline-black outline opacity-50 outline-[5000px] absolute top-0 left-0">
-                        </div>
+                        <div
+                            ref="overlay"
+                            class="outline-black outline opacity-50 outline-[5000px] absolute top-0 left-0"/>
                     </div>
                 </div>
                 <div class="flex justify-around">
@@ -16,7 +17,11 @@
                 </div>
             </div>
             <!-- When the user clicked, overlay a screen to easily allow selecting corners & prevent input on other UI elements. -->
-            <div v-if="active" class="fixed top-0 left-0 w-screen h-screen" @mousemove="onMouseMove" @mouseup="onMouseUp"></div>
+            <div
+                v-if="active"
+                class="fixed top-0 left-0 w-screen h-screen"
+                @mousemove="onMouseMove"
+                @mouseup="onMouseUp"/>
         </template>
     </Window>
 </template>
@@ -34,7 +39,7 @@ export default defineComponent({
             active: false,
         };
     },
-    props: ["metadata"],
+    props: ['metadata'],
     mounted() {
         this.overlayParent.style.width = `${this.image.width}px`;
         this.overlayParent.style.height = `${this.image.height}px`;
@@ -44,11 +49,11 @@ export default defineComponent({
             this.overlay.style.top = `${Math.min(this.sy, this.ey)}px`;
             this.overlay.style.width = `${Math.abs(this.ex - this.sx)}px`;
             this.overlay.style.height = `${Math.abs(this.ey - this.sy)}px`;
-        })
-        window.addEventListener("resize", () => this.onResize());
+        });
+        window.addEventListener('resize', () => this.onResize());
     },
     beforeUnmount() {
-        window.removeEventListener("resize", () => this.onResize());
+        window.removeEventListener('resize', () => this.onResize());
     },
     computed: {
         image() {
@@ -59,13 +64,15 @@ export default defineComponent({
         },
         overlayParent() {
             return this.overlay.parentNode! as HTMLElement;
-        }
+        },
     },
     methods: {
-        getOffset(event: MouseEvent)
-        {
+        getOffset(event: MouseEvent) {
             let canvasPos = this.image.getBoundingClientRect();
-            return [Math.max(0, Math.min(canvasPos.width, event.clientX - canvasPos.x)), Math.max(0, Math.min(canvasPos.height, event.clientY - canvasPos.y))];
+            return [
+                Math.max(0, Math.min(canvasPos.width, event.clientX - canvasPos.x)),
+                Math.max(0, Math.min(canvasPos.height, event.clientY - canvasPos.y)),
+            ];
         },
         onResize() {
             // Wait until we're setup.
@@ -88,8 +95,7 @@ export default defineComponent({
         },
         async onMouseUp(event: MouseEvent) {
             this.active = false;
-            if (this.ex === this.sx || this.ey === this.sy)
-            {
+            if (this.ex === this.sx || this.ey === this.sy) {
                 this.reset();
                 return;
             }
@@ -100,17 +106,18 @@ export default defineComponent({
             this.ey = this.image.height;
         },
         async crop() {
-            let c = document.createElement("canvas");
-            let ctx = c.getContext("2d")!;
-            c.width = Math.abs(this.ex - this.sx) / this.image.clientWidth * this.image.naturalWidth;
-            c.height = Math.abs(this.ey - this.sy) / this.image.clientHeight * this.image.naturalHeight;
-            ctx.drawImage(this.image,
-                -Math.min(this.sx, this.ex) / this.image.clientWidth * this.image.naturalWidth,
-                -Math.min(this.sy, this.ey) / this.image.clientHeight * this.image.naturalHeight
+            let c = document.createElement('canvas');
+            let ctx = c.getContext('2d')!;
+            c.width = (Math.abs(this.ex - this.sx) / this.image.clientWidth) * this.image.naturalWidth;
+            c.height = (Math.abs(this.ey - this.sy) / this.image.clientHeight) * this.image.naturalHeight;
+            ctx.drawImage(
+                this.image,
+                (-Math.min(this.sx, this.ex) / this.image.clientWidth) * this.image.naturalWidth,
+                (-Math.min(this.sy, this.ey) / this.image.clientHeight) * this.image.naturalHeight,
             );
-            let data = (await fetch(c.toDataURL("image/png"))).url;
+            let data = (await fetch(c.toDataURL('image/png'))).url;
             this.$emit('close', data);
-        }
-    }
-})
+        },
+    },
+});
 </script>

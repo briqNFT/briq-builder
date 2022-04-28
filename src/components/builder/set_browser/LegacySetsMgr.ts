@@ -3,8 +3,7 @@ import { ADDRESSES } from '@/chain/Contracts';
 import { LegacySetContract } from '../../../chain/contracts/set';
 import getBaseUrl, { fetchData } from '../../../url';
 
-class LegacySetsMgr
-{
+class LegacySetsMgr {
     oldSets = [] as string[];
     oldSetsData = {} as { [sid: string]: SetData };
     oldSetsImg = {} as { [sid: string]: string };
@@ -12,62 +11,58 @@ class LegacySetsMgr
     ignoredSets = [] as string[];
 
     legacyContract!: LegacySetContract;
-    
-    constructor()
-    {
+
+    constructor() {
         this.ignoredSets = (() => {
             try {
-                return JSON.parse(window.localStorage.getItem("legacy_sets_ignored")) || [];
-            } catch(_) { return []; }
+                return JSON.parse(window.localStorage.getItem('legacy_sets_ignored')) || [];
+            } catch (_) {
+                return [];
+            }
         })();
     }
 
-    ignoreSet(sid: string)
-    {
-        let idx = this.ignoredSets.indexOf(sid);
-        if (idx === -1)
-        {
+    ignoreSet(sid: string) {
+        const idx = this.ignoredSets.indexOf(sid);
+        if (idx === -1) {
             this.ignoredSets.push(sid);
-            window.localStorage.setItem("legacy_sets_ignored", JSON.stringify(this.ignoredSets));
+            window.localStorage.setItem('legacy_sets_ignored', JSON.stringify(this.ignoredSets));
         }
     }
 
-    resetIgnoredSets()
-    {
+    resetIgnoredSets() {
         this.ignoredSets = [];
-        window.localStorage.setItem("legacy_sets_ignored", JSON.stringify(this.ignoredSets));
+        window.localStorage.setItem('legacy_sets_ignored', JSON.stringify(this.ignoredSets));
     }
 
-    getSetsToMaybeMigrate()
-    {
-        let ret = [] as string[];
-        for (let sid of this.oldSets)
+    getSetsToMaybeMigrate() {
+        const ret = [] as string[];
+        for (const sid of this.oldSets)
             if (this.ignoredSets.indexOf(sid) === -1)
                 ret.push(sid);
         return ret;
     }
 
-    async setup(store: any)
-    {
+    async setup(store: any) {
         this.legacyContract = new LegacySetContract(ADDRESSES['starknet-testnet-legacy'].set, store.signer);
-        let sets = await this.legacyContract.balanceDetailsOf(store.userWalletAddress);
-        for (let set of sets)
+        const sets = await this.legacyContract.balanceDetailsOf(store.userWalletAddress);
+        for (const set of sets)
             this.oldSets.push(set);
-        logDebug("LEGACY SETS - ", sets);
-        let fetchSetData = async (sid: string) => {
-            let data = (await fetchData("store_get/" + sid)).data;
+        logDebug('LEGACY SETS - ', sets);
+        const fetchSetData = async (sid: string) => {
+            const data = (await fetchData('store_get/' + sid)).data;
             return new SetData(sid).deserialize(data);
         };
         this.oldSets.forEach(async (sid: string) => {
             try {
-                let set = await fetchSetData(sid);
+                const set = await fetchSetData(sid);
                 this.oldSetsData[sid] = set;
-            } catch(_) {}
+            } catch (_) {}
         });
         this.oldSets.forEach(async (sid: string) => {
-            let src = new Image();
-            src.crossOrigin = "anonymous";
-            src.src = getBaseUrl() + "/preview/" + sid;
+            const src = new Image();
+            src.crossOrigin = 'anonymous';
+            src.src = getBaseUrl() + '/preview/' + sid;
             try {
                 await src.decode();
                 this.oldSetsImg[sid] = src;

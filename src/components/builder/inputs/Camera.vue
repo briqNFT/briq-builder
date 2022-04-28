@@ -5,18 +5,17 @@
 </template>
 
 <script lang="ts">
-import { dispatchBuilderAction } from "@/builder/graphics/Dispatch";
+import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
-        return {
-        };
+        return {};
     },
     methods: {
         putAllInView() {
-            dispatchBuilderAction("put_all_in_view");
-        }
-    }
-})
+            dispatchBuilderAction('put_all_in_view');
+        },
+    },
+});
 </script>

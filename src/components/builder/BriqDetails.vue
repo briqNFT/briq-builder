@@ -1,14 +1,16 @@
 <template>
     <div class="px-4 py-2 text-right">
         <h3 class="w-full">briq details</h3>
-        <p>Available briqs: {{ chainBriqs.getBalance() }}
+        <p>
+            Available briqs: {{ chainBriqs.getBalance() }}
             <button :disabled="fetchingBriqs" @click="chainBriqs.loadFromChain()">
-                <i :class="'fas ' + (fetchingBriqs ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
+                <i :class="'fas ' + (fetchingBriqs ? 'fa-spinner animate-spin-slow' : 'fa-sync')"/>
             </button>
         </p>
-        <p>Owned Sets: {{ chainSets.length }}
+        <p>
+            Owned Sets: {{ chainSets.length }}
             <button :disabled="fetchingSets" @click="updateChainContracts">
-                <i :class="'fas ' + (fetchingSets ? 'fa-spinner animate-spin-slow' : 'fa-sync')"></i>
+                <i :class="'fas ' + (fetchingSets ? 'fa-spinner animate-spin-slow' : 'fa-sync')"/>
             </button>
         </p>
     </div>
@@ -30,25 +32,24 @@ export default defineComponent({
     inject: ['messages', 'chainBriqs'],
     computed: {
         chainSets() {
-            return setsManager.setList.map(x => setsManager.setsInfo[x]).filter(x => x.status !== 'LOCAL');
+            return setsManager.setList.map((x) => setsManager.setsInfo[x]).filter((x) => x.status !== 'LOCAL');
         },
         fetchingSets() {
             return setsManager.fetchingChainSets;
         },
         fetchingBriqs() {
             return this.chainBriqs.fetchingBriqs;
-        }
+        },
     },
     methods: {
         updateChainContracts() {
-            if (!contractStore.set)
-            {
-                this.messages.pushMessage("Cannot update sets - the Dapp is not connected to the contract");
-                reportError(new Error("Cannot update sets - the Dapp is not connected to the contract"));
+            if (!contractStore.set) {
+                this.messages.pushMessage('Cannot update sets - the Dapp is not connected to the contract');
+                reportError(new Error('Cannot update sets - the Dapp is not connected to the contract'));
                 return;
             }
             setsManager.loadOnChain(contractStore.set, walletStore2.userWalletAddress);
-        }
-    }
-})
+        },
+    },
+});
 </script>

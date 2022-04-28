@@ -1,8 +1,7 @@
 import { hexUuid } from '../Uuid';
 
 import { CONF } from '@/Conf';
-export class Briq
-{
+export class Briq {
     // Chain metadata
     material: string;
     set: string | undefined;
@@ -20,74 +19,65 @@ export class Briq
     _uuid: string;
     position: undefined | [number, number, number] = undefined;
 
-    constructor(material: string = CONF.defaultMaterial, color: string = "#C94A00")
-    {
+    constructor(material: string = CONF.defaultMaterial, color = '#C94A00') {
         // Unique identifier for the builder.
         this._uuid = hexUuid();
         this.material = material;
         this.color = color;
     }
 
-    setNFTid(id?: string)
-    {
+    setNFTid(id?: string) {
         this.id = id;
         return this;
     }
 
-    setSet(set: string)
-    {
+    setSet(set: string) {
         this.set = set;
         return this;
     }
 
-    serialize()
-    {
+    serialize() {
         // No need to serialize the set, we don't store briqs outside of sets.
-        let ret: any = {
+        const ret: any = {
             material: this.material,
             color: this.color,
-        }
+        };
         if (this.id)
             ret.id = this.id;
         return ret;
     }
 
-    deserialize(data: any)
-    {
+    deserialize(data: any) {
         // Set some sane default values to recover from weird states.
         // (we had cases where briqs had no colors).
         this.material = data.material || CONF.defaultMaterial;
-        this.color = data.color || "#000000";
+        this.color = data.color || '#000000';
         if (data.id)
             this.id = data.id;
         return this;
     }
 
     // Legacy deserializer to parse old sets.
-    deserializeV0(data: any)
-    {
-        this.material = "0x" + data.material;
+    deserializeV0(data: any) {
+        this.material = '0x' + data.material;
         this.color = data.color;
         if (data.briq)
             this.legacy_id = data.briq;
         return this;
     }
 
-    clone(): Briq
-    {
-        let ret = new Briq(this.material, this.color);
+    clone(): Briq {
+        const ret = new Briq(this.material, this.color);
         ret.set = this.set;
-        ret.id = this.id
+        ret.id = this.id;
         return ret;
     }
 
-    getMaterial()
-    {
+    getMaterial() {
         return this.material;
     }
 
-    partOfSet()
-    {
-        return this.set && this.set !== "0x0";
+    partOfSet() {
+        return this.set && this.set !== '0x0';
     }
 }

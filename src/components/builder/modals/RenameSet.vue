@@ -3,8 +3,12 @@
         <template #title>Rename set</template>
         <p>Set {{ metadata.set }}</p>
         <p class="break-all">Current name: {{ set.name }}</p>
-        <p class="md:block hidden">New name: <input v-model="name" type="text" maxlength="200" minlength="1" size="60"/></p>
-        <p class="md:hidden block">New name: <input v-model="name" type="text" maxlength="200" minlength="1" size="30"/></p>
+        <p class="md:block hidden">
+            New name: <input v-model="name" type="text" maxlength="200" minlength="1" size="60">
+        </p>
+        <p class="md:hidden block">
+            New name: <input v-model="name" type="text" maxlength="200" minlength="1" size="30">
+        </p>
         <button class="btn float-right my-4" @click="save">Save</button>
     </Window>
 </template>
@@ -16,23 +20,23 @@ import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
-            name: "",
-        }
+            name: '',
+        };
     },
-    props: ["metadata"],
+    props: ['metadata'],
     mounted() {
         this.name = this.set.name;
     },
     computed: {
-        set: function() {
+        set: function () {
             return setsManager.setsInfo[this.metadata.set].local!;
-        }
+        },
     },
     methods: {
-        save: function() {
-            this.$store.dispatch("builderData/change_set_name", { set: this.set, name: this.name });
-            this.$emit("close");
-        }
-    }
-})
+        save: function () {
+            this.$store.dispatch('builderData/change_set_name', { set: this.set, name: this.name });
+            this.$emit('close');
+        },
+    },
+});
 </script>

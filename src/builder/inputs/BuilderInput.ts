@@ -1,7 +1,7 @@
 import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { BuilderInputState, MouseInputState } from './input_states/BuilderInputState';
 
-import { inputMap } from '../../builder/inputs/InputMap'
+import { inputMap } from '../../builder/inputs/InputMap';
 
 import type { inputStore } from './InputStore';
 import type { HotkeyManager } from '../../Hotkeys';
@@ -9,8 +9,7 @@ import type { HotkeyManager } from '../../Hotkeys';
 import { reactive } from 'vue';
 import { inputInitComplete, setInputInitComplete } from './InputLoading';
 
-export class BuilderInputFSM
-{
+export class BuilderInputFSM {
     state!: BuilderInputState;
     canvas!: HTMLCanvasElement;
     orbitControls!: OrbitControls;
@@ -21,8 +20,7 @@ export class BuilderInputFSM
 
     _initialisePromise: any;
 
-    initialize(canv: HTMLCanvasElement, oc: OrbitControls, store: typeof inputStore, hotkeyMgr: HotkeyManager)
-    {
+    initialize(canv: HTMLCanvasElement, oc: OrbitControls, store: typeof inputStore, hotkeyMgr: HotkeyManager) {
         this.canvas = canv;
         this.orbitControls = oc;
         this.store = store;
@@ -31,14 +29,12 @@ export class BuilderInputFSM
         setInputInitComplete();
     }
 
-    switchTo(state: string, data?: object)
-    {
+    switchTo(state: string, data?: object) {
         if (this.state)
             this.state._onExit();
-        let oldState = this.state;
+        const oldState = this.state;
         this.state = new inputMap[state](this, this.canvas);
-        if (this.state instanceof MouseInputState && oldState instanceof MouseInputState)
-        {
+        if (this.state instanceof MouseInputState && oldState instanceof MouseInputState) {
             this.state.curX = oldState.curX;
             this.state.curY = oldState.curY;
             this.state.lastX = oldState.lastX;
@@ -54,24 +50,20 @@ export class BuilderInputFSM
 
     //
 
-    async onFrame()
-    {
+    async onFrame() {
         if (this.state)
             await this.state._onFrame();
     }
 
-    async onPointerMove(event: PointerEvent)
-    {
+    async onPointerMove(event: PointerEvent) {
         await this.state._onPointerMove(event);
     }
 
-    async onPointerDown(event: PointerEvent)
-    {
+    async onPointerDown(event: PointerEvent) {
         await this.state._onPointerDown(event);
     }
 
-    async onPointerUp(event: PointerEvent)
-    {
+    async onPointerUp(event: PointerEvent) {
         await this.state._onPointerUp(event);
     }
 }

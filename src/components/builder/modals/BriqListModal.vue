@@ -1,5 +1,5 @@
 <template>
-    <Window style="height:60%;">
+    <Window style="height: 60%">
         <template #title>briq Details</template>
         <div class="flex gap-2">
             <Btn @click="setup = 'all'">On-chain</Btn>
@@ -22,33 +22,35 @@ td {
 </style>
 
 <script lang="ts">
-import type { Briq } from '../../../builder/Briq'
+import type { Briq } from '../../../builder/Briq';
 import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
-    inject: ["chainBriqs"],
+    inject: ['chainBriqs'],
     data() {
         return {
-            setup: "all",
+            setup: 'all',
         };
     },
     computed: {
         sets(): Array<string> {
             return setsManager.setList;
         },
-        briqs(): ({ material: string, qty: number } | { material: string, token_id: string })[] {
-            if (this.setup === "all")
+        briqs(): ({ material: string; qty: number } | { material: string; token_id: string })[] {
+            if (this.setup === 'all')
                 return this.chainBriqs.getBalanceDetails();
-            else if (this.setup === "current")
-                return this.$store.state.builderData.currentSet.serialize().briqs.map((x: any) => ({ material: x.data.material, token_id: x?.data?.id, qty: 1 }));
+            else if (this.setup === 'current')
+                return this.$store.state.builderData.currentSet
+                    .serialize()
+                    .briqs.map((x: any) => ({ material: x.data.material, token_id: x?.data?.id, qty: 1 }));
             else
-               return [];
-        }
+                return [];
+        },
     },
     methods: {},
-    props: ["metadata"],
-    components: { BriqTable }
-})
+    props: ['metadata'],
+    components: { BriqTable },
+});
 </script>

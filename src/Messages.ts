@@ -6,32 +6,28 @@ export const messagesStore = reactive({
     messages: [] as string[],
 });
 
-export function pushMessage(message: string)
-{
+export function pushMessage(message: string) {
     messagesStore.messages.push(message);
 }
 
-export function setTooltip(tip?: string)
-{
+export function setTooltip(tip?: string) {
     messagesStore.tooltip = tip;
 }
 
-var forceDebug = false;
-export const setForceDebug = () => forceDebug = true;
+let forceDebug = false;
+export const setForceDebug = () => (forceDebug = true);
 
 // TODO: move this elsewhere probably
 
 import { addBreadCrumb } from './Monitoring';
 
-export function logDebugDelay(func: () => any[])
-{
+export function logDebugDelay(func: () => any[]) {
     if (!forceDebug && PROD)
         return;
-    logDebug(...func())
+    logDebug(...func());
 }
 
-export function logDebug(...args : any[])
-{
+export function logDebug(...args: any[]) {
     addBreadCrumb(args.join('\n'));
     if (!forceDebug && PROD)
         return;

@@ -1,16 +1,15 @@
-<template>
-</template>
+<template/>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
-            hk: undefined
+            hk: undefined,
         };
     },
-    inject: ["hotkeyMgr"],
-    props:["name", "handler", "data"],
+    inject: ['hotkeyMgr'],
+    props: ['name', 'handler', 'data'],
     mounted() {
         if (this.data)
             this.hotkeyMgr.register(this.name, this.data);
@@ -19,5 +18,5 @@ export default defineComponent({
     unmounted() {
         this.hotkeyMgr.unsubscribe(this.hk);
     },
-})
+});
 </script>

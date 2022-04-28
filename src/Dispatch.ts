@@ -11,7 +11,7 @@ import AdminVue from './components/Admin.vue';
 import DebugVue from './components/debug/Debug.vue';
 import ShareVue from './components/builder/share/Share.vue';
 import GalleryVue from './components/builder/gallery/Gallery.vue';
-import * as walletModule  from '@/chain/Wallet';
+import * as walletModule from '@/chain/Wallet';
 
 export const Builder = BuilderVue;
 export const Admin = AdminVue;

@@ -16,7 +16,7 @@ import { watchForDarkMode } from './DarkMode';
 let mgr = new HotkeyManager();
 
 // Some basic hotkeys available everywhere
-mgr.register("escape", { code: "Escape" });
+mgr.register('escape', { code: 'Escape' });
 
 import { setForceDebug } from './Messages';
 
@@ -27,19 +27,18 @@ export default defineComponent({
     provide: {
         hotkeyMgr: mgr,
         reportError,
-        CONF
+        CONF,
     },
-    created()
-    {
+    created() {
         document.documentElement.classList.add(CONF.theme);
         watchEffect(() => {
             watchForDarkMode(this.$route.name !== 'Builder' && this.$route.name !== 'Share');
         });
     },
     mounted() {
-        let params = (new URL(window.location)).searchParams;
-        if (params.get("debug"))
+        let params = new URL(window.location).searchParams;
+        if (params.get('debug'))
             setForceDebug();
-    }
-})
+    },
+});
 </script>

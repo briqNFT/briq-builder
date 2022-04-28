@@ -7,14 +7,14 @@
 </template>
 
 <script lang="ts">
-import { messagesStore } from '../Messages'
+import { messagesStore } from '../Messages';
 
-import { defineComponent, toRef } from "vue";
+import { defineComponent, toRef } from 'vue';
 export default defineComponent({
     data() {
         return {
-            messages: toRef(messagesStore, "messages"),
-        }
+            messages: toRef(messagesStore, 'messages'),
+        };
     },
 });
 </script>

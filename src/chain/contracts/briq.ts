@@ -3,15 +3,13 @@ import type { Provider, Signer } from '@/starknet_wrapper';
 
 import { toHex } from '@/starknet_wrapper';
 
-import BriqABI from './testnet/briq_impl.json'
+import BriqABI from './testnet/briq_impl.json';
 
-import ExtendedContract from './Abstraction'
+import ExtendedContract from './Abstraction';
 
-export default class BriqContract
-{
+export default class BriqContract {
     contract: ExtendedContract;
-    constructor(address: string, provider: Provider)
-    {
+    constructor(address: string, provider: Provider) {
         this.contract = new ExtendedContract(BriqABI, address, provider);
     }
 
@@ -25,36 +23,33 @@ export default class BriqContract
     {
         return (await this.invoke("setSetAddress", { address: contractStore.set.address }));
     }
-    
+
     async setMint(contractStore: any)
     {
         return (await this.invoke("setMintContract", { address: contractStore.mint.address }));
     }*/
 
-    async mintFT(owner: string, material: string, qty: number)
-    {
+    async mintFT(owner: string, material: string, qty: number) {
         return await this.contract.mintFT(owner, material, `${qty}`);
     }
 
-    async balanceDetailsOf(owner: string, material: string)
-    {
+    async balanceDetailsOf(owner: string, material: string) {
         try {
-            let res = await this.contract.balanceDetailsOf(owner, material);
+            const res = await this.contract.balanceDetailsOf(owner, material);
             return {
                 ft_balance: parseInt(res.ft_balance),
-                nft_ids: res.nft_ids.map(x => toHex(x)) as string[]
-            }
-        } catch(err) {
+                nft_ids: res.nft_ids.map((x) => toHex(x)) as string[],
+            };
+        } catch (err) {
             throw err;
         }
     }
 
-    async balanceOf(owner: string, material: string)
-    {
+    async balanceOf(owner: string, material: string) {
         try {
-            let res = (await this.contract.balanceOf(owner, material));
+            const res = await this.contract.balanceOf(owner, material);
             return parseInt(res.balance.toString());
-        } catch(err) {
+        } catch (err) {
             throw err;
         }
     }
@@ -70,7 +65,7 @@ export default class BriqContract
                 return [];
             }
         })();
-        
+
         let stuff = [];
         for (let material of materials)
             stuff.push(this.contract.populate("balanceDetailsOf", [owner, material]));

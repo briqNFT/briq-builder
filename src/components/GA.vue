@@ -4,7 +4,7 @@
         <div class="buttons">
             <button @click="refuseGA">Refuse</button>
             <button @click="acceptGA">Allow Google Analytics</button>
-        <!-- <button @click="clearGA">Clear</button> -->
+            <!-- <button @click="clearGA">Clear</button> -->
         </div>
         <p class="legal"><router-link to="/legal">Legal / Privacy</router-link></p>
     </div>
@@ -16,7 +16,7 @@ import { gaStore } from '../ga.js'
 export default defineComponent({
     data() {
         return {
-            needsGAPopup: gaStore.needGAPopup()
+            needsGAPopup: gaStore.needGAPopup(),
         }
     },
     methods: {
@@ -31,8 +31,8 @@ export default defineComponent({
         clearGA: function() {
             gaStore.clear();
             this.needsGAPopup = true;
-        }
-    }
+        },
+    },
 });
 </script>
 
@@ -41,24 +41,24 @@ export default defineComponent({
     width: 17rem;
     box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
     border: 2px solid #ccc;
-    margin:0;
-    padding:1rem;
-    position:fixed;
-    bottom:1rem;
-    right:1rem;
-    z-index:100;
+    margin: 0;
+    padding: 1rem;
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 100;
     @apply bg-gray-200 dark:bg-gray-400 text-deep-blue;
 }
 .buttons {
-    display:flex;
-    justify-content:space-around;
-    gap:1rem;
-    margin-top:1rem;
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+    margin-top: 1rem;
     margin-bottom: 0.5rem;
 }
 .buttons button {
-    display:block;
-    flex-basis:50%;
+    display: block;
+    flex-basis: 50%;
     border: 2px solid;
     @apply border-deep-blue rounded-md;
 }

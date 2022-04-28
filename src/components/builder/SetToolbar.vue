@@ -1,7 +1,7 @@
 <template>
     <div v-if="!forceInput" class="invisible absolute top-0 w-screen flex py-2 md:py-4 md:px-0 px-4">
         <!-- For easy placement, have invisible blocks for the left/right hand side items -->
-        <div class="w-[16rem] flex-none hidden md:block"></div>
+        <div class="w-[16rem] flex-none hidden md:block"/>
         <div class="w-full flex-shrink visibleChildren">
             <div class="flex justify-center">
                 <div class="flex justify-end flex-1 lg:flex-row flex-col items-end gap-2">
@@ -18,17 +18,38 @@
                     </div>
                     -->
                     <div class="justify-self-end flex-none">
-                        <Btn v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Save your set on-chain to share it with others" :disabled="true"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
-                        <Btn v-if="setInfo?.status === 'ONCHAIN_LOADED'" tooltip="This link will let you share your briq creation with others" @click="copyShareLink"><i class="fas fa-share-square"></i> Copy Sharing Link</Btn>
+                        <Btn
+                            v-if="setInfo?.status !== 'ONCHAIN_LOADED'"
+                            tooltip="Save your set on-chain to share it with others"
+                            :disabled="true">
+                            <i class="fas fa-share-square"/> Copy Sharing Link
+                        </Btn>
+                        <Btn
+                            v-if="setInfo?.status === 'ONCHAIN_LOADED'"
+                            tooltip="This link will let you share your briq creation with others"
+                            @click="copyShareLink">
+                            <i class="fas fa-share-square"/> Copy Sharing Link
+                        </Btn>
                     </div>
                     <div class="justify-self-end flex-none">
-                        <Btn v-if="setInfo?.status === 'ONCHAIN_LOADED'" tooltip="This set is already on-chain" :disabled="true"><i class="fas fa-cloud-upload-alt"></i> Mint on Chain</Btn>
-                        <Btn v-if="setInfo?.status !== 'ONCHAIN_LOADED'" tooltip="Mint your set as an NFT on-chain" :disabled="!canMint" @click="mintSet"><i class="fas fa-cloud-upload-alt"></i> Mint on Chain</Btn>
+                        <Btn
+                            v-if="setInfo?.status === 'ONCHAIN_LOADED'"
+                            tooltip="This set is already on-chain"
+                            :disabled="true">
+                            <i class="fas fa-cloud-upload-alt"/> Mint on Chain
+                        </Btn>
+                        <Btn
+                            v-if="setInfo?.status !== 'ONCHAIN_LOADED'"
+                            tooltip="Mint your set as an NFT on-chain"
+                            :disabled="!canMint"
+                            @click="mintSet">
+                            <i class="fas fa-cloud-upload-alt"/> Mint on Chain
+                        </Btn>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="lg:w-[20rem] w-[11rem] flex-none hidden md:block"></div>
+        <div class="lg:w-[20rem] w-[11rem] flex-none hidden md:block"/>
     </div>
 </template>
 
@@ -36,14 +57,13 @@
 .visibleChildren * {
     @apply invisible;
 }
-.visibleChildren >>> button, .visibleChildren >>> button * {
+.visibleChildren >>> button,
+.visibleChildren >>> button * {
     @apply visible;
 }
-
 </style>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <script lang="ts">
 import { pushModal } from '../Modals.vue';
@@ -57,7 +77,7 @@ import { getCurrentNetwork } from '@/chain/Network';
 import { defineComponent } from 'vue';
 import { getShareLink } from './Sharing';
 export default defineComponent({
-    inject: ["messages"],
+    inject: ['messages'],
     computed: {
         setInfo() {
             return setsManager.getInfo(this.$store.state.builderData.currentSet.id);
@@ -67,18 +87,18 @@ export default defineComponent({
         },
         canMint(): boolean {
             return this.$store.state.builderData.currentSet.getNbBriqs() > 0;
-        }
+        },
     },
     methods: {
         async mintSet() {
             await pushModal(ExportSetVue, { set: this.$store.state.builderData.currentSet });
         },
         copyShareLink() {
-            let network = getCurrentNetwork() === "starknet-mainnet" ? "mainnet" : "testnet";
+            let network = getCurrentNetwork() === 'starknet-mainnet' ? 'mainnet' : 'testnet';
             let link = getShareLink(network, this.$store.state.builderData.currentSet.id);
             navigator.clipboard.writeText(link);
-            this.messages.pushMessage("Copied sharing link to clipboard");
+            this.messages.pushMessage('Copied sharing link to clipboard');
         },
-    }
-})
+    },
+});
 </script>

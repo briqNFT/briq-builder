@@ -3,18 +3,16 @@ export const DARKMODE_MEDIA = !!window.matchMedia('(prefers-color-scheme: dark)'
 import { reactive, watchEffect, WatchStopHandle } from 'vue';
 
 export const darkModeStore = reactive({
-    forcedMode: localStorage.theme || "",
-})
+    forcedMode: localStorage.theme || '',
+});
 
-export function useDarkMode()
-{
-    return darkModeStore.forcedMode ? darkModeStore.forcedMode === "dark" : DARKMODE_MEDIA;
+export function useDarkMode() {
+    return darkModeStore.forcedMode ? darkModeStore.forcedMode === 'dark' : DARKMODE_MEDIA;
 }
 
-var stopHandle: WatchStopHandle | undefined;
+let stopHandle: WatchStopHandle | undefined;
 
-export function watchForDarkMode(forceLight?: boolean)
-{
+export function watchForDarkMode(forceLight?: boolean) {
     stopHandle?.();
     stopHandle = watchEffect(() => {
         if (!darkModeStore.forcedMode)

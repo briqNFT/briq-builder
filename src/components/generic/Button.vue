@@ -1,6 +1,6 @@
 <template>
     <Tooltip :tooltip="tooltip">
-        <button v-bind="$attrs" :class="noStyle ? '' : 'btn'"><slot></slot></button>
+        <button v-bind="$attrs" :class="noStyle ? '' : 'btn'"><slot/></button>
     </Tooltip>
 </template>
 
@@ -8,10 +8,10 @@
 /**
  * A generic Button component that can automatically set a tooltip.
  */
-import Tooltip from "./Tooltip.vue";
-import { defineComponent } from "vue";
+import Tooltip from './Tooltip.vue';
+import { defineComponent } from 'vue';
 export default defineComponent({
-    props: ["tooltip", "noStyle"],
-    components: { Tooltip }
+    props: ['tooltip', 'noStyle'],
+    components: { Tooltip },
 });
 </script>

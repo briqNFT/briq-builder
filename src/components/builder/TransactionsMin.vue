@@ -3,11 +3,14 @@
         <h3 class="text-center w-full">Transactions</h3>
         <p class="text-center text-xs leading-3 m-0 p-0">newest on top</p>
         <p class="text-right" v-for="tx in txs">
-        <span class="text-sm cursor-pointer" @click="copyHash(tx)">{{ tx.hash.substr(0, 7) + '...' + tx.hash.substr(59) }}</span> - {{ tx.status }}
-        <span class=" text-sm">
-            <Btn :noStyle="true" class="mx-1" @click="tx.poll()"><i :class="'fas fa-sync ' + (tx.refreshing ? 'animate-spin' : '')"></i></Btn>
-            <Btn :noStyle="true" class="mx-1" @click="tx.delete()"><i class="far fa-trash-alt"></i></Btn>
-        </span>
+            <span class="text-sm cursor-pointer" @click="copyHash(tx)">{{
+                tx.hash.substr(0, 7) + '...' + tx.hash.substr(59)
+            }}</span>
+            - {{ tx.status }}
+            <span class="text-sm">
+                <Btn :no-style="true" class="mx-1" @click="tx.poll()"><i :class="'fas fa-sync ' + (tx.refreshing ? 'animate-spin' : '')"/></Btn>
+                <Btn :no-style="true" class="mx-1" @click="tx.delete()"><i class="far fa-trash-alt"/></Btn>
+            </span>
         </p>
     </div>
 </template>
@@ -19,7 +22,7 @@ import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
-            transactionsManager
+            transactionsManager,
         };
     },
     inject: ['messages'],
@@ -28,13 +31,13 @@ export default defineComponent({
             let txs = transactionsManager.transactions.slice();
             txs = txs.sort((a, b) => b?.metadata?.timestamp - a?.metadata?.timestamp || 0);
             return txs;
-        }
+        },
     },
     methods: {
         copyHash(tx) {
             navigator.clipboard.writeText(tx.hash);
-            this.messages.pushMessage("Transaction hash copied to clipboard");
-        }
-    }
-})
+            this.messages.pushMessage('Transaction hash copied to clipboard');
+        },
+    },
+});
 </script>

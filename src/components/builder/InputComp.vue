@@ -6,38 +6,37 @@ import Camera from './inputs/Camera.vue';
 </script>
 
 <template>
-    <component :is="mapping[inputComp]"></component>
+    <component :is="mapping[inputComp]"/>
 </template>
 
 <script lang="ts">
 import { inputStore } from '../../builder/inputs/InputStore';
 
-import { defineComponent, toRef, markRaw } from "vue";
+import { defineComponent, toRef, markRaw } from 'vue';
 export default defineComponent({
     data() {
         return {
-            inputComp: toRef(inputStore, "currentInput"),
+            inputComp: toRef(inputStore, 'currentInput'),
             mapping: markRaw({
-                "place": Place,
-                "place_multi": Place,
-                "place_nft": Place,
-                "paint": Place,
-                "paint_multi": Place,
-                "erase": Erase,
-                "erase_multi": Erase,
-                "inspect": Inspect,
-                "inspect_va": Inspect,
-                "inspect_box": Inspect,
-                "drag": Inspect,
-                "rotate": Inspect,
-                "copy_paste": Inspect,
+                place: Place,
+                place_multi: Place,
+                place_nft: Place,
+                paint: Place,
+                paint_multi: Place,
+                erase: Erase,
+                erase_multi: Erase,
+                inspect: Inspect,
+                inspect_va: Inspect,
+                inspect_box: Inspect,
+                drag: Inspect,
+                rotate: Inspect,
+                copy_paste: Inspect,
                 // Camera shows nothing on purpose.
                 // Empty neither
-            })
+            }),
         };
-    }
-})
+    },
+});
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
