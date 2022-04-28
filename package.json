@@ -11,7 +11,9 @@
     "coverage": "vitest run --coverage",
     "dev-server": "vite build --ssr server/main.ts --outDir dist/server -w -m development",
     "build-server": "vite build --ssr server/main.ts --outDir dist/server",
-    "server": "node dist/server/main.js"
+    "server": "node dist/server/main.js",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue",
+    "lint-fix": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"
   },
   "dependencies": {
     "@jaames/iro": "^5.5",
@@ -36,9 +38,13 @@
     "@types/node": "^17.0",
     "@types/three": "^0.138",
     "@types/uuid": "^8.0",
-    "@vitejs/plugin-vue": "^2",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
+    "@vitejs/plugin-vue": "^2.3.1",
     "autoprefixer": "^10.4",
     "c8": "^7.11.0",
+    "eslint": "^8.14.0",
+    "eslint-plugin-vue": "^8.7.1",
     "postcss": "^8.4",
     "rollup-plugin-analyzer": "^4.0.0",
     "rollup-plugin-visualizer": "^5.6.0",
