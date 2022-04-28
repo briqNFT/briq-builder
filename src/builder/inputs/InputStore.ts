@@ -5,7 +5,7 @@ import { palettesMgr } from '../Palette';
 import { CONF } from '@/Conf';
 
 export const inputStore = reactive({
-    currentInput: "place",
+    currentInput: 'place',
     // If true, the input mode is forced & the user can't change it (used for some 'tools' such as screenshotting)
     forceInput: false,
     palettesMgr,
@@ -13,12 +13,12 @@ export const inputStore = reactive({
     currentColor: palettesMgr.getCurrent().getFirstColor(),
     currentMaterial: CONF.defaultMaterial,
 
-    defaultSelectionMethod: 'BOX' as ('BOX' | 'VOXEL'),
+    defaultSelectionMethod: 'BOX' as 'BOX' | 'VOXEL',
     showMoveGizmo: true,
     showRotateGizmo: false,
-    
-    briqOverlayMode: 'KEEP' as ('KEEP' | 'OVERWRITE'),
-    
+
+    briqOverlayMode: 'KEEP' as 'KEEP' | 'OVERWRITE',
+
     // If true, a fake element that grabs and stops all events is added to the DOM.
     // Used notably so that selection ignores buttons.
     grabFocus: false,

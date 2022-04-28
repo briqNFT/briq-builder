@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import WebGLCanvas from './../WebGLCanvas.vue'
-import Modals from '../../Modals.vue'
-import Messages from '../../Messages.vue'
-import SplashScreen from './../SplashScreen.vue'
+import WebGLCanvas from './../WebGLCanvas.vue';
+import Modals from '../../Modals.vue';
+import Messages from '../../Messages.vue';
+import SplashScreen from './../SplashScreen.vue';
 import AlphaBanner from '../../AlphaBanner.vue';
 import AlphaLogo from './../AlphaLogo.vue';
 </script>
@@ -10,7 +10,7 @@ import AlphaLogo from './../AlphaLogo.vue';
 <template>
     <SplashScreen/>
     <div>
-        <div class="relative" style="height:calc(100vh - 140px)">
+        <div class="relative" style="height: calc(100vh - 140px)">
             <WebGLCanvas class="!h-full"/>
             <AlphaLogo/>
         </div>
@@ -25,25 +25,48 @@ import AlphaLogo from './../AlphaLogo.vue';
                 </template>
             </div>
         </div>
-        <div v-if="loadingStatus === 'loading'" class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
+        <div
+            v-if="loadingStatus === 'loading'"
+            class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
             <div class="rounded-md bg-base px-8 py-4">
                 <h2 class="text-center p-2">Loading</h2>
                 <p class="text-lg">Set {{ set_id ?? '' }} is currently loading...</p>
             </div>
         </div>
-        <div v-else-if="loadingStatus === 'error'" class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
+        <div
+            v-else-if="loadingStatus === 'error'"
+            class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
             <div class="rounded-md bg-base px-8 py-4">
                 <h2 class="text-center p-2">Error loading set</h2>
                 <p class="text-lg">{{ loadingData.text }}</p>
-                <p class="alternate-buttons m-2"><router-link :to="{ name: 'Builder' }"><Btn class="m-auto block">Return to builder</Btn></router-link></p>
+                <p class="alternate-buttons m-2">
+                    <router-link :to="{ name: 'Builder' }">
+                        <Btn class="m-auto block">Return to builder</Btn>
+                    </router-link>
+                </p>
             </div>
         </div>
-        <div v-if="!embed" class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none">
-            <Btn class="pointer-events-auto" @click="openInfoWidget"><i class="fas fa-info-circle"></i> Details</Btn>
-            <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fab fa-twitter"></i> Tweet</Btn>
-            <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto"><i class="fas fa-camera"></i> Take Screenshot</Btn>
-            <div :class="'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' + (expanded ? ' expanded' : ' unexpanded')">
-                <Btn class="pointer-events-auto" tooltip="Access local set operations, settings, etc." @click="expanded = !expanded"><i class="mx-1 fas fa-bars"></i><span class="mx-1">Menu</span></Btn>
+        <div
+            v-if="!embed"
+            class="absolute right-0 top-0 px-4 py-2 md:py-4 max-h-screen flex flex-col md:flex-row md:items-start items-end gap-2 pointer-events-none">
+            <Btn class="pointer-events-auto" @click="openInfoWidget"><i class="fas fa-info-circle"/> Details</Btn>
+            <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto">
+                <i class="fab fa-twitter"/> Tweet
+            </Btn>
+            <Btn v-if="loadingStatus === 'loaded'" @click="screenshot" class="pointer-events-auto">
+                <i class="fas fa-camera"/> Take Screenshot
+            </Btn>
+            <div
+                :class="
+                    'w-32 max-h-screen overflow-auto flex flex-nowrap flex-col justify-start content-end' +
+                        (expanded ? ' expanded' : ' unexpanded')
+                ">
+                <Btn
+                    class="pointer-events-auto"
+                    tooltip="Access local set operations, settings, etc."
+                    @click="expanded = !expanded">
+                    <i class="mx-1 fas fa-bars"/><span class="mx-1">Menu</span>
+                </Btn>
                 <div class="my-2">
                     <div class="flex flex-col flex-nowrap gap-1">
                         <Btn @click="$router.push({ name: 'Builder' })">Builder</Btn>
@@ -83,15 +106,16 @@ export default defineComponent({
         return {
             expanded: false,
             setData: undefined as undefined | SetData,
-            loadingStatus: "loading" as "loading" | "error" | "loaded",
+            loadingStatus: 'loading' as 'loading' | 'error' | 'loaded',
             loadingData: undefined as any,
-            author: "",
+            author: '',
         };
     },
-    props: ["set_id", "network", "version", "embed"],
+    props: ['set_id', 'network', 'version', 'embed'],
     provide: {
         messages: {
-            pushMessage, setTooltip
+            pushMessage,
+            setTooltip,
         },
         featureFlags,
     },
@@ -103,81 +127,76 @@ export default defineComponent({
         forceNetwork();
     },
     async mounted() {
-        if (this.version == 1 && this.network == "testnet")
-            forceNetwork("starknet-testnet-legacy");
+        if (this.version == 1 && this.network == 'testnet')
+            forceNetwork('starknet-testnet-legacy');
 
         watchEffect(() => {
             this.fetchAuthor();
-        })
+        });
 
-        builderInputFsm.waitForInit().then(() => builderInputFsm.switchTo("camera"));
+        builderInputFsm.waitForInit().then(() => builderInputFsm.switchTo('camera'));
 
         this.setData = undefined;
-        dispatchBuilderAction("reset");
+        dispatchBuilderAction('reset');
 
-        if (!this.set_id)
-        {
-            this.loadingStatus = "error";
+        if (!this.set_id) {
+            this.loadingStatus = 'error';
             this.loadingData = {
-                "error": "bad_set_id",
-                "text": `${this.set_id ?? '<empty set id>' } is not a valid set ID`
+                error: 'bad_set_id',
+                text: `${this.set_id ?? '<empty set id>'} is not a valid set ID`,
             };
             return;
         }
         try {
-            let data = await fetchData("store_get/" + this.set_id);
+            let data = await fetchData('store_get/' + this.set_id);
             for (let key in data?.data?.recommendedSettings ?? {})
                 builderSettings[key] = data.data.recommendedSettings[key];
-            let set = new SetData(data.data.id)
+            let set = new SetData(data.data.id);
             set.deserialize(data.data);
             this.setData = set;
-            dispatchBuilderAction("select_set", set);
-            dispatchBuilderAction("put_all_in_view");
-            this.loadingStatus = "loaded";
-        }
-        catch(err)
-        {
-            this.loadingStatus = "error";
+            dispatchBuilderAction('select_set', set);
+            dispatchBuilderAction('put_all_in_view');
+            this.loadingStatus = 'loaded';
+        } catch (err) {
+            this.loadingStatus = 'error';
             this.loadingData = {
-                "error": "failed_loading",
-                "text": `Failed loading set '${this.set_id}'. It may be an invalid set ID.`
+                error: 'failed_loading',
+                text: `Failed loading set '${this.set_id}'. It may be an invalid set ID.`,
             };
-            reportError(err, "Failed to load set in Share");
+            reportError(err, 'Failed to load set in Share');
         }
     },
     methods: {
         openHelp() {
-            window.open('https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f','_blank');
+            window.open('https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f', '_blank');
         },
         openInfoWidget() {
             pushModal(InfoWidget, {
                 background: false,
-                align: "justify-end items-center",
+                align: 'justify-end items-center',
                 setData: this.setData,
             });
         },
         openSettings() {
             pushModal(Settings);
         },
-        fetchAuthor: ticketing(async function() {
+        fetchAuthor: ticketing(async function () {
             if (!contractStore.set || !this.set_id)
                 return;
             try {
-                let author = (await contractStore.set.ownerOf(this.set_id));
-                if (author && author !== "0x0")
+                let author = await contractStore.set.ownerOf(this.set_id);
+                if (author && author !== '0x0')
                     this.author = author;
-            } catch(_) {}
+            } catch (_) {}
         }),
         screenshot() {
-            pushModal(Screenshot, { setData: this.setData, author: this.author });    
-        }
-    }
+            pushModal(Screenshot, { setData: this.setData, author: this.author });
+        },
+    },
 });
 </script>
 
-
 <style scoped>
-
 .tshadow {
     text-shadow: 0 0 2px rgb(0, 0, 0, 0.3);
 }

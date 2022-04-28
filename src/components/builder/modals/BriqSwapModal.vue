@@ -1,11 +1,12 @@
 <template>
-    <Window style="height:60%;">
+    <Window style="height: 60%">
         <template #title>Select briq to swap.</template>
-        <BriqTable class="overflow-auto" :briqs="briqs"
+        <BriqTable
+            class="overflow-auto"
+            :briqs="briqs"
             :columns="['material']"
-            @highlight="(x) => selectedBriq = x"
-            @select="onSelect"
-        ></BriqTable>
+            @highlight="(x) => (selectedBriq = x)"
+            @select="onSelect"/>
         <Btn v-if="selectedBriq" @click="onSelect(selectedBriq)">Swap</Btn>
     </Window>
 </template>
@@ -17,15 +18,15 @@ import type { Briq } from '../../../builder/Briq';
 import { defineComponent } from 'vue';
 export default defineComponent({
     components: {
-        BriqTable
+        BriqTable,
     },
     data() {
         return {
             selectedBriq: undefined as Briq | undefined,
-        }
+        };
     },
-    inject: ["chainBriqs"],
-    props: ["metadata"],
+    inject: ['chainBriqs'],
+    props: ['metadata'],
     computed: {
         briqs() {
             let ret: Array<Briq> = [];
@@ -39,14 +40,14 @@ export default defineComponent({
             })
             */
             return ret;
-        }
+        },
     },
     methods: {
         onSelect(briq: Briq) {
-            this.$emit("close", {
-                briq: briq
+            this.$emit('close', {
+                briq: briq,
             });
         },
-    }
-})
+    },
+});
 </script>

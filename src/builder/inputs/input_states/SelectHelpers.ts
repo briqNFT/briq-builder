@@ -3,13 +3,12 @@ import { selectionRender } from '../Selection';
 import { THREE, SelectionBox as ThreeSelectionBox } from '@/three';
 import getPreviewCube from '@/builder/graphics/PreviewCube';
 
-import { store } from '@/store/Store'
+import { store } from '@/store/Store';
 import { camera } from '@/builder/graphics/Builder';
 import type { HotkeyHandle } from '@/Hotkeys';
 import type { Briq } from '@/builder/Briq';
 
-export class BoxSelection extends MouseInputState
-{
+export class BoxSelection extends MouseInputState {
     startX!: number;
     startY!: number;
 
@@ -30,13 +29,15 @@ export class BoxSelection extends MouseInputState
         this.fsm.gui.startY = this.startY;
 
         this.fsm.gui.selectionBox = true;
-    
+
         this.fsm.orbitControls.enabled = false;
 
         this.fsm.store.grabFocus = true;
 
         selectionRender.show();
-        this.cancelHotkey = this.fsm.hotkeyMgr.subscribe("escape", () => { this.fsm.switchTo(this.switchBackTo); })
+        this.cancelHotkey = this.fsm.hotkeyMgr.subscribe('escape', () => {
+            this.fsm.switchTo(this.switchBackTo);
+        });
     }
 
     onExit() {
@@ -47,46 +48,39 @@ export class BoxSelection extends MouseInputState
         this.fsm.gui.selectionBox = false;
     }
 
-    async onPointerMove(event: PointerEvent)
-    {
+    async onPointerMove(event: PointerEvent) {
         this.fsm.gui.curX = this.curX;
         this.fsm.gui.curY = this.curY;
     }
 
-    async onPointerUp(event: PointerEvent)
-    {
-        if (this.startX === this.curX && this.startY === this.curY)
-        {
+    async onPointerUp(event: PointerEvent) {
+        if (this.startX === this.curX && this.startY === this.curY) {
             const pos = this.getIntersectionPos(this.curX, this.curY, true);
             this.fsm.store.selectionMgr.add(...pos);
             this.fsm.switchTo(this.switchBackTo);
             return;
         }
-        try
-        {
-            let startX = (this.startX / window.innerWidth - 0.5) * 2;
+        try {
+            const startX = (this.startX / window.innerWidth - 0.5) * 2;
             let curX = (this.curX / window.innerWidth - 0.5) * 2;
-            let startY = -(this.startY / window.innerHeight - 0.5) * 2;
+            const startY = -(this.startY / window.innerHeight - 0.5) * 2;
             let curY = -(this.curY / window.innerHeight - 0.5) * 2;
             if (startX === curX)
                 curX += 0.0001;
             if (startY === curY)
                 curY += 0.0001;
             // Hack around the threeselectionbox code to reuse the frustum construction code.
-            let fakeScene = {
-                children: []
+            const fakeScene = {
+                children: [],
             };
-            let box = new ThreeSelectionBox(camera,  fakeScene, 10000);
+            const box = new ThreeSelectionBox(camera, fakeScene, 10000);
             let frustum: THREE.Frustum;
-            box.searchChildInFrustum = (ft) => frustum = ft;
-            box.select(
-                new THREE.Vector3(startX, startY, 0),
-                new THREE.Vector3(curX, curY, 0)
-            )
-            let ret = [] as Briq[];
-            let cpos1 = new THREE.Vector3();
-            let cpos2 = new THREE.Vector3();
-            let cbox = new THREE.Box3(cpos1, cpos2);
+            box.searchChildInFrustum = (ft) => (frustum = ft);
+            box.select(new THREE.Vector3(startX, startY, 0), new THREE.Vector3(curX, curY, 0));
+            const ret = [] as Briq[];
+            const cpos1 = new THREE.Vector3();
+            const cpos2 = new THREE.Vector3();
+            const cbox = new THREE.Box3(cpos1, cpos2);
             store.state.builderData.currentSet.forEach((briq, pos) => {
                 cpos1.x = pos[0];
                 cpos1.y = pos[1];
@@ -107,8 +101,7 @@ export class BoxSelection extends MouseInputState
     async doAction(briqs: Briq[]) {}
 }
 
-export class VoxelAlignedSelection extends MouseInputState
-{
+export class VoxelAlignedSelection extends MouseInputState {
     initialClickPos!: [number, number, number];
     currentClickPos!: [number, number, number] | undefined;
     switchBackTo!: string;
@@ -122,10 +115,9 @@ export class VoxelAlignedSelection extends MouseInputState
         this.curY = data.y;
 
         this.initialClickPos = this.getIntersectionPos(this.curX, this.curY, !this.extruding)!;
-        if (this.initialClickPos)
-        {
+        if (this.initialClickPos) {
             if (this.initialClickPos[1] < 0)
-            this.initialClickPos[1] = 0;
+                this.initialClickPos[1] = 0;
 
             if (this.shouldClampToBounds)
                 this.initialClickPos = this.clampToBounds(...this.initialClickPos);
@@ -136,7 +128,9 @@ export class VoxelAlignedSelection extends MouseInputState
 
         this.fsm.orbitControls.enabled = false;
         this.fsm.store.grabFocus = true;
-        this.cancelHotkey = this.fsm.hotkeyMgr.subscribe("escape", () => { this.fsm.switchTo(this.switchBackTo); })
+        this.cancelHotkey = this.fsm.hotkeyMgr.subscribe('escape', () => {
+            this.fsm.switchTo(this.switchBackTo);
+        });
     }
 
     onExit() {
@@ -146,24 +140,25 @@ export class VoxelAlignedSelection extends MouseInputState
         this.fsm.orbitControls.enabled = true;
     }
 
-    updatePreviewCube()
-    {
-        if (!this.currentClickPos)
-        {
+    updatePreviewCube() {
+        if (!this.currentClickPos) {
             getPreviewCube().visible = false;
             return;
         }
         getPreviewCube().visible = true;
-        getPreviewCube().scale.set(Math.abs(this.initialClickPos[0] - this.currentClickPos[0]) + 1.1, Math.abs(this.initialClickPos[1] - this.currentClickPos[1]) + 1.1, Math.abs(this.initialClickPos[2] - this.currentClickPos[2]) + 1.1);
+        getPreviewCube().scale.set(
+            Math.abs(this.initialClickPos[0] - this.currentClickPos[0]) + 1.1,
+            Math.abs(this.initialClickPos[1] - this.currentClickPos[1]) + 1.1,
+            Math.abs(this.initialClickPos[2] - this.currentClickPos[2]) + 1.1,
+        );
         getPreviewCube().position.set(
-            ((this.initialClickPos[0] + this.currentClickPos[0]) / 2) + 0.5,
-            ((this.initialClickPos[1] + this.currentClickPos[1]) / 2) + 0.5,
-            ((this.initialClickPos[2] + this.currentClickPos[2]) / 2) + 0.5,
+            (this.initialClickPos[0] + this.currentClickPos[0]) / 2 + 0.5,
+            (this.initialClickPos[1] + this.currentClickPos[1]) / 2 + 0.5,
+            (this.initialClickPos[2] + this.currentClickPos[2]) / 2 + 0.5,
         );
     }
 
-    async onPointerMove(event: PointerEvent)
-    {
+    async onPointerMove(event: PointerEvent) {
         this.currentClickPos = this.getIntersectionPos(this.curX, this.curY, !this.extruding);
         if (!this.currentClickPos)
             return;
@@ -171,8 +166,7 @@ export class VoxelAlignedSelection extends MouseInputState
         if (this.shouldClampToBounds)
             this.currentClickPos = this.clampToBounds(...this.currentClickPos);
 
-        if (!this.initialClickPos)
-        {
+        if (!this.initialClickPos) {
             this.initialClickPos = this.currentClickPos;
             if (this.initialClickPos[1] < 0)
                 this.initialClickPos[1] = 0;
@@ -185,16 +179,14 @@ export class VoxelAlignedSelection extends MouseInputState
         this.updatePreviewCube();
     }
 
-    async onPointerUp(event: PointerEvent)
-    {
-        try
-        {
+    async onPointerUp(event: PointerEvent) {
+        try {
             this.currentClickPos = this.getIntersectionPos(this.curX, this.curY, !this.extruding);
             if (!this.currentClickPos)
                 return;
             if (this.shouldClampToBounds)
                 this.currentClickPos = this.clampToBounds(...this.currentClickPos);
-    
+
             // Make it so that selecting floor-squares does something.
             if (!this.shouldClampToBounds && this.initialClickPos[1] === 0 && this.currentClickPos[1] === -1)
                 this.currentClickPos[1] = 0;

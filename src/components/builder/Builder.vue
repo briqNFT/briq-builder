@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import WebGLCanvas from './WebGLCanvas.vue'
-import MenuBar from './MenuBar.vue'
-import SideBar from './SideBar.vue'
-import SideBarRight from './SideBarRight.vue'
-import Modals, { pushModal } from '../Modals.vue'
-import Messages from '../Messages.vue'
-import SplashScreen from './SplashScreen.vue'
+import WebGLCanvas from './WebGLCanvas.vue';
+import MenuBar from './MenuBar.vue';
+import SideBar from './SideBar.vue';
+import SideBarRight from './SideBarRight.vue';
+import Modals, { pushModal } from '../Modals.vue';
+import Messages from '../Messages.vue';
+import SplashScreen from './SplashScreen.vue';
 
 import MintProxy from './MintProxy.vue';
 import AlphaBanner from '../AlphaBanner.vue';
@@ -42,7 +42,7 @@ import { setupSync } from '@/chain/StarknetSync';
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
 import { inputInitComplete } from '@/builder/inputs/InputLoading';
-import { pushMessage, setTooltip } from '../../Messages'
+import { pushMessage, setTooltip } from '../../Messages';
 import { defineComponent, reactive, watchEffect, toRef } from 'vue';
 
 import { walletStore2 } from '@/chain/Wallet';
@@ -52,18 +52,18 @@ import { createChainBriqs } from '../../builder/ChainBriqs';
 let chainBriqs = createChainBriqs();
 export default defineComponent({
     data() {
-        return {
-        };
+        return {};
     },
     provide: {
         chainBriqs: chainBriqs,
         messages: {
-            pushMessage, setTooltip
+            pushMessage,
+            setTooltip,
         },
         featureFlags,
     },
     created() {
-        chainBriqs.setAddress(toRef(walletStore2, "userWalletAddress"));
+        chainBriqs.setAddress(toRef(walletStore2, 'userWalletAddress'));
         watchEffect(() => {
             chainBriqs.setContract(contractStore.briq);
         });
@@ -74,24 +74,26 @@ export default defineComponent({
         await inputInitComplete;
         let set = checkForInitialGMSet();
         if (set)
-            await this.$store.dispatch("builderData/select_set", set.id);
-        
-        let previousSet = window.localStorage.getItem("current_set");
+            await this.$store.dispatch('builderData/select_set', set.id);
+
+        let previousSet = window.localStorage.getItem('current_set');
         if (previousSet && setsManager.getInfo(previousSet))
-            await this.$store.dispatch("builderData/select_set", previousSet);
+            await this.$store.dispatch('builderData/select_set', previousSet);
 
         // Must have a local set.
         await watchEffectAndWait(async () => {
-            if (!this.$store.state.builderData.currentSet || !setsManager.getInfo(this.$store.state.builderData.currentSet.id))
-            {
+            if (
+                !this.$store.state.builderData.currentSet ||
+                !setsManager.getInfo(this.$store.state.builderData.currentSet.id)
+            ) {
                 let set = setsManager.getLocalSet();
                 if (!set)
                     set = setsManager.createLocalSet();
-                await this.$store.dispatch("builderData/select_set", set.id);
+                await this.$store.dispatch('builderData/select_set', set.id);
             }
         });
 
-        await dispatchBuilderAction("put_all_in_view");
+        await dispatchBuilderAction('put_all_in_view');
 
         // For storage space optimisation, delete non-current chain-only sets.
         for (let sid in setsManager.setsInfo)
@@ -99,11 +101,11 @@ export default defineComponent({
                 setsManager.deleteLocalSet(sid);
 
         // Reset history so we start fresh.
-        await this.$store.dispatch("reset_history");
+        await this.$store.dispatch('reset_history');
 
         watchEffect(() => {
-            window.localStorage.setItem("current_set", this.$store.state.builderData.currentSet.id);
-        })
+            window.localStorage.setItem('current_set', this.$store.state.builderData.currentSet.id);
+        });
 
         // TODO: centralise these?
         setsManager.watchForChain(contractStore, walletStore2);
@@ -111,5 +113,4 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

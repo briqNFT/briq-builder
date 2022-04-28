@@ -3,7 +3,7 @@
         <template #big-title>{{ metadata.title }}</template>
         <p class="text-lg font-medium my-4">{{ metadata.text }}</p>
         <div class="flex justify-around">
-            <p v-for="btn, i of metadata.buttons">
+            <p v-for="(btn, i) of metadata.buttons">
                 <Btn class="min-w-[8rem]" :tooltip="btn.tooltip" @click="$emit('close', i)">{{ btn.text }}</Btn>
             </p>
         </div>
@@ -14,6 +14,6 @@
 import { defineComponent } from 'vue';
 export default defineComponent({
     props: ['metadata'],
-    emits: ["close"],
-})
+    emits: ['close'],
+});
 </script>

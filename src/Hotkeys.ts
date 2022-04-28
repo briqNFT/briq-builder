@@ -1,4 +1,4 @@
-type MetaKeyData = { onDown?: boolean, ctrl?: boolean, shift?: boolean, alt?: boolean }
+type MetaKeyData = { onDown?: boolean; ctrl?: boolean; shift?: boolean; alt?: boolean };
 type HotkeyData = ({ key: string } & MetaKeyData) | ({ code: string } & MetaKeyData);
 type StoredHotkeyData = HotkeyData & { unified: string };
 
@@ -7,8 +7,8 @@ const UP = 0;
 const DOWN = 1;
 enum KEY_SETUP {
     UP,
-    DOWN
-};
+    DOWN,
+}
 
 export type HotkeyHandle = [string, number];
 
@@ -20,25 +20,23 @@ export type HotkeyHandle = [string, number];
  * (see https://github.com/WICG/keyboard-map for more details on this)
  * I'm registering both and the creator must choose. I'm assuming no conflict in naming.
  */
-export class HotkeyManager
-{
+export class HotkeyManager {
     hotkeys: { [hotkey: string]: StoredHotkeyData } = {};
-    
+
     callbacks: { [hotkey: string]: Array<[number, () => void]> } = {};
     listeners: { [hotkey: string]: (event: any) => void } = {};
     identifier = 1;
 
     keyHotkeys: { [unified: string]: Array<string> } = {};
 
-    alt: boolean = false;
-    ctrl: boolean = false;
-    shift: boolean = false;
+    alt = false;
+    ctrl = false;
+    shift = false;
 
     activeKeys: { [key: string]: boolean } = {};
     activeCodes: { [code: string]: boolean } = {};
 
-    constructor()
-    {
+    constructor() {
         window.addEventListener('keydown', (event) => this.onKeyDown(event));
         window.addEventListener('keyup', (event) => this.onKeyUp(event));
         window.addEventListener('blur', (event) => this.onBlur(event));
@@ -52,28 +50,25 @@ export class HotkeyManager
      * @param data See HotkeyData.
      * @returns the hotkey manager to facilitate immediately subscribing.
      */
-    register(hotkeyName: string, data: HotkeyData)
-    {
+    register(hotkeyName: string, data: HotkeyData) {
         if (this.hotkeys[hotkeyName])
             return this;
 
         this.hotkeys[hotkeyName] = Object.assign({}, data);
-        let hdata = this.hotkeys[hotkeyName];
+        const hdata = this.hotkeys[hotkeyName];
 
         if (hdata.key)
             hdata.key = hdata.shift ? hdata.key.toUpperCase() : hdata.key.toLowerCase();
-        
+
         hdata.unified = hdata?.key ?? hdata.code;
 
-        if (hdata.key)
-        {
+        if (hdata.key) {
             if (!this.keyHotkeys[hdata.key])
                 this.keyHotkeys[hdata.key] = [];
             this.keyHotkeys[hdata.key].push(hotkeyName);
         }
 
-        if (hdata.code)
-        {
+        if (hdata.code) {
             if (!this.keyHotkeys[hdata.code])
                 this.keyHotkeys[hdata.code] = [];
             this.keyHotkeys[hdata.code].push(hotkeyName);
@@ -89,16 +84,14 @@ export class HotkeyManager
      * @param callback Callback to call
      * @returns the identifier for unsubscription. Use as an opaque type recommended.
      */
-    subscribe(hotkeyName: string, callback: () => void): HotkeyHandle
-    {
-        let data = this.hotkeys[hotkeyName];
+    subscribe(hotkeyName: string, callback: () => void): HotkeyHandle {
+        const data = this.hotkeys[hotkeyName];
         if (!data)
             return [hotkeyName, 0];
 
-        let id = ++this.identifier;
-        this.callbacks[hotkeyName].splice(0, 0, [id, callback]);        
-        if (!this.listeners[hotkeyName])
-        {
+        const id = ++this.identifier;
+        this.callbacks[hotkeyName].splice(0, 0, [id, callback]);
+        if (!this.listeners[hotkeyName]) {
             this.listeners[hotkeyName] = (event: any) => {
                 if (event.detail.name !== hotkeyName)
                     return;
@@ -111,51 +104,44 @@ export class HotkeyManager
         return [hotkeyName, id];
     }
 
-    unsubscribe(handler: HotkeyHandle)
-    {
-        let idx = this.callbacks[handler[0]].findIndex(x => x[0] == handler[1]);
+    unsubscribe(handler: HotkeyHandle) {
+        const idx = this.callbacks[handler[0]].findIndex((x) => x[0] == handler[1]);
         if (idx === -1)
             return;
         this.callbacks[handler[0]].splice(idx, 1);
-        if (!this.callbacks[handler[0]].length)
-        {
-            let cb = this.listeners[handler[0]];
+        if (!this.callbacks[handler[0]].length) {
+            const cb = this.listeners[handler[0]];
             window.removeEventListener('hotkey', cb);
             delete this.listeners[handler[0]];
         }
     }
 
-    isKeyDown(key: string)
-    {
+    isKeyDown(key: string) {
         return this.activeKeys?.[key] ?? false;
     }
 
-    isCodeDown(code: string)
-    {
+    isCodeDown(code: string) {
         return this.activeCodes?.[code] ?? false;
     }
 
-    checkPressed(hotkeyName: string, on: KEY_SETUP)
-    {
-        let data = this.hotkeys[hotkeyName];
+    checkPressed(hotkeyName: string, on: KEY_SETUP) {
+        const data = this.hotkeys[hotkeyName];
         if (!data || !!data.onDown !== !!on)
             return false;
 
-            // Exact match for modifier keys.
+        // Exact match for modifier keys.
         if (!!data.ctrl !== this.ctrl || !!data.shift !== this.shift || !!data.alt !== this.alt)
             return false;
 
         return data.key ? this.isKeyDown(data.key) : this.isCodeDown(data.code);
     }
 
-    maybeFireHotkey(hk: string, on: KEY_SETUP)
-    {
-        if (this.checkPressed(hk, on))
-        {
-            let event = new CustomEvent('hotkey', {
+    maybeFireHotkey(hk: string, on: KEY_SETUP) {
+        if (this.checkPressed(hk, on)) {
+            const event = new CustomEvent('hotkey', {
                 bubbles: true,
                 cancelable: true,
-                detail: { "name": hk }
+                detail: { name: hk },
             });
             window.dispatchEvent(event);
             return true;
@@ -163,21 +149,19 @@ export class HotkeyManager
         return false;
     }
 
-    onKeyUp(event: KeyboardEvent)
-    {
-        if (event.key === "Alt")
+    onKeyUp(event: KeyboardEvent) {
+        if (event.key === 'Alt')
             this.alt = false;
-        else if (event.key === "Shift")
+        else if (event.key === 'Shift')
             this.shift = false;
-        else if (event.key === "Control")
+        else if (event.key === 'Control')
             this.ctrl = false;
-        else
-        {
-            let fired: { [hk: string]: boolean } = {};
-            for (let hk of this.keyHotkeys?.[event.code] ?? [])
+        else {
+            const fired: { [hk: string]: boolean } = {};
+            for (const hk of this.keyHotkeys?.[event.code] ?? [])
                 fired[hk] = this.maybeFireHotkey(hk, UP);
-            for (let hk of this.keyHotkeys?.[event.key] ?? [])
-                // Don't fire twice.
+            // Don't fire twice.
+            for (const hk of this.keyHotkeys?.[event.key] ?? [])
                 if (!fired[hk])
                     this.maybeFireHotkey(hk, UP);
 
@@ -186,37 +170,34 @@ export class HotkeyManager
         }
     }
 
-    onKeyDown(event: KeyboardEvent)
-    {
-        if (event.key === "Alt")
+    onKeyDown(event: KeyboardEvent) {
+        if (event.key === 'Alt')
             this.alt = true;
-        else if (event.key === "Shift")
+        else if (event.key === 'Shift')
             this.shift = true;
-        else if (event.key === "Control")
+        else if (event.key === 'Control')
             this.ctrl = true;
-        else
-        {
+        else {
             this.activeCodes[event.code] = true;
             this.activeKeys[event.key] = true;
 
-            let fired: { [hk: string]: boolean } = {};
-            for (let hk of this.keyHotkeys?.[event.code] ?? [])
+            const fired: { [hk: string]: boolean } = {};
+            for (const hk of this.keyHotkeys?.[event.code] ?? [])
                 fired[hk] = this.maybeFireHotkey(hk, DOWN);
-            for (let hk of this.keyHotkeys?.[event.key] ?? [])
-                // Don't fire twice.
+            // Don't fire twice.
+            for (const hk of this.keyHotkeys?.[event.key] ?? [])
                 if (!fired[hk])
                     this.maybeFireHotkey(hk, DOWN);
         }
     }
 
-    onBlur()
-    {
+    onBlur() {
         this.alt = false;
         this.shift = false;
         this.ctrl = false;
-        for (let code in this.activeCodes)
+        for (const code in this.activeCodes)
             this.activeCodes[code] = true;
-        for (let key in this.activeKeys)
+        for (const key in this.activeKeys)
             this.activeKeys[key] = true;
     }
-};
+}

@@ -1,13 +1,12 @@
-import Legal from './components/Legal.vue'
-import LandingPage from './components/landing_page/LandingPage.vue'
-import Team from './components/team/Team.vue'
+import Legal from './components/Legal.vue';
+import LandingPage from './components/landing_page/LandingPage.vue';
+import Team from './components/team/Team.vue';
 import { CONF } from './Conf';
 
 import BuilderLoader from './components/builder/BuilderLoader.vue';
 
-var loader;
-async function loadExtraPages()
-{
+let loader;
+async function loadExtraPages() {
     loader = await import('@/Dispatch');
     await loader.Store.isLoaded;
 }
@@ -18,60 +17,71 @@ setTimeout(loadExtraPages, 5000);
 
 export const routes = [
     {
-        path: "/legal",
-        name: "Legal",
+        path: '/legal',
+        name: 'Legal',
         component: Legal,
     },
     {
-        path: "/team",
-        name: "Team",
-        component: Team
+        path: '/team',
+        name: 'Team',
+        component: Team,
     },
     {
-        path: "/admin",
-        name: "Admin",
-        component: async () => { await loadExtraPages(); return loader.Admin },
+        path: '/admin',
+        name: 'Admin',
+        component: async () => {
+            await loadExtraPages();
+            return loader.Admin;
+        },
     },
     {
-        path: "/debug/:address?",
-        name: "Debug",
-        component: async () => { await loadExtraPages(); return loader.Debug },
+        path: '/debug/:address?',
+        name: 'Debug',
+        component: async () => {
+            await loadExtraPages();
+            return loader.Debug;
+        },
     },
     {
-        path: "/share",
-        name: "Share",
-        component: async () => { await loadExtraPages(); return loader.Share },
+        path: '/share',
+        name: 'Share',
+        component: async () => {
+            await loadExtraPages();
+            return loader.Share;
+        },
         props(route: any) {
-            return route.query || {}
-        }
+            return route.query || {};
+        },
     },
     {
-        path: "/gallery",
-        name: "Gallery",
-        component: async () => { await loadExtraPages(); return loader.Gallery },
+        path: '/gallery',
+        name: 'Gallery',
+        component: async () => {
+            await loadExtraPages();
+            return loader.Gallery;
+        },
     },
 ];
 
-if (CONF.useLanding)
-{
+if (CONF.useLanding) {
     routes.push({
-        path: "/",
-        name: "Landing",
+        path: '/',
+        name: 'Landing',
         component: LandingPage,
     });
     routes.push({
-        path: "/builder",
-        name: "Builder",
+        path: '/builder',
+        name: 'Builder',
         component: BuilderLoader,
     });
 } else {
     routes.push({
-        path: "/",
-        name: "Builder",
+        path: '/',
+        name: 'Builder',
         component: BuilderLoader,
-    })
+    });
     routes.push({
-        path: "/builder",
-        redirect: "/",
+        path: '/builder',
+        redirect: '/',
     });
 }

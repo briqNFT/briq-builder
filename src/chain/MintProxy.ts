@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive } from 'vue';
 import type MintContract from './contracts/mint';
 import { CONF } from '@/Conf';
 
@@ -10,20 +10,19 @@ export const mintProxyStore = reactive({
     walletOk: true,
 });
 
-var getData = ticketing(async function(contract: MintContract, address: string) {
-    let walletOk = contract.contract.providerOrAccount.getCode(address);
-    let contractOk = contract.contract.providerOrAccount.getCode(contract.contract.address);
-    let minted = contract.has_minted(address);
+const getData = ticketing(async function (contract: MintContract, address: string) {
+    const walletOk = contract.contract.providerOrAccount.getCode(address);
+    const contractOk = contract.contract.providerOrAccount.getCode(contract.contract.address);
+    const minted = contract.has_minted(address);
     return {
         walletOk: ((await walletOk)?.bytecode?.length ?? 0) > 0,
         contractOk: ((await contractOk)?.bytecode?.length ?? 0) > 0,
-        minted: await minted
+        minted: await minted,
     };
-})
+});
 
-export async function setupMintProxy(contract: MintContract, address: string)
-{
-    if (CONF.theme === "realms")
+export async function setupMintProxy(contract: MintContract, address: string) {
+    if (CONF.theme === 'realms')
         return;
     mintProxyStore.hasMinted = false;
     mintProxyStore.canMint = false;
@@ -35,9 +34,7 @@ export async function setupMintProxy(contract: MintContract, address: string)
     };
     try {
         res = await getData(contract, address);
-    }
-    catch(err)
-    {
+    } catch (err) {
         console.error(err);
         if (err instanceof OutdatedPromiseError)
             return;

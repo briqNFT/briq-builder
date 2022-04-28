@@ -1,8 +1,8 @@
-import { watchEffect, markRaw } from 'vue'
+import { watchEffect, markRaw } from 'vue';
 
 import type { AccountInterface } from '@/starknet_wrapper';
 
-import { logDebug, logDebugDelay } from '../Messages'
+import { logDebug, logDebugDelay } from '../Messages';
 
 import { watchSignerChanges } from '@/chain/Contracts';
 
@@ -15,26 +15,24 @@ import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
 import { connect, disconnect, IStarknetWindowObject } from '@/starknet_wrapper';
 
-class WalletStore
-{
+class WalletStore {
     signer: undefined | AccountInterface = undefined;
-    userWalletAddress = "";
+    userWalletAddress = '';
 
     starknetObject?: IStarknetWindowObject;
 
     // Empty, because at this point we aren't a proxy to a reactive object.
     constructor() {}
 
-    async initialize()
-    {
-        let storedAddress = window.localStorage.getItem("user_address");
-        logDebugDelay(() => ["STARTING WALLET CONNECT", storedAddress]);
+    async initialize() {
+        const storedAddress = window.localStorage.getItem('user_address');
+        logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
 
-        let cwo = await connect({ showList: false });
+        const cwo = await connect({ showList: false });
 
         if (cwo)
             this.enableWallet(cwo);
-        
+
         // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
         setWalletInitComplete();
 
@@ -42,22 +40,21 @@ class WalletStore
 
         watchEffect(() => {
             // TODO: switch to IDB
-            logDebug("Writing address ", this.userWalletAddress);
-            window.localStorage.setItem("user_address", this.userWalletAddress);
+            logDebug('Writing address ', this.userWalletAddress);
+            window.localStorage.setItem('user_address', this.userWalletAddress);
         });
 
         return;
     }
-    
+
     async openWalletSelector() {
-        let cwo = await connect({ showList: true });
+        const cwo = await connect({ showList: true });
         if (cwo)
             this.enableWallet(cwo);
     }
 
     async setSignerFromGSW() {
-        if (this.starknetObject?.isConnected)
-        {
+        if (this.starknetObject?.isConnected) {
             this.setSigner({ signer: markRaw(this.starknetObject.account), addr: this.starknetObject.account.address });
             this.setProviderFromSigner();
         }
@@ -66,12 +63,11 @@ class WalletStore
     enableWallet(starknetObj: IStarknetWindowObject) {
         this.starknetObject = starknetObj;
         // Don't await this, we don't care
-        this.starknetObject.enable().then(() => this.setSignerFromGSW())
-        this.starknetObject.on("accountsChanged", () => this.setSignerFromGSW())
+        this.starknetObject.enable().then(() => this.setSignerFromGSW());
+        this.starknetObject.on('accountsChanged', () => this.setSignerFromGSW());
     }
 
-    setSigner(data: { signer: AccountInterface, addr: string })
-    {
+    setSigner(data: { signer: AccountInterface; addr: string }) {
         this.signer = data.signer;
         this.userWalletAddress = data.addr;
         legacySetsMgr.setup(this);
@@ -80,7 +76,7 @@ class WalletStore
     disconnect() {
         disconnect();
         this.signer = undefined;
-        this.userWalletAddress = "";
+        this.userWalletAddress = '';
         legacySetsMgr.setup(this);
     }
 
@@ -92,12 +88,12 @@ class WalletStore
     setProviderFromSigner() {
         if (!this.signer)
             chooseDefaultNetwork();
-        else if (this.signer.gatewayUrl.indexOf("alpha-mainnet.starknet") !== -1)
-            setNetwork("starknet-mainnet");
-        else if (this.signer.gatewayUrl.indexOf("alpha4.starknet") !== -1)
-            setNetwork("starknet-testnet");
+        else if (this.signer.gatewayUrl.indexOf('alpha-mainnet.starknet') !== -1)
+            setNetwork('starknet-mainnet');
+        else if (this.signer.gatewayUrl.indexOf('alpha4.starknet') !== -1)
+            setNetwork('starknet-testnet');
         else
-            setNetwork("localhost");
+            setNetwork('localhost');
     }
 }
 

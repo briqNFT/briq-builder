@@ -1,21 +1,25 @@
 <template>
-    <div v-if="data?.modal" :class="'fixed top-0 overflow-auto h-screen ' + (modalBackground.background ? 'visible' : '')">
-        <div v-if="modalBackground.background"
-            :class="'flex h-screen w-screen overflow-auto fixed top-0 justify-center items-center ' + (visible ? 'visible' : 'invisible')"
-            :style="modalBackground"
-            @mousedown.self.stop="close()"
-        >
-        </div>
-        <Hotkey name="escape" :handler="() => close()"/>
+    <div
+        v-if="data?.modal"
+        :class="'fixed top-0 overflow-auto h-screen ' + (modalBackground.background ? 'visible' : '')">
         <div
-            :class="'flex min-h-screen w-screen invisible ' + modalAlignment"
-        >
-            <component :metadata="data.metadata" :is="data.modal"
-                :class="(visible ? 'visible' : 'invisible')"
+            v-if="modalBackground.background"
+            :class="
+                'flex h-screen w-screen overflow-auto fixed top-0 justify-center items-center ' +
+                    (visible ? 'visible' : 'invisible')
+            "
+            :style="modalBackground"
+            @mousedown.self.stop="close()"/>
+        <Hotkey name="escape" :handler="() => close()"/>
+        <div :class="'flex min-h-screen w-screen invisible ' + modalAlignment">
+            <component
+                :metadata="data.metadata"
+                :is="data.modal"
+                :class="visible ? 'visible' : 'invisible'"
                 @close="close"
                 @hide="toggleVisibility(false)"
                 @show="toggleVisibility(true)"
-                @toggleVisibility="toggleVisibility"></component>
+                @toggleVisibility="toggleVisibility"/>
         </div>
     </div>
 </template>
@@ -26,16 +30,16 @@ export default defineComponent({
     data() {
         return {
             visible: true,
-        }
+        };
     },
-    props: ["data"],
+    props: ['data'],
     computed: {
         modalBackground() {
-            return { background: this.data?.metadata?.background ?? "rgba(0, 0, 0, 0.3)" };
+            return { background: this.data?.metadata?.background ?? 'rgba(0, 0, 0, 0.3)' };
         },
         modalAlignment() {
             return this.data?.metadata?.align || 'justify-center items-center';
-        }
+        },
     },
     methods: {
         close(data?: any) {
@@ -46,7 +50,7 @@ export default defineComponent({
         },
         toggleVisibility(value: boolean) {
             this.visible = value;
-        }
-    }
-})
+        },
+    },
+});
 </script>

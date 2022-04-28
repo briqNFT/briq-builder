@@ -11,7 +11,7 @@ import { defineComponent } from 'vue';
 export default defineComponent({
     components: {
         BuilderAsync,
-        SplashScreen
-    }
+        SplashScreen,
+    },
 });
 </script>

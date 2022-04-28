@@ -1,8 +1,8 @@
 import { THREE } from '@/three';
 
-import lightMapTex from '@/assets/lightmap.png'
+import lightMapTex from '@/assets/lightmap.png';
 
-import builderSettings from './Settings'
+import builderSettings from './Settings';
 
 import { watchEffect } from 'vue';
 
@@ -16,11 +16,10 @@ export class MaterialByColor {
 
     size = 256;
 
-    constructor()
-    {
+    constructor() {
         this.index = 1;
         this.colorIndex = {
-            "": 0,
+            '': 0,
         };
         this.indexMaterial = {};
 
@@ -38,44 +37,44 @@ export class MaterialByColor {
 
         watchEffect(() => {
             this.setLightMap(builderSettings.showBorders);
-        })
+        });
     }
 
-    setLightMap(val: boolean)
-    {
+    setLightMap(val: boolean) {
         this.material.lightMap = val ? this.lightMapTexture : null;
     }
 
-    getIndex(color: string)
-    {
+    getIndex(color: string) {
         if (color in this.colorIndex)
             return this.colorIndex[color];
         this.colorIndex[color] = this.index++;
         if (this.index >= this.size * this.size)
-            throw new Error("ERROR - too many colors - only up to " + this.size * this.size + " colors are currently supported");
+            throw new Error(
+                'ERROR - too many colors - only up to ' + this.size * this.size + ' colors are currently supported',
+            );
         this.updateTexture();
         return this.colorIndex[color];
     }
 
-    getUV(index: number, uv: [number, number]): [number, number]
-    {
+    getUV(index: number, uv: [number, number]): [number, number] {
         // We're using nearest filter, so make sure the UVs end up dead in the middle of the texture pixel.
-        return [((index % this.size) + uv[0]*0.2 + 0.4) / this.size, (Math.floor(index / this.size) + uv[1]*0.2 + 0.4) / this.size];
+        return [
+            ((index % this.size) + uv[0] * 0.2 + 0.4) / this.size,
+            (Math.floor(index / this.size) + uv[1] * 0.2 + 0.4) / this.size,
+        ];
     }
 
-    updateTexture()
-    {
+    updateTexture() {
         const data = new Uint8Array(this.size * this.size * 4); // RGBA
         let i = 0;
-        for (let col in this.colorIndex)
-        {
-            if (col === "")
+        for (const col in this.colorIndex) {
+            if (col === '')
                 continue;
             const color = new THREE.Color(col);
-            data[i*4] = color.r * 255;
-            data[i*4+1] = color.g * 255;
-            data[i*4+2] = color.b * 255;
-            data[i*4+3] = 255;
+            data[i * 4] = color.r * 255;
+            data[i * 4 + 1] = color.g * 255;
+            data[i * 4 + 2] = color.b * 255;
+            data[i * 4 + 3] = 255;
             ++i;
         }
         const texture = new THREE.DataTexture(data, this.size, this.size, THREE.RGBAFormat, THREE.UnsignedByteType);

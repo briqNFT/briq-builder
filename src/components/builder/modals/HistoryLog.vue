@@ -1,8 +1,8 @@
 <template>
-    <Window class="md:!w-2/5 !w-auto" style="height:60%;">
+    <Window class="md:!w-2/5 !w-auto" style="height: 60%">
         <template #title>History Log</template>
         <div class="h-5/6 overflow-auto">
-            <p v-for="item, i in history">{{ i === index ? 'X' : ''}} {{ getHumanOutput(item.action, item) }}</p>
+            <p v-for="(item, i) in history">{{ i === index ? 'X' : '' }} {{ getHumanOutput(item.action, item) }}</p>
             <p v-if="!history.length">No actions yet</p>
         </div>
         <UndoRedo/>
@@ -19,17 +19,17 @@ export default defineComponent({
         return {};
     },
     computed: {
-        index: function() {
+        index: function () {
             return this.$store.state.undoRedo.command_index;
         },
-        history: function() {
-            return this.$store.state.undoRedo.command_history
-        }
+        history: function () {
+            return this.$store.state.undoRedo.command_history;
+        },
     },
     methods: {
-        getHumanOutput
+        getHumanOutput,
     },
-    props: ["metadata"],
-    components: { UndoRedo }
-})
+    props: ['metadata'],
+    components: { UndoRedo },
+});
 </script>

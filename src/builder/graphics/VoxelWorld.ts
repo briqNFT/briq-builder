@@ -6,7 +6,7 @@ export default class VoxelWorld {
     cellSize: number;
     materialByColor: MaterialByColor;
     cellSliceSize: number;
-    cells: object;//Map<number, Uint8Array>;
+    cells: object; //Map<number, Uint8Array>;
     cellIdToMesh: Object;
 
     dirtyCells: Set<string>;
@@ -14,10 +14,10 @@ export default class VoxelWorld {
     object: THREE.Object3D;
 
     static faces: Array<any>;
-    
-    constructor(options: { cellSize: number, material: MaterialByColor }) {
+
+    constructor(options: { cellSize: number; material: MaterialByColor }) {
         this.cellSize = options.cellSize;
-        const {cellSize} = this;
+        const { cellSize } = this;
         this.cellSliceSize = cellSize * cellSize;
         this.cells = {};
         this.cellIdToMesh = {};
@@ -29,30 +29,26 @@ export default class VoxelWorld {
         this.materialByColor = options.material;
     }
 
-    reset()
-    {
-        let cells = this.cells;
+    reset() {
+        const cells = this.cells;
         this.cells = {};
-        for (let cell in cells)
-            this.updateCellGeometry(...cell.split(',').map(x => +x * this.cellSize));
+        for (const cell in cells)
+            this.updateCellGeometry(...cell.split(',').map((x) => +x * this.cellSize));
     }
 
-    updateDirty()
-    {
-        this.dirtyCells.forEach(x => this.updateCellGeometry(...x.split(',').map(x => +x * this.cellSize)));
+    updateDirty() {
+        this.dirtyCells.forEach((x) => this.updateCellGeometry(...x.split(',').map((x) => +x * this.cellSize)));
         this.dirtyCells.clear();
     }
 
     computeVoxelOffset(x, y, z) {
-        const {cellSize, cellSliceSize} = this;
+        const { cellSize, cellSliceSize } = this;
         const voxelX = THREE.MathUtils.euclideanModulo(x, cellSize) | 0;
         const voxelY = THREE.MathUtils.euclideanModulo(y, cellSize) | 0;
         const voxelZ = THREE.MathUtils.euclideanModulo(z, cellSize) | 0;
-        return voxelY * cellSliceSize +
-        voxelZ * cellSize +
-        voxelX;
+        return voxelY * cellSliceSize + voxelZ * cellSize + voxelX;
     }
-    
+
     _computeCellCoords(x: number, y: number, z: number) {
         return [Math.floor(x / this.cellSize), Math.floor(y / this.cellSize), Math.floor(z / this.cellSize)];
     }
@@ -63,42 +59,47 @@ export default class VoxelWorld {
     }
 
     getAABB() {
-        let min = [0, 0, 0];
-        let max = [0, 0, 0];
-        for (let cell in this.cells)
-        {
-            let pos = cell.split(',').map(i => +i) as [number, number, number];
-            if (pos[0] < min[0]) min[0] = pos[0];
-            if (pos[0] > max[0]) max[0] = pos[0];
-            if (pos[1] < min[1]) min[1] = pos[1];
-            if (pos[1] > max[1]) max[1] = pos[1];
-            if (pos[2] < min[2]) min[2] = pos[2];
-            if (pos[2] > max[2]) max[2] = pos[2];
+        const min = [0, 0, 0];
+        const max = [0, 0, 0];
+        for (const cell in this.cells) {
+            const pos = cell.split(',').map((i) => +i) as [number, number, number];
+            if (pos[0] < min[0])
+                min[0] = pos[0];
+            if (pos[0] > max[0])
+                max[0] = pos[0];
+            if (pos[1] < min[1])
+                min[1] = pos[1];
+            if (pos[1] > max[1])
+                max[1] = pos[1];
+            if (pos[2] < min[2])
+                min[2] = pos[2];
+            if (pos[2] > max[2])
+                max[2] = pos[2];
         }
-        return [min.map(i => i * this.cellSize), max.map(i => i * this.cellSize)];
+        return [min.map((i) => i * this.cellSize), max.map((i) => i * this.cellSize)];
     }
-    
+
     addCellForVoxel(x, y, z) {
         const cellId = this.computeCellId(x, y, z);
         let cell = this.cells[cellId];
         if (!cell) {
-            const {cellSize} = this;
+            const { cellSize } = this;
             cell = new Uint16Array(cellSize * cellSize * cellSize);
             this.cells[cellId] = cell;
         }
         return cell;
     }
-    
+
     getCellForVoxel(x, y, z) {
         return this.cells[this.computeCellId(x, y, z)];
     }
-    
+
     setVoxel(x, y, z, color: string, addCell = true) {
         let cell = this.getCellForVoxel(x, y, z);
         if (!cell) {
-            if (!addCell) {
+            if (!addCell)
                 return;
-            }
+
             cell = this.addCellForVoxel(x, y, z);
         }
         const voxelOffset = this.computeVoxelOffset(x, y, z);
@@ -116,16 +117,16 @@ export default class VoxelWorld {
         this.dirtyCells.add(this.computeCellId(x + 1, y + 1, z + 1));
         this.dirtyCells.add(this.computeCellId(x + 1, y + 1, z - 1));
     }
-    
+
     getVoxel(x, y, z) {
         const cell = this.getCellForVoxel(x, y, z);
-        if (!cell) {
+        if (!cell)
             return 0;
-        }
+
         const voxelOffset = this.computeVoxelOffset(x, y, z);
         return cell[voxelOffset];
     }
-    
+
     generateGeometryDataForCell(cellX, cellY, cellZ) {
         const { cellSize } = this;
 
@@ -137,58 +138,45 @@ export default class VoxelWorld {
         const startX = cellX * cellSize;
         const startY = cellY * cellSize;
         const startZ = cellZ * cellSize;
-        
-        for (let y = 0; y < cellSize; ++y)
-        {
+
+        for (let y = 0; y < cellSize; ++y) {
             const voxelY = startY + y;
-            for (let z = 0; z < cellSize; ++z)
-            {
+            for (let z = 0; z < cellSize; ++z) {
                 const voxelZ = startZ + z;
-                for (let x = 0; x < cellSize; ++x)
-                {
+                for (let x = 0; x < cellSize; ++x) {
                     const voxelX = startX + x;
                     const voxel = this.getVoxel(voxelX, voxelY, voxelZ);
-                    if (voxel)
-                    {
+                    if (voxel) {
                         // voxel 0 is sky (empty) so for UVs we start at 0
                         const uvVoxel = voxel - 1;
                         // There is a voxel here but do we need faces for it?
-                        for (const {dir, corners, uvRow} of VoxelWorld.faces)
-                        {
-                            const neighbor = this.getVoxel(
-                                voxelX + dir[0],
-                                voxelY + dir[1],
-                                voxelZ + dir[2]);
-                                if (!neighbor)
-                                {
-                                    // this voxel has no neighbor in this direction so we need a face.
-                                    const ndx = positions.length / 3;
-                                    for (const {pos, uv} of corners)
-                                    {
-                                        positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
-                                        normals.push(...dir);
-                                        uvs.push(...this.materialByColor.getUV(uvVoxel, uv));
-                                        uv2s.push(...uv);
-                                    }
-                                    indices.push(
-                                        ndx, ndx + 1, ndx + 2,
-                                        ndx + 2, ndx + 1, ndx + 3,
-                                    );
+                        for (const { dir, corners, uvRow } of VoxelWorld.faces) {
+                            const neighbor = this.getVoxel(voxelX + dir[0], voxelY + dir[1], voxelZ + dir[2]);
+                            if (!neighbor) {
+                                // this voxel has no neighbor in this direction so we need a face.
+                                const ndx = positions.length / 3;
+                                for (const { pos, uv } of corners) {
+                                    positions.push(pos[0] + x, pos[1] + y, pos[2] + z);
+                                    normals.push(...dir);
+                                    uvs.push(...this.materialByColor.getUV(uvVoxel, uv));
+                                    uv2s.push(...uv);
                                 }
+                                indices.push(ndx, ndx + 1, ndx + 2, ndx + 2, ndx + 1, ndx + 3);
                             }
                         }
                     }
                 }
             }
-                    
-            return {
-                positions,
-                normals,
-                uvs,
-                uv2s,
-                indices,
-            };
         }
+
+        return {
+            positions,
+            normals,
+            uvs,
+            uv2s,
+            indices,
+        };
+    }
 
     updateCellGeometry(x, y, z) {
         const cellX = Math.floor(x / this.cellSize);
@@ -197,10 +185,13 @@ export default class VoxelWorld {
         const cellId = this.computeCellId(x, y, z);
         let mesh = this.cellIdToMesh[cellId];
         const geometry = mesh ? mesh.geometry : new THREE.BufferGeometry();
-        
-        const {positions, normals, uvs, uv2s, indices} = this.generateGeometryDataForCell(cellX, cellY, cellZ);
+
+        const { positions, normals, uvs, uv2s, indices } = this.generateGeometryDataForCell(cellX, cellY, cellZ);
         const positionNumComponents = 3;
-        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
+        geometry.setAttribute(
+            'position',
+            new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents),
+        );
         const normalNumComponents = 3;
         geometry.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
         const uvNumComponents = 2;
@@ -208,7 +199,7 @@ export default class VoxelWorld {
         geometry.setAttribute('uv2', new THREE.BufferAttribute(new Float32Array(uv2s), uvNumComponents));
         geometry.setIndex(indices);
         geometry.computeBoundingSphere();
-        
+
         if (!mesh) {
             mesh = new THREE.Mesh(geometry, this.materialByColor.material);
             mesh.name = cellId;
@@ -219,16 +210,16 @@ export default class VoxelWorld {
             this.object.add(mesh);
         }
     }
-    
+
     updateVoxelGeometry(x, y, z) {
         const neighborOffsets = [
-            [ 0,  0,  0], // self
-            [-1,  0,  0], // left
-            [ 1,  0,  0], // right
-            [ 0, -1,  0], // down
-            [ 0,  1,  0], // up
-            [ 0,  0, -1], // back
-            [ 0,  0,  1], // front
+            [0, 0, 0], // self
+            [-1, 0, 0], // left
+            [1, 0, 0], // right
+            [0, -1, 0], // down
+            [0, 1, 0], // up
+            [0, 0, -1], // back
+            [0, 0, 1], // front
         ];
 
         const updatedCellIds = {};
@@ -243,7 +234,7 @@ export default class VoxelWorld {
             }
         }
     }
-    
+
     // from
     // http://www.cse.chalmers.se/edu/year/2010/course/TDA361/grid.pdf
     intersectRay(start, end) {
@@ -252,45 +243,41 @@ export default class VoxelWorld {
         let dz = end.z - start.z;
         const lenSq = dx * dx + dy * dy + dz * dz;
         const len = Math.sqrt(lenSq);
-        
+
         dx /= len;
         dy /= len;
         dz /= len;
-        
+
         let t = 0.0;
         let ix = Math.floor(start.x);
         let iy = Math.floor(start.y);
         let iz = Math.floor(start.z);
-        
-        const stepX = (dx > 0) ? 1 : -1;
-        const stepY = (dy > 0) ? 1 : -1;
-        const stepZ = (dz > 0) ? 1 : -1;
-        
+
+        const stepX = dx > 0 ? 1 : -1;
+        const stepY = dy > 0 ? 1 : -1;
+        const stepZ = dz > 0 ? 1 : -1;
+
         const txDelta = Math.abs(1 / dx);
         const tyDelta = Math.abs(1 / dy);
         const tzDelta = Math.abs(1 / dz);
-        
-        const xDist = (stepX > 0) ? (ix + 1 - start.x) : (start.x - ix);
-        const yDist = (stepY > 0) ? (iy + 1 - start.y) : (start.y - iy);
-        const zDist = (stepZ > 0) ? (iz + 1 - start.z) : (start.z - iz);
-        
+
+        const xDist = stepX > 0 ? ix + 1 - start.x : start.x - ix;
+        const yDist = stepY > 0 ? iy + 1 - start.y : start.y - iy;
+        const zDist = stepZ > 0 ? iz + 1 - start.z : start.z - iz;
+
         // location of nearest voxel boundary, in units of t
-        let txMax = (txDelta < Infinity) ? txDelta * xDist : Infinity;
-        let tyMax = (tyDelta < Infinity) ? tyDelta * yDist : Infinity;
-        let tzMax = (tzDelta < Infinity) ? tzDelta * zDist : Infinity;
-        
+        let txMax = txDelta < Infinity ? txDelta * xDist : Infinity;
+        let tyMax = tyDelta < Infinity ? tyDelta * yDist : Infinity;
+        let tzMax = tzDelta < Infinity ? tzDelta * zDist : Infinity;
+
         let steppedIndex = -1;
-        
+
         // main loop along raycast vector
         while (t <= len) {
             const voxel = this.getVoxel(ix, iy, iz);
-            if (voxel || iy < 0) {
+            if (voxel || iy < 0)
                 return {
-                    position: [
-                        start.x + t * dx,
-                        start.y + t * dy,
-                        start.z + t * dz,
-                    ],
+                    position: [start.x + t * dx, start.y + t * dy, start.z + t * dz],
                     normal: [
                         steppedIndex === 0 ? -stepX : 0,
                         steppedIndex === 1 ? -stepY : 0,
@@ -298,10 +285,10 @@ export default class VoxelWorld {
                     ],
                     voxel,
                 };
-            }
-            
+
+
             // advance t to next nearest voxel boundary
-            if (txMax < tyMax) {
+            if (txMax < tyMax)
                 if (txMax < tzMax) {
                     ix += stepX;
                     t = txMax;
@@ -313,83 +300,89 @@ export default class VoxelWorld {
                     tzMax += tzDelta;
                     steppedIndex = 2;
                 }
+            else
+            if (tyMax < tzMax) {
+                iy += stepY;
+                t = tyMax;
+                tyMax += tyDelta;
+                steppedIndex = 1;
             } else {
-                if (tyMax < tzMax) {
-                    iy += stepY;
-                    t = tyMax;
-                    tyMax += tyDelta;
-                    steppedIndex = 1;
-                } else {
-                    iz += stepZ;
-                    t = tzMax;
-                    tzMax += tzDelta;
-                    steppedIndex = 2;
-                }
+                iz += stepZ;
+                t = tzMax;
+                tzMax += tzDelta;
+                steppedIndex = 2;
             }
+
         }
         return null;
     }
 }
 
 VoxelWorld.faces = [
-    { // left
+    {
+        // left
         uvRow: 0,
-        dir: [ -1,  0,  0, ],
+        dir: [-1, 0, 0],
         corners: [
-            { pos: [ 0, 1, 0 ], uv: [ 0, 1 ], },
-            { pos: [ 0, 0, 0 ], uv: [ 0, 0 ], },
-            { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
-            { pos: [ 0, 0, 1 ], uv: [ 1, 0 ], },
+            { pos: [0, 1, 0], uv: [0, 1] },
+            { pos: [0, 0, 0], uv: [0, 0] },
+            { pos: [0, 1, 1], uv: [1, 1] },
+            { pos: [0, 0, 1], uv: [1, 0] },
         ],
     },
-    { // right
+    {
+        // right
         uvRow: 0,
-        dir: [  1,  0,  0, ],
+        dir: [1, 0, 0],
         corners: [
-            { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
-            { pos: [ 1, 0, 1 ], uv: [ 0, 0 ], },
-            { pos: [ 1, 1, 0 ], uv: [ 1, 1 ], },
-            { pos: [ 1, 0, 0 ], uv: [ 1, 0 ], },
+            { pos: [1, 1, 1], uv: [0, 1] },
+            { pos: [1, 0, 1], uv: [0, 0] },
+            { pos: [1, 1, 0], uv: [1, 1] },
+            { pos: [1, 0, 0], uv: [1, 0] },
         ],
     },
-    { // bottom
+    {
+        // bottom
         uvRow: 1,
-        dir: [  0, -1,  0, ],
+        dir: [0, -1, 0],
         corners: [
-            { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
-            { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
-            { pos: [ 1, 0, 0 ], uv: [ 1, 1 ], },
-            { pos: [ 0, 0, 0 ], uv: [ 0, 1 ], },
+            { pos: [1, 0, 1], uv: [1, 0] },
+            { pos: [0, 0, 1], uv: [0, 0] },
+            { pos: [1, 0, 0], uv: [1, 1] },
+            { pos: [0, 0, 0], uv: [0, 1] },
         ],
     },
-    { // top
+    {
+        // top
         uvRow: 2,
-        dir: [  0,  1,  0, ],
+        dir: [0, 1, 0],
         corners: [
-            { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
-            { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
-            { pos: [ 0, 1, 0 ], uv: [ 1, 0 ], },
-            { pos: [ 1, 1, 0 ], uv: [ 0, 0 ], },
+            { pos: [0, 1, 1], uv: [1, 1] },
+            { pos: [1, 1, 1], uv: [0, 1] },
+            { pos: [0, 1, 0], uv: [1, 0] },
+            { pos: [1, 1, 0], uv: [0, 0] },
         ],
     },
-    { // back
+    {
+        // back
         uvRow: 0,
-        dir: [  0,  0, -1, ],
+        dir: [0, 0, -1],
         corners: [
-            { pos: [ 1, 0, 0 ], uv: [ 0, 0 ], },
-            { pos: [ 0, 0, 0 ], uv: [ 1, 0 ], },
-            { pos: [ 1, 1, 0 ], uv: [ 0, 1 ], },
-            { pos: [ 0, 1, 0 ], uv: [ 1, 1 ], },
+            { pos: [1, 0, 0], uv: [0, 0] },
+            { pos: [0, 0, 0], uv: [1, 0] },
+            { pos: [1, 1, 0], uv: [0, 1] },
+            { pos: [0, 1, 0], uv: [1, 1] },
         ],
     },
-    { // front
+    {
+        // front
         uvRow: 0,
-        dir: [  0,  0,  1, ],
+        dir: [0, 0, 1],
         corners: [
-            { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
-            { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
-            { pos: [ 0, 1, 1 ], uv: [ 0, 1 ], },
-            { pos: [ 1, 1, 1 ], uv: [ 1, 1 ], },
+            { pos: [0, 0, 1], uv: [0, 0] },
+            { pos: [1, 0, 1], uv: [1, 0] },
+            { pos: [0, 1, 1], uv: [0, 1] },
+            { pos: [1, 1, 1], uv: [1, 1] },
         ],
     },
 ];

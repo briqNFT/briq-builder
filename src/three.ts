@@ -27,9 +27,8 @@ export var SSAARenderPass: three_wrapper.SSAARenderPass;
 export var CopyShader: three_wrapper.CopyShader;
 export var FXAAShader: three_wrapper.FXAAShader;
 
-
 async function setup() {
-    let wrapper = await import ('./three_wrapper');
+    const wrapper = await import('./three_wrapper');
     THREE = wrapper.THREE;
     OrbitControls = wrapper.OrbitControls;
     SelectionBox = wrapper.SelectionBox;
@@ -44,7 +43,7 @@ async function setup() {
     CopyShader = wrapper.CopyShader;
     FXAAShader = wrapper.FXAAShader;
 
-    logDebug("Successfully dynamically loaded three.js");
+    logDebug('Successfully dynamically loaded three.js');
 
     setThreeLoadingComplete();
 }

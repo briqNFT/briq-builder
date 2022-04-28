@@ -1,5 +1,6 @@
 <template>
-    <div class="header m-auto flex justify-between items-center font-semibold text-white dark:text-gray-200 text-lg text-center font-sans alternate-buttons">
+    <div
+        class="header m-auto flex justify-between items-center font-semibold text-white dark:text-gray-200 text-lg text-center font-sans alternate-buttons">
         <div class="text-xl">
             <a href="/"><h2 class="briq-logo">briq</h2></a>
         </div>
@@ -33,7 +34,7 @@ h2 {
 }
 .alpha-pill ::after {
     display: block;
-    content: "alpha";
+    content: 'alpha';
     font-style: italic;
 
     @apply bg-accent px-2 py-0.5 text-text-on-accent text-sm;
@@ -43,5 +44,4 @@ h2 {
 
     @apply rounded-xl shadow-sm;
 }
-
 </style>

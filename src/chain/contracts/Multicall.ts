@@ -4,15 +4,28 @@ import { toHex } from '@/Starknet';
 
 import { computeHashOnElements } from '@/Starknet';
 
-import ExtendedContract from './Abstraction'
+import ExtendedContract from './Abstraction';
 
-const MulticallABI = [{"inputs":[{"name":"calls_len","type":"felt"},{"name":"calls","type":"felt*"}],"name":"aggregate","outputs":[{"name":"block_number","type":"felt"},{"name":"result_len","type":"felt"},{"name":"result","type":"felt*"}],"stateMutability":"view","type":"function"}];
-
-export default class MulticallContract
-{
-    contract: ExtendedContract;
-    constructor(address: string, provider: Provider)
+const MulticallABI = [
     {
+        inputs: [
+            { name: 'calls_len', type: 'felt' },
+            { name: 'calls', type: 'felt*' },
+        ],
+        name: 'aggregate',
+        outputs: [
+            { name: 'block_number', type: 'felt' },
+            { name: 'result_len', type: 'felt' },
+            { name: 'result', type: 'felt*' },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+];
+
+export default class MulticallContract {
+    contract: ExtendedContract;
+    constructor(address: string, provider: Provider) {
         this.contract = new ExtendedContract(MulticallABI, address, provider);
     }
 

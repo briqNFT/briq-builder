@@ -8,11 +8,16 @@
             </div>
             <div class="text-center">
                 <Btn @click="downloadGLB">Download as .glb</Btn>
-                <p class="text-center text-sm">GLB is binary GTLF, a modern open standard for 3D meshes.<br/>You can use this to import the set in other 3D worlds.</p>
+                <p class="text-center text-sm">
+                    GLB is binary GTLF, a modern open standard for 3D meshes.<br>You can use this to import the set in
+                    other 3D worlds.
+                </p>
             </div>
             <div class="text-center">
                 <Btn @click="downloadVox">Download as .vox</Btn>
-                <p class="text-center text-sm">Vox is the format used by MagicaVoxel and supported by most voxel editors.</p>
+                <p class="text-center text-sm">
+                    Vox is the format used by MagicaVoxel and supported by most voxel editors.
+                </p>
             </div>
         </div>
     </Window>
@@ -23,16 +28,14 @@ import { defineComponent } from 'vue';
 import getBaseUrl, { doDownload } from '../../../url';
 export default defineComponent({
     data() {
-        return {
-        }
+        return {};
     },
-    props: ["metadata"],
-    mounted() {
-    },
+    props: ['metadata'],
+    mounted() {},
     computed: {
         setId() {
             return this.metadata.setId;
-        }
+        },
     },
     methods: {
         async downloadBriq() {
@@ -45,5 +48,5 @@ export default defineComponent({
             doDownload(`${getBaseUrl()}/get_model/${this.setId}.vox`, `${this.setId}.vox`);
         },
     },
-})
+});
 </script>

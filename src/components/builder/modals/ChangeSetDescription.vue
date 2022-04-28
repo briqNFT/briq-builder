@@ -15,17 +15,17 @@ import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
-            description: "",
-        }
+            description: '',
+        };
     },
-    props: ["metadata"],
+    props: ['metadata'],
     mounted() {
         this.description = this.metadata.desc;
     },
     methods: {
-        save: function() {
-            this.$emit("close", this.description);
-        }
-    }
-})
+        save: function () {
+            this.$emit('close', this.description);
+        },
+    },
+});
 </script>

@@ -3,57 +3,97 @@
         <template #big-title>Welcome to briq</template>
         <div class="text-lg">
             <div class="my-4">
-                <p>We’re currently in <a href="">Alpha test</a> on StarkNet TestNet.<br/>Claim 1000 free briqs to start your building journey.</p>
-            </div>
-            <template v-if="wallet.getNetwork() === 'starknet-mainnet'">
-            <div class="font-medium text-xl">
-                <p>Mission accomplished folks !<br/>briq was working so well that mainnet costs on L1 are too high for StarkWare, so we're temporarily turning Mainnet briq off.<br/>Please switch to Testnet to use Briq!<br/>
-                <br/>Follow this <a target="_blank" href="https://twitter.com/briqNFT/status/1476284938773221382?ref_src=twsrc%5Etfw" class="underline">twitter thread</a> for more information.
+                <p>
+                    We’re currently in <a href="">Alpha test</a> on StarkNet TestNet.<br>Claim 1000 free briqs to
+                    start your building journey.
                 </p>
             </div>
-            <div class="flex justify-center my-4 gap-2">
-                <button class="btn" :disabled="true">I want to briq free</button>
-            </div>
-
+            <template v-if="wallet.getNetwork() === 'starknet-mainnet'">
+                <div class="font-medium text-xl">
+                    <p>
+                        Mission accomplished folks !<br>briq was working so well that mainnet costs on L1 are too high
+                        for StarkWare, so we're temporarily turning Mainnet briq off.<br>Please switch to Testnet to
+                        use Briq!<br>
+                        <br>Follow this
+                        <a
+                            target="_blank"
+                            href="https://twitter.com/briqNFT/status/1476284938773221382?ref_src=twsrc%5Etfw"
+                            class="underline">twitter thread</a>
+                        for more information.
+                    </p>
+                </div>
+                <div class="flex justify-center my-4 gap-2">
+                    <button class="btn" :disabled="true">I want to briq free</button>
+                </div>
             </template>
             <template v-else-if="!blockchainProvider?.isAlive()">
-            <div class="font-medium text-xl">
-                <p>Failed to reach the Starknet Gateway. This may happen because of rate-limiting on the Starknet side.<br/>
-                If you're on main-net, try on testnet, or retry later.</p>
-            </div>
-            <div class="flex justify-center my-4 gap-2">
-                <button class="btn" :disabled="true">I want to briq free</button>
-            </div>
-
+                <div class="font-medium text-xl">
+                    <p>
+                        Failed to reach the Starknet Gateway. This may happen because of rate-limiting on the Starknet
+                        side.<br>
+                        If you're on main-net, try on testnet, or retry later.
+                    </p>
+                </div>
+                <div class="flex justify-center my-4 gap-2">
+                    <button class="btn" :disabled="true">I want to briq free</button>
+                </div>
             </template>
             <template v-else-if="!mintProxyStore.walletOk">
-            <div class="font-medium text-xl">
-                <p>Your wallet is not yet deployed. Please check Voyager Explorer,
-                you should see the deploy transaction before you can claim briqs.</p>
-            </div>
-            <div class="flex justify-center my-4 gap-2">
-                <a :href="voyagerLink" target="_blank"><Btn>Check Voyager</Btn></a>
-                <button class="btn" :disabled="true">I want to briq free</button>
-            </div>
-
+                <div class="font-medium text-xl">
+                    <p>
+                        Your wallet is not yet deployed. Please check Voyager Explorer, you should see the deploy
+                        transaction before you can claim briqs.
+                    </p>
+                </div>
+                <div class="flex justify-center my-4 gap-2">
+                    <a :href="voyagerLink" target="_blank"><Btn>Check Voyager</Btn></a>
+                    <button class="btn" :disabled="true">I want to briq free</button>
+                </div>
             </template>
             <template v-else="">
-            <div class="font-medium">
-                <p v-if="status == 'calling'">Status: ...Minting briqs...</p>
-                <p v-if="status == 'polling'">Status: ...Waiting for transaction to validate...<br/>
-<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{ txHash }}</a></span></p>
-                <p v-if="status == 'pending'">Status: ...Transaction pending...<br/>
-<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{ txHash }}</a></span></p>
-                <p v-if="status == 'ok'">Status: Transaction complete!<br/>
-<span v-if="txHash">Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{ txHash }}</a></span></p>
-                <p v-if="status == 'error'">Status: Error while minting.
-<span v-if="txHash"><br/>Tx Hash: <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{ txHash }}</a></span>
-                Error details: <br/> <span class="font-mono text-xs tracking-tighter">{{ errorDetails }}</span></p>
-            </div>
-            <div class="flex justify-center my-4">
-                <button class="btn" v-if="status !== 'ok'" :disabled="status !=='waiting' && status !=='error'" @click="claim">I want to briq free</button>
-                <button class="btn" v-if="status === 'ok'" @click="$emit('close')">Start Building</button>
-            </div>
+                <div class="font-medium">
+                    <p v-if="status == 'calling'">Status: ...Minting briqs...</p>
+                    <p v-if="status == 'polling'">
+                        Status: ...Waiting for transaction to validate...<br>
+                        <span v-if="txHash">Tx Hash:
+                            <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{
+                                txHash
+                            }}</a></span>
+                    </p>
+                    <p v-if="status == 'pending'">
+                        Status: ...Transaction pending...<br>
+                        <span v-if="txHash">Tx Hash:
+                            <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{
+                                txHash
+                            }}</a></span>
+                    </p>
+                    <p v-if="status == 'ok'">
+                        Status: Transaction complete!<br>
+                        <span v-if="txHash">Tx Hash:
+                            <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{
+                                txHash
+                            }}</a></span>
+                    </p>
+                    <p v-if="status == 'error'">
+                        Status: Error while minting.
+                        <span v-if="txHash"><br>Tx Hash:
+                            <a target="_blank" :href="'https://goerli.voyager.online/tx/' + txHash" class="break-all">{{
+                                txHash
+                            }}</a></span>
+                        Error details: <br>
+                        <span class="font-mono text-xs tracking-tighter">{{ errorDetails }}</span>
+                    </p>
+                </div>
+                <div class="flex justify-center my-4">
+                    <button
+                        class="btn"
+                        v-if="status !== 'ok'"
+                        :disabled="status !== 'waiting' && status !== 'error'"
+                        @click="claim">
+                        I want to briq free
+                    </button>
+                    <button class="btn" v-if="status === 'ok'" @click="$emit('close')">Start Building</button>
+                </div>
             </template>
         </div>
     </Window>
@@ -73,19 +113,18 @@ import { defineComponent } from 'vue';
 export default defineComponent({
     data() {
         return {
-            status: "waiting",
-            errorDetails: "",
-            txHash: "",
+            status: 'waiting',
+            errorDetails: '',
+            txHash: '',
             tx: undefined as undefined | Transaction,
-            mintProxyStore
-        }
+            mintProxyStore,
+        };
     },
-    props: ["metadata"],
-    inject: ["messages", "reportError", "chainBriqs"],
+    props: ['metadata'],
+    inject: ['messages', 'reportError', 'chainBriqs'],
     async mounted() {
-        this.tx = transactionsManager.get("mint_proxy").filter(x => x.isOk())?.[0];
-        if (this.tx)
-        {
+        this.tx = transactionsManager.get('mint_proxy').filter((x) => x.isOk())?.[0];
+        if (this.tx) {
             this.status = 'pending';
             this.txHash = this.tx.hash;
             await this.poll();
@@ -99,37 +138,33 @@ export default defineComponent({
             return walletStore2;
         },
         voyagerLink() {
-            if (getCurrentNetwork() === "starknet-mainnet")
-                return `https://voyager.online/contract/${this.wallet.userWalletAddress}`
+            if (getCurrentNetwork() === 'starknet-mainnet')
+                return `https://voyager.online/contract/${this.wallet.userWalletAddress}`;
             else
-                return `https://goerli.voyager.online/contract/${this.wallet.userWalletAddress}`
-        }
+                return `https://goerli.voyager.online/contract/${this.wallet.userWalletAddress}`;
+        },
     },
     methods: {
         async poll() {
             if (!this.tx)
                 return;
             await this.tx.poll();
-            if (!this.tx.isOk())
-            {
+            if (!this.tx.isOk()) {
                 this.status = 'error';
                 try {
                     this.errorDetails = await this.tx.getMetadata();
-                } catch (err)
-                {
-                    this.errorDetails = "Could not get tx metadata, error: " + err?.toString() ?? err;
+                } catch (err) {
+                    this.errorDetails = 'Could not get tx metadata, error: ' + err?.toString() ?? err;
                 }
-                this.messages.pushMessage("Error while minting briqs - see console for details.");
-                return
-            }
-            else if (this.tx.isPending())
+                this.messages.pushMessage('Error while minting briqs - see console for details.');
+                return;
+            } else if (this.tx.isPending())
                 this.status = 'pending';
-            else if (this.tx.isOnChain())
-            {
+            else if (this.tx.isOnChain()) {
                 this.status = 'ok';
                 mintProxyStore.canMint = false;
                 mintProxyStore.hasMinted = true;
-                this.messages.pushMessage("Starting briqs successfully claimed !");
+                this.messages.pushMessage('Starting briqs successfully claimed !');
                 this.chainBriqs.loadFromChain();
                 return;
             }
@@ -138,38 +173,40 @@ export default defineComponent({
             }, 1000);
         },
         async claim() {
-            this.status = "calling";
-            try
-            {
+            this.status = 'calling';
+            try {
                 let tx = contractStore.mint.mint(this.wallet.userWalletAddress);
                 let res = await tx;
                 if (res.code !== 'TRANSACTION_RECEIVED')
-                    throw new Error("Unknown error when minting, status is " + res.code + ", Tx hash " + (res?.transaction_hash ?? 'unknown'));
+                    throw new Error(
+                        'Unknown error when minting, status is ' +
+                            res.code +
+                            ', Tx hash ' +
+                            (res?.transaction_hash ?? 'unknown'),
+                    );
                 this.txHash = res.transaction_hash;
-                new Transaction(this.txHash, "mint_proxy");
+                new Transaction(this.txHash, 'mint_proxy');
                 this.tx = transactionsManager.getTx(this.txHash);
-                this.status = "polling";
+                this.status = 'polling';
                 setTimeout(async () => {
                     await this.poll();
                 }, 200);
-            }
-            catch(err)
-            {
-                if (err?.message === "User abort") {
-                    this.messages.pushMessage("Minting aborted.");
-                    this.errorDetails = "Aborted by user";
-                } else if (err === "Timeout") {
-                    this.messages.pushMessage("Error while minting briqs - wallet timeout.");
-                    this.errorDetails = "Wallet timeout";
+            } catch (err) {
+                if (err?.message === 'User abort') {
+                    this.messages.pushMessage('Minting aborted.');
+                    this.errorDetails = 'Aborted by user';
+                } else if (err === 'Timeout') {
+                    this.messages.pushMessage('Error while minting briqs - wallet timeout.');
+                    this.errorDetails = 'Wallet timeout';
                 } else {
                     console.error(err);
                     this.reportError(err);
-                    this.messages.pushMessage("Error while minting briqs - see console for details.");
+                    this.messages.pushMessage('Error while minting briqs - see console for details.');
                     this.errorDetails = err?.toString() ?? err;
                 }
-                this.status = "error";
+                this.status = 'error';
             }
-        }
-    }
-})
+        },
+    },
+});
 </script>

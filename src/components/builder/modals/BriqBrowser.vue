@@ -1,6 +1,8 @@
 <template>
     <Window>
-        <template #big-title><span><span class="briq-logo">briq</span> browser</span></template>
+        <template #big-title>
+            <span><span class="briq-logo">briq</span> browser</span>
+        </template>
         <div class="browser grid grid-cols-2 gap-1">
             <Btn @click="setMaterial('0x1')" :class="currentMat === '0x1' && 'active'">Regular material</Btn>
             <Btn @click="setMaterial('0x3')" :class="currentMat === '0x3' && 'active'">Limited material</Btn>
@@ -12,7 +14,7 @@
 
 <style scoped>
 .browser > button {
-    @apply h-20
+    @apply h-20;
 }
 .active {
     @apply bg-accent;
@@ -27,13 +29,12 @@ export default defineComponent({
     computed: {
         currentMat() {
             return inputStore.currentMaterial;
-        }
+        },
     },
     methods: {
         setMaterial(mat: string) {
             inputStore.currentMaterial = mat;
-        }
-    }
+        },
+    },
 });
-
 </script>

@@ -1,31 +1,27 @@
 import { Briq } from './Briq';
 import type IBriqContract from '../chain/contracts/briq';
-import { reactive, watchEffect } from "vue";
-import type { Ref } from "vue";
-import { ticketing, isOutdated } from "../Async";
-import { logDebug, pushMessage } from "../Messages";
-import { reportError } from "../Monitoring";
+import { reactive, watchEffect } from 'vue';
+import type { Ref } from 'vue';
+import { ticketing, isOutdated } from '../Async';
+import { logDebug, pushMessage } from '../Messages';
+import { reportError } from '../Monitoring';
 
 import { CONF } from '@/Conf';
 
 // TODO: there can technically be more than whatever is supported by number
-type BALANCE = { ft_balance: number, nft_ids: string[] };
+type BALANCE = { ft_balance: number; nft_ids: string[] };
 
-class NotEnoughBriqs extends Error
-{
+class NotEnoughBriqs extends Error {
     material: string;
-    constructor(material: string)
-    {
+    constructor(material: string) {
         super(`Not enough Briqs with material ${material}`);
         this.material = material;
     }
 }
 
-class NFTNotAvailable extends Error
-{
+class NFTNotAvailable extends Error {
     token_id: string;
-    constructor(token_id: string)
-    {
+    constructor(token_id: string) {
         super(`The NFT ${token_id} is not available, the set cannot be minted.`);
         this.token_id = token_id;
     }
@@ -34,8 +30,7 @@ class NFTNotAvailable extends Error
 /**
  * Responsible for maintaining the state of 'on-chain' briqs, as opposed to local set-briqs.
  */
-export class ChainBriqs
-{
+export class ChainBriqs {
     fetchingBriqs = false;
 
     byMaterial: { [material: string]: BALANCE } = {};
@@ -43,7 +38,7 @@ export class ChainBriqs
     briqContract: undefined | IBriqContract;
     addr: undefined | string;
 
-    fastBalance: number = 0;
+    fastBalance = 0;
 
     status = 'NOT_LOADED' as 'NOT_LOADED' | 'OK' | 'ERROR';
 
@@ -54,56 +49,52 @@ export class ChainBriqs
     }
 
     watch() {
-        watchEffect(() => { this.loadFromChain(); this.updateFastBalance(); } );
+        watchEffect(() => {
+            this.loadFromChain();
+            this.updateFastBalance();
+        });
         return this;
     }
 
-    setContract(contract?: IBriqContract)
-    {
+    setContract(contract?: IBriqContract) {
         this.briqContract = contract;
-        logDebug("CHAIN BRIQS - CONTRACT IS ", contract);
+        logDebug('CHAIN BRIQS - CONTRACT IS ', contract);
     }
 
-    setAddress(addr: Ref<string>)
-    {
+    setAddress(addr: Ref<string>) {
         // Because we are reactive, this will get unwrapped silently. Typescript complains.
         this.addr = addr as unknown as string;
-        logDebug("CHAIN BRIQS - ADDRESS IS ", addr, addr.value);
+        logDebug('CHAIN BRIQS - ADDRESS IS ', addr, addr.value);
     }
 
     _getTokens = ticketing(async function (this: ChainBriqs) {
-        let ret = {};
-        for (let mat of CONF.briqMaterials)
+        const ret = {};
+        for (const mat of CONF.briqMaterials)
             ret[mat] = this.briqContract!.balanceDetailsOf(this.addr!, mat);
-        for (let mat of CONF.briqMaterials)
+        for (const mat of CONF.briqMaterials)
             ret[mat] = await ret[mat];
         return ret;
     });
 
-    async loadFromChain()
-    {
+    async loadFromChain() {
         this.fetchingBriqs = true;
-        if (!this.briqContract || !this.addr)
-        {
+        if (!this.briqContract || !this.addr) {
             this.reset();
             return;
         }
-        logDebug("CHAIN BRIQS - LOADING ", this.briqContract?.address, this.addr);
+        logDebug('CHAIN BRIQS - LOADING ', this.briqContract?.address, this.addr);
         try {
-            let balance = await this._getTokens();
+            const balance = await this._getTokens();
             this.parseChainData(balance);
             this.status = 'OK';
-            logDebug("CHAIN BRIQS - LOADED ", balance);
-        }
-        catch(err)
-        {
+            logDebug('CHAIN BRIQS - LOADED ', balance);
+        } catch (err) {
             if (isOutdated(err))
                 return;
-            if (err?.message === "Network Error")
-                pushMessage("Error fetching briqs - the connection to starknet timed out");
-            else
-            {
-                pushMessage("Error fetching briqs - see console for details");
+            if (err?.message === 'Network Error')
+                pushMessage('Error fetching briqs - the connection to starknet timed out');
+            else {
+                pushMessage('Error fetching briqs - see console for details');
                 reportError(err as Error);
             }
             console.error(err);
@@ -112,72 +103,61 @@ export class ChainBriqs
         this.fetchingBriqs = false;
     }
 
-    parseChainData(balanceJSON: { [material: string]: { ft_balance: number, nft_ids: string[] } })
-    {
+    parseChainData(balanceJSON: { [material: string]: { ft_balance: number; nft_ids: string[] } }) {
         this.byMaterial = {};
-        for (let mat in balanceJSON)
+        for (const mat in balanceJSON)
             this.byMaterial[mat] = { ft_balance: balanceJSON[mat].ft_balance, nft_ids: balanceJSON[mat].nft_ids };
     }
 
     _getBalance = ticketing(async function (this: ChainBriqs) {
         let total = 0;
-        for (let mat of CONF.briqMaterials)
-            total += await this.briqContract!.balanceOf(this.addr!, mat)
+        for (const mat of CONF.briqMaterials)
+            total += await this.briqContract!.balanceOf(this.addr!, mat);
         return total;
     });
 
-    async updateFastBalance()
-    {
-        if (!this.briqContract || !this.addr)
-        {
+    async updateFastBalance() {
+        if (!this.briqContract || !this.addr) {
             this.reset();
             return;
         }
         try {
             this.fastBalance = await this._getBalance();
-        }
-        catch(_){}
+        } catch (_) {}
     }
 
-    _getNbBriqs(material: string)
-    {
+    _getNbBriqs(material: string) {
         return (this.byMaterial?.[material]?.ft_balance ?? 0) + (this.byMaterial?.[material]?.nft_ids?.length ?? 0);
     }
 
-    getNbBriqs()
-    {
+    getNbBriqs() {
         let ret = 0;
-        for (let material in this.byMaterial)
+        for (const material in this.byMaterial)
             ret += this._getNbBriqs(material);
         return ret;
     }
 
-    getBalance()
-    {
+    getBalance() {
         return this.getNbBriqs() || this.fastBalance;
     }
 
-    getBalanceDetails(): ({ material: string, qty: number } | { material: string, token_id: string })[]
-    {
-        let ret = [];
-        for (let mat in this.byMaterial)
-        {
+    getBalanceDetails(): ({ material: string; qty: number } | { material: string; token_id: string })[] {
+        const ret = [];
+        for (const mat in this.byMaterial) {
             if (this.byMaterial[mat].ft_balance)
                 ret.push({ material: mat, qty: this.byMaterial[mat].ft_balance });
-            for (let token_id of this.byMaterial[mat].nft_ids)
-                ret.push({ material: mat, token_id })
+            for (const token_id of this.byMaterial[mat].nft_ids)
+                ret.push({ material: mat, token_id });
         }
         return ret;
     }
 
-    getNFTs(): { material: string, token_id: string }[]
-    {
-        let ret = [];
-        for (let mat in this.byMaterial)
-        {
-            for (let token_id of this.byMaterial[mat].nft_ids)
-                ret.push({ material: mat, token_id })
-        }
+    getNFTs(): { material: string; token_id: string }[] {
+        const ret = [];
+        for (const mat in this.byMaterial)
+            for (const token_id of this.byMaterial[mat].nft_ids)
+                ret.push({ material: mat, token_id });
+
         return ret;
     }
 
@@ -188,16 +168,14 @@ export class ChainBriqs
      * @param usageByMaterial entry balance
      * @returns a list of NFT briqs to replace.
      */
-    findRealBriqs(usageByMaterial: { [material: string]: { ft_balance: number, nft_ids: string[] } })
-    {
-        let swaps = [] as Briq[];
-        for (let mat in usageByMaterial)
-        {
+    findRealBriqs(usageByMaterial: { [material: string]: { ft_balance: number; nft_ids: string[] } }) {
+        const swaps = [] as Briq[];
+        for (const mat in usageByMaterial) {
             if (!this.byMaterial[mat])
                 throw new NotEnoughBriqs(mat);
-            let chainBalance = Object.assign({}, this.byMaterial[mat]);
+            const chainBalance = Object.assign({}, this.byMaterial[mat]);
             // Check that the NFTs we want to lay down are available.
-            for (let nft of usageByMaterial[mat].nft_ids)
+            for (const nft of usageByMaterial[mat].nft_ids)
                 if (chainBalance.nft_ids.indexOf(nft) === -1)
                     throw new NFTNotAvailable(nft);
             chainBalance.ft_balance -= usageByMaterial[mat].ft_balance;
@@ -205,17 +183,16 @@ export class ChainBriqs
             if (chainBalance.ft_balance >= 0)
                 continue;
             // Otherwise we'll use leftover NFTs.
-            let need = -chainBalance.ft_balance;
+            const need = -chainBalance.ft_balance;
             if (need > chainBalance.nft_ids.length)
                 throw new NotEnoughBriqs(mat);
             for (let i = 0; i < need; ++i)
-                swaps.push(new Briq(mat).setNFTid(chainBalance.nft_ids.pop()!))
+                swaps.push(new Briq(mat).setNFTid(chainBalance.nft_ids.pop()!));
         }
         return swaps;
     }
 }
 
-export function createChainBriqs()
-{
+export function createChainBriqs() {
     return reactive(new ChainBriqs()).watch();
 }
