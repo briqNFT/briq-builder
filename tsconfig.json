@@ -7,7 +7,7 @@
         "allowSyntheticDefaultImports": true,
         "strict": true,
         "incremental": true,
-        "types": ["vite/client", "@types/jest", "@types/three", "@types/uuid", "vite-svg-loader", "vitest/globals"],
+        "types": ["vite/client", "@types/three", "@types/uuid", "vite-svg-loader", "vitest/globals"],
         "paths": {
             "@/*": ["./src/*"]
         }
