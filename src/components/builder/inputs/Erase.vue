@@ -20,8 +20,9 @@ export default defineComponent({
     methods: {
         async openModalToConfirmClear(): Promise<void> {
             const userConfirmed = await pushModal(ConfirmClearAll, { asModal: true });
-            if (userConfirmed) await this.$store.dispatch("builderData/clear");;
+            if (userConfirmed)
+                await this.$store.dispatch('builderData/clear');
         },
-    }
+    },
 })
 </script>

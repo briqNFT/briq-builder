@@ -1,7 +1,7 @@
 <template>
     <Window size="w-max">
         <template #big-title>Clear all</template>
-         <div class="my-4">
+        <div class="my-4">
             <p>All work will be cleared.</p>
         </div>
         <div class="flex justify-between gap-4">
