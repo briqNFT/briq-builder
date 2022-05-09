@@ -74,7 +74,10 @@ class WalletStore {
     }
 
     disconnect() {
-        disconnect();
+        disconnect({
+            clearLastWallet: true,
+            clearDefaultWallet: true,
+        });
         this.signer = undefined;
         this.userWalletAddress = '';
         legacySetsMgr.setup(this);
