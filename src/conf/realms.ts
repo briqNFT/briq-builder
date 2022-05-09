@@ -2,7 +2,6 @@ import './realms.css';
 
 export const CONF = {
     theme: 'realms',
-    useLanding: false,
     briqMaterials: ['0x2'],
     defaultMaterial: '0x2',
     builderSettings: {

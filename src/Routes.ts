@@ -5,6 +5,8 @@ import { CONF } from './Conf';
 
 import BuilderLoader from './components/builder/BuilderLoader.vue';
 
+import RealmsComplete from '@/components/realms/Complete.vue';
+
 let loader;
 async function loadExtraPages() {
     loader = await import('@/Dispatch');
@@ -63,7 +65,20 @@ export const routes = [
     },
 ];
 
-if (CONF.useLanding) {
+if (CONF.theme === 'realms') {
+    routes.push({
+        path: '/',
+        name: 'RealmsComplete',
+        component: RealmsComplete,
+    });
+    routes.push({
+        path: '/builder',
+        name: 'Builder',
+        beforeEnter() {
+            location.href = 'https://briq.construction/builder'
+        },
+    });
+} else {
     routes.push({
         path: '/',
         name: 'Landing',
@@ -73,15 +88,5 @@ if (CONF.useLanding) {
         path: '/builder',
         name: 'Builder',
         component: BuilderLoader,
-    });
-} else {
-    routes.push({
-        path: '/',
-        name: 'Builder',
-        component: BuilderLoader,
-    });
-    routes.push({
-        path: '/builder',
-        redirect: '/',
     });
 }
