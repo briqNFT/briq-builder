@@ -5,7 +5,7 @@
   "homepage": "https://github.com/briqNFT/briq-builder/",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --outDir dist/ && vite build --ssr server/main.ts --outDir dist/server",
+    "build": "vite build --ssr server/main.ts --outDir dist/server && vite build --outDir dist/",
     "serve": "vite preview",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
@@ -22,7 +22,7 @@
     "chart.js": "^3.7.1",
     "connect": "^3.7",
     "fflate": "^0.7.3",
-    "get-starknet": "^0.0.8",
+    "get-starknet": "^1.2.0",
     "json-bigint": "git+https://github.com/briqNFT/json-bigint.git#fix-ts",
     "starknet": "^3.9",
     "three": "^0.138",
