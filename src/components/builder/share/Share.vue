@@ -156,7 +156,7 @@ export default defineComponent({
             return;
         }
         try {
-            let data = await backendManager.fetch('store_get/' + this.set_id);
+            let data = await backendManager.getMetadata(this.set_id);
             for (let key in data?.data?.recommendedSettings ?? {})
                 builderSettings[key] = data.data.recommendedSettings[key];
             let set = new SetData(data.data.id);

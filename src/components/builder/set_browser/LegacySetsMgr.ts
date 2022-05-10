@@ -1,7 +1,6 @@
 import { SetData } from '../../../builder/SetData';
 import { ADDRESSES } from '@/chain/Contracts';
 import { LegacySetContract } from '../../../chain/contracts/set';
-import getBaseUrl from '../../../url';
 import { logDebug } from '../../../Messages';
 import { backendManager } from '@/Backend';
 import { reactive } from 'vue';
@@ -53,7 +52,7 @@ class LegacySetsMgr {
             this.oldSets.push(set);
         logDebug('LEGACY SETS - ', sets);
         const fetchSetData = async (sid: string) => {
-            const data = (await backendManager.fetch('store_get/' + sid)).data;
+            const data = (await backendManager.getMetadata(sid));
             return new SetData(sid).deserialize(data);
         };
         this.oldSets.forEach(async (sid: string) => {
@@ -65,7 +64,7 @@ class LegacySetsMgr {
         this.oldSets.forEach(async (sid: string) => {
             const src = new Image();
             src.crossOrigin = 'anonymous';
-            src.src = getBaseUrl() + '/preview/' + sid;
+            src.src = backendManager.getPreviewUrl(sid);
             try {
                 await src.decode();
                 this.oldSetsImg[sid] = src;

@@ -3,6 +3,7 @@ import TransactionsMin from './TransactionsMin.vue';
 import BriqDetails from './BriqDetails.vue';
 import BriqListModal from './modals/BriqListModal.vue';
 import Hotkey from '../generic/Hotkey.vue';
+import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 </script>
 
 <template>
@@ -84,7 +85,7 @@ export default defineComponent({
             return this.wallet.userWalletAddress.substr(0, 5) + '...' + this.wallet.userWalletAddress.substr(-5, 5);
         },
         userNet() {
-            return this.wallet.signer.baseUrl.search('mainnet') !== -1 ? 'mainnet' : 'testnet';
+            return getNetworkName(getCurrentNetwork());
         },
     },
     methods: {

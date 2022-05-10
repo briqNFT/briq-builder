@@ -94,7 +94,7 @@ export class SetInfo {
 
     // TODO: maybe move those mostly to setManager? Except maybe the ticketing?
     _fetchFromChain = ticketing(async function (sid: string) {
-        return (await backendManager.fetch('store_get/' + sid)).data;
+        return (await backendManager.getMetadata(sid));
     });
 
     async _loadFromChain() {

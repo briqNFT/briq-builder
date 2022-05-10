@@ -35,7 +35,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { SetData } from '../../../builder/SetData';
-import getBaseUrl from '../../../url';
 
 import { getRelativeShareLink } from '../Sharing';
 import { backendManager } from '@/Backend';
@@ -68,12 +67,12 @@ export default defineComponent({
             this.loadingImage = true;
 
             this.setData = new SetData(this.setId);
-            let data = (await backendManager.fetch('store_get/' + this.setId)).data;
+            let data = (await backendManager.getMetadata(this.setId));
             this.setData.deserialize(data);
 
             this.imgSrc = setImageCache?.[this.setId];
             let src = new Image();
-            src.src = getBaseUrl() + '/preview/' + this.setId;
+            src.src = backendManager.getPreviewUrl(this.setId);
             try {
                 await src.decode();
                 this.imgSrc = src.currentSrc;

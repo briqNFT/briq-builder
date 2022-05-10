@@ -222,12 +222,13 @@ const DEFAULT_INFO = new SetInfo('');
 import { reactive } from 'vue';
 const setImageCache = reactive({} as { [set: string]: string });
 
-import getBaseUrl, { downloadData } from '@/url';
+import { downloadData } from '@/url';
 import { pushModal } from '../../Modals.vue';
 import { getShareLink } from '../Sharing';
 
 import { defineComponent } from 'vue';
 import InfoWidgetVue from '../modals/InfoWidget.vue';
+import { backendManager } from '@/Backend';
 export default defineComponent({
     data() {
         return {
@@ -249,7 +250,7 @@ export default defineComponent({
         // Load source image & cache it JS-side.
         this.imgSrc = setImageCache?.[this.setId];
         let src = new Image();
-        src.src = getBaseUrl() + '/preview/' + this.setId;
+        src.src = backendManager.getPreviewUrl(this.setId);
         try {
             await src.decode();
             this.imgSrc = src.currentSrc;

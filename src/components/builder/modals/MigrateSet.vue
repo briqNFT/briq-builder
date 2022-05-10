@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import getBaseUrl, { downloadJSON } from '../../../url';
+import { downloadJSON } from '../../../url';
 import { SetData } from '../../../builder/SetData';
 
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
@@ -144,6 +144,7 @@ async function sleep() {
 }
 
 import { defineComponent } from 'vue';
+import { getCurrentNetwork } from '@/chain/Network';
 export default defineComponent({
     data() {
         return {
@@ -265,9 +266,10 @@ export default defineComponent({
                 let signature = await walletStore2.signer!.signMessage(message);
                 this.exporting = 'SENDING_TRANSACTION';
 
-                await backendManager.post('store_set', {
+                await backendManager.storeSet({
                     owner: walletStore2.userWalletAddress,
                     token_id: data.id,
+                    chain_id: getCurrentNetwork(),
                     data: data,
                     message_hash: await walletStore2.signer!.hashMessage(message),
                     signature: signature,
@@ -280,7 +282,7 @@ export default defineComponent({
                     walletStore2.userWalletAddress,
                     token_hint,
                     data.briqs.map((x: any) => x.data),
-                    getBaseUrl() + '/store_get/' + data.id,
+                    'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
                 );
 
                 // Mark the transaction as waiting.

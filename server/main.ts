@@ -114,7 +114,7 @@ async function runServer() {
                             '<meta property="og:title" content="' + (data.data.name || data.data.id) + '">',
                             '<meta property="og:type" content="article" />',
                             '<meta property="og:description" content="Built with briqs">',
-                            '<meta property="og:image" content="https://' + apiUrl + '/preview/' + setId + '.png">',
+                            '<meta property="og:image" content="https://' + apiUrl + '/v1/preview/testnet/' + setId + '.png">',
                             '<meta property="og:url" content="https://' + req.headers.host + req.url + '">',
                             '<meta name="twitter:card" content="summary_large_image">',
                         ].join('\n'),

@@ -11,9 +11,20 @@ const network = reactive({
     network: 'starknet-testnet' as CHAIN_NETWORKS,
 });
 
+export function getNetworkName(network: CHAIN_NETWORKS) {
+    return {
+        'mock': 'Mock',
+        'localhost': 'Localhost',
+        'starknet-testnet': 'Testnet',
+        'starknet-testnet-legacy': 'Legacy testnet',
+        'starknet-mainnet': 'Mainnet',
+    }[network];
+}
+
 export function getCurrentNetwork() {
     return network.network;
 }
+
 export function setNetwork(networkName: CHAIN_NETWORKS) {
     network.network = networkName;
 }
