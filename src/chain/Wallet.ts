@@ -15,6 +15,9 @@ import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
 import { connect, disconnect, IStarknetWindowObject } from '@/starknet_wrapper';
 
+import { setupMockWallet } from './MockWallet';
+import { APP_ENV } from '@/Meta';
+
 class WalletStore {
     signer: undefined | AccountInterface = undefined;
     userWalletAddress = '';
@@ -27,6 +30,9 @@ class WalletStore {
     async initialize() {
         const storedAddress = window.localStorage.getItem('user_address');
         logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
+
+        if (APP_ENV === 'dev')
+            setupMockWallet();
 
         const cwo = await connect({ showList: false });
 
@@ -95,6 +101,8 @@ class WalletStore {
             setNetwork('starknet-mainnet');
         else if (this.signer.gatewayUrl.indexOf('alpha4.starknet') !== -1)
             setNetwork('starknet-testnet');
+        else if (this.signer.gatewayUrl.indexOf('localhost:5050') !== -1)
+            setNetwork('mock');
         else
             setNetwork('localhost');
     }

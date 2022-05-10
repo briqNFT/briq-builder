@@ -5,7 +5,7 @@ import { APP_ENV } from '@/Meta';
  * Sort of an abstraction around the idea of a chain + network.
  */
 
-export type CHAIN_NETWORKS = 'localhost' | 'starknet-testnet' | 'starknet-testnet-legacy' | 'starknet-mainnet';
+export type CHAIN_NETWORKS = 'mock' | 'localhost' | 'starknet-testnet' | 'starknet-testnet-legacy' | 'starknet-mainnet';
 
 const network = reactive({
     network: 'starknet-testnet' as CHAIN_NETWORKS,

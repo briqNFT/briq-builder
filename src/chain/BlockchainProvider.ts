@@ -30,7 +30,7 @@ class BlockchainProvider {
 }
 
 import { logDebug } from '@/Messages';
-import { reactive, ref, watchEffect } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { getCurrentNetwork } from './Network';
 import { getProvider } from './Provider';
 
