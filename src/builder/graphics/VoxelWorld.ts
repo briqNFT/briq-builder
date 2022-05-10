@@ -76,7 +76,7 @@ export default class VoxelWorld {
             if (pos[2] > max[2])
                 max[2] = pos[2];
         }
-        return [min.map((i) => i * this.cellSize), max.map((i) => i * this.cellSize)];
+        return [min.map((i) => i * this.cellSize), max.map((i) => (i + 1) * this.cellSize)];
     }
 
     addCellForVoxel(x, y, z) {

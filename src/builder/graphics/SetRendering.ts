@@ -198,16 +198,12 @@ export function handleActions(dispatchedActions: Array<{ action: string; payload
                 max = max.map((x, i) => Math.max(x, ma[i]));
             }
 
-            const center = [0, 1, 2].map((i) => (min[i] + max[i]) / 2);
-            const distance = Math.max(5, ...[0, 1, 2].map((i) => max[i] - center[i]));
-            if (Math.abs(center[0] / getCanvasSize()) < 0.5)
-                center[0] = 0.0;
-            center[1] = Math.max(0, center[1]);
-            if (Math.abs(center[2] / getCanvasSize()) < 0.5)
-                center[2] = 0.0;
-            camera.position.set(center[0] + distance * 0.25, center[1] + distance * 0.7, -center[2] + distance * 1.2);
-            // Center on a lower portion of the center because that _generally_ works better to gravity-center.
-            orbitControls.controls.target.set(center[0], center[1] / 2, center[2]);
+            let center = [0, 1, 2].map((i) => (min[i] + max[i]) / 2);
+            const distance = Math.max(10, ...[0, 1, 2].map((i) => max[i] - center[i]));
+            center = center.map(x => Math.abs(x / getCanvasSize()) < 0.5 ? 0 : x);
+            camera.position.set(center[0] + distance * 0.25, center[1] + distance * 0.7, center[2] - distance * 1.2);
+            // The '-3' is a hack to make the default setup slightly better.
+            orbitControls.controls.target.set(center[0], center[1] - 3, center[2]);
             orbitControls.controls.update();
         }
 
