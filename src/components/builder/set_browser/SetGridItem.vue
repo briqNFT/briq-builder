@@ -222,7 +222,7 @@ const DEFAULT_INFO = new SetInfo('');
 import { reactive } from 'vue';
 const setImageCache = reactive({} as { [set: string]: string });
 
-import getBaseUrl, { downloadData, fetchData } from '@/url';
+import getBaseUrl, { downloadData } from '@/url';
 import { pushModal } from '../../Modals.vue';
 import { getShareLink } from '../Sharing';
 

@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import getBaseUrl, { downloadData, downloadJSON, fetchData } from '../../../url';
+import getBaseUrl, { downloadJSON } from '../../../url';
 import { SetData } from '../../../builder/SetData';
 
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
@@ -115,6 +115,7 @@ import BriqTable from '../BriqTable.vue';
 import RenameSet from '../modals/RenameSet.vue';
 
 import { legacySetsMgr } from '../set_browser/LegacySetsMgr';
+import { backendManager } from '@/Backend';
 
 import { VERSION } from '../../../Meta';
 
@@ -264,7 +265,7 @@ export default defineComponent({
                 let signature = await walletStore2.signer!.signMessage(message);
                 this.exporting = 'SENDING_TRANSACTION';
 
-                await fetchData('store_set', {
+                await backendManager.post('store_set', {
                     owner: walletStore2.userWalletAddress,
                     token_id: data.id,
                     data: data,

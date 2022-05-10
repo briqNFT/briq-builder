@@ -18,24 +18,6 @@ export default function getBaseUrl() {
     }[APP_ENV];
 }
 
-const baseUrl = getBaseUrl();
-export async function fetchData(endpoint: string, body?: object): Promise<any> {
-    const headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-    const dat: RequestInit = {
-        method: body ? 'POST' : 'GET',
-        headers: headers,
-        mode: 'cors',
-    };
-    if (body)
-        dat.body = JSON.stringify(body);
-
-    const req = await fetch(`${baseUrl}/${endpoint}`, dat);
-    if (!req.ok)
-        throw new Error('HTTP error: ' + (await req.json())?.detail ?? 'unknown error');
-    return req.json();
-}
-
 export function doDownload(url: string, filename: string) {
     const link = document.createElement('a');
     link.href = url;

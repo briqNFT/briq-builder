@@ -41,8 +41,8 @@
 </template>
 
 <script lang="ts">
+import { backendManager } from '@/Backend';
 import { defineComponent } from 'vue';
-import { fetchData } from '../../../url';
 import Header from '../../landing_page/Header.vue';
 import GalleryItem from './GalleryItem.vue';
 export default defineComponent({
@@ -55,7 +55,7 @@ export default defineComponent({
         };
     },
     async beforeMount() {
-        let data = await fetchData('gallery_items');
+        let data = await backendManager.fetch('gallery_items');
         if (data?.version !== 2)
             this.galleryItems = data.sets;
         else {

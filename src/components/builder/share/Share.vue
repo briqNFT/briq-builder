@@ -6,6 +6,7 @@ import SplashScreen from './../SplashScreen.vue';
 import AlphaBanner from '../../AlphaBanner.vue';
 import AlphaLogo from './../AlphaLogo.vue';
 import { toBN } from '@/starknet_wrapper';
+import { backendManager } from '@/Backend';
 </script>
 
 <template>
@@ -100,7 +101,6 @@ import InfoWidget from '../modals/InfoWidget.vue';
 import Screenshot from './Screenshot.vue';
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 import { SetData } from '@/builder/SetData';
-import { fetchData } from '@/url';
 import { reportError } from '@/Monitoring';
 import { ticketing } from '@/Async';
 import contractStore, { forceNetwork } from '@/chain/Contracts';
@@ -156,7 +156,7 @@ export default defineComponent({
             return;
         }
         try {
-            let data = await fetchData('store_get/' + this.set_id);
+            let data = await backendManager.fetch('store_get/' + this.set_id);
             for (let key in data?.data?.recommendedSettings ?? {})
                 builderSettings[key] = data.data.recommendedSettings[key];
             let set = new SetData(data.data.id);

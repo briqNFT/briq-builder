@@ -1,7 +1,10 @@
 import { SetData } from '../../../builder/SetData';
 import { ADDRESSES } from '@/chain/Contracts';
 import { LegacySetContract } from '../../../chain/contracts/set';
-import getBaseUrl, { fetchData } from '../../../url';
+import getBaseUrl from '../../../url';
+import { logDebug } from '../../../Messages';
+import { backendManager } from '@/Backend';
+import { reactive } from 'vue';
 
 class LegacySetsMgr {
     oldSets = [] as string[];
@@ -50,7 +53,7 @@ class LegacySetsMgr {
             this.oldSets.push(set);
         logDebug('LEGACY SETS - ', sets);
         const fetchSetData = async (sid: string) => {
-            const data = (await fetchData('store_get/' + sid)).data;
+            const data = (await backendManager.fetch('store_get/' + sid)).data;
             return new SetData(sid).deserialize(data);
         };
         this.oldSets.forEach(async (sid: string) => {
@@ -71,6 +74,4 @@ class LegacySetsMgr {
     }
 }
 
-import { reactive } from 'vue';
-import { logDebug } from '../../../Messages';
 export const legacySetsMgr = reactive(new LegacySetsMgr());

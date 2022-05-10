@@ -35,10 +35,12 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { SetData } from '../../../builder/SetData';
-import getBaseUrl, { fetchData } from '../../../url';
+import getBaseUrl from '../../../url';
+
+import { getRelativeShareLink } from '../Sharing';
+import { backendManager } from '@/Backend';
 
 import { reactive } from 'vue';
-import { getRelativeShareLink } from '../Sharing';
 const setImageCache = reactive({} as { [set: string]: string });
 
 export default defineComponent({
@@ -66,7 +68,7 @@ export default defineComponent({
             this.loadingImage = true;
 
             this.setData = new SetData(this.setId);
-            let data = (await fetchData('store_get/' + this.setId)).data;
+            let data = (await backendManager.fetch('store_get/' + this.setId)).data;
             this.setData.deserialize(data);
 
             this.imgSrc = setImageCache?.[this.setId];

@@ -6,7 +6,6 @@ import { Briq } from './Briq';
 import { hexUuid } from '../Uuid';
 import { ignoreOutdated, isOutdated, ticketing } from '../Async';
 import { reportError } from '../Monitoring';
-import { fetchData } from '../url';
 
 import { toRef, watch, watchEffect } from 'vue';
 import { logDebug, pushMessage } from '../Messages';
@@ -95,7 +94,7 @@ export class SetInfo {
 
     // TODO: maybe move those mostly to setManager? Except maybe the ticketing?
     _fetchFromChain = ticketing(async function (sid: string) {
-        return (await fetchData('store_get/' + sid)).data;
+        return (await backendManager.fetch('store_get/' + sid)).data;
     });
 
     async _loadFromChain() {
@@ -358,6 +357,7 @@ watchEffect(() => {
 });
 
 import { defaultModel } from '@/conf/realms';
+import { backendManager } from '@/Backend';
 
 // TODO: move this elsewhere?
 export function checkForInitialGMSet() {
