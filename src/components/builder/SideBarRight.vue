@@ -65,6 +65,7 @@ import { inputStore } from '../../builder/inputs/InputStore';
 
 import { CONF } from '@/Conf';
 import { walletStore2 } from '@/chain/Wallet';
+import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
 
 import { defineComponent, toRef, ref } from 'vue';
 export default defineComponent({
@@ -119,7 +120,7 @@ export default defineComponent({
             this.$store.dispatch('builderData/create_wip_set', data);
         },
         async importSet() {
-            let fileHandles = await window.showOpenFilePicker();
+            let fileHandles = await showOpenFilePickerPolyfill();
             for (let fileHandle of fileHandles)
                 try {
                     let file = await fileHandle.getFile();

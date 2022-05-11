@@ -94,6 +94,8 @@ import { CONF } from '@/Conf';
 import { legacySetsMgr } from './LegacySetsMgr';
 import MigrateSet from '../modals/MigrateSet.vue';
 
+import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
+
 import { defineComponent, toRef } from 'vue';
 export default defineComponent({
     data() {
@@ -148,7 +150,7 @@ export default defineComponent({
             setsManager.createLocalSet();
         },
         async importSet() {
-            let fileHandles = await window.showOpenFilePicker();
+            let fileHandles = await showOpenFilePickerPolyfill();
             for (let fileHandle of fileHandles)
                 try {
                     let file = await fileHandle.getFile();
