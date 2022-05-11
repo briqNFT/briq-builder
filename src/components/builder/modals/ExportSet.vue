@@ -258,7 +258,6 @@ import BriqTable from '../BriqTable.vue';
 import RenameSet from '../modals/RenameSet.vue';
 import ChangeSetDescription from '../modals/ChangeSetDescription.vue';
 import { pushModal } from '../../Modals.vue';
-import { mintProxyStore } from '@/chain/MintProxy';
 
 import { VERSION } from '../../../Meta';
 
@@ -290,7 +289,6 @@ const realmsData = [
 import { takeScreenshot } from '../../../builder/graphics/Builder';
 import ScreenshotVue from './Screenshot.vue';
 import CropScreenshotVue from './CropScreenshot.vue';
-import MintModalVue from './MintModal.vue';
 
 import { getShareLink } from '@/components/builder/Sharing';
 
@@ -401,7 +399,7 @@ export default defineComponent({
             return !!this.wallet.signer;
         },
         needMinting() {
-            return !mintProxyStore.hasMinted && (!this.hasBriqsAndSets || this.notEnoughBriqs);
+            return false; // TODO: rewrite this.
         },
         hasBriqsAndSets() {
             return this.chainBriqs.status === 'OK';

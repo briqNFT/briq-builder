@@ -1,6 +1,6 @@
 import { SetData } from '../../../builder/SetData';
 import { ADDRESSES } from '@/chain/Contracts';
-import { LegacySetContract } from '../../../chain/contracts/set';
+import SetContract from '@/chain/contracts/set';
 import { logDebug } from '../../../Messages';
 import { backendManager } from '@/Backend';
 import { reactive } from 'vue';
@@ -12,7 +12,7 @@ class LegacySetsMgr {
 
     ignoredSets = [] as string[];
 
-    legacyContract!: LegacySetContract;
+    legacyContract!: SetContract;
 
     constructor() {
         this.ignoredSets = (() => {
@@ -46,7 +46,7 @@ class LegacySetsMgr {
     }
 
     async setup(store: any) {
-        this.legacyContract = new LegacySetContract(ADDRESSES['starknet-testnet-legacy'].set, store.signer);
+        this.legacyContract = new SetContract(ADDRESSES['starknet-testnet-legacy'].set, store.signer);
         const sets = await this.legacyContract.balanceDetailsOf(store.userWalletAddress);
         for (const set of sets)
             this.oldSets.push(set);

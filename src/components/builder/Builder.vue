@@ -7,7 +7,6 @@ import Modals, { pushModal } from '../Modals.vue';
 import Messages from '../Messages.vue';
 import SplashScreen from './SplashScreen.vue';
 
-import MintProxy from './MintProxy.vue';
 import AlphaBanner from '../AlphaBanner.vue';
 import AlphaLogo from './AlphaLogo.vue';
 import SetToolbar from './SetToolbar.vue';
@@ -22,7 +21,6 @@ import CursorTooltip from '../generic/CursorTooltip.vue';
         <SetToolbar/>
         <SideBar/>
         <SideBarRight/>
-        <MintProxy/>
     </div>
     <Modals/>
     <Messages/>
@@ -36,8 +34,6 @@ import { featureFlags } from '@/FeatureFlags';
 import { setsManager, checkForInitialGMSet } from '../../builder/SetsManager';
 import contractStore from '@/chain/Contracts';
 import { watchEffectAndWait } from '../../Async';
-
-import { setupSync } from '@/chain/StarknetSync';
 
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
@@ -69,7 +65,6 @@ export default defineComponent({
         });
     },
     async mounted() {
-        setupSync();
         setsManager.clear();
         setsManager.loadFromStorage();
         await inputInitComplete;

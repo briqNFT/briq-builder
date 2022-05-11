@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 
 let _genF = (contract: any, method: string) => {
+    // Helper function to asynchronously fetch some data when needed & populate it.
     const v = ref('');
     const getV = computed(() => {
         if (contract?.getAddress())
@@ -116,13 +117,10 @@ import contractStore from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages';
 import type { AccountInterface, Provider, Signer } from '@/starknet_wrapper';
 import { getSelectorFromName } from '@/starknet_wrapper';
-import { store } from '@/store/Store';
 import { toBN } from '@/starknet_wrapper';
 
 import { getProvider } from '@/chain/Provider';
 import { walletStore2 } from '@/chain/Wallet';
-
-import { hexUuid } from '@/Uuid';
 
 const callContract = function (provider: Provider, address: string, entryPoint: string, data: any[]) {
     /*if (!provider.estimateFee)

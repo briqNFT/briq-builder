@@ -1,12 +1,12 @@
-import type { Provider, AccountInterface } from '@/starknet_wrapper';
+import type { Provider } from '@/starknet_wrapper';
+import { Contract, FunctionAbi } from 'starknet';
 
 import MintABI from './testnet/mint.json';
-import ExtendedContract from './Abstraction';
 
 export default class MintContract {
-    contract: ExtendedContract;
+    contract: Contract;
     constructor(address: string, provider: Provider) {
-        this.contract = new ExtendedContract(MintABI, address, provider);
+        this.contract = new Contract(MintABI as FunctionAbi[], address, provider);
     }
 
     getAddress() {
@@ -14,11 +14,7 @@ export default class MintContract {
     }
 
     async has_minted(user: string): Promise<boolean> {
-        try {
-            return parseInt(await this.contract.amountMinted(user)) > 0;
-        } catch (err) {
-            throw err;
-        }
+        return parseInt(await this.contract.amountMinted(user)) > 0;
     }
 
     async mint(user: string) {

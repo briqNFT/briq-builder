@@ -1,29 +1,20 @@
 import type { Provider, Signer } from '@/starknet_wrapper';
 import type { SetData } from '../../builder/SetData';
 import { toHex } from '@/starknet_wrapper';
+import { Contract, FunctionAbi } from 'starknet';
 
 import { computeHashOnElements } from '@/starknet_wrapper';
 
-import SetABI from './testnet/set_impl.json';
-import ExtendedContract from './Abstraction';
+import SetABI from './starknet-testnet/set_interface.json';
 
 export default class SetContract {
-    contract: ExtendedContract;
+    contract: Contract;
     constructor(address: string, provider: Provider) {
-        this.contract = new ExtendedContract(SetABI, address, provider);
+        this.contract = new Contract(SetABI as FunctionAbi[], address, provider);
     }
 
     getAddress() {
         return this.contract.address;
-    }
-
-    // Admin stuff
-    async setBriq(contractStore: any) {
-        try {
-            return await this.contract.setBriqAddress(contractStore.briq.getAddress());
-        } catch (err) {
-            throw err;
-        }
     }
 
     async ownerOf(token_id: string) {
@@ -31,12 +22,8 @@ export default class SetContract {
     }
 
     async balanceDetailsOf(owner: string): Promise<string[]> {
-        try {
-            const res = await this.contract.balanceDetailsOf(owner);
-            return res.token_ids.map((x) => toHex(x));
-        } catch (err) {
-            throw err;
-        }
+        const res = await this.contract.balanceDetailsOf_(owner);
+        return res.token_ids.map((x) => toHex(x));
     }
 
     // TODO: add URI
@@ -80,7 +67,7 @@ export default class SetContract {
             split_uri.push('0x' + s.join(''));
         }
 
-        return await this.contract.assemble(owner, token_id_hint, fts, nfts, split_uri);
+        return await this.contract.assemble_(owner, token_id_hint, fts, nfts, split_uri);
     }
 
     async disassemble(owner: string, token_id: string, set: SetData) {
@@ -99,39 +86,10 @@ export default class SetContract {
         for (const ft in fungibles)
             fts.push([ft, '' + fungibles[ft]]);
 
-        return await this.contract.disassemble(owner, token_id, fts, nfts);
+        return await this.contract.disassemble_(owner, token_id, fts, nfts);
     }
 
     async transferOneNFT(sender: string, recipient: string, token_id: string) {
-        return await this.contract.transferOneNFT(sender, recipient, token_id);
-    }
-}
-
-import LegacySetABI from './testnet-legacy/set_abi.json';
-
-export class LegacySetContract {
-    contract: ExtendedContract;
-    constructor(address: string, provider: Provider) {
-        this.contract = new ExtendedContract(LegacySetABI, address, provider);
-    }
-
-    async balanceDetailsOf(owner: string): Promise<string[]> {
-        try {
-            return (await this.contract.get_all_tokens_for_owner(owner)).tokens.map((x) => x.toString()) as string[];
-        } catch (err) {
-            return [];
-        }
-    }
-
-    async ownerOf(token_id: string) {
-        try {
-            return (await this.contract.owner_of(token_id)).res.toString() as string;
-        } catch (err) {
-            return '0x0';
-        }
-    }
-
-    async disassemble(owner: string, token_id: string, bricks: Array<string>) {
-        return await this.contract.disassemble(owner, token_id, bricks);
+        return await this.contract.transferFrom_(sender, recipient, token_id);
     }
 }

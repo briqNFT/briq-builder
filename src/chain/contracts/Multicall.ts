@@ -4,8 +4,6 @@ import { toHex } from '@/Starknet';
 
 import { computeHashOnElements } from '@/Starknet';
 
-import ExtendedContract from './Abstraction';
-
 const MulticallABI = [
     {
         inputs: [

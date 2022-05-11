@@ -6,8 +6,6 @@ import { logDebug, logDebugDelay } from '../Messages';
 
 import { watchSignerChanges } from '@/chain/Contracts';
 
-import { legacySetsMgr } from '../components/builder/set_browser/LegacySetsMgr';
-
 import { setWalletInitComplete } from './WalletLoading';
 
 import { reactive } from 'vue';
@@ -77,7 +75,6 @@ class WalletStore {
     setSigner(data: { signer: AccountInterface; addr: string }) {
         this.signer = data.signer;
         this.userWalletAddress = data.addr;
-        legacySetsMgr.setup(this);
     }
 
     disconnect() {
@@ -87,7 +84,6 @@ class WalletStore {
         });
         this.signer = undefined;
         this.userWalletAddress = '';
-        legacySetsMgr.setup(this);
     }
 
     // TODO: might want to split the signer network from the provider network?

@@ -67,13 +67,8 @@ export class ChainBriqs {
         logDebug('CHAIN BRIQS - ADDRESS IS ', addr, addr.value);
     }
 
-    _getTokens = ticketing(async function (this: ChainBriqs) {
-        const ret = {};
-        for (const mat of CONF.briqMaterials)
-            ret[mat] = this.briqContract!.balanceDetailsOf(this.addr!, mat);
-        for (const mat of CONF.briqMaterials)
-            ret[mat] = await ret[mat];
-        return ret;
+    _getTokens = ticketing(function (this: ChainBriqs) {
+        return this.briqContract!.fullBalanceOf(this.addr!);
     });
 
     async loadFromChain() {
@@ -106,13 +101,14 @@ export class ChainBriqs {
     parseChainData(balanceJSON: { [material: string]: { ft_balance: number; nft_ids: string[] } }) {
         this.byMaterial = {};
         for (const mat in balanceJSON)
-            this.byMaterial[mat] = { ft_balance: balanceJSON[mat].ft_balance, nft_ids: balanceJSON[mat].nft_ids };
+            this.byMaterial[mat] = { ft_balance: balanceJSON[mat].ft_balance, nft_ids: balanceJSON[mat].nft_ids.slice() };
     }
 
     _getBalance = ticketing(async function (this: ChainBriqs) {
         let total = 0;
-        for (const mat of CONF.briqMaterials)
-            total += await this.briqContract!.balanceOf(this.addr!, mat);
+        const data = await this.briqContract!.fullBalanceOf(this.addr!);
+        for (const mat in data)
+            total += data[mat].ft_balance;
         return total;
     });
 

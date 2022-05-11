@@ -1,74 +1,47 @@
-import type { AddTransactionResponse } from '@/starknet_wrapper';
-import type { Provider, Signer } from '@/starknet_wrapper';
-
+import type { Provider } from '@/starknet_wrapper';
+import { Contract, FunctionAbi } from 'starknet';
 import { toHex } from '@/starknet_wrapper';
 
-import BriqABI from './testnet/briq_impl.json';
-
-import ExtendedContract from './Abstraction';
+import BriqABI from './starknet-testnet/briq_interface.json';
 
 export default class BriqContract {
-    contract: ExtendedContract;
+    contract: Contract;
     constructor(address: string, provider: Provider) {
-        this.contract = new ExtendedContract(BriqABI, address, provider);
+        this.contract = new Contract(BriqABI as FunctionAbi[], address, provider);
     }
 
     getAddress() {
         return this.contract.address;
     }
 
-    // Admin stuff
-    /*
-    async setSet(contractStore: any)
-    {
-        return (await this.invoke("setSetAddress", { address: contractStore.set.address }));
-    }
-
-    async setMint(contractStore: any)
-    {
-        return (await this.invoke("setMintContract", { address: contractStore.mint.address }));
-    }*/
-
     async mintFT(owner: string, material: string, qty: number) {
         return await this.contract.mintFT(owner, material, `${qty}`);
     }
 
+    // TODO: use multicall, which would be slightly more efficient
+    async fullBalanceOf(owner: string) {
+        const res = await this.contract.fullBalanceOf_(owner);
+        const ret = {}
+        for (const bal of res.balances)
+            ret[bal.material] = {
+                ft_balance: parseInt(toHex(bal.balance), 16),
+                nft_ids: [], // (await this.contract.balanceDetailsOfMaterial_(owner, bal.material)).nft_ids.map(x => toHex(x)),
+            }
+
+        return ret;
+    }
+
     async balanceDetailsOf(owner: string, material: string) {
-        try {
-            const res = await this.contract.balanceDetailsOf(owner, material);
-            return {
-                ft_balance: parseInt(res.ft_balance),
-                nft_ids: res.nft_ids.map((x) => toHex(x)) as string[],
-            };
-        } catch (err) {
-            throw err;
-        }
+        const res = await this.contract.balanceDetailsOf(owner, material);
+        return {
+            ft_balance: parseInt(res.ft_balance),
+            nft_ids: res.nft_ids.map((x) => toHex(x)) as string[],
+        };
     }
 
     async balanceOf(owner: string, material: string) {
-        try {
-            const res = await this.contract.balanceOf(owner, material);
-            return parseInt(res.balance.toString());
-        } catch (err) {
-            throw err;
-        }
+        const res = await this.contract.balanceOf(owner, material);
+        return parseInt(res.balance.toString());
     }
 
-    /*
-    async multiBalanceOf(owner: string)
-    {
-        const materials = await (async () => {
-            try {
-                return await this.contract.materialsOf(owner).materials.map(x => x.toString());
-            } catch(_) {
-                console.error(_);
-                return [];
-            }
-        })();
-
-        let stuff = [];
-        for (let material of materials)
-            stuff.push(this.contract.populate("balanceDetailsOf", [owner, material]));
-        console.log(stuff);
-    }*/
 }
