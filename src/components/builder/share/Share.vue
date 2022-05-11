@@ -135,7 +135,8 @@ export default defineComponent({
         forceNetwork();
     },
     async mounted() {
-        if (this.version == 1 && this.network == 'testnet')
+        // Keep some level of backwards compatibility.
+        if (this.version == 2 && this.network == 'testnet')
             forceNetwork('starknet-testnet-legacy');
 
         watchEffect(() => {

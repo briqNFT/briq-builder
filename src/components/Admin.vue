@@ -1,63 +1,111 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+
+let _genF = (contract: any, method: string) => {
+    const v = ref('');
+    const getV = computed(() => {
+        if (contract?.getAddress())
+    // eslint-disable-next-line vue/no-async-in-computed-properties
+            callContract(getProvider(), contract.getAddress(), method, []).then(
+                (rep) => (v.value = rep.result[0]),
+            );
+        return v.value;
+    })
+    return getV;
+}
+
+const newSetBriqAddr = ref('');
+const getSetBriqAddr = _genF(contractStore.set, 'getBriqAddress_');
+const getSetAdmin = _genF(contractStore.set, 'getAdmin_');
+
+const newBriqSetAddr = ref('');
+const getBriqSetAddr = _genF(contractStore.briq, 'getSetAddress_');
+const getBriqAdmin = _genF(contractStore.briq, 'getAdmin_');
+
+</script>
 
 <template>
     <div class="alternate-buttons container px-8 py-4 m-auto main">
         <h1 class="text-center">Admin</h1>
-        <div class="h-40 max-h-40 overflow-auto">
-            <h3>Messages</h3>
-            <p class="break-all" v-for="mess in messages">{{ mess }}</p>
-        </div>
-        <div>
-            <h3>Minting</h3>
-            <label><p><input v-model="address" type="text" size="70"> recipient</p></label>
-            <label><p><input v-model="qty" type="number"> quantity</p></label>
-            <label><p>
-                <select v-model="material">
-                    <option value="1">Normal</option>
-                    <option value="2">Realms</option>
-                </select>
-                Material
-            </p></label>
-            <Btn @click="mint(address, qty, material)">Mint</Btn>
-        </div>
-        <div>
-            <h3>Realms Minting</h3>
-            <p>One address per line.</p>
-            <label><p><textarea v-model="address" rows="5" cols="80"/> recipient</p></label>
-            <Btn @click="mintRealms(address)">Mint Realms default (20K FT, 1 NFT)</Btn>
-        </div>
-        <div>
-            <h3>Contract initialisation</h3>
-            <p class="font-mono">Set proxy : {{ contractStore.set?.getAddress() }} -> {{ getSetImpl }}</p>
-            <p>
-                <input v-model="newSetImpl" type="text">
-                <Btn @click="setImpl(contractStore.set, newSetImpl)">Set new implementation</Btn>
-            </p>
-            <p class="font-mono">Briq proxy: {{ contractStore.briq?.getAddress() }} -> {{ getBriqImpl }}</p>
-            <p>
-                <input v-model="newBriqImpl" type="text">
-                <Btn @click="setImpl(contractStore.briq, newBriqImpl)">Set new implementation</Btn>
-            </p>
-        </div>
-        <div class="my-4">
-            <h3>Custom Write Call:</h3>
-            <p>
-                <select v-model="cc_contract">
-                    <option value="set">set</option>
-                    <option value="briq">briq</option>
-                </select>
-            </p>
-            <p>Function: <input type="text" v-model="selector"></p>
-            <p>Calldata (csv): <input type="text" v-model="calldata"></p>
-            <p>
-                <Btn :disabled="cc_pending" @click="customCall">Call</Btn><i v-if="cc_pending" class="fas fa-spinner animate-spin"/>
-            </p>
-            <p v-if="customResult">Result: {{ JSON.stringify(customResult) }}</p>
+        <div class="grid grid-cols-3">
+            <div class="col-span-2">
+                <div>
+                    <h2>Minting</h2>
+                    <label><p><input v-model="address" type="text" size="70"> recipient</p></label>
+                    <label><p><input v-model="qty" type="number"> quantity</p></label>
+                    <label><p>
+                        <select v-model="material">
+                            <option value="1">Normal</option>
+                            <option value="2">Realms</option>
+                        </select>
+                        Material
+                    </p></label>
+                    <Btn @click="mint(address, qty, material)">Mint</Btn>
+                </div>
+                <div>
+                    <h2>Contract setup</h2>
+                    <h3 class="font-mono">Briq</h3>
+                    <p>Proxy: {{ contractStore.briq?.getAddress() }}</p>
+                    <p>Admin: {{ getBriqAdmin }}</p>
+                    <p>Implementation: {{ getBriqImpl }}</p>
+                    <p>Set address: {{ getBriqSetAddr }}</p>
+                    <p>
+                        <input v-model="newBriqImpl" type="text" class="mr-2">
+                        <Btn @click="setImpl(contractStore.briq, newBriqImpl)">Upgrade implementation for briq</Btn>
+                    </p>
+                    <p>
+                        <input v-model="newBriqSetAddr" type="text" class="mr-2">
+                        <Btn @click="invoke(contractStore.briq, 'setSetAddress_', newBriqSetAddr)">Change set address for briq</Btn>
+                    </p>
+                    <h3 class="font-mono">Set</h3>
+                    <p>Proxy: {{ contractStore.set?.getAddress() }}</p>
+                    <p>Admin: {{ getSetAdmin }}</p>
+                    <p>Implementation: {{ getSetImpl }}</p>
+                    <p>Briq address: {{ getSetBriqAddr }}</p>
+                    <p>
+                        <input v-model="newSetImpl" type="text" class="mr-2">
+                        <Btn @click="setImpl(contractStore.set, newSetImpl)">Upgrade implementation for set</Btn>
+                    </p>
+                    <p>
+                        <input v-model="newSetBriqAddr" type="text" class="mr-2">
+                        <Btn @click="invoke(contractStore.set, 'setBriqAddress_', newSetBriqAddr)">Change briq address for set</Btn>
+                    </p>
+                </div>
+                <div class="my-4">
+                    <h2>Custom Write Call:</h2>
+                    <p>
+                        <select v-model="cc_contract">
+                            <option value="set">set</option>
+                            <option value="briq">briq</option>
+                        </select>
+                    </p>
+                    <p>Function: <input type="text" v-model="selector"></p>
+                    <p>Calldata (csv): <input type="text" v-model="calldata"></p>
+                    <p>
+                        <Btn :disabled="cc_pending" @click="customCall">Call</Btn><i v-if="cc_pending" class="fas fa-spinner animate-spin"/>
+                    </p>
+                    <p v-if="customResult">Result: {{ JSON.stringify(customResult) }}</p>
+                </div>
+            </div>
+            <div class="border-l-4 border-darker mr-4">
+                <div>
+                    <h2>Wallet</h2>
+                    <p>Current address: {{ wallet.userWalletAddress }}</p>
+                    <Btn @click="wallet.disconnect(); wallet.openWalletSelector();">Connect Wallet</Btn>
+                </div>
+                <div>
+                    <h2>Messages</h2>
+                    <p class="break-all" v-for="(mess, i) in messages" :key="i">{{ mess }}</p>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+h2 {
+    @apply border-t-4 border-darker mb-4;
+}
 .main > div {
     @apply my-4;
 }
@@ -113,6 +161,9 @@ export default defineComponent({
         };
     },
     computed: {
+        wallet() {
+            return walletStore2;
+        },
         contractStore() {
             return contractStore;
         },
@@ -121,14 +172,14 @@ export default defineComponent({
         },
         getSetImpl() {
             if (contractStore?.set?.getAddress())
-                callContract(getProvider(), contractStore.set.getAddress(), 'getImplementation', []).then(
+                callContract(getProvider(), contractStore.set.getAddress(), 'getImplementation_', []).then(
                     (rep) => (this._setImpl = rep.result[0]),
                 );
             return this._setImpl;
         },
         getBriqImpl() {
             if (contractStore?.briq?.getAddress())
-                callContract(getProvider(), contractStore.briq.getAddress(), 'getImplementation', []).then(
+                callContract(getProvider(), contractStore.briq.getAddress(), 'getImplementation_', []).then(
                     (rep) => (this._briqImpl = rep.result[0]),
                 );
             return this._briqImpl;
@@ -146,42 +197,30 @@ export default defineComponent({
                     'Failed to mint, contract is unset',
             );
         },
-        async mintRealms(address: string) {
-            if (!address) {
-                pushMessage('No address');
-                return;
-            }
-            pushMessage(
-                JSON.stringify(
-                    await (walletStore2.signer as AccountInterface).execute(
-                        address
-                            .split('\n')
-                            .filter((x) => x)
-                            .map((x) => [
-                                contractStore.briq?.contract.populate('mintFT', [x, '2', '20000']),
-                                contractStore.briq?.contract.populate('mintOneNFT', [x, '2', toBN(hexUuid())]),
-                            ])
-                            .flat(),
-                    ),
-                ),
-            );
-        },
         async setImpl(contract: any, address: string) {
             if (walletStore2?.signer?.signer) {
                 let tx = await (walletStore2.signer as AccountInterface).execute({
                     contractAddress: contract.getAddress(),
-                    entrypoint: 'setImplementation',
+                    entrypoint: 'upgradeImplementation_',
                     calldata: [address],
                 });
                 pushMessage(JSON.stringify(tx));
             } else {
                 let tx = await (walletStore2.signer as Signer).invokeFunction(
                     toBN(contract.getAddress()).toString(),
-                    toBN(getSelectorFromName('setImplementation')).toString(),
+                    toBN(getSelectorFromName('upgradeImplementation_')).toString(),
                     [toBN(address).toString()],
                 );
                 pushMessage(JSON.stringify(tx));
             }
+        },
+        async invoke(contract: any, method: string, ...args: string[]) {
+            let tx = await (walletStore2.signer as AccountInterface).execute({
+                contractAddress: contract.getAddress(),
+                entrypoint: method,
+                calldata: args,
+            });
+            pushMessage(JSON.stringify(tx));
         },
 
         async customCall() {
