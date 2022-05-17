@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { hexUuid } from '@/Uuid';
 
 let _genF = (contract: any, method: string) => {
     // Helper function to asynchronously fetch some data when needed & populate it.
@@ -23,6 +24,34 @@ const newBriqSetAddr = ref('');
 const getBriqSetAddr = _genF(contractStore.briq, 'getSetAddress_');
 const getBriqAdmin = _genF(contractStore.briq, 'getAdmin_');
 
+
+const canMasterInit = computed(() => {
+    return contractStore.briq?.getAddress() && contractStore.set?.getAddress() && walletStore2.userWalletAddress
+});
+
+const masterInit = async () => {
+    const payload = [
+        // Step 1: set the briq/set address in each respective contract.
+        {
+            contractAddress: contractStore.briq.getAddress(),
+            entrypoint: "setSetAddress_",
+            calldata: [contractStore.set.getAddress()],
+        },
+        {
+            contractAddress: contractStore.set.getAddress(),
+            entrypoint: "setBriqAddress_",
+            calldata: [contractStore.briq.getAddress()],
+        },
+        // Step 2: mint some briqs for the admin
+        contractStore.briq?.contract.populate('mintFT', [walletStore2.userWalletAddress, '1', '250']),
+        contractStore.briq?.contract.populate('mintFT', [walletStore2.userWalletAddress, '2', '40']),
+        contractStore.briq?.contract.populate('mintFT', [walletStore2.userWalletAddress, '3', '50']),
+        contractStore.briq?.contract.populate('mintFT', [walletStore2.userWalletAddress, '4', '20']),
+        contractStore.briq?.contract.populate('mintOneNFT', [walletStore2.userWalletAddress, '6', toBN(hexUuid())]),
+    ];
+    console.log(payload);
+    await (walletStore2.signer as AccountInterface).execute(payload);
+};
 </script>
 
 <template>
@@ -45,6 +74,7 @@ const getBriqAdmin = _genF(contractStore.briq, 'getAdmin_');
                 </div>
                 <div>
                     <h2>Contract setup</h2>
+                    <Btn @click="masterInit" :disabled="!canMasterInit">Master init program</Btn>
                     <h3 class="font-mono">Briq</h3>
                     <p>Proxy: {{ contractStore.briq?.getAddress() }}</p>
                     <p>Admin: {{ getBriqAdmin }}</p>
