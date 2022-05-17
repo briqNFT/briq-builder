@@ -3,7 +3,7 @@
         <template #big-title>Download set</template>
         <div class="sm:w-max m-auto flex items-stretch flex-col font-medium gap-6 py-4 px-2">
             <div class="text-center">
-                <Btn @click="downloadBriq">Download as .json</Btn>
+                <a :href="downloadBriq()" :download="`${this.setId}.json`" target="_blank"><Btn>Download as .json</Btn></a>
                 <p class="text-sm">This format is specific to briq and can be used to import the set.</p>
             </div>
             <div class="text-center">
@@ -38,8 +38,8 @@ export default defineComponent({
         },
     },
     methods: {
-        async downloadBriq() {
-            doDownload(`${getBaseUrl()}/store_get/${this.setId}`, `${this.setId}.json`);
+        downloadBriq() {
+            return `${getBaseUrl()}/v1/metadata/starknet-testnet-legacy/${this.setId}.json`;
         },
         async downloadGLB() {
             doDownload(`${getBaseUrl()}/get_model/${this.setId}.glb`, `${this.setId}.glb`);
