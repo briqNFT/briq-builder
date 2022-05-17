@@ -3,6 +3,11 @@ import Settings from '../builder/modals/Settings.vue';
 import TransactionsMin from './TransactionsMin.vue';
 import BriqDetails from './BriqDetails.vue';
 import BlockchainStatus from './BlockchainStatus.vue';
+import { APP_ENV } from '@/Meta';
+
+const useMockWallet = () => {
+    window.useDebugProvider();
+}
 </script>
 
 <template>
@@ -10,6 +15,7 @@ import BlockchainStatus from './BlockchainStatus.vue';
     <div
         v-if="!hideInput"
         class="absolute right-0 top-0 px-4 py-[6.5rem] md:py-4 max-h-screen flex flex-col lg:flex-row lg:items-start items-end gap-2 pointer-events-none">
+        <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet" class="pointer-events-auto px-1"><i class="fa-brands fa-dev"></i></Btn>
         <BlockchainStatus class="max-h-screen"/>
         <div
             :class="
