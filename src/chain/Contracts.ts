@@ -14,8 +14,8 @@ export const ADDRESSES = {
         mint: '0x0549b84101aacd11fa4cfba50dcc2b2d4a6af46fe06cd4d60e3cbf7bb3ac3c4c',
     },
     'starknet-testnet': {
-        briq: '0x06ef66b0fa2e2256aee4e12eb981ac57cd6b5711fc3d90080c8dd6bb200dcae4',
-        set: '0x02aac8d2beb9731cba2fced34fa8b5ac146aa35e87d90faad4326c8495cbfef9',
+        briq: '0x01531b29c83b9a22adc1a4d1e148bec286227e81e13c14c0ec150ac86aef446f',
+        set: '0x04591e35e7a0c6273267a9e5b6355c3d57a3f7a01a31b14f3fa6636746e8d9ed',
     },
     'starknet-testnet-legacy': {
         briq: '0x01317354276941f7f799574c73fd8fe53fa3f251084b4c04d88cf601b6bd915e',
