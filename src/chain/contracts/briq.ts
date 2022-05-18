@@ -23,7 +23,7 @@ export default class BriqContract {
         const res = await this.contract.fullBalanceOf_(owner);
         const ret = {}
         for (const bal of res.balances)
-            ret[bal.material] = {
+            ret[toHex(bal.material)] = {
                 ft_balance: parseInt(toHex(bal.balance), 16),
                 nft_ids: [], // (await this.contract.balanceDetailsOfMaterial_(owner, bal.material)).nft_ids.map(x => toHex(x)),
             }
