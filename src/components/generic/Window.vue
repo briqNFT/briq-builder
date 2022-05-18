@@ -39,7 +39,7 @@ export default defineComponent({
     methods: {
         close() {
             // This doesn't use Vue's system to allow bubbling up.
-            this.$refs.window.dispatchEvent(new Event('close'));
+            this.$refs.window.dispatchEvent(new CustomEvent('_close', { bubbles: true }));
         },
     },
 });

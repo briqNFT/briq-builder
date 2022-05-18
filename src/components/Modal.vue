@@ -17,6 +17,7 @@
                 :is="data.modal"
                 :class="visible ? 'visible' : 'invisible'"
                 @close="close"
+                @_close="close"
                 @hide="toggleVisibility(false)"
                 @show="toggleVisibility(true)"
                 @toggleVisibility="toggleVisibility"/>
@@ -44,8 +45,8 @@ export default defineComponent({
     methods: {
         close(data?: any) {
             // Handle pseudo-native close event
-            if (data instanceof Event)
-                this.data.callback();
+            if (data instanceof CustomEvent)
+                this.data.callback(data?.detail);
             this.data.callback(data);
         },
         toggleVisibility(value: boolean) {
