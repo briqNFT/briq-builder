@@ -11,6 +11,14 @@ import AlphaBanner from '../AlphaBanner.vue';
 import AlphaLogo from './AlphaLogo.vue';
 import SetToolbar from './SetToolbar.vue';
 import CursorTooltip from '../generic/CursorTooltip.vue';
+
+import { provide } from 'vue';
+provide('chainBriqs', chainBriqs);
+provide('messages', {
+    pushMessage,
+    setTooltip,
+});
+provide('featureFlags', featureFlags);
 </script>
 
 <template>
@@ -49,14 +57,6 @@ let chainBriqs = createChainBriqs();
 export default defineComponent({
     data() {
         return {};
-    },
-    provide: {
-        chainBriqs: chainBriqs,
-        messages: {
-            pushMessage,
-            setTooltip,
-        },
-        featureFlags,
     },
     created() {
         chainBriqs.setAddress(toRef(walletStore2, 'userWalletAddress'));
