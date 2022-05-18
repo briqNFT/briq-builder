@@ -163,14 +163,14 @@ const choiceLayout = computed(() => {
                                 inputStore.currentInput != 'place_nft' && currentKey === key
                                     ? '3px solid black'
                                     : '0px solid black',
-                        })"/>
+                        })">{{ inputStore.currentMaterial }}</Btn>
                 </div>
                 <Btn v-if="palette.choices.indexOf(currentKey) === -1"
                     class="h-5 min-h-0 shadow-md flex justify-end items-center"
                     :style="{
                         backgroundColor: inputStore.currentColor,
                         border: '2px dashed black',
-                    }"/>
+                    }">{{ inputStore.currentMaterial }}</Btn>
             </div>
         </div>
     </div>

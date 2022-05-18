@@ -125,7 +125,10 @@ const setBriqLayout = computed(() => {
                                 class="w-6 h-6 mx-1 inline-flex justify-center align-center font-bold"
                                 :style="{ borderRadius: '50%', backgroundColor: color, textShadow: '1px 1px 1px rgba(0, 0, 0, 0.4)' }">{{ setColors[key] ?? 0 }}</span>
                             <span class="font-mono">
-                                {{ color }}</span>
+                                <Tooltip :tooltip="getNameFromMaterial(material)">
+                                    <component class="inline-block h-4 w-4 drop-shadow-sm" :is="getIconFromMaterial(material)"></component>
+                                </Tooltip>
+                                {{ name }}</span>
                         </p>
                     </div>
                 </div>
@@ -155,7 +158,7 @@ const setBriqLayout = computed(() => {
                             <span
                                 class="w-6 h-6 mx-1 inline-flex justify-center align-center font-bold"
                                 :style="{ borderRadius: '50%', backgroundColor: color }">{{ setColors[key] ?? 0 }}</span>
-                            <span class="font-mono">{{ color }}</span>
+                            <span class="font-mono">{{ material }} {{ name }}</span>
                         </p>
                     </div>
                     <div class="flex gap-1 flex-wrap justify-around">

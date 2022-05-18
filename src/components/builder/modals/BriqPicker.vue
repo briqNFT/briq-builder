@@ -49,6 +49,13 @@ const getBadPickReason = computed(() => {
                     <input class="text-center" type="text" maxlength="7" size="7" v-model="color">
                 </p>
             </div>
+            <div class="w-1 bg-darker flex"/>
+            <div class="flex-auto flex justify-center items-center">
+                <div class="flex flex-col gap-2 w-[6rem]">
+                    <Btn v-for="material in CONF.briqMaterials" :class="curMat === material ? 'bg-accent' : ''"
+                        @click="curMat = material">{{ getNameFromMaterial(material) }}</Btn>
+                </div>
+            </div>
         </div>
         <div class="flex justify-center my-2">
             <Btn class="min-w-[10rem]" @click="pick" :disabled="!!getBadPickReason">{{ getBadPickReason || 'Pick' }}</Btn>
