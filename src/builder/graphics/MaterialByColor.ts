@@ -29,7 +29,6 @@ export class MaterialByColor {
         this.lightMapTexture.magFilter = THREE.NearestFilter;
 
         this.material = new THREE.MeshStandardMaterial({
-            side: THREE.DoubleSide,
             alphaTest: 0.1,
             transparent: false,
         });

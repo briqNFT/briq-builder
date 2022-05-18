@@ -8,6 +8,7 @@ export function getRenderMaterial(material: string) {
     if (material === '0x3') {
         mat.material.opacity = MaterialsData['0x3'].material.opacity;
         mat.material.transparent = true;
+        mat.material.side = THREE.DoubleSide;
     } else if (material === '0x4') {
         mat.material.metalness = MaterialsData['0x4'].material.metalness;
         mat.material.roughness = MaterialsData['0x4'].material.roughness;

@@ -7,12 +7,25 @@ import { CONF } from '@/Conf';
 
 const DEFAULT_COLORS = CONF.defaultPalette;
 
-class Palette {
-    // Color - name
-    colors: { [key: string]: string };
+const PALETTE_VERSION = 2;
 
-    constructor() {
-        this.colors = reactive({});
+export function unpackPaletteChoice(key: string) {
+    return {
+        material: key.slice(0, -7),
+        color: key.slice(-7),
+    };
+}
+
+export function packPaletteChoice(material: string, color: string) {
+    return `${material}${color}`;
+}
+
+class Palette {
+
+    choices: string[] = [];
+    names: { [key: string]: string } = {};
+
+    init() {
         this.deserialize();
         watchEffect(() => {
             this.serialize();
@@ -23,8 +36,9 @@ class Palette {
         window.localStorage.setItem(
             'palette',
             JSON.stringify({
-                version: 1,
-                colors: this.colors,
+                version: PALETTE_VERSION,
+                choices: this.choices,
+                names: this.names,
             }),
         );
     }
@@ -33,11 +47,11 @@ class Palette {
         this.reset(false);
         try {
             const data = JSON.parse(window.localStorage.getItem('palette')!);
-            if (data.version)
-                Object.assign(this.colors, data.colors);
-            else
-                Object.assign(this.colors, data);
-            if (!Object.keys(this.colors).length) {
+            if (data.version === 2) {
+                Object.assign(this.choices, data.choices);
+                Object.assign(this.names, data.names);
+            }
+            if (!this.choices.length) {
                 logDebug('PALETTE - resetting colors as none were found.');
                 this.reset();
             }
@@ -48,30 +62,58 @@ class Palette {
     }
 
     reset(addDefault = true) {
-        for (const col of Object.getOwnPropertyNames(this.colors))
-            delete this.colors[col];
+        this.choices.length = 0;
 
-        if (addDefault)
-            Object.assign(this.colors, DEFAULT_COLORS);
+        if (addDefault) {
+            this.choices = this.choices.concat(Object.keys(DEFAULT_COLORS));
+            Object.assign(this.names, DEFAULT_COLORS);
+        }
     }
 
-    getNbColors() {
-        return Object.keys(this.colors).length;
+    getChoices() {
+        return this.choices.map(key => [key, ...Object.values(unpackPaletteChoice(key)), this.names[key]]);
     }
 
-    getFirstColor() {
-        return Object.keys(this.colors)[0];
+    getNbChoices() {
+        return this.choices.length;
     }
 
-    deleteColor(hex: string) {
-        delete this.colors[hex];
+    getFirstChoice() {
+        return unpackPaletteChoice(this.choices[0]);
     }
 
-    addColor(hex: string, name: string): boolean {
-        if (this.colors[hex])
+    getKey(choice: { material: string, color: string } | { key: string }) {
+        return 'key' in choice ? choice.key : packPaletteChoice(choice.material, choice.color);
+    }
+
+    addChoice(choice: { material: string, color: string } | { key: string }, name: string): boolean {
+        const key = this.getKey(choice);
+        const idx = this.choices.indexOf(key);
+        if (idx !== -1)
             return false;
-        this.colors[hex] = name;
+        this.choices.push(key);
+        this.names[key] = name;
         return true;
+    }
+
+    deleteChoice(choice: { material: string, color: string } | { key: string }) {
+        const key = this.getKey(choice);
+        const idx = this.choices.indexOf(key);
+        if (idx !== -1)
+            this.choices.splice(idx, 1);
+    }
+
+    swapChoice(old_choice: { material: string, color: string } | { key: string }, new_choice: { material: string, color: string } | { key: string })
+    {
+        const old_key = this.getKey(old_choice);
+        const new_key = this.getKey(new_choice);
+        const idx = this.choices.indexOf(old_key);
+        if (idx !== -1)
+            this.choices.splice(idx, 1, new_key);
+        else
+            throw new Error(`Key ${old_key} not found in palette`);
+        delete this.names[old_key];
+        this.names[new_key] = new_key;
     }
 
     /**
@@ -79,19 +121,23 @@ class Palette {
      * @param set - the set to update against
      */
     updateForSet(set: SetData) {
-        set.forEach((cell, _) => {
-            if (cell.color in this.colors)
+        /*set.forEach((cell, _) => {
+            const v = packPaletteChoice(cell.material, cell.color);
+            if (v in this.colors)
                 return;
-            this.colors[cell.color] = cell.color;
-        });
+            this.colors[v] = cell.color;
+        });*/
     }
 }
 
 class PalettesManager {
     palettes: Array<Palette> = [];
     currentPalette = 0;
-    constructor() {
+
+    init() {
         this.palettes.push(new Palette());
+        this.palettes[0].init();
+        return this;
     }
 
     getCurrent() {
@@ -103,4 +149,4 @@ class PalettesManager {
     }
 }
 
-export var palettesMgr = reactive(new PalettesManager());
+export const palettesMgr = reactive(new PalettesManager()).init();

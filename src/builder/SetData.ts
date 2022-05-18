@@ -154,16 +154,21 @@ export class SetData {
         this.usedByMaterial_ += 1;
     }
 
-    modifyBriq(x: number, y: number, z: number, data: any): Briq {
+    modifyBriq(x: number, y: number, z: number, data: any) {
         const cell = this.getAt(x, y, z);
         if (!cell)
             throw new Error(`No cell at position ${x}, ${y}, ${z}`);
-        if (data.color) {
+        if (data.color)
             cell.color = data.color;
-            this.briqs_ += 1;
-            dispatchBuilderAction('place_briq', { set: this.id, briq: cell.serialize(), position: [x, y, z] });
+        if (data.material)
+        {
+            --this.usedByMaterial[cell.material];
+            ++this.usedByMaterial[data.material];    
+            cell.material = data.material;
         }
-        return cell;
+        this.briqs_ += 1;
+        dispatchBuilderAction('remove_briq', { set: this.id, position: [x, y, z] });
+        dispatchBuilderAction('place_briq', { set: this.id, briq: cell.serialize(), position: [x, y, z] });
     }
 
     placeBriq(x: number, y: number, z: number, briq?: Briq): boolean {

@@ -1,6 +1,7 @@
 export default {
     '0x1': {
         name: 'Standard',
+        css: (color: string) => ({ backgroundColor: color }),
         material: {
             opacity: 1,
             metalness: 0,

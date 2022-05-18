@@ -50,11 +50,18 @@ export class PainterInput extends MouseInputState {
 
         // Left-click paints, right-click samples the briq color.
         if (event.button === 2) {
-            const col = (store.state.builderData.currentSet as SetData).getAt(...pos)?.color;
-            if (col)
-                inputStore.currentColor = col;
+            const target = (store.state.builderData.currentSet as SetData).getAt(...pos);
+            if (target)
+            {
+                inputStore.currentMaterial = target.material;
+                inputStore.currentColor = target.color;
+            }
         } else
-            await store.dispatch('builderData/set_briq_color', [{ pos: pos, color: inputStore.currentColor }]);
+            await store.dispatch('builderData/set_briq_color', [{
+                pos: pos,
+                color: inputStore.currentColor,
+                material: inputStore.currentMaterial,
+            }]);
         // Update preview cube.
         await this.onPointerMove(event);
     }
@@ -74,13 +81,13 @@ export class PainterMultiInput extends VoxelAlignedSelection {
         const actionData = [];
         for (let x = Math.min(this.initialClickPos[0], pos[0]); x <= Math.max(this.initialClickPos[0], pos[0]); ++x)
             for (let y = Math.min(this.initialClickPos[1], pos[1]); y <= Math.max(this.initialClickPos[1], pos[1]); ++y)
-                for (
-                    let z = Math.min(this.initialClickPos[2], pos[2]);
-                    z <= Math.max(this.initialClickPos[2], pos[2]);
-                    ++z
-                )
+                for (let z = Math.min(this.initialClickPos[2], pos[2]); z <= Math.max(this.initialClickPos[2], pos[2]); ++z)
                     if (store.state.builderData.currentSet.getAt(x, y, z))
-                        actionData.push({ pos: [x, y, z], color: inputStore.currentColor });
+                        actionData.push({
+                            pos: [x, y, z],
+                            color: inputStore.currentColor,
+                            material: inputStore.currentMaterial,
+                        });
         await store.dispatch('builderData/set_briq_color', actionData);
     }
 }

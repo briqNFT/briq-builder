@@ -419,7 +419,7 @@ registerUndoableAction(
             for (const d of payload) {
                 const cell = (state.builderData.currentSet as SetData).getAt(...(d.pos as [number, number, number]));
                 if (cell)
-                    colors.push(cell.color);
+                    colors.push({ color: cell.color, material: cell.material});
             }
             transientActionState.colors = colors;
         },
@@ -429,7 +429,7 @@ registerUndoableAction(
                 undo: () => {
                     store.commit(
                         'builderData/set_briq_color',
-                        payload.map((x, i) => ({ pos: x.pos, color: transientActionState.colors[i] })),
+                        payload.map((x, i) => ({ pos: x.pos, ...transientActionState.colors[i] })),
                     );
                 },
                 redo: () => {

@@ -152,7 +152,7 @@ export default class VoxelWorld {
                         // There is a voxel here but do we need faces for it?
                         for (const { dir, corners, uvRow } of VoxelWorld.faces) {
                             const neighbor = this.getVoxel(voxelX + dir[0], voxelY + dir[1], voxelZ + dir[2]);
-                            if (!neighbor) {
+                            if (!neighbor || (this.materialByColor.material.transparent && neighbor !== voxel)) {
                                 // this voxel has no neighbor in this direction so we need a face.
                                 const ndx = positions.length / 3;
                                 for (const { pos, uv } of corners) {

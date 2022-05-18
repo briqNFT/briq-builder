@@ -4,7 +4,6 @@ import InputComp from './InputComp.vue';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import Tooltip from '../generic/Tooltip.vue';
 import { pushModal } from '../Modals.vue';
-import BriqBrowserVue from './modals/BriqBrowser.vue';
 </script>
 
 <template>
@@ -37,13 +36,6 @@ import BriqBrowserVue from './modals/BriqBrowser.vue';
                 @click="builderInputFsm.switchTo('inspect')"
                 :disabled="isInspecting">
                 <i class="fas fa-mouse-pointer"/>
-            </Btn>
-            <Btn
-                v-if="featureFlags.multiMaterials"
-                class="flex-1 w-full col-span-2"
-                tooltip="Browse the different materials of briqs you own and select which one to place"
-                @click="openBriqBrowser">
-                briq browser
             </Btn>
         </div>
         <div
@@ -123,11 +115,6 @@ export default defineComponent({
                     inputStore.currentInput,
                 ) !== -1
             );
-        },
-    },
-    methods: {
-        async openBriqBrowser() {
-            await pushModal(BriqBrowserVue, {});
         },
     },
 });

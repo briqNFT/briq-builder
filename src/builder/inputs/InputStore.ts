@@ -4,14 +4,16 @@ import { SelectionManager } from './Selection';
 import { palettesMgr } from '../Palette';
 import { CONF } from '@/Conf';
 
+const { material, color } = palettesMgr.getCurrent().getFirstChoice();
+
 export const inputStore = reactive({
     currentInput: 'place',
     // If true, the input mode is forced & the user can't change it (used for some 'tools' such as screenshotting)
     forceInput: false,
     palettesMgr,
     selectionMgr: new SelectionManager(),
-    currentColor: palettesMgr.getCurrent().getFirstColor(),
-    currentMaterial: CONF.defaultMaterial,
+    currentColor: color,
+    currentMaterial: material || CONF.defaultMaterial,
 
     defaultSelectionMethod: 'BOX' as 'BOX' | 'VOXEL',
     showMoveGizmo: true,
