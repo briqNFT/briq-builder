@@ -2,7 +2,7 @@
     <Window class="!w-auto xl:max-w-[49%] lg:max-w-[80%] max-w-full">
         <template #title>Rename set</template>
         <p>Set {{ metadata.set }}</p>
-        <p class="break-all">Current name: {{ set.name }}</p>
+        <p class="break-words">Current name: {{ set.name }}</p>
         <p class="md:block hidden">
             New name: <input v-model="name" type="text" maxlength="200" minlength="1" size="60">
         </p>

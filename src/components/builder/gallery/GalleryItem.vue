@@ -4,7 +4,7 @@
             <div
                 v-if="setData"
                 class="bg-accent rounded-md px-4 py-2 h-full w-full flex flex-col hover:outline-4 hover:outline hover:outline-darker">
-                <h3 class="text-center break-all">{{ setData?.name || setId }}</h3>
+                <h3 class="text-center break-words">{{ setData?.name || setId }}</h3>
                 <div class="flex-1 flex flex-col justify-center min-h-[2rem] my-2">
                     <div><img v-if="imgSrc" :src="imgSrc" class="rounded-md"></div>
                     <div

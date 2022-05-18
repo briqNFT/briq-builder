@@ -17,9 +17,9 @@ import AlphaLogo from './../AlphaLogo.vue';
         <div class="text-center py-2 font-display min-h-[140px]">
             <div class="flex flex-col">
                 <h2 class="my-1">{{ setData?.name }}</h2>
-                <p class="font-lightest text-sm my-1 break-all">{{ setData?.id }}</p>
+                <p class="font-lightest text-sm my-1 break-words">{{ setData?.id }}</p>
                 <template v-if="author">
-                    <p class="tracking-tighter font-mono self-align-center mx-2 text-md font-lightest break-all">
+                    <p class="tracking-tighter font-mono self-align-center mx-2 text-md font-lightest break-words">
                         by {{ author }}
                     </p>
                 </template>

@@ -42,7 +42,7 @@
                 </Tooltip>
             </div>
 
-            <h3 class="flex-auto text-center my-1 break-all">
+            <h3 class="flex-auto text-center my-1 break-words">
                 <span @dblclick.stop="" @click.stop="">{{ setInfo.getSet()?.getName() || setInfo.id }}</span>
             </h3>
 

@@ -64,7 +64,7 @@
                         <h3 class="font-medium">
                             Set name <button @click="rename"><i class="far fa-edit"/></button>
                         </h3>
-                        <h2 class="break-all">{{ set.name }}</h2>
+                        <h2 class="break-words">{{ set.name }}</h2>
                         <div class="my-4"/>
                         <h3 class="font-medium">
                             Set description <button @click="changeDescription"><i class="far fa-edit"/></button>
@@ -107,7 +107,7 @@
                     </div>
                 </div>
                 <div v-if="CONF.theme !== 'realms'" class="flex-none w-full">
-                    <h3 class="text-center break-all">{{ set.name }}</h3>
+                    <h3 class="text-center break-words">{{ set.name }}</h3>
                     <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
                     <div class="flex justify-around items-center">
                         <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-xl" :src="screenshot"></p>
@@ -152,7 +152,7 @@
                     <h4 class="text-center">
                         {{ realmsData.find((x) => x[1] === set.name)?.[0] || realmsData[0][0] }}
                     </h4>
-                    <h3 class="text-center break-all">{{ set.name || set.id }}</h3>
+                    <h3 class="text-center break-words">{{ set.name || set.id }}</h3>
                     <div class="flex justify-around items-center">
                         <p class="flex-initial"><img class="max-h-[25rem] m-auto rounded-xl" :src="screenshot"></p>
                     </div>

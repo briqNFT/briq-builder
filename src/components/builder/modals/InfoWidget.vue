@@ -1,6 +1,11 @@
+<script setup lang="ts">
+import { pushModal } from '@/components/Modals.vue';
+import DownloadSetVue from '../modals/DownloadSet.vue';
+</script>
+
 <template>
     <Window class="lg:!w-[400px] sm:!w-2/5 !w-auto" style="height: 60%">
-        <template #title>Set Details</template>
+        <h2 class="text-center break-words">{{ set.name }}</h2>
         <div class="flex flex-col items-center">
             <div class="w-[75%] relative">
                 <Chart :data="getChartData"/>
@@ -12,7 +17,7 @@
                 </div>
             </div>
         </div>
-        <h2 class="text-center break-all">{{ set.name }}</h2>
+        <p class="flex justify-center mt-3"><Btn @click="pushModal(DownloadSetVue, { setId: set.id, data: set })">Download</Btn></p>
     </Window>
 </template>
 

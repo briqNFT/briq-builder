@@ -46,7 +46,7 @@ import { hexUuid } from '../../../Uuid';
                 </button>
             </div>
             <div class="flex flex-nowrap items-center">
-                <h3 class="flex-auto text-center my-1 break-all">{{ oldSetsData?.[oldSet]?.getName() || oldSet }}</h3>
+                <h3 class="flex-auto text-center my-1 break-words">{{ oldSetsData?.[oldSet]?.getName() || oldSet }}</h3>
             </div>
             <div class="flex-1 flex justify-center min-h-[2rem] my-2">
                 <div v-if="oldSetsImg?.[oldSet]" class="flex flex-col justify-center">
