@@ -58,7 +58,7 @@ const addCurrentChoice = () => {
 }
 
 const addChoice = async () => {
-    let result = (await pushModal(BriqPicker, )) as [string, string, string];
+    let result = (await pushModal(BriqPicker, { color: inputStore.currentColor })) as [string, string, string];
     if (!result)
         return;
     let [hex, name, material] = result;
@@ -72,6 +72,27 @@ const deleteChoice = () => {
     const { material, color } = palette.value.getFirstChoice();
     inputStore.currentColor = color;
     inputStore.currentMaterial = material;
+};
+
+const setColors = computed((): { [key: string]: number } => {
+    let ret = {} as { [key:string]: number };
+    store.state.builderData.currentSet.forEach((cell: Briq) => {
+        const key = packPaletteChoice(cell.material, cell.color);
+        if (key in ret)
+            ++ret[key];
+        else
+            ret[key] = 1;
+    });
+    return ret;
+});
+
+const resetAll = () => {
+    palette.value.reset();
+};
+
+const addAllActive = () => {
+    for (let key in setColors.value)
+        palette.value.addChoice({ key }, key);
 };
 
 const pickBriq = (key: string) => {
@@ -100,6 +121,15 @@ const choiceLayout = computed(() => {
 </script>
 
 <template>
+    <div class="grid grid-cols-3 gap-0.5 my-0.5">
+        <Btn class="col-span-3" @click="resetAll" tooltip="Reset the palette to default colors">Reset</Btn>
+        <Btn class="col-span-3" @click="addAllActive" tooltip="Add the set colors to the palette">Add set<br/>colors</Btn>
+        <Btn v-if="palette.choices.indexOf(currentKey) === -1"
+            class="p-0" @click="addCurrentChoice" tooltip="Add the current color to the palette permanently"><i class="fa-solid fa-add"></i></Btn>
+        <Btn v-else="" class="p-0" @click="addChoice" tooltip="Add a new color"><i class="fa-solid fa-add"></i></Btn>
+        <Btn class="p-0" @click="deleteChoice" tooltip="Remove the current color from the palette"><i class="far fa-trash-alt"></i></Btn>
+        <Btn class="p-0" @click="changeColor" tooltip="Edit selected color"><i class="fa-solid fa-pen-to-square"></i></Btn>
+    </div>
     <!-- Flex to occupy width-->
     <div class="flex-1 overflow-auto pb-0.5">
         <div
@@ -141,14 +171,6 @@ const choiceLayout = computed(() => {
                     border: '2px dashed black',
                 }"/>
         </div>
-    </div>
-    <div class="grid grid-cols-3 gap-0.5 my-0.5">
-        <Btn v-if="palette.choices.indexOf(currentKey) === -1"
-            class="p-0" @click="addCurrentChoice" tooltip="Add the current color to the palette permanently"><i class="fa-solid fa-add"></i></Btn>
-        <Btn v-else="" class="p-0" @click="addChoice" tooltip="Add a new color"><i class="fa-solid fa-add"></i></Btn>
-        <Btn class="p-0" @click="deleteChoice" tooltip="Remove the current color from the palette"><i class="far fa-trash-alt"></i></Btn>
-        <Btn class="p-0" @click="changeColor" tooltip="Change the color of the current briq"><i class="fa-solid fa-pen-to-square"></i></Btn>
-        <Btn class="col-span-3" @click="pushModal(PaletteManager)" tooltip="Manage the color palette. Replace or delete colors.">Open<br/>Palette</Btn>
     </div>
 </template>
 
