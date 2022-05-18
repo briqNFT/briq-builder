@@ -6,7 +6,8 @@
         "isolatedModules": true,
         "allowSyntheticDefaultImports": true,
         "strict": true,
-        "incremental": true,
+        "composite": true,
+        "jsx": "preserve",
         "types": ["vite/client", "@types/three", "@types/uuid", "vite-svg-loader", "vitest/globals"],
         "paths": {
             "@/*": ["./src/*"]
