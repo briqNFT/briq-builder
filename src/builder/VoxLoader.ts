@@ -14,6 +14,7 @@ export class VoxLoader {
 
     warnings: string[] = [];
 
+    materials = {};
     material = CONF.defaultMaterial;
 
     constructor(fileData: ArrayBuffer) {
@@ -22,6 +23,17 @@ export class VoxLoader {
         for (const _ of this.data.RGBA)
             for (const c of _.values)
                 this.colors.push('#' + new THREE.Color().fromArray([c.r / 255, c.g / 255, c.b / 255]).getHexString());
+
+        for (const material of this.data.MATL ?? [])
+            if (material.materialProperties._type === '_glass')
+                this.materials[material.materialId] = '0x3';
+            else if (material.materialProperties._type === '_metal')
+                this.materials[material.materialId] = '0x4';
+            else if (material.materialProperties._type === '_emit')
+                this.materials[material.materialId] = '0x5';
+            else
+                this.materials[material.materialId] = '0x1';
+
         this.set = new SetData(hexUuid());
 
         if (this.data.nTRN?.length)
@@ -31,11 +43,10 @@ export class VoxLoader {
                 const offsetX = Math.floor(this.data.SIZE[i].x / 2);
                 const offsetY = Math.floor(this.data.SIZE[i].y / 2);
                 for (const voxel of this.data.XYZI[i].values) {
-                    const briq = new Briq(this.material, this.colors[voxel.i - 1]);
+                    const briq = new Briq(this.materials[voxel.i] || this.material, this.colors[voxel.i - 1]);
                     this.set.placeBriq(this.data.SIZE[i].x - voxel.x - offsetX, voxel.z, voxel.y - offsetY, briq);
                 }
             }
-
     }
 
     /**
