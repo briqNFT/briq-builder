@@ -11,7 +11,7 @@ import type { ChainBriqs } from '@/builder/ChainBriqs';
 
 import { computed, inject, toRef } from 'vue';
 
-import { addMaterialCSS } from '@/CONF';
+import { addMaterialCSS } from '@/Conf';
 
 const store = useStore();
 

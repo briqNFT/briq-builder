@@ -9,7 +9,7 @@ import { pushModal } from '../../Modals.vue';
 
 import Tooltip from '@/components/generic/Tooltip.vue';
 
-import { getIconFromMaterial, getNameFromMaterial } from '@/CONF';
+import { getIconFromMaterial, getNameFromMaterial } from '@/Conf';
 
 const currentColor = toRef(inputStore, 'currentColor');
 const currentMaterial = toRef(inputStore, 'currentMaterial');
