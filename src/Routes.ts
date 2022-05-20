@@ -1,11 +1,15 @@
 import Legal from './components/Legal.vue';
 import LandingPage from './components/landing_page/LandingPage.vue';
 import Team from './components/team/Team.vue';
-import { CONF } from './Conf';
+import GenesisMint from '@/components/builder/genesis/GenesisMint.vue';
+import UnboxingVue from './components/builder/genesis/Unboxing.vue';
 
 import BuilderLoader from './components/builder/BuilderLoader.vue';
 
 import RealmsComplete from '@/components/realms/Complete.vue';
+
+import { CONF } from './Conf';
+
 
 let loader;
 async function loadExtraPages() {
@@ -62,6 +66,16 @@ export const routes = [
             await loadExtraPages();
             return loader.Gallery;
         },
+    },
+    {
+        path: '/genesis',
+        name: 'Genesis Mint',
+        component: GenesisMint
+    },
+    {
+        path: '/unboxing',
+        name: 'Unboxing',
+        component: UnboxingVue
     },
 ];
 
