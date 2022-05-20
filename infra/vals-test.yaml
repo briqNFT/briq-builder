@@ -8,3 +8,5 @@ sites: ["test.sltech.company", "test-realms.briq.construction"]
 defaultLabels:
   appname: dev-briq-builder
   env: test
+#! Temporarily secure the test site.
+useSecurity: true

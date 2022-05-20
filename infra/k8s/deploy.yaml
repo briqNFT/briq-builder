@@ -18,6 +18,13 @@ spec:
         image: #@ "europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/" + data.values.image_name + ":" + data.values.image_tag
         ports:
         - containerPort: 80
+        volumeMounts:
+#@ if data.values.useSecurity:
+        - name: password
+          mountPath: "/etc/nginx/secrets/"
+#@ end
+        - name: nginx-conf
+          mountPath: /etc/nginx/security
         resources:
           requests:
             cpu: #@ data.values.resources.nginx.cpu
@@ -44,3 +51,25 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
           failureThreshold: 2
+      volumes:
+      - name: password
+        secret:
+          secretName: adminpassword
+      - name: nginx-conf
+        configMap:
+          name: #@ data.values.name + "-secu"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: #@ data.values.name + "-secu"
+  labels: #@ data.values.defaultLabels
+data:
+#@ if data.values.useSecurity:
+  security.conf: |
+    auth_basic "admin protection";
+    auth_basic_user_file /etc/nginx/secrets/password;
+#@ else:
+  security.conf: |
+    auth_basic off;
+#@ end

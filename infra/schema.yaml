@@ -17,3 +17,4 @@ defaultLabels:
   env: test
 image_name: briq-builder
 image_tag: ""
+useSecurity: false
