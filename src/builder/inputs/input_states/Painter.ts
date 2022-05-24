@@ -69,6 +69,7 @@ export class PainterInput extends MouseInputState {
 
 export class PainterMultiInput extends VoxelAlignedSelection {
     onEnter(data: any) {
+        this.showRuler = true;
         super.onEnter(data);
         this.switchBackTo = 'paint';
 

@@ -16,7 +16,7 @@ export class BuilderInputFSM {
     store!: typeof inputStore;
     hotkeyMgr!: HotkeyManager;
 
-    gui: any;
+    gui: any = reactive({});
 
     _initialisePromise: any;
 
@@ -25,7 +25,6 @@ export class BuilderInputFSM {
         this.orbitControls = oc;
         this.store = store;
         this.hotkeyMgr = hotkeyMgr;
-        this.gui = reactive({});
         setInputInitComplete();
     }
 

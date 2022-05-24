@@ -59,6 +59,7 @@ export class PlacerInput extends MouseInputState {
 export class PlacerMultiInput extends VoxelAlignedSelection {
     onEnter(data: any) {
         this.extruding = true;
+        this.showRuler = true;
         super.onEnter(data);
         this.switchBackTo = 'place';
 
