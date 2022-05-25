@@ -5,6 +5,7 @@ import Messages from '../../Messages.vue';
 import SplashScreen from './../SplashScreen.vue';
 import AlphaBanner from '../../AlphaBanner.vue';
 import AlphaLogo from './../AlphaLogo.vue';
+import { toBN } from '@/starknet_wrapper';
 </script>
 
 <template>
@@ -14,16 +15,23 @@ import AlphaLogo from './../AlphaLogo.vue';
             <WebGLCanvas class="!h-full"/>
             <AlphaLogo/>
         </div>
-        <div class="text-center py-2 font-display min-h-[140px]">
-            <div class="flex flex-col">
+        <div class="text-center py-2 font-display min-h-[140px] alternate-buttons flex flex-col-reverse md:flex-row gap-4">
+            <div class="basis-0 grow px-4 flex justify-center items-center">
+                <div class="flex gap-2 flex-row md:flex-col w-max">
+                    <a target="_blank" class="w-full" :href="playOasis"><Btn class="w-full">See on PlayOasis</Btn></a>
+                    <a target="_blank" class="w-full" :href="mintSquare"><Btn class="w-full">See on MintSquare</Btn></a>
+                </div>
+            </div>
+            <div class="grow flex flex-col h-full">
                 <h2 class="my-1">{{ setData?.name }}</h2>
                 <p class="font-lightest text-sm my-1 break-words">{{ setData?.id }}</p>
                 <template v-if="author">
                     <p class="tracking-tighter font-mono self-align-center mx-2 text-md font-lightest break-words">
-                        by {{ author }}
+                        by {{ author }}
                     </p>
                 </template>
             </div>
+            <div class="basis-0 grow md:block hidden"></div>
         </div>
         <div
             v-if="loadingStatus === 'loading'"
@@ -165,6 +173,22 @@ export default defineComponent({
             };
             reportError(err, 'Failed to load set in Share');
         }
+    },
+    computed: {
+        playOasis() {
+            if (!contractStore.set?.getAddress() || !this?.setData?.id)
+                return '';
+            const addr = contractStore.set?.getAddress();
+            const token_id = this?.setData?.id || '';
+            return `https://testnet.playoasis.xyz/asset/${addr}/${token_id}`;
+        },
+        mintSquare() {
+            if (!contractStore.set?.getAddress() || !this?.setData?.id)
+                return '';
+            const addr = contractStore.set?.getAddress();
+            const token_id = this?.setData?.id || '';
+            return `https://mintsquare.io/asset/StarkNet-Testnet/0x${toBN(addr).toString(16)}/${toBN(token_id).toString(10)}`;
+        },
     },
     methods: {
         openHelp() {
