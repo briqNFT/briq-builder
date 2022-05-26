@@ -18,7 +18,7 @@ import { toBN } from '@/starknet_wrapper';
         <div class="text-center py-2 font-display min-h-[140px] alternate-buttons flex flex-col-reverse md:flex-row gap-4">
             <div class="basis-0 grow px-4 flex justify-center items-center">
                 <div class="flex gap-2 flex-row md:flex-col w-max">
-                    <a target="_blank" class="w-full" :href="playOasis"><Btn class="w-full">See on PlayOasis</Btn></a>
+                    <a target="_blank" class="w-full" :href="playOasis"><Btn class="w-full">See on Aspect</Btn></a>
                     <a target="_blank" class="w-full" :href="mintSquare"><Btn class="w-full">See on MintSquare</Btn></a>
                 </div>
             </div>
