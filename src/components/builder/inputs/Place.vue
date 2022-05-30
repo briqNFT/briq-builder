@@ -9,9 +9,7 @@ import { camera } from '@/builder/graphics/Builder';
 const fsm = computed(() => builderInputFsm.gui);
 
 const unproject = (n: { x: number, y: number, z: number }) => {
-    console.log(n);
     const pos = (new THREE.Vector3(n.x, n.y, n.z)).project(camera);
-    console.log(pos);
     return [(pos.x + 1) / 2, 1.0 - (pos.y + 1) / 2];
 }
 </script>
