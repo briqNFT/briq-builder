@@ -41,6 +41,7 @@ export class MaterialByColor {
 
     setLightMap(val: boolean) {
         this.material.lightMap = val ? this.lightMapTexture : null;
+        this.material.needsUpdate = true;
     }
 
     getIndex(color: string) {
