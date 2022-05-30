@@ -5,7 +5,7 @@ import SideBar from './SideBar.vue';
 import SideBarRight from './SideBarRight.vue';
 import Modals, { pushModal } from '../Modals.vue';
 import Messages from '../Messages.vue';
-import SplashScreen from './SplashScreen.vue';
+import Booklet from './Booklet.vue';
 
 import AlphaBanner from '../AlphaBanner.vue';
 import AlphaLogo from './AlphaLogo.vue';
@@ -29,6 +29,7 @@ provide('featureFlags', featureFlags);
         <SetToolbar/>
         <SideBar/>
         <SideBarRight/>
+        <Booklet/>
     </div>
     <Modals/>
     <Messages/>
