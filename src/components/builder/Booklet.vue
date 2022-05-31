@@ -17,7 +17,7 @@ const pdfRef = ref(null);
 </script>
 
 <template>
-    <div class="absolute top-0 bottom-0 right-0 pointer-events-none flex flex-col">
+    <div class="absolute top-0 bottom-0 right-0 pointer-events-none flex flex-col alternate-buttons">
         <div class="grow basis-[6rem]"></div>
         <div class="pointer-events-auto bg-base rounded-md p-4 flex-col flex items-center">
             <h2>Set Title</h2>
