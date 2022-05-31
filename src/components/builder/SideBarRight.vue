@@ -8,7 +8,7 @@ import BlockchainStatus from './BlockchainStatus.vue';
 <template>
     <!-- Below medium size, push the buttons down to leave room for minting stuff. -->
     <div
-        v-if="!forceInput"
+        v-if="!hideInput"
         class="absolute right-0 top-0 px-4 py-[6.5rem] md:py-4 max-h-screen flex flex-col lg:flex-row lg:items-start items-end gap-2 pointer-events-none">
         <BlockchainStatus class="max-h-screen"/>
         <div
@@ -85,8 +85,8 @@ export default defineComponent({
         wallet() {
             return walletStore2;
         },
-        forceInput() {
-            return inputStore.forceInput;
+        hideInput() {
+            return inputStore.hideInput;
         },
         isConnected() {
             return this.wallet.userWalletAddress;

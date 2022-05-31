@@ -1,11 +1,11 @@
 import { BuilderInputState } from './input_states/BuilderInputState';
 
-import { CameraOnlyInput } from './input_states/CameraOnly';
 import { NFTPlacerInput, PlacerInput, PlacerMultiInput } from './input_states/Placer';
 import { EraserInput, EraserMultiInput } from './input_states/Eraser';
 import { PainterInput, PainterMultiInput } from './input_states/Painter';
-import { InspectInput, InspectOnlyInput, BoxSelect, VASelect, DragInput, RotateInput } from './input_states/Inspect';
+import { InspectInput, BoxSelect, VASelect, DragInput, RotateInput } from './input_states/Inspect';
 import { CopyPasteInput } from './input_states/CopyPaste';
+import { CameraInput, CameraSelect } from './input_states/Camera';
 
 /**
  * Map input states to specific FSM states.
@@ -22,8 +22,9 @@ export const inputMap: { [key: string]: typeof BuilderInputState } = {
     inspect_va: VASelect,
     inspect_box: BoxSelect,
     drag: DragInput,
-    rotate: RotateInput,
-    camera: CameraOnlyInput,
+    rotate: RotateInput,    
     copy_paste: CopyPasteInput,
-    screenshot: InspectOnlyInput,
+
+    camera: CameraInput,
+    camera_select: CameraSelect,
 };

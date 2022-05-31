@@ -1,20 +1,28 @@
+<script setup lang="ts">
+import { usePresetHelpers } from '../inputs/CameraComposable';
+import CameraVue from '../inputs/Camera.vue';
+
+const {
+    presets,
+    usePreset,
+    resetCamera,
+    centerCamera,
+} = usePresetHelpers();
+
+</script>
+
 <template>
     <div>
         <h2 class="visible text-center text-[5rem] opacity-50 pointer-events-none">SCREENSHOTTING</h2>
         <teleport to="#inputComp">
-            <div class="flex flex-col my-4 gap-2">
+            <div class="flex flex-col my-4 gap-1">
                 <Btn @click="returnScreen"><i class="fas fa-camera"/> Take Screenshot</Btn>
                 <Btn @click="$emit('close')"><i class="fas fa-ban"/> Cancel</Btn>
             </div>
 
-            <div class="flex flex-col my-4 gap-2">
-                <Btn @click="putAllInView">Reset Camera</Btn>
-                <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length" class="leading-4">
-                    Center on Selection
-                </Btn>
-            </div>
+            <CameraVue/>
 
-            <div class="flex flex-col my-4 gap-2">
+            <div class="flex flex-col my-4 gap-1 w-full">
                 <Btn @click="openSettings">Open Settings</Btn>
                 <Btn v-if="!builderSettings.transparentBackground" @click="builderSettings.transparentBackground = true">
                     Set transparent<br>background
@@ -50,15 +58,16 @@ export default defineComponent({
     },
     mounted() {
         this.oldInput = inputStore.currentInput;
-        builderInputFsm.switchTo('screenshot');
-        inputStore.forceInput = true;
+        // Switch to camera mode, which has no fancy feature.
+        builderInputFsm.switchTo('camera');
+        inputStore.hideInput = true;
         // Hide the modal itself (the teleported stuff isn't affected)
         this.$emit('hide');
         setOnlyShowLast(true);
     },
     unmounted() {
         builderInputFsm.switchTo(this.oldInput);
-        inputStore.forceInput = false;
+        inputStore.hideInput = false;
         setOnlyShowLast(false);
         this.builderSettings.transparentBackground = false;
     },

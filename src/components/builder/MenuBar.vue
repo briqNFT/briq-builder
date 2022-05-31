@@ -7,7 +7,7 @@ import HistoryLog from './modals/HistoryLog.vue';
 
 <template>
     <div id="menuBar" class="px-4 py-2 md:py-4 absolute top-0 w-screen flex flex-nowrap pointer-events-none">
-        <div v-if="!inputStore.forceInput" class="flex flex-nowrap justify-start align-start child-events gap-2">
+        <div v-if="!inputStore.hideInput" class="flex flex-nowrap justify-start align-start child-events gap-2">
             <Btn tooltip="Manage your local & on-chain set." @click="openSetBrowser">
                 <i class="far fa-folder"/> Manage Sets
             </Btn>

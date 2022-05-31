@@ -18,13 +18,6 @@ import Hotkey from '../../generic/Hotkey.vue';
             <p>TODO</p>
         </template>
         -->
-        <h4 class="bg-accent rounded-md px-2 py-1 mb-1 text-center font-semibold">Camera</h4>
-        <div class="flex flex-col gap-1">
-            <Btn @click="putAllInView" class="tracking-tighter">Reset Camera</Btn>
-            <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length" class="leading-4">
-                Center on<br>Selection
-            </Btn>
-        </div>
         <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Selection</h4>
         <div class="flex flex-col gap-1">
             <div class="grid grid-cols-2 gap-0.5">
@@ -57,6 +50,9 @@ import Hotkey from '../../generic/Hotkey.vue';
                 </Btn>
             </div>
             <Btn @click="selectAll">Select All</Btn>
+            <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length" class="leading-4">
+                Center on<br>Selection
+            </Btn>
             <Btn
                 v-if="editMode"
                 :disabled="!selection.selectedBriqs.length"
@@ -88,15 +84,6 @@ import Hotkey from '../../generic/Hotkey.vue';
             </CheckboxBtn>
         </div>
     </div>
-    <div
-        v-if="fsm.selectionBox"
-        class="bg-opacity-50 bg-white border-2 border-solid border-black fixed pointer-events-none"
-        :style="{
-            left: `${Math.min(fsm.curX, fsm.startX)}px`,
-            top: `${Math.min(fsm.curY, fsm.startY)}px`,
-            width: `${Math.abs(fsm.curX - fsm.startX)}px`,
-            height: `${Math.abs(fsm.curY - fsm.startY)}px`,
-        }"/>
     <!-- Follows the mouse -->
     <div
         v-if="fsm?.briq"
@@ -141,7 +128,6 @@ export default defineComponent({
     computed: {
         editMode() {
             return (
-                !inputStore.forceInput &&
                 setsManager.getInfo(this.$store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED'
             );
         },
@@ -158,9 +144,6 @@ export default defineComponent({
         },
     },
     methods: {
-        putAllInView() {
-            dispatchBuilderAction('put_all_in_view');
-        },
         centerCamera() {
             dispatchBuilderAction('set_camera_target', {
                 target: [this.fsm.focusPos.x, this.fsm.focusPos.y, this.fsm.focusPos.z],

@@ -1,6 +1,6 @@
 <template>
     <Tooltip :tooltip="tooltip">
-        <button v-bind="$attrs" :class="noStyle ? '' : 'btn'"><slot/></button>
+        <button v-bind="$attrs" :class="(noStyle ? '' : 'btn')"><slot/></button>
     </Tooltip>
 </template>
 

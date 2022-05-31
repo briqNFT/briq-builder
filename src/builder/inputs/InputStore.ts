@@ -8,8 +8,9 @@ const { material, color } = palettesMgr.getCurrent().getFirstChoice();
 
 export const inputStore = reactive({
     currentInput: 'place',
-    // If true, the input mode is forced & the user can't change it (used for some 'tools' such as screenshotting)
-    forceInput: false,
+    // If true, the regular UI is hidden. Used for some tools such as screenshotting.
+    hideInput: false,
+
     palettesMgr,
     selectionMgr: new SelectionManager(),
     currentColor: color,

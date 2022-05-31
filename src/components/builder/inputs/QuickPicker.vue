@@ -121,55 +121,57 @@ const choiceLayout = computed(() => {
 </script>
 
 <template>
-    <div class="grid grid-cols-3 gap-0.5 my-0.5">
-        <Btn class="col-span-3" @click="resetAll" tooltip="Reset the palette to default colors">Reset</Btn>
-        <Btn class="col-span-3" @click="addAllActive" tooltip="Add the set colors to the palette">Add set<br/>colors</Btn>
-        <Btn v-if="palette.choices.indexOf(currentKey) === -1"
-            class="p-0" @click="addCurrentChoice" tooltip="Add the current color to the palette permanently"><i class="fa-solid fa-add"></i></Btn>
-        <Btn v-else="" class="p-0" @click="addChoice" tooltip="Add a new color"><i class="fa-solid fa-add"></i></Btn>
-        <Btn class="p-0" @click="deleteChoice" tooltip="Remove the current color from the palette"><i class="far fa-trash-alt"></i></Btn>
-        <Btn class="p-0" @click="changeColor" tooltip="Edit selected color"><i class="fa-solid fa-pen-to-square"></i></Btn>
-    </div>
-    <!-- Flex to occupy width-->
-    <div class="flex-1 overflow-auto pb-0.5">
-        <div
-            :class="choiceLayout">
-            <div
-                v-if="inputStore.currentInput.indexOf('place') !== -1"
-                class="col-span-3 flex flex-col"
-                v-for="(value, key) in availableNFTs"
-                :key="key">
-                <Btn
-                    class="h-5 min-h-0 shadow-md m-0 p-0 leading-3"
-                    :tooltip="'Place keystone'"
-                    @click="pickNFT(value)"
-                    :style="{
-                        backgroundColor: '#555555',
-                        border: inputStore.currentInput == 'place_nft' ? '3px solid black' : '0px solid black',
-                    }">
-                    Keystone
-                </Btn>
-            </div>
-
-            <div class="flex flex-col" v-for="[key, material, color, name] in choices" :key="key">
-                <Btn
-                    :class="'h-5 min-h-0 shadow-md flex justify-end items-center ' + `mat-${material}`"
-                    :tooltip="'Select color ' + name"
-                    @click="pickBriq(key)"
-                    @dblclick="pickBriq(key); changeColor()"
-                    :style="addMaterialCSS(material, color, {
-                        border:
-                            inputStore.currentInput != 'place_nft' && currentKey === key
-                                ? '3px solid black'
-                                : '0px solid black',
-                    })"/>
-            </div>
+    <div class="w-full">
+        <div class="grid grid-cols-3 gap-0.5 my-0.5">
+            <Btn class="col-span-3" @click="resetAll" tooltip="Reset the palette to default colors">Reset</Btn>
+            <Btn class="col-span-3" @click="addAllActive" tooltip="Add the set colors to the palette">Add set<br/>colors</Btn>
             <Btn v-if="palette.choices.indexOf(currentKey) === -1"
-                class="h-5 min-h-0 shadow-md flex justify-end items-center"
-                :style="{
-                    backgroundColor: inputStore.currentColor,
-                    border: '2px dashed black',
-                }"/>
+                class="p-0" @click="addCurrentChoice" tooltip="Add the current color to the palette permanently"><i class="fa-solid fa-add"></i></Btn>
+            <Btn v-else="" class="p-0" @click="addChoice" tooltip="Add a new color"><i class="fa-solid fa-add"></i></Btn>
+            <Btn class="p-0" @click="deleteChoice" tooltip="Remove the current color from the palette"><i class="far fa-trash-alt"></i></Btn>
+            <Btn class="p-0" @click="changeColor" tooltip="Edit selected color"><i class="fa-solid fa-pen-to-square"></i></Btn>
+        </div>
+        <!-- Flex to occupy width-->
+        <div class="flex-1 overflow-auto pb-0.5">
+            <div
+                :class="choiceLayout">
+                <div
+                    v-if="inputStore.currentInput.indexOf('place') !== -1"
+                    class="col-span-3 flex flex-col"
+                    v-for="(value, key) in availableNFTs"
+                    :key="key">
+                    <Btn
+                        class="h-5 min-h-0 shadow-md m-0 p-0 leading-3"
+                        :tooltip="'Place keystone'"
+                        @click="pickNFT(value)"
+                        :style="{
+                            backgroundColor: '#555555',
+                            border: inputStore.currentInput == 'place_nft' ? '3px solid black' : '0px solid black',
+                        }">
+                        Keystone
+                    </Btn>
+                </div>
+
+                <div class="flex flex-col" v-for="[key, material, color, name] in choices" :key="key">
+                    <Btn
+                        :class="'h-5 min-h-0 shadow-md flex justify-end items-center ' + `mat-${material}`"
+                        :tooltip="'Select color ' + name"
+                        @click="pickBriq(key)"
+                        @dblclick="pickBriq(key); changeColor()"
+                        :style="addMaterialCSS(material, color, {
+                            border:
+                                inputStore.currentInput != 'place_nft' && currentKey === key
+                                    ? '3px solid black'
+                                    : '0px solid black',
+                        })"/>
+                </div>
+                <Btn v-if="palette.choices.indexOf(currentKey) === -1"
+                    class="h-5 min-h-0 shadow-md flex justify-end items-center"
+                    :style="{
+                        backgroundColor: inputStore.currentColor,
+                        border: '2px dashed black',
+                    }"/>
+            </div>
         </div>
     </div>
 </template>

@@ -3,10 +3,26 @@ import Place from './inputs/Place.vue';
 import Erase from './inputs/Erase.vue';
 import Inspect from './inputs/Inspect.vue';
 import Camera from './inputs/Camera.vue';
+
+import { builderInputFsm } from '@/builder/inputs/BuilderInput';
+
+const fsm = builderInputFsm.gui;
+
 </script>
 
 <template>
-    <component :is="mapping[inputComp]"/>
+    <component v-if="!inputStore.hideInput" :is="mapping[inputComp]"/>
+    <div v-else=""/>
+    <!-- Selection box -->
+    <div
+        v-if="fsm.selectionBox"
+        class="bg-opacity-50 bg-white border-2 border-solid border-black fixed pointer-events-none"
+        :style="{
+            left: `${Math.min(fsm.curX, fsm.startX)}px`,
+            top: `${Math.min(fsm.curY, fsm.startY)}px`,
+            width: `${Math.abs(fsm.curX - fsm.startX)}px`,
+            height: `${Math.abs(fsm.curY - fsm.startY)}px`,
+        }"/>
 </template>
 
 <script lang="ts">
@@ -31,7 +47,8 @@ export default defineComponent({
                 drag: Inspect,
                 rotate: Inspect,
                 copy_paste: Inspect,
-                // Camera shows nothing on purpose.
+                camera: Camera,
+                camera_select: Camera,
                 // Empty neither
             }),
         };

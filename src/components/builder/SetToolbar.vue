@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!forceInput" class="invisible absolute top-0 w-screen flex py-2 md:py-4 md:px-0 px-4">
+    <div v-if="!hideInput" class="invisible absolute top-0 w-screen flex py-2 md:py-4 md:px-0 px-4">
         <!-- For easy placement, have invisible blocks for the left/right hand side items -->
         <div class="w-[16rem] flex-none hidden md:block"/>
         <div class="w-full flex-shrink visibleChildren">
@@ -82,8 +82,8 @@ export default defineComponent({
         setInfo() {
             return setsManager.getInfo(this.$store.state.builderData.currentSet.id);
         },
-        forceInput() {
-            return inputStore.forceInput;
+        hideInput() {
+            return inputStore.hideInput;
         },
         canMint(): boolean {
             return this.$store.state.builderData.currentSet.getNbBriqs() > 0;
