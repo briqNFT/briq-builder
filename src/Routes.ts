@@ -9,6 +9,7 @@ import BuilderLoader from './components/builder/BuilderLoader.vue';
 import RealmsComplete from '@/components/realms/Complete.vue';
 
 import { CONF } from './Conf';
+import ProfileVue from '@/components/profile/Profile.vue';
 
 
 let loader;
@@ -66,6 +67,11 @@ export const routes = [
             await loadExtraPages();
             return loader.Gallery;
         },
+    },
+    {
+        path: '/profile/:address?',
+        name: 'Profile',
+        component: ProfileVue,
     },
     {
         path: '/genesis',
