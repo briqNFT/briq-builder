@@ -1,6 +1,6 @@
 <template>
     <div
-        class="fixed bg-accent rounded-md pointer-events-none px-2 py-1 shadow-xl font-medium text-sm"
+        class="fixed bg-accent rounded-md pointer-events-none px-2 py-1 shadow font-medium text-sm"
         :style="getPositionCSS">
         {{ tooltip }}
     </div>
