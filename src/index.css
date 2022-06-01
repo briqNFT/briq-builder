@@ -29,7 +29,7 @@
         @apply bg-base rounded px-3 py-1;
         @apply border-base border-2;
         @apply shadow-sm;
-        @apply font-light;
+        @apply font-light leading-none;
         min-height: 2.5rem;
         @apply select-none;
     }
