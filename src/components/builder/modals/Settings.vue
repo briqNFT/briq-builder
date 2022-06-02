@@ -1,3 +1,15 @@
+<script setup lang="ts">
+import Slider from '@/components/generic/Slider.vue'
+import { computed } from 'vue';
+
+const canvasSize = computed({
+    get: () => builderSettings.canvasSize * 2,
+    set(newSize: number) {
+        builderSettings.canvasSize = newSize / 2;
+    },
+});
+</script>
+
 <template>
     <Window class="md:!w-1/2 xl:!w-1/3 !w-auto">
         <template #title>Settings</template>
@@ -49,15 +61,8 @@
                     <option value="light">Light Mode</option>
                 </select>
             </p>
-            <label><p class="flex items-center">
-                <span class="inline-flex items-center font-semibold text-xs bg-accent rounded-md px-1 mr-2">10
-                    <input
-                        type="range"
-                        min="5"
-                        step="5"
-                        :max="CONF.builderSettings.maxCanvasSize || 50"
-                        v-model="builderSettings.canvasSize">
-                    {{ CONF.builderSettings.maxCanvasSize * 2 || 100 }}</span>
+            <label><p class="flex items-center gap-1">
+                <Slider class="w-[8rem]" :min="10" :step="10" :max="CONF.builderSettings.maxCanvasSize * 2 || 100" v-model="canvasSize"/>
                 Canvas size ({{ `${builderSettings.canvasSize * 2}x${builderSettings.canvasSize * 2}` }})
             </p></label>
         </div>

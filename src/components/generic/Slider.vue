@@ -94,7 +94,7 @@ div[data-test="slider"]:hover [data-test="slider-toggle"] {
             <div class="bg-darker w-auto left-0 invisible h-full mx-2 relative" ref="slider">
                 <!-- Steps are just css elements, it's easier -->
                 <div v-if="showSteps" class="visible flex justify-between absolute top-0 left-0 w-full h-full">
-                    <p v-for="i in Array(max - min + 1)" class="h-auto my-1 ring-[1px] ring-darker"></p>
+                    <p v-for="i in Array((max - min) / step + 1)" class="h-auto my-1 ring-[1px] ring-darker"></p>
                 </div>
                 <!-- When not showing steps, show a 'progress bar'. -->
                 <div v-else="" class="visible absolute left-0 top-[calc(50%-2px)] h-[3px] bg-darker w-full">
