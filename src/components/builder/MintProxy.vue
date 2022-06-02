@@ -3,7 +3,7 @@
         <h2 class="text-center font-display">
             <button @click="claim" class="btn">
                 <span class="inline-block">Claim your 1000 briqs</span>
-                <span class="inline-block">and start building</span>
+                <span class="inline-block"> and start building</span>
             </button>
         </h2>
     </div>
