@@ -97,6 +97,7 @@ const render = () => renderFunc.value();
 import { GLTFLoader } from '@/three';
 
 import HomeScene from '@/assets/genesis/home_scene.glb?url';
+import BriqBox from '@/assets/genesis/briqs_box.glb?url';
 
 const cameraRef = ref(undefined as THREE.Camera | undefined);
 
@@ -158,10 +159,22 @@ async function setup(canvas: HTMLCanvasElement) {
     for(const mesh of meshes)
         scene.add(mesh);
 
-    const box = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.3));
-    box.material = new THREE.MeshStandardMaterial({
-        color: "#aa8800"
-    });
+    const boxGlb = await new Promise((resolve: (_: THREE.Mesh[]) => void, reject) => {
+        const loader = new GLTFLoader();
+        loader.load(
+            BriqBox,
+            (gltf: any) => {
+                resolve(gltf.scene.children.slice());
+            },
+            () => {},
+            (error: any) => reject(error),
+        );
+    })
+    console.log(boxGlb);
+    const box = boxGlb[0];//new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.3));
+    //box.material = new THREE.MeshStandardMaterial({
+    //    color: "#aa8800"
+    //});
     box.position.set(1.2, 0.1, 1.2);
     box.userData.uid = "toto";
     scene.add(box);
