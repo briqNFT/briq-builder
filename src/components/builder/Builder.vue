@@ -70,6 +70,7 @@ export default defineComponent({
     },
     async mounted() {
         setupSync();
+        setsManager.clear();
         setsManager.loadFromStorage();
         await inputInitComplete;
         let set = checkForInitialGMSet();

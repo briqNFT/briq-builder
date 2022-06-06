@@ -152,6 +152,12 @@ class SetsManager {
 
     fetchingChainSets = false;
 
+    clear() {
+        this.setList.splice(0, this.setList.length);
+        for (const key in this.setsInfo)
+            delete this.setsInfo[key];
+    }
+
     /**
      * Load all sets from local storage. Note that this doesn't clear any preloaded sets (such as on-chain ones).
      */
