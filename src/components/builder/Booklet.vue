@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { builderDataStore } from '@/builder/BuilderData';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import type { SetData } from '@/builder/SetData';
@@ -8,7 +7,8 @@ import { useStore } from 'vuex';
 
 import Slider from '../generic/Slider.vue';
 import { pushModal } from '../Modals.vue';
-import ExportSetVue from './modals/ExportSet.vue';
+import { useBooklet } from './BookletComposable';
+import ExportSetBookletVue from './modals/ExportSetBooklet.vue';
 
 const currentPage = ref(1)
 
@@ -75,10 +75,11 @@ watchEffect(() => {
     shapeIsValid.value = match === targetBriqs.length
 })
 
-
 const onMint = async () => {
-    await pushModal(ExportSetVue, { set: store.state.builderData.currentSet });
+    await pushModal(ExportSetBookletVue, { set: store.state.builderData.currentSet });
 }
+
+const { getImgSrc } = useBooklet();
 </script>
 
 <template>
@@ -88,7 +89,7 @@ const onMint = async () => {
             <template v-if="!!bookletData">
                 <h2>{{ bookletData.name }}</h2>
                 <p>Eye Hint</p>
-                <img :src="`/${booklet}/step_${currentPage - 1}.png`">
+                <img :src="getImgSrc(booklet, currentPage)">
                 <p class="w-full"><Slider :min="1" :max="+bookletData.nb_pages || 1" v-model="currentPage"/></p>
                 <Btn class="w-[10rem] my-1" :disabled="!shapeIsValid" @click="onMint">Mint</Btn>
             </template>
