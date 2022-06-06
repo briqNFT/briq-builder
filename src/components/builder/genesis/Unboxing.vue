@@ -135,11 +135,8 @@ async function setup(canvas: HTMLCanvasElement) {
             (error: any) => reject(error),
         );
     })
-    console.log(meshes);
     meshes[0].receiveShadow = true;
     for (let mesh of meshes[1].children) {
-        //console.log(mesh.material);
-        //mesh.material.roughness = 0.0;
         mesh.castShadow = true;
         mesh.receiveShadow = false;
     }
@@ -170,13 +167,16 @@ async function setup(canvas: HTMLCanvasElement) {
             (error: any) => reject(error),
         );
     })
-    console.log(boxGlb);
-    const box = boxGlb[0];//new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.3));
-    //box.material = new THREE.MeshStandardMaterial({
-    //    color: "#aa8800"
-    //});
+    const box = boxGlb[0];
     box.position.set(1.2, 0.1, 1.2);
     box.userData.uid = "toto";
+    box.children[4].material = new THREE.MeshStandardMaterial({
+        color: "#aa8800"
+    });
+    box.children[4].children.forEach(x => {
+        x.material = box.children[4].material
+        x.userData.uid = box.userData.uid;
+    });
     scene.add(box);
     console.log(scene);
 
@@ -205,6 +205,7 @@ const onClick = (event: PointerEvent) => {
     const rc = new THREE.Raycaster();
     const cv = canvas.value as unknown as HTMLCanvasElement;
     rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, cameraRef.value!);
+    console.log(cameraRef.value!.parent);
     const objects = rc.intersectObjects(cameraRef.value!.parent.children, true);
     if (objects.length && objects[0].object.userData.uid === 'toto')
         selectedObject.value = objects[0].object as THREE.Mesh;
@@ -220,7 +221,10 @@ const router = useRouter()
 
 const unbox = async () => {
     if (await pushModal(UnboxModal))
+    {
+        window.localStorage.setItem("briq_current_booklet", "spaceman");
         router.push({ name: 'Builder' });
+    }
 }
 </script>
 

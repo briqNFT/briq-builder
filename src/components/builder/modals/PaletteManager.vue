@@ -68,7 +68,6 @@ const addAllActive = () => {
 
 const resetAll = () => {
     palette.value.reset();
-    palette.value.updateForSet(store.state.builderData.currentSet);
     const { material, color } = palette.value.getFirstChoice();
     currentColor.value = color;
     currentMaterial.value = material;

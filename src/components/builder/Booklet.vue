@@ -1,34 +1,101 @@
 <script setup lang="ts">
-import VuePdfEmbed from 'vue-pdf-embed'
-import punkUrl from '@/assets/genesis/punk.pdf?url'
-import { ref } from 'vue';
+import { builderDataStore } from '@/builder/BuilderData';
+import { inputStore } from '@/builder/inputs/InputStore';
+import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
+import type { SetData } from '@/builder/SetData';
+import { markRaw, onBeforeMount, ref, watchEffect } from 'vue';
+import { useStore } from 'vuex';
+
 import Slider from '../generic/Slider.vue';
+import { pushModal } from '../Modals.vue';
+import ExportSetVue from './modals/ExportSet.vue';
 
 const currentPage = ref(1)
 
-const pdf = ref(VuePdfEmbed.getDocument(punkUrl));
-const nPages = ref(1);
-pdf.value.promise.then(x => {
-    nPages.value = x.numPages
-});
+const booklet = ref("");
 
-const pdfRef = ref(null);
+const bookletData = ref(null as any);
 
+onBeforeMount(() => {
+    let data = window.localStorage.getItem('briq_current_booklet');
+    if (!data)
+        return;
+    try {
+        booklet.value = data;
+        fetch(booklet.value + '/shape.json').then(
+            async data => {
+                let metadata = await data.json();
+                bookletData.value = markRaw(metadata);
+                const palette = palettesMgr.getCurrent();
+                palette.reset(false);
+                const colors = new Set();
+                for (const briq of metadata.briqs)
+                    colors.add(packPaletteChoice(briq.data.material, briq.data.color));
+                colors.forEach(col => palette.addChoice({ key: col }, col));
+                const choice = palette.getFirstChoice();
+                inputStore.currentColor = choice.color;
+                inputStore.currentMaterial = choice.material;
+            }
+        ).catch(() => {
+            bookletData.value = undefined;
+            window.localStorage.removeItem('briq_current_booklet');
+        })
+    } catch(e) {
+        window.localStorage.removeItem('briq_current_booklet');
+    }
+})
+
+const shapeIsValid = ref(false);
+
+const store = useStore();
+watchEffect(() => {
+    if (!bookletData.value)
+        return;
+    const set = store.state.builderData.currentSet as SetData;
+    set.briqs_;
+    const currentBriqs = set.getAllBriqs();
+    const targetBriqs = bookletData.value.briqs.slice();
+    if (currentBriqs.length !== targetBriqs.length) {
+        shapeIsValid.value = false;
+        return;
+    }
+    let match = 0;
+    for (const a of targetBriqs)
+    {
+        for (const b of currentBriqs)
+        {
+            if (a.pos[0] === b.position[0] && a.pos[1] === b.position[1] && a.pos[2] === b.position[2]
+                 && a.data.color === b.color && a.data.material === b.material)
+            {
+                match++;
+                break;
+            }
+        }
+    }
+    shapeIsValid.value = match === targetBriqs.length
+})
+
+
+const onMint = async () => {
+    await pushModal(ExportSetVue, { set: store.state.builderData.currentSet });
+}
 </script>
 
 <template>
-    <div class="absolute top-0 bottom-0 right-0 pointer-events-none flex flex-col alternate-buttons m-4">
+    <div v-if="booklet" class="absolute top-0 bottom-0 right-0 pointer-events-none flex flex-col alternate-buttons m-4">
         <div class="grow basis-[6rem]"></div>
         <div class="pointer-events-auto bg-base rounded-md p-4 flex-col flex items-center gap-2">
-            <h2>Some Booklet</h2>
-            <p>Eye Hint</p>
-            <div v-if="!!pdf">
-                <VuePdfEmbed
-                    ref="pdfRef"
-                :source="punkUrl" :page="+currentPage" :disable-text-layer="true" :disable-annotation-layer="true"></VuePdfEmbed>
-            </div>
-            <p class="w-full"><Slider :min="1" :max="nPages || 1" v-model="currentPage"/></p>
-            <Btn class="w-[10rem] my-1" :disabled="true">Mint</Btn>
+            <template v-if="!!bookletData">
+                <h2>{{ bookletData.name }}</h2>
+                <p>Eye Hint</p>
+                <img :src="`/${booklet}/step_${currentPage - 1}.png`">
+                <p class="w-full"><Slider :min="1" :max="+bookletData.nb_pages || 1" v-model="currentPage"/></p>
+                <Btn class="w-[10rem] my-1" :disabled="!shapeIsValid" @click="onMint">Mint</Btn>
+            </template>
+            <template v-else="">
+                <p>Loading booklet data</p>
+                <p><i class="fas fa-spinner animate-spin"/></p>
+            </template>
         </div>
         <div class="grow basis-[6rem]"></div>
     </div>

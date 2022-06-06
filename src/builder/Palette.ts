@@ -115,19 +115,6 @@ class Palette {
         delete this.names[old_key];
         this.names[new_key] = new_key;
     }
-
-    /**
-     * Add colors from the set missing in the palette.
-     * @param set - the set to update against
-     */
-    updateForSet(set: SetData) {
-        /*set.forEach((cell, _) => {
-            const v = packPaletteChoice(cell.material, cell.color);
-            if (v in this.colors)
-                return;
-            this.colors[v] = cell.color;
-        });*/
-    }
 }
 
 class PalettesManager {
@@ -142,10 +129,6 @@ class PalettesManager {
 
     getCurrent() {
         return this.palettes[this.currentPalette];
-    }
-
-    updateForSet(set: SetData) {
-        this.getCurrent().updateForSet(set);
     }
 }
 

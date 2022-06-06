@@ -285,7 +285,6 @@ export const builderDataStore = (() => {
                 if (!set)
                     throw new Error('Could not find local set with ID ' + data);
                 state.currentSet = set;
-                palettesMgr.updateForSet(state.currentSet);
                 inputStore.selectionMgr.selectSet(state.currentSet);
                 if (info.status === 'ONCHAIN_LOADED')
                     builderInputFsm.switchTo('inspect');
