@@ -105,12 +105,19 @@ export default defineComponent({
             let used = 0;
             for (let mat in this.$store.state.builderData.currentSet.usedByMaterial)
                 used += this.$store.state.builderData.currentSet.usedByMaterial[mat];
+
+            let selected = "";
+            if (['inspect', 'inspect_va', 'inspect_box', 'drag', 'rotate', 'copy_paste'].indexOf(
+                    inputStore.currentInput,
+                ) !== -1 && inputStore.selectionMgr.selectedBriqs.length > 0)
+                selected = `${inputStore.selectionMgr.selectedBriqs.length} selected\n`;
+
             if (this.chainBriqs.status === 'ERROR')
-                return `${used} briqs\nError loading\nchain briqs`;
+                return `${selected}${used} briqs\nError loading\nchain briqs`;
             if (this.chainBriqs.status === 'NOT_LOADED')
-                return `${used} briqs\nLoading\nchain briqs...`;
+                return `${selected}${used} briqs\nLoading\nchain briqs...`;
             let total = this.chainBriqs.getNbBriqs();
-            return `${used}/${total} briqs`;
+            return `${selected}${used}/${total} briqs`;
         },
         isPlacing() {
             return inputStore.currentInput.indexOf('place') !== -1;
