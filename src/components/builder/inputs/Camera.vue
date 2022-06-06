@@ -23,6 +23,7 @@ const {
     deletePreset,
     renamePreset,
     resetCamera,
+    resetToPseudoIso,
     centerCamera,
 } = usePresetHelpers();
 
@@ -100,6 +101,7 @@ const vFocus = {
 
                 <h4 class="bg-accent rounded-md px-2 py-1 my-1 text-center font-semibold">Presets</h4>
                 <Btn @click="resetCamera">Default</Btn>
+                <Btn @click="resetToPseudoIso">Pseudo-<br/>Isometric</Btn>
             </div>
             <div v-for="preset in presets" :key="preset.name" class="relative">
                 <div class="h-10 invisible"></div>

@@ -130,7 +130,7 @@ function resizeRendererToDisplaySize(renderer, composer, camera) {
 function recreateRenderer(canvas, scene, camera) {
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; //THREE.PCFShadowMap;
+    renderer.shadowMap.type = builderSettings.aaLevel !== "0" ? THREE.VSMShadowMap : THREE.BasicShadowMap; //THREE.VSMShadowMap; //THREE.PCFShadowMap;
 
     renderer.setClearColor(0x000000, 0);
 
@@ -197,12 +197,13 @@ function recreateRenderer(canvas, scene, camera) {
 }
 
 function addLight(scene: THREE.Scene, x: number, y: number, z: number) {
-    const lightSpot = new THREE.DirectionalLight(builderSettings.lightColor, 1.0, 18);
+    const lightSpot = new THREE.DirectionalLight(builderSettings.lightColor, 1.0);
     lightSpot.position.set(x, y, z);
     lightSpot.castShadow = true;
-    lightSpot.shadow.bias = builderSettings.canvasSize > 30 ? -0.01 : -0.005;
+    lightSpot.shadow.bias = builderSettings.canvasSize > 30 ? -0.01 : -0.001;
+    lightSpot.shadow.normalBias = 0.05;
     lightSpot.shadow.camera.near = 0.1;
-    lightSpot.shadow.camera.far = getCanvasSize() * 2;
+    lightSpot.shadow.camera.far = getCanvasSize() * 3;
     lightSpot.shadow.camera.left = -getCanvasSize() * 1.3;
     lightSpot.shadow.camera.right = getCanvasSize() * 1.3;
     lightSpot.shadow.camera.bottom = -getCanvasSize();

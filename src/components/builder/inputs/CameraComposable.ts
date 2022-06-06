@@ -88,6 +88,13 @@ export function usePresetHelpers() {
         dispatchBuilderAction('put_all_in_view');
         camera.updateProjectionMatrix();
     }
+
+    const resetToPseudoIso = () => {
+        fov.value = 35;
+        camera.position.set(35, 35, -60);
+        orbitControls.controls.target = new THREE.Vector3(0, 0, 0);
+        camera.updateProjectionMatrix();
+    }
     
     const centerCamera = () => {
         dispatchBuilderAction('set_camera_target', {
@@ -107,6 +114,7 @@ export function usePresetHelpers() {
         renamePreset,
         cameraSettings,
         resetCamera,
+        resetToPseudoIso,
         centerCamera,
     }
 }
