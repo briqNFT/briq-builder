@@ -70,6 +70,10 @@ export default class SetContract {
         return await this.contract.assemble_(owner, token_id_hint, fts, nfts, split_uri);
     }
 
+    async assemble_with_box(owner: string, token_id_hint: string, set: any[], uri: string) {
+        console.log(owner, token_id_hint, set, uri);
+    }
+
     async disassemble(owner: string, token_id: string, set: SetData) {
         const fungibles = {} as { [mat: string]: number };
         const nfts = [] as string[];

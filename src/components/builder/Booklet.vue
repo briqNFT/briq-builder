@@ -2,6 +2,7 @@
 import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import type { SetData } from '@/builder/SetData';
+import { CONF } from '@/Conf';
 import { markRaw, onBeforeMount, ref, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 
@@ -28,9 +29,14 @@ onBeforeMount(() => {
                 bookletData.value = markRaw(metadata);
                 const palette = palettesMgr.getCurrent();
                 palette.reset(false);
+                for (const key in CONF.defaultPalette)
+                    delete CONF.defaultPalette[key];
                 const colors = new Set();
-                for (const briq of metadata.briqs)
+                for (const briq of metadata.briqs) {
+                    CONF.defaultPalette[packPaletteChoice(briq.data.material, briq.data.color)] = briq.data.color;
+                    console.log(CONF.defaultPalette);
                     colors.add(packPaletteChoice(briq.data.material, briq.data.color));
+                }
                 colors.forEach(col => palette.addChoice({ key: col }, col));
                 const choice = palette.getFirstChoice();
                 inputStore.currentColor = choice.color;

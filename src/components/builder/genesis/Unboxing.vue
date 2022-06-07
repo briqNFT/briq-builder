@@ -8,7 +8,8 @@ import {
     ShaderPass,
     FXAAShader,
     SAOPass,
-    CopyShader
+    CopyShader,
+    OrbitControls
 } from '@/three';
 
 import { ref, onMounted, watch } from 'vue';
@@ -42,10 +43,10 @@ function resizeRendererToDisplaySize(renderer, composer, camera) {
 }
 
 function recreateRenderer(canvas, scene, camera) {
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, logarithmicDepthBuffer: true });
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
+    renderer.shadowMap.type = THREE.VSMShadowMap;
+    renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.setClearColor(0xF00000, 0);
 
     const composer = new EffectComposer(renderer);
@@ -113,6 +114,9 @@ async function setup(canvas: HTMLCanvasElement) {
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     cameraRef.value = camera;
 
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+
     camera.position.set(-2, 1.8, -2);
     camera.lookAt(new THREE.Vector3(2, 0, 2));
     scene.add(camera);
@@ -120,7 +124,10 @@ async function setup(canvas: HTMLCanvasElement) {
     scene.background = new THREE.Color('#230033');
     scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF'), 0.3))
     const light = new THREE.PointLight(new THREE.Color('#FFDDDD'), 1.2, 10.0);
-    light.position.set(0, 2.2, -2);
+    light.position.set(0.5, 2.25, -1);
+    light.shadow.bias = -0.01;
+    light.shadow.radius = 10;
+    light.shadow.mapSize = new THREE.Vector2(1024, 1024);
     light.castShadow = true;
     scene.add(light)
 
@@ -169,14 +176,28 @@ async function setup(canvas: HTMLCanvasElement) {
     })
     const box = boxGlb[0];
     box.position.set(1.2, 0.1, 1.2);
+    box.rotateY(Math.PI);
     box.userData.uid = "toto";
-    box.children[4].material = new THREE.MeshStandardMaterial({
-        color: "#aa8800"
-    });
     box.children[4].children.forEach(x => {
-        x.material = box.children[4].material
         x.userData.uid = box.userData.uid;
+        x.castShadow = true;
+        x.receiveShadow = true;
     });
+    
+    const lightMapLoader = new THREE.TextureLoader();
+    const texture = lightMapLoader.load('/spaceman/box_texture.png');
+    texture.encoding = THREE.sRGBEncoding;
+    texture.flipY = false;
+
+    
+    box.children[4].children[0].material.color = new THREE.Color("#ffffff");
+    box.children[4].children[1].material.color = new THREE.Color("#ffffff");
+    box.children[4].children[2].material.color = new THREE.Color("#ffffff");
+
+    (box.children[4].children[0].material.map as THREE.Texture) = texture;
+    (box.children[4].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
+    (box.children[4].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;
+
     scene.add(box);
     console.log(scene);
 
@@ -196,7 +217,7 @@ onMounted(async () => {
 const selectedObject = ref(undefined as THREE.Mesh | undefined);
 watch(selectedObject, (newV, oldV) => {
     if (oldV)
-        oldV.material.color = new THREE.Color('#aa8800');
+        oldV.material.color = new THREE.Color('#ffffff');
     if (newV)
         newV.material.color = new THREE.Color('#FF0022');
 })
