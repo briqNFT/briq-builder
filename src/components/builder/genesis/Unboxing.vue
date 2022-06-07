@@ -97,7 +97,7 @@ const render = () => renderFunc.value();
 
 import { GLTFLoader } from '@/three';
 
-import HomeScene from '@/assets/genesis/home_scene.glb?url';
+import HomeScene from '@/assets/genesis/briqs_box_xmas.glb?url';
 import BriqBox from '@/assets/genesis/briqs_box.glb?url';
 
 const cameraRef = ref(undefined as THREE.Camera | undefined);
@@ -136,32 +136,27 @@ async function setup(canvas: HTMLCanvasElement) {
         loader.load(
             HomeScene,
             (gltf: any) => {
-                resolve(gltf.scene.children.slice());
+                resolve(gltf.scene.children.slice(1));
             },
             () => {},
             (error: any) => reject(error),
         );
     })
-    meshes[0].receiveShadow = true;
-    for (let mesh of meshes[1].children) {
-        mesh.castShadow = true;
-        mesh.receiveShadow = false;
-    }
-    /*
-    meshes[0].material = new THREE.MeshStandardMaterial({
-        color: "#404040",
-    })
-    meshes[0].material.side = THREE.DoubleSide;
-    meshes[1].material = new THREE.MeshStandardMaterial({
-        color: "#22AA99"
-    })
-    meshes[0].receiveShadow = true;
-    meshes[1].receiveShadow = true;
-    meshes[1].castShadow = true;
-    */
-
+    const obj = new THREE.Group();
     for(const mesh of meshes)
-        scene.add(mesh);
+    {
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        for (const child of mesh.children) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+        }
+        obj.add(mesh);
+    }
+    scene.add(obj);
+    obj.rotateY(Math.PI);
+    obj.translateY(-2.05);
+    obj.translateZ(9);
 
     const boxGlb = await new Promise((resolve: (_: THREE.Mesh[]) => void, reject) => {
         const loader = new GLTFLoader();
@@ -178,7 +173,7 @@ async function setup(canvas: HTMLCanvasElement) {
     box.position.set(1.2, 0.1, 1.2);
     box.rotateY(Math.PI);
     box.userData.uid = "toto";
-    box.children[4].children.forEach(x => {
+    box.children[1].children.forEach(x => {
         x.userData.uid = box.userData.uid;
         x.castShadow = true;
         x.receiveShadow = true;
@@ -190,13 +185,12 @@ async function setup(canvas: HTMLCanvasElement) {
     texture.flipY = false;
 
     
-    box.children[4].children[0].material.color = new THREE.Color("#ffffff");
-    box.children[4].children[1].material.color = new THREE.Color("#ffffff");
-    box.children[4].children[2].material.color = new THREE.Color("#ffffff");
+    box.children[1].children[0].material.color = new THREE.Color("#ffffff");
+    box.children[1].children[1].material.color = new THREE.Color("#ffffff");
 
-    (box.children[4].children[0].material.map as THREE.Texture) = texture;
-    (box.children[4].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
-    (box.children[4].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;
+    (box.children[1].children[0].material.map as THREE.Texture) = texture;
+    (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
+    (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;
 
     scene.add(box);
     console.log(scene);
