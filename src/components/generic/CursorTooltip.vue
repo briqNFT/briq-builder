@@ -1,13 +1,26 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const positionHack = ref(false);
+const vMounted = {
+    mounted: (el: HTMLElement) => {
+        positionHack.value = !positionHack.value;
+    }
+}
+
+</script>
 <template>
-    <div
-        class="fixed bg-accent rounded-md pointer-events-none px-2 py-1 shadow font-medium text-sm"
-        :style="getPositionCSS">
+    <div v-if="show"
+        class="fixed bg-accent rounded-md pointer-events-none px-2 py-1 shadow font-medium text-sm w-max"
+        :style="getPositionCSS"
+        ref="tooltipDiv"
+        v-mounted>
         {{ tooltip }}
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, nextTick } from 'vue';
 import { messagesStore } from '../../Messages';
 
 const INITIAL_DELAY = 300;
@@ -33,16 +46,19 @@ export default defineComponent({
             return messagesStore.tooltip;
         },
         getPositionCSS() {
+            this.show;
+            this.positionHack;
             let ret = {
-                display: this.show ? 'block' : 'none',
                 left: `${this.mx + 10}px`,
                 top: `${this.my + 10}px`,
-                transform: '',
             } as any;
-            if (this.mx > window.innerWidth * 0.8)
-                ret.transform += ' translateX(calc(-100% - 15px)) ';
-            if (this.my > window.innerHeight * 0.8)
-                ret.transform += ' translateY(calc(-100% - 10px)) ';
+            if (!this.$refs.tooltipDiv)
+                return ret;
+            const rect = this.$refs.tooltipDiv.getBoundingClientRect();
+            if (this.mx > window.innerWidth - rect.width - 10)
+                ret.left = `${window.innerWidth - rect.width}px`;
+            if (this.my > window.innerHeight - rect.height - 10)
+                ret.top = `${window.innerHeight - rect.height}px`;
             return ret;
         },
     },
