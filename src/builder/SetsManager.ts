@@ -21,10 +21,12 @@ const SETINFO_VERSION = 1;
 export class SetInfo {
     id: string;
     local?: SetData;
-    chain?: SetData;
     status: SET_STATUS = 'LOCAL';
 
+    booklet: string | undefined;
+
     chain_owner = '';
+
     // True if we are currently syncing with the chain.
     syncing = false;
 
@@ -42,6 +44,7 @@ export class SetInfo {
             version: SETINFO_VERSION,
             id: this.id,
             status: this.status,
+            booklet: this.booklet,
             chain_owner: this.chain_owner,
             local: data,
         };
@@ -51,6 +54,7 @@ export class SetInfo {
         this.syncing = false;
         this.status = data.status;
         this.id = data.id;
+        this.booklet = data?.booklet;
         this.chain_owner = data.chain_owner;
         if (data.local)
             try {
@@ -66,7 +70,7 @@ export class SetInfo {
     }
 
     getSet() {
-        return this.local || this.chain;
+        return this.local;
     }
 
     setLocal(set: SetData) {
@@ -118,11 +122,13 @@ export class SetInfo {
     }
 
     async loadFromChain(force = false) {
+        /*
         if (this.chain && !force)
             return this.chain;
         this.syncing = true;
         await this._loadFromChain();
         this.syncing = false;
+        */
         return this;
     }
 
