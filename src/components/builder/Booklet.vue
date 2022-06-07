@@ -25,6 +25,7 @@ getImgSrc,
     booklet,
     bookletData,
 } = useBooklet();
+console.log(bookletData);
 </script>
 
 <template>

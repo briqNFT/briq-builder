@@ -2,26 +2,28 @@ import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import type { SetData } from '@/builder/SetData';
 import { CONF } from '@/Conf';
-import { markRaw, onBeforeMount, ref, watchEffect } from 'vue';
+import { markRaw, onBeforeMount, reactive, ref, toRef, watchEffect } from 'vue';
 import { useStore } from 'vuex';
+
+export const bookletStore = reactive({
+    booklet: "",
+    bookletData: null as any,
+});
 
 export function useBooklet() {
     const getImgSrc = (booklet: string, page: number) => `/${booklet}/step_${page - 1}.png`;
 
-    const booklet = ref("");
-
-    const bookletData = ref(null as any);
 
     onBeforeMount(() => {
         let data = window.localStorage.getItem('briq_current_booklet');
         if (!data)
             return;
         try {
-            booklet.value = data;
-            fetch(booklet.value + '/shape.json').then(
+            bookletStore.booklet = data;
+            fetch(bookletStore.booklet + '/shape.json').then(
                 async data => {
                     let metadata = await data.json();
-                    bookletData.value = markRaw(metadata);
+                    bookletStore.bookletData = markRaw(metadata);
                     const palette = palettesMgr.getCurrent();
                     palette.reset(false);
                     for (const key in CONF.defaultPalette)
@@ -37,7 +39,7 @@ export function useBooklet() {
                     inputStore.currentMaterial = choice.material;
                 }
             ).catch(() => {
-                bookletData.value = undefined;
+                bookletStore.bookletData = undefined;
                 window.localStorage.removeItem('briq_current_booklet');
             })
         } catch(e) {
@@ -50,12 +52,12 @@ export function useBooklet() {
     const shapeValidity = ref(0);
 
     watchEffect(() => {
-        if (!bookletData.value)
+        if (!bookletStore.bookletData)
             return;
         const set = store.state.builderData.currentSet as SetData;
         set.briqs_;
         const currentBriqs = set.getAllBriqs();
-        const targetBriqs = bookletData.value.briqs.slice();
+        const targetBriqs = bookletStore.bookletData.briqs.slice();
         let match = 0;
         for (const a of targetBriqs)
         {
@@ -83,7 +85,7 @@ export function useBooklet() {
     return {
         getImgSrc,
         shapeValidity,
-        booklet,
-        bookletData,
+        booklet: toRef(bookletStore, 'booklet'),
+        bookletData: toRef(bookletStore, 'bookletData'),
     };
 };
