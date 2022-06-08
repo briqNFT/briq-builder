@@ -26,31 +26,27 @@
 </style>
 
 <template>
-    <div class="container m-auto alternate-buttons">
-        <div class="grid-cols-2 grid min-h-screen">
+    <div class="container m-auto alternate-buttons min-h-screen">
+        <div class="grid-cols-2 grid">
             <div class="row-span-full flex flex-col justify-between">
                 <h1 class="my-8 text-6xl">0xCafeBabe</h1>
                 <div class="item-gallery">
                     <h2>briqs</h2>
                     <div class="items">
-                        <div class="item">
-                        </div>
+                        <div class="item"/>
                     </div>
                 </div>
                 <div class="item-gallery">
                     <h2>Booklets</h2>
                     <div class="items">
-                        <div class="item">
-                        </div>
+                        <div class="item"/>
                     </div>
                 </div>
                 <div class="item-gallery">
                     <h2>Sets</h2>
                     <div class="items">
-                        <div class="item">
-                        </div>
-                        <div class="item">
-                        </div>
+                        <div class="item"/>
+                        <div class="item"/>
                     </div>
                 </div>
             </div>
