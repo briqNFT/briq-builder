@@ -12,6 +12,9 @@ export const bookletStore = reactive({
     bookletData: null as any,
 });
 
+
+const OgPalette = Object.assign({}, CONF.defaultPalette);
+
 function loadBookletData(booklet: string) {
     if (!booklet)
         return;
@@ -54,6 +57,11 @@ export function useBooklet() {
     watch(currentSetInfo, () => {
         if (currentSetInfo.value && currentSetInfo.value.booklet)
             loadBookletData(currentSetInfo.value.booklet);
+        else {
+            for (const key in CONF.defaultPalette)
+                delete CONF.defaultPalette[key];
+            Object.assign(CONF.defaultPalette, OgPalette);
+        }
     }, {
         immediate: true,
     });
