@@ -12,7 +12,7 @@ import { store } from '@/store/Store';
 import { walletInitComplete } from '@/chain/WalletLoading';
 import { logDebug } from '@/Messages';
 import { setSync } from './SetSync';
-import { bookletStore, loadBookletData } from '@/components/builder/BookletComposable';
+import { bookletStore } from '@/components/builder/BookletComposable';
 
 /**
  * Returns refs for easier destructuring.
@@ -100,7 +100,6 @@ async function initializeBooklet() {
     if (!setInfo.booklet)
         return;
     bookletStore.booklet = setInfo.booklet;
-    loadBookletData();
 }
 
 async function initializeBuilder() {
