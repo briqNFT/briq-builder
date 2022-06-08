@@ -62,7 +62,6 @@ module.exports = {
 
         // _ marks unused arguments.
         'no-unused-vars': 'off',
-        'vue/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
         '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
     plugins: ['@typescript-eslint'],
