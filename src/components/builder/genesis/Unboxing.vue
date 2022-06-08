@@ -104,6 +104,10 @@ import BriqBox from '@/assets/genesis/briqs_box.glb?url';
 
 const cameraRef = ref(undefined as THREE.Camera | undefined);
 
+let boxOpenAnim: any;
+
+let chimneyLight;
+
 async function setup(canvas: HTMLCanvasElement) {
     await threeSetupComplete;
 
@@ -118,6 +122,7 @@ async function setup(canvas: HTMLCanvasElement) {
 
     const controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
+    controls.target = new THREE.Vector3(2, 0, 2);
 
     camera.position.set(-2, 1.8, -2);
     camera.lookAt(new THREE.Vector3(2, 0, 2));
@@ -159,21 +164,47 @@ async function setup(canvas: HTMLCanvasElement) {
     obj.translateY(-2.05);
     obj.translateZ(9);
 
-    const boxGlb = await new Promise((resolve: (_: THREE.Mesh[]) => void, reject) => {
+    {
+        const light2 = new THREE.PointLight(new THREE.Color('#FFAA00'), 1.5, 6.0);
+        light2.position.set(2.6, 0.4, 0.5);
+        light2.shadow.bias = -0.01;
+        light2.shadow.radius = 20;
+        light2.shadow.mapSize = new THREE.Vector2(512, 512);
+        light2.castShadow = true;
+        scene.add(light2);
+        chimneyLight = light2;
+    }
+
+    const boxGlb = await new Promise<{ anim: THREE.AnimationAction, box: THREE.Object3D }>((resolve, reject) => {
         const loader = new GLTFLoader();
         loader.load(
             BriqBox,
             (gltf: any) => {
-                resolve(gltf.scene.children.slice());
+                resolve({
+                    anim: gltf.animations[0],
+                    box: gltf.scene.children.slice()[0],
+                });
             },
             () => {},
             (error: any) => reject(error),
         );
     })
-    const box = boxGlb[0];
-    box.position.set(1.2, 0.1, 1.2);
+    const box = boxGlb.box;
+
+    boxOpenAnim = boxGlb.anim;
+    const mixer = new THREE.AnimationMixer(box);
+    const anim = mixer.clipAction(boxGlb.anim)
+    anim.timeScale = -2;
+    anim.paused = false;
+    anim.setLoop(THREE.LoopRepeat, 1);
+    anim.play();
+    mixer.setTime(0.001);
+
+    box.userData.mixer = mixer;
+    box.position.set(1.2, 0.07, 1.2);
     box.rotateY(Math.PI);
     box.userData.uid = 'toto';
+    box.children[1].userData.uid = box.userData.uid;
     box.children[1].children.forEach(x => {
         x.userData.uid = box.userData.uid;
         x.castShadow = true;
@@ -212,9 +243,9 @@ onMounted(async () => {
 const selectedObject = ref(undefined as THREE.Mesh | undefined);
 watch(selectedObject, (newV, oldV) => {
     if (oldV)
-        oldV.material.color = new THREE.Color('#ffffff');
+        oldV.children[1].children[0].material.color = new THREE.Color('#ffffff');
     if (newV)
-        newV.material.color = new THREE.Color('#FF0022');
+        newV.children[1].children[0].material.color = new THREE.Color('#FF0022');
 })
 
 const onClick = (event: PointerEvent) => {
@@ -223,9 +254,12 @@ const onClick = (event: PointerEvent) => {
     rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, cameraRef.value!);
     console.log(cameraRef.value!.parent);
     const objects = rc.intersectObjects(cameraRef.value!.parent.children, true);
-    if (objects.length && objects[0].object.userData.uid === 'toto')
-        selectedObject.value = objects[0].object as THREE.Mesh;
-    else
+    if (objects.length && objects[0].object.userData.uid === 'toto') {
+        let obj = objects[0].object as THREE.Mesh;
+        while (obj.parent?.userData.uid === 'toto')
+            obj = obj.parent;
+        selectedObject.value = obj;
+    } else
         selectedObject.value = undefined;
 }
 
@@ -235,18 +269,62 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter()
 
+const step = ref('SAPIN' as 'SAPIN' | 'CHECK_BOX' | 'UNBOXING');
+
 const unbox = async () => {
     if (await pushModal(UnboxModal)) {
+        // Create a new local set with the proper booklet.
         const { setsManager, store } = useBuilder();
+        const maybeExisting = setsManager.setList.filter(sid => {
+            setsManager.getInfo(sid).local?.getNbBriqs() === 0 && setsManager.getInfo(sid).booklet === 'spaceman'
+        });
+        if (maybeExisting.length !== 0) {
+            store.dispatch('builderData/select_set', maybeExisting[0].id);
+            return;
+        }
+
         const set = setsManager.createLocalSet();
         set.name = 'Spaceman';
         const info = setsManager.getInfo(set.id);
         info.booklet = 'spaceman';
         store.dispatch('builderData/select_set', set.id);
-        router.push({ name: 'Builder' });
+
+        // Play the box open animation.
+        step.value = 'UNBOXING';
     }
 }
 
+const goToBuilder = () => {
+    router.push({ name: 'Builder' });
+}
+
+let lastTime;
+
+function frame(time) {
+    requestAnimationFrame(frame);
+    if (!lastTime) {
+        lastTime = time;
+        return;
+    }
+    const delta = time - lastTime;
+    lastTime = time;
+
+    if (chimneyLight) {
+        const intensity = Math.random() > 0.8 ? 0.2 : 0.01;
+
+        (chimneyLight as THREE.PointLight).position.set(
+            2.5 + (Math.random() * intensity - intensity/2) * 0.0,
+            0.5 + (Math.random() * intensity - intensity/2) * 0.1,
+            0.6 + (Math.random() * intensity - intensity/2) * 0.1,
+        );
+        (chimneyLight as THREE.PointLight).intensity = Math.random() * 0.3 + 0.85;
+    }
+
+
+    if (step.value === 'UNBOXING')
+        selectedObject.value?.userData.mixer.update(delta / 1000.0);
+}
+requestAnimationFrame(frame);
 </script>
 
 <template>
@@ -255,10 +333,13 @@ const unbox = async () => {
         id="unboxGl"
         ref="canvas"
         @click="onClick"/>
-    <div class="relative">
+    <div class="relative" v-if="step !== 'UNBOXING'">
         <p>Here be the boxes</p>
         <div>Currently selected: {{ selectedObject?.userData?.uid ?? 'No box' }}</div>
         <Btn @click="unbox" :disabled="!selectedObject">Unbox</Btn>
+    </div>
+    <div class="relative" v-else-if="step === 'UNBOXING'">
+        <Btn @click="goToBuilder">Go to builder</Btn>
     </div>
     <Modals/>
 </template>
