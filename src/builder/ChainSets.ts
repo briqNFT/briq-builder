@@ -16,7 +16,7 @@ class ChainSetInfo {
     }
 }
 
-class ChainSets {
+export class ChainSets {
 
     fetchingChainSets = false;
     lastOwner = '';

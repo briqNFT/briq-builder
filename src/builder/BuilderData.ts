@@ -286,10 +286,11 @@ export const builderDataStore = (() => {
                     throw new Error('Could not find local set with ID ' + data);
                 state.currentSet = set;
                 inputStore.selectionMgr.selectSet(state.currentSet);
-                if (info.status === 'ONCHAIN_LOADED')
-                    builderInputFsm.switchTo('inspect');
-                else
-                    builderInputFsm.switchTo('place');
+                if (builderInputFsm.store)
+                    if (info.status === 'ONCHAIN_LOADED')
+                        builderInputFsm.switchTo('inspect');
+                    else
+                        builderInputFsm.switchTo('place');
                 dispatchBuilderAction('select_set', state.currentSet);
             },
             update_set(state: any, data: any) {
@@ -418,7 +419,7 @@ registerUndoableAction(
             for (const d of payload) {
                 const cell = (state.builderData.currentSet as SetData).getAt(...(d.pos as [number, number, number]));
                 if (cell)
-                    colors.push({ color: cell.color, material: cell.material});
+                    colors.push({ color: cell.color, material: cell.material });
             }
             transientActionState.colors = colors;
         },

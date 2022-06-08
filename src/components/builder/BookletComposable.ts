@@ -1,50 +1,49 @@
-import { inputStore } from '@/builder/inputs/InputStore';
-import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import type { SetData } from '@/builder/SetData';
-import { CONF } from '@/Conf';
-import { markRaw, onBeforeMount, reactive, ref, toRef, watchEffect } from 'vue';
+import { markRaw, reactive, ref, toRef, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 
+
+import { inputStore } from '@/builder/inputs/InputStore';
+import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
+import { CONF } from '@/Conf';
+
 export const bookletStore = reactive({
-    booklet: "",
+    booklet: '',
     bookletData: null as any,
 });
 
+export function loadBookletData() {
+    if (!bookletStore.booklet)
+        return;
+
+    try {
+        fetch(bookletStore.booklet + '/shape.json').then(
+            async data => {
+                const metadata = await data.json();
+                bookletStore.bookletData = markRaw(metadata);
+
+                // Change default palette & update colors.
+                for (const key in CONF.defaultPalette)
+                    delete CONF.defaultPalette[key];
+                for (const briq of metadata.briqs)
+                    CONF.defaultPalette[packPaletteChoice(briq.data.material, briq.data.color)] = briq.data.color;
+
+                const palette = palettesMgr.getCurrent();
+                palette.reset(true);
+                const choice = palette.getFirstChoice();
+                inputStore.currentColor = choice.color;
+                inputStore.currentMaterial = choice.material;
+            },
+        ).catch(() => {
+            bookletStore.bookletData = undefined;
+        })
+    } catch(e) {
+        console.warn(e);
+    }
+}
+
 export function useBooklet() {
     const getImgSrc = (booklet: string, page: number) => `/${booklet}/step_${page - 1}.png`;
-
-    onBeforeMount(() => {
-        let data = window.localStorage.getItem('briq_current_booklet');
-        if (!data)
-            return;
-        try {
-            bookletStore.booklet = data;
-            fetch(bookletStore.booklet + '/shape.json').then(
-                async data => {
-                    let metadata = await data.json();
-                    bookletStore.bookletData = markRaw(metadata);
-                    const palette = palettesMgr.getCurrent();
-                    palette.reset(false);
-                    for (const key in CONF.defaultPalette)
-                        delete CONF.defaultPalette[key];
-                    const colors = new Set();
-                    for (const briq of metadata.briqs) {
-                        CONF.defaultPalette[packPaletteChoice(briq.data.material, briq.data.color)] = briq.data.color;
-                        colors.add(packPaletteChoice(briq.data.material, briq.data.color));
-                    }
-                    colors.forEach(col => palette.addChoice({ key: col }, col));
-                    const choice = palette.getFirstChoice();
-                    inputStore.currentColor = choice.color;
-                    inputStore.currentMaterial = choice.material;
-                }
-            ).catch(() => {
-                bookletStore.bookletData = undefined;
-                window.localStorage.removeItem('briq_current_booklet');
-            })
-        } catch(e) {
-            window.localStorage.removeItem('briq_current_booklet');
-        }
-    })
 
     const store = useStore();
 
@@ -58,14 +57,11 @@ export function useBooklet() {
         const currentBriqs = set.getAllBriqs();
         const targetBriqs = bookletStore.bookletData.briqs.slice();
         let match = 0;
-        for (const a of targetBriqs)
-        {
+        for (const a of targetBriqs) {
             let found = false;
-            for (let i = 0; i < currentBriqs.length; ++i)
-            {
+            for (let i = 0; i < currentBriqs.length; ++i) {
                 const b = currentBriqs[i];
-                if (a.pos[0] === b.position[0] && a.pos[1] === b.position[1] && a.pos[2] === b.position[2])
-                {
+                if (a.pos[0] === b.position[0] && a.pos[1] === b.position[1] && a.pos[2] === b.position[2]) {
                     if (a.data.color === b.color && a.data.material === b.material)
                         match++;
                     else
@@ -86,4 +82,4 @@ export function useBooklet() {
         booklet: toRef(bookletStore, 'booklet'),
         bookletData: toRef(bookletStore, 'bookletData'),
     };
-};
+}

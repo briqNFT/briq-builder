@@ -27,9 +27,6 @@ export class SetInfo {
 
     chain_owner = '';
 
-    // True if we are currently syncing with the chain.
-    syncing = false;
-
     constructor(sid: string, status?: SET_STATUS) {
         this.id = sid;
         if (status)
@@ -51,7 +48,6 @@ export class SetInfo {
     }
 
     deserialize(data: any) {
-        this.syncing = false;
         this.status = data.status;
         this.id = data.id;
         this.booklet = data?.booklet;
@@ -95,63 +91,9 @@ export class SetInfo {
     isLocalOnly() {
         return this.status === 'LOCAL';
     }
-
-    // TODO: maybe move those mostly to setManager? Except maybe the ticketing?
-    _fetchFromChain = ticketing(async function (sid: string) {
-        return (await backendManager.getMetadata(sid));
-    });
-
-    async _loadFromChain() {
-        let data;
-        try {
-            data = await this._fetchFromChain(this.id);
-            try {
-                data = new SetData(this.id).deserialize(data);
-            } catch (err) {
-                reportError(err as Error, 'Error while parsing set data from chain');
-            }
-        } catch (err) {
-            if (isOutdated(err))
-                return;
-            reportError(err as Error, 'Error while loading chain set data');
-        }
-        if (data)
-            this.chain = data;
-        else
-            delete this.chain;
-    }
-
-    async loadFromChain(force = false) {
-        /*
-        if (this.chain && !force)
-            return this.chain;
-        this.syncing = true;
-        await this._loadFromChain();
-        this.syncing = false;
-        */
-        return this;
-    }
-
-    async loadLocally() {
-        await this.loadFromChain();
-        this.local = new SetData(this.id).deserialize(this.chain?.serialize());
-        this.status = 'ONCHAIN_LOADED';
-    }
-
-    async checkActuallyOnChain(setContract: SetContract) {
-        const owner = await setContract.ownerOf(this.id);
-        if (!owner || owner === '0x0') {
-            this.chain_owner = '';
-            this.status = 'LOCAL';
-        } else {
-            this.chain_owner = owner;
-            if (this.status === 'LOCAL')
-                this.status = 'ONCHAIN_EDITING';
-        }
-    }
 }
 
-class SetsManager {
+export class SetsManager {
     setList: Array<string> = [];
     setsInfo: { [setId: string]: SetInfo } = {};
 
@@ -175,76 +117,11 @@ class SetsManager {
                 const info = new SetInfo(sid).deserialize(data);
                 this.setList.push(info.id);
                 this.setsInfo[info.id] = info;
-                if (!info.isLocalOnly())
-                    info.loadFromChain();
             } catch (e) {
                 console.info('Could not parse stored set', sid, 'error:', e);
                 window.localStorage.removeItem(sid);
             }
         }
-    }
-
-    getSets = ticketing(async function (setContract: SetContract, owner: string) {
-        return await setContract.balanceDetailsOf(owner);
-    });
-
-    async loadOnChain(setContract: SetContract, owner: string) {
-        this.fetchingChainSets = true;
-        try {
-            await ignoreOutdated(async () => {
-                const sets = await this.getSets(setContract, owner);
-                for (const id of sets) {
-                    if (!this.setsInfo[id])
-                        this.setList.push(id);
-                    if (this.setsInfo[id]) {
-                        // If we found a same-ID set marked local, then assume we're editing it.
-                        if (this.setsInfo[id].status === 'LOCAL')
-                            this.setsInfo[id].status = 'ONCHAIN_EDITING';
-                        // Otherwise keep the local set, it's probably got good data.
-                    } else
-                        this.setsInfo[id] = new SetInfo(id, 'ONCHAIN_ONLY');
-                    this.setsInfo[id].loadFromChain();
-                    // TODO: we probably should set this elsewhere
-                    this.setsInfo[id].chain_owner = owner;
-                }
-            });
-        } catch (err) {
-            if (err?.message === 'Network Error') {
-                pushMessage('Error loading sets from chain - the connection to starknet timed out');
-                console.error(err);
-            } else {
-                console.log(err);
-                pushMessage('Error loading sets from chain - see console for details');
-                reportError(err as Error);
-            }
-        }
-        this.fetchingChainSets = false;
-    }
-
-    // TODO: move this elsewhere?
-    watchForChain(contractStore: any, wallet: any) {
-        watch(
-            [toRef(contractStore, 'set'), toRef(wallet, 'userWalletAddress')],
-            () => {
-                for (const sid in this.setsInfo)
-                    // If the set is onchain & not owned by us, remove it.
-                    if (this.setsInfo[sid].isOnChain() && this.setsInfo[sid].chain_owner !== wallet.userWalletAddress)
-                        this._deleteSet(sid);
-                    // Otherwise, query chain status
-                    else if (contractStore.set)
-                        this.setsInfo[sid].checkActuallyOnChain(contractStore.set).then(() => {
-                            if (this.setsInfo?.[sid] && !this.setsInfo[sid].isLocalOnly())
-                                this.setsInfo?.[sid].loadFromChain();
-                        });
-
-
-                if (contractStore.set && wallet.userWalletAddress)
-                    setsManager.loadOnChain(contractStore.set, wallet.userWalletAddress);
-            },
-            {
-                immediate: true,
-            },
-        );
     }
 
     getInfo(sid: string) {
@@ -337,33 +214,34 @@ class SetsManager {
 export const setsManager = reactive(new SetsManager());
 
 const storageHandlers: { [sid: string]: WatchStopHandle } = {};
-watchEffect(() => {
-    for (const sid in setsManager.setsInfo) {
-        if (storageHandlers[sid])
-            continue;
-        storageHandlers[sid] = watchEffect(() => {
-            const info = setsManager.setsInfo[sid];
-            logDebug('SET STORAGE HANDLER - Serializing set ', sid);
-            if (!info || info.status === 'ONCHAIN_ONLY') {
-                // Delete
-                if (window.localStorage.getItem('briq_set_' + sid)) {
-                    logDebug('SET STORAGE HANDLER - deleted local set', sid);
-                    window.localStorage.removeItem('briq_set_' + sid);
+export function synchronizeSetsLocally() {
+    watchEffect(() => {
+        for (const sid in setsManager.setsInfo) {
+            if (storageHandlers[sid])
+                continue;
+            storageHandlers[sid] = watchEffect(() => {
+                const info = setsManager.setsInfo[sid];
+                logDebug('SET STORAGE HANDLER - Serializing set ', sid);
+                if (!info || info.status === 'ONCHAIN_ONLY') {
+                    // Delete
+                    if (window.localStorage.getItem('briq_set_' + sid)) {
+                        logDebug('SET STORAGE HANDLER - deleted local set', sid);
+                        window.localStorage.removeItem('briq_set_' + sid);
+                    }
+                    if (!info) {
+                        logDebug('SET STORAGE HANDLER - unwatching ', sid);
+                        storageHandlers[sid]();
+                        delete storageHandlers[sid];
+                    }
+                    return;
                 }
-                if (!info) {
-                    logDebug('SET STORAGE HANDLER - unwatching ', sid);
-                    storageHandlers[sid]();
-                    delete storageHandlers[sid];
-                }
-                return;
-            }
-            window.localStorage.setItem('briq_set_' + sid, JSON.stringify(info.serialize()));
-        });
-    }
-});
+                window.localStorage.setItem('briq_set_' + sid, JSON.stringify(info.serialize()));
+            });
+        }
+    });
+}
 
 import { defaultModel } from '@/conf/realms';
-import { backendManager } from '@/Backend';
 
 // TODO: move this elsewhere?
 export function checkForInitialGMSet() {

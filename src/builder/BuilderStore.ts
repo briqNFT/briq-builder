@@ -1,18 +1,18 @@
-import { toRef, watchEffect } from 'vue';
+import { markRaw, toRef, watchEffect } from 'vue';
 
 import contractStore from '@/chain/Contracts';
 import { createChainBriqs } from '@/builder/ChainBriqs';
 import { createChainSets } from '@/builder/ChainSets';
 
-import { setsManager as sm, checkForInitialGMSet } from '@/builder/SetsManager';
+import { setsManager as sm, checkForInitialGMSet, synchronizeSetsLocally } from '@/builder/SetsManager';
 import { watchEffectAndWait } from '@/Async';
-
-import { inputInitComplete } from '@/builder/inputs/InputLoading';
 
 import { isLoaded as storeIsLoaded } from '@/store/StoreLoading';
 import { store } from '@/store/Store';
 import { walletInitComplete } from '@/chain/WalletLoading';
 import { logDebug } from '@/Messages';
+import { setSync } from './SetSync';
+import { bookletStore, loadBookletData } from '@/components/builder/BookletComposable';
 
 /**
  * Returns refs for easier destructuring.
@@ -23,6 +23,7 @@ export const useBuilder = (() => {
     const chainBriqs = createChainBriqs();
     const chainSets = createChainSets();
     return () => ({
+        store,
         contractStore,
         chainBriqs,
         chainSets,
@@ -36,28 +37,27 @@ async function initializeChainBackend() {
 
     const walletStore = await walletInitComplete; // Wait until we've completed wallet init (or failed)
 
-    // TODO: centralise these?
-    setsManager.watchForChain(contractStore, walletStore);
-
     chainBriqs.setAddress(toRef(walletStore, 'userWalletAddress'));
     watchEffect(() => {
         chainBriqs.setContract(contractStore.briq);
     });
 
     chainSets.watchForChain(contractStore, walletStore);
+
+    setSync.sync(setsManager, chainSets);
 }
 
 async function initializeLocalData() {
     const { setsManager } = useBuilder();
     setsManager.clear();
     setsManager.loadFromStorage();
+    synchronizeSetsLocally();
 }
 
 async function initializeStartSet() {
     const { setsManager } = useBuilder();
 
     await storeIsLoaded;
-    await inputInitComplete;
     const set = checkForInitialGMSet();
     if (set)
         await store.dispatch('builderData/select_set', set.id);
@@ -79,6 +79,8 @@ async function initializeStartSet() {
         }
     });
 
+    logDebug('BUILDER - START SET INITIALIZED');
+
     // For storage space optimisation, delete non-current chain-only sets.
     for (const sid in setsManager.setsInfo)
         if (store.state.builderData.currentSet.id !== sid && setsManager.setsInfo[sid].isOnChain())
@@ -89,12 +91,26 @@ async function initializeStartSet() {
     });
 }
 
+/**
+ * Special case for booklet handling.
+ */
+async function initializeBooklet() {
+    const { setsManager } = useBuilder();
+    const setInfo = setsManager.getInfo(store.state.builderData.currentSet.id);
+    if (!setInfo.booklet)
+        return;
+    bookletStore.booklet = setInfo.booklet;
+    loadBookletData();
+}
+
 async function initializeBuilder() {
     initializeChainBackend();
 
     await initializeLocalData();
 
     await initializeStartSet();
+
+    initializeBooklet();
 
     // Reset history so we start fresh, because at this point other operations have polluted it.
     await store.dispatch('reset_history');

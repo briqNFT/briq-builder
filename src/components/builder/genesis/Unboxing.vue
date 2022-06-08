@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useBuilder } from '@/builder/BuilderStore';
 import { pushModal } from '@/components/Modals.vue';
+import { store } from '@/store/Store';
 import {
     threeSetupComplete,
     THREE,
@@ -9,7 +11,7 @@ import {
     FXAAShader,
     SAOPass,
     CopyShader,
-    OrbitControls
+    OrbitControls,
 } from '@/three';
 
 import { ref, onMounted, watch } from 'vue';
@@ -53,7 +55,7 @@ function recreateRenderer(canvas, scene, camera) {
     {
         const renderPass = new RenderPass(scene, camera);
         composer.addPass(renderPass);
-     
+
         var copyPass = new ShaderPass(FXAAShader);
         const size = new THREE.Vector2();
         renderer.getSize(size);
@@ -143,8 +145,7 @@ async function setup(canvas: HTMLCanvasElement) {
         );
     })
     const obj = new THREE.Group();
-    for(const mesh of meshes)
-    {
+    for(const mesh of meshes) {
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         for (const child of mesh.children) {
@@ -172,21 +173,21 @@ async function setup(canvas: HTMLCanvasElement) {
     const box = boxGlb[0];
     box.position.set(1.2, 0.1, 1.2);
     box.rotateY(Math.PI);
-    box.userData.uid = "toto";
+    box.userData.uid = 'toto';
     box.children[1].children.forEach(x => {
         x.userData.uid = box.userData.uid;
         x.castShadow = true;
         x.receiveShadow = true;
     });
-    
+
     const lightMapLoader = new THREE.TextureLoader();
     const texture = lightMapLoader.load('/spaceman/box_texture.png');
     texture.encoding = THREE.sRGBEncoding;
     texture.flipY = false;
 
-    
-    box.children[1].children[0].material.color = new THREE.Color("#ffffff");
-    box.children[1].children[1].material.color = new THREE.Color("#ffffff");
+
+    box.children[1].children[0].material.color = new THREE.Color('#ffffff');
+    box.children[1].children[1].material.color = new THREE.Color('#ffffff');
 
     (box.children[1].children[0].material.map as THREE.Texture) = texture;
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
@@ -235,12 +236,17 @@ import { useRouter } from 'vue-router';
 const router = useRouter()
 
 const unbox = async () => {
-    if (await pushModal(UnboxModal))
-    {
-        window.localStorage.setItem("briq_current_booklet", "spaceman");
+    if (await pushModal(UnboxModal)) {
+        const { setsManager, store } = useBuilder();
+        const set = setsManager.createLocalSet();
+        set.name = 'Spaceman';
+        const info = setsManager.getInfo(set.id);
+        info.booklet = 'spaceman';
+        store.dispatch('builderData/select_set', set.id);
         router.push({ name: 'Builder' });
     }
 }
+
 </script>
 
 <template>
@@ -254,5 +260,5 @@ const unbox = async () => {
         <div>Currently selected: {{ selectedObject?.userData?.uid ?? 'No box' }}</div>
         <Btn @click="unbox" :disabled="!selectedObject">Unbox</Btn>
     </div>
-    <Modals></Modals>
+    <Modals/>
 </template>

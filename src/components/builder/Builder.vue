@@ -14,12 +14,16 @@ import CursorTooltip from '../generic/CursorTooltip.vue';
 
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
-import { provide } from 'vue';
+import { onMounted, provide } from 'vue';
 import { featureFlags } from '@/FeatureFlags';
 import { pushMessage, setTooltip } from '../../Messages';
 import { useBuilder } from '@/builder/BuilderStore';
+import { builderInputFsm } from '@/builder/inputs/BuilderInput';
+import { inputInitComplete } from '@/builder/inputs/InputLoading';
 
-const { chainBriqs } = useBuilder();
+import { store } from '@/store/Store';
+
+const { setsManager, chainBriqs } = useBuilder();
 
 provide('chainBriqs', chainBriqs);
 provide('messages', {
@@ -29,8 +33,18 @@ provide('messages', {
 provide('featureFlags', featureFlags);
 
 ///
+onMounted(async () => {
+    await inputInitComplete;
+    const info = setsManager.getInfo(store.state.builderData.currentSet.id);
 
-dispatchBuilderAction('put_all_in_view');
+    if (info.status === 'ONCHAIN_LOADED')
+        builderInputFsm.switchTo('inspect');
+    else
+        builderInputFsm.switchTo('place');
+    dispatchBuilderAction('select_set', store.state.builderData.currentSet);
+
+    dispatchBuilderAction('put_all_in_view');
+});
 </script>
 
 <template>
