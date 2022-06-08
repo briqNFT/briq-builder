@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useBuilder } from '@/builder/BuilderStore';
+import { walletStore } from '@/chain/Wallet';
 import { pushModal } from '@/components/Modals.vue';
 import { store } from '@/store/Store';
 import {
@@ -14,14 +15,8 @@ import {
     OrbitControls,
 } from '@/three';
 
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, toRef } from 'vue';
 
-/*import { builderInputFsm } from '@/builder/inputs/BuilderInput';
-
-const onPointerMove = async (event: PointerEvent) => { await builderInputFsm.onPointerMove(event); }
-const onPointerDown = async (event: PointerEvent) => { await builderInputFsm.onPointerDown(event); }
-const onPointerUp = async (event: PointerEvent) => { await builderInputFsm.onPointerUp(event); }
-*/
 const canvas = ref(null);
 
 function resizeRendererToDisplaySize(renderer, composer, camera) {
@@ -269,7 +264,14 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter()
 
-const step = ref('SAPIN' as 'SAPIN' | 'CHECK_BOX' | 'UNBOXING');
+const step = ref('CHECK_WALLET' as 'CHECK_WALLET' | 'SAPIN' | 'CHECK_BOX' | 'UNBOXING');
+
+watch(toRef(walletStore, 'userWalletAddress'), () => {
+    if (walletStore.userWalletAddress)
+        step.value = 'SAPIN';
+}, {
+    immediate: true,
+})
 
 const unbox = async () => {
     if (await pushModal(UnboxModal)) {
@@ -328,6 +330,10 @@ requestAnimationFrame(frame);
 </script>
 
 <template>
+    <div v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base alternate-buttons flex-col gap-4">
+        <h2>briq unboxing</h2>
+        <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
+    </div>
     <canvas
         class="absolute top-0 left-0 w-screen h-screen"
         id="unboxGl"
