@@ -6,18 +6,18 @@ import { useStore } from 'vuex';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import { CONF } from '@/Conf';
+import { useBuilder } from '@/builder/BuilderStore';
 
 export const bookletStore = reactive({
-    booklet: '',
     bookletData: null as any,
 });
 
-watch(toRef(bookletStore, 'booklet'), () => {
-    if (!bookletStore.booklet)
+function loadBookletData(booklet: string) {
+    if (!booklet)
         return;
 
     try {
-        fetch(bookletStore.booklet + '/shape.json').then(
+        fetch(booklet + '/shape.json').then(
             async data => {
                 const metadata = await data.json();
                 bookletStore.bookletData = markRaw(metadata);
@@ -40,7 +40,7 @@ watch(toRef(bookletStore, 'booklet'), () => {
     } catch(e) {
         console.warn(e);
     }
-});
+}
 
 export function useBooklet() {
     const getImgSrc = (booklet: string, page: number) => `/${booklet}/step_${page - 1}.png`;
@@ -48,6 +48,15 @@ export function useBooklet() {
     const store = useStore();
 
     const shapeValidity = ref(0);
+
+
+    const { currentSetInfo } = useBuilder();
+    watch(currentSetInfo, () => {
+        if (currentSetInfo.value && currentSetInfo.value.booklet)
+            loadBookletData(currentSetInfo.value.booklet);
+    }, {
+        immediate: true,
+    });
 
     watchEffect(() => {
         if (!bookletStore.bookletData)
@@ -91,7 +100,6 @@ export function useBooklet() {
     return {
         getImgSrc,
         shapeValidity,
-        booklet: toRef(bookletStore, 'booklet'),
         bookletData: toRef(bookletStore, 'bookletData'),
     };
 }

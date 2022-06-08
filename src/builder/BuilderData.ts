@@ -287,7 +287,6 @@ export const builderDataStore = (() => {
                     throw new Error('Could not find local set with ID ' + data);
                 state.currentSet = set;
                 inputStore.selectionMgr.selectSet(state.currentSet);
-                bookletStore.booklet = info.booklet;
                 if (builderInputFsm.store)
                     if (info.status === 'ONCHAIN_LOADED')
                         builderInputFsm.switchTo('inspect');

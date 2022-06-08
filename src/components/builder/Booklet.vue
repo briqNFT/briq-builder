@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { inputStore } from '@/builder/inputs/InputStore';
-import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
-import type { SetData } from '@/builder/SetData';
-import { CONF } from '@/Conf';
-import { markRaw, onBeforeMount, ref, watchEffect } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import Tooltip from '@/components/generic/Tooltip.vue';
 import Slider from '../generic/Slider.vue';
 import { pushModal } from '../Modals.vue';
 import { useBooklet } from './BookletComposable';
 import ExportSetBookletVue from './modals/ExportSetBooklet.vue';
+import { useBuilder } from '@/builder/BuilderStore';
 
 const currentPage = ref(1)
 
@@ -22,10 +19,11 @@ const onMint = async () => {
 const {
     getImgSrc,
     shapeValidity,
-    booklet,
     bookletData,
 } = useBooklet();
-console.log(bookletData);
+
+const { currentSetInfo } = useBuilder();
+const booklet = computed(() => currentSetInfo.value.booklet);
 </script>
 
 <template>
@@ -47,7 +45,7 @@ console.log(bookletData);
                 <p class="w-full"><Slider :min="1" :max="+bookletData.nb_pages || 1" v-model="currentPage"/></p>
                 <Btn class="w-[10rem] my-1" :disabled="shapeValidity < 1" @click="onMint">Mint</Btn>
             </template>
-            <template v-else="">
+            <template v-else>
                 <p>Loading booklet data</p>
                 <p><i class="fas fa-spinner animate-spin"/></p>
             </template>
