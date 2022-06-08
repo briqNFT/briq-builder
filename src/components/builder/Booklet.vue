@@ -20,7 +20,7 @@ const onMint = async () => {
 }
 
 const {
-getImgSrc,
+    getImgSrc,
     shapeValidity,
     booklet,
     bookletData,
@@ -30,13 +30,15 @@ console.log(bookletData);
 
 <template>
     <div v-if="booklet" class="absolute top-0 bottom-0 right-0 pointer-events-none flex flex-col alternate-buttons m-4">
-        <div class="grow basis-[6rem]"></div>
+        <div class="grow basis-[6rem]"/>
         <div class="pointer-events-auto bg-base rounded-md p-4 pb-6 flex-col flex items-center gap-2 relative">
             <template v-if="!!bookletData">
                 <Tooltip :tooltip="`Construction progress: ${Math.floor(shapeValidity*100)}%`">
                     <div class="progress-bar absolute left-0 bottom-0 rounded-b-md bg-red-600 h-4 w-full border-t-4 border-white">
-                        <div v-if="shapeValidity < 1" class="progress-bar absolute left-0 top-0 rounded-b-md rounded-r-md bg-green-600 h-3" :style="{ width: `${shapeValidity*100}%`}"></div>
-                        <div v-else=""                class="progress-bar absolute left-0 top-0 rounded-b-md bg-green-600 h-3" :style="{ width: `${shapeValidity*100}%`}"></div>
+                        <div v-if="shapeValidity < 1" class="progress-bar absolute left-0 top-0 rounded-b-md rounded-r-md bg-green-600 h-3" :style="{ width: `${shapeValidity*100}%`}"/>
+                        <div v-else="" class="progress-bar absolute left-0 top-0 rounded-b-md bg-green-600 h-3" :style="{ width: `${shapeValidity*100}%`}">
+                            <p class="text-center text-xs leading-none tracking-wide font-semibold">Complete!</p>
+                        </div>
                     </div>
                 </Tooltip>
                 <h2>{{ bookletData.name }}</h2>
@@ -50,6 +52,6 @@ console.log(bookletData);
                 <p><i class="fas fa-spinner animate-spin"/></p>
             </template>
         </div>
-        <div class="grow basis-[6rem]"></div>
+        <div class="grow basis-[6rem]"/>
     </div>
 </template>
