@@ -12,7 +12,7 @@ export function setupMockWallet() {
     getStarkKey(keypair);
     window.useDebugProvider = async () => {
         const wallet = (await import('@/Dispatch')).Wallet;
-        wallet.walletStore2.enableWallet({
+        wallet.walletStore.enableWallet({
             account: new Account(getProviderForNetwork('mock'), '0xcafebabe', keypair),
             provider: getProviderForNetwork('mock'),
             enable: () => new Promise((resolve, _) => resolve('')),

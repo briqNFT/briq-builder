@@ -35,10 +35,10 @@ async function checkOnStore() {
     const wallet = (await import('./Dispatch')).Wallet;
     logDebug('FEATURE_FLAGS - Loaded');
     watchEffect(() => {
-        if (admins.indexOf(wallet.walletStore2.userWalletAddress) !== -1)
+        if (admins.indexOf(wallet.walletStore.userWalletAddress) !== -1)
             // Admin-only.
             featureFlags.multiMaterials = true;
-        else if (starBuilders.indexOf(wallet.walletStore2.userWalletAddress) !== -1)
+        else if (starBuilders.indexOf(wallet.walletStore.userWalletAddress) !== -1)
             featureFlags.multiMaterials = false;
         else
             featureFlags.multiMaterials = false;

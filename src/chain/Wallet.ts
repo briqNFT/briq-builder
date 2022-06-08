@@ -16,7 +16,7 @@ import { connect, disconnect, IStarknetWindowObject } from '@/starknet_wrapper';
 import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
 
-class WalletStore {
+export class WalletStore {
     signer: undefined | AccountInterface = undefined;
     userWalletAddress = '';
 
@@ -25,7 +25,7 @@ class WalletStore {
     // Empty, because at this point we aren't a proxy to a reactive object.
     constructor() {}
 
-    async initialize() {
+    async init() {
         const storedAddress = window.localStorage.getItem('user_address');
         logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
 
@@ -39,7 +39,7 @@ class WalletStore {
         }
 
         // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
-        setWalletInitComplete();
+        setWalletInitComplete(this);
 
         watchSignerChanges(this);
 
@@ -49,7 +49,7 @@ class WalletStore {
             window.localStorage.setItem('user_address', this.userWalletAddress);
         });
 
-        return;
+        return this;
     }
 
     async openWalletSelector() {
@@ -105,5 +105,5 @@ class WalletStore {
     }
 }
 
-export const walletStore2 = reactive(new WalletStore());
-walletStore2.initialize();
+export const walletStore = reactive(new WalletStore());
+walletStore.init();

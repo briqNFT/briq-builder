@@ -102,7 +102,7 @@ import { getSelectorFromName } from '@/starknet_wrapper';
 
 import { getProvider } from '@/chain/Provider';
 import { getCurrentNetwork } from '@/chain/Network';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 
 async function test(testVar: string, testDataVar: string, test: CallableFunction) {
     this[testVar] = undefined;
@@ -164,13 +164,13 @@ export default defineComponent({
     },
     computed: {
         wallet() {
-            return walletStore2;
+            return walletStore;
         },
         addr() {
             if (this.$route.params.address)
                 return this.$route.params.address;
             else
-                return walletStore2.userWalletAddress;
+                return walletStore.userWalletAddress;
         },
         provider() {
             getCurrentNetwork();

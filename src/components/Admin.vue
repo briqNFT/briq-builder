@@ -26,31 +26,31 @@ const getBriqAdmin = _genF(contractStore.briq, 'getAdmin_');
 
 
 const canMasterInit = computed(() => {
-    return contractStore.briq?.getAddress() && contractStore.set?.getAddress() && walletStore2.userWalletAddress
+    return contractStore.briq?.getAddress() && contractStore.set?.getAddress() && walletStore.userWalletAddress
 });
 
 const masterInit = async () => {
     const payload = [
-        // Step 1: set the briq/set address in each respective contract.
+    // Step 1: set the briq/set address in each respective contract.
         {
             contractAddress: contractStore.briq.getAddress(),
-            entrypoint: "setSetAddress_",
+            entrypoint: 'setSetAddress_',
             calldata: [contractStore.set.getAddress()],
         },
         {
             contractAddress: contractStore.set.getAddress(),
-            entrypoint: "setBriqAddress_",
+            entrypoint: 'setBriqAddress_',
             calldata: [contractStore.briq.getAddress()],
         },
-        // Step 2: mint some briqs for the admin
-        contractStore.briq?.contract.populate('mintFT', [walletStore2.userWalletAddress, '1', '250']),
-        contractStore.briq?.contract.populate('mintFT', [walletStore2.userWalletAddress, '2', '40']),
-        contractStore.briq?.contract.populate('mintFT', [walletStore2.userWalletAddress, '3', '50']),
-        contractStore.briq?.contract.populate('mintFT', [walletStore2.userWalletAddress, '4', '20']),
-        contractStore.briq?.contract.populate('mintOneNFT', [walletStore2.userWalletAddress, '6', toBN(hexUuid())]),
+    // Step 2: mint some briqs for the admin
+        contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '1', '250']),
+        contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '2', '40']),
+        contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '3', '50']),
+        contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '4', '20']),
+        contractStore.briq?.contract.populate('mintOneNFT', [walletStore.userWalletAddress, '6', toBN(hexUuid())]),
     ];
     console.log(payload);
-    await (walletStore2.signer as AccountInterface).execute(payload);
+    await (walletStore.signer as AccountInterface).execute(payload);
 };
 </script>
 
@@ -150,7 +150,7 @@ import { getSelectorFromName } from '@/starknet_wrapper';
 import { toBN } from '@/starknet_wrapper';
 
 import { getProvider } from '@/chain/Provider';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 
 const callContract = function (provider: Provider, address: string, entryPoint: string, data: any[]) {
     /*if (!provider.estimateFee)
@@ -190,7 +190,7 @@ export default defineComponent({
     },
     computed: {
         wallet() {
-            return walletStore2;
+            return walletStore;
         },
         contractStore() {
             return contractStore;
@@ -226,15 +226,15 @@ export default defineComponent({
             );
         },
         async setImpl(contract: any, address: string) {
-            if (walletStore2?.signer?.signer) {
-                let tx = await (walletStore2.signer as AccountInterface).execute({
+            if (walletStore?.signer?.signer) {
+                let tx = await (walletStore.signer as AccountInterface).execute({
                     contractAddress: contract.getAddress(),
                     entrypoint: 'upgradeImplementation_',
                     calldata: [address],
                 });
                 pushMessage(JSON.stringify(tx));
             } else {
-                let tx = await (walletStore2.signer as Signer).invokeFunction(
+                let tx = await (walletStore.signer as Signer).invokeFunction(
                     toBN(contract.getAddress()).toString(),
                     toBN(getSelectorFromName('upgradeImplementation_')).toString(),
                     [toBN(address).toString()],
@@ -243,7 +243,7 @@ export default defineComponent({
             }
         },
         async invoke(contract: any, method: string, ...args: string[]) {
-            let tx = await (walletStore2.signer as AccountInterface).execute({
+            let tx = await (walletStore.signer as AccountInterface).execute({
                 contractAddress: contract.getAddress(),
                 entrypoint: method,
                 calldata: args,
@@ -256,8 +256,8 @@ export default defineComponent({
             try {
                 this.customResult = '';
 
-                if (walletStore2?.signer?.signer) {
-                    let tx = await (walletStore2.signer as AccountInterface).execute({
+                if (walletStore?.signer?.signer) {
+                    let tx = await (walletStore.signer as AccountInterface).execute({
                         contractAddress: (this.cc_contract === 'set'
                             ? contractStore.set
                             : contractStore.briq
@@ -270,7 +270,7 @@ export default defineComponent({
                     });
                     pushMessage(JSON.stringify(tx));
                 } else {
-                    let tx = await (walletStore2.signer as Signer).invokeFunction(
+                    let tx = await (walletStore.signer as Signer).invokeFunction(
                         toBN(
                             (this.cc_contract === 'set' ? contractStore.set : contractStore.briq).getAddress(),
                         ).toString(),

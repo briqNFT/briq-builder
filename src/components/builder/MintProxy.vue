@@ -13,7 +13,7 @@
 import { mintProxyStore } from '@/chain/MintProxy';
 import { pushModal } from '../Modals.vue';
 import MintModalVue from './modals/MintModal.vue';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 
 import { defineComponent } from 'vue';
 export default defineComponent({
@@ -22,7 +22,7 @@ export default defineComponent({
     },
     computed: {
         signer() {
-            return walletStore2.signer;
+            return walletStore.signer;
         },
     },
     methods: {

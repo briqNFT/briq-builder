@@ -1,10 +1,10 @@
 import { reactive, watch, watchEffect, toRef } from 'vue';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 import { blockchainProvider } from '@/chain/BlockchainProvider';
 
 const CURR_VERSION = 3;
 
-const address = toRef(walletStore2, 'userWalletAddress');
+const address = toRef(walletStore, 'userWalletAddress');
 
 function getUserAddress(): string {
     return address.value;

@@ -16,7 +16,7 @@
 import { Transaction } from '../../../builder/Transactions';
 
 import contractStore from '@/chain/Contracts';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 
 import { defineComponent, nextTick, toRef } from 'vue';
 export default defineComponent({
@@ -38,7 +38,7 @@ export default defineComponent({
                 return;
             try {
                 let tx = await contractStore.set?.transferOneNFT(
-                    walletStore2.userWalletAddress,
+                    walletStore.userWalletAddress,
                     this.target,
                     this.metadata.setId,
                 );

@@ -15,7 +15,7 @@ const useMockWallet = () => {
     <div
         v-if="!hideInput"
         class="absolute right-0 top-0 px-4 py-[6.5rem] md:py-4 max-h-screen flex flex-col lg:flex-row lg:items-start items-end gap-2 pointer-events-none">
-        <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet" class="pointer-events-auto px-1"><i class="fa-brands fa-dev"></i></Btn>
+        <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet" class="pointer-events-auto px-1"><i class="fa-brands fa-dev"/></Btn>
         <BlockchainStatus class="max-h-screen"/>
         <div
             :class="
@@ -70,7 +70,7 @@ import { setsManager } from '../../builder/SetsManager';
 import { inputStore } from '../../builder/inputs/InputStore';
 
 import { CONF } from '@/Conf';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
 
 import { defineComponent, toRef, ref } from 'vue';
@@ -89,7 +89,7 @@ export default defineComponent({
             return CONF;
         },
         wallet() {
-            return walletStore2;
+            return walletStore;
         },
         hideInput() {
             return inputStore.hideInput;

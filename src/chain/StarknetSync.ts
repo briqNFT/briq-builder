@@ -1,12 +1,12 @@
 import { setupMintProxy } from '@/chain/MintProxy';
 
 import contractStore from '@/chain/Contracts';
-import { walletStore2 } from './Wallet';
+import { walletStore } from './Wallet';
 
 import { watchEffect } from 'vue';
 export function setupSync() {
     watchEffect(() => {
-        if (contractStore.mint && walletStore2.userWalletAddress)
-            setupMintProxy(contractStore.mint, walletStore2.userWalletAddress);
+        if (contractStore.mint && walletStore.userWalletAddress)
+            setupMintProxy(contractStore.mint, walletStore.userWalletAddress);
     });
 }

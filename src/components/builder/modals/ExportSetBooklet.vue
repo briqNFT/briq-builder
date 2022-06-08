@@ -7,7 +7,7 @@ import type { ChainBriqs } from '@/builder/ChainBriqs';
 import { hexUuid } from '@/Uuid';
 import builderSettings from '@/builder/graphics/Settings';
 import contractStore from '@/chain/Contracts';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 import { backendManager } from '@/Backend';
 
 const props = defineProps<{
@@ -18,14 +18,14 @@ const props = defineProps<{
 
 const set = props.metadata.set;
 
-const chainBriqs = inject<ChainBriqs>("chainBriqs")!;
+const chainBriqs = inject<ChainBriqs>('chainBriqs')!;
 
 /////////
 // Steps
 
-const steps = ["ERROR", "RECAP"] as const;
+const steps = ['ERROR', 'RECAP'] as const;
 type STEP = typeof steps[number];
-const current_step = ref("RECAP" as STEP);
+const current_step = ref('RECAP' as STEP);
 
 const at = (step: STEP) => steps.indexOf(step);
 const getStepIcon = (step: STEP) => 'fas fa-check';
@@ -57,10 +57,10 @@ const doSetExport = async () => {
     let token_hint = hexUuid();
     let exportData = exportSet.serialize();
     exportData.recommendedSettings = builderSettings.getSettingsForSetExport();
-    const exportID = contractStore.set.precomputeTokenId(walletStore2.userWalletAddress, token_hint);
+    const exportID = contractStore.set.precomputeTokenId(walletStore.userWalletAddress, token_hint);
 
     let TX = await contractStore.set.assemble_with_box(
-        walletStore2.userWalletAddress,
+        walletStore.userWalletAddress,
         token_hint,
         exportData.briqs,
         // Point to the 'permanent' API. TODO: IFPS?
@@ -86,9 +86,9 @@ const doSetExport = async () => {
                 <div class="flex-none w-full flex items-center justify-around flex-col gap-2">
                     <p>{{ set.getNbBriqs() }} briqs</p>
                     <div class="flex w-full justify-around items-center">
-                        <img :src="getImgSrc('spaceman', 8)"/>
+                        <img :src="getImgSrc('spaceman', 8)">
                         <div>
-                            <div class="w-[8rem] py-4 bg-accent rounded text-center font-semibold"><p>briq<br/>Seal of Authenticity</p></div>
+                            <div class="w-[8rem] py-4 bg-accent rounded text-center font-semibold"><p>briq<br>Seal of Authenticity</p></div>
                         </div>
                     </div>
                     <div class="flex flex-nowrap items-center gap-3 w-full">

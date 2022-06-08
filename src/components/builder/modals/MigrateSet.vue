@@ -108,7 +108,7 @@ import { SetData } from '../../../builder/SetData';
 import { transactionsManager, Transaction } from '../../../builder/Transactions';
 
 import contractStore from '@/chain/Contracts';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 
 import { setsManager } from '../../../builder/SetsManager';
 import BriqTable from '../BriqTable.vue';
@@ -239,7 +239,7 @@ export default defineComponent({
                 // Update the name in case it changed.
                 this.exportSet.name = this.set.name;
                 let token_hint = this.exportSet.id;
-                this.exportSet.id = contractStore.set.precomputeTokenId(walletStore2.userWalletAddress, token_hint);
+                this.exportSet.id = contractStore.set.precomputeTokenId(walletStore.userWalletAddress, token_hint);
 
                 let data = this.exportSet.serialize();
 
@@ -263,15 +263,15 @@ export default defineComponent({
                     },
                 };
 
-                let signature = await walletStore2.signer!.signMessage(message);
+                let signature = await walletStore.signer!.signMessage(message);
                 this.exporting = 'SENDING_TRANSACTION';
 
                 await backendManager.storeSet({
-                    owner: walletStore2.userWalletAddress,
+                    owner: walletStore.userWalletAddress,
                     token_id: data.id,
                     chain_id: getCurrentNetwork(),
                     data: data,
-                    message_hash: await walletStore2.signer!.hashMessage(message),
+                    message_hash: await walletStore.signer!.hashMessage(message),
                     signature: signature,
                     image_base64: this.ogImage,
                 });
@@ -279,7 +279,7 @@ export default defineComponent({
                 // Debug
                 //downloadJSON(data, data.id + ".json")
                 let TX = await contractStore.set.assemble(
-                    walletStore2.userWalletAddress,
+                    walletStore.userWalletAddress,
                     token_hint,
                     data.briqs.map((x: any) => x.data),
                     'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
@@ -309,10 +309,10 @@ export default defineComponent({
                 this.set.forEach((briq, _) => {
                     ids.push(briq.legacy_id);
                 });
-                await legacySetsMgr.legacyContract.disassemble(walletStore2.userWalletAddress, this.setId, ids);
+                await legacySetsMgr.legacyContract.disassemble(walletStore.userWalletAddress, this.setId, ids);
 
                 let info = setsManager.onSetMinted(null, this.exportSet);
-                info.chain_owner = walletStore2.userWalletAddress;
+                info.chain_owner = walletStore.userWalletAddress;
                 this.setId = this.exportSet.id;
                 this.$store.dispatch('builderData/select_set', this.exportSet.id);
 

@@ -3,7 +3,7 @@ import WebGLCanvas from './WebGLCanvas.vue';
 import MenuBar from './MenuBar.vue';
 import SideBar from './SideBar.vue';
 import SideBarRight from './SideBarRight.vue';
-import Modals, { pushModal } from '../Modals.vue';
+import Modals from '../Modals.vue';
 import Messages from '../Messages.vue';
 import Booklet from './Booklet.vue';
 
@@ -17,7 +17,7 @@ import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 import { provide } from 'vue';
 import { featureFlags } from '@/FeatureFlags';
 import { pushMessage, setTooltip } from '../../Messages';
-import { useBuilder } from './BuilderComposable';
+import { useBuilder } from '@/builder/BuilderStore';
 
 const { chainBriqs } = useBuilder();
 

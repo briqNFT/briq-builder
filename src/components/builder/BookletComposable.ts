@@ -13,7 +13,6 @@ export const bookletStore = reactive({
 export function useBooklet() {
     const getImgSrc = (booklet: string, page: number) => `/${booklet}/step_${page - 1}.png`;
 
-
     onBeforeMount(() => {
         let data = window.localStorage.getItem('briq_current_booklet');
         if (!data)
@@ -80,7 +79,6 @@ export function useBooklet() {
         match -= currentBriqs.length * 0.9;
         shapeValidity.value = Math.min(1, Math.max(0, match / targetBriqs.length));
     })
-
 
     return {
         getImgSrc,

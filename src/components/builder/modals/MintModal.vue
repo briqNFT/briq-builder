@@ -106,7 +106,7 @@ import { Transaction, transactionsManager } from '../../../builder/Transactions'
 import type { Provider } from '@/starknet_wrapper';
 import contractStore from '@/chain/Contracts';
 import { getCurrentNetwork } from '@/chain/Network';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 import { blockchainProvider } from '@/chain/BlockchainProvider';
 
 import { defineComponent } from 'vue';
@@ -135,7 +135,7 @@ export default defineComponent({
             return blockchainProvider.value;
         },
         wallet() {
-            return walletStore2;
+            return walletStore;
         },
         voyagerLink() {
             if (getCurrentNetwork() === 'starknet-mainnet')

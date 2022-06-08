@@ -204,7 +204,7 @@ import TransferSet from '../modals/TransferSet.vue';
 import { Transaction, transactionsManager } from '../../../builder/Transactions';
 
 import contractStore from '@/chain/Contracts';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 import { getCurrentNetwork } from '@/chain/Network';
 
 import { SetData } from '../../../builder/setData';
@@ -315,7 +315,7 @@ export default defineComponent({
             try {
                 this.disableButtons = true;
                 let TX = await contractStore.set.disassemble(
-                    walletStore2.userWalletAddress,
+                    walletStore.userWalletAddress,
                     this.setInfo.id,
                     this.setInfo.chain,
                 );

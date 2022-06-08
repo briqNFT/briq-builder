@@ -57,7 +57,7 @@ import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 <script lang="ts">
 import contractStore from '@/chain/Contracts';
 import { pushModal } from '../Modals.vue';
-import { walletStore2 } from '@/chain/Wallet';
+import { walletStore } from '@/chain/Wallet';
 
 import { transactionsManager } from '../../builder/Transactions';
 import { defineComponent } from 'vue';
@@ -65,7 +65,7 @@ export default defineComponent({
     data() {
         return {
             expanded: false,
-            wallet: walletStore2,
+            wallet: walletStore,
             builderData: this.$store.state.builderData,
             contractStore: contractStore,
             transactionsManager,
