@@ -264,17 +264,46 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter()
 
-const step = ref('CHECK_WALLET' as 'CHECK_WALLET' | 'SAPIN' | 'CHECK_BOX' | 'UNBOXING');
+const step = ref('CHECK_WALLET' as 'CHECK_WALLET' | 'SAPIN' | 'CHECK_BOX' | 'UNBOXING' | 'UNBOXED');
 
 watch(toRef(walletStore, 'userWalletAddress'), () => {
-    if (walletStore.userWalletAddress)
+    if (walletStore.userWalletAddress && step.value === 'CHECK_WALLET')
         step.value = 'SAPIN';
 }, {
     immediate: true,
 })
 
+const start_unbox = () => {
+    step.value = 'UNBOXING';
+}
+
 const unbox = async () => {
-    if (await pushModal(UnboxModal)) {
+
+    const message = {
+        domain: {
+            name: 'briq',
+            chainId: false ? 1 : 3,
+            version: 1,
+        },
+        types: {
+            StarkNetDomain: [
+                { name: 'name', type: 'felt' },
+                { name: 'chainId', type: 'felt' },
+                { name: 'version', type: 'felt' },
+            ],
+            Message: [{ name: 'message', type: 'felt' }],
+        },
+        primaryType: 'Message',
+        message: {
+            message: 'mint_set',
+        },
+    };
+
+    try {
+        await walletStore.signer.signMessage(message)
+    } catch(_) {}
+
+    if (true) {
         // Create a new local set with the proper booklet.
         const { setsManager, store } = useBuilder();
         const maybeExisting = setsManager.setList.filter(sid => {
@@ -292,7 +321,7 @@ const unbox = async () => {
         store.dispatch('builderData/select_set', set.id);
 
         // Play the box open animation.
-        step.value = 'UNBOXING';
+        step.value = 'UNBOXED';
     }
 }
 
@@ -323,11 +352,43 @@ function frame(time) {
     }
 
 
-    if (step.value === 'UNBOXING')
+    if (step.value === 'UNBOXED')
         selectedObject.value?.userData.mixer.update(delta / 1000.0);
 }
 requestAnimationFrame(frame);
 </script>
+
+<style scoped>
+
+hr {
+    @apply my-8 text-black;
+}
+
+ul {
+    @apply list-['-'] list-outside;
+}
+li {
+    @apply pl-3 ml-3;
+}
+blockquote {
+    @apply bg-opacity-20 bg-black rounded px-4 py-2 italic;
+}
+
+.xfade-enter-from {
+    clip-path: polygon(-200% 0%, 0% 0%, -100% 100%, -300% 100%);
+}
+.xfade-enter-to,
+.xfade-leave-from {
+    clip-path: polygon(0% 0%, 200% 0%, 100% 100%, -100% 100%);
+}
+.xfade-leave-to {
+    clip-path: polygon(200% 0%, 400% 0%, 300% 100%, 100% 100%);
+}
+.xfade-enter-active,
+.xfade-leave-active {
+  transition: clip-path 1.5s ease;
+}
+</style>
 
 <template>
     <div v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base alternate-buttons flex-col gap-4">
@@ -339,13 +400,71 @@ requestAnimationFrame(frame);
         id="unboxGl"
         ref="canvas"
         @click="onClick"/>
-    <div class="relative" v-if="step !== 'UNBOXING'">
-        <p>Here be the boxes</p>
-        <div>Currently selected: {{ selectedObject?.userData?.uid ?? 'No box' }}</div>
-        <Btn @click="unbox" :disabled="!selectedObject">Unbox</Btn>
-    </div>
-    <div class="relative" v-else-if="step === 'UNBOXING'">
-        <Btn @click="goToBuilder">Go to builder</Btn>
+    <div
+        class="absolute top-0 right-0 xl:w-[30%] w-[400px] bg-black bg-opacity-40 h-screen overflow-auto snap-y transition-all scroll-smooth"
+        @click.stop="">
+        <div class="snap-end text-lg pb-[15rem] px-8 py-4">
+            <h2 class="text-center my-8">briq unboxing</h2>
+            <p>
+                Today is Christmas, 1995. <br>
+                Your gifts have been left by the tree, and are waiting for you.
+            </p>
+            <p class="my-2">
+                It is now the hour, and by the fireplace you may open them.<br>
+                Let your imagination roam free.
+            </p>
+            <Transition name="xfade">
+                <div v-if="!!selectedObject">
+                    <hr>
+                    <p>
+                        Space, ever the final-frontier, in your hands.
+                    </p>
+                    <p class="my-2">
+                        You shake the box in your hands. It rattles slightly.<br>
+                        The contents on the back side read:<br>
+                    </p>
+                    <blockquote>
+                        <h3>Spaceman</h3>
+                        <ul>
+                            <li>One high-quality construction booklet</li>
+                            <li>34 briqs required to build it</li>
+                            <li>One briq booster pack with unknown briqs</li>
+                        </ul>
+                    </blockquote>
+                    <p class="text-center my-4"><Btn @click="start_unbox" :disabled="!selectedObject || step.includes('UNBOX')">Unbox</Btn></p>
+                </div>
+            </Transition>
+            <Transition name="xfade">
+                <div v-if="!!selectedObject && step.includes('UNBOX')">
+                    <hr>
+                    <p>You recite the ancient incantations in an untold language.</p>
+                    <p>StarkNet address: {{ walletStore.userWalletAddress }}</p>
+                    <p>Ethereum address: {{ 'TODO' }}</p>
+                    <p class="flex justify-center gap-2 my-4 text-md">
+                        <Btn :disabled="step === 'UNBOXED'" v-if="!walletStore.userWalletAddress" @click="walletStore.openWalletSelector()">Connect to StarkNet</Btn>
+                        <Btn :disabled="step === 'UNBOXED'" v-else>StarkNet Wallet</Btn>
+                        <Btn :disabled="step === 'UNBOXED'">Connect to Ethereum</Btn>
+                    </p>
+                </div>
+            </Transition>
+            <Transition name="xfade">
+                <div v-if="!!selectedObject && step.includes('UNBOX') && walletStore.userWalletAddress">
+                    <hr>
+                    <p>The box is in your hands. Everything is ready.</p>
+                    <p class="flex justify-center gap-2 my-4 text-md">
+                        <Btn @click="unbox" :disabled="step === 'UNBOXED'">Open the box</Btn>
+                    </p>
+                </div>
+            </Transition>
+            <Transition name="xfade">
+                <div v-if="step === 'UNBOXED'">
+                    <hr>
+                    <p class="flex justify-center gap-2 my-4 text-md">
+                        <Btn @click="goToBuilder">Start building</Btn>
+                    </p>
+                </div>
+            </Transition>
+        </div>
     </div>
     <Modals/>
 </template>
