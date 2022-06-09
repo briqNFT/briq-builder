@@ -10,6 +10,32 @@ const useMockWallet = () => {
 }
 </script>
 
+<style scoped>
+.tshadow {
+    text-shadow: 0 0 2px rgb(0, 0, 0, 0.3);
+}
+
+.expanded {
+    overflow: auto;
+    /*@apply bg-black bg-opacity-40 rounded-md md:bg-transparent;*/
+    @apply pointer-events-auto;
+}
+.unexpanded {
+    overflow: hidden;
+}
+.expanded > div {
+    @apply visible block;
+}
+.unexpanded > div {
+    @apply invisible;
+}
+
+.menubar button {
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+</style>
+
 <template>
     <!-- Below medium size, push the buttons down to leave room for minting stuff. -->
     <div
@@ -28,7 +54,7 @@ const useMockWallet = () => {
                 @click="expanded = !expanded">
                 <i class="mx-1 fas fa-bars"/><span class="mx-1">Menu</span>
             </Btn>
-            <div class="my-2">
+            <div class="my-2 menubar">
                 <div class="flex flex-col flex-nowrap gap-1">
                     <Btn
                         @click="
@@ -149,24 +175,3 @@ export default defineComponent({
     },
 });
 </script>
-
-<style scoped>
-.tshadow {
-    text-shadow: 0 0 2px rgb(0, 0, 0, 0.3);
-}
-
-.expanded {
-    overflow: auto;
-    /*@apply bg-black bg-opacity-40 rounded-md md:bg-transparent;*/
-    @apply pointer-events-auto;
-}
-.unexpanded {
-    overflow: hidden;
-}
-.expanded > div {
-    @apply visible block;
-}
-.unexpanded > div {
-    @apply invisible;
-}
-</style>

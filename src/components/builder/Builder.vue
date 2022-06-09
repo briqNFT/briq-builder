@@ -54,8 +54,8 @@ onMounted(async () => {
         <MenuBar/>
         <SetToolbar/>
         <SideBar/>
-        <SideBarRight/>
         <Booklet/>
+        <SideBarRight/>
     </div>
     <Modals/>
     <Messages/>
