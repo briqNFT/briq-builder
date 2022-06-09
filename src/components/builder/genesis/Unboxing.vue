@@ -228,11 +228,11 @@ async function setup(canvas: HTMLCanvasElement) {
 
 onMounted(async () => {
     await setup(canvas.value);
-    const toto = () => {
+    const frame = () => {
         render();
-        requestAnimationFrame(toto);
+        requestAnimationFrame(frame);
     }
-    requestAnimationFrame(toto);
+    requestAnimationFrame(frame);
 });
 
 const selectedObject = ref(undefined as THREE.Mesh | undefined);
@@ -261,6 +261,7 @@ const onClick = (event: PointerEvent) => {
 import UnboxModal from './UnboxModal.vue';
 import Modals from '../../Modals.vue';
 import { useRouter } from 'vue-router';
+import FireplaceAudio from './FireplaceAudio.vue';
 
 const router = useRouter()
 
@@ -356,6 +357,8 @@ function frame(time) {
         selectedObject.value?.userData.mixer.update(delta / 1000.0);
 }
 requestAnimationFrame(frame);
+
+
 </script>
 
 <style scoped>
@@ -400,6 +403,9 @@ blockquote {
         id="unboxGl"
         ref="canvas"
         @click="onClick"/>
+    <div class="absolute bottom-0 left-0">
+        <FireplaceAudio/>
+    </div>
     <div
         class="absolute top-0 right-0 xl:w-[30%] w-[400px] bg-black bg-opacity-40 h-screen overflow-auto snap-y transition-all scroll-smooth"
         @click.stop="">
