@@ -1,281 +1,307 @@
 <script setup lang="ts">
-import { useBuilder } from '@/builder/BuilderStore';
-import { walletStore } from '@/chain/Wallet';
-import { pushModal } from '@/components/Modals.vue';
-import { store } from '@/store/Store';
 import {
-    threeSetupComplete,
     THREE,
-    EffectComposer,
-    RenderPass,
-    ShaderPass,
-    FXAAShader,
-    SAOPass,
-    CopyShader,
-    OrbitControls,
 } from '@/three';
 
-import { ref, onMounted, watch, toRef } from 'vue';
+import { useBuilder } from '@/builder/BuilderStore';
+import { walletStore } from '@/chain/Wallet';
 
-const canvas = ref(null);
+import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, h } from 'vue';
+import { setupScene, useRenderer } from './Unboxing';
+import { CameraOnlyInput } from '@/builder/inputs/input_states/CameraOnly';
+import ButtonVue from '@/components/generic/Button.vue';
+import LookAtBoxVue from './Texts/LookAtBox.vue';
 
-function resizeRendererToDisplaySize(renderer, composer, camera) {
-    const canvas = renderer.domElement;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    const needResize = canvas.width !== width || canvas.height !== height;
-    if (needResize) {
-        renderer.setSize(width, height, false);
-        composer.setSize(width, height);
 
-        // FXAA
-        composer.passes[1].uniforms['resolution'].value.x = 1 / width;
-        composer.passes[1].uniforms['resolution'].value.y = 1 / height;
+//////////////////////////////
+//////////////////////////////
 
-        const canvas = renderer.domElement;
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
-    }
-    return needResize;
+const chapters = reactive([] as { active: boolean, component: any }[]);
+
+const addChapter = (component: any) => {
+    chapters.push(
+        {
+            active: true,
+            component,
+        },
+    )
+    return chapters[chapters.length - 1];
 }
 
-function recreateRenderer(canvas, scene, camera) {
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, logarithmicDepthBuffer: true });
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.VSMShadowMap;
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.setClearColor(0xF00000, 0);
 
-    const composer = new EffectComposer(renderer);
-    {
-        const renderPass = new RenderPass(scene, camera);
-        composer.addPass(renderPass);
+//////////////////////////////
+//////////////////////////////
 
-        var copyPass = new ShaderPass(FXAAShader);
-        const size = new THREE.Vector2();
-        renderer.getSize(size);
-        copyPass.uniforms['resolution'].value.x = 1 / size.x;
-        copyPass.uniforms['resolution'].value.y = 1 / size.y;
-        composer.addPass(copyPass);
-    }
-    if (true/*builderSettings.useSAO*/) {
-        const saoPass = new SAOPass(scene, camera, true, true);
-        saoPass.params = {
-            output: 0,
-            saoBias: 1,
-            saoIntensity: 0.1,
-            saoScale: 200,
-            saoKernelRadius: 40,
-            saoMinResolution: 0,
-            saoBlur: true,
-            saoBlurRadius: 8,
-            saoBlurStdDev: 4,
-            saoBlurDepthCutoff: 0.01,
-        };
-        composer.addPass(saoPass);
-    }
-    /* ThreeJS auto-renders the final pass to the screen directly, which breaks my scene layering. */
-    /* Instead, add a manual 'write to screen' pass */
-    {
-        var copyPass = new ShaderPass(CopyShader);
-        composer.addPass(copyPass);
-    }
-    //resizeRendererToDisplaySize(renderer, composer, camera);
-    return [renderer, composer];
-}
+const canvas = ref(null as unknown as HTMLCanvasElement);
 
-function _render(renderer, composer, camera) {
-    resizeRendererToDisplaySize(renderer, composer, camera);
-    composer.render();
-}
+let camera: THREE.PerspectiveCamera;
+let scene: THREE.Scene;
+let chimneyLight: THREE.PointLight;
+let box: any;
 
-const renderFunc = ref(null);
-const render = () => renderFunc.value();
+let setSceneReady: CallableFunction;
+const sceneReady = new Promise((resolve) => {
+    setSceneReady = resolve;
+})
 
-import { GLTFLoader } from '@/three';
+const lastCamRot = ref(null as unknown as THREE.Quaternion);
+const lastCamPos = ref(null as unknown as THREE.Vector3);
+const currentCamRot = ref(null as unknown as THREE.Quaternion);
+const currentCamPos = ref(null as unknown as THREE.Vector3);
+const camInterp = ref(0);
 
-import HomeScene from '@/assets/genesis/briqs_box_xmas.glb?url';
-import BriqBox from '@/assets/genesis/briqs_box.glb?url';
+const selectedObject = ref(undefined as THREE.Mesh | undefined);
 
-const cameraRef = ref(undefined as THREE.Camera | undefined);
+//////////////////////////////
+//////////////////////////////
 
-let boxOpenAnim: any;
+let initFsm: Promise<void>;
+onBeforeMount(() => {
+    initFsm = fsm.state.onEnter();
+});
 
-let chimneyLight;
-
-async function setup(canvas: HTMLCanvasElement) {
-    await threeSetupComplete;
-
-    const scene = new THREE.Scene();
-
-    const fov = 45;
-    const aspect = 2;
-    const near = 0.01;
-    const far = 20;
-    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    cameraRef.value = camera;
-
-    const controls = new OrbitControls(camera, canvas);
-    controls.enableDamping = true;
-    controls.target = new THREE.Vector3(2, 0, 2);
-
-    camera.position.set(-2, 1.8, -2);
-    camera.lookAt(new THREE.Vector3(2, 0, 2));
-    scene.add(camera);
-
-    scene.background = new THREE.Color('#230033');
-    scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF'), 0.3))
-    const light = new THREE.PointLight(new THREE.Color('#FFDDDD'), 1.2, 10.0);
-    light.position.set(0.5, 2.25, -1);
-    light.shadow.bias = -0.01;
-    light.shadow.radius = 10;
-    light.shadow.mapSize = new THREE.Vector2(1024, 1024);
-    light.castShadow = true;
-    scene.add(light)
-
-    const meshes = await new Promise((resolve: (_: THREE.Mesh[]) => void, reject) => {
-        const loader = new GLTFLoader();
-        loader.load(
-            HomeScene,
-            (gltf: any) => {
-                resolve(gltf.scene.children.slice(1));
-            },
-            () => {},
-            (error: any) => reject(error),
-        );
-    })
-    const obj = new THREE.Group();
-    for(const mesh of meshes) {
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        for (const child of mesh.children) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-        }
-        obj.add(mesh);
-    }
-    scene.add(obj);
-    obj.rotateY(Math.PI);
-    obj.translateY(-2.05);
-    obj.translateZ(9);
-
-    {
-        const light2 = new THREE.PointLight(new THREE.Color('#FFAA00'), 1.5, 6.0);
-        light2.position.set(2.6, 0.4, 0.5);
-        light2.shadow.bias = -0.01;
-        light2.shadow.radius = 20;
-        light2.shadow.mapSize = new THREE.Vector2(512, 512);
-        light2.castShadow = true;
-        scene.add(light2);
-        chimneyLight = light2;
-    }
-
-    const boxGlb = await new Promise<{ anim: THREE.AnimationAction, box: THREE.Object3D }>((resolve, reject) => {
-        const loader = new GLTFLoader();
-        loader.load(
-            BriqBox,
-            (gltf: any) => {
-                resolve({
-                    anim: gltf.animations[0],
-                    box: gltf.scene.children.slice()[0],
-                });
-            },
-            () => {},
-            (error: any) => reject(error),
-        );
-    })
-    const box = boxGlb.box;
-
-    boxOpenAnim = boxGlb.anim;
-    const mixer = new THREE.AnimationMixer(box);
-    const anim = mixer.clipAction(boxGlb.anim)
-    anim.timeScale = -2;
-    anim.paused = false;
-    anim.setLoop(THREE.LoopRepeat, 1);
-    anim.play();
-    mixer.setTime(0.001);
-
-    box.userData.mixer = mixer;
-    box.position.set(1.2, 0.07, 1.2);
-    box.rotateY(Math.PI);
-    box.userData.uid = 'toto';
-    box.children[1].userData.uid = box.userData.uid;
-    box.children[1].children.forEach(x => {
-        x.userData.uid = box.userData.uid;
-        x.castShadow = true;
-        x.receiveShadow = true;
-    });
-
-    const lightMapLoader = new THREE.TextureLoader();
-    const texture = lightMapLoader.load('/spaceman/box_texture.png');
-    texture.encoding = THREE.sRGBEncoding;
-    texture.flipY = false;
-
-
-    box.children[1].children[0].material.color = new THREE.Color('#ffffff');
-    box.children[1].children[1].material.color = new THREE.Color('#ffffff');
-
-    (box.children[1].children[0].material.map as THREE.Texture) = texture;
-    (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
-    (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;
-
-    scene.add(box);
-    console.log(scene);
-
-    const [renderer, composer] = recreateRenderer(canvas, scene, camera);
-    renderFunc.value = () => _render(renderer, composer, camera);
-}
-
+let lastTime = 0;
 onMounted(async () => {
-    await setup(canvas.value);
-    const frame = () => {
-        render();
+    await initFsm;
+    const setupData = await useRenderer(canvas.value);
+    camera = setupData.camera;
+    scene = setupData.scene;
+    const sceneData = await setupScene(scene, camera);
+
+    chimneyLight = sceneData.chimneyLight;
+    box = sceneData.box;
+
+    lastCamRot.value = new THREE.Quaternion();
+    lastCamPos.value = new THREE.Vector3();
+    currentCamRot.value = new THREE.Quaternion();
+    currentCamPos.value = new THREE.Vector3();
+    camera.getWorldQuaternion(lastCamRot.value);
+    camera.getWorldPosition(lastCamPos.value);
+    camera.getWorldQuaternion(currentCamRot.value);
+    camera.getWorldPosition(currentCamPos.value);
+
+    setSceneReady();
+
+    const frame = (time: number) => {
+        if (!lastTime)
+            lastTime = time;
+        const delta = time - lastTime;
+        lastTime = time;
+        if (fsm.state.frame)
+            fsm.state.frame(delta / 1000.0);
+        setupData.render();
         requestAnimationFrame(frame);
     }
+
     requestAnimationFrame(frame);
 });
 
-const selectedObject = ref(undefined as THREE.Mesh | undefined);
-watch(selectedObject, (newV, oldV) => {
-    if (oldV)
-        oldV.children[1].children[0].material.color = new THREE.Color('#ffffff');
-    if (newV)
-        newV.children[1].children[0].material.color = new THREE.Color('#FF0022');
-})
+//////////////////////////////
+//////////////////////////////
 
-const onClick = (event: PointerEvent) => {
+const updateLights = (delta: number) => {
+    const intensity = Math.random() > 0.8 ? 0.2 : 0.01;
+
+    chimneyLight.position.set(
+        2.5 + (Math.random() * intensity - intensity/2) * 0.0,
+        0.5 + (Math.random() * intensity - intensity/2) * 0.1,
+        0.6 + (Math.random() * intensity - intensity/2) * 0.1,
+    );
+    chimneyLight.intensity = Math.random() * 0.3 + 0.85;
+}
+
+const getBoxAt = (event: PointerEvent) => {
     const rc = new THREE.Raycaster();
     const cv = canvas.value as unknown as HTMLCanvasElement;
-    rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, cameraRef.value!);
-    console.log(cameraRef.value!.parent);
-    const objects = rc.intersectObjects(cameraRef.value!.parent.children, true);
+    rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, camera);
+    const objects = rc.intersectObjects(scene.children, true);
     if (objects.length && objects[0].object.userData.uid === 'toto') {
         let obj = objects[0].object as THREE.Mesh;
         while (obj.parent?.userData.uid === 'toto')
             obj = obj.parent;
-        selectedObject.value = obj;
+        return obj
     } else
-        selectedObject.value = undefined;
+        return undefined;
 }
 
-import UnboxModal from './UnboxModal.vue';
-import Modals from '../../Modals.vue';
-import { useRouter } from 'vue-router';
+//////////////////////////////
+//////////////////////////////
+//////////////////////////////
+
+type steps = 'CHECK_WALLET' | 'LOADING' | 'SAPIN' | 'CHECK_BOX' | 'UNBOXING' | 'UNBOXED';
+
+interface FsmState {
+    onEnter(): Promise<void>;
+    onLeave?: (to: string) => Promise<void>;
+    frame?: (delta: number) => void;
+}
+
+const initialState = new class implements FsmState {
+    stopHandle!: WatchStopHandle
+    async onEnter() {
+        this.stopHandle = watch(toRef(walletStore, 'userWalletAddress'), () => {
+            if (walletStore.userWalletAddress)
+                return fsm.switchTo('LOADING');
+        });
+    }
+    async onLeave() {
+        this.stopHandle();
+    }
+}
+
+const loadingState = new class implements FsmState {
+    async onEnter() {
+        await sceneReady;
+        return fsm.switchTo('SAPIN');
+    }
+}
+
+const sapinState = new class implements FsmState {
+    async onEnter() {
+        canvas.value.addEventListener('click', this.onClick);
+
+        camera.getWorldPosition(lastCamPos.value);
+        camera.getWorldQuaternion(lastCamRot.value);
+        camInterp.value = 0;
+        camera.position.set(-2, 1.8, -2);
+        camera.lookAt(new THREE.Vector3(2, 0, 2));
+        currentCamPos.value = camera.position.clone();
+        camera.getWorldQuaternion(currentCamRot.value);
+        this.setCam();
+    }
+
+    async onLeave() {
+        canvas.value.removeEventListener('click', this.onClick);
+    }
+
+    setCam() {
+        const pos = new THREE.Vector3().lerpVectors(lastCamPos.value, currentCamPos.value, camInterp.value);
+        camera.position.set(pos.x, pos.y, pos.z);
+        const quat = new THREE.Quaternion().slerpQuaternions(lastCamRot.value, currentCamRot.value, camInterp.value);
+        camera.setRotationFromQuaternion(quat);
+    }
+
+    frame(delta: number) {
+        updateLights(delta);
+        if (camInterp.value < 1)
+            camInterp.value = Math.min(1.0, camInterp.value + delta);
+        this.setCam();
+    }
+
+    onClick(event: PointerEvent) {
+        let box = getBoxAt(event);
+        selectedObject.value = box;
+        if (box)
+            return fsm.switchTo('CHECK_BOX');
+    }
+}
+
+const checkBoxState = new class implements FsmState {
+    initialChapter: any;
+    async onEnter() {
+        canvas.value.addEventListener('click', this.onClick);
+
+        this.initialChapter = addChapter(
+            h(LookAtBoxVue, {
+                startUnbox: start_unbox,
+            }),
+        );
+
+        camera.getWorldPosition(lastCamPos.value);
+        camera.getWorldQuaternion(lastCamRot.value);
+        camInterp.value = 0;
+        camera.position.set(selectedObject.value?.position.x - 1.0, selectedObject.value?.position.y + 1.0, selectedObject.value?.position.z - 1.0);
+        camera.lookAt(new THREE.Vector3(
+            selectedObject.value?.position.x,
+            selectedObject.value?.position.y,
+            selectedObject.value?.position.z,
+        ));
+        currentCamPos.value = camera.position.clone();
+        camera.getWorldQuaternion(currentCamRot.value);
+        this.setCam();
+    }
+
+    async onLeave(to: string) {
+        if (to === 'UNBOXING')
+            this.initialChapter.active = false;
+        else
+            chapters.splice(x => x == this.initialChapter);
+        canvas.value.removeEventListener('click', this.onClick);
+    }
+
+    setCam() {
+        const pos = new THREE.Vector3().lerpVectors(lastCamPos.value, currentCamPos.value, camInterp.value);
+        camera.position.set(pos.x, pos.y, pos.z);
+        const quat = new THREE.Quaternion().slerpQuaternions(lastCamRot.value, currentCamRot.value, camInterp.value);
+        camera.setRotationFromQuaternion(quat);
+    }
+    frame(delta: number) {
+        updateLights(delta);
+        if (camInterp.value < 1)
+            camInterp.value = Math.min(1.0, camInterp.value + delta);
+        this.setCam();
+    }
+
+    onClick(event: PointerEvent) {
+        let box = getBoxAt(event);
+        const lastSel = selectedObject.value;
+        selectedObject.value = box;
+        if (box && box.uuid !== lastSel?.uuid)
+            return fsm.switchTo('CHECK_BOX');
+        else if (!box)
+            return fsm.switchTo('SAPIN');
+
+    }
+}
+
+const unboxingState = new class implements FsmState {
+    async onEnter() {}
+    frame(delta: number) {
+        updateLights(delta);
+    }
+}
+
+const unboxedState = new class implements FsmState {
+    async onEnter() {}
+    frame(delta: number) {
+        updateLights(delta);
+        selectedObject.value?.userData.mixer.update(delta);
+    }
+}
+
+
+const fsm = shallowReactive(new class FSM {
+    stateName = 'CHECK_WALLET' as steps;
+    state = initialState as FsmState;
+    async switchTo(state: steps) {
+        if (this.state.onLeave)
+            await this.state.onLeave(state);
+        this.state = {
+            'CHECK_WALLET': initialState,
+            'LOADING': loadingState,
+            'SAPIN': sapinState,
+            'CHECK_BOX': checkBoxState,
+            'UNBOXING': unboxingState,
+            'UNBOXED': unboxedState,
+        }[state];
+        this.stateName = state;
+        await this.state.onEnter();
+    }
+});
+
+const step = computed(() => fsm.stateName);
+
 import FireplaceAudio from './FireplaceAudio.vue';
 
+import { useRouter } from 'vue-router';
 const router = useRouter()
 
-const step = ref('CHECK_WALLET' as 'CHECK_WALLET' | 'SAPIN' | 'CHECK_BOX' | 'UNBOXING' | 'UNBOXED');
-
-watch(toRef(walletStore, 'userWalletAddress'), () => {
-    if (walletStore.userWalletAddress && step.value === 'CHECK_WALLET')
-        step.value = 'SAPIN';
-}, {
-    immediate: true,
-})
+const goToBuilder = () => {
+    router.push({ name: 'Builder' });
+}
 
 const start_unbox = () => {
-    step.value = 'UNBOXING';
+    fsm.switchTo('UNBOXING');
 }
 
 const unbox = async () => {
@@ -322,61 +348,30 @@ const unbox = async () => {
         store.dispatch('builderData/select_set', set.id);
 
         // Play the box open animation.
-        step.value = 'UNBOXED';
+        fsm.switchTo('UNBOXED');
     }
 }
-
-const goToBuilder = () => {
-    router.push({ name: 'Builder' });
-}
-
-let lastTime;
-
-function frame(time) {
-    requestAnimationFrame(frame);
-    if (!lastTime) {
-        lastTime = time;
-        return;
-    }
-    const delta = time - lastTime;
-    lastTime = time;
-
-    if (chimneyLight) {
-        const intensity = Math.random() > 0.8 ? 0.2 : 0.01;
-
-        (chimneyLight as THREE.PointLight).position.set(
-            2.5 + (Math.random() * intensity - intensity/2) * 0.0,
-            0.5 + (Math.random() * intensity - intensity/2) * 0.1,
-            0.6 + (Math.random() * intensity - intensity/2) * 0.1,
-        );
-        (chimneyLight as THREE.PointLight).intensity = Math.random() * 0.3 + 0.85;
-    }
-
-
-    if (step.value === 'UNBOXED')
-        selectedObject.value?.userData.mixer.update(delta / 1000.0);
-}
-requestAnimationFrame(frame);
-
-
 </script>
 
-<style scoped>
+<style>
 
-hr {
+#unboxing hr {
     @apply my-8 text-black;
 }
 
-ul {
+#unboxing ul {
     @apply list-['-'] list-outside;
 }
-li {
+#unboxing li {
     @apply pl-3 ml-3;
 }
-blockquote {
+#unboxing blockquote {
     @apply bg-opacity-20 bg-black rounded px-4 py-2 italic;
 }
 
+</style>
+
+<style scoped>
 .xfade-enter-from {
     clip-path: polygon(-200% 0%, 0% 0%, -100% 100%, -300% 100%);
 }
@@ -390,14 +385,9 @@ blockquote {
 .xfade-enter-active,
 .xfade-leave-active {
   transition: clip-path 1.5s ease;
-}
-</style>
+}</style>
 
 <template>
-    <div v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base alternate-buttons flex-col gap-4">
-        <h2>briq unboxing</h2>
-        <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
-    </div>
     <canvas
         class="absolute top-0 left-0 w-screen h-screen"
         id="unboxGl"
@@ -407,6 +397,7 @@ blockquote {
         <FireplaceAudio/>
     </div>
     <div
+        id="unboxing"
         class="absolute top-0 right-0 xl:w-[30%] w-[400px] bg-black bg-opacity-40 h-screen overflow-auto snap-y transition-all scroll-smooth"
         @click.stop="">
         <div class="snap-end text-lg pb-[15rem] px-8 py-4">
@@ -419,27 +410,11 @@ blockquote {
                 It is now the hour, and by the fireplace you may open them.<br>
                 Let your imagination roam free.
             </p>
-            <Transition name="xfade">
-                <div v-if="!!selectedObject">
-                    <hr>
-                    <p>
-                        Space, ever the final-frontier, in your hands.
-                    </p>
-                    <p class="my-2">
-                        You shake the box in your hands. It rattles slightly.<br>
-                        The contents on the back side read:<br>
-                    </p>
-                    <blockquote>
-                        <h3>Spaceman</h3>
-                        <ul>
-                            <li>One high-quality construction booklet</li>
-                            <li>34 briqs required to build it</li>
-                            <li>One briq booster pack with unknown briqs</li>
-                        </ul>
-                    </blockquote>
-                    <p class="text-center my-4"><Btn @click="start_unbox" :disabled="!selectedObject || step.includes('UNBOX')">Unbox</Btn></p>
+            <TransitionGroup name="xfade">
+                <div v-for="chapter, i of chapters" :key="i">
+                    <component :is="chapter.component" :active="chapter.active"/>
                 </div>
-            </Transition>
+            </TransitionGroup>
             <Transition name="xfade">
                 <div v-if="!!selectedObject && step.includes('UNBOX')">
                     <hr>
@@ -472,5 +447,8 @@ blockquote {
             </Transition>
         </div>
     </div>
-    <Modals/>
+    <div v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base alternate-buttons flex-col gap-4">
+        <h2>briq unboxing</h2>
+        <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
+    </div>
 </template>

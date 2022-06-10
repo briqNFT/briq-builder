@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { watch, onMounted, ref } from 'vue';
 import FireplaceAudio from '@/assets/genesis/FirePlace.mp3';
+import { APP_ENV } from '@/Meta';
 
 const fireaudio = ref(null as unknown as HTMLAudioElement);
 
 const playing = ref(false);
 
 onMounted(() => {
+    if (APP_ENV === 'dev')
+        return;
     const promise = fireaudio.value.play();
     if (promise !== undefined)
         promise.then(_ => {
