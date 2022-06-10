@@ -1,4 +1,5 @@
 html {
+    --color-body: 235 86 0;
     --color-base: 235 86 0;
     --color-accent: 247 137 74;
     --color-darker: 201 74 0;
@@ -7,6 +8,7 @@ html {
 }
 
 html.dark {
+    --color-body: 235 86 0;
     --color-base: 117 41 0;
     --color-accent: 155 56 3;
     --color-darker: 50 20 0;

@@ -4,7 +4,7 @@
 
 @layer base {
     body {
-        @apply text-text font-sans font-light bg-base;
+        @apply text-text font-sans font-light bg-body min-h-screen;
     }
     h1 {
         @apply text-7xl font-medium;

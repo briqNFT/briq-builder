@@ -13,6 +13,7 @@ module.exports = {
     theme: {
         extend: {
             colors: {
+                body: withOpacityValue('--color-body'),
                 base: withOpacityValue('--color-base'),
                 accent: withOpacityValue('--color-accent'),
                 darker: withOpacityValue('--color-darker'),

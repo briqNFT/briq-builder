@@ -10,6 +10,8 @@ import RealmsComplete from '@/components/realms/Complete.vue';
 
 import { CONF } from './Conf';
 import ProfileVue from '@/components/profile/Profile.vue';
+import ThemeMainPageVue from './components/builder/genesis/ThemeMainPage.vue';
+import BoxPageVue from './components/builder/genesis/BoxPage.vue';
 
 
 let loader;
@@ -76,12 +78,22 @@ export const routes = [
     {
         path: '/genesis',
         name: 'Genesis Mint',
-        component: GenesisMint
+        component: GenesisMint,
+    },
+    {
+        path: '/theme/:theme',
+        name: 'Theme',
+        component: ThemeMainPageVue,
+    },
+    {
+        path: '/box/:box',
+        name: 'Box',
+        component: BoxPageVue,
     },
     {
         path: '/unboxing',
         name: 'Unboxing',
-        component: UnboxingVue
+        component: UnboxingVue,
     },
 ];
 

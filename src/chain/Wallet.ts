@@ -35,6 +35,7 @@ export class WalletStore {
             const cwo = await connect({ showList: false });
 
             if (cwo)
+                // Don't await this, we don't care
                 this.enableWallet(cwo);
         }
 
@@ -55,6 +56,7 @@ export class WalletStore {
     async openWalletSelector() {
         const cwo = await connect({ showList: true });
         if (cwo)
+            // Don't await this, we don't care
             this.enableWallet(cwo);
     }
 
@@ -65,10 +67,10 @@ export class WalletStore {
         }
     }
 
-    enableWallet(starknetObj: IStarknetWindowObject) {
+    async enableWallet(starknetObj: IStarknetWindowObject) {
         this.starknetObject = starknetObj;
-        // Don't await this, we don't care
-        this.starknetObject.enable().then(() => this.setSignerFromGSW());
+        await this.starknetObject.enable();
+        this.setSignerFromGSW();
         this.starknetObject.on('accountsChanged', () => this.setSignerFromGSW());
     }
 
