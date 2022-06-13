@@ -107,5 +107,5 @@ export class WalletStore {
     }
 }
 
-export const walletStore = reactive(new WalletStore());
+export const walletStore = reactive(new WalletStore()) as unknown as WalletStore;
 walletStore.init();

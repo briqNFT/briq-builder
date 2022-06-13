@@ -7,6 +7,7 @@ export const ADDRESSES = {
         briq: '0xA',
         set: '0xB',
         mint: '0xC',
+        box: '0xD',
     },
     localhost: {
         briq: '0x05877d55d7a7ae8f65d6b3d059cfa68557b2a2fcd84ba04a9dcc46a55edf161a',
@@ -35,6 +36,7 @@ const IMPL = {
         briq: BriqContract,
         set: SetContract,
         mint: MintContract,
+        box: BoxContract,
     },
     'localhost': {
         briq: BriqContract,
@@ -64,10 +66,14 @@ import { logDebug } from '../Messages';
 import { CHAIN_NETWORKS, getCurrentNetwork } from './Network';
 import { getProvider } from './Provider';
 import MulticallContract from './contracts/Multicall';
+import BoxContract from './contracts/box';
+
 const contractStore = reactive({
     briq: undefined as undefined | BriqContract,
     mint: undefined as undefined | MintContract,
     set: undefined as undefined | SetContract,
+    box: undefined as undefined | BoxContract,
+    multicall: undefined as any,
 });
 
 export default contractStore;
@@ -90,9 +96,10 @@ export function watchSignerChanges(walletStore: any) {
         const impl = network && IMPL?.[network];
         logDebug('SWITCHING TO NETWORK', network);
         for (const contr in impl)
-            if (addr[contr])
+            if (contr in addr) {
+                console.log(signer.value, provider);
                 contractStore[contr] = new impl[contr](addr[contr], signer.value ? signer.value : provider);
-            else
+            } else
                 contractStore[contr] = undefined;
     });
 }

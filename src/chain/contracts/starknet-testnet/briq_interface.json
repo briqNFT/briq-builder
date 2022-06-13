@@ -263,6 +263,18 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "getSetAddress_",
+        "outputs": [
+            {
+                "name": "address",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "name": "sender",
@@ -336,19 +348,8 @@
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "name": "address",
-                "type": "felt"
-            }
-        ],
-        "name": "setMintContract_",
-        "outputs": [],
-        "type": "function"
-    },
-    {
         "inputs": [],
-        "name": "getMintContract_",
+        "name": "getBoxAddress_",
         "outputs": [
             {
                 "name": "address",
@@ -356,6 +357,17 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "address",
+                "type": "felt"
+            }
+        ],
+        "name": "setBoxAddress_",
+        "outputs": [],
         "type": "function"
     },
     {
@@ -567,6 +579,28 @@
         "name": "convertOneToNFT_",
         "outputs": [],
         "type": "function"
+    },
+    {
+        "data": [
+            {
+                "name": "address",
+                "type": "felt"
+            }
+        ],
+        "keys": [],
+        "name": "ProxyAdminSet",
+        "type": "event"
+    },
+    {
+        "data": [
+            {
+                "name": "address",
+                "type": "felt"
+            }
+        ],
+        "keys": [],
+        "name": "ProxyImplementationSet",
+        "type": "event"
     },
     {
         "inputs": [],

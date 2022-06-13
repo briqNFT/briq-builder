@@ -6,107 +6,18 @@ import {
 import { useBuilder } from '@/builder/BuilderStore';
 import { walletStore } from '@/chain/Wallet';
 
-import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, h, watchEffect } from 'vue';
-import { setupScene, useRenderer, addBox } from './Unboxing';
+import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, h, watchEffect, nextTick } from 'vue';
+import { setupScene, useRenderer, addBox } from './UnboxingGraphics';
 import LookAtBoxVue from './Texts/LookAtBox.vue';
 import { hexUuid } from '@/Uuid';
 import WalletsVue from './Texts/Wallets.vue';
 import BeforeActualUnboxVue from './Texts/BeforeActualUnbox.vue';
 import AfterUnboxVue from './Texts/AfterUnbox.vue';
 
+import { APP_ENV } from '@/Meta';
 
-//////////////////////////////
-//////////////////////////////
-
-const chapters = reactive([] as { uid: string, active: boolean, component: any }[]);
-
-const addChapter = (component: any) => {
-    chapters.push(
-        {
-            uid: hexUuid(),
-            active: true,
-            component,
-        },
-    )
-    return chapters[chapters.length - 1];
-}
-
-
-//////////////////////////////
-//////////////////////////////
-
-const canvas = ref(null as unknown as HTMLCanvasElement);
-
-let camera: THREE.PerspectiveCamera;
-let scene: THREE.Scene;
-let chimneyLight: THREE.PointLight;
-let boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D };
-
-const boxes = reactive([]);
-
-let setSceneReady: CallableFunction;
-const sceneReady = new Promise((resolve) => {
-    setSceneReady = resolve;
-})
-
-const lastCamRot = ref(null as unknown as THREE.Quaternion);
-const lastCamPos = ref(null as unknown as THREE.Vector3);
-const currentCamRot = ref(null as unknown as THREE.Quaternion);
-const currentCamPos = ref(null as unknown as THREE.Vector3);
-const camInterp = ref(0);
-
-const selectedObject = ref(undefined as THREE.Mesh | undefined);
-const hoveredObject = ref(undefined as THREE.Mesh | undefined);
-
-//////////////////////////////
-//////////////////////////////
-
-let initFsm: Promise<void>;
-onBeforeMount(() => {
-    initFsm = fsm.state.onEnter();
-});
-
-let lastTime = 0;
-onMounted(async () => {
-    await initFsm;
-    const setupData = await useRenderer(canvas.value);
-    camera = setupData.camera;
-    scene = setupData.scene;
-    const sceneData = await setupScene(scene, camera);
-
-    chimneyLight = sceneData.chimneyLight;
-    boxGlb = sceneData.boxGlb;
-
-    lastCamRot.value = new THREE.Quaternion();
-    lastCamPos.value = new THREE.Vector3();
-    currentCamRot.value = new THREE.Quaternion();
-    currentCamPos.value = new THREE.Vector3();
-    camera.getWorldQuaternion(lastCamRot.value);
-    camera.getWorldPosition(lastCamPos.value);
-    camera.getWorldQuaternion(currentCamRot.value);
-    camera.getWorldPosition(currentCamPos.value);
-
-    setSceneReady();
-
-    const frame = (time: number) => {
-        if (!lastTime)
-            lastTime = time;
-        const delta = time - lastTime;
-        lastTime = time;
-        if (fsm.state.frame)
-            fsm.state.frame(delta / 1000.0);
-        setupData.render();
-        requestAnimationFrame(frame);
-    }
-
-    requestAnimationFrame(frame);
-});
-
-watchEffect(() => {
-    for (const box of boxes)
-        box.children[1].children[0].material.color = new THREE.Color(!hoveredObject.value || hoveredObject.value?.uuid === box.uuid ? '#ffffff' : '#aaaaaa');
-
-})
+import { genesisUserStore } from '@/builder/GenesisStore';
+import contractStore from '@/chain/Contracts';
 
 //////////////////////////////
 //////////////////////////////
@@ -136,7 +47,46 @@ const getBoxAt = (event: PointerEvent) => {
         return undefined;
 }
 
+
 //////////////////////////////
+//////////////////////////////
+
+const chapters = reactive([] as { uid: string, active: boolean, component: any }[]);
+
+const addChapter = (component: any) => {
+    chapters.push(
+        {
+            uid: hexUuid(),
+            active: true,
+            component,
+        },
+    )
+    return chapters[chapters.length - 1];
+}
+
+const canvas = ref(null as unknown as HTMLCanvasElement);
+
+let camera: THREE.PerspectiveCamera;
+let scene: THREE.Scene;
+let chimneyLight: THREE.PointLight;
+let boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D };
+
+const boxes = reactive([]);
+
+let setSceneReady: CallableFunction;
+const sceneReady = new Promise((resolve) => {
+    setSceneReady = resolve;
+})
+
+const lastCamRot = ref(null as unknown as THREE.Quaternion);
+const lastCamPos = ref(null as unknown as THREE.Vector3);
+const currentCamRot = ref(null as unknown as THREE.Quaternion);
+const currentCamPos = ref(null as unknown as THREE.Vector3);
+const camInterp = ref(0);
+
+const selectedObject = ref(undefined as THREE.Mesh | undefined);
+const hoveredObject = ref(undefined as THREE.Mesh | undefined);
+
 //////////////////////////////
 //////////////////////////////
 
@@ -150,37 +100,28 @@ interface FsmState {
 }
 
 const initialState = new class implements FsmState {
-    stopHandle!: WatchStopHandle
     async onEnter() {
-        this.stopHandle = watch(toRef(walletStore, 'userWalletAddress'), () => {
-            if (walletStore.userWalletAddress)
-                return fsm.switchTo('LOADING');
-        });
-    }
-    async onLeave() {
-        this.stopHandle();
+        return;
     }
 }
 
 const loadingState = new class implements FsmState {
     async onEnter() {
+        const userData = genesisUserStore.fetchData();
         await sceneReady;
-        const boxesData = [
-            {
-                uid: hexUuid(),
-                box: 'spaceman',
-                position: [0.5, 0.07, 1.4],
-            },
-            {
-                uid: hexUuid(),
-                box: 'spaceman',
-                position: [1.2, 0.07, 1.2],
-            },
+        await userData;
+        const pos = [
+            [0.5, 0.07, 1.4],
+            [1.2, 0.07, 1.2],
         ]
+        const boxesData = genesisUserStore.availableBoxes.map((token_id, i) => ({
+            uid: hexUuid(),
+            box_token_id: 'spaceman', // TODO -> replace with token_id
+            position: pos[i],
+        }));
         for (const box of boxesData)
             boxes.push(addBox(box, scene, boxGlb));
-
-        return fsm.switchTo('SAPIN');
+        return nextTick(() => fsm.switchTo('SAPIN'));
     }
 
     async onLeave() {
@@ -380,6 +321,65 @@ const fsm = shallowReactive(new class FSM {
 
 const step = computed(() => fsm.stateName);
 
+//////////////////////////////
+//////////////////////////////
+
+let initFsm: Promise<void>;
+onBeforeMount(() => {
+    initFsm = fsm.state.onEnter();
+});
+
+let lastTime = 0;
+onMounted(async () => {
+    await initFsm;
+    const setupData = await useRenderer(canvas.value);
+    camera = setupData.camera;
+    scene = setupData.scene;
+    const sceneData = await setupScene(scene, camera);
+
+    chimneyLight = sceneData.chimneyLight;
+    boxGlb = sceneData.boxGlb;
+
+    lastCamRot.value = new THREE.Quaternion();
+    lastCamPos.value = new THREE.Vector3();
+    currentCamRot.value = new THREE.Quaternion();
+    currentCamPos.value = new THREE.Vector3();
+    camera.getWorldQuaternion(lastCamRot.value);
+    camera.getWorldPosition(lastCamPos.value);
+    camera.getWorldQuaternion(currentCamRot.value);
+    camera.getWorldPosition(currentCamPos.value);
+
+    setSceneReady();
+
+    const frame = (time: number) => {
+        if (!lastTime)
+            lastTime = time;
+        const delta = time - lastTime;
+        lastTime = time;
+        if (fsm.state.frame)
+            fsm.state.frame(delta / 1000.0);
+        setupData.render();
+        requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+});
+
+watchEffect(() => {
+    for (const box of boxes)
+        box.children[1].children[0].material.color = new THREE.Color(!hoveredObject.value || hoveredObject.value?.uuid === box.uuid ? '#ffffff' : '#aaaaaa');
+
+})
+
+watch([toRef(walletStore, 'userWalletAddress')], () => {
+    if (walletStore.userWalletAddress)
+        fsm.switchTo('LOADING');
+    else
+        fsm.switchTo('CHECK_WALLET');
+}, {
+    immediate: true,
+})
+
 import FireplaceAudio from './FireplaceAudio.vue';
 
 import { useRouter } from 'vue-router';
@@ -394,30 +394,7 @@ const start_unbox = () => {
 }
 
 const unbox = async () => {
-
-    const message = {
-        domain: {
-            name: 'briq',
-            chainId: false ? 1 : 3,
-            version: 1,
-        },
-        types: {
-            StarkNetDomain: [
-                { name: 'name', type: 'felt' },
-                { name: 'chainId', type: 'felt' },
-                { name: 'version', type: 'felt' },
-            ],
-            Message: [{ name: 'message', type: 'felt' }],
-        },
-        primaryType: 'Message',
-        message: {
-            message: 'mint_set',
-        },
-    };
-
-    try {
-        await walletStore.signer.signMessage(message)
-    } catch(_) {}
+    await contractStore.box?.unbox(walletStore.userWalletAddress, selectedObject.value?.userData.box_token_id);
 
     if (true) {
         // Create a new local set with the proper booklet.
@@ -440,6 +417,11 @@ const unbox = async () => {
         fsm.switchTo('UNBOXED');
     }
 }
+
+const useMockWallet = () => {
+    window.useDebugProvider();
+}
+
 </script>
 
 <style>
@@ -502,5 +484,6 @@ const unbox = async () => {
     <div v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base alternate-buttons flex-col gap-4">
         <h2>briq unboxing</h2>
         <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
+        <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet">Dev</Btn>
     </div>
 </template>
