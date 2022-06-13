@@ -6,21 +6,24 @@ import {
 import { useBuilder } from '@/builder/BuilderStore';
 import { walletStore } from '@/chain/Wallet';
 
-import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, h } from 'vue';
-import { setupScene, useRenderer } from './Unboxing';
-import { CameraOnlyInput } from '@/builder/inputs/input_states/CameraOnly';
-import ButtonVue from '@/components/generic/Button.vue';
+import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, h, watchEffect } from 'vue';
+import { setupScene, useRenderer, addBox } from './Unboxing';
 import LookAtBoxVue from './Texts/LookAtBox.vue';
+import { hexUuid } from '@/Uuid';
+import WalletsVue from './Texts/Wallets.vue';
+import BeforeActualUnboxVue from './Texts/BeforeActualUnbox.vue';
+import AfterUnboxVue from './Texts/AfterUnbox.vue';
 
 
 //////////////////////////////
 //////////////////////////////
 
-const chapters = reactive([] as { active: boolean, component: any }[]);
+const chapters = reactive([] as { uid: string, active: boolean, component: any }[]);
 
 const addChapter = (component: any) => {
     chapters.push(
         {
+            uid: hexUuid(),
             active: true,
             component,
         },
@@ -37,7 +40,9 @@ const canvas = ref(null as unknown as HTMLCanvasElement);
 let camera: THREE.PerspectiveCamera;
 let scene: THREE.Scene;
 let chimneyLight: THREE.PointLight;
-let box: any;
+let boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D };
+
+const boxes = reactive([]);
 
 let setSceneReady: CallableFunction;
 const sceneReady = new Promise((resolve) => {
@@ -51,6 +56,7 @@ const currentCamPos = ref(null as unknown as THREE.Vector3);
 const camInterp = ref(0);
 
 const selectedObject = ref(undefined as THREE.Mesh | undefined);
+const hoveredObject = ref(undefined as THREE.Mesh | undefined);
 
 //////////////////////////////
 //////////////////////////////
@@ -69,7 +75,7 @@ onMounted(async () => {
     const sceneData = await setupScene(scene, camera);
 
     chimneyLight = sceneData.chimneyLight;
-    box = sceneData.box;
+    boxGlb = sceneData.boxGlb;
 
     lastCamRot.value = new THREE.Quaternion();
     lastCamPos.value = new THREE.Vector3();
@@ -96,6 +102,12 @@ onMounted(async () => {
     requestAnimationFrame(frame);
 });
 
+watchEffect(() => {
+    for (const box of boxes)
+        box.children[1].children[0].material.color = new THREE.Color(!hoveredObject.value || hoveredObject.value?.uuid === box.uuid ? '#ffffff' : '#aaaaaa');
+
+})
+
 //////////////////////////////
 //////////////////////////////
 
@@ -115,9 +127,9 @@ const getBoxAt = (event: PointerEvent) => {
     const cv = canvas.value as unknown as HTMLCanvasElement;
     rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, camera);
     const objects = rc.intersectObjects(scene.children, true);
-    if (objects.length && objects[0].object.userData.uid === 'toto') {
+    if (objects.length && objects[0].object.userData.uid) {
         let obj = objects[0].object as THREE.Mesh;
-        while (obj.parent?.userData.uid === 'toto')
+        while (obj.parent?.userData.uid)
             obj = obj.parent;
         return obj
     } else
@@ -134,6 +146,7 @@ interface FsmState {
     onEnter(): Promise<void>;
     onLeave?: (to: string) => Promise<void>;
     frame?: (delta: number) => void;
+    onClick?: (event: PointerEvent) => void;
 }
 
 const initialState = new class implements FsmState {
@@ -152,14 +165,36 @@ const initialState = new class implements FsmState {
 const loadingState = new class implements FsmState {
     async onEnter() {
         await sceneReady;
+        const boxesData = [
+            {
+                uid: hexUuid(),
+                box: 'spaceman',
+                position: [0.5, 0.07, 1.4],
+            },
+            {
+                uid: hexUuid(),
+                box: 'spaceman',
+                position: [1.2, 0.07, 1.2],
+            },
+        ]
+        for (const box of boxesData)
+            boxes.push(addBox(box, scene, boxGlb));
+
         return fsm.switchTo('SAPIN');
+    }
+
+    async onLeave() {
+        setTimeout(() => addChapter(
+            h('dic', [
+                h('p', ['Today is Christmas, 1995.', h('br'), 'Your gifts have been left by the tree, and are waiting for you.']),
+                h('p', { class: 'my-2' }, ['The hour is now, and by the fireplace you may open them.', h('br'), 'Let your imagination roam free.']),
+            ]),
+        ), 250);
     }
 }
 
 const sapinState = new class implements FsmState {
     async onEnter() {
-        canvas.value.addEventListener('click', this.onClick);
-
         camera.getWorldPosition(lastCamPos.value);
         camera.getWorldQuaternion(lastCamRot.value);
         camInterp.value = 0;
@@ -168,10 +203,6 @@ const sapinState = new class implements FsmState {
         currentCamPos.value = camera.position.clone();
         camera.getWorldQuaternion(currentCamRot.value);
         this.setCam();
-    }
-
-    async onLeave() {
-        canvas.value.removeEventListener('click', this.onClick);
     }
 
     setCam() {
@@ -194,13 +225,16 @@ const sapinState = new class implements FsmState {
         if (box)
             return fsm.switchTo('CHECK_BOX');
     }
+
+    onPointerMove(event: PointerEvent) {
+        let box = getBoxAt(event);
+        hoveredObject.value = box;
+    }
 }
 
 const checkBoxState = new class implements FsmState {
     initialChapter: any;
     async onEnter() {
-        canvas.value.addEventListener('click', this.onClick);
-
         this.initialChapter = addChapter(
             h(LookAtBoxVue, {
                 startUnbox: start_unbox,
@@ -222,11 +256,9 @@ const checkBoxState = new class implements FsmState {
     }
 
     async onLeave(to: string) {
-        if (to === 'UNBOXING')
-            this.initialChapter.active = false;
-        else
-            chapters.splice(x => x == this.initialChapter);
-        canvas.value.removeEventListener('click', this.onClick);
+        this.initialChapter.active = false;
+        if (to !== 'UNBOXING')
+            chapters.splice(chapters.findIndex(x => x.uid === this.initialChapter.uid), 1);
     }
 
     setCam() {
@@ -235,6 +267,7 @@ const checkBoxState = new class implements FsmState {
         const quat = new THREE.Quaternion().slerpQuaternions(lastCamRot.value, currentCamRot.value, camInterp.value);
         camera.setRotationFromQuaternion(quat);
     }
+
     frame(delta: number) {
         updateLights(delta);
         if (camInterp.value < 1)
@@ -250,22 +283,78 @@ const checkBoxState = new class implements FsmState {
             return fsm.switchTo('CHECK_BOX');
         else if (!box)
             return fsm.switchTo('SAPIN');
+    }
 
+    onPointerMove(event: PointerEvent) {
+        let box = getBoxAt(event);
+        hoveredObject.value = box;
     }
 }
 
 const unboxingState = new class implements FsmState {
-    async onEnter() {}
+    chapters = [];
+    async onEnter() {
+        this.chapters.push(addChapter(
+            h(WalletsVue),
+        ));
+        this.chapters.push(addChapter(
+            h(BeforeActualUnboxVue, {
+                unbox: unbox,
+            }),
+        ));
+    }
+
+    async onLeave() {
+        this.chapters.forEach(x => x.active = false);
+    }
+
     frame(delta: number) {
         updateLights(delta);
+    }
+
+    onClick(event: PointerEvent) {
+        let box = getBoxAt(event);
+        const lastSel = selectedObject.value;
+        selectedObject.value = box;
+        if (box && box.uuid !== lastSel?.uuid)
+            return fsm.switchTo('CHECK_BOX');
+        else if (!box)
+            return fsm.switchTo('SAPIN');
+    }
+
+    onPointerMove(event: PointerEvent) {
+        let box = getBoxAt(event);
+        hoveredObject.value = box;
     }
 }
 
 const unboxedState = new class implements FsmState {
-    async onEnter() {}
+    async onEnter() {
+        addChapter(
+            h(AfterUnboxVue, {
+                unbox: unbox,
+            }),
+        )
+    }
+
     frame(delta: number) {
         updateLights(delta);
         selectedObject.value?.userData.mixer.update(delta);
+    }
+
+    onClick(event: PointerEvent) {
+        let box = getBoxAt(event);
+        const lastSel = selectedObject.value;
+        selectedObject.value = box;
+        if (box && box.uuid !== lastSel?.uuid)
+            return fsm.switchTo('CHECK_BOX');
+        else if (!box)
+            return fsm.switchTo('SAPIN');
+    }
+
+    onPointerMove(event: PointerEvent) {
+        let box = getBoxAt(event);
+        hoveredObject.value = box;
     }
 }
 
@@ -392,7 +481,8 @@ const unbox = async () => {
         class="absolute top-0 left-0 w-screen h-screen"
         id="unboxGl"
         ref="canvas"
-        @click="onClick"/>
+        @click="(event) => fsm.state?.onClick?.(event)"
+        @pointermove="(event) => fsm.state?.onPointerMove?.(event)"/>
     <div class="absolute bottom-0 left-0">
         <FireplaceAudio/>
     </div>
@@ -402,49 +492,11 @@ const unbox = async () => {
         @click.stop="">
         <div class="snap-end text-lg pb-[15rem] px-8 py-4">
             <h2 class="text-center my-8">briq unboxing</h2>
-            <p>
-                Today is Christmas, 1995. <br>
-                Your gifts have been left by the tree, and are waiting for you.
-            </p>
-            <p class="my-2">
-                It is now the hour, and by the fireplace you may open them.<br>
-                Let your imagination roam free.
-            </p>
             <TransitionGroup name="xfade">
                 <div v-for="chapter, i of chapters" :key="i">
                     <component :is="chapter.component" :active="chapter.active"/>
                 </div>
             </TransitionGroup>
-            <Transition name="xfade">
-                <div v-if="!!selectedObject && step.includes('UNBOX')">
-                    <hr>
-                    <p>You recite the ancient incantations in an untold language.</p>
-                    <p>StarkNet address: {{ walletStore.userWalletAddress }}</p>
-                    <p>Ethereum address: {{ 'TODO' }}</p>
-                    <p class="flex justify-center gap-2 my-4 text-md">
-                        <Btn :disabled="step === 'UNBOXED'" v-if="!walletStore.userWalletAddress" @click="walletStore.openWalletSelector()">Connect to StarkNet</Btn>
-                        <Btn :disabled="step === 'UNBOXED'" v-else>StarkNet Wallet</Btn>
-                        <Btn :disabled="step === 'UNBOXED'">Connect to Ethereum</Btn>
-                    </p>
-                </div>
-            </Transition>
-            <Transition name="xfade">
-                <div v-if="!!selectedObject && step.includes('UNBOX') && walletStore.userWalletAddress">
-                    <hr>
-                    <p>The box is in your hands. Everything is ready.</p>
-                    <p class="flex justify-center gap-2 my-4 text-md">
-                        <Btn @click="unbox" :disabled="step === 'UNBOXED'">Open the box</Btn>
-                    </p>
-                </div>
-            </Transition>
-            <Transition name="xfade">
-                <div v-if="step === 'UNBOXED'">
-                    <hr>
-                    <p class="flex justify-center gap-2 my-4 text-md">
-                        <Btn @click="goToBuilder">Start building</Btn>
-                    </p>
-                </div>
-            </Transition>
         </div>
     </div>
     <div v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base alternate-buttons flex-col gap-4">

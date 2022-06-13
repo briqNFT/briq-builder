@@ -8,6 +8,7 @@ import {
     SAOPass,
     CopyShader,
     OrbitControls,
+    SkeletonUtils,
 } from '@/three';
 
 import { GLTFLoader } from '@/three';
@@ -177,7 +178,14 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
             (error: any) => reject(error),
         );
     })
-    const box = boxGlb.box;
+    return {
+        chimneyLight,
+        boxGlb,
+    }
+}
+
+export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D }) {
+    const box = SkeletonUtils.clone(boxGlb.box);
 
     const mixer = new THREE.AnimationMixer(box);
     const anim = mixer.clipAction(boxGlb.anim)
@@ -188,9 +196,10 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
     mixer.setTime(0.001);
 
     box.userData.mixer = mixer;
-    box.position.set(1.2, 0.07, 1.2);
+    box.position.set(...boxData.position);
     box.rotateY(Math.PI);
-    box.userData.uid = 'toto';
+
+    box.userData.uid = boxData.uid;
     box.children[1].userData.uid = box.userData.uid;
     box.children[1].children.forEach(x => {
         x.userData.uid = box.userData.uid;
@@ -199,10 +208,12 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
     });
 
     const lightMapLoader = new THREE.TextureLoader();
-    const texture = lightMapLoader.load('/spaceman/box_texture.png');
+    const texture = lightMapLoader.load(`/${boxData.box}/box_texture.png`);
     texture.encoding = THREE.sRGBEncoding;
     texture.flipY = false;
 
+    box.children[1].children[0].material = box.children[1].children[0].material.clone();
+    box.children[1].children[1].material = box.children[1].children[1].material.clone();
 
     box.children[1].children[0].material.color = new THREE.Color('#ffffff');
     box.children[1].children[1].material.color = new THREE.Color('#ffffff');
@@ -212,9 +223,5 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;
 
     scene.add(box);
-
-    return {
-        chimneyLight,
-        box,
-    }
+    return box;
 }

@@ -3,33 +3,34 @@
  * This module exists to fake typescript into thinking it's statically loaded,
  * just query `await THREE_SETUP;` if you need to wait until three is loaded.
  */
-import type * as THREETYPES from 'three';
-import type three_wrapper from './three_wrapper';
+import type * as three_wrapper from './three_wrapper';
 
 import { logDebug } from './Messages';
 import { setThreeLoadingComplete } from './threeLoading';
 export { threeSetupComplete } from './threeLoading';
 
 // This is a lie.
-export var THREE: typeof THREETYPES;
+export let THREE: typeof three_wrapper.ALL_THREE;
 
-export var OrbitControls: three_wrapper.OrbitControls;
-export var SelectionBox: three_wrapper.SelectionBox;
-export var BufferGeometryUtils: three_wrapper.BufferGeometryUtils;
+export let SkeletonUtils: typeof three_wrapper.SkeletonUtils;
+export let OrbitControls: typeof three_wrapper.OrbitControls;
+export let SelectionBox: typeof three_wrapper.SelectionBox;
+export let BufferGeometryUtils: typeof three_wrapper.BufferGeometryUtils;
 
-export var GLTFLoader: three_wrapper.GLTFLoader;
+export let GLTFLoader: typeof three_wrapper.GLTFLoader;
 
-export var EffectComposer: three_wrapper.EffectComposer;
-export var RenderPass: three_wrapper.RenderPass;
-export var SAOPass: three_wrapper.SAOPass;
-export var ShaderPass: three_wrapper.ShaderPass;
-export var SSAARenderPass: three_wrapper.SSAARenderPass;
-export var CopyShader: three_wrapper.CopyShader;
-export var FXAAShader: three_wrapper.FXAAShader;
+export let EffectComposer: typeof three_wrapper.EffectComposer;
+export let RenderPass: typeof three_wrapper.RenderPass;
+export let SAOPass: typeof three_wrapper.SAOPass;
+export let ShaderPass: typeof three_wrapper.ShaderPass;
+export let SSAARenderPass: typeof three_wrapper.SSAARenderPass;
+export let CopyShader: typeof three_wrapper.CopyShader;
+export let FXAAShader: typeof three_wrapper.FXAAShader;
 
 async function setup() {
     const wrapper = await import('./three_wrapper');
-    THREE = wrapper.THREE;
+    THREE = wrapper.ALL_THREE;
+    SkeletonUtils = wrapper.SkeletonUtils;
     OrbitControls = wrapper.OrbitControls;
     SelectionBox = wrapper.SelectionBox;
     BufferGeometryUtils = wrapper.BufferGeometryUtils;

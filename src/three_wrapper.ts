@@ -1,4 +1,6 @@
-export * as THREE from 'three';
+export * as ALL_THREE from 'three';
+
+export * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 export { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 export { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox.js';
