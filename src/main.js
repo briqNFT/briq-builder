@@ -17,6 +17,12 @@ import { routes } from './Routes';
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior(to, from, savedPosition) {
+        if (savedPosition)
+            return savedPosition
+        else
+            return { top: 0 }
+    },
 });
 app.use(router);
 
