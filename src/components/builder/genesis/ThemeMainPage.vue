@@ -18,7 +18,7 @@ const route = useRoute();
     <div class="theme-main-page">
         <div class="bg-base"><Header/></div>
         <div class="">
-            <div class="container m-auto flex flex-col justify-around items-center h-[40rem] bg-black text-white rounded-xl">
+            <div class="container m-auto flex flex-col justify-around items-center h-[40rem] bg-black text-white rounded-xl my-4">
                 <h1 class="text-center">{{ route.params.theme }}</h1>
                 <p>Lorem Ipsum description here</p>
                 <p>Auction coming soon</p>
