@@ -332,7 +332,7 @@ const unboxedState = new class implements FsmState {
     async onEnter() {
         addChapter(
             h(AfterUnboxVue, {
-                unbox: unbox,
+                goToBuilder: goToBuilder,
             }),
         )
     }
