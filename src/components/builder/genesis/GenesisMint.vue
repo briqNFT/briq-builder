@@ -8,23 +8,16 @@ const router = useRouter();
 
 const availableBoxes = [
     {
-        name: "BitConnect",
-        img: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧱</text></svg>",
-        description: "Biiiiit Conneeeeeeeeeeect"
+        name: 'BitConnect',
+        img: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧱</text></svg>',
+        description: 'Biiiiit Conneeeeeeeeeeect',
     },
     {
-        name: "Starkware",
-        img: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧱</text></svg>",
-        description: "Biiiiit Conneeeeeeeeeeect"
-    }
+        name: 'Starkware',
+        img: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧱</text></svg>',
+        description: 'Biiiiit Conneeeeeeeeeeect',
+    },
 ]
-
-const purchase = async () => {
-    const purchasing = await pushModal(Purchasing);
-    console.log(purchasing);
-    if (purchasing === 'ok')
-        router.push({ name: 'Unboxing' });
-}
 
 </script>
 
@@ -34,13 +27,13 @@ const purchase = async () => {
         <div class="flex flex-col">
             <div v-for="box in availableBoxes" class="h-[20rem] w-full text-center bg-accent border-4 border-darker rounded-lg">
                 <h2>{{ box.name }}</h2>
-                <p class="max-h-[10rem] flex"><img :src="box.img"/></p>
+                <p class="max-h-[10rem] flex"><img :src="box.img"></p>
                 <p>{{ box.description }}</p>
-                <Btn @click="purchase">Purchase</Btn>
+                <routerLink :to="{ name: 'Theme', 'params': { 'theme': 'test' } }"><Btn>Purchase</Btn></routerLink>
             </div>
         </div>
     </div>
-    <Modals></Modals>
+    <Modals/>
 </template>
 
 <style scoped>
