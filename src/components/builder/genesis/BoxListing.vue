@@ -24,6 +24,9 @@ const items = ref([1, 2, 3, 4, 5, 6, 7]);
 .theme-main-page .item-card:hover div {
     @apply basis-[50px];
 }
+p {
+    @apply text-copy;
+}
 </style>
 
 <template>

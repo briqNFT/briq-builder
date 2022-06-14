@@ -18,19 +18,22 @@ div.box-page-block {
     @apply border-[1px] bg-white p-4 border-gray-200 rounded-md;
 }
 h4 {
-    @apply font-medium;
+    @apply text-md font-semibold my-2;
+}
+p {
+    @apply text-copy;
 }
 </style>
 
 <template>
     <div class="relative theme-box-page">
-        <div class="bg-base"><Header/></div>
+        <Header/>
         <div>
             <div class="container m-auto my-8">
                 <p>
                     <routerLink
                         :to="{ name: 'Theme', 'params': { 'theme': 'test' } }"
-                        class="text-base">
+                        class="text-accent">
                         starknet city
                     </routerLink> > Spaceman
                 </p>
@@ -39,8 +42,11 @@ h4 {
                         <img src="/spaceman/step_7.png">
                     </div>
                     <div class="flex flex-col">
-                        <h3>Starknet City</h3>
-                        <h1 class="text-4xl">Spaceman</h1>
+                        <routerLink
+                            :to="{ name: 'Theme', 'params': { 'theme': 'test' } }">
+                            <h3 class="text-md text-accent">Starknet City</h3>
+                        </routerLink>
+                        <h1 class="text-xl my-8">Spaceman</h1>
                         <div class="box-page-block flex-1 flex flex-col justify-between">
                             <div>
                                 <h4>Sale ends on</h4>
@@ -48,7 +54,7 @@ h4 {
                                 <div>AUCTION TIME BLOCK HERE</div>
                             </div>
                             <div>
-                                <h4 class="text-xl">Winning Bid</h4>
+                                <h4>Winning Bid</h4>
                                 <p>1.35 ETH</p>
                                 <Btn class="w-full text-white">Place a bid</Btn>
                             </div>
@@ -79,8 +85,6 @@ h4 {
                 </div>
             </div>
         </div>
-        <div>
-            <Footer/>
-        </div>
+        <Footer/>
     </div>
 </template>
