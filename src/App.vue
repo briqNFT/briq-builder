@@ -77,11 +77,29 @@ h3 {
 }
 
 /* Overwrite the default outline color */
-button, a {
+html:not(.v2design) button, a {
     @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-darker;
 }
+html.v2design button, a {
+    @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-accent;
+}
 
-input, select, textarea {
+
+html:not(.v2design) input, select, textarea {
     @apply rounded-sm px-2 py-0.5 bg-white text-black dark:bg-darker dark:text-text;
 }
+
+html.v2design input {
+    @apply rounded p-4 border-2 border-darker;
+    @apply disabled:text-darker;
+}
+
+html.v2design input:not(:disabled):hover, html.v2design input:focus, html.v2design input:focus-visible {
+    @apply border-accent outline-0;
+}
+
+html.v2design input:focus {
+    @apply shadow-[0_0_3px_black] shadow-light-accent;
+}
+
 </style>

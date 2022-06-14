@@ -4,9 +4,15 @@ import { useRouter } from 'vue-router';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import BoxListing from './BoxListing.vue';
+import ModalsVue, { pushModal } from '@/components/Modals.vue';
+import BidModalVue from './BidModal.vue';
 
 const router = useRouter();
 
+
+const placeBid = () => {
+    pushModal(BidModalVue);
+}
 </script>
 
 <style scoped>
@@ -56,7 +62,7 @@ p {
                             <div>
                                 <h4>Winning Bid</h4>
                                 <p>1.35 ETH</p>
-                                <Btn class="w-full text-white">Place a bid</Btn>
+                                <Btn class="w-full text-white" @click="placeBid">Place a bid</Btn>
                             </div>
                         </div>
                     </div>
@@ -87,4 +93,5 @@ p {
         </div>
         <Footer/>
     </div>
+    <ModalsVue/>
 </template>

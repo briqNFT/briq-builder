@@ -7,9 +7,9 @@
             </div>
             <div class="flex items-center gap-4">
                 <div class="flex gap-8 flex-wrap justify-center md:justify-end font-normal">
-                    <a href="/team"><p>Team</p></a>
-                    <a href="/gallery"><p>Gallery</p></a>
-                    <routerLink to="Builder"><p>Create</p></routerLink>
+                    <routerLink to="/team"><p>Team</p></routerLink>
+                    <routerLink to="/gallery"><p>Gallery</p></routerLink>
+                    <routerLink to="/builder"><p>Create</p></routerLink>
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
                 </div>
                 <div class="flex-none">

@@ -4,7 +4,8 @@ html.v2design {
     --color-base: 253 253 253;
     --color-accent: 235 86 0;
     --color-light-accent: 245 170 128;
-    --color-darker: 201 74 0;
+    --color-darker: 220 220 220;
+    --color-darkest: 100 100 100;
     --color-dark: 0 0 0;
     --color-text: 43 43 43;
     --color-text-on-accent: 255 255 255;
