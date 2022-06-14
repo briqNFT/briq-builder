@@ -20,7 +20,7 @@
             </slot>
             <button
                 @click="close"
-                class="absolute top-0.5 right-0.5 hover:text-sm text-xs font-light bg-accent h-5 w-5 rounded-md inline-flex justify-center items-center">
+                class="absolute top-0.5 right-0.5 hover:text-sm text-xs font-light bg-accent h-5 w-5 rounded inline-flex justify-center items-center">
                 <i class="fas fa-times"/>
             </button>
         </div>

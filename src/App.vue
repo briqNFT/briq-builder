@@ -48,11 +48,12 @@ onMounted(() => {
 
 <style>
 body {
-    @apply text-text font-sans font-light bg-body min-h-screen;
+    @apply bg-body min-h-screen;
+    @apply text-text font-sans font-normal leading-tight;
 }
 
 h1 {
-    @apply text-7xl font-medium;
+    @apply text-max font-medium;
 }
 
 h2 {
@@ -64,7 +65,11 @@ h3 {
 }
 
 .briq-logo {
-    @apply font-display font-semibold select-none;
+    @apply font-logo font-medium select-none text-accent tracking-wide mx-4;
+}
+
+.briq-logo.briq {
+    @apply bg-accent text-white px-5 leading-none pt-[0.4rem] pb-[0.6rem];
 }
 
 /* Overwrite the default outline color */

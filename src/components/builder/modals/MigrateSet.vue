@@ -23,7 +23,7 @@
                         <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
                         <div class="flex justify-around items-center">
                             <p class="flex-initial">
-                                <img class="max-h-[20rem] m-auto rounded-xl" :src="metadata?.img?.currentSrc">
+                                <img class="max-h-[20rem] m-auto rounded-md" :src="metadata?.img?.currentSrc">
                             </p>
                         </div>
                         <div class="flex justify-around my-8">

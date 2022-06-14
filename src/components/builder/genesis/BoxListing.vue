@@ -32,7 +32,7 @@ const items = ref([1, 2, 3, 4, 5, 6, 7]);
             :to="{ name: 'Box', 'params': { 'box': 'spaceman' } }"
             v-for="i in items" :data-key="i" :key="i">
             <div class="item-card relative">
-                <div class="bg-white px-4 py-2 border-[1px] border-gray-200 rounded-md gap-1">
+                <div class="bg-white px-4 py-2 border-[1px] border-gray-200 rounded gap-1">
                     <p class="flex-1 min-h-0 min-w-0 flex justify-center items-center"><img class="min-h-0 min-w-0 max-h-[250px]" src="/spaceman/step_7.png"></p>
                     <h3 class="font-bold">Item {{ i }}</h3>
                     <p class="font-medium">Description of the item<br>Another line</p>

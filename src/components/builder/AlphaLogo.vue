@@ -37,6 +37,6 @@ export default defineComponent({
     bottom: 0;
     right: 0;
 
-    @apply rounded-xl shadow-sm;
+    @apply rounded-md shadow-sm;
 }
 </style>

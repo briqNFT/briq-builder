@@ -4,7 +4,7 @@ import ColorPicker from '../../generic/ColorPicker.vue';
 import { getNameFromMaterial, CONF } from '@/Conf';
 import { inputStore } from '@/builder/inputs/InputStore';
 
-import { ref, computed, defineEmits} from 'vue';
+import { ref, computed, defineEmits } from 'vue';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 
 const toto = ref(null);
@@ -22,9 +22,9 @@ const pick = function () {
 
 const getBadPickReason = computed(() => {
     if (!color.value || !color.value.match(/^\#[abcdef0-9]{6}$/i))
-        return "Cannot pick, incorrect color";
+        return 'Cannot pick, incorrect color';
     if (palette.value.choices.indexOf(packPaletteChoice(curMat.value, color.value)) !== -1)
-        return "Canot pick, color already in palette";
+        return 'Canot pick, color already in palette';
     return undefined;
 });
 
@@ -44,7 +44,7 @@ const getBadPickReason = computed(() => {
                     "/>
                 <p class="flex justify-center gap-2 my-4">
                     <span
-                        class="inline-block w-20 h-8 rounded-md border-2 border-white"
+                        class="inline-block w-20 h-8 rounded border-2 border-white"
                         :style="{ backgroundColor: color }"/>
                     <input class="text-center" type="text" maxlength="7" size="7" v-model="color">
                 </p>
@@ -52,8 +52,11 @@ const getBadPickReason = computed(() => {
             <div class="w-1 bg-darker flex"/>
             <div class="flex-auto flex justify-center items-center">
                 <div class="flex flex-col gap-2 w-[6rem]">
-                    <Btn v-for="material in CONF.briqMaterials" :class="curMat === material ? 'bg-accent' : ''"
-                        @click="curMat = material">{{ getNameFromMaterial(material) }}</Btn>
+                    <Btn
+                        v-for="material in CONF.briqMaterials" :class="curMat === material ? 'bg-accent' : ''"
+                        @click="curMat = material">
+                        {{ getNameFromMaterial(material) }}
+                    </Btn>
                 </div>
             </div>
         </div>

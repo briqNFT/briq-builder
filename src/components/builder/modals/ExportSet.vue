@@ -3,7 +3,7 @@
         <template #big-title>Export set</template>
         <h3 class="text-center">{{ set.id }}</h3>
         <div class="flex flex-nowrap items-center gap-3">
-            <div class="w-full bg-accent rounded-md flex justify-around items-center p-2 my-4">
+            <div class="w-full bg-accent rounded flex justify-around items-center p-2 my-4">
                 <button
                     class="flex flex-col justify-center items-center text-sm md:text-md"
                     :disabled="step(exporting) > step('CONFIRMATION')"
@@ -87,7 +87,7 @@
                                     });
                                 "
                                 :class="
-                                    'bg-darker rounded-md flex items-center flex-col p-2 select-none cursor-pointer hover:ring-2 ring-accent ' +
+                                    'bg-darker rounded flex items-center flex-col p-2 select-none cursor-pointer hover:ring-2 ring-accent ' +
                                         (set.name === data[1] ? '!bg-accent' : '')
                                 ">
                                 <component :is="data[2]" class="w-6 h-6"/>
@@ -99,7 +99,7 @@
                 </div>
                 <div class="flex-none w-full">
                     <div class="flex flex-col justify-evenly h-full">
-                        <img class="m-auto my-0 max-h-[25rem] rounded-xl" :src="screenshot">
+                        <img class="m-auto my-0 max-h-[25rem] rounded-md" :src="screenshot">
                         <div class="flex justify-evenly">
                             <Btn @click="cropScreenshot">Crop Image</Btn>
                             <Btn @click="retakeScreenshot">Retake Screenshot</Btn>
@@ -110,7 +110,7 @@
                     <h3 class="text-center break-words">{{ set.name }}</h3>
                     <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
                     <div class="flex justify-around items-center">
-                        <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-xl" :src="screenshot"></p>
+                        <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-md" :src="screenshot"></p>
                     </div>
                     <div class="flex justify-around my-8">
                         <div class="flex flex-col justify-start basis-1/2 text-center">
@@ -154,7 +154,7 @@
                     </h4>
                     <h3 class="text-center break-words">{{ set.name || set.id }}</h3>
                     <div class="flex justify-around items-center">
-                        <p class="flex-initial"><img class="max-h-[25rem] m-auto rounded-xl" :src="screenshot"></p>
+                        <p class="flex-initial"><img class="max-h-[25rem] m-auto rounded-md" :src="screenshot"></p>
                     </div>
                     <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
                     <div
@@ -223,7 +223,7 @@
         </div>
         <div
             :class="
-                'w-full bg-accent rounded-md flex justify-between items-center p-2 my-2' +
+                'w-full bg-accent rounded flex justify-between items-center p-2 my-2' +
                     (step(exporting) < step('SIGNING') ? '' : ' invisible')
             ">
             <Btn :disabled="!canGoBack" @click="exporting = exportSteps[step(exporting) - 1]">

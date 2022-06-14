@@ -5,13 +5,14 @@ const positionHack = ref(false);
 const vMounted = {
     mounted: (el: HTMLElement) => {
         positionHack.value = !positionHack.value;
-    }
+    },
 }
 
 </script>
 <template>
-    <div v-if="show"
-        class="fixed bg-accent rounded-md pointer-events-none px-2 py-1 shadow font-medium text-sm w-max"
+    <div
+        v-if="show"
+        class="fixed bg-accent rounded pointer-events-none px-2 py-1 shadow font-medium text-sm w-max"
         :style="getPositionCSS"
         ref="tooltipDiv"
         v-mounted>

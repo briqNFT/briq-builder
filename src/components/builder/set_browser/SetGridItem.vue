@@ -2,7 +2,7 @@
     <div
         v-if="!isFiltered"
         :class="
-            'w-full relative flex flex-col bg-darker rounded-md hover:ring-2 ring-accent px-4 py-2 border-4' +
+            'w-full relative flex flex-col bg-darker rounded hover:ring-2 ring-accent px-4 py-2 border-4' +
                 (isCurrent ? ' border-deep-blue' : ' border-darker')
         "
         @click="$emit('selectSet', !selected)"
@@ -77,10 +77,10 @@
             </div>
         </div>
         <div class="flex-1 flex justify-center min-h-[2rem] my-2 select-none">
-            <div v-if="imgSrc" class="flex flex-col justify-center"><img :src="imgSrc" class="rounded-md"></div>
+            <div v-if="imgSrc" class="flex flex-col justify-center"><img :src="imgSrc" class="rounded"></div>
             <div
                 v-if="!imgSrc"
-                class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider pointer-events-none">
+                class="imagePlaceholder min-h-[8rem] rounded flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider pointer-events-none">
                 <p>No Image</p>
             </div>
         </div>
@@ -94,7 +94,7 @@
             <div
                 @click.stop="$emit('open', undefined)"
                 v-if="openDetails"
-                class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-base w-full rounded-md p-4 border-2 border-accent">
+                class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-base w-full rounded p-4 border-2 border-accent">
                 <Btn
                     tooltip="See details about this set."
                     class="bg-transparent"

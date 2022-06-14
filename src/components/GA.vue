@@ -60,7 +60,7 @@ export default defineComponent({
     display: block;
     flex-basis: 50%;
     border: 2px solid;
-    @apply border-deep-blue rounded-md;
+    @apply border-deep-blue rounded;
 }
 .legal {
     font-size: 0.8rem;

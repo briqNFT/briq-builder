@@ -158,7 +158,7 @@ svg {
     top: 0;
     right: 0;
 
-    @apply rounded-xl shadow-sm;
+    @apply rounded-md shadow-sm;
 }
 .comingsoon {
     position: relative;
@@ -173,7 +173,7 @@ svg {
     position: absolute;
     top: 0;
     left: 0;
-    @apply rounded-md;
+    @apply rounded;
     text-shadow: 2px 1px 3px rgba(0, 0, 0, 0.4);
     background: repeating-linear-gradient(
         -45deg,

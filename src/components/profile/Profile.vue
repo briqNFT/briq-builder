@@ -14,14 +14,14 @@
 }
 
 .item-gallery {
-    @apply bg-accent rounded-xl p-4 my-4;
+    @apply bg-accent rounded-md p-4 my-4;
 }
 
 .item-gallery .items {
     @apply flex gap-2;
 }
 .item-gallery .item {
-    @apply bg-darker rounded-md p-2 h-[10rem] w-[10rem];
+    @apply bg-darker rounded p-2 h-[10rem] w-[10rem];
 }
 </style>
 
@@ -29,7 +29,7 @@
     <div class="container m-auto alternate-buttons min-h-screen">
         <div class="grid-cols-2 grid">
             <div class="row-span-full flex flex-col justify-between">
-                <h1 class="my-8 text-6xl">0xCafeBabe</h1>
+                <h1 class="my-8 text-max">0xCafeBabe</h1>
                 <div class="item-gallery">
                     <h2>briqs</h2>
                     <div class="items">

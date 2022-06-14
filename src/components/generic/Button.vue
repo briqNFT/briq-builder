@@ -25,7 +25,7 @@
 }
 
 .alternate-buttons .btn {
-    @apply font-semibold border-text rounded-lg border-4 px-1;
+    @apply font-semibold border-text rounded-md border-4 px-1;
 }
 .alternate-buttons .btn:not(:disabled):hover {
     @apply border-4 border-deep-blue;

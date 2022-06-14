@@ -9,7 +9,7 @@ import Hotkey from '../../generic/Hotkey.vue';
     <div>
         <!--
         <template v-if="selection.selectedBriqs.length <= 3">
-            <div  class="bg-base rounded-md px-2 py-1" v-for="briq of selection.selectedBriqs">
+            <div  class="bg-base rounded px-2 py-1" v-for="briq of selection.selectedBriqs">
                 <p class="text-sm tracking-tighter break-all">{{ briq?.id ?? "Fungible briq" }}</p>
                 <Btn :disabled="!chainBriqs.getNbBriqs()" @click="openSwapModal(briq.temp_id)">Swap briq</Btn>
             </div>
@@ -18,7 +18,7 @@ import Hotkey from '../../generic/Hotkey.vue';
             <p>TODO</p>
         </template>
         -->
-        <h4 class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Selection</h4>
+        <h4 class="bg-accent rounded px-2 py-1 mt-4 mb-1 text-center font-semibold">Selection</h4>
         <div class="flex flex-col gap-1">
             <div class="grid grid-cols-2 gap-0.5">
                 <CheckboxBtn
@@ -74,7 +74,7 @@ import Hotkey from '../../generic/Hotkey.vue';
                 :handler="() => deleteBriqs()"/>
             <Hotkey v-if="editMode" name="delete-2" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"/>
         </div>
-        <h4 v-if="editMode" class="bg-accent rounded-md px-2 py-1 mt-4 mb-1 text-center font-semibold">Move / Copy</h4>
+        <h4 v-if="editMode" class="bg-accent rounded px-2 py-1 mt-4 mb-1 text-center font-semibold">Move / Copy</h4>
         <div v-if="editMode" class="flex flex-col gap-1 my-2">
             <CheckboxBtn
                 tooltip="Overwrite any existing briq when moving or pasting briqs. If off, existing briqs will instead be kept."
@@ -89,7 +89,7 @@ import Hotkey from '../../generic/Hotkey.vue';
         v-if="fsm?.briq"
         class="fixed pointer-events-none"
         :style="{ left: `${fsm.curX + 20}px`, top: `${fsm.curY + 20}px` }">
-        <div class="w-auto min-w-32 h-32 bg-base p-2 rounded-md shadow-md">
+        <div class="w-auto min-w-32 h-32 bg-base p-2 rounded shadow-md">
             <h4 v-if="fsm?.briq?.id">
                 briq: <span class="tracking-tighter">{{ fsm?.briq?.id }}</span>
             </h4>

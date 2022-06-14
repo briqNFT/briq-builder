@@ -45,10 +45,10 @@ import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
                 </div>
             </div>
         </div>
-        <div :class="'relative bg-base rounded-md ' + (expanded ? 'pointer-events-auto' : 'hidden')">
+        <div :class="'relative bg-base rounded ' + (expanded ? 'pointer-events-auto' : 'hidden')">
             <BriqDetails/>
         </div>
-        <div :class="'my-2 relative bg-base rounded-md ' + (expanded ? 'pointer-events-auto' : 'hidden')">
+        <div :class="'my-2 relative bg-base rounded ' + (expanded ? 'pointer-events-auto' : 'hidden')">
             <TransactionsMin/>
         </div>
     </div>

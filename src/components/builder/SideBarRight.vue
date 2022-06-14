@@ -17,7 +17,7 @@ const useMockWallet = () => {
 
 .expanded {
     overflow: auto;
-    /*@apply bg-black bg-opacity-40 rounded-md md:bg-transparent;*/
+    /*@apply bg-black bg-opacity-40 rounded md:bg-transparent;*/
     @apply pointer-events-auto;
 }
 .unexpanded {

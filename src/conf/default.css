@@ -1,5 +1,15 @@
+
+html.v2design {
+    --color-body: 244 244 244;
+    --color-base: 253 253 253;
+    --color-accent: 235 86 0;
+    --color-darker: 201 74 0;
+    --color-text: 43 43 43;
+    --color-text-on-accent: 13, 8, 69;
+}
+
 html {
-    --color-body: 235 86 0;
+    --color-body: var(--color-base);
     --color-base: 235 86 0;
     --color-accent: 247 137 74;
     --color-darker: 201 74 0;
@@ -8,7 +18,6 @@ html {
 }
 
 html.dark {
-    --color-body: 235 86 0;
     --color-base: 117 41 0;
     --color-accent: 155 56 3;
     --color-darker: 50 20 0;

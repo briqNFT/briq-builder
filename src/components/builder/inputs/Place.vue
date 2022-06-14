@@ -21,30 +21,30 @@ const unproject = (n: { x: number, y: number, z: number }) => {
         v-if="fsm && !!fsm.curX && !!fsm.range && builderInputFsm.store.currentInput.indexOf('place') !== -1"
         class="fixed pointer-events-none select-none"
         :style="{ left: `${fsm?.curX + 20}px`, top: `${fsm?.curY + 20}px` }">
-        <div class="w-auto bg-base p-2 rounded-md shadow-md">
+        <div class="w-auto bg-base p-2 rounded shadow-md">
             <p>
-                {{ (Math.abs(fsm.range.x) + 1) * (Math.abs(fsm.range.y) + 1) * (Math.abs(fsm.range.z) + 1)}} briqs
+                {{ (Math.abs(fsm.range.x) + 1) * (Math.abs(fsm.range.y) + 1) * (Math.abs(fsm.range.z) + 1) }} briqs
             </p>
         </div>
     </div>
-    <p v-if="fsm?.infoX && fsm.range.x !== 0"
+    <div
+        v-if="fsm?.infoX && fsm.range.x !== 0"
         class="fixed text-[2rem] flex justify-center items-center leading-[2.1rem] font-bold font-mono select-none"
-        :style="{ left: `${unproject(fsm.infoX)[0]*100}%`, top: `${unproject(fsm.infoX)[1]*100}%` }"
-        >
-        <div class="bg-base rounded-md px-2 pb-[0.2rem]" style="transform: translate(-50%, -50%);">{{ Math.abs(fsm.range.x) + 1 }}</div>
-    </p>
-    <p v-if="fsm?.infoY && fsm.range.y !== 0"
+        :style="{ left: `${unproject(fsm.infoX)[0]*100}%`, top: `${unproject(fsm.infoX)[1]*100}%` }">
+        <div class="bg-base rounded px-2 pb-[0.2rem]" style="transform: translate(-50%, -50%);">{{ Math.abs(fsm.range.x) + 1 }}</div>
+    </div>
+    <div
+        v-if="fsm?.infoY && fsm.range.y !== 0"
         class="fixed text-[2rem] flex justify-center items-center leading-[2.1rem] font-bold font-mono select-none"
-        :style="{ left: `${unproject(fsm.infoY)[0]*100}%`, top: `${unproject(fsm.infoY)[1]*100}%` }"
-        >
-        <div class="bg-base rounded-md px-2 pb-[0.2rem]" style="transform: translate(-50%, -50%);">{{ Math.abs(fsm.range.y) + 1 }}</div>
-    </p>
-    <p v-if="fsm?.infoZ && fsm.range.z !== 0"
+        :style="{ left: `${unproject(fsm.infoY)[0]*100}%`, top: `${unproject(fsm.infoY)[1]*100}%` }">
+        <div class="bg-base rounded px-2 pb-[0.2rem]" style="transform: translate(-50%, -50%);">{{ Math.abs(fsm.range.y) + 1 }}</div>
+    </div>
+    <div
+        v-if="fsm?.infoZ && fsm.range.z !== 0"
         class="fixed text-[2rem] flex justify-center items-center leading-[2.1rem] font-bold font-mono select-none"
-        :style="{ left: `${unproject(fsm.infoZ)[0]*100}%`, top: `${unproject(fsm.infoZ)[1]*100}%` }"
-        >
-        <div class="bg-base rounded-md px-2 pb-[0.2rem]" style="transform: translate(-50%, -50%);">{{ Math.abs(fsm.range.z) + 1 }}</div>
-    </p>
+        :style="{ left: `${unproject(fsm.infoZ)[0]*100}%`, top: `${unproject(fsm.infoZ)[1]*100}%` }">
+        <div class="bg-base rounded px-2 pb-[0.2rem]" style="transform: translate(-50%, -50%);">{{ Math.abs(fsm.range.z) + 1 }}</div>
+    </div>
 </template>
 
 <style scoped></style>

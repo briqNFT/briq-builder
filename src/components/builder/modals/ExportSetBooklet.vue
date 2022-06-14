@@ -92,7 +92,7 @@ const doSetExport = async () => {
                         </div>
                     </div>
                     <div class="flex flex-nowrap items-center gap-3 w-full">
-                        <div class="w-full bg-accent rounded-md flex justify-around items-center p-2 my-4">
+                        <div class="w-full bg-accent rounded flex justify-around items-center p-2 my-4">
                             <button
                                 class="flex flex-col justify-center items-center text-sm md:text-md"
                                 :disabled="at(current_step) > at('CONFIRMATION')"

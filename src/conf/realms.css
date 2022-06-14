@@ -1,5 +1,4 @@
 html.realms {
-    --color-body: 141 121 91;
     --color-base: 141 121 91;
     --color-accent: 22 22 25;
     --color-darker: 60 53 42;
@@ -7,7 +6,6 @@ html.realms {
     --color-text-on-accent: 220 220 220;
 }
 html.realms.dark {
-    --color-body: 22 22 25;
     --color-base: 22 22 25;
     --color-accent: 141 121 91;
     --color-darker: 60 53 42;

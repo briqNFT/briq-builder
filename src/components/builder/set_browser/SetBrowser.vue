@@ -36,11 +36,11 @@ import { hexUuid } from '../../../Uuid';
             @selectSet="(val: boolean) => onSelectSet(setId, val)"/>
         <div
             v-for="oldSet of legacySets"
-            class="w-full relative flex flex-col bg-darker rounded-md px-4 py-2 border-4 border-darker">
+            class="w-full relative flex flex-col bg-darker rounded px-4 py-2 border-4 border-darker">
             <div
-                class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-md p-4 flex justify-center items-center">
+                class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded p-4 flex justify-center items-center">
                 <button @click="openMigrateModal(oldSet)">
-                    <p class="font-semibold text-center -rotate-[30deg] bg-base bg-opacity-80 px-4 rounded-xl">
+                    <p class="font-semibold text-center -rotate-[30deg] bg-base bg-opacity-80 px-4 rounded-md">
                         Migration Needed!<br>Click here<br>to migrate set
                     </p>
                 </button>
@@ -50,11 +50,11 @@ import { hexUuid } from '../../../Uuid';
             </div>
             <div class="flex-1 flex justify-center min-h-[2rem] my-2">
                 <div v-if="oldSetsImg?.[oldSet]" class="flex flex-col justify-center">
-                    <img :src="oldSetsImg?.[oldSet].currentSrc" class="rounded-md">
+                    <img :src="oldSetsImg?.[oldSet].currentSrc" class="rounded">
                 </div>
                 <div
                     v-else=""
-                    class="imagePlaceholder min-h-[8rem] rounded-md flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider">
+                    class="imagePlaceholder min-h-[8rem] rounded flex-1 text-center flex flex-col justify-center text-md font-semibold tracking-wider">
                     <p>No Image</p>
                 </div>
             </div>

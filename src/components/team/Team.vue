@@ -14,7 +14,6 @@ import StarkwareIcon from '../../assets/starkware.png';
         <h1 class="text-center overflow-auto my-4 py-8 lg:py-12 font-display !text-8xl font-semibold bg-darker">
             Team
         </h1>
-        <!--<h1 class="text-center my-8 font-display !text-6xl font-medium">the team</h1>-->
         <div class="my-8 lg:my-16 overflow-auto flex flex-around flex-wrap md:flex-nowrap text-center container m-auto">
             <div class="flex-1 flex flex-col items-center">
                 <p>
@@ -76,7 +75,7 @@ import StarkwareIcon from '../../assets/starkware.png';
 
 <style scoped>
 h1 {
-    @apply text-6xl font-semibold;
+    @apply text-max font-semibold;
 }
 h2 {
     @apply text-5xl font-semibold;

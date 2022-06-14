@@ -15,7 +15,7 @@ const router = useRouter();
 }
 
 div.box-page-block {
-    @apply border-[1px] bg-white p-4 border-gray-200 rounded-xl;
+    @apply border-[1px] bg-white p-4 border-gray-200 rounded-md;
 }
 h4 {
     @apply font-medium;
