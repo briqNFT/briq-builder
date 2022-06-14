@@ -55,7 +55,7 @@ onBeforeUnmount(() => {
         </div>
     </div>
     <div
-        class="bg-accent w-full overflow-hidden z-[-100]">
+        class="bg-[#007FC9] w-full overflow-hidden z-[-100]">
         <p class="h-[112px] flex items-center text-[72px] text-white w-max flex">
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
