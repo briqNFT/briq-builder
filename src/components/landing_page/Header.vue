@@ -3,7 +3,7 @@
         <div
             class="header m-auto flex justify-between items-center text-center alternate-buttons">
             <div class="flex">
-                <a href="/"><h2 class="briq-logo briq text-[32px]">briq</h2></a>
+                <routerLink to="/genesis"><h2 class="briq-logo briq text-[32px]">briq</h2></routerLink>
             </div>
             <div class="flex items-center gap-4">
                 <div class="flex gap-8 flex-wrap justify-center md:justify-end font-normal">
