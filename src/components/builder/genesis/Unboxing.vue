@@ -19,6 +19,8 @@ import { APP_ENV } from '@/Meta';
 import { genesisUserStore } from '@/builder/GenesisStore';
 import contractStore from '@/chain/Contracts';
 
+import BriqsOverlay from '@/assets/landing/briqs.svg?url';
+
 //////////////////////////////
 //////////////////////////////
 
@@ -425,7 +427,6 @@ const useMockWallet = () => {
 </script>
 
 <style>
-
 #unboxing hr {
     @apply my-8 text-black;
 }
@@ -465,14 +466,14 @@ const useMockWallet = () => {
         ref="canvas"
         @click="(event) => fsm.state?.onClick?.(event)"
         @pointermove="(event) => fsm.state?.onPointerMove?.(event)"/>
-    <div class="absolute bottom-0 left-0">
+    <div class="absolute bottom-0 left-0 text-base">
         <FireplaceAudio/>
     </div>
     <div
         id="unboxing"
         class="absolute top-0 right-0 xl:w-[30%] w-[400px] bg-black bg-opacity-40 h-screen overflow-auto snap-y transition-all scroll-smooth"
         @click.stop="">
-        <div class="snap-end text-lg pb-[15rem] px-8 py-4">
+        <div class="snap-end text text-base pb-[15rem] px-8 py-4">
             <h2 class="text-center my-8">briq unboxing</h2>
             <TransitionGroup name="xfade">
                 <div v-for="chapter, i of chapters" :key="i">
@@ -481,7 +482,9 @@ const useMockWallet = () => {
             </TransitionGroup>
         </div>
     </div>
-    <div v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base alternate-buttons flex-col gap-4">
+    <div
+        v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base bg-repeat bg-auto alternate-buttons flex-col gap-4"
+        :style="{ backgroundImage: `url(${BriqsOverlay})`, backgroundSize: '1000px auto' }">
         <h2>briq unboxing</h2>
         <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
         <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet">Dev</Btn>
