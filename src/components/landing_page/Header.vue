@@ -43,4 +43,11 @@
 
     @apply rounded-md shadow-sm;
 }
+html:not(.v2design) .briq-logo {
+    @apply bg-base;
+}
+html:not(.v2design) * {
+    @apply text-md font-medium;
+}
+
 </style>

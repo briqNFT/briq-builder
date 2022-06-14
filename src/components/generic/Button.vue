@@ -7,7 +7,7 @@
 <style>
 html.v2design .btn {
     @apply text-text-on-accent px-2;
-    @apply font-light leading-none;
+    @apply text-md font-light leading-none;
     @apply min-h-[2.5rem];
     @apply select-none;
     @apply z-[2];
@@ -62,12 +62,13 @@ html.v2design .btn:disabled::after {
     @apply bg-light-accent rounded bg-light-accent border border-dark;
 }
 
+/** BUILDER SETTINGS */
 
 html:not(.v2design) .btn {
-    @apply bg-base rounded px-3 py-1;
+    @apply bg-base rounded-sm px-3 py-1;
     @apply border-base border-2;
     @apply shadow-sm;
-    @apply font-light leading-none;
+    @apply font-extralight leading-none tracking-tight;
     min-height: 2.5rem;
     @apply select-none;
 }
@@ -83,7 +84,7 @@ html:not(.v2design) .btn:disabled {
 }
 
 html:not(.v2design) .alternate-buttons .btn {
-    @apply font-semibold border-text rounded-md border-4 px-1;
+    @apply font-medium border-text rounded border-4 px-1;
 }
 html:not(.v2design) .alternate-buttons .btn:not(:disabled):hover {
     @apply border-4 border-deep-blue;

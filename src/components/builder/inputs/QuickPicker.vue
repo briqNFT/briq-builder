@@ -53,7 +53,7 @@ const changeColor = async () => {
 const addCurrentChoice = () => {
     palette.value.addChoice(
         { material: inputStore.currentMaterial, color: inputStore.currentColor },
-        packPaletteChoice(inputStore.currentMaterial, inputStore.currentColor)
+        packPaletteChoice(inputStore.currentMaterial, inputStore.currentColor),
     );
 }
 
@@ -124,12 +124,15 @@ const choiceLayout = computed(() => {
     <div class="w-full">
         <div class="grid grid-cols-3 gap-0.5 my-0.5">
             <Btn class="col-span-3" @click="resetAll" tooltip="Reset the palette to default colors">Reset</Btn>
-            <Btn class="col-span-3" @click="addAllActive" tooltip="Add the set colors to the palette">Add set<br/>colors</Btn>
-            <Btn v-if="palette.choices.indexOf(currentKey) === -1"
-                class="p-0" @click="addCurrentChoice" tooltip="Add the current color to the palette permanently"><i class="fa-solid fa-add"></i></Btn>
-            <Btn v-else="" class="p-0" @click="addChoice" tooltip="Add a new color"><i class="fa-solid fa-add"></i></Btn>
-            <Btn class="p-0" @click="deleteChoice" tooltip="Remove the current color from the palette"><i class="far fa-trash-alt"></i></Btn>
-            <Btn class="p-0" @click="changeColor" tooltip="Edit selected color"><i class="fa-solid fa-pen-to-square"></i></Btn>
+            <Btn class="col-span-3" @click="addAllActive" tooltip="Add the set colors to the palette">Add set<br>colors</Btn>
+            <Btn
+                v-if="palette.choices.indexOf(currentKey) === -1"
+                class="p-0" @click="addCurrentChoice" tooltip="Add the current color to the palette permanently">
+                <i class="fa-solid fa-add"/>
+            </Btn>
+            <Btn v-else="" class="p-0" @click="addChoice" tooltip="Add a new color"><i class="fa-solid fa-add"/></Btn>
+            <Btn class="p-0" @click="deleteChoice" tooltip="Remove the current color from the palette"><i class="far fa-trash-alt"/></Btn>
+            <Btn class="p-0" @click="changeColor" tooltip="Edit selected color"><i class="fa-solid fa-pen-to-square"/></Btn>
         </div>
         <!-- Flex to occupy width-->
         <div class="flex-1 overflow-auto pb-0.5">
@@ -163,14 +166,19 @@ const choiceLayout = computed(() => {
                                 inputStore.currentInput != 'place_nft' && currentKey === key
                                     ? '3px solid black'
                                     : '0px solid black',
-                        })">{{ inputStore.currentMaterial }}</Btn>
+                        })">
+                        {{ inputStore.currentMaterial }}
+                    </Btn>
                 </div>
-                <Btn v-if="palette.choices.indexOf(currentKey) === -1"
+                <Btn
+                    v-if="palette.choices.indexOf(currentKey) === -1"
                     class="h-5 min-h-0 shadow-md flex justify-end items-center"
                     :style="{
                         backgroundColor: inputStore.currentColor,
                         border: '2px dashed black',
-                    }">{{ inputStore.currentMaterial }}</Btn>
+                    }">
+                    {{ inputStore.currentMaterial }}
+                </Btn>
             </div>
         </div>
     </div>

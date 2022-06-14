@@ -26,7 +26,7 @@ watchEffect(() => {
 });
 
 watch([() => route.name as unknown as string], (_, __) => {
-    if (route.name !== 'Builder' && route.name !== 'Share')
+    if (route.name !== 'Builder' && route.name !== 'Share' && route.name !== 'Landing')
         document.documentElement.classList.add('v2design');
     else
         document.documentElement.classList.remove('v2design');
@@ -50,6 +50,10 @@ onMounted(() => {
 body {
     @apply bg-body min-h-screen;
     @apply text-text font-sans font-normal leading-tight;
+}
+
+html:not(.v2design) body {
+    @apply font-light;
 }
 
 h1 {
@@ -78,6 +82,6 @@ button, a {
 }
 
 input, select, textarea {
-    @apply rounded px-2 py-0.5 bg-white text-black dark:bg-darker dark:text-text;
+    @apply rounded-sm px-2 py-0.5 bg-white text-black dark:bg-darker dark:text-text;
 }
 </style>

@@ -18,7 +18,8 @@ import { ref, onBeforeMount, onBeforeUnmount } from 'vue';
 const briqOverlay = ref(null);
 
 const onScroll = (_event: Event) => {
-    briqOverlay.value.$el.style.bottom = `${-50 + window.scrollY / 6}px`;
+    if(briqOverlay.value)
+        briqOverlay.value.style.bottom = `${-50 + window.scrollY / 6}px`;
 }
 
 onBeforeMount(() => {
@@ -35,12 +36,14 @@ onBeforeUnmount(() => {
 <template>
     <!-- Make it absolute so h-screen works below -->
     <Header class="absolute left-0 right-0 z-50"/>
-    <div class="container m-auto relative h-screen flex flex-col">
+    <div class="container m-auto relative h-screen flex flex-col overflow-hidden">
         <div class="grow-[3]"/>
         <h1 class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
         <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
         <div class="grow-[4]"/>
-        <BriqsOverlay class="pointer-events-none user-select-none absolute bottom-[-50px] z-50 left-0" ref="briqOverlay"/>
+        <div class="pointer-events-none user-select-none absolute z-50 left-[-250px] md:left-0" style="bottom: -50px;" ref="briqOverlay">
+            <BriqsOverlay class="w-[1432px] h-[780px]"/>
+        </div>
     </div>
     <div class="bg-[#22A094] w-full overflow-hidden">
         <p class="h-[112px] flex items-center text-[72px] text-white w-max flex">

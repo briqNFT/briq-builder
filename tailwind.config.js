@@ -8,6 +8,8 @@ function withOpacityValue(variable) {
 }
 
 module.exports = {
+    // Enable important for util classes to work around speficity issues.
+    important: '#app',
     content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
     darkMode: 'class',
     theme: {
