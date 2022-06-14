@@ -27,7 +27,7 @@ const items = ref([1, 2, 3, 4, 5, 6, 7]);
 </style>
 
 <template>
-    <div class="container m-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 my-8">
+    <div class="container m-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 my-8 z-50">
         <routerLink
             :to="{ name: 'Box', 'params': { 'box': 'spaceman' } }"
             v-for="i in items" :data-key="i" :key="i">
@@ -40,7 +40,7 @@ const items = ref([1, 2, 3, 4, 5, 6, 7]);
                     <p class="flex justify-between"><span>Last Bid</span><span>0.4 eth</span></p>
                     <p class="flex justify-between"><span>Sales End</span><span>4 days left</span></p>
                     <div>
-                        <Btn class="text-white w-full h-full" :disabled="i % 2">Bid on this item</Btn>
+                        <Btn class="text-white w-full h-full">Bid on this item</Btn>
                     </div>
                 </div>
             </div>

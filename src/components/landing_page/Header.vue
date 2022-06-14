@@ -6,13 +6,14 @@
                 <a href="/"><h2 class="briq-logo briq text-[32px]">briq</h2></a>
             </div>
             <div class="flex items-center gap-4">
-                <div class="flex gap-4 flex-wrap justify-center md:justify-end font-normal">
+                <div class="flex gap-8 flex-wrap justify-center md:justify-end font-normal">
                     <a href="/team"><p>Team</p></a>
                     <a href="/gallery"><p>Gallery</p></a>
+                    <routerLink to="Builder"><p>Create</p></routerLink>
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
                 </div>
                 <div class="flex-none">
-                    <Btn class="flex-none" @click="$router.push({ name: 'Builder' })"><span class="px-2">App</span></Btn>
+                    <Btn class="flex-none"><span class="px-2">Connect</span></Btn>
                 </div>
             </div>
         </div>
