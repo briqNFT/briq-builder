@@ -65,11 +65,11 @@ h3 {
 }
 
 .briq-logo {
-    @apply font-logo font-medium select-none text-accent tracking-wide mx-4;
+    @apply font-logo font-medium select-none text-accent tracking-wide;
 }
 
 .briq-logo.briq {
-    @apply bg-accent text-white px-5 leading-none pt-[0.4rem] pb-[0.6rem];
+    @apply bg-accent text-white px-5 leading-none pt-[0.4rem] pb-[0.6rem] rounded-[2px];
 }
 
 /* Overwrite the default outline color */

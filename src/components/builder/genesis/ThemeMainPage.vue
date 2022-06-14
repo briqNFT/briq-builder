@@ -16,7 +16,7 @@ const route = useRoute();
 
 <template>
     <div class="theme-main-page">
-        <div class="bg-base"><Header/></div>
+        <Header/>
         <div class="">
             <div class="container m-auto flex flex-col justify-around items-center h-[40rem] bg-black text-white rounded-md my-4">
                 <h1 class="text-center">{{ route.params.theme }}</h1>
@@ -28,8 +28,6 @@ const route = useRoute();
         <div>
             <BoxListing/>
         </div>
-        <div>
-            <Footer/>
-        </div>
+        <Footer/>
     </div>
 </template>

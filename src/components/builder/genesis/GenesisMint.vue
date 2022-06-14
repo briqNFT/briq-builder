@@ -18,7 +18,7 @@ import { ref, onBeforeMount, onBeforeUnmount } from 'vue';
 const briqOverlay = ref(null);
 
 const onScroll = (_event: Event) => {
-    briqOverlay.value.$el.style.top = `${50 - window.scrollY / 3}px`;
+    briqOverlay.value.$el.style.top = `${150 - window.scrollY / 6}px`;
 }
 
 onBeforeMount(() => {
@@ -33,14 +33,15 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <Header/>
-    <div class="container m-auto p-20 relative min-h-[650px]">
+    <!-- Make it absolute so h-screen works below -->
+    <Header class="absolute left-0 right-0"/>
+    <div class="container m-auto p-40 relative min-h-screen">
         <h1 class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
         <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
-        <BriqsOverlay class="absolute top-[50px] z-50 left-0" ref="briqOverlay"/>
+        <BriqsOverlay class="pointer-events-none user-select-none absolute top-[150px] z-50 left-0" ref="briqOverlay"/>
     </div>
-    <div class="bg-[#22A094]">
-        <p class="h-[112px] text-[72px] text-white w-max flex">
+    <div class="bg-[#22A094] w-full overflow-hidden">
+        <p class="h-[112px] flex items-center text-[72px] text-white w-max flex">
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
@@ -77,7 +78,9 @@ onBeforeUnmount(() => {
     <div class="bg-black text-white">
         <div class="container m-auto flex flex-col gap-20 py-20 items-center justify-between">
             <h1>Starknet City</h1>
-            <p>Discover the briq genesis sale</p>
+            <routerLink :to="{ name: 'Theme', params: { theme: 'test' } }">
+                <p>Discover the briq genesis sale <i class="fa-solid fa-arrow-right"/></p>
+            </routerlink>
         </div>
     </div>
     <div class="bg-[#FEF6F3]">

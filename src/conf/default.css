@@ -3,9 +3,11 @@ html.v2design {
     --color-body: 244 244 244;
     --color-base: 253 253 253;
     --color-accent: 235 86 0;
+    --color-light-accent: 245 170 128;
     --color-darker: 201 74 0;
+    --color-dark: 0 0 0;
     --color-text: 43 43 43;
-    --color-text-on-accent: 13, 8, 69;
+    --color-text-on-accent: 255 255 255;
 }
 
 html {

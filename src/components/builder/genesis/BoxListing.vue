@@ -11,7 +11,7 @@ const items = ref([1, 2, 3, 4, 5, 6, 7]);
     @apply h-[500px] flex flex-col relative top-0 transition-all;
 }
 .theme-main-page .item-card:hover > div {
-    @apply top-[-1rem] shadow-xl;
+    @apply shadow-xl;
 }
 
 .theme-main-page .item-card > div div {
@@ -22,7 +22,7 @@ const items = ref([1, 2, 3, 4, 5, 6, 7]);
     @apply absolute top-0 w-full;
 }
 .theme-main-page .item-card:hover div {
-    @apply basis-[40px];
+    @apply basis-[50px];
 }
 </style>
 
@@ -40,7 +40,7 @@ const items = ref([1, 2, 3, 4, 5, 6, 7]);
                     <p class="flex justify-between"><span>Last Bid</span><span>0.4 eth</span></p>
                     <p class="flex justify-between"><span>Sales End</span><span>4 days left</span></p>
                     <div>
-                        <Btn class="text-white w-full">Bid on this item</Btn>
+                        <Btn class="text-white w-full h-full" :disabled="i % 2">Bid on this item</Btn>
                     </div>
                 </div>
             </div>

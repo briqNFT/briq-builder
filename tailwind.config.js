@@ -14,9 +14,13 @@ module.exports = {
         extend: {
             colors: {
                 body: withOpacityValue('--color-body'),
+
                 base: withOpacityValue('--color-base'),
                 accent: withOpacityValue('--color-accent'),
+                'light-accent': withOpacityValue('--color-light-accent'),
                 darker: withOpacityValue('--color-darker'),
+                dark: withOpacityValue('--color-dark'),
+
                 text: withOpacityValue('--color-text'),
                 'text-on-accent': withOpacityValue('--color-text-on-accent'),
                 'deep-blue': '#0D0845',
