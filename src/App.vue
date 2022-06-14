@@ -2,10 +2,13 @@
 import GA from '@/components/GA.vue';
 import { HotkeyManager } from './Hotkeys';
 import { reportError } from './Monitoring';
+import { setForceDebug } from './Messages';
+import { watchForDarkMode } from './DarkMode';
 
-import { provide } from 'vue';
+import { onMounted, provide, watch, watchEffect } from 'vue';
 
 import { CONF } from './Conf';
+import { useRoute } from 'vue-router';
 
 let mgr = new HotkeyManager();
 // Some basic hotkeys available everywhere
@@ -14,6 +17,28 @@ mgr.register('escape', { code: 'Escape' });
 provide('hotkeyMgr', mgr);
 provide('reportError', reportError);
 provide('CONF', CONF);
+
+const route = useRoute();
+
+document.documentElement.classList.add(CONF.theme);
+watchEffect(() => {
+    watchForDarkMode(route.name !== 'Builder' && route.name !== 'Share');
+});
+
+watch([() => route.name as unknown as string], (_, __) => {
+    if (route.name !== 'Builder' && route.name !== 'Share')
+        document.documentElement.classList.add('v2design');
+    else
+        document.documentElement.classList.remove('v2design');
+}, {
+    immediate: true,
+});
+
+onMounted(() => {
+    let params = new URL(window.location).searchParams;
+    if (params.get('debug'))
+        setForceDebug();
+});
 </script>
 
 <template>
@@ -21,24 +46,33 @@ provide('CONF', CONF);
     <router-view/>
 </template>
 
-<script lang="ts">
-// Import dark mode
-import { watchForDarkMode } from './DarkMode';
+<style>
+body {
+    @apply text-text font-sans font-light bg-body min-h-screen;
+}
 
-import { setForceDebug } from './Messages';
+h1 {
+    @apply text-7xl font-medium;
+}
 
-import { defineComponent, watchEffect } from 'vue';
-export default defineComponent({
-    created() {
-        document.documentElement.classList.add(CONF.theme);
-        watchEffect(() => {
-            watchForDarkMode(this.$route.name !== 'Builder' && this.$route.name !== 'Share');
-        });
-    },
-    mounted() {
-        let params = new URL(window.location).searchParams;
-        if (params.get('debug'))
-            setForceDebug();
-    },
-});
-</script>
+h2 {
+    @apply text-4xl font-medium;
+}
+
+h3 {
+    @apply text-xl font-normal;
+}
+
+.briq-logo {
+    @apply font-display font-semibold select-none;
+}
+
+/* Overwrite the default outline color */
+button, a {
+    @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-darker;
+}
+
+input, select, textarea {
+    @apply rounded px-2 py-0.5 bg-white text-black dark:bg-darker dark:text-text;
+}
+</style>

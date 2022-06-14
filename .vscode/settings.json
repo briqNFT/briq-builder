@@ -11,5 +11,6 @@
     ],
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
-      },
+    },
+    "css.lint.unknownAtRules": "ignore",
 }

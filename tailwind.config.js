@@ -20,12 +20,6 @@ module.exports = {
                 text: withOpacityValue('--color-text'),
                 'text-on-accent': withOpacityValue('--color-text-on-accent'),
                 'deep-blue': '#0D0845',
-                // Not recommended:
-                briq: '#EB5600',
-                'briq-dark': '#C94A00',
-                'briq-darker': '#9B3803',
-                'briq-darkest': '#752900',
-                'briq-light': '#F7894A',
             },
             animation: {
                 'spin-slow': 'spin 3s linear infinite',
@@ -45,8 +39,9 @@ module.exports = {
             '7xl': '5rem',
         },
         fontFamily: {
-            display: ['Raleway', 'Helvetica', 'ui-sans-serif', 'system-ui'],
-            sans: ['Source Sans Pro', 'ui-sans-serif', 'system-ui'],
+            logo: ['Raleway', 'Work Sans', 'ui-sans-serif', 'system-ui'],
+            display: ['Work Sans', 'ui-sans-serif', 'system-ui'],
+            sans: ['Work Sans', 'ui-sans-serif', 'system-ui'],
             mono: ['Source Code Pro', 'monospace', 'system-ui'],
         },
     },
