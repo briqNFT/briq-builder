@@ -6,13 +6,12 @@
 
 <style>
 html.v2design .btn {
-    @apply text-text-on-accent px-2;
-    @apply text-md font-light leading-none;
+    @apply text-text-on-accent px-4 py-4;
+    @apply text-md font-normal leading-none;
     @apply min-h-[2.5rem];
     @apply select-none;
-    @apply z-[2];
+    @apply z-[0];
     @apply relative;
-    @apply transition-all duration-75;
 }
 
 /** Move the text so that it looks like it's inside the pseudo-element. */
@@ -38,7 +37,6 @@ html.v2design .btn:not(:disabled)::before {
     content: ' ';
     @apply rounded-sm bg-black;
     @apply absolute top-0 left-0 translate-y-[4px] translate-x-[4px] w-[calc(100%_+_-4px)] h-[calc(100%_+_-4px)] z-[-1];
-    @apply transition-all duration-75;
 }
 html.v2design .btn:not(:disabled):hover::before {
     @apply translate-y-[6px] translate-x-[6px];
@@ -53,9 +51,6 @@ html.v2design .btn::after {
     @apply bg-accent rounded-sm border border-dark;
     @apply z-[-1];
     @apply translate-y-[2px] translate-x-[2px];
-}
-html.v2design .btn:not(:disabled)::after {
-    @apply transition-all duration-75;
 }
 
 html.v2design .btn:disabled::after {
