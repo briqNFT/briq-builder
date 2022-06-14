@@ -12,6 +12,7 @@ import { CONF } from './Conf';
 import ProfileVue from '@/components/profile/Profile.vue';
 import ThemeMainPageVue from './components/builder/genesis/ThemeMainPage.vue';
 import BoxPageVue from './components/builder/genesis/BoxPage.vue';
+import ThemesListingVue from './components/builder/genesis/ThemesListing.vue';
 
 
 let loader;
@@ -79,6 +80,11 @@ export const routes = [
         path: '/genesis',
         name: 'Genesis Mint',
         component: GenesisMint,
+    },
+    {
+        path: '/themes',
+        name: 'ThemesListing',
+        component: ThemesListingVue,
     },
     {
         path: '/theme/:theme',
