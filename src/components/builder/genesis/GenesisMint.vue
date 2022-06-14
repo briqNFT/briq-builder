@@ -38,14 +38,23 @@ onBeforeUnmount(() => {
     <Header class="absolute left-0 right-0 z-50"/>
     <div class="container m-auto relative h-screen flex flex-col overflow-hidden">
         <div class="grow-[3]"/>
-        <h1 class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
-        <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
+        <div class="relative z-50">
+            <!-- Hack to add stroke, should work on anything relevant -->
+            <div class="absolute z-[-1]">
+                <h1 style="-webkit-text-stroke: 8px rgb(var(--color-base));" class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
+                <p style="-webkit-text-stroke: 3px rgb(var(--color-base));" class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
+            </div>
+            <h1 class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
+            <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
+        </div>
         <div class="grow-[4]"/>
-        <div class="pointer-events-none user-select-none absolute z-50 left-[-250px] md:left-0" style="bottom: -50px;" ref="briqOverlay">
+    </div>
+    <div class="container m-auto relative">
+        <div class="pointer-events-none user-select-none absolute z-20 left-[-250px] md:left-0" style="bottom: -50px;" ref="briqOverlay">
             <BriqsOverlay class="w-[1432px] h-[780px]"/>
         </div>
     </div>
-    <div class="bg-[#22A094] w-full overflow-hidden">
+    <div class="bg-[#22A094] w-full overflow-hidden z-[-100]">
         <p class="h-[112px] flex items-center text-[72px] text-white w-max flex">
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
