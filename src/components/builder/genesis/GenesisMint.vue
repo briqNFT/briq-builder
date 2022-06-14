@@ -38,9 +38,9 @@ onBeforeUnmount(() => {
     <Header class="absolute left-0 right-0 z-50"/>
     <div class="container m-auto relative h-screen flex flex-col overflow-hidden">
         <div class="grow-[3]"/>
-        <div class="relative z-50">
+        <div class="relative z-50 p-20">
             <!-- Hack to add stroke, should work on anything relevant -->
-            <div class="absolute z-[-1]">
+            <div class="absolute z-[-1] md:visible invisible">
                 <h1 style="-webkit-text-stroke: 8px rgb(var(--color-base));" class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
                 <p style="-webkit-text-stroke: 3px rgb(var(--color-base));" class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
             </div>

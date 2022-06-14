@@ -36,10 +36,20 @@ module.exports = {
             },
             animation: {
                 'spin-slow': 'spin 3s linear infinite',
-                'text-loop': 'text-loop 5s linear infinite',
+                'text-loop': 'text-loop 10s linear infinite',
             },
             screens: {
                 '2xl': '1440px',
+                '3xl': '1536px',
+            },
+        },
+        container: {
+            padding: {
+                DEFAULT: '1rem',
+                sm: '0.5rem',
+                lg: '1rem',
+                xl: '2rem',
+                '2xl': '3rem',
             },
         },
         fontSize: {
