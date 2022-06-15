@@ -16,6 +16,7 @@ const connectWallet = () => {
         })
     }
 }
+const connectDebugWallet = () => window.useDebugProvider();
 </script>
 
 <template>
@@ -33,8 +34,9 @@ const connectWallet = () => {
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
                 </div>
                 <div class="flex-none">
+                    <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <Btn v-else-if="walletStore?.userWalletAddress" class="flex-none"><span class="px-2">{{ walletStore.getShortAddress() }}</span></Btn>
+                    <Btn v-else-if="walletStore?.userWalletAddress" class="flex-none" @click="walletStore!.openWalletSelector()"><span class="px-2">{{ walletStore.getShortAddress() }}</span></Btn>
                 </div>
             </div>
         </div>

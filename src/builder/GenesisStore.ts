@@ -1,9 +1,11 @@
 import contractStore from '@/chain/Contracts';
 import { WalletStore, walletStore } from '@/chain/Wallet';
-import { computed, reactive, toRef, watch } from 'vue';
+import { computed, reactive, toRef, watch, watchEffect } from 'vue';
 
 import { defineStore } from 'pinia'
 import { backendManager } from '@/Backend';
+import { CHAIN_NETWORKS, getCurrentNetwork } from '@/chain/Network';
+import { APP_ENV } from '@/Meta';
 
 class PerUser<Data> {
     _type: new () => Data;
@@ -52,42 +54,62 @@ class GenesisUserStore {
 export const genesisUserStore = perUserProxyFactory(GenesisUserStore);
 genesisUserStore._initialise(walletStore);
 
-export const useGenesisStore = defineStore('genesis_data', {
-    state: () => {
-        return {
-            _metadata: {} as { [box_token_id:string]: any },
-        }
-    },
-    getters: {
-        metadata: (state) => {
-            return new Proxy(state._metadata, {
-                get(target, prop, receiver) {
-                    if (Reflect.has(target, prop))
-                        return Reflect.get(target, prop, receiver);
-
-                    target[prop] = {
-                        _status: undefined,
-                        _data: undefined,
-                        _fetch: undefined,
-                        _error: undefined,
-                    };
-                    target[prop]._status = computed(() => target[prop]._data !== undefined ? 'LOADED' : (
-                        target[prop]._error !== undefined ? 'ERROR' : 'FETCHING'
-                    ));
-                    (async () => {
-                        try {
-                            target[prop]._data = await backendManager.fetch(`v1/box/data/mock/${prop}.json`);
-                            console.log('Loaded data for ', prop, target[prop]._data);
-                        } catch(err) {
-                            target[prop]._error = err;
-                        }
-                    })();
-                    return target[prop];
-                },
-                set(target, prop, value) {
-                    return Reflect.set(target, prop, value);
-                },
-            });
+let initialCall = () => {
+    const useStore = defineStore('genesis_data', {
+        state: () => {
+            return {
+                network: { dev: 'mock', test: 'starknet-testnet', prod: 'starknet' }[APP_ENV],
+                _metadata: {} as { [box_token_id:string]: any },
+            }
         },
-    },
-})
+        getters: {
+            metadata: (state) => {
+                return new Proxy(state._metadata, {
+                    get(target, prop, receiver) {
+                        if (Reflect.has(target, prop))
+                            return Reflect.get(target, prop, receiver);
+
+                        target[prop] = {
+                            _status: undefined,
+                            _data: undefined,
+                            _fetch: undefined,
+                            _error: undefined,
+                        };
+                        target[prop]._status = computed(() => target[prop]._data !== undefined ? 'LOADED' : (
+                            target[prop]._error !== undefined ? 'ERROR' : 'FETCHING'
+                        ));
+                        (async () => {
+                            try {
+                                target[prop]._data = await backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`);
+                                console.log('Loaded data for ', prop, target[prop]._data);
+                            } catch(err) {
+                                target[prop]._error = err;
+                            }
+                        })();
+                        return target[prop];
+                    },
+                    set(target, prop, value) {
+                        return Reflect.set(target, prop, value);
+                    },
+                });
+            },
+        },
+        actions: {
+            setNetwork(network: CHAIN_NETWORKS) {
+                this.network = network;
+                for (const key in this._metadata)
+                    delete this._metadata[key];
+            },
+        },
+    })
+    watchEffect(() => {
+        const store = useStore();
+        const ntwk = getCurrentNetwork();
+        if (store.network !== ntwk)
+            store.setNetwork(ntwk);
+    })
+    initialCall = useStore;
+    return useStore();
+}
+
+export const useGenesisStore = initialCall;
