@@ -80,7 +80,8 @@ let initialCall = () => {
                         ));
                         (async () => {
                             try {
-                                target[prop]._data = await backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`);
+                                target[prop]._fetch = backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`)
+                                target[prop]._data = await target[prop]._fetch;
                                 console.log('Loaded data for ', prop, target[prop]._data);
                             } catch(err) {
                                 target[prop]._error = err;
@@ -96,6 +97,11 @@ let initialCall = () => {
             coverItemRoute() {
                 return (token_id: string) => computed(() => {
                     return backendManager.getRoute(`box/cover_item/${this.network}/${token_id}.png`)
+                }).value;
+            },
+            boxTexture() {
+                return (token_id: string) => computed(() => {
+                    return backendManager.getRoute(`box/texture/${this.network}/${token_id}.png`)
                 }).value;
             },
         },

@@ -6,8 +6,8 @@ import {
 import { useBuilder } from '@/builder/BuilderStore';
 import { walletStore } from '@/chain/Wallet';
 
-import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, h, watchEffect, nextTick } from 'vue';
-import { setupScene, useRenderer, addBox } from './UnboxingGraphics';
+import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, nextTick } from 'vue';
+import { setupScene, useRenderer, addBox, materials } from './UnboxingGraphics';
 import LookAtBoxVue from './Texts/LookAtBox.vue';
 import { hexUuid } from '@/Uuid';
 import WalletsVue from './Texts/Wallets.vue';
@@ -16,7 +16,7 @@ import AfterUnboxVue from './Texts/AfterUnbox.vue';
 
 import { APP_ENV } from '@/Meta';
 
-import { genesisUserStore } from '@/builder/GenesisStore';
+import { genesisUserStore, useGenesisStore } from '@/builder/GenesisStore';
 import contractStore from '@/chain/Contracts';
 
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
@@ -52,6 +52,8 @@ const getBoxAt = (event: PointerEvent) => {
 
 //////////////////////////////
 //////////////////////////////
+
+const genesisStore = useGenesisStore();
 
 const chapters = reactive([] as { uid: string, active: boolean, component: any }[]);
 
@@ -118,11 +120,24 @@ const loadingState = new class implements FsmState {
         ]
         const boxesData = genesisUserStore.availableBoxes.map((token_id, i) => ({
             uid: hexUuid(),
-            box_token_id: 'spaceman', // TODO -> replace with token_id
+            box_token_id: token_id.endsWith('1') ? 'starknet_city/spaceman' : 'starknet_city/base_module_1', // TODO -> replace with token_id
             position: pos[i],
         }));
         for (const box of boxesData)
             boxes.push(addBox(box, scene, boxGlb));
+
+        const loader = new THREE.TextureLoader();
+        boxesData.forEach(data => {
+            loader.loadAsync(genesisStore.boxTexture(data.box_token_id)).then(x => {
+                materials[data.box_token_id].forEach(mat => {
+                    x.encoding = THREE.sRGBEncoding;
+                    x.flipY = false;
+                    mat.map = x;
+                    mat.needsUpdate = true;
+                })
+            });
+        });
+
         return nextTick(() => fsm.switchTo('SAPIN'));
     }
 
@@ -178,9 +193,11 @@ const sapinState = new class implements FsmState {
 const checkBoxState = new class implements FsmState {
     initialChapter: any;
     async onEnter() {
+        console.log(selectedObject.value?.userData);
         this.initialChapter = addChapter(
             h(LookAtBoxVue, {
                 startUnbox: start_unbox,
+                box_token_id: selectedObject.value?.userData.box_token_id,
             }),
         );
 

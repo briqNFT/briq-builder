@@ -6,9 +6,9 @@ import WindowVue from '@/components/generic/Window.vue';
     <WindowVue :size="'md:w-[40rem]'">
         <template #big-title>Place a bid</template>
         <div class="flex flex-col gap-8">
-            <div class="flex justify-between">
-                <p>Current winning bid</p>
-                <p>1.35 eth</p>
+            <div class="flex flex-col items-center gap-2">
+                <p class="text-md">Current winning bid</p>
+                <p class="text-lg font-semibold">1.35 eth</p>
             </div>
             <div>
                 <p>

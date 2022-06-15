@@ -30,7 +30,7 @@ const item = (token_id: string) => genesisStore.metadata[token_id]?._data;
 .item-card:hover div {
     @apply basis-[50px];
 }
-p {
+.item-card p {
     @apply text-copy;
 }
 </style>

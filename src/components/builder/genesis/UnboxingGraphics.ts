@@ -184,6 +184,9 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
     }
 }
 
+import DefaultBox from '@/assets/genesis/default_box.png';
+export const materials = {} as { [box_token_id: string]: THREE.Material[] };
+
 export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D }) {
     const box = SkeletonUtils.clone(boxGlb.box);
 
@@ -200,6 +203,7 @@ export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.A
     box.rotateY(Math.PI);
 
     box.userData.uid = boxData.uid;
+    box.userData.box_token_id = boxData.box_token_id;
     box.children[1].userData.uid = box.userData.uid;
     box.children[1].userData.box_token_id = box.userData.box_token_id;
     box.children[1].children.forEach(x => {
@@ -208,10 +212,10 @@ export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.A
         x.receiveShadow = true;
     });
 
-    const lightMapLoader = new THREE.TextureLoader();
-    const texture = lightMapLoader.load(`/${boxData.box_token_id}/box_texture.png`);
-    texture.encoding = THREE.sRGBEncoding;
-    texture.flipY = false;
+    const defaultLoader = new THREE.TextureLoader();
+    const defaultTexture = defaultLoader.load(DefaultBox);
+    defaultTexture.encoding = THREE.sRGBEncoding;
+    defaultTexture.flipY = false;
 
     box.children[1].children[0].material = box.children[1].children[0].material.clone();
     box.children[1].children[1].material = box.children[1].children[1].material.clone();
@@ -219,7 +223,11 @@ export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.A
     box.children[1].children[0].material.color = new THREE.Color('#ffffff');
     box.children[1].children[1].material.color = new THREE.Color('#ffffff');
 
-    (box.children[1].children[0].material.map as THREE.Texture) = texture;
+    (box.children[1].children[0].material.map as THREE.Texture) = defaultTexture;
+    if (!materials[boxData.box_token_id])
+        materials[boxData.box_token_id] = [];
+    materials[boxData.box_token_id].push(box.children[1].children[0].material);
+
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;
 

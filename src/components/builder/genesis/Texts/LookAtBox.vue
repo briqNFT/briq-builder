@@ -1,24 +1,31 @@
 <script setup lang="ts">
+import { useGenesisStore } from '@/builder/GenesisStore';
+
 const props = defineProps<{
     active: boolean,
+    box_token_id: string,
     startUnbox: CallableFunction,
 }>();
+
+const genesisStore = useGenesisStore();
+
 </script>
 
 <template>
     <hr>
     <p>
-        Space, ever the final-frontier, in your hands.
+        <!-- TODO replace with appropriate description here. -->
+        {{ genesisStore.metadata[box_token_id]._data?.description }}
     </p>
     <p class="my-2">
         You shake the box in your hands. It rattles slightly.<br>
         The contents on the back side read:<br>
     </p>
     <blockquote>
-        <h3>Spaceman</h3>
+        <h3>{{ genesisStore.metadata[box_token_id]._data?.name }}</h3>
         <ul>
             <li>One high-quality construction booklet</li>
-            <li>34 briqs required to build it</li>
+            <li>{{ genesisStore.metadata[box_token_id]._data?.briqs.length }} briqs required to build it</li>
             <li>One briq booster pack with unknown briqs</li>
         </ul>
     </blockquote>

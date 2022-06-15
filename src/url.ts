@@ -8,7 +8,7 @@ function getCanonicalDomain() {
 
 export default function getBaseUrl() {
     // Hack for dev when I want chain-connectivity.
-    if (DEV && true)
+    if (DEV && false)
         return 'https://api.test.sltech.company';
 
     return {
