@@ -3,10 +3,11 @@ import {
     THREE,
 } from '@/three';
 
+import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, nextTick } from 'vue';
+
 import { useBuilder } from '@/builder/BuilderStore';
 import { walletStore } from '@/chain/Wallet';
 
-import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, nextTick } from 'vue';
 import { setupScene, useRenderer, addBox, materials } from './UnboxingGraphics';
 import LookAtBoxVue from './Texts/LookAtBox.vue';
 import { hexUuid } from '@/Uuid';

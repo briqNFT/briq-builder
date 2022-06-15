@@ -12,9 +12,10 @@ import FabricIcon from '@/assets/landing/fabric.png';
 import FirstIcon from '@/assets/landing/frst.svg';
 import StarkwareIcon from '@/assets/landing/starkware.svg';
 
+import InlinedRocketPng from './InlinedRocketPng';
 import RocketGlb from '@/assets/landing/rocket.glb?url';
 
-import { ModelViewerElement } from '@google/model-viewer';
+import('@google/model-viewer');
 
 import { h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
@@ -37,13 +38,15 @@ onBeforeUnmount(() => {
 const modelViewer = h('model-viewer', {
     alt: 'A set made of briqs',
     src: RocketGlb,
+    // Manually inlined rocket PNG, slightly less than 20KB
+    poster: InlinedRocketPng,
 });
-ModelViewerElement;
 
 onMounted(() => {
-    const modelViewer = document.querySelector('model-viewer');
-    modelViewer.addEventListener('poster-dismissed', () => {
-        modelViewer.orientation='0deg 0deg 200deg';
+    // Rotate the model when loaded because by default it points in the wrong direction.
+    const modelViewer = document.querySelector('model-viewer')! as any;
+    modelViewer.addEventListener('load', () => {
+        modelViewer.orientation = '0deg 0deg 200deg';
     });
 });
 
@@ -66,12 +69,14 @@ onMounted(() => {
                     <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
                 </div>
             </div>
-            <component :is="modelViewer" class="flex-1 min-w-[10rem] h-full w-full" seamless-poster shadow-intensity="1" camera-controls disable-zoom auto-rotate="true"/>
+            <component
+                :is="modelViewer" class="flex-1 min-w-[10rem] h-full w-full"
+                shadow-intensity="1" camera-controls disable-zoom auto-rotate="true" style="background-color: unset;"/>
         </div>
         <div class="grow-[4]"/>
     </div>
     <div class="container m-auto relative">
-        <div class="pointer-events-none user-select-none absolute z-20 left-[-250px] md:left-0" style="bottom: -50px;" ref="briqOverlay">
+        <div class="pointer-events-none user-select-none absolute z-50 left-[-250px] md:left-0" style="bottom: -50px;" ref="briqOverlay">
             <BriqsOverlay class="w-[1432px] h-[780px]"/>
         </div>
     </div>

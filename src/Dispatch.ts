@@ -12,7 +12,11 @@ import DebugVue from './components/debug/Debug.vue';
 import ShareVue from './components/builder/share/Share.vue';
 import GalleryVue from './components/builder/gallery/Gallery.vue';
 import * as walletModule from '@/chain/Wallet';
+import _contractStore from './chain/Contracts';
+import UnboxingVue_ from './components/builder/genesis/Unboxing.vue';
 
+export const UnboxingVue = UnboxingVue_;
+export const contractStore = _contractStore;
 export const Builder = BuilderVue;
 export const Admin = AdminVue;
 export const Debug = DebugVue;

@@ -1,6 +1,7 @@
-import contractStore from '@/chain/Contracts';
-import { WalletStore, walletStore } from '@/chain/Wallet';
 import { computed, reactive, toRef, watch, watchEffect } from 'vue';
+
+import type { WalletStore } from '@/chain/Wallet';
+import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 
 import { defineStore } from 'pinia'
 import { backendManager } from '@/Backend';
@@ -46,13 +47,16 @@ class GenesisUserStore {
     availableBoxes = [] as string[];
 
     async fetchData() {
-        this.availableBoxes = await contractStore.box!.getUnopenedBoxes(walletStore.userWalletAddress);
-
+        const contractStore = (await import('@/Dispatch')).contractStore;
+        this.availableBoxes = await contractStore.box!.getUnopenedBoxes(maybeStore!.userWalletAddress);
     }
 }
 
 export const genesisUserStore = perUserProxyFactory(GenesisUserStore);
-genesisUserStore._initialise(walletStore);
+(async () => {
+    const walletStore = await walletInitComplete;
+    genesisUserStore._initialise(walletStore);
+})();
 
 let initialCall = () => {
     const useStore = defineStore('genesis_data', {

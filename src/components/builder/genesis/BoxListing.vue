@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { ref } from 'vue';
-import { backendManager } from '@/Backend';
-import { getCurrentNetwork } from '@/chain/Network';
-
 
 const items = ref(['starknet_city/spaceman', 'starknet_city/base_module_1']);
 

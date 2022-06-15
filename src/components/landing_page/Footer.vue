@@ -1,3 +1,6 @@
+<script setup lang="ts">
+</script>
+
 <template>
     <div class="bg-accent text-base flex flex-col items-center gap-10 py-14">
         <div class="flex justify-center gap-10 text-[36px]">

@@ -2,18 +2,18 @@ import Legal from './components/Legal.vue';
 import LandingPage from './components/landing_page/LandingPage.vue';
 import Team from './components/team/Team.vue';
 import GenesisMint from '@/components/builder/genesis/GenesisMint.vue';
-import UnboxingVue from './components/builder/genesis/Unboxing.vue';
 
 import BuilderLoader from './components/builder/BuilderLoader.vue';
 
 import RealmsComplete from '@/components/realms/Complete.vue';
 
-import { CONF } from './Conf';
 import ProfileVue from '@/components/profile/Profile.vue';
+
+import ThemesListingVue from './components/builder/genesis/ThemesListing.vue';
 import ThemeMainPageVue from './components/builder/genesis/ThemeMainPage.vue';
 import BoxPageVue from './components/builder/genesis/BoxPage.vue';
-import ThemesListingVue from './components/builder/genesis/ThemesListing.vue';
 
+import { CONF } from './Conf';
 
 let loader;
 async function loadExtraPages() {
@@ -99,7 +99,10 @@ export const routes = [
     {
         path: '/unboxing',
         name: 'Unboxing',
-        component: UnboxingVue,
+        component: async () => {
+            await loadExtraPages();
+            return loader.UnboxingVue;
+        },
     },
 ];
 
