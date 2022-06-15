@@ -12,8 +12,11 @@ import FabricIcon from '@/assets/landing/fabric.png';
 import FirstIcon from '@/assets/landing/frst.svg';
 import StarkwareIcon from '@/assets/landing/starkware.svg';
 
+import RocketGlb from '@/assets/landing/rocket.glb?url';
 
-import { ref, onBeforeMount, onBeforeUnmount } from 'vue';
+import { ModelViewerElement } from '@google/model-viewer';
+
+import { h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
 const briqOverlay = ref(null);
 
@@ -31,6 +34,19 @@ onBeforeUnmount(() => {
     window.removeEventListener('scroll', onScroll);
 });
 
+const modelViewer = h('model-viewer', {
+    alt: 'A set made of briqs',
+    src: RocketGlb,
+});
+ModelViewerElement;
+
+onMounted(() => {
+    const modelViewer = document.querySelector('model-viewer');
+    modelViewer.addEventListener('poster-dismissed', () => {
+        modelViewer.orientation='0deg 0deg 200deg';
+    });
+});
+
 </script>
 
 <template>
@@ -38,14 +54,19 @@ onBeforeUnmount(() => {
     <Header class="absolute left-0 right-0 z-50"/>
     <div class="container m-auto relative h-screen flex flex-col overflow-hidden">
         <div class="grow-[3]"/>
-        <div class="relative z-50 p-20">
-            <!-- Hack to add stroke, should work on anything relevant -->
-            <div class="absolute z-[-1] md:visible invisible">
-                <h1 style="-webkit-text-stroke: 8px rgb(var(--color-base));" class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
-                <p style="-webkit-text-stroke: 3px rgb(var(--color-base));" class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
+        <div class="z-50 flex flex-wrap justify-around items-center">
+            <div class="relative p-20">
+                <!-- Hack to add stroke, should work on anything relevant -->
+                <div class="absolute z-[-1] md:visible invisible">
+                    <h1 style="-webkit-text-stroke: 8px rgb(var(--color-base));" class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
+                    <p style="-webkit-text-stroke: 3px rgb(var(--color-base));" class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
+                </div>
+                <div>
+                    <h1 class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
+                    <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
+                </div>
             </div>
-            <h1 class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
-            <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
+            <component :is="modelViewer" class="flex-1 min-w-[10rem] h-full w-full" seamless-poster shadow-intensity="1" camera-controls disable-zoom auto-rotate="true"/>
         </div>
         <div class="grow-[4]"/>
     </div>
