@@ -14,8 +14,11 @@ import StarkwareIcon from '@/assets/landing/starkware.svg';
 
 import InlinedRocketPng from './InlinedRocketPng';
 import RocketGlb from '@/assets/landing/rocket.glb?url';
+import { nextTick } from 'vue';
 
-import('@google/model-viewer');
+const modelViewerLoading = ref(true);
+const modelViewerLoadingPromise = import('@google/model-viewer');
+modelViewerLoadingPromise.then(() => modelViewerLoading.value = false);
 
 import { h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
@@ -42,11 +45,14 @@ const modelViewer = h('model-viewer', {
     poster: InlinedRocketPng,
 });
 
-onMounted(() => {
-    // Rotate the model when loaded because by default it points in the wrong direction.
-    const modelViewer = document.querySelector('model-viewer')! as any;
-    modelViewer.addEventListener('load', () => {
-        modelViewer.orientation = '0deg 0deg 200deg';
+onMounted(async () => {
+    await modelViewerLoadingPromise;
+    nextTick(() => {
+        // Rotate the model when loaded because by default it points in the wrong direction.
+        const modelViewer = document.querySelector('model-viewer')! as any;
+        modelViewer.addEventListener('load', () => {
+            modelViewer.orientation = '0deg 0deg 200deg';
+        });
     });
 });
 
@@ -70,8 +76,10 @@ onMounted(() => {
                 </div>
             </div>
             <component
+                v-if="!modelViewerLoading"
                 :is="modelViewer" class="flex-1 min-w-[10rem] h-full w-full"
                 shadow-intensity="1" camera-controls disable-zoom auto-rotate="true" style="background-color: unset;"/>
+            <div v-else class="flex-1 min-w-[10rem] flex justify-center"><img :src="InlinedRocketPng"></div>
         </div>
         <div class="grow-[4]"/>
     </div>
