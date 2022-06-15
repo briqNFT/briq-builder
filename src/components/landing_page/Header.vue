@@ -1,3 +1,23 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
+
+let _clicked = false;
+const walletStore = ref(maybeStore);
+const connectWallet = () => {
+    const _do = () => walletStore.value!.openWalletSelector();
+    if (walletStore.value)
+        _do();
+    else if (!_clicked) {
+        _clicked = true;
+        walletInitComplete.then(x => {
+            walletStore.value = x;
+            _do();
+        })
+    }
+}
+</script>
+
 <template>
     <div>
         <div
@@ -13,7 +33,8 @@
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
                 </div>
                 <div class="flex-none">
-                    <Btn class="flex-none"><span class="px-2">Connect</span></Btn>
+                    <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
+                    <Btn v-else-if="walletStore?.userWalletAddress" class="flex-none"><span class="px-2">{{ walletStore.getShortAddress() }}</span></Btn>
                 </div>
             </div>
         </div>

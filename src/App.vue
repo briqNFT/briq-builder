@@ -102,4 +102,11 @@ html.v2design input:focus {
     @apply shadow-[0_0_3px_black] shadow-light-accent;
 }
 
+/* Hack for get-starknet */
+body > div.s-dialog {
+    z-index: 1000 !important;
+}
+body > div.s-overlay {
+    z-index: 500 !important;
+}
 </style>

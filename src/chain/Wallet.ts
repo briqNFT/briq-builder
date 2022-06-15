@@ -105,6 +105,12 @@ export class WalletStore {
         else
             setNetwork('localhost');
     }
+
+    getShortAddress() {
+        if (!this.userWalletAddress)
+            return undefined;
+        return this.userWalletAddress.substring(0, 5) + '...' + this.userWalletAddress.substring(this.userWalletAddress.length - 4);
+    }
 }
 
 export const walletStore = reactive(new WalletStore()) as unknown as WalletStore;
