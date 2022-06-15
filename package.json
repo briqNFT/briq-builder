@@ -24,6 +24,7 @@
     "fflate": "^0.7.3",
     "get-starknet": "^1.2.0",
     "json-bigint": "git+https://github.com/briqNFT/json-bigint.git#fix-ts",
+    "pinia": "^2.0.14",
     "starknet": "^3.9",
     "three": "^0.138",
     "uuid": "^8",

@@ -4,11 +4,11 @@ import { HotkeyManager } from './Hotkeys';
 import { reportError } from './Monitoring';
 import { setForceDebug } from './Messages';
 import { watchForDarkMode } from './DarkMode';
+import { useRoute } from 'vue-router';
 
 import { onMounted, provide, watch, watchEffect } from 'vue';
 
 import { CONF } from './Conf';
-import { useRoute } from 'vue-router';
 
 let mgr = new HotkeyManager();
 // Some basic hotkeys available everywhere
