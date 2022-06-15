@@ -1,18 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import BoxListing from './BoxListing.vue';
 import ModalsVue, { pushModal } from '@/components/Modals.vue';
 import BidModalVue from './BidModal.vue';
+import { useGenesisStore } from '@/builder/GenesisStore';
 
 const router = useRouter();
-
+const route = useRoute();
 
 const placeBid = () => {
     pushModal(BidModalVue);
 }
+
+const genesisStore = useGenesisStore();
+
+const token_id = computed(() => `${route.params.theme}/${route.params.box}`);
+const itemData = computed(() => genesisStore.metadata[token_id.value]);
+
+const themeName = computed(() => route.params.theme);
+const boxName = computed(() => itemData.value._data?.name ?? route.params.box);
 </script>
 
 <style scoped>
@@ -40,19 +49,19 @@ p {
                     <routerLink
                         :to="{ name: 'Theme', 'params': { 'theme': 'test' } }"
                         class="text-accent">
-                        starknet city
-                    </routerLink> > Spaceman
+                        {{ themeName }}
+                    </routerLink> > {{ boxName }}
                 </p>
                 <div class="grid grid-cols-[8fr_4fr] gap-4">
                     <div class="grid-span flex justify-center items-center min-h-[20rem]">
-                        <img src="/spaceman/step_7.png">
+                        <img :src="genesisStore.coverItemRoute(token_id)">
                     </div>
                     <div class="flex flex-col">
                         <routerLink
                             :to="{ name: 'Theme', 'params': { 'theme': 'test' } }">
-                            <h3 class="text-md text-accent">Starknet City</h3>
+                            <h3 class="text-md text-accent">{{ themeName }}</h3>
                         </routerLink>
-                        <h1 class="text-xl my-8">Spaceman</h1>
+                        <h1 class="text-xl my-8">{{ boxName }}</h1>
                         <div class="box-page-block flex-1 flex flex-col justify-between">
                             <div>
                                 <h4>Sale ends on</h4>
@@ -69,6 +78,7 @@ p {
                     <div class="box-page-block">
                         <h4>Description</h4>
                         <p class="my-4">
+                            {{ itemData._data.description ?? 'Loading' }}
                             Association of briqs are named sets.<br><br>
                             Sets can be disassembled to get the briqs back and create something new.<br><br>
                             They can be combined to create even more complex structures.

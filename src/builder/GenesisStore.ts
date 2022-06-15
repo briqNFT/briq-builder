@@ -93,6 +93,11 @@ let initialCall = () => {
                     },
                 });
             },
+            coverItemRoute() {
+                return (token_id: string) => computed(() => {
+                    return backendManager.getRoute(`box/cover_item/${this.network}/${token_id}.png`)
+                }).value;
+            },
         },
         actions: {
             setNetwork(network: CHAIN_NETWORKS) {

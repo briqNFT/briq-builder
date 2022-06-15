@@ -31,6 +31,10 @@ class BackendManager {
         return backendManager.post('v1/store_set', data);
     }
 
+    getRoute(endpoint: string) {
+        return  `${this.url}/v1/${endpoint}`;
+    }
+
     async fetch(endpoint: string): Promise<any> {
         const headers = new Headers();
         headers.append('Content-Type', 'application/json');

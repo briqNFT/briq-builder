@@ -92,7 +92,7 @@ export const routes = [
         component: ThemeMainPageVue,
     },
     {
-        path: '/box/:box',
+        path: '/box/:theme/:box',
         name: 'Box',
         component: BoxPageVue,
     },
