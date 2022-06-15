@@ -197,7 +197,7 @@ const checkBoxState = new class implements FsmState {
         this.initialChapter = addChapter(
             h(LookAtBoxVue, {
                 startUnbox: start_unbox,
-                box_token_id: selectedObject.value?.userData.box_token_id,
+                boxTokenId: selectedObject.value?.userData.box_token_id,
             }),
         );
 
