@@ -30,14 +30,27 @@ const boxName = computed(() => itemData.value._data?.name ?? route.params.box);
 }
 
 div.box-page-block {
-    @apply border-[1px] bg-white p-4 border-gray-200 rounded-md;
+    @apply border-[1px] bg-white p-6 border-gray-200 rounded-md;
 }
 h4 {
-    @apply text-md font-semibold my-2;
+    @apply text-md font-medium my-2;
 }
 p {
     @apply text-copy;
 }
+
+.auction-countdown {
+    @apply border border-darker rounded;
+}
+
+.auction-countdown > div {
+    @apply border-r border-darker py-4;
+}
+
+.auction-countdown > div:last-child {
+    @apply border-r-0;
+}
+
 </style>
 
 <template>
@@ -62,15 +75,22 @@ p {
                             <h3 class="text-md text-accent">{{ themeName }}</h3>
                         </routerLink>
                         <h1 class="text-xl my-8">{{ boxName }}</h1>
-                        <div class="box-page-block flex-1 flex flex-col justify-between">
+                        <div class="box-page-block flex-1 flex flex-col justify-between gap-8">
                             <div>
                                 <h4>Sale ends on</h4>
-                                <p>July 1, 2022 at 11:32 AM GMT+1</p>
-                                <div>AUCTION TIME BLOCK HERE</div>
+                                <p class="my-4">July 1, 2022 at 11:32 AM GMT+1</p>
+                                <div class="grid grid-cols-4 auction-countdown">
+                                    <div
+                                        v-for="i in [['Days', 2], ['Hours', 1], ['Minutes', 24], ['Seconds', 43]]" :key="i[0]"
+                                        class="inline-flex flex-col justify-around items-center">
+                                        <p class="text-xl font-medium">{{ ('' + i[1]).padStart(2, '0') }}</p>
+                                        <p class="text-copy font-medium">{{ i[0] }}</p>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <h4>Winning Bid</h4>
-                                <p>1.35 ETH</p>
+                                <p class="text-xl font-medium my-4"><i class="fa-brands fa-ethereum"/> 1.35</p>
                                 <Btn class="w-full text-white" @click="placeBid">Place a bid</Btn>
                             </div>
                         </div>

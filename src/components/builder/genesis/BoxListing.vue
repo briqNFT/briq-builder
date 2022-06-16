@@ -46,7 +46,7 @@ const item = (token_id: string) => genesisStore.metadata[token_id]?._data;
                         <h3 class="font-bold">{{ item(token_id).name }} </h3>
                         <p class="font-medium">{{ item(token_id).description }}</p>
                         <hr>
-                        <p class="flex justify-between"><span>Last Bid</span><span>0.4 eth</span></p>
+                        <p class="flex justify-between"><span>Last Bid</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>
                         <p class="flex justify-between"><span>Sales End</span><span>4 days left</span></p>
                         <div>
                             <Btn class="text-white w-full h-full">Bid on this item</Btn>
