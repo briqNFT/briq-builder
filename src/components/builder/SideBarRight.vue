@@ -8,6 +8,8 @@ import { APP_ENV } from '@/Meta';
 const useMockWallet = () => {
     window.useDebugProvider();
 }
+
+const { isRecording, startRecording, stopRecording } = useRecording();
 </script>
 
 <style scoped>
@@ -65,6 +67,8 @@ const useMockWallet = () => {
                     <Btn @click="$router.push({ path: '/legal' })">Legal / Privacy</Btn>
                     <a v-if="CONF.theme === 'realms'" href="https://briq.construction"><Btn class="w-full"><span class="briq-logo">briq</span> home</Btn></a>
                     <Btn v-else="" @click="$router.push({ path: '/' })">Home</Btn>
+                    <Btn v-if="!isRecording" @click="startRecording()">Start Recording</Btn>
+                    <Btn v-else @click="stopRecording()">Stop Recording</Btn>
                     <!--<Btn @click="$router.push({ path: '/admin' })">Admin</Btn>-->
                 </div>
                 <div class="flex flex-col content-end my-4">
@@ -100,6 +104,7 @@ import { walletStore } from '@/chain/Wallet';
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
 
 import { defineComponent, toRef, ref } from 'vue';
+import { useRecording } from '@/builder/Recording';
 export default defineComponent({
     data() {
         return {
