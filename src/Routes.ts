@@ -21,8 +21,9 @@ async function loadExtraPages() {
     await loader.Store.isLoaded;
 }
 
-// After a few seconds, preload the rest of the JS anyways,
+// Preload the rest of the javascript after a short while,
 // under the assumption that the user might want it soon anyways.
+// NB: this is generally done already anyways.
 setTimeout(loadExtraPages, 5000);
 
 export const routes = [

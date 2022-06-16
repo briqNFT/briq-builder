@@ -8,6 +8,7 @@ import { backendManager } from '@/Backend';
 import { CHAIN_NETWORKS, getCurrentNetwork } from '@/chain/Network';
 import { APP_ENV } from '@/Meta';
 
+
 class PerUser<Data> {
     _type: new () => Data;
     _perWallet = {} as { [wallet: string]: Data };
@@ -48,7 +49,8 @@ class GenesisUserStore {
 
     async fetchData() {
         const contractStore = (await import('@/Dispatch')).contractStore;
-        this.availableBoxes = await contractStore.box!.getUnopenedBoxes(maybeStore!.userWalletAddress);
+        await walletInitComplete;
+        this.availableBoxes = await contractStore.box!.getUnopenedBoxes(maybeStore.value!.userWalletAddress);
     }
 }
 
@@ -69,7 +71,7 @@ let initialCall = () => {
         getters: {
             metadata: (state) => {
                 return new Proxy(state._metadata, {
-                    get(target, prop, receiver) {
+                    get(target, prop: string, receiver) {
                         if (Reflect.has(target, prop))
                             return Reflect.get(target, prop, receiver);
 

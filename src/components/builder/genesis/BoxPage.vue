@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import BoxListing from './BoxListing.vue';
@@ -8,7 +8,6 @@ import ModalsVue, { pushModal } from '@/components/Modals.vue';
 import BidModalVue from './BidModal.vue';
 import { useGenesisStore } from '@/builder/GenesisStore';
 
-const router = useRouter();
 const route = useRoute();
 
 const placeBid = () => {
@@ -22,6 +21,7 @@ const itemData = computed(() => genesisStore.metadata[token_id.value]);
 
 const themeName = computed(() => route.params.theme);
 const boxName = computed(() => itemData.value._data?.name ?? route.params.box);
+
 </script>
 
 <style scoped>
@@ -67,7 +67,8 @@ p {
                 </p>
                 <div class="grid grid-cols-[8fr_4fr] gap-4">
                     <div class="grid-span flex justify-center items-center min-h-[20rem]">
-                        <img :src="genesisStore.coverItemRoute(token_id)">
+                        <img v-if="itemData._status !== 'ERROR'" :src="genesisStore.coverItemRoute(token_id)">
+                        <div v-else><p>Error while loading box data</p></div>
                     </div>
                     <div class="flex flex-col">
                         <routerLink
@@ -91,14 +92,14 @@ p {
                             <div>
                                 <h4>Winning Bid</h4>
                                 <p class="text-xl font-medium my-4"><i class="fa-brands fa-ethereum"/> 1.35</p>
-                                <Btn class="w-full text-white" @click="placeBid">Place a bid</Btn>
+                                <Btn class="w-full text-white" :disabled="itemData._status === 'ERROR'" @click="placeBid">Place a bid</Btn>
                             </div>
                         </div>
                     </div>
                     <div class="box-page-block">
                         <h4>Description</h4>
                         <p class="my-4">
-                            {{ itemData._data.description ?? 'Loading' }}
+                            {{ itemData._data?.description ?? 'Loading' }}
                             Association of briqs are named sets.<br><br>
                             Sets can be disassembled to get the briqs back and create something new.<br><br>
                             They can be combined to create even more complex structures.

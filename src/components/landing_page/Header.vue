@@ -1,19 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 
 let _clicked = false;
-const walletStore = ref(maybeStore);
+const walletStore = maybeStore;
 const connectWallet = () => {
-    const _do = () => walletStore.value!.openWalletSelector();
     if (walletStore.value)
-        _do();
+        walletStore.value.openWalletSelector()
     else if (!_clicked) {
         _clicked = true;
-        walletInitComplete.then(x => {
-            walletStore.value = x;
-            _do();
-        })
+        walletInitComplete.then(() => walletStore.value!.openWalletSelector());
     }
 }
 const connectDebugWallet = () => window.useDebugProvider();

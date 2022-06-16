@@ -32,7 +32,7 @@ const starBuilders = [
 ];
 
 async function checkOnStore() {
-    const wallet = (await import('./Dispatch')).Wallet;
+    const wallet = (await import('@/Dispatch')).Wallet;
     logDebug('FEATURE_FLAGS - Loaded');
     watchEffect(() => {
         if (admins.indexOf(wallet.walletStore.userWalletAddress) !== -1)
