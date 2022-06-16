@@ -12,15 +12,15 @@ import FabricIcon from '@/assets/landing/fabric.png';
 import FirstIcon from '@/assets/landing/frst.svg';
 import StarkwareIcon from '@/assets/landing/starkware.svg';
 
-import InlinedRocketPng from './InlinedRocketPng';
+import InlinedRocketCover from './InlinedRocketCover';
 import RocketGlb from '@/assets/landing/rocket.glb?url';
 import { nextTick } from 'vue';
+
+import { h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
 const modelViewerLoading = ref(true);
 const modelViewerLoadingPromise = import('@google/model-viewer');
 modelViewerLoadingPromise.then(() => modelViewerLoading.value = false);
-
-import { h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
 const briqOverlay = ref(null);
 
@@ -41,8 +41,7 @@ onBeforeUnmount(() => {
 const modelViewer = h('model-viewer', {
     alt: 'A set made of briqs',
     src: RocketGlb,
-    // Manually inlined rocket PNG, slightly less than 20KB
-    poster: InlinedRocketPng,
+    poster: InlinedRocketCover,
 });
 
 onMounted(async () => {
@@ -52,6 +51,8 @@ onMounted(async () => {
         const modelViewer = document.querySelector('model-viewer')! as any;
         modelViewer.addEventListener('load', () => {
             modelViewer.orientation = '0deg 0deg 200deg';
+            //modelViewer.scale = '0.5 0.5 0.5';
+            modelViewer.dismissPoster();
         });
     });
 });
@@ -78,8 +79,11 @@ onMounted(async () => {
             <component
                 v-if="!modelViewerLoading"
                 :is="modelViewer" class="flex-1 min-w-[10rem] h-full w-full"
-                shadow-intensity="1" camera-controls disable-zoom auto-rotate="true" style="background-color: unset;"/>
-            <div v-else class="flex-1 min-w-[10rem] flex justify-center"><img :src="InlinedRocketPng"></div>
+                reveal="manual" loading="eager" shadow-intensity="0.5" shadow-softness="1" disable-zoom camera-controls auto-rotate="true"
+                field-of-view="40deg" camera-target="2m 23m 2m"
+                style="background-color: unset; --poster-color: transparent"/>
+            <!-- Manually inlined rocket cover, around 20KB -->
+            <div v-else class="flex-1 min-w-[10rem] flex justify-center"><img :src="InlinedRocketCover"></div>
         </div>
         <div class="grow-[4]"/>
     </div>
@@ -157,5 +161,12 @@ h2 {
 }
 .explanations p {
     @apply my-4;
+}
+</style>
+
+<style>
+/* Hide the progress bar, I'm styling manually */
+model-viewer::part(default-progress-bar), model-viewer::part(default-progress-mask) {
+    display: none;
 }
 </style>
