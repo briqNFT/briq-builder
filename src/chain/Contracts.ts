@@ -17,6 +17,7 @@ export const ADDRESSES = {
     'starknet-testnet': {
         briq: '0x01531b29c83b9a22adc1a4d1e148bec286227e81e13c14c0ec150ac86aef446f',
         set: '0x04591e35e7a0c6273267a9e5b6355c3d57a3f7a01a31b14f3fa6636746e8d9ed',
+        box: '0x04591e35e7a0c6273267a9e5b6355c3d57a3f7a01a31b14f3fa6636746e8d9ed',
     },
     'starknet-testnet-legacy': {
         briq: '0x01317354276941f7f799574c73fd8fe53fa3f251084b4c04d88cf601b6bd915e',
@@ -46,6 +47,7 @@ const IMPL = {
     'starknet-testnet': {
         briq: BriqContract,
         set: SetContract,
+        box: BoxContract,
         multicall: MulticallContract,
     },
     'starknet-testnet-legacy': {
