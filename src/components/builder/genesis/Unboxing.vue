@@ -192,7 +192,6 @@ const sapinState = new class implements FsmState {
 const checkBoxState = new class implements FsmState {
     initialChapter: any;
     async onEnter() {
-        console.log(selectedObject.value?.userData);
         this.initialChapter = addChapter(
             h(LookAtBoxVue, {
                 startUnbox: start_unbox,
@@ -373,7 +372,7 @@ onMounted(async () => {
         if (!lastTime)
             lastTime = time;
         const delta = time - lastTime;
-        console.log(delta);
+        //console.log(delta);
         lastTime = time;
         if (fsm.state.frame)
             fsm.state.frame(delta / 1000.0);

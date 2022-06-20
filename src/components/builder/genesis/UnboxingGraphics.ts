@@ -58,7 +58,7 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
     function recreateRenderer() {
         renderer = new THREE.WebGLRenderer({ canvas, alpha: true, logarithmicDepthBuffer: true });
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.VSMShadowMap;
+        renderer.shadowMap.type = THREE.BasicShadowMap; // VSMShadowMap;
         renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.setClearColor(0xF00000, 0);
 
@@ -125,8 +125,10 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
     const light = new THREE.PointLight(new THREE.Color('#FFDDDD'), 1.2, 10.0);
     light.position.set(0.5, 2.25, -1);
     light.shadow.bias = -0.01;
-    light.shadow.radius = 10;
-    light.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    //light.shadow.blurSamples = 30;
+    light.shadow.radius = 1;
+    light.shadow.mapSize = new THREE.Vector2(512, 512);
+    light.shadow.needsUpdate = true;
     light.castShadow = true;
     scene.add(light);
 
@@ -158,10 +160,12 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
 
     const chimneyLight = new THREE.PointLight(new THREE.Color('#FFAA00'), 1.5, 6.0);
     chimneyLight.position.set(2.6, 0.4, 0.5);
+    chimneyLight.shadow.blurSamples = 30;
     chimneyLight.shadow.bias = -0.01;
-    chimneyLight.shadow.radius = 20;
-    chimneyLight.shadow.mapSize = new THREE.Vector2(512, 512);
+    chimneyLight.shadow.radius = 8;
+    chimneyLight.shadow.mapSize = new THREE.Vector2(256, 256);
     chimneyLight.castShadow = true;
+    console.log(chimneyLight);
     scene.add(chimneyLight);
 
     const boxGlb = await new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
