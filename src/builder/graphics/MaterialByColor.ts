@@ -31,6 +31,8 @@ export class MaterialByColor {
         this.material = new THREE.MeshStandardMaterial({
             alphaTest: 0.1,
             transparent: false,
+            metalness: 0.0,
+            roughness: 0.4,
         });
         this.updateTexture();
 

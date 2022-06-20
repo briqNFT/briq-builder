@@ -42,9 +42,9 @@ export default {
             )`,
         }),
         material: {
-            opacity: 0.5,
-            metalness: 0,
-            roughness: 0,
+            opacity: 0.6,
+            metalness: 0.6,
+            roughness: 0.1,
             emissiveIntensity: 0,
         },
     },
@@ -62,8 +62,8 @@ export default {
         }),
         material: {
             opacity: 1.0,
-            metalness: 0.5,
-            roughness: 0.15,
+            metalness: 0.7,
+            roughness: 0.1,
             emissiveIntensity: 0,
         },
     },

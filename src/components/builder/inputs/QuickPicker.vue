@@ -167,7 +167,7 @@ const choiceLayout = computed(() => {
                                     ? '3px solid black'
                                     : '0px solid black',
                         })">
-                        {{ inputStore.currentMaterial }}
+                        {{ material }}
                     </Btn>
                 </div>
                 <Btn
