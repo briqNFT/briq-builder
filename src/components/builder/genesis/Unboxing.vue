@@ -372,7 +372,8 @@ onMounted(async () => {
         if (!lastTime)
             lastTime = time;
         const delta = time - lastTime;
-        console.log(delta);
+        if (delta > 15)
+            console.log(delta);
         lastTime = time;
         if (fsm.state.frame)
             fsm.state.frame(delta / 1000.0);

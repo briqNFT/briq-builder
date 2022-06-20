@@ -144,13 +144,23 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
         );
     })
     const obj = new THREE.Group();
+    console.log(meshes);
+
+    const castShadow = (obj: any) => {
+        obj.castShadow = true;
+        obj.children.forEach(castShadow);
+    }
+
+    const receiveShadow = (obj: any) => {
+        obj.receiveShadow = true;
+        obj.children.forEach(receiveShadow);
+    }
+
     for(const mesh of meshes) {
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        for (const child of mesh.children) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-        }
+        if (['fireplace', 'christmas_tree', 'gamecube', 'side_table'].indexOf(mesh.name) !== -1)
+            castShadow(mesh);
+        if (['room', 'car_rug', 'sofa'].indexOf(mesh.name) !== -1)
+            receiveShadow(mesh);
         obj.add(mesh);
     }
     scene.add(obj);

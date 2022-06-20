@@ -17,10 +17,10 @@ export default class BoxContract {
 
     async getUnopenedBoxes(owner: string): Promise<string[]> {
         try {
-            return await backendManager.post('mock_chain/getUnopenedBoxes', { owner: owner })
+            return await backendManager.post('mock_chain/getUnopenedBoxes', { owner: owner });
         } catch(err) {
             console.error(err);
-            return [];
+            return ['0xb0a001', '0xb0a002'];
         }
     }
 
