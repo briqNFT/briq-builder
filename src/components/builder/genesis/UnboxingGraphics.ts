@@ -231,6 +231,11 @@ export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.A
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;
 
+    // Set an artificial bounding box that'll be big enough
+    box.children[1].children[0].geometry.boundingSphere = new THREE.Sphere(undefined, 1);
+    // Reset the AABB because it fails to work properly for skinned meshes.
+    box.children[1].children[0].geometry.boundingBox = null;
+
     scene.add(box);
     return box;
 }

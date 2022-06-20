@@ -40,7 +40,7 @@ const getBoxAt = (event: PointerEvent) => {
     const rc = new THREE.Raycaster();
     const cv = canvas.value as unknown as HTMLCanvasElement;
     rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, camera);
-    const objects = rc.intersectObjects(scene.children, true);
+    const objects = rc.intersectObjects(boxes, true);
     if (objects.length && objects[0].object.userData.uid) {
         let obj = objects[0].object as THREE.Mesh;
         while (obj.parent?.userData.uid)
@@ -183,6 +183,7 @@ const sapinState = new class implements FsmState {
         selectedObject.value = box;
         if (box)
             return fsm.switchTo('CHECK_BOX');
+
     }
 
     onPointerMove(event: PointerEvent) {
