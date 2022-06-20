@@ -56,7 +56,7 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
 
 
     function recreateRenderer() {
-        renderer = new THREE.WebGLRenderer({ canvas, alpha: true, logarithmicDepthBuffer: true });
+        renderer = new THREE.WebGLRenderer({ canvas, alpha: true, logarithmicDepthBuffer: true, powerPreference: 'high-performance' });
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.BasicShadowMap; // VSMShadowMap;
         renderer.outputEncoding = THREE.sRGBEncoding;
