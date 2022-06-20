@@ -33,7 +33,7 @@ const item = (token_id: string) => genesisStore.metadata[token_id]?._data;
 </style>
 
 <template>
-    <div class="container m-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 my-8 z-50">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 my-8 z-50">
         <component
             :is="genesisStore.metadata[token_id]._status === 'ERROR' ? 'div' : 'router-link'"
             v-for="token_id in items" :key="token_id"

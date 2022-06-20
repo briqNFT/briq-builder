@@ -34,7 +34,7 @@ const route = useRoute();
                 </div>
             </div>
         </div>
-        <div>
+        <div class="container m-auto">
             <BoxListing/>
         </div>
         <Footer/>
