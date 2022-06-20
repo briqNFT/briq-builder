@@ -40,14 +40,11 @@ const getBoxAt = (event: PointerEvent) => {
     const rc = new THREE.Raycaster();
     const cv = canvas.value as unknown as HTMLCanvasElement;
     rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, camera);
-    const objects = rc.intersectObjects(boxes, true);
-    if (objects.length && objects[0].object.userData.uid) {
-        let obj = objects[0].object as THREE.Mesh;
-        while (obj.parent?.userData.uid)
-            obj = obj.parent;
-        return obj
-    } else
-        return undefined;
+    for(const box of boxes)
+        if (rc.ray.intersectsBox(box.userData.bb))
+            return box;
+
+    return undefined;
 }
 
 
