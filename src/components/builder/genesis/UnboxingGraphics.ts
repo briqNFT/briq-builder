@@ -199,7 +199,7 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
 }
 
 import DefaultBox from '@/assets/genesis/default_box.png';
-export const materials = {} as { [box_token_id: string]: THREE.Material[] };
+export const materials = {} as { [box_name: string]: THREE.Material[] };
 
 export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D }) {
     const box = SkeletonUtils.clone(boxGlb.box);
@@ -218,10 +218,8 @@ export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.A
 
     box.userData.uid = boxData.uid;
     box.userData.box_token_id = boxData.box_token_id;
-    box.children[1].userData.uid = box.userData.uid;
-    box.children[1].userData.box_token_id = box.userData.box_token_id;
+    box.userData.box_name = boxData.box_name;
     box.children[1].children.forEach(x => {
-        x.userData.uid = box.userData.uid;
         x.castShadow = true;
         x.receiveShadow = true;
     });
@@ -238,9 +236,9 @@ export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.A
     box.children[1].children[1].material.color = new THREE.Color('#ffffff');
 
     (box.children[1].children[0].material.map as THREE.Texture) = defaultTexture;
-    if (!materials[boxData.box_token_id])
-        materials[boxData.box_token_id] = [];
-    materials[boxData.box_token_id].push(box.children[1].children[0].material);
+    if (!materials[boxData.box_name])
+        materials[boxData.box_name] = [];
+    materials[boxData.box_name].push(box.children[1].children[0].material);
 
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;

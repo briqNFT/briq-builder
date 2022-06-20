@@ -118,7 +118,8 @@ const loadingState = new class implements FsmState {
         ]
         const boxesData = genesisUserStore.availableBoxes.map((token_id, i) => ({
             uid: hexUuid(),
-            box_token_id: token_id.endsWith('1') ? 'starknet_city/spaceman' : 'starknet_city/base_module_1', // TODO -> replace with token_id
+            box_token_id: token_id,
+            box_name: token_id.endsWith('1') ? 'starknet_city/spaceman' : 'starknet_city/base_module_1',
             position: pos[i],
         }));
         for (const box of boxesData)
@@ -126,8 +127,8 @@ const loadingState = new class implements FsmState {
 
         const loader = new THREE.TextureLoader();
         boxesData.forEach(data => {
-            loader.loadAsync(genesisStore.boxTexture(data.box_token_id)).then(x => {
-                materials[data.box_token_id].forEach(mat => {
+            loader.loadAsync(genesisStore.boxTexture(data.box_name)).then(x => {
+                materials[data.box_name].forEach(mat => {
                     x.encoding = THREE.sRGBEncoding;
                     x.flipY = false;
                     mat.map = x;
@@ -195,7 +196,7 @@ const checkBoxState = new class implements FsmState {
         this.initialChapter = addChapter(
             h(LookAtBoxVue, {
                 startUnbox: start_unbox,
-                boxTokenId: selectedObject.value?.userData.box_token_id,
+                boxName: selectedObject.value?.userData.box_name,
             }),
         );
 
