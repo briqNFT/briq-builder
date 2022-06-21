@@ -143,7 +143,7 @@ function recreateRenderer(canvas, scene, camera) {
         const renderPass = new RenderPass(scene, camera);
         composer.addPass(renderPass);
         if (builderSettings.aaLevel === 'FXAA') {
-            var copyPass = new ShaderPass(FXAAShader);
+            const copyPass = new ShaderPass(FXAAShader);
             const size = new THREE.Vector2();
             renderer.getSize(size);
             copyPass.uniforms['resolution'].value.x = 1 / size.x;
@@ -186,9 +186,9 @@ function recreateRenderer(canvas, scene, camera) {
     }
 
     /* ThreeJS auto-renders the final pass to the screen directly, which breaks my scene layering. */
-    /* Instead, add a manual 'write to screen' pass */
+    /* Instead, add a manual 'write to screen' pass. Use it for sRGB correction while at it. */
     {
-        var copyPass = new ShaderPass(GammaCorrectionShader);
+        const copyPass = new ShaderPass(GammaCorrectionShader);
         composer.addPass(copyPass);
     }
     //resizeRendererToDisplaySize(renderer, composer, camera);

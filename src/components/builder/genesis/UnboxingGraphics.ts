@@ -7,7 +7,7 @@ import {
     FXAAShader,
     SAOPass,
     SSAOPass,
-    CopyShader,
+    GammaCorrectionShader,
     OrbitControls,
     SkeletonUtils,
 } from '@/three';
@@ -67,7 +67,6 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
         renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.BasicShadowMap; // VSMShadowMap;
-        //renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.setClearColor(0xF00000, 0);
         composer = new EffectComposer(renderer);
         {
@@ -111,9 +110,8 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
         {
             /* ThreeJS auto-renders the final pass to the screen directly, which breaks my scene layering. */
             /* Instead, add a manual 'write to screen' pass */
-            /* TODO -> I don't think this is needed for unboxing. */
-            //const copyPass = new ShaderPass(CopyShader);
-            //composer.addPass(copyPass);
+            const copyPass = new ShaderPass(GammaCorrectionShader);
+            composer.addPass(copyPass);
         }
         //resizeRendererToDisplaySize(renderer, composer, camera);
         return [renderer, composer];
@@ -158,9 +156,9 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     camera.lookAt(new THREE.Vector3(2, 0, 2));
     scene.add(camera);
 
-    scene.background = new THREE.Color('#230033');
-    scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF'), 0.3))
-    const light = new THREE.PointLight(new THREE.Color('#FFDDDD'), 1.2, 10.0);
+    scene.background = new THREE.Color('#230033').convertSRGBToLinear();
+    scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF').convertSRGBToLinear(), 0.01))
+    const light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.4, 20.0);
     light.position.set(0.5, 2.25, -1);
     light.shadow.bias = -0.01;
     if (quality === 'LOW') {
@@ -253,7 +251,7 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     obj.translateY(-2.05);
     obj.translateZ(9);
 
-    const chimneyLight = new THREE.PointLight(new THREE.Color('#FFAA00'), 1.5, 6.0);
+    const chimneyLight = new THREE.PointLight(new THREE.Color('#FFAA00').convertSRGBToLinear(), 1.0, 6.0);
     chimneyLight.position.set(2.6, 0.4, 0.5);
     chimneyLight.shadow.blurSamples = 30;
     chimneyLight.shadow.bias = -0.001;
