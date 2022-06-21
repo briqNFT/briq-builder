@@ -1,0 +1,57 @@
+<script setup lang="ts">
+import { useGenesisStore } from '@/builder/GenesisStore';
+import { computed } from 'vue';
+
+const props = defineProps<{
+    tokenName: string,
+    mode: 'PRESALE' | 'SALE',
+}>();
+
+const genesisStore = useGenesisStore();
+
+const itemQuery = computed(() => genesisStore.metadata[props.tokenName]);
+const item = computed(() => itemQuery.value._data);
+</script>
+
+
+<style scoped>
+.item-card > div {
+    @apply flex flex-col relative top-0 transition-all;
+}
+.item-card:hover > div {
+    @apply top-[-0.5rem];
+}
+.item-card:not(.ERROR):hover > div {
+    @apply shadow-xl;
+}
+.item-card p {
+    @apply text-copy;
+}
+</style>
+
+<template>
+    <div :class="'item-card relative ' + itemQuery._status">
+        <div class="bg-white p-4 border-[1px] border-gray-200 rounded gap-1">
+            <template v-if="itemQuery._status === 'LOADED'">
+                <p class="flex-1 min-h-0 min-w-0 flex justify-center items-center my-4">
+                    <img class="min-h-0 min-w-0 max-h-[10rem]" :src="genesisStore.coverItemRoute(tokenName)">
+                </p>
+                <h3 class="font-medium text-md">{{ item.name }} </h3>
+                <p class="text-sm font-light text-darkest">UNIQUE</p>
+                <template v-if="mode === 'PRESALE'">
+                    <hr>
+                    <p class="flex justify-between"><span>Last Bid</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>
+                    <p class="flex justify-between"><span>Sales End</span><span>4 days left</span></p>
+                </template>
+            </template>
+            <template v-else-if="itemQuery._status === 'ERROR'">
+                <p class="w-full h-full flex flex-col gap-4 justify-center items-center"><i class="fas fa-times"/><span>Error while loading data</span></p>
+            </template>
+            <template v-else>
+                <p class="w-full h-full flex flex-col gap-4 justify-center items-center"><i class="fas fa-spinner animate-spin"/><span>Loading</span></p>
+                <!-- prefetch -->
+                <img class="hidden" :src="genesisStore.coverItemRoute(tokenName)">
+            </template>
+        </div>
+    </div>
+</template>

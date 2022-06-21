@@ -35,7 +35,7 @@ html.v2design .btn:not(:disabled):active {
 
 html.v2design .btn:not(:disabled)::before {
     content: ' ';
-    @apply rounded-sm bg-black;
+    @apply rounded bg-black;
     @apply absolute top-0 left-0 translate-y-[4px] translate-x-[4px] w-[calc(100%_+_-4px)] h-[calc(100%_+_-4px)] z-[-1];
 }
 html.v2design .btn:not(:disabled):hover::before {
@@ -48,13 +48,13 @@ html.v2design .btn:not(:disabled):active::before {
 html.v2design .btn::after {
     content: ' ';
     @apply w-[calc(100%_+_-4px)] h-[calc(100%_+_-4px)] absolute top-0 left-0;
-    @apply bg-accent rounded-sm border border-dark;
+    @apply bg-accent rounded border border-dark;
     @apply z-[-1];
     @apply translate-y-[2px] translate-x-[2px];
 }
 
 html.v2design .btn:disabled::after {
-    @apply bg-light-accent rounded-sm bg-light-accent border border-dark;
+    @apply bg-light-accent rounded bg-light-accent border border-dark;
 }
 
 /** BUILDER SETTINGS */
