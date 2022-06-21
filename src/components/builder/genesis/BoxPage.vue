@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import BoxListing from './BoxListing.vue';
@@ -9,6 +9,7 @@ import BidModalVue from './BidModal.vue';
 import { useGenesisStore } from '@/builder/GenesisStore';
 
 const route = useRoute();
+const router = useRouter();
 
 const placeBid = () => {
     pushModal(BidModalVue);
@@ -66,13 +67,13 @@ p {
         <div>
             <div class="container m-auto">
                 <p class="my-6">
-                    <routerLink
-                        :to="{ name: 'Theme', 'params': { 'theme': 'test' } }"
+                    <a
+                        @click="router.go(-1)"
                         class="text-accent">
                         <Btn>
                             <i class="fa-solid fa-arrow-left"/> Go back
                         </Btn>
-                    </routerLink>
+                    </a>
                 </p>
                 <div class="grid grid-cols-[8fr_4fr] gap-6">
                     <div class="flex flex-col gap-6">

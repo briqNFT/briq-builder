@@ -2,11 +2,6 @@
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 
-import Composable from '@/assets/landing/composable.svg';
-import Interoperable from '@/assets/landing/interoperable.svg';
-import OnChain from '@/assets/landing/onchain.svg';
-
-import BriqsOverlay from '@/assets/landing/briqs.svg';
 import BriqsOverlayB from '@/assets/landing/briqs-bottom.svg';
 import BriqsOverlayT from '@/assets/landing/briqs-top.svg';
 import BriqsOverlayR from '@/assets/landing/briqs-right.svg';

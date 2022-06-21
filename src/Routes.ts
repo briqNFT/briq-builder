@@ -7,7 +7,7 @@ import BuilderLoader from './components/builder/BuilderLoader.vue';
 
 import RealmsComplete from '@/components/realms/Complete.vue';
 
-import ProfileVue from '@/components/profile/Profile.vue';
+import ProfilePageVue from '@/components/profile/ProfilePage.vue';
 
 import ThemesListingVue from './components/builder/genesis/ThemesListing.vue';
 import ThemeMainPageVue from './components/builder/genesis/ThemeMainPage.vue';
@@ -75,7 +75,7 @@ export const routes = [
     {
         path: '/profile/:address?',
         name: 'Profile',
-        component: ProfileVue,
+        component: ProfilePageVue,
     },
     {
         path: '/genesis',
