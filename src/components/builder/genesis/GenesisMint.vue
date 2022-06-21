@@ -173,7 +173,7 @@ h2 {
     @apply text-xl font-semibold my-2;
 }
 .explanations > div {
-    @apply rounded bg-base p-8;
+    @apply rounded bg-base p-8 border border-darker;
 }
 .explanations p {
     @apply my-4;
