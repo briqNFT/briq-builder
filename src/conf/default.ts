@@ -15,7 +15,7 @@ export const CONF = {
             backgroundColor: '#1e2229',
         },
         lightMode: {
-            planeColor: '#a93a00',
+            planeColor: '#bf4300',
             gridColor: '#eaeaea',
             backgroundColor: '#eaeaea',
         },

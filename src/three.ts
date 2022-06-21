@@ -26,11 +26,13 @@ export let SSAOPass: typeof three_wrapper.SSAOPass;
 export let ShaderPass: typeof three_wrapper.ShaderPass;
 export let SSAARenderPass: typeof three_wrapper.SSAARenderPass;
 export let CopyShader: typeof three_wrapper.CopyShader;
+export let GammaCorrectionShader: typeof three_wrapper.GammaCorrectionShader;
 export let FXAAShader: typeof three_wrapper.FXAAShader;
 
 async function setup() {
     const wrapper = await import('./three_wrapper');
     THREE = wrapper.ALL_THREE;
+
     SkeletonUtils = wrapper.SkeletonUtils;
     OrbitControls = wrapper.OrbitControls;
     SelectionBox = wrapper.SelectionBox;
@@ -44,6 +46,7 @@ async function setup() {
     ShaderPass = wrapper.ShaderPass;
     SSAARenderPass = wrapper.SSAARenderPass;
     CopyShader = wrapper.CopyShader;
+    GammaCorrectionShader = wrapper.GammaCorrectionShader;
     FXAAShader = wrapper.FXAAShader;
 
     logDebug('Successfully dynamically loaded three.js');

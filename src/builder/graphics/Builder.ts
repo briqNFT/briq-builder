@@ -12,7 +12,7 @@ import {
     SSAARenderPass,
     SAOPass,
     ShaderPass,
-    CopyShader,
+    GammaCorrectionShader,
     FXAAShader,
 } from '@/three';
 
@@ -31,8 +31,8 @@ function generateGrid() {
     const gridXZ = new THREE.GridHelper(
         getCanvasSize() * 2,
         getCanvasSize() * 2,
-        builderSettings.gridColor,
-        builderSettings.gridColor,
+        new THREE.Color(builderSettings.gridColor).convertSRGBToLinear(),
+        new THREE.Color(builderSettings.gridColor).convertSRGBToLinear(),
     );
     gridXZ.position.set(0, 0, 0);
     return gridXZ;
@@ -40,7 +40,7 @@ function generateGrid() {
 
 function generatePlane(scene: THREE.Scene) {
     const geometry = new THREE.PlaneBufferGeometry(getCanvasSize() * 2, getCanvasSize() * 2);
-    const material = new THREE.MeshPhongMaterial({ color: builderSettings.planeColor, side: THREE.FrontSide });
+    const material = new THREE.MeshPhongMaterial({ color: new THREE.Color(builderSettings.planeColor).convertSRGBToLinear(), side: THREE.FrontSide });
     const planeXZ = new THREE.Mesh(geometry, material);
     planeXZ.receiveShadow = true;
     planeXZ.position.set(0, -0.01, 0);
@@ -130,7 +130,7 @@ function resizeRendererToDisplaySize(renderer, composer, camera) {
 function recreateRenderer(canvas, scene, camera) {
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = builderSettings.aaLevel !== "0" ? THREE.VSMShadowMap : THREE.BasicShadowMap; //THREE.VSMShadowMap; //THREE.PCFShadowMap;
+    renderer.shadowMap.type = builderSettings.aaLevel !== '0' ? THREE.VSMShadowMap : THREE.BasicShadowMap; //THREE.VSMShadowMap; //THREE.PCFShadowMap;
 
     renderer.setClearColor(0x000000, 0);
 
@@ -188,7 +188,7 @@ function recreateRenderer(canvas, scene, camera) {
     /* ThreeJS auto-renders the final pass to the screen directly, which breaks my scene layering. */
     /* Instead, add a manual 'write to screen' pass */
     {
-        var copyPass = new ShaderPass(CopyShader);
+        var copyPass = new ShaderPass(GammaCorrectionShader);
         composer.addPass(copyPass);
     }
     //resizeRendererToDisplaySize(renderer, composer, camera);
@@ -197,7 +197,7 @@ function recreateRenderer(canvas, scene, camera) {
 }
 
 function addLight(scene: THREE.Scene, x: number, y: number, z: number) {
-    const lightSpot = new THREE.DirectionalLight(builderSettings.lightColor, 1.0);
+    const lightSpot = new THREE.DirectionalLight(new THREE.Color(builderSettings.lightColor).convertSRGBToLinear(), 2.0);
     lightSpot.position.set(x, y, z);
     lightSpot.castShadow = true;
     lightSpot.shadow.bias = builderSettings.canvasSize > 30 ? -0.01 : -0.001;
@@ -212,7 +212,7 @@ function addLight(scene: THREE.Scene, x: number, y: number, z: number) {
     lightSpot.shadow.mapSize.height = builderSettings.canvasSize > 30 ? 2048 : 1024;
     scene.add(lightSpot);
 
-    const ambientLight = new THREE.AmbientLight(builderSettings.ambientColor, 1.25);
+    const ambientLight = new THREE.AmbientLight(new THREE.Color(builderSettings.ambientColor).convertSRGBToLinear(), 2.0);
     scene.add(ambientLight);
 }
 
@@ -230,7 +230,7 @@ function setupScene() {
     addLight(scene, -1 * getCanvasSize() / 2, 2 * getCanvasSize() / 2, -3 * getCanvasSize() / 2);
 
     if (!builderSettings.transparentBackground)
-        scene.background = new THREE.Color(builderSettings.backgroundColor);
+        scene.background = new THREE.Color(builderSettings.backgroundColor).convertSRGBToLinear();
     else
         scene.background = null;
 

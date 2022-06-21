@@ -73,7 +73,7 @@ onMounted(async () => {
                     v-if="!modelViewerLoading"
                     :is="modelViewer" class="flex-1 min-w-[10rem] h-full w-full"
                     reveal="manual" loading="eager" shadow-intensity="0.5" shadow-softness="1" disable-zoom camera-controls auto-rotate="true"
-                    field-of-view="40deg" camera-target="2m 23m 2m"
+                    field-of-view="40deg" camera-target="2m 23m 2m" :exposure="0.7"
                     style="background-color: unset; --poster-color: transparent"/>
                 <!-- Manually inlined rocket cover, around 20KB -->
                 <div v-else class="flex-1 min-w-[10rem] flex justify-center"><img :src="InlinedRocketCover"></div>

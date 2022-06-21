@@ -72,7 +72,7 @@ export class MaterialByColor {
         for (const col in this.colorIndex) {
             if (col === '')
                 continue;
-            const color = new THREE.Color(col);
+            const color = new THREE.Color(col).convertSRGBToLinear();
             data[i * 4] = color.r * 255;
             data[i * 4 + 1] = color.g * 255;
             data[i * 4 + 2] = color.b * 255;
