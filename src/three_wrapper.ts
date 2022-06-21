@@ -11,6 +11,7 @@ export { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 export { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 export { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 export { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass.js';
+export { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass.js';
 export { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 export { SSAARenderPass } from 'three/examples/jsm/postprocessing/SSAARenderPass.js';
 

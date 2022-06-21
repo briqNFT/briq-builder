@@ -22,6 +22,7 @@ export let GLTFLoader: typeof three_wrapper.GLTFLoader;
 export let EffectComposer: typeof three_wrapper.EffectComposer;
 export let RenderPass: typeof three_wrapper.RenderPass;
 export let SAOPass: typeof three_wrapper.SAOPass;
+export let SSAOPass: typeof three_wrapper.SSAOPass;
 export let ShaderPass: typeof three_wrapper.ShaderPass;
 export let SSAARenderPass: typeof three_wrapper.SSAARenderPass;
 export let CopyShader: typeof three_wrapper.CopyShader;
@@ -39,6 +40,7 @@ async function setup() {
     EffectComposer = wrapper.EffectComposer;
     RenderPass = wrapper.RenderPass;
     SAOPass = wrapper.SAOPass;
+    SSAOPass = wrapper.SSAOPass;
     ShaderPass = wrapper.ShaderPass;
     SSAARenderPass = wrapper.SSAARenderPass;
     CopyShader = wrapper.CopyShader;

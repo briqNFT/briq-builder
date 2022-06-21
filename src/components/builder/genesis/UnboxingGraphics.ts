@@ -6,6 +6,7 @@ import {
     ShaderPass,
     FXAAShader,
     SAOPass,
+    SSAOPass,
     CopyShader,
     OrbitControls,
     SkeletonUtils,
@@ -29,7 +30,7 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
 
     const fov = 45;
     const aspect = 2;
-    const near = 0.01;
+    const near = 0.1;
     const far = 20;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
@@ -48,8 +49,11 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
             composer.setSize(width, height);
 
             // FXAA
-            composer.passes[1].uniforms['resolution'].value.x = 1 / width;
-            composer.passes[1].uniforms['resolution'].value.y = 1 / height;
+            composer.passes[2].uniforms['resolution'].value.x = 1 / width;
+            composer.passes[2].uniforms['resolution'].value.y = 1 / height;
+
+            // SSAO
+            composer.passes[1].setSize(width, height);
 
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -60,7 +64,7 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
 
 
     function recreateRenderer() {
-        renderer = new THREE.WebGLRenderer({ canvas, alpha: true, logarithmicDepthBuffer: true, powerPreference: 'high-performance' });
+        renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.BasicShadowMap; // VSMShadowMap;
         //renderer.outputEncoding = THREE.sRGBEncoding;
@@ -70,27 +74,39 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
             const renderPass = new RenderPass(scene, camera);
             composer.addPass(renderPass);
 
-            const copyPass = new ShaderPass(FXAAShader);
             const size = new THREE.Vector2();
             renderer.getSize(size);
+
+            /*
+            const saoPass = new SAOPass(scene, camera, true, true);
+            saoPass.params = {
+                output: SAOPass.OUTPUT.SAO,
+                saoBias: -0.0,
+                saoIntensity: 1.0,
+                saoScale: 32,
+                saoKernelRadius: 30,
+                saoMinResolution: 0.005,
+                saoBlur: true,
+                saoBlurRadius: 6,
+                saoBlurStdDev: 3,
+                saoBlurDepthCutoff: 0.01,
+            };
+            composer.addPass(saoPass);
+            */
+
+            const aoPass = new SSAOPass(scene, camera, size.x, size.y);
+            aoPass.output = SSAOPass.OUTPUT.Default;
+            aoPass.kernelRadius = 0.1;
+            aoPass.minDistance = 0.005;
+            aoPass.maxDistance = 0.02;
+            composer.addPass(aoPass);
+
+            const copyPass = new ShaderPass(FXAAShader);
             copyPass.uniforms['resolution'].value.x = 1 / size.x;
             copyPass.uniforms['resolution'].value.y = 1 / size.y;
             composer.addPass(copyPass);
 
-            const saoPass = new SAOPass(scene, camera, true, true);
-            saoPass.params = {
-                output: 0,
-                saoBias: 1,
-                saoIntensity: 0.1,
-                saoScale: 200,
-                saoKernelRadius: 40,
-                saoMinResolution: 0,
-                saoBlur: true,
-                saoBlurRadius: 8,
-                saoBlurStdDev: 4,
-                saoBlurDepthCutoff: 0.01,
-            };
-            composer.addPass(saoPass);
+            console.log(size);
         }
         {
             /* ThreeJS auto-renders the final pass to the screen directly, which breaks my scene layering. */
@@ -122,24 +138,21 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     scene.clear();
 
     renderer.shadowMap.type = {
-        'LOW': THREE.BasicShadowMap,
+        'LOW': THREE.PCFSoftShadowMap,
         'MEDIUM': THREE.PCFSoftShadowMap,
         'HIGH': THREE.PCFSoftShadowMap,
     }[quality];
 
-    console.log(composer);
     if (quality === 'LOW') {
         composer.passes[1].enabled = false;
         composer.passes[2].enabled = false;
     } else if (quality === 'MEDIUM') {
-        composer.passes[1].enabled = true;
-        composer.passes[2].enabled = false;
+        composer.passes[1].enabled = false;
+        composer.passes[2].enabled = true;
     } else {
         composer.passes[1].enabled = true;
         composer.passes[2].enabled = true;
     }
-
-
 
     camera.position.set(-2, 1.8, -2);
     camera.lookAt(new THREE.Vector3(2, 0, 2));
@@ -151,7 +164,7 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     light.position.set(0.5, 2.25, -1);
     light.shadow.bias = -0.01;
     if (quality === 'LOW') {
-        light.shadow.radius = 1;
+        light.shadow.radius = 4;
         light.shadow.mapSize = new THREE.Vector2(512, 512);
     } else {
         light.shadow.radius = 8;
@@ -196,23 +209,35 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     }
 
 
-    const replaceWithPhong = (obj: any) => {
-        if (obj.material) {
+    const preserveMaterial = ['Plane003_1']
+    const shouldPhong = (obj) => {
+        if (preserveMaterial.indexOf(obj.name) !== -1)
+            return false;
+        if (obj.parent.name === 'gamecube')
+            return false;
+        if (obj.parent.name === 'tv' && obj.material.name === 'plastic_black')
+            return false;
+        return quality !== 'HIGH';
+    }
+
+    const processMaterials = (obj: any) => {
+        if (obj.material && shouldPhong(obj)) {
             const newMat = new THREE.MeshPhongMaterial();
             newMat.color = obj.material.color;
             newMat.map = obj.material.map;
             newMat.reflectivity = obj.material.metalness;
+            newMat.emissive = obj.material.emissive;
             newMat.shininess = obj.material.roughness > 0.5 ? 120 : 10;
             newMat.side = THREE.DoubleSide;
             obj.material = newMat;
-        }
-        obj.children.forEach(replaceWithPhong);
+        } else if (obj.parent.name === 'tv' && obj.material.name === 'plastic_black')
+            obj.material.side = THREE.DoubleSide;
+        obj.children.forEach(processMaterials);
     }
 
     console.log(meshes);
 
-    const casters = quality === 'HIGH' ? ['fireplace', 'christmas_tree', 'gamecube', 'side_table'] : ['fireplace', 'christmas_tree', 'gamecube'];
-    //const phongs = quality === 'HIGH' ? [] : ['Wood Painted White', 'room_strip', 'room_strip_ceiling'];
+    const casters = quality === 'HIGH' ? ['fireplace', 'christmas_tree', 'gamecube', 'side_table', 'sofa'] : ['fireplace', 'christmas_tree', 'gamecube', 'car_rug'];
     for(const mesh_ of meshes) {
         mesh_.traverse(mesh => {
             if (casters.indexOf(mesh.name) !== -1)
@@ -220,8 +245,7 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
             if (['room', 'car_rug', 'sofa'].indexOf(mesh.name) !== -1)
                 receiveShadow(mesh);
         });
-        if (quality !== 'HIGH')
-            replaceWithPhong(mesh_);
+        processMaterials(mesh_);
         obj.add(mesh_);
     }
     scene.add(obj);
@@ -232,9 +256,9 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     const chimneyLight = new THREE.PointLight(new THREE.Color('#FFAA00'), 1.5, 6.0);
     chimneyLight.position.set(2.6, 0.4, 0.5);
     chimneyLight.shadow.blurSamples = 30;
-    chimneyLight.shadow.bias = -0.01;
+    chimneyLight.shadow.bias = -0.001;
     if (quality === 'LOW') {
-        chimneyLight.shadow.radius = 1;
+        chimneyLight.shadow.radius = 4;
         chimneyLight.shadow.mapSize = new THREE.Vector2(256, 256);
     } else {
         chimneyLight.shadow.radius = 8;
