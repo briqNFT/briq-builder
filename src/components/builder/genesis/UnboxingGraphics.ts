@@ -158,14 +158,16 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
 
     scene.background = new THREE.Color('#230033').convertSRGBToLinear();
     scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF').convertSRGBToLinear(), 0.01))
-    const light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.4, 20.0);
-    light.position.set(0.5, 2.25, -1);
-    light.shadow.bias = -0.01;
+    const light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.5, 10.0);
+    light.position.set(0.58, 1.02, 2.47);
+    light.shadow.bias = -0.001;
+    light.shadow.camera.near = 0.01;
+    light.shadow.camera.far = 10;
     if (quality === 'LOW') {
-        light.shadow.radius = 4;
+        light.shadow.radius = 16;
         light.shadow.mapSize = new THREE.Vector2(512, 512);
     } else {
-        light.shadow.radius = 8;
+        light.shadow.radius = 32;
         light.shadow.mapSize = new THREE.Vector2(1024, 1024);
     }
     light.shadow.needsUpdate = true;
@@ -235,14 +237,18 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
 
     console.log(meshes);
 
-    const casters = quality === 'HIGH' ? ['fireplace', 'christmas_tree', 'gamecube', 'side_table', 'sofa'] : ['fireplace', 'christmas_tree', 'gamecube', 'car_rug'];
+    //const casters = quality === 'HIGH' ? ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa'] : ['fireplace', 'christmas_tree', 'gamecube', 'car_rug'];
+    const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa'];
     for(const mesh_ of meshes) {
         mesh_.traverse(mesh => {
             if (casters.indexOf(mesh.name) !== -1)
                 castShadow(mesh);
-            if (['room', 'car_rug', 'sofa'].indexOf(mesh.name) !== -1)
+            if (['room', 'car_rug', 'sofa', 'fireplace', 'christmas_tree'].indexOf(mesh.name) !== -1)
                 receiveShadow(mesh);
         });
+        // Special case: the lamp mast mustn't cast shadows or things look crap.
+        if (mesh_.name === 'lamp')
+            mesh_.children[1].castShadow = false;
         processMaterials(mesh_);
         obj.add(mesh_);
     }
@@ -251,10 +257,13 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     obj.translateY(-2.05);
     obj.translateZ(9);
 
-    const chimneyLight = new THREE.PointLight(new THREE.Color('#FFAA00').convertSRGBToLinear(), 1.0, 6.0);
+    //const chimneyLight = new THREE.PointLight(new THREE.Color('#FFAA00').convertSRGBToLinear(), 1.0, 0.0);
+    const chimneyLight = new THREE.PointLight(new THREE.Color('#ffaa00').convertSRGBToLinear(), 1.0, 5.0);
     chimneyLight.position.set(2.6, 0.4, 0.5);
     chimneyLight.shadow.blurSamples = 30;
     chimneyLight.shadow.bias = -0.001;
+    chimneyLight.shadow.camera.near = 0.01;
+    chimneyLight.shadow.camera.far = 10.0;
     if (quality === 'LOW') {
         chimneyLight.shadow.radius = 4;
         chimneyLight.shadow.mapSize = new THREE.Vector2(256, 256);

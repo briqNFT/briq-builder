@@ -152,7 +152,7 @@ const loadingState = new class implements FsmState {
         const minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
         console.log('avgFps', avgFps, 'minFps', minFps, this.fps);
 
-        if (true || minFps > 20 || avgFps > 25) {
+        if (minFps > 20 || avgFps > 25) {
             // Switch to lower quality scene.
             const sceneData = await setupScene('LOW');
             chimneyLight = sceneData.chimneyLight;
