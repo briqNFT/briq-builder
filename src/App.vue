@@ -26,7 +26,7 @@ watchEffect(() => {
 });
 
 watch([() => route.name as unknown as string], (_, __) => {
-    if (route.name !== 'Builder' && route.name !== 'Share' && route.name !== 'Landing')
+    if (route.name !== 'Builder' && route.name !== 'Share')
         document.documentElement.classList.add('v2design');
     else
         document.documentElement.classList.remove('v2design');

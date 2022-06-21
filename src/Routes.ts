@@ -124,7 +124,7 @@ if (CONF.theme === 'realms') {
     routes.push({
         path: '/',
         name: 'Landing',
-        component: LandingPage,
+        component: GenesisMint,
     });
     routes.push({
         path: '/builder',
