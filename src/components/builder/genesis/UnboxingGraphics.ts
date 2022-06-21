@@ -16,18 +16,22 @@ import { GLTFLoader } from '@/three';
 import HomeScene from '@/assets/genesis/briqs_box_xmas.glb?url';
 import BriqBox from '@/assets/genesis/briqs_box.glb?url';
 
+let scene: THREE.Scene;
+let camera: THREE.Camera;
+
+let renderer: THREE.WebGLRenderer;
+let composer: EffectComposer;
+
 export async function useRenderer(canvas: HTMLCanvasElement) {
     await threeSetupComplete;
 
-    let renderer: THREE.Renderer, composer: typeof EffectComposer;
-
-    const scene = new THREE.Scene();
+    scene = new THREE.Scene();
 
     const fov = 45;
     const aspect = 2;
     const near = 0.01;
     const far = 20;
-    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     /* Debug */
     const controls = new OrbitControls(camera, canvas);
@@ -59,9 +63,8 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
         renderer = new THREE.WebGLRenderer({ canvas, alpha: true, logarithmicDepthBuffer: true, powerPreference: 'high-performance' });
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.BasicShadowMap; // VSMShadowMap;
-        renderer.outputEncoding = THREE.sRGBEncoding;
+        //renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.setClearColor(0xF00000, 0);
-
         composer = new EffectComposer(renderer);
         {
             const renderPass = new RenderPass(scene, camera);
@@ -73,8 +76,7 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
             copyPass.uniforms['resolution'].value.x = 1 / size.x;
             copyPass.uniforms['resolution'].value.y = 1 / size.y;
             composer.addPass(copyPass);
-        }
-        if (true/*builderSettings.useSAO*/) {
+
             const saoPass = new SAOPass(scene, camera, true, true);
             saoPass.params = {
                 output: 0,
@@ -90,11 +92,12 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
             };
             composer.addPass(saoPass);
         }
-        /* ThreeJS auto-renders the final pass to the screen directly, which breaks my scene layering. */
-        /* Instead, add a manual 'write to screen' pass */
         {
-            const copyPass = new ShaderPass(CopyShader);
-            composer.addPass(copyPass);
+            /* ThreeJS auto-renders the final pass to the screen directly, which breaks my scene layering. */
+            /* Instead, add a manual 'write to screen' pass */
+            /* TODO -> I don't think this is needed for unboxing. */
+            //const copyPass = new ShaderPass(CopyShader);
+            //composer.addPass(copyPass);
         }
         //resizeRendererToDisplaySize(renderer, composer, camera);
         return [renderer, composer];
@@ -115,7 +118,29 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
 }
 
 
-export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
+export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
+    scene.clear();
+
+    renderer.shadowMap.type = {
+        'LOW': THREE.BasicShadowMap,
+        'MEDIUM': THREE.PCFSoftShadowMap,
+        'HIGH': THREE.PCFSoftShadowMap,
+    }[quality];
+
+    console.log(composer);
+    if (quality === 'LOW') {
+        composer.passes[1].enabled = false;
+        composer.passes[2].enabled = false;
+    } else if (quality === 'MEDIUM') {
+        composer.passes[1].enabled = true;
+        composer.passes[2].enabled = false;
+    } else {
+        composer.passes[1].enabled = true;
+        composer.passes[2].enabled = true;
+    }
+
+
+
     camera.position.set(-2, 1.8, -2);
     camera.lookAt(new THREE.Vector3(2, 0, 2));
     scene.add(camera);
@@ -125,9 +150,13 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
     const light = new THREE.PointLight(new THREE.Color('#FFDDDD'), 1.2, 10.0);
     light.position.set(0.5, 2.25, -1);
     light.shadow.bias = -0.01;
-    //light.shadow.blurSamples = 30;
-    light.shadow.radius = 1;
-    light.shadow.mapSize = new THREE.Vector2(512, 512);
+    if (quality === 'LOW') {
+        light.shadow.radius = 1;
+        light.shadow.mapSize = new THREE.Vector2(512, 512);
+    } else {
+        light.shadow.radius = 8;
+        light.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    }
     light.shadow.needsUpdate = true;
     light.castShadow = true;
     scene.add(light);
@@ -144,7 +173,6 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
         );
     })
     const obj = new THREE.Group();
-    console.log(meshes);
 
     const castShadow = (obj: any) => {
         obj.castShadow = true;
@@ -156,12 +184,45 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
         obj.children.forEach(receiveShadow);
     }
 
-    for(const mesh of meshes) {
-        if (['fireplace', 'christmas_tree', 'gamecube', 'side_table'].indexOf(mesh.name) !== -1)
-            castShadow(mesh);
-        if (['room', 'car_rug', 'sofa'].indexOf(mesh.name) !== -1)
-            receiveShadow(mesh);
-        obj.add(mesh);
+    const replaceWithLambert = (obj: any) => {
+        if (obj.material) {
+            const newMat = new THREE.MeshLambertMaterial();
+            newMat.color = obj.material.color;
+            newMat.map = obj.material.map;
+            newMat.reflectivity = obj.material.metalness;
+            obj.material = newMat;
+        }
+        obj.children.forEach(replaceWithLambert);
+    }
+
+
+    const replaceWithPhong = (obj: any) => {
+        if (obj.material) {
+            const newMat = new THREE.MeshPhongMaterial();
+            newMat.color = obj.material.color;
+            newMat.map = obj.material.map;
+            newMat.reflectivity = obj.material.metalness;
+            newMat.shininess = obj.material.roughness > 0.5 ? 120 : 10;
+            newMat.side = THREE.DoubleSide;
+            obj.material = newMat;
+        }
+        obj.children.forEach(replaceWithPhong);
+    }
+
+    console.log(meshes);
+
+    const casters = quality === 'HIGH' ? ['fireplace', 'christmas_tree', 'gamecube', 'side_table'] : ['fireplace', 'christmas_tree', 'gamecube'];
+    //const phongs = quality === 'HIGH' ? [] : ['Wood Painted White', 'room_strip', 'room_strip_ceiling'];
+    for(const mesh_ of meshes) {
+        mesh_.traverse(mesh => {
+            if (casters.indexOf(mesh.name) !== -1)
+                castShadow(mesh);
+            if (['room', 'car_rug', 'sofa'].indexOf(mesh.name) !== -1)
+                receiveShadow(mesh);
+        });
+        if (quality !== 'HIGH')
+            replaceWithPhong(mesh_);
+        obj.add(mesh_);
     }
     scene.add(obj);
     obj.rotateY(Math.PI);
@@ -172,10 +233,14 @@ export async function setupScene(scene: THREE.Scene, camera: THREE.Camera) {
     chimneyLight.position.set(2.6, 0.4, 0.5);
     chimneyLight.shadow.blurSamples = 30;
     chimneyLight.shadow.bias = -0.01;
-    chimneyLight.shadow.radius = 8;
-    chimneyLight.shadow.mapSize = new THREE.Vector2(256, 256);
+    if (quality === 'LOW') {
+        chimneyLight.shadow.radius = 1;
+        chimneyLight.shadow.mapSize = new THREE.Vector2(256, 256);
+    } else {
+        chimneyLight.shadow.radius = 8;
+        chimneyLight.shadow.mapSize = new THREE.Vector2(512, 512);
+    }
     chimneyLight.castShadow = true;
-    console.log(chimneyLight);
     scene.add(chimneyLight);
 
     const boxGlb = await new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {

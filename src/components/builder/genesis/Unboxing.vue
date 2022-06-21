@@ -108,6 +108,16 @@ const initialState = new class implements FsmState {
 }
 
 const loadingState = new class implements FsmState {
+    fps = [] as number[];
+    hasEnoughFrames: Promise<void>;
+    setEnoughFrames: CallableFunction | undefined;
+
+    constructor() {
+        this.hasEnoughFrames = new Promise((resolve, _) => {
+            this.setEnoughFrames = resolve;
+        })
+    }
+
     async onEnter() {
         const userData = genesisUserStore.fetchData();
         await sceneReady;
@@ -137,6 +147,19 @@ const loadingState = new class implements FsmState {
             });
         });
 
+        await this.hasEnoughFrames;
+        const avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
+        const minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
+        console.log('avgFps', avgFps, 'minFps', minFps, this.fps);
+
+        if (true || minFps > 20 || avgFps > 25) {
+            // Switch to lower quality scene.
+            const sceneData = await setupScene('LOW');
+            chimneyLight = sceneData.chimneyLight;
+            boxGlb = sceneData.boxGlb;
+        }
+
+
         return nextTick(() => fsm.switchTo('SAPIN'));
     }
 
@@ -147,6 +170,16 @@ const loadingState = new class implements FsmState {
                 h('p', { class: 'my-2' }, ['The hour is now, and by the fireplace you may open them.', h('br'), 'Let your imagination roam free.']),
             ]),
         ), 250);
+    }
+
+    frame(delta: number) {
+        this.fps.unshift(delta * 1000);
+        if (this.fps.length > 120)
+            this.fps.pop();
+        if (this.fps.length > 12 && this.setEnoughFrames) {
+            this.setEnoughFrames();
+            this.setEnoughFrames = undefined;
+        }
     }
 }
 
@@ -347,14 +380,16 @@ onBeforeMount(() => {
     initFsm = fsm.state.onEnter();
 });
 
+import Stats from 'stats.js';
+
 let lastTime = 0;
 onMounted(async () => {
     await initFsm;
     const setupData = await useRenderer(canvas.value);
     camera = setupData.camera;
     scene = setupData.scene;
-    const sceneData = await setupScene(scene, camera);
 
+    const sceneData = await setupScene();
     chimneyLight = sceneData.chimneyLight;
     boxGlb = sceneData.boxGlb;
 
@@ -373,8 +408,6 @@ onMounted(async () => {
         if (!lastTime)
             lastTime = time;
         const delta = time - lastTime;
-        if (delta > 15)
-            console.log(delta);
         lastTime = time;
         if (fsm.state.frame)
             fsm.state.frame(delta / 1000.0);
@@ -383,6 +416,20 @@ onMounted(async () => {
     }
 
     requestAnimationFrame(frame);
+
+    var stats = new Stats();
+    stats.showPanel(0)
+    document.body.appendChild(stats.dom);
+
+    function animate() {
+        stats.end();
+        stats.begin();
+        requestAnimationFrame( animate );
+    }
+
+    stats.begin();
+    requestAnimationFrame( animate );
+
 });
 
 watchEffect(() => {
@@ -442,7 +489,55 @@ const useMockWallet = () => {
     window.useDebugProvider();
 }
 
+const quality = ref('LOW');
+
+watch(quality, async () => {
+    const sceneData = await setupScene(quality.value);
+    chimneyLight = sceneData.chimneyLight;
+    boxGlb = sceneData.boxGlb;
+})
+
 </script>
+
+<template>
+    <canvas
+        class="absolute top-0 left-0 w-screen h-screen"
+        id="unboxGl"
+        ref="canvas"
+        @click="(event) => fsm.state?.onClick?.(event)"
+        @pointermove="(event) => fsm.state?.onPointerMove?.(event)"/>
+    <div class="absolute bottom-0 left-0 text-base">
+        <FireplaceAudio/>
+    </div>
+    <div class="absolute bottom-[1rem] left-0 text-base">
+        <select v-model="quality">
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+        </select>
+    </div>
+    <div
+        id="unboxing"
+        class="absolute top-0 right-0 xl:w-[30%] w-[400px] bg-black bg-opacity-40 h-screen overflow-auto snap-y transition-all scroll-smooth"
+        @click.stop="">
+        <div class="snap-end text text-base pb-[15rem] px-8 py-4">
+            <h2 class="text-center my-8">briq unboxing</h2>
+            <TransitionGroup name="xfade">
+                <div v-for="chapter, i of chapters" :key="i">
+                    <component :is="chapter.component" :active="chapter.active"/>
+                </div>
+            </TransitionGroup>
+        </div>
+    </div>
+    <div
+        v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base bg-repeat bg-auto alternate-buttons flex-col gap-4"
+        :style="{ backgroundImage: `url(${BriqsOverlay})`, backgroundSize: '1000px auto' }">
+        <h2>briq unboxing</h2>
+        <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
+        <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet">Dev</Btn>
+    </div>
+</template>
+
 
 <style>
 #unboxing hr {
@@ -476,35 +571,3 @@ const useMockWallet = () => {
 .xfade-leave-active {
   transition: clip-path 1.5s ease;
 }</style>
-
-<template>
-    <canvas
-        class="absolute top-0 left-0 w-screen h-screen"
-        id="unboxGl"
-        ref="canvas"
-        @click="(event) => fsm.state?.onClick?.(event)"
-        @pointermove="(event) => fsm.state?.onPointerMove?.(event)"/>
-    <div class="absolute bottom-0 left-0 text-base">
-        <FireplaceAudio/>
-    </div>
-    <div
-        id="unboxing"
-        class="absolute top-0 right-0 xl:w-[30%] w-[400px] bg-black bg-opacity-40 h-screen overflow-auto snap-y transition-all scroll-smooth"
-        @click.stop="">
-        <div class="snap-end text text-base pb-[15rem] px-8 py-4">
-            <h2 class="text-center my-8">briq unboxing</h2>
-            <TransitionGroup name="xfade">
-                <div v-for="chapter, i of chapters" :key="i">
-                    <component :is="chapter.component" :active="chapter.active"/>
-                </div>
-            </TransitionGroup>
-        </div>
-    </div>
-    <div
-        v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base bg-repeat bg-auto alternate-buttons flex-col gap-4"
-        :style="{ backgroundImage: `url(${BriqsOverlay})`, backgroundSize: '1000px auto' }">
-        <h2>briq unboxing</h2>
-        <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
-        <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet">Dev</Btn>
-    </div>
-</template>

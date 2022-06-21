@@ -27,6 +27,7 @@
     "json-bigint": "git+https://github.com/briqNFT/json-bigint.git#fix-ts",
     "pinia": "^2.0.14",
     "starknet": "^3.9",
+    "stats.js": "^0.17.0",
     "three": "^0.138",
     "uuid": "^8",
     "vite": "^2.6",
