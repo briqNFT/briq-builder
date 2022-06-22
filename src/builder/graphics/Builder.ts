@@ -227,7 +227,7 @@ function setupScene() {
         scene = new THREE.Scene();
     scene.clear();
 
-    addLight(scene, -1 * 5, 2 * 5, -3 * 5);
+    addLight(scene, -1 * getCanvasSize() / 2, 2 * getCanvasSize() / 2, -3 * getCanvasSize() / 2);
 
     if (!builderSettings.transparentBackground)
         scene.background = new THREE.Color(builderSettings.backgroundColor);
