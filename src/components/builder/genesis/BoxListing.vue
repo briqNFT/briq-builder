@@ -2,15 +2,21 @@
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { ref } from 'vue';
 import BoxCardVue from './BoxCard.vue';
-const items = ref(['starknet_city/spaceman', 'starknet_city/base_module_1']);
 
 const genesisStore = useGenesisStore();
+
+const props = withDefaults(defineProps<{
+    boxes?: string[]
+}>(), {
+    boxes: () => [],
+});
+
 </script>
 
 <template>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 my-8 z-50">
         <component
-            v-for="token_id in items" :key="token_id"
+            v-for="token_id in props.boxes" :key="token_id"
             :is="genesisStore.metadata[token_id]._status === 'ERROR' ? 'div' : 'router-link'"
             :to="{ name: 'Box', 'params': { 'theme': token_id.split('/')[0], 'box': token_id.split('/')[1] } }">
             <BoxCardVue mode="PRESALE" :token-name="token_id"/>

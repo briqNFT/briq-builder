@@ -30,7 +30,7 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
 
     const fov = 45;
     const aspect = 2;
-    const near = 0.1;
+    const near = 0.5;
     const far = 20;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
@@ -65,8 +65,8 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
 
     function recreateRenderer() {
         renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
+        renderer.shadowMap.needsUpdate = true;
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.BasicShadowMap; // VSMShadowMap;
         renderer.setClearColor(0xF00000, 0);
         composer = new EffectComposer(renderer);
         {
@@ -135,11 +135,13 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
 export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     scene.clear();
 
+    /*
     renderer.shadowMap.type = {
-        'LOW': THREE.PCFSoftShadowMap,
-        'MEDIUM': THREE.PCFSoftShadowMap,
-        'HIGH': THREE.PCFSoftShadowMap,
+        'LOW': THREE.PCFShadowMap,
+        'MEDIUM': THREE.PCFShadowMap,
+        'HIGH': THREE.PCFShadowMap,
     }[quality];
+    renderer.shadowMap.needsUpdate = true;*/
 
     if (quality === 'LOW') {
         composer.passes[1].enabled = false;
@@ -157,22 +159,6 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     scene.add(camera);
 
     scene.background = new THREE.Color('#230033').convertSRGBToLinear();
-    scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF').convertSRGBToLinear(), 0.01))
-    const light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.5, 10.0);
-    light.position.set(0.58, 1.02, 2.47);
-    light.shadow.bias = -0.001;
-    light.shadow.camera.near = 0.01;
-    light.shadow.camera.far = 10;
-    if (quality === 'LOW') {
-        light.shadow.radius = 16;
-        light.shadow.mapSize = new THREE.Vector2(512, 512);
-    } else {
-        light.shadow.radius = 32;
-        light.shadow.mapSize = new THREE.Vector2(1024, 1024);
-    }
-    light.shadow.needsUpdate = true;
-    light.castShadow = true;
-    scene.add(light);
 
     const meshes = await new Promise((resolve: (_: THREE.Mesh[]) => void, reject) => {
         const loader = new GLTFLoader();
@@ -197,21 +183,14 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
         obj.children.forEach(receiveShadow);
     }
 
-    const replaceWithLambert = (obj: any) => {
-        if (obj.material) {
-            const newMat = new THREE.MeshLambertMaterial();
-            newMat.color = obj.material.color;
-            newMat.map = obj.material.map;
-            newMat.reflectivity = obj.material.metalness;
-            obj.material = newMat;
-        }
-        obj.children.forEach(replaceWithLambert);
-    }
+    const shouldLambert = (obj: any) => {
+        if (quality === 'LOW' && obj.name === 'car_rug')
+            return true;
+        return false;
+    };
 
-
-    const preserveMaterial = ['Plane003_1']
-    const shouldPhong = (obj) => {
-        if (preserveMaterial.indexOf(obj.name) !== -1)
+    const shouldPhong = (obj: any) => {
+        if (obj.name === 'Plane003_1' || obj.name === 'car_rug')
             return false;
         if (obj.parent.name === 'gamecube')
             return false;
@@ -230,6 +209,13 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
             newMat.shininess = obj.material.roughness > 0.5 ? 120 : 10;
             newMat.side = THREE.DoubleSide;
             obj.material = newMat;
+        } else if (obj.material && shouldLambert(obj)) {
+            const newMat = new THREE.MeshLambertMaterial();
+            newMat.color = obj.material.color;
+            newMat.map = obj.material.map;
+            newMat.reflectivity = obj.material.metalness;
+            obj.material = newMat;
+
         } else if (obj.parent.name === 'tv' && obj.material.name === 'plastic_black')
             obj.material.side = THREE.DoubleSide;
         obj.children.forEach(processMaterials);
@@ -237,13 +223,12 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
 
     console.log(meshes);
 
-    //const casters = quality === 'HIGH' ? ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa'] : ['fireplace', 'christmas_tree', 'gamecube', 'car_rug'];
-    const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa'];
+    const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv'];
     for(const mesh_ of meshes) {
         mesh_.traverse(mesh => {
             if (casters.indexOf(mesh.name) !== -1)
                 castShadow(mesh);
-            if (['room', 'car_rug', 'sofa', 'fireplace', 'christmas_tree'].indexOf(mesh.name) !== -1)
+            if (true || ['room', 'car_rug', 'sofa', 'fireplace', 'christmas_tree'].indexOf(mesh.name) !== -1)
                 receiveShadow(mesh);
         });
         // Special case: the lamp mast mustn't cast shadows or things look crap.
@@ -257,18 +242,57 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     obj.translateY(-2.05);
     obj.translateZ(9);
 
-    //const chimneyLight = new THREE.PointLight(new THREE.Color('#FFAA00').convertSRGBToLinear(), 1.0, 0.0);
+    scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF').convertSRGBToLinear(), 0.01))
+    let light: THREE.Light;
+    if (true) {
+        light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.6, 10.0);
+        light.position.set(0.58, 1.02, 2.47);
+        light.shadow.radius = 12;
+        light.shadow.mapSize = new THREE.Vector2(512, 512);
+    } else {
+        const lightTarget = new THREE.Object3D();
+        lightTarget.position.set(0.58, 0, 2.47);
+        scene.add(lightTarget);
+        light = new THREE.SpotLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.7, 20.0, Math.PI / 2.1, 0.2, 0.01);
+        light.position.set(0.58, 1.02, 2.47);
+        light.target = lightTarget;
+        light.shadow.mapSize = new THREE.Vector2(512, 512);
+    }
+    light.shadow.bias = -0.001;
+    light.shadow.normalBias = 0.1;
+    light.shadow.camera.near = 0.03;
+    light.shadow.camera.far = 10;
+
+    light.castShadow = true;
+    light.shadow.needsUpdate = true;
+    scene.add(light);
+
+    /* Add a secondary support light for the lamp stand. */
+    if (quality === 'HIGH') {
+        const lightSupport = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.1, 10.0);
+        lightSupport.position.set(0.58, 1.0, 2.47);
+        lightSupport.shadow.bias = -0.001;
+        lightSupport.shadow.normalBias = 0.1;
+        lightSupport.shadow.camera.near = 0.03;
+        lightSupport.shadow.camera.far = 10;
+        lightSupport.shadow.radius = 16;
+        lightSupport.shadow.mapSize = new THREE.Vector2(256, 256);
+        lightSupport.castShadow = true;
+        scene.add(lightSupport);
+    }
+
     const chimneyLight = new THREE.PointLight(new THREE.Color('#ffaa00').convertSRGBToLinear(), 1.0, 5.0);
     chimneyLight.position.set(2.6, 0.4, 0.5);
     chimneyLight.shadow.blurSamples = 30;
     chimneyLight.shadow.bias = -0.001;
-    chimneyLight.shadow.camera.near = 0.01;
+    chimneyLight.shadow.normalBias = 0.1;
+    chimneyLight.shadow.camera.near = 0.05;
     chimneyLight.shadow.camera.far = 10.0;
     if (quality === 'LOW') {
-        chimneyLight.shadow.radius = 4;
+        chimneyLight.shadow.radius = 8;
         chimneyLight.shadow.mapSize = new THREE.Vector2(256, 256);
     } else {
-        chimneyLight.shadow.radius = 8;
+        chimneyLight.shadow.radius = 16;
         chimneyLight.shadow.mapSize = new THREE.Vector2(512, 512);
     }
     chimneyLight.castShadow = true;

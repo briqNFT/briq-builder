@@ -173,6 +173,7 @@ const loadingState = new class implements FsmState {
     }
 
     frame(delta: number) {
+        updateLights(delta);
         this.fps.unshift(delta * 1000);
         if (this.fps.length > 120)
             this.fps.pop();

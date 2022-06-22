@@ -60,45 +60,67 @@ export const genesisUserStore = perUserProxyFactory(GenesisUserStore);
     genesisUserStore._initialise(walletStore);
 })();
 
+
+// TODO: I am reinventing graphQL only slower I think.
+
+class Fetchable<T> {
+    _data = undefined as undefined | T;
+    _fetch = undefined as undefined | Promise<T>;
+    _error = undefined as any;
+
+    get _status() {
+        return this._data !== undefined ? 'LOADED' : (this._error !== undefined ? 'ERROR' : 'FETCHING');
+    }
+
+    async fetch(t: Promise<T>) {
+        try {
+            this._fetch = t;
+            this._data = await this._fetch;
+        } catch(err) {
+            this._error = err;
+        }
+    }
+}
+
+const autoFetchable = <T>(wraps: { [prop: string]: Fetchable<T> }, t: (prop: string) => Promise<T>) => {
+    return new Proxy(wraps, {
+        get: (target, prop: string, receiver) => {
+            if (Reflect.has(target, prop))
+                return Reflect.get(target, prop, receiver);
+            target[prop] = new Fetchable<T>();
+            target[prop].fetch(t(prop));
+            return target[prop];
+        },
+        set: (target, prop, value) => {
+            return Reflect.set(target, prop, value);
+        },
+    });
+}
+
+
 let initialCall = () => {
     const useStore = defineStore('genesis_data', {
         state: () => {
             return {
                 network: { dev: 'mock', test: 'starknet-testnet', prod: 'starknet' }[APP_ENV],
-                _metadata: {} as { [box_token_id:string]: any },
+                _metadata: {} as { [box_uid: string]: Fetchable<Record<string, any>> },
+                _saledata: {} as { [box_uid: string]: Fetchable<Record<string, any>> },
+                _boxes: {} as { [theme_uid: string]: Fetchable<string[]> },
+                _themedata: {} as { [theme_uid: string]: Fetchable<Record<string, any>> },
             }
         },
         getters: {
-            metadata: (state) => {
-                return new Proxy(state._metadata, {
-                    get(target, prop: string, receiver) {
-                        if (Reflect.has(target, prop))
-                            return Reflect.get(target, prop, receiver);
-
-                        target[prop] = {
-                            _status: undefined,
-                            _data: undefined,
-                            _fetch: undefined,
-                            _error: undefined,
-                        };
-                        target[prop]._status = computed(() => target[prop]._data !== undefined ? 'LOADED' : (
-                            target[prop]._error !== undefined ? 'ERROR' : 'FETCHING'
-                        ));
-                        (async () => {
-                            try {
-                                target[prop]._fetch = backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`)
-                                target[prop]._data = await target[prop]._fetch;
-                                console.log('Loaded data for ', prop, target[prop]._data);
-                            } catch(err) {
-                                target[prop]._error = err;
-                            }
-                        })();
-                        return target[prop];
-                    },
-                    set(target, prop, value) {
-                        return Reflect.set(target, prop, value);
-                    },
-                });
+            metadata(state) {
+                return autoFetchable(state._metadata as any, (prop) => backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`));
+            },
+            themedata(state) {
+                return autoFetchable(state._themedata as any, (theme_id) => backendManager.fetch(`v1/${state.network}/${theme_id}/data`));
+            },
+            boxes(state) {
+                return autoFetchable(state._boxes as any, (theme_id) => backendManager.fetch(`v1/${state.network}/${theme_id}/boxes`));
+            },
+            saledata(state) {
+                return autoFetchable(state._saledata as any, (prop) => backendManager.fetch(`v1/${state.network}/${prop}/saledata`));
             },
             coverItemRoute() {
                 return (token_id: string) => computed(() => {
