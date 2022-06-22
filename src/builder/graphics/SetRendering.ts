@@ -122,9 +122,11 @@ export function getIntersectionPos(xScreen: number, yScreen: number) {
     }
     if (closest)
         return closest;
-    rc.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), end);
+    closest = rc.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), new THREE.Vector3());
+    if (!closest)
+        return undefined;
     return {
-        position: [end.x, end.y, end.z],
+        position: [closest.x, closest.y, closest.z],
         normal: [0, 1, 0],
     };
 }
