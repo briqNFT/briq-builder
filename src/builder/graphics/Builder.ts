@@ -274,6 +274,8 @@ export async function main(canvas) {
 
     orbitControls.controls = new OrbitControls(camera, canvas);
     orbitControls.controls.enableDamping = true;
+    // Bump the damping a bit from the default of 0.05 to make camera movements more precise.
+    orbitControls.controls.dampingFactor = 0.1;
     resetCamera();
 
     scene = setupScene();

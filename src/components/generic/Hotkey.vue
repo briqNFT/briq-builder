@@ -1,22 +1,25 @@
-<template/>
+<script setup lang="ts">
+import type { HotkeyManager, HotkeyData, HotkeyHandle } from '@/Hotkeys';
+import { inject, onMounted, onUnmounted, ref } from 'vue';
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-export default defineComponent({
-    data() {
-        return {
-            hk: undefined,
-        };
-    },
-    inject: ['hotkeyMgr'],
-    props: ['name', 'handler', 'data'],
-    mounted() {
-        if (this.data)
-            this.hotkeyMgr.register(this.name, this.data);
-        this.hk = this.hotkeyMgr.subscribe(this.name, this.handler);
-    },
-    unmounted() {
-        this.hotkeyMgr.unsubscribe(this.hk);
-    },
+const hotkeyMgr = inject<HotkeyManager>('hotkeyMgr')!;
+
+const hk = ref(undefined as unknown as HotkeyHandle);
+
+const props = defineProps<{
+    name: string,
+    handler: () => void,
+    data?: HotkeyData
+}>();
+
+onMounted(() => {
+    if (props.data)
+        hotkeyMgr.register(props.name, props.data);
+    hk.value = hotkeyMgr.subscribe(props.name, props.handler);
 });
+
+onUnmounted(() => {
+    hotkeyMgr.unsubscribe(hk.value);
+});
+
 </script>

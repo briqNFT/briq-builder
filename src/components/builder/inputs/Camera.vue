@@ -12,6 +12,7 @@ import { pushModal } from '@/components/Modals.vue';
 import CameraCustomPresetVue from './CameraCustomPreset.vue';
 import { usePresetHelpers } from './CameraComposable';
 import { pushMessage } from '@/Messages';
+import Hotkey from '@/components/generic/Hotkey.vue';
 
 const {
     presets,
@@ -47,7 +48,6 @@ const addPreset = () => {
     presets.value.push({
         name: `p-${hexUuid().substr(2, 6)}`,
         position: camera.position.toArray(),
-        rotation: camera.rotation.toArray(),
         target: orbitControls.controls.target.toArray(),
         fov: camera.fov,
     })
@@ -74,6 +74,22 @@ const vFocus = {
     mounted: (el: HTMLElement) => el.focus()
 }
 
+const hotkeyPreset = (preset: string) => {
+    const target = orbitControls.controls.target.toArray();
+    usePreset({
+        position: {
+            'x-pos': () => [target[0] + 10, target[1], target[2]],
+            'x-neg': () => [target[0] - 10, target[1], target[2]],
+            'z-pos': () => [target[0], target[1], target[2] + 10],
+            'z-neg': () => [target[0], target[1], target[2] - 10],
+            'y-pos': () => [target[0], target[1] + 10, target[2]],
+            'y-neg': () => [target[0], target[1] - 10, target[2]],
+        }[preset]!(),
+        target: target,
+        fov: camera.fov,
+    });
+}
+
 </script>
 
 
@@ -86,6 +102,12 @@ const vFocus = {
 
 <template>
     <div class="camera-input-panel w-full">
+        <Hotkey name="x-pos-camera" :handler="() => hotkeyPreset('x-pos')" :data="{ code: 'KeyA'  }" />
+        <Hotkey name="x-neg-camera" :handler="() => hotkeyPreset('x-neg')" :data="{ code: 'KeyD'  }" />
+        <Hotkey name="z-pos-camera" :handler="() => hotkeyPreset('z-pos')" :data="{ code: 'KeyW'  }" />
+        <Hotkey name="z-neg-camera" :handler="() => hotkeyPreset('z-neg')" :data="{ code: 'KeyS'  }" />
+        <Hotkey name="y-pos-camera" :handler="() => hotkeyPreset('y-pos')" :data="{ code: 'KeyQ'  }" />
+        <Hotkey name="y-neg-camera" :handler="() => hotkeyPreset('y-neg')" :data="{ code: 'KeyE'  }" />
         <div class="flex flex-col items-stretch gap-1 w-full">
             <div class="flex flex-col gap-1 w-full">
                 <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length" class="leading-4">

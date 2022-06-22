@@ -1,5 +1,5 @@
 type MetaKeyData = { onDown?: boolean; ctrl?: boolean; shift?: boolean; alt?: boolean };
-type HotkeyData = ({ key: string } & MetaKeyData) | ({ code: string } & MetaKeyData);
+export type HotkeyData = ({ key: string } & MetaKeyData) | ({ code: string } & MetaKeyData);
 type StoredHotkeyData = HotkeyData & { unified: string };
 
 // Values chosen to match onDown when booleaned
