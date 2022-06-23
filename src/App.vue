@@ -52,19 +52,33 @@ body {
     @apply text-text font-sans font-normal leading-tight;
 }
 
+
+html h1 {
+    @apply text-max font-medium;
+}
+
+html h2 {
+    @apply text-xl font-medium;
+}
+
+html h3 {
+    @apply text-lg font-medium;
+}
+
+
 html:not(.v2design) body {
     @apply font-light;
 }
 
-h1 {
+html:not(.v2design) h1 {
     @apply text-max font-medium;
 }
 
-h2 {
+html:not(.v2design) h2 {
     @apply text-4xl font-medium;
 }
 
-h3 {
+html:not(.v2design) h3 {
     @apply text-xl font-normal;
 }
 

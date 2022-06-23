@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useGenesisStore } from '@/builder/GenesisStore';
-import { ref } from 'vue';
-import BoxCardVue from './BoxCard.vue';
+import BoxCardVue, { CARD_MODES } from './BoxCard.vue';
 
 const genesisStore = useGenesisStore();
 
 const props = withDefaults(defineProps<{
-    boxes?: string[]
+    boxes: string[],
+    mode: CARD_MODES,
 }>(), {
     boxes: () => [],
+    mode: 'AUTO',
 });
 
 </script>
@@ -19,7 +20,7 @@ const props = withDefaults(defineProps<{
             v-for="token_id in props.boxes" :key="token_id"
             :is="genesisStore.metadata[token_id]._status === 'ERROR' ? 'div' : 'router-link'"
             :to="{ name: 'Box', 'params': { 'theme': token_id.split('/')[0], 'box': token_id.split('/')[1] } }">
-            <BoxCardVue mode="PRESALE" :token-name="token_id"/>
+            <BoxCardVue :mode="mode" :token-name="token_id"/>
         </component>
     </div>
 </template>

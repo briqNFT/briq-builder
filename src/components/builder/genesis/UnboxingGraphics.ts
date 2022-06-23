@@ -223,7 +223,8 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
 
     console.log(meshes);
 
-    const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv'];
+    // Torus_1 is the dog pouf
+    const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv', 'gamecube_controller', 'Torus_1'];
     for(const mesh_ of meshes) {
         mesh_.traverse(mesh => {
             if (casters.indexOf(mesh.name) !== -1)
@@ -234,6 +235,9 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
         // Special case: the lamp mast mustn't cast shadows or things look crap.
         if (mesh_.name === 'lamp')
             mesh_.children[1].castShadow = false;
+        // The christmas tree has a particularly bad edge tha tmakes shadows look weird unless rotated.
+        if (mesh_.name === 'christmas_tree')
+            mesh_.rotateY(-Math.PI * 0.13);
         processMaterials(mesh_);
         obj.add(mesh_);
     }
@@ -280,6 +284,22 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
         lightSupport.castShadow = true;
         scene.add(lightSupport);
     }
+
+    /* Add a small light for the TV. */
+    /* Off for now, not sure it adds much.
+    if (quality === 'HIGH') {
+        const lightSupport = new THREE.SpotLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.3, 3.0, Math.PI/3, 0.3, 2.0);
+        lightSupport.position.set(1.5, 0.8, -1.2);
+        lightSupport.castShadow = false;
+        const tvTarget = new THREE.Object3D();
+        tvTarget.position.set(0.5, 1.0, 1.0);
+        scene.add(tvTarget);
+        lightSupport.target = tvTarget;
+        scene.add(lightSupport);
+        const helper = new THREE.SpotLightHelper(lightSupport, 0xff0000);
+        scene.add(helper);
+    }
+    */
 
     const chimneyLight = new THREE.PointLight(new THREE.Color('#ffaa00').convertSRGBToLinear(), 1.0, 5.0);
     chimneyLight.position.set(2.6, 0.4, 0.5);
@@ -363,6 +383,12 @@ export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.A
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
     (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;
 
+    (box.children[1].children[0].material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0xffffff);
+    (box.children[1].children[1].material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0xffffff);
+    (box.children[1].children[0].material as THREE.MeshStandardMaterial).emissiveMap = defaultTexture;
+    (box.children[1].children[1].material as THREE.MeshStandardMaterial).emissiveMap = defaultTexture;
+    (box.children[1].children[0].material as THREE.MeshStandardMaterial).needsUpdate = true;
+    (box.children[1].children[1].material as THREE.MeshStandardMaterial).needsUpdate = true;
 
     // Collision detection: for perf reasons we compute against a box.
     // TODO: do this much better.

@@ -2,15 +2,25 @@
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { computed } from 'vue';
 
+export type CARD_MODES = 'AUTO' | 'PRESALE' | 'SALE';
+
 const props = defineProps<{
     tokenName: string,
-    mode: 'PRESALE' | 'SALE',
+    mode: CARD_MODES,
 }>();
 
 const genesisStore = useGenesisStore();
 
 const itemQuery = computed(() => genesisStore.metadata[props.tokenName]);
 const item = computed(() => itemQuery.value._data);
+
+const saledata = computed(() => genesisStore.saledata[props.tokenName]._data);
+
+const actualMode = computed(() => {
+    if (props.mode !== 'AUTO')
+        return props.mode;
+    return 'SALE';
+})
 </script>
 
 
@@ -37,8 +47,9 @@ const item = computed(() => itemQuery.value._data);
                     <img class="min-h-0 min-w-0 max-h-[10rem]" :src="genesisStore.coverItemRoute(tokenName)">
                 </p>
                 <h3 class="font-medium text-md">{{ item.name }} </h3>
-                <p class="text-sm font-light text-darkest">UNIQUE</p>
-                <template v-if="mode === 'PRESALE'">
+                <p v-if="saledata.total_quantity === 1" class="text-sm font-light text-darkest">UNIQUE</p>
+                <p v-else class="text-sm font-light text-darkest">{{ saledata.quantity_left }} / {{ saledata.total_quantity }}</p>
+                <template v-if="actualMode === 'SALE'">
                     <hr>
                     <p class="flex justify-between"><span>Last Bid</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>
                     <p class="flex justify-between"><span>Sales End</span><span>4 days left</span></p>

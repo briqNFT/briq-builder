@@ -40,11 +40,19 @@ const getBoxAt = (event: PointerEvent) => {
     const rc = new THREE.Raycaster();
     const cv = canvas.value as unknown as HTMLCanvasElement;
     rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, camera);
-    for(const box of boxes)
-        if (rc.ray.intersectsBox(box.userData.bb))
-            return box;
+    let closest = new THREE.Vector3();
+    let bestDistance = undefined;
+    let closestBox = undefined;
+    for (const box of boxes)
+        if (rc.ray.intersectBox(box.userData.bb, closest)) {
+            let distance = rc.ray.origin.distanceToSquared(closest);
+            if (bestDistance === undefined || distance < bestDistance) {
+                bestDistance = distance;
+                closestBox = box;
+            }
+        }
 
-    return undefined;
+    return closestBox;
 }
 
 
@@ -123,8 +131,15 @@ const loadingState = new class implements FsmState {
         await sceneReady;
         await userData;
         const pos = [
-            [0.5, 0.07, 1.4],
-            [1.2, 0.07, 1.2],
+            [0.4, 0.07, 1.8],
+            [1.3, 0.07, 1.0],
+            [0.7, 0.07, 1.2],
+            [0.45, 0.245, 1.83],
+            [1.33, 0.245, 0.98],
+            [0.74, 0.245, 1.18],
+            [0.4, 0.42, 1.8],
+            [1.3, 0.42, 1.0],
+            [0.7, 0.42, 1.2],
         ]
         const boxesData = genesisUserStore.availableBoxes.map((token_id, i) => ({
             uid: hexUuid(),
@@ -435,7 +450,7 @@ onMounted(async () => {
 
 watchEffect(() => {
     for (const box of boxes)
-        box.children[1].children[0].material.color = new THREE.Color(!hoveredObject.value || hoveredObject.value?.uuid === box.uuid ? '#ffffff' : '#aaaaaa');
+        (box.children[1].children[0].material as THREE.MeshStandardMaterial).emissiveIntensity = hoveredObject.value?.uuid === box.uuid ? 0.1 : 0.0;
 
 })
 
