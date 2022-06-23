@@ -2,8 +2,8 @@
     <div v-if="canMint && signer" class="absolute inset-x-0 bottom-0 container w-1/2 m-auto py-2 alternate-buttons">
         <h2 class="text-center font-display">
             <button @click="claim" class="btn">
-                <span class="inline-block">Claim your 1000 briqs</span>
-                <span class="inline-block"> and start building</span>
+                <span class="inline-block whitespace-pre"> Claim your 1000 briqs </span>
+                <span class="inline-block">and start building</span>
             </button>
         </h2>
     </div>
