@@ -119,6 +119,7 @@ export class InspectInput extends MouseInputState {
     otherMesh!: THREE.Object3D;
 
     copyHotkey!: HotkeyHandle;
+    newHotkey!: HotkeyHandle;
 
     meshWatcher!: WatchStopHandle;
 
@@ -175,6 +176,11 @@ export class InspectInput extends MouseInputState {
         this.copyHotkey = this.fsm.hotkeyMgr.subscribe('copy', () =>
             this._canCopyPaste() ? this.fsm.switchTo('copy_paste') : null,
         );
+
+        this.fsm.hotkeyMgr.register('new', { code: 'KeyN', ctrl: true, onDown: true });
+        this.newHotkey = this.fsm.hotkeyMgr.subscribe('new', () =>
+            this.createNewSetWithSelection(),
+        );
     }
 
     override onExit() {
@@ -185,6 +191,7 @@ export class InspectInput extends MouseInputState {
         overlayObjects.remove(this.mesh);
         overlayObjects.remove(this.otherMesh);
         this.fsm.hotkeyMgr.unsubscribe(this.copyHotkey);
+        this.fsm.hotkeyMgr.unsubscribe(this.newHotkey);
     }
 
     override async onFrame() {
@@ -268,7 +275,13 @@ export class InspectInput extends MouseInputState {
             this.fsm.store.selectionMgr.clear();
         else
             this.fsm.store.selectionMgr.add(...pos);
+    }
 
+    createNewSetWithSelection() {
+        const newSet = setsManager.createLocalSet();
+        for (const briq of this.fsm.store.selectionMgr.selectedBriqs)
+            newSet.placeBriq(...briq.position, briq);
+        store.dispatch('builderData/select_set', newSet.id);
     }
 }
 
