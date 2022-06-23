@@ -145,7 +145,7 @@ onMounted(async () => {
         </div>
     </div>
     <div class="container mx-auto mb-20 px-20">
-        <routerLink :to="{ name: 'Theme', params: { theme: 'test' } }">
+        <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
             <div class="bg-black text-white rounded-lg flex flex-col gap-20 py-20 items-center justify-between">
                 <h1>Starknet City</h1>
                 <p>Discover the briq genesis sale <i class="fa-solid fa-arrow-right"/></p>

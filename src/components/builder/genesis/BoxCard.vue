@@ -21,6 +21,8 @@ const actualMode = computed(() => {
         return props.mode;
     return 'SALE';
 })
+
+const durationLeft = computed(() => saledata.value.sale_start + saledata.value.sale_duration - Date.now() / 1000);
 </script>
 
 
@@ -47,12 +49,21 @@ const actualMode = computed(() => {
                     <img class="min-h-0 min-w-0 max-h-[10rem]" :src="genesisStore.coverItemRoute(tokenName)">
                 </p>
                 <h3 class="font-medium text-md">{{ item.name }} </h3>
-                <p v-if="saledata.total_quantity === 1" class="text-sm font-light text-darkest">UNIQUE</p>
-                <p v-else class="text-sm font-light text-darkest">{{ saledata.quantity_left }} / {{ saledata.total_quantity }}</p>
+                <div class="flex justify-between">
+                    <p v-if="saledata.total_quantity === 1" class="text-sm font-light text-darkest">UNIQUE</p>
+                    <p v-else class="text-sm font-light text-darkest">{{ saledata.quantity_left }} / {{ saledata.total_quantity }}</p>
+                    <p v-if="actualMode === 'PRESALE'" class="text-right">{{ Math.floor(saledata.sale_duration) / 3600 }}h</p>
+                </div>
                 <template v-if="actualMode === 'SALE'">
                     <hr>
                     <p class="flex justify-between"><span>Last Bid</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>
-                    <p class="flex justify-between"><span>Sales End</span><span>4 days left</span></p>
+                    <p class="flex justify-between">
+                        <span>Sales End</span>
+                        <span v-if="durationLeft > 24*60*60">{{ Math.floor(durationLeft/24/60/60) }} day(s) left</span>
+                        <span v-else-if="durationLeft > 60*60">{{ Math.floor(durationLeft/60/60) }} hour(s) left</span>
+                        <span v-else-if="durationLeft > 60">{{ Math.floor(durationLeft/60) }} minute(s) left</span>
+                        <span v-else>{{ Math.floor(durationLeft) }} seconds left</span>
+                    </p>
                 </template>
             </template>
             <template v-else-if="itemQuery._status === 'ERROR'">
