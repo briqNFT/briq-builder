@@ -63,7 +63,7 @@ export const genesisUserStore = perUserProxyFactory(GenesisUserStore);
 
 // TODO: I am reinventing graphQL only slower I think.
 
-class Fetchable<T> {
+export class Fetchable<T> {
     _data = undefined as undefined | T;
     _fetch = undefined as undefined | Promise<T>;
     _error = undefined as any;
@@ -98,13 +98,29 @@ const autoFetchable = <T>(wraps: { [prop: string]: Fetchable<T> }, t: (prop: str
 }
 
 
+export class SaleData {
+    constructor(saledata: any) {
+        for (const key in saledata)
+            this[key] = saledata[key];
+    }
+
+    durationLeft() {
+        return this.sale_start + this.sale_duration - Date.now() / 1000;
+    }
+
+    isLive() {
+        return this.sale_start < Date.now() / 1000.0 && this.durationLeft() > 0;
+    }
+}
+
+
 let initialCall = () => {
     const useStore = defineStore('genesis_data', {
         state: () => {
             return {
                 network: { dev: 'mock', test: 'starknet-testnet', prod: 'starknet' }[APP_ENV],
                 _metadata: {} as { [box_uid: string]: Fetchable<Record<string, any>> },
-                _saledata: {} as { [box_uid: string]: Fetchable<Record<string, any>> },
+                _saledata: {} as { [box_uid: string]: Fetchable<SaleData> },
                 _boxes: {} as { [theme_uid: string]: Fetchable<string[]> },
                 _themedata: {} as { [theme_uid: string]: Fetchable<Record<string, any>> },
             }
@@ -120,7 +136,7 @@ let initialCall = () => {
                 return autoFetchable(state._boxes as any, (theme_id) => backendManager.fetch(`v1/${state.network}/${theme_id}/boxes`));
             },
             saledata(state) {
-                return autoFetchable(state._saledata as any, (prop) => backendManager.fetch(`v1/${state.network}/${prop}/saledata`));
+                return autoFetchable(state._saledata as any, async (prop) => new SaleData(await backendManager.fetch(`v1/${state.network}/${prop}/saledata`)));
             },
             coverItemRoute() {
                 return (token_id: string) => computed(() => {

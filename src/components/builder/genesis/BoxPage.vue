@@ -6,8 +6,7 @@ import Footer from '@/components/landing_page/Footer.vue';
 import BoxListing from './BoxListing.vue';
 import ModalsVue, { pushModal } from '@/components/Modals.vue';
 import BidModalVue from './BidModal.vue';
-import { useGenesisStore } from '@/builder/GenesisStore';
-
+import { useBoxData } from './BoxData';
 const route = useRoute();
 const router = useRouter();
 
@@ -15,13 +14,19 @@ const placeBid = () => {
     pushModal(BidModalVue);
 }
 
-const genesisStore = useGenesisStore();
-
 const token_id = computed(() => `${route.params.theme}/${route.params.box}`);
-const itemData = computed(() => genesisStore.metadata[token_id.value]);
+
+const {
+    genesisStore,
+    itemQuery,
+    item,
+    saledata,
+    getActualMode,
+    durationLeft,
+} = useBoxData(token_id.value);
 
 const themeName = computed(() => route.params.theme);
-const boxName = computed(() => itemData.value._data?.name ?? route.params.box);
+const boxName = computed(() => item.value._data?.name ?? route.params.box);
 
 </script>
 
@@ -78,13 +83,13 @@ p {
                 <div class="grid grid-cols-[8fr_4fr] gap-6">
                     <div class="flex flex-col gap-6">
                         <div class="flex justify-center items-center min-h-[34rem] bg-base rounded-lg border-darker border">
-                            <img v-if="itemData._status !== 'ERROR'" :src="genesisStore.coverItemRoute(token_id)">
+                            <img v-if="itemQuery._status !== 'ERROR'" :src="genesisStore.coverItemRoute(token_id)">
                             <div v-else><p>Error while loading box data</p></div>
                         </div>
                         <div>
                             <h2>Description</h2>
                             <p class="my-4">
-                                {{ itemData._data?.description ?? 'Loading' }}
+                                {{ item?.description ?? 'Loading' }}
                                 Association of briqs are named sets.<br><br>
                                 Sets can be disassembled to get the briqs back and create something new.<br><br>
                                 They can be combined to create even more complex structures.
@@ -99,7 +104,7 @@ p {
                                 </div>
                                 <div class="attribute">
                                     <h3>Pieces</h3>
-                                    <p>{{ itemData?._data?.briqs?.length }}</p>
+                                    <p>{{ item?.briqs?.length }}</p>
                                 </div>
                                 <div class="attribute">
                                     <h3>Theme</h3>
@@ -118,30 +123,81 @@ p {
                     </div>
                     <div class="flex flex-col gap-6">
                         <h1 class="text-lg font-semibold">{{ boxName }}</h1>
-                        <div>
-                            <h2>Sale ends on</h2>
-                            <p class="my-4">July 1, 2022 at 11:32 AM GMT+1</p>
-                            <div class="grid grid-cols-4 auction-countdown">
-                                <div
-                                    v-for="i in [['Days', 2], ['Hours', 1], ['Minutes', 24], ['Seconds', 43]]" :key="i[0]"
-                                    class="inline-flex flex-col justify-around items-center">
-                                    <p class="text-xl font-medium">{{ ('' + i[1]).padStart(2, '0') }}</p>
-                                    <p class="text-copy font-medium">{{ i[0] }}</p>
+                        <template v-if="saledata?.isLive() && saledata.total_quantity === 1">
+                            <div>
+                                <h2>Sale ends on</h2>
+                                <p class="my-4">July 1, 2022 at 11:32 AM GMT+1</p>
+                                <div class="grid grid-cols-4 auction-countdown">
+                                    <div
+                                        v-for="i in [['Days', 2], ['Hours', 1], ['Minutes', 24], ['Seconds', 43]]" :key="i[0]"
+                                        class="inline-flex flex-col justify-around items-center">
+                                        <p class="text-xl font-medium">{{ ('' + i[1]).padStart(2, '0') }}</p>
+                                        <p class="text-copy font-medium">{{ i[0] }}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div>
-                            <h2>Winning Bid</h2>
-                            <p class="text-xl font-medium my-4"><i class="fa-brands fa-ethereum"/> 1.35</p>
-                            <Btn class="text-white" :disabled="itemData._status === 'ERROR'" @click="placeBid">Place a bid</Btn>
-                        </div>
-                        <h2>Previous bids</h2>
-                        <div class="flex flex-col gap-2 pt-2">
-                            <div v-for="i in new Array(5)" class="flex justify-between">
-                                <p>0xcafe0123babe</p>
-                                <p>1.35 eth <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
+                            <div>
+                                <h2>Winning Bid</h2>
+                                <p class="text-xl font-medium my-4"><i class="fa-brands fa-ethereum"/> 1.35</p>
+                                <Btn class="text-white" :disabled="itemQuery._status === 'ERROR'" @click="placeBid">Place a bid</Btn>
                             </div>
-                        </div>
+                            <h2>Previous bids</h2>
+                            <div class="flex flex-col gap-2 pt-2">
+                                <div v-for="i in new Array(5)" class="flex justify-between">
+                                    <p>0xcafe0123babe</p>
+                                    <p>1.35 eth <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
+                                </div>
+                            </div>
+                        </template>
+                        <template v-else-if="saledata?.isLive()">
+                            <div>
+                                <h2>Availability</h2>
+                                <p>{{ saledata.quantity_left }} / {{ saledata.total_quantity }} left</p>
+                            </div>
+                            <div>
+                                <h2>Current Price</h2>
+                                <p class="text-xl font-medium">{{ saledata.price }} <i class="fa-brands fa-ethereum"/></p>
+                            </div>
+                            <div>
+                                <h2>Next price drop in</h2>
+                                <p class="text-xl font-medium">7min 30 seconds</p>
+                            </div>
+                            <div>
+                                <Btn>Buy now</Btn>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <div>
+                                <h2>Auction starts on</h2>
+                                <p class="my-4">
+                                    July 1, 2022 at 11:32 AM GMT+1
+                                </p>
+                                <div class="grid grid-cols-4 auction-countdown">
+                                    <div
+                                        v-for="i in [['Days', 2], ['Hours', 1], ['Minutes', 24], ['Seconds', 43]]" :key="i[0]"
+                                        class="inline-flex flex-col justify-around items-center">
+                                        <p class="text-xl font-medium">{{ ('' + i[1]).padStart(2, '0') }}</p>
+                                        <p class="text-copy font-medium">{{ i[0] }}</p>
+                                    </div>
+                                </div>
+                                <template v-if="saledata.total_quantity > 1">
+                                    <div>
+                                        <h2>Starting price</h2>
+                                        <p class="text-xl font-medium">1 <i class="fa-brands fa-ethereum"/></p>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        <template v-if="saledata.total_quantity > 1">
+                            <div>
+                                <h2>How a Dutch auction works</h2>
+                                <div>
+                                    <p>Price drops by 0.28 <i class="fa-brands fa-ethereum"/> until sold out.</p>
+                                    <p>Price drops every hour.</p>
+                                    <p>Sale ends 24h after the start.</p>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
                 <div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useGenesisStore } from '@/builder/GenesisStore';
-import BoxCardVue, { CARD_MODES } from './BoxCard.vue';
+import BoxCardVue from './BoxCard.vue';
+import { CARD_MODES }  from './BoxData';
 
 const genesisStore = useGenesisStore();
 

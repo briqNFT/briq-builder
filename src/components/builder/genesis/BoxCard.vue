@@ -1,28 +1,21 @@
 <script setup lang="ts">
-import { useGenesisStore } from '@/builder/GenesisStore';
-import { computed } from 'vue';
-
-export type CARD_MODES = 'AUTO' | 'PRESALE' | 'SALE';
+import { useBoxData, CARD_MODES } from './BoxData';
 
 const props = defineProps<{
     tokenName: string,
     mode: CARD_MODES,
 }>();
 
-const genesisStore = useGenesisStore();
+const {
+    genesisStore,
+    itemQuery,
+    item,
+    saledata,
+    getActualMode,
+    durationLeft,
+} = useBoxData(props.tokenName);
 
-const itemQuery = computed(() => genesisStore.metadata[props.tokenName]);
-const item = computed(() => itemQuery.value._data);
-
-const saledata = computed(() => genesisStore.saledata[props.tokenName]._data);
-
-const actualMode = computed(() => {
-    if (props.mode !== 'AUTO')
-        return props.mode;
-    return 'SALE';
-})
-
-const durationLeft = computed(() => saledata.value.sale_start + saledata.value.sale_duration - Date.now() / 1000);
+const actualMode = getActualMode(props.mode);
 </script>
 
 
