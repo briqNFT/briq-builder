@@ -136,9 +136,8 @@ const loadingState = new class implements FsmState {
             // Switch to lower quality scene.
             await setupScene('LOW');
 
-
-
-        return nextTick(() => fsm.switchTo('SAPIN'));
+        // use a timeout -> We use this to cheat and hopefully load the box textures.
+        return setTimeout(() => fsm.switchTo('SAPIN'), 100);
     }
 
     async onLeave() {
@@ -487,7 +486,7 @@ const useMockWallet = () => {
     window.useDebugProvider();
 }
 
-const quality = ref('LOW');
+const quality = ref('HIGH');
 
 watch(quality, async () => {
     setupScene(quality.value);
@@ -525,13 +524,19 @@ watch(quality, async () => {
             </TransitionGroup>
         </div>
     </div>
-    <div
-        v-if="step === 'CHECK_WALLET'" class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base bg-repeat bg-auto alternate-buttons flex-col gap-4"
-        :style="{ backgroundImage: `url(${BriqsOverlay})`, backgroundSize: '1000px auto' }">
-        <h2>briq unboxing</h2>
-        <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
-        <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet">Dev</Btn>
-    </div>
+    <Transition name="fade">
+        <div
+            v-if="step === 'CHECK_WALLET' || step === 'LOADING'"
+            class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base bg-repeat bg-auto alternate-buttons flex-col gap-4 bg-opacity-100 transition-all"
+            :style="{ backgroundImage: `url(${BriqsOverlay})`, backgroundSize: '1000px auto' }">
+            <h2>briq unboxing</h2>
+            <p v-if="step === 'LOADING'">...Loading Scene...</p>
+            <template v-else>
+                <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
+                <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet">Dev</Btn>
+            </template>
+        </div>
+    </Transition>
 </template>
 
 
@@ -549,7 +554,6 @@ watch(quality, async () => {
 #unboxing blockquote {
     @apply bg-opacity-20 bg-black rounded px-4 py-2 italic;
 }
-
 </style>
 
 <style scoped>
@@ -566,4 +570,15 @@ watch(quality, async () => {
 .xfade-enter-active,
 .xfade-leave-active {
   transition: clip-path 1.5s ease;
-}</style>
+}
+
+.fade-leave-from {
+    opacity: 100%;
+}
+.fade-leave-to {
+    opacity: 0%;
+}
+.fade-leave-active {
+  transition: all 0.5s ease !important;
+}
+</style>
