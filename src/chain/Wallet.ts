@@ -29,7 +29,7 @@ export class WalletStore {
         const storedAddress = window.localStorage.getItem('user_address');
         logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
 
-        if (APP_ENV === 'dev')
+        if (APP_ENV !== 'prod')
             setupMockWallet();
         else {
             const cwo = await connect({ showList: false });
