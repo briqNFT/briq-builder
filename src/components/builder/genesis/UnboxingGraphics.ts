@@ -545,17 +545,23 @@ const fireSource = function() {
     return obj;
 }
 
+let lightTime = 0.0;
 export function graphicsFrame(delta: number) {
     fireMaterial.uniforms['time'].value += delta;
+    lightTime += delta * 12.0;
+    const intensity = (Math.sin(2 * lightTime) + Math.sin(Math.PI * lightTime)) / 4.0 + 0.5;
+    const xF = (Math.sin(2 * lightTime * 1.2 + 0.24) + Math.sin(Math.PI * lightTime * 0.8 + 5.2)) / 4.0 + 0.5;
+    const yF = (Math.sin(2 * lightTime * 1.1 + 2.24) + Math.sin(Math.PI * lightTime * 0.96 + 3.2)) / 4.0 + 0.5;
+    const zF = (Math.sin(2 * lightTime * 0.8 + 5.24) + Math.sin(Math.PI * lightTime * 1.1 + 1.2)) / 4.0 + 0.5;
 
-    const intensity = Math.random() > 0.8 ? 0.2 : 0.01;
+    const randomDisturb = Math.random() - 0.5;
 
     chimneyLight.position.set(
-        2.5 + (Math.random() * intensity - intensity/2) * 0.0,
-        0.5 + (Math.random() * intensity - intensity/2) * 0.1,
-        0.6 + (Math.random() * intensity - intensity/2) * 0.1,
+        2.5 + (xF) * 0.01 * (1 + randomDisturb * 0.02),
+        0.5 + (yF) * 0.02 * (1 + randomDisturb * 0.02),
+        0.6 + (zF) * 0.02 * (1 + randomDisturb * 0.02),
     );
-    chimneyLight.intensity = Math.random() * 0.3 + 0.85;
+    chimneyLight.intensity = (intensity + randomDisturb * 0.05) * 0.25 + 0.85;
 }
 
 export function getBoxAt(event: PointerEvent) {
