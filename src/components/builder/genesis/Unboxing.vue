@@ -501,16 +501,18 @@ watch(quality, async () => {
         ref="canvas"
         @click="(event) => fsm.state?.onClick?.(event)"
         @pointermove="(event) => fsm.state?.onPointerMove?.(event)"/>
-    <div class="absolute bottom-0 left-0 text-base">
-        <FireplaceAudio/>
-    </div>
-    <div class="absolute bottom-[1rem] left-0 text-base">
-        <select v-model="quality">
-            <option value="LOW">Low</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HIGH">High</option>
-        </select>
-    </div>
+    <template v-if="step !== 'CHECK_WALLET' && step !== 'LOADING'">
+        <div class="absolute bottom-0 left-0 text-base">
+            <FireplaceAudio/>
+        </div>
+        <div class="absolute bottom-[1rem] left-0 text-base">
+            <select v-model="quality">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+        </div>
+    </template>
     <div
         id="unboxing"
         class="absolute top-0 right-0 xl:w-[30%] w-[400px] bg-black bg-opacity-40 h-screen overflow-auto snap-y transition-all scroll-smooth"
