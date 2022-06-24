@@ -100,7 +100,7 @@ export class WalletStore {
             setNetwork('starknet-mainnet');
         else if (this.signer.gatewayUrl.indexOf('alpha4.starknet') !== -1)
             setNetwork('starknet-testnet');
-        else if (this.signer.gatewayUrl.indexOf('localhost:5050') !== -1)
+        else if (this.signer.gatewayUrl.indexOf('mock_chain') !== -1)
             setNetwork('mock');
         else
             setNetwork('localhost');
