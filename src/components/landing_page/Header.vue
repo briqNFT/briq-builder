@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { genesisUserStore } from '@/builder/GenesisStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
+import { computed, watchEffect } from 'vue';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -12,6 +14,10 @@ const connectWallet = () => {
     }
 }
 const connectDebugWallet = () => window.useDebugProvider();
+
+watchEffect(() => {
+    maybeStore.value?.userWalletAddress && genesisUserStore.fetchData && genesisUserStore.fetchData();
+});
 </script>
 
 <template>
@@ -27,11 +33,11 @@ const connectDebugWallet = () => window.useDebugProvider();
                     <routerLink to="/builder"><p>Create</p></routerLink>
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
                 </div>
-                <routerLink to="/unboxing">
+                <router-link v-if="genesisUserStore.availableBoxes?.length" to="/unboxing">
                     <div class="rounded border border-darker bg-base p-2">
-                        <i class="fa-solid fa-box-open"/> {{ 0 }}
+                        <i class="fa-solid fa-box-open"/> {{ genesisUserStore.availableBoxes?.length || 0 }}
                     </div>
-                </routerLink>
+                </router-link>
                 <div class="rounded border border-darker bg-base p-2">
                     <i class="fa-solid fa-cube"/> {{ 0 }}
                 </div>
