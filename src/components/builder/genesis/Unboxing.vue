@@ -3,12 +3,12 @@ import {
     THREE,
 } from '@/three';
 
-import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, nextTick, shallowRef } from 'vue';
+import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, shallowRef, WatchStopHandle, onUnmounted } from 'vue';
 
 import { useBuilder } from '@/builder/BuilderStore';
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, addBox, materials, graphicsFrame, getBoxAt } from './UnboxingGraphics';
+import { setupScene, useRenderer, addBox, materials, graphicsFrame, getBoxAt, resetGraphics } from './UnboxingGraphics';
 import LookAtBoxVue from './Texts/LookAtBox.vue';
 import { hexUuid } from '@/Uuid';
 import WalletsVue from './Texts/Wallets.vue';
@@ -62,6 +62,8 @@ const camInterp = ref(0);
 const selectedObject = shallowRef(undefined as THREE.Mesh | undefined);
 const hoveredObject = shallowRef(undefined as THREE.Mesh | undefined);
 
+const quality = ref('HIGH');
+
 //////////////////////////////
 //////////////////////////////
 
@@ -93,6 +95,7 @@ const loadingState = new class implements FsmState {
 
     async onEnter() {
         const userData = genesisUserStore.fetchData();
+        console.log('in On Enter');
         await sceneReady;
         await userData;
         const pos = [
@@ -126,6 +129,8 @@ const loadingState = new class implements FsmState {
                 })
             });
         });
+
+        console.log('Frames');
 
         await this.hasEnoughFrames;
         const avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
@@ -352,14 +357,57 @@ const step = computed(() => fsm.stateName);
 //////////////////////////////
 
 let initFsm: Promise<void>;
+
+let walletWatcher: WatchStopHandle;
+let boxWatcher: WatchStopHandle;
+
 onBeforeMount(() => {
     initFsm = fsm.state.onEnter();
+
+    walletWatcher = watch([toRef(walletStore, 'userWalletAddress')], () => {
+        if (walletStore.userWalletAddress)
+            fsm.switchTo('LOADING');
+        else
+            fsm.switchTo('CHECK_WALLET');
+    }, {
+        immediate: true,
+    })
+
+    boxWatcher = watchEffect(() => {
+        if (selectedObject.value)
+            for (const box of boxes) {
+                box.children[1].children[0].material.transparent = true;
+                box.children[1].children[0].material.opacity = selectedObject.value?.uuid === box.uuid ? 1.0 : 0.1;
+                box.children[1].children[1].material.transparent = true;
+                box.children[1].children[1].material.opacity = selectedObject.value?.uuid === box.uuid ? 1.0 : 0.1;
+                box.children[1].children[1].receiveShadow = selectedObject.value?.uuid !== box.uuid;
+                box.children[1].children[0].receiveShadow = selectedObject.value?.uuid !== box.uuid;
+            }
+        else
+            for (const box of boxes) {
+                box.children[1].children[0].material.transparent = false;
+                box.children[1].children[1].material.transparent = false;
+                box.children[1].children[0].material.opacity = 1.0;
+                box.children[1].children[1].material.opacity = 1.0;
+                box.children[1].children[1].receiveShadow = true;
+                box.children[1].children[0].receiveShadow = true;
+            }
+        for (const box of boxes)
+            if (hoveredObject.value?.uuid === box.uuid) {
+                box.children[1].children[0].material.emissiveIntensity = 0.1;
+                if (selectedObject.value?.uuid !== box.uuid && box.children[1].children[1].material.transparent)
+                    box.children[1].children[0].material.opacity = 0.5;
+            } else
+                box.children[1].children[0].material.emissiveIntensity = 0.0;
+    })
 });
 
 import Stats from 'stats.js';
 
 let lastTime = 0;
+let mounted = false;
 onMounted(async () => {
+    mounted = true;
     await initFsm;
     const setupData = await useRenderer(canvas.value);
     camera = setupData.camera;
@@ -379,6 +427,8 @@ onMounted(async () => {
     setSceneReady();
 
     const frame = (time: number) => {
+        if (!mounted)
+            return;
         if (!lastTime)
             lastTime = time;
         const delta = time - lastTime;
@@ -390,59 +440,31 @@ onMounted(async () => {
         setupData.render();
         requestAnimationFrame(frame);
     }
-
-    requestAnimationFrame(frame);
+    frame(0.001);
 
     /** FPS counter */
     var stats = new Stats();
     stats.showPanel(0)
     document.body.appendChild(stats.dom);
     function animate() {
+        if (!mounted)
+            return;
         stats.end();
         stats.begin();
-        requestAnimationFrame( animate );
+        requestAnimationFrame(animate);
     }
 
     stats.begin();
-    requestAnimationFrame( animate );
+    requestAnimationFrame(animate);
 });
 
-watchEffect(() => {
-    if (selectedObject.value)
-        for (const box of boxes) {
-            box.children[1].children[0].material.transparent = true;
-            box.children[1].children[0].material.opacity = selectedObject.value?.uuid === box.uuid ? 1.0 : 0.1;
-            box.children[1].children[1].material.transparent = true;
-            box.children[1].children[1].material.opacity = selectedObject.value?.uuid === box.uuid ? 1.0 : 0.1;
-            box.children[1].children[1].receiveShadow = selectedObject.value?.uuid !== box.uuid;
-            box.children[1].children[0].receiveShadow = selectedObject.value?.uuid !== box.uuid;
-        }
-    else
-        for (const box of boxes) {
-            box.children[1].children[0].material.transparent = false;
-            box.children[1].children[1].material.transparent = false;
-            box.children[1].children[0].material.opacity = 1.0;
-            box.children[1].children[1].material.opacity = 1.0;
-            box.children[1].children[1].receiveShadow = true;
-            box.children[1].children[0].receiveShadow = true;
-        }
-    for (const box of boxes)
-        if (hoveredObject.value?.uuid === box.uuid) {
-            box.children[1].children[0].material.emissiveIntensity = 0.1;
-            if (selectedObject.value?.uuid !== box.uuid && box.children[1].children[1].material.transparent)
-                box.children[1].children[0].material.opacity = 0.5;
-        } else
-            box.children[1].children[0].material.emissiveIntensity = 0.0;
+onUnmounted(() => {
+    resetGraphics();
+    walletWatcher();
+    boxWatcher();
+    mounted = false;
 })
 
-watch([toRef(walletStore, 'userWalletAddress')], () => {
-    if (walletStore.userWalletAddress)
-        fsm.switchTo('LOADING');
-    else
-        fsm.switchTo('CHECK_WALLET');
-}, {
-    immediate: true,
-})
 
 import FireplaceAudio from './FireplaceAudio.vue';
 
@@ -486,12 +508,6 @@ const useMockWallet = () => {
     window.useDebugProvider();
 }
 
-const quality = ref('HIGH');
-
-watch(quality, async () => {
-    setupScene(quality.value);
-})
-
 </script>
 
 <template>
@@ -506,7 +522,7 @@ watch(quality, async () => {
             <FireplaceAudio/>
         </div>
         <div class="absolute bottom-[1rem] left-0 text-base">
-            <select v-model="quality">
+            <select v-model="quality" @change="setupScene(quality.value)">
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>

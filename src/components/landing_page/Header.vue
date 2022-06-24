@@ -27,6 +27,14 @@ const connectDebugWallet = () => window.useDebugProvider();
                     <routerLink to="/builder"><p>Create</p></routerLink>
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
                 </div>
+                <routerLink to="/unboxing">
+                    <div class="rounded border border-darker bg-base p-2">
+                        <i class="fa-solid fa-box-open"/> {{ 0 }}
+                    </div>
+                </routerLink>
+                <div class="rounded border border-darker bg-base p-2">
+                    <i class="fa-solid fa-cube"/> {{ 0 }}
+                </div>
                 <div class="flex-none">
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>

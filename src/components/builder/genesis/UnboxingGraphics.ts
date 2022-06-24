@@ -50,6 +50,22 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     controls.enableDamping = true;
     controls.target = new THREE.Vector3(2, 0, 2);
 
+    if (!boxGlb)
+        boxGlb = await new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
+            const loader = new GLTFLoader();
+            loader.load(
+                BriqBox,
+                (gltf: any) => {
+                    resolve({
+                        anim: gltf.animations[0],
+                        box: gltf.scene.children.slice()[0],
+                    });
+                },
+                () => {},
+                (error: any) => reject(error),
+            );
+        });
+
     function resizeRendererToDisplaySize() {
         const canvas = renderer.domElement;
         const width = canvas.clientWidth;
@@ -352,20 +368,8 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
         scene.add(fire_);
     }
 
-    boxGlb = await new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
-        const loader = new GLTFLoader();
-        loader.load(
-            BriqBox,
-            (gltf: any) => {
-                resolve({
-                    anim: gltf.animations[0],
-                    box: gltf.scene.children.slice()[0],
-                });
-            },
-            () => {},
-            (error: any) => reject(error),
-        );
-    })
+    for (const box of boxes)
+        scene.add(box);
 }
 
 import DefaultBox from '@/assets/genesis/default_box.png';
@@ -582,3 +586,11 @@ export function getBoxAt(event: PointerEvent) {
     return closestBox;
 }
 
+export function resetGraphics() {
+    scene.clear();
+    renderer.dispose();
+    while (boxes.length)
+        boxes.pop();
+    //renderer = null;
+    //scene = null;
+}
