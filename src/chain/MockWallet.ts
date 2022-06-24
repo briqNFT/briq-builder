@@ -5,7 +5,7 @@ import { Account } from 'starknet';
 import { APP_ENV } from '@/Meta';
 
 export function setupMockWallet() {
-    if (APP_ENV !== 'dev')
+    if (APP_ENV === 'prod')
         return
 
     const keypair = getKeyPair(0x123456)
