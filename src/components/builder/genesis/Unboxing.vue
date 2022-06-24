@@ -8,7 +8,7 @@ import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMou
 import { useBuilder } from '@/builder/BuilderStore';
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, addBox, materials } from './UnboxingGraphics';
+import { setupScene, useRenderer, addBox, materials, graphicsFrame } from './UnboxingGraphics';
 import LookAtBoxVue from './Texts/LookAtBox.vue';
 import { hexUuid } from '@/Uuid';
 import WalletsVue from './Texts/Wallets.vue';
@@ -26,6 +26,8 @@ import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 //////////////////////////////
 
 const updateLights = (delta: number) => {
+    graphicsFrame(delta);
+
     const intensity = Math.random() > 0.8 ? 0.2 : 0.01;
 
     chimneyLight.position.set(

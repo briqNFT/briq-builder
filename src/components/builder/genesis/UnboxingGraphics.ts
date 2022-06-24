@@ -23,6 +23,8 @@ let camera: THREE.Camera;
 let renderer: THREE.WebGLRenderer;
 let composer: EffectComposer;
 
+let fireMaterial: THREE.ShaderMaterial;
+
 export async function useRenderer(canvas: HTMLCanvasElement) {
     await threeSetupComplete;
 
@@ -94,6 +96,22 @@ export async function useRenderer(canvas: HTMLCanvasElement) {
             */
 
             const aoPass = new SSAOPass(scene, camera, size.x, size.y);
+
+            // Overwrite the visibility pass so that the fire material is ignored, or SSAO writes depth.
+            aoPass.overrideVisibility = function() {
+                const scene = aoPass.scene;
+                const cache = aoPass._visibilityCache;
+                scene.traverse( function ( object ) {
+                    cache.set( object, object.visible );
+                    if (object.name === 'fire')
+                        object.visible = false;
+                    if(object.parent?.name === 'wooden_logs')
+                        object.visible = false;
+                    if (object.isPoints || object.isLine)
+                        object.visible = false;
+                });
+            }
+
             aoPass.output = SSAOPass.OUTPUT.Default;
             aoPass.kernelRadius = 0.1;
             aoPass.minDistance = 0.005;
@@ -318,6 +336,13 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     chimneyLight.castShadow = true;
     scene.add(chimneyLight);
 
+    const fire = fireSource();
+    for (let i = 0; i < 5; i++) {
+        const fire_ = fire.clone();
+        fire_.position.set(2.45 + 0.05 * i, 0.3 + i % 2 * 0.02, 0.6 + i % 2 * 0.05);
+        scene.add(fire_);
+    }
+
     const boxGlb = await new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
         const loader = new GLTFLoader();
         loader.load(
@@ -405,4 +430,115 @@ export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.A
     box.userData.bb = new THREE.Box3(min, max);
     scene.add(box);
     return box;
+}
+
+
+const fireSource = function() {
+    const vertexShader = `
+    varying vec2 vUv;
+    varying vec2 pDelta;
+    void main() {
+        vUv = uv;
+        vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * modelViewPosition;
+        pDelta.xy = ((modelMatrix * vec4(position, 1.0)).xz - vec2(2.45, 0.6) - position.xz) * 11.0;
+    }
+    `;
+
+    const fragmentShader = `
+    // Simplex 2D noise
+    //
+    vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+    
+    float snoise(vec2 v) {
+        const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                -0.577350269189626, 0.024390243902439);
+        vec2 i  = floor(v + dot(v, C.yy) );
+        vec2 x0 = v -   i + dot(i, C.xx);
+        vec2 i1;
+        i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+        vec4 x12 = x0.xyxy + C.xxzz;
+        x12.xy -= i1;
+        i = mod(i, 289.0);
+        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+        + i.x + vec3(0.0, i1.x, 1.0 ));
+        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+        dot(x12.zw,x12.zw)), 0.0);
+        m = m*m ;
+        m = m*m ;
+        vec3 x = 2.0 * fract(p * C.www) - 1.0;
+        vec3 h = abs(x) - 0.5;
+        vec3 ox = floor(x + 0.5);
+        vec3 a0 = x - ox;
+        m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+        vec3 g;
+        g.x  = a0.x  * x0.x  + h.x  * x0.y;
+        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+        return 130.0 * dot(m, g);
+    }
+    varying vec2 vUv;
+    uniform float time;
+    varying vec2 pDelta;
+    vec4[12] colors = vec4[12](
+        vec4(0.0, 0.0, 0.0, 0.0),
+        vec4(15.0, 0.0, 0.0, 20.0) / 255.0,
+        vec4(55.0, 0.0, 0.0, 50.0) / 255.0,
+        vec4(102.0, 1.0, 0.0, 100.0) / 255.0,
+        vec4(161.0, 1.0, 0.0, 130.0) / 255.0,
+        vec4(197.0, 20.0, 4.0, 200.0) / 255.0,
+        vec4(233.0, 48.0, 5.0, 255.0) / 255.0,
+        vec4(249.0, 82.0, 9.0, 255.0) / 255.0,
+        vec4(255.0, 147.0, 22.0, 255.0) / 255.0,
+        vec4(255.0, 218.0, 60.0, 255.0) / 255.0,
+        vec4(266.0, 247.0, 83.0, 255.0) / 255.0,
+        vec4(157.0, 231.0, 255.0, 255.0) / 255.0
+    );
+    void main() {
+        vec2 coords = vec2(vUv.x + snoise(vec2(vUv.x, time) + pDelta)/10.0, vUv.y + snoise(vec2(vUv.y, time + 0.2) + pDelta)/10.0);
+        float noiseA = snoise(coords * 2.0 + pDelta + vec2(time/3.0, -time*2.5));
+        float noiseB = snoise(coords * 3.0 + pDelta + vec2(-time/2.0, -time * 3.9));
+
+        vec3 red = vec3(219.0, 45.0, 33.0)/255.0;
+        vec3 yellow = vec3(250.0, 197.0, 25.0)/255.0;
+        vec3 white = vec3(224.0, 255.0, 253.0)/255.0;
+
+        float distanceX = (1.0 - 2.0 * abs(vUv.x - 0.5));
+        float distanceY = (1.0 - vUv.y);// * (1.0 - vUv.y);
+    
+        float idxD = (noiseB + 1.0) * distanceX * distanceY * 11.999;
+        int idx0 = int(floor(idxD));
+        int idx1 = idx0 + 1;
+        vec4 col = mix(colors[idx0], colors[idx1], idxD - float(idx0));
+
+        idxD = (noiseA + 1.0) * distanceX * distanceY * 11.999;
+        idx0 = int(floor(idxD));
+        idx1 = idx0 + 1;
+        vec4 col2 = mix(colors[idx0], colors[idx1], idxD - float(idx0));
+
+        gl_FragColor = vec4((col + col2) * 1.0);
+    }
+    `;
+    fireMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            time: { value: 0 },
+        },
+        vertexShader,
+        fragmentShader,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+    });
+
+    const geom = new THREE.PlaneGeometry(0.5, 0.5, 1, 1);
+    geom.rotateY(-Math.PI/2);
+    const obj = new THREE.Mesh(geom);
+    obj.castShadow = false;
+    obj.receiveShadow = false;
+    obj.material = fireMaterial;
+    obj.name = 'fire';
+    return obj;
+}
+
+export function graphicsFrame(delta: number) {
+    fireMaterial.uniforms['time'].value += delta;
 }
