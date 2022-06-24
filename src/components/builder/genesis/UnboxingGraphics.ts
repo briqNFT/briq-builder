@@ -24,9 +24,18 @@ let renderer: THREE.WebGLRenderer;
 let composer: EffectComposer;
 
 let fireMaterial: THREE.ShaderMaterial;
+let chimneyLight: THREE.PointLight;
 
-export async function useRenderer(canvas: HTMLCanvasElement) {
+let boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D };
+
+let canvas: HTMLCanvasElement;
+
+const boxes = [] as THREE.Mesh[];
+
+export async function useRenderer(_canvas: HTMLCanvasElement) {
     await threeSetupComplete;
+
+    canvas = _canvas;
 
     scene = new THREE.Scene();
 
@@ -267,7 +276,7 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF').convertSRGBToLinear(), 0.01))
     let light: THREE.Light;
     if (true) {
-        light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.6, 10.0);
+        light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.7, 10.0);
         light.position.set(0.58, 1.02, 2.47);
         light.shadow.radius = 12;
         light.shadow.mapSize = new THREE.Vector2(512, 512);
@@ -319,7 +328,7 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     }
     */
 
-    const chimneyLight = new THREE.PointLight(new THREE.Color('#ffaa00').convertSRGBToLinear(), 1.0, 5.0);
+    chimneyLight = new THREE.PointLight(new THREE.Color('#ffaa22').convertSRGBToLinear(), 1.2, 5.0);
     chimneyLight.position.set(2.6, 0.4, 0.5);
     chimneyLight.shadow.blurSamples = 30;
     chimneyLight.shadow.bias = -0.001;
@@ -343,7 +352,7 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
         scene.add(fire_);
     }
 
-    const boxGlb = await new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
+    boxGlb = await new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
         const loader = new GLTFLoader();
         loader.load(
             BriqBox,
@@ -357,16 +366,12 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
             (error: any) => reject(error),
         );
     })
-    return {
-        chimneyLight,
-        boxGlb,
-    }
 }
 
 import DefaultBox from '@/assets/genesis/default_box.png';
 export const materials = {} as { [box_name: string]: THREE.Material[] };
 
-export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D }) {
+export function addBox(boxData: any, scene: THREE.Scene) {
     const box = SkeletonUtils.clone(boxGlb.box);
 
     const mixer = new THREE.AnimationMixer(box);
@@ -423,12 +428,13 @@ export function addBox(boxData: any, scene: THREE.Scene, boxGlb: { anim: THREE.A
     // Reset the AABB because it fails to work properly for skinned meshes.
     //box.children[1].children[0].geometry.boundingBox = null;
 
-    const min = new THREE.Vector3(0.05, -0.1, -0.26)
+    const min = new THREE.Vector3(0.05, -0.07, -0.26)
     const max = new THREE.Vector3(0.55, 0.09, 0.25)
     min.add(box.position);
     max.add(box.position);
     box.userData.bb = new THREE.Box3(min, max);
     scene.add(box);
+    boxes.push(box);
     return box;
 }
 
@@ -541,4 +547,32 @@ const fireSource = function() {
 
 export function graphicsFrame(delta: number) {
     fireMaterial.uniforms['time'].value += delta;
+
+    const intensity = Math.random() > 0.8 ? 0.2 : 0.01;
+
+    chimneyLight.position.set(
+        2.5 + (Math.random() * intensity - intensity/2) * 0.0,
+        0.5 + (Math.random() * intensity - intensity/2) * 0.1,
+        0.6 + (Math.random() * intensity - intensity/2) * 0.1,
+    );
+    chimneyLight.intensity = Math.random() * 0.3 + 0.85;
 }
+
+export function getBoxAt(event: PointerEvent) {
+    const rc = new THREE.Raycaster();
+    const cv = canvas;
+    rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, camera);
+    const closest = new THREE.Vector3();
+    let bestDistance = undefined;
+    let closestBox = undefined;
+    for (const box of boxes)
+        if (rc.ray.intersectBox(box.userData.bb, closest)) {
+            const distance = rc.ray.origin.distanceToSquared(closest);
+            if (bestDistance === undefined || distance < bestDistance) {
+                bestDistance = distance;
+                closestBox = box;
+            }
+        }
+    return closestBox;
+}
+

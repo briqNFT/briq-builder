@@ -3,12 +3,12 @@ import {
     THREE,
 } from '@/three';
 
-import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, nextTick } from 'vue';
+import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, nextTick, shallowRef } from 'vue';
 
 import { useBuilder } from '@/builder/BuilderStore';
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, addBox, materials, graphicsFrame } from './UnboxingGraphics';
+import { setupScene, useRenderer, addBox, materials, graphicsFrame, getBoxAt } from './UnboxingGraphics';
 import LookAtBoxVue from './Texts/LookAtBox.vue';
 import { hexUuid } from '@/Uuid';
 import WalletsVue from './Texts/Wallets.vue';
@@ -21,41 +21,6 @@ import { genesisUserStore, useGenesisStore } from '@/builder/GenesisStore';
 import contractStore from '@/chain/Contracts';
 
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
-
-//////////////////////////////
-//////////////////////////////
-
-const updateLights = (delta: number) => {
-    graphicsFrame(delta);
-
-    const intensity = Math.random() > 0.8 ? 0.2 : 0.01;
-
-    chimneyLight.position.set(
-        2.5 + (Math.random() * intensity - intensity/2) * 0.0,
-        0.5 + (Math.random() * intensity - intensity/2) * 0.1,
-        0.6 + (Math.random() * intensity - intensity/2) * 0.1,
-    );
-    chimneyLight.intensity = Math.random() * 0.3 + 0.85;
-}
-
-const getBoxAt = (event: PointerEvent) => {
-    const rc = new THREE.Raycaster();
-    const cv = canvas.value as unknown as HTMLCanvasElement;
-    rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, camera);
-    let closest = new THREE.Vector3();
-    let bestDistance = undefined;
-    let closestBox = undefined;
-    for (const box of boxes)
-        if (rc.ray.intersectBox(box.userData.bb, closest)) {
-            let distance = rc.ray.origin.distanceToSquared(closest);
-            if (bestDistance === undefined || distance < bestDistance) {
-                bestDistance = distance;
-                closestBox = box;
-            }
-        }
-
-    return closestBox;
-}
 
 
 //////////////////////////////
@@ -80,8 +45,6 @@ const canvas = ref(null as unknown as HTMLCanvasElement);
 
 let camera: THREE.PerspectiveCamera;
 let scene: THREE.Scene;
-let chimneyLight: THREE.PointLight;
-let boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D };
 
 const boxes = reactive([]);
 
@@ -96,8 +59,8 @@ const currentCamRot = ref(null as unknown as THREE.Quaternion);
 const currentCamPos = ref(null as unknown as THREE.Vector3);
 const camInterp = ref(0);
 
-const selectedObject = ref(undefined as THREE.Mesh | undefined);
-const hoveredObject = ref(undefined as THREE.Mesh | undefined);
+const selectedObject = shallowRef(undefined as THREE.Mesh | undefined);
+const hoveredObject = shallowRef(undefined as THREE.Mesh | undefined);
 
 //////////////////////////////
 //////////////////////////////
@@ -150,7 +113,7 @@ const loadingState = new class implements FsmState {
             position: pos[i],
         }));
         for (const box of boxesData)
-            boxes.push(addBox(box, scene, boxGlb));
+            boxes.push(addBox(box, scene));
 
         const loader = new THREE.TextureLoader();
         boxesData.forEach(data => {
@@ -169,12 +132,10 @@ const loadingState = new class implements FsmState {
         const minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
         console.log('avgFps', avgFps, 'minFps', minFps, this.fps);
 
-        if (minFps > 20 || avgFps > 25) {
+        if (minFps > 20 || avgFps > 25)
             // Switch to lower quality scene.
-            const sceneData = await setupScene('LOW');
-            chimneyLight = sceneData.chimneyLight;
-            boxGlb = sceneData.boxGlb;
-        }
+            await setupScene('LOW');
+
 
 
         return nextTick(() => fsm.switchTo('SAPIN'));
@@ -190,7 +151,6 @@ const loadingState = new class implements FsmState {
     }
 
     frame(delta: number) {
-        updateLights(delta);
         this.fps.unshift(delta * 1000);
         if (this.fps.length > 120)
             this.fps.pop();
@@ -221,7 +181,6 @@ const sapinState = new class implements FsmState {
     }
 
     frame(delta: number) {
-        updateLights(delta);
         if (camInterp.value < 1)
             camInterp.value = Math.min(1.0, camInterp.value + delta);
         this.setCam();
@@ -263,6 +222,8 @@ const checkBoxState = new class implements FsmState {
         currentCamPos.value = camera.position.clone();
         camera.getWorldQuaternion(currentCamRot.value);
         this.setCam();
+
+        hoveredObject.value = undefined;
     }
 
     async onLeave(to: string) {
@@ -279,7 +240,6 @@ const checkBoxState = new class implements FsmState {
     }
 
     frame(delta: number) {
-        updateLights(delta);
         if (camInterp.value < 1)
             camInterp.value = Math.min(1.0, camInterp.value + delta);
         this.setCam();
@@ -297,6 +257,7 @@ const checkBoxState = new class implements FsmState {
 
     onPointerMove(event: PointerEvent) {
         let box = getBoxAt(event);
+        console.log(box);
         hoveredObject.value = box;
     }
 }
@@ -319,7 +280,6 @@ const unboxingState = new class implements FsmState {
     }
 
     frame(delta: number) {
-        updateLights(delta);
     }
 
     onClick(event: PointerEvent) {
@@ -348,7 +308,6 @@ const unboxedState = new class implements FsmState {
     }
 
     frame(delta: number) {
-        updateLights(delta);
         selectedObject.value?.userData.mixer.update(delta);
     }
 
@@ -407,9 +366,7 @@ onMounted(async () => {
     camera = setupData.camera;
     scene = setupData.scene;
 
-    const sceneData = await setupScene();
-    chimneyLight = sceneData.chimneyLight;
-    boxGlb = sceneData.boxGlb;
+    await setupScene();
 
     lastCamRot.value = new THREE.Quaternion();
     lastCamPos.value = new THREE.Vector3();
@@ -427,6 +384,8 @@ onMounted(async () => {
             lastTime = time;
         const delta = time - lastTime;
         lastTime = time;
+
+        graphicsFrame(delta / 1000.0);
         if (fsm.state.frame)
             fsm.state.frame(delta / 1000.0);
         setupData.render();
@@ -435,10 +394,10 @@ onMounted(async () => {
 
     requestAnimationFrame(frame);
 
+    /** FPS counter */
     var stats = new Stats();
     stats.showPanel(0)
     document.body.appendChild(stats.dom);
-
     function animate() {
         stats.end();
         stats.begin();
@@ -447,13 +406,34 @@ onMounted(async () => {
 
     stats.begin();
     requestAnimationFrame( animate );
-
 });
 
 watchEffect(() => {
+    if (selectedObject.value)
+        for (const box of boxes) {
+            box.children[1].children[0].material.transparent = true;
+            box.children[1].children[0].material.opacity = selectedObject.value?.uuid === box.uuid ? 1.0 : 0.1;
+            box.children[1].children[1].material.transparent = true;
+            box.children[1].children[1].material.opacity = selectedObject.value?.uuid === box.uuid ? 1.0 : 0.1;
+            box.children[1].children[1].receiveShadow = selectedObject.value?.uuid !== box.uuid;
+            box.children[1].children[0].receiveShadow = selectedObject.value?.uuid !== box.uuid;
+        }
+    else
+        for (const box of boxes) {
+            box.children[1].children[0].material.transparent = false;
+            box.children[1].children[1].material.transparent = false;
+            box.children[1].children[0].material.opacity = 1.0;
+            box.children[1].children[1].material.opacity = 1.0;
+            box.children[1].children[1].receiveShadow = true;
+            box.children[1].children[0].receiveShadow = true;
+        }
     for (const box of boxes)
-        (box.children[1].children[0].material as THREE.MeshStandardMaterial).emissiveIntensity = hoveredObject.value?.uuid === box.uuid ? 0.1 : 0.0;
-
+        if (hoveredObject.value?.uuid === box.uuid) {
+            box.children[1].children[0].material.emissiveIntensity = 0.1;
+            if (selectedObject.value?.uuid !== box.uuid && box.children[1].children[1].material.transparent)
+                box.children[1].children[0].material.opacity = 0.5;
+        } else
+            box.children[1].children[0].material.emissiveIntensity = 0.0;
 })
 
 watch([toRef(walletStore, 'userWalletAddress')], () => {
@@ -510,9 +490,7 @@ const useMockWallet = () => {
 const quality = ref('LOW');
 
 watch(quality, async () => {
-    const sceneData = await setupScene(quality.value);
-    chimneyLight = sceneData.chimneyLight;
-    boxGlb = sceneData.boxGlb;
+    setupScene(quality.value);
 })
 
 </script>
