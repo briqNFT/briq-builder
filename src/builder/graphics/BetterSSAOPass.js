@@ -1,5 +1,6 @@
 /**
  * Copy of Three JS's examples SSAO pass that doesn't re-render the Beauty.
+ * (I needed this because I use a floattype renderTarget and this didn't support it, resulting in banding.)
  */
 import {
     AddEquation,
@@ -187,7 +188,6 @@ class SSAOPass extends Pass {
     }
 
     render( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
-        console.log(readBuffer);
 
         if ( renderer.capabilities.isWebGL2 === false )
             this.noiseTexture.format = LuminanceFormat;
