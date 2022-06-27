@@ -10,7 +10,7 @@ import {
     EffectComposer,
     RenderPass,
     SSAARenderPass,
-    SAOPass,
+    TAARenderPass,
     SSAOPass,
     SMAAPass,
     ShaderPass,
@@ -155,6 +155,14 @@ function recreateRenderer(canvas, scene, camera) {
     } else {
         const renderPass = new RenderPass(scene, camera);
         composer.addPass(renderPass);
+        /*
+        const renderPass = new TAARenderPass(scene, camera, 0xff0000, 0.0);
+        renderPass.params = parameters;
+        renderPass.sampleLevel = 0;
+        renderPass.accumulate = false;
+        renderPass.accumulateIndex = - 1;
+        composer.addPass(renderPass);
+        */
     }
     if (builderSettings.useSAO) {
         const aoPass = new SSAOPass(scene, camera, 200, 200);
@@ -304,6 +312,24 @@ export async function main(canvas) {
     });
 
     render();
+
+    /**
+     * TAA
+     */
+    /*
+    let taaAccumulator = undefined;
+    orbitControls.controls.addEventListener('start', () => {
+        if (taaAccumulator)
+            clearTimeout(taaAccumulator);
+        composer.passes[0].accumulate = false;
+    });
+    orbitControls.controls.addEventListener('end', () => {
+        taaAccumulator = setTimeout(() => {
+            composer.passes[0].accumulate = true;
+            composer.passes[0].accumulateIndex = - 1;
+        }, 500)
+    });
+    */
 
     canvas.addEventListener(
         'touchstart',

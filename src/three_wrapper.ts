@@ -19,3 +19,5 @@ export { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 export { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
 export { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 export { FXAAShader } from 'three/examples/jsm//shaders/FXAAShader.js';
+
+export { TAARenderPass } from '@/builder/graphics/TAA.js';
