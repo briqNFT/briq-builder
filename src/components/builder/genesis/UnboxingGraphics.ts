@@ -180,7 +180,6 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
-            console.log('Resizing');
         }
         return needResize;
     }
@@ -299,7 +298,6 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
     const meshes = roomSceneGlb.map(x => x.clone(true));
     console.log(meshes);
 
-    // Torus_1 is the dog pouf
     const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv', 'gamecube_controller'];
     for(const mesh_ of meshes) {
         mesh_.traverse(mesh => {
@@ -314,7 +312,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
         if (mesh_.name === 'christmas_tree')
             mesh_.rotateY(-Math.PI * 0.13);
         processMaterials(mesh_);
-        // Remove the dog pouf
+        // Remove the dog pouf, too many vertices and annoying.
         if (mesh_.name === 'Torus')
             continue;
         obj.add(mesh_);
