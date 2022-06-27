@@ -95,8 +95,16 @@ onMounted(async () => {
         </div>
     </div>
     <div
-        class="bg-[#007FC9] w-full overflow-hidden z-[-100]">
-        <p class="h-[112px] flex items-center text-[72px] text-white w-max flex">
+        class="bg-[#F6C844] w-full overflow-hidden z-[-100] border-t-2 border-b-2 border-black">
+        <p class="py-4 flex items-center text-xl text-black font-medium w-max">
+            <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
+            <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
+            <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
+            <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
+            <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
+            <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
+            <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
+            <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
@@ -105,21 +113,25 @@ onMounted(async () => {
     </div>
     <div>
         <div class="container m-auto p-20">
+            <div class="text-center mb-8">
+                <p class="text-accent">Principle</p>
+                <h2 class="font-medium text-xl">A highly modular material</h2>
+            </div>
             <div class="grid grid-cols-3 gap-8 explanations">
                 <div>
-                    <div class="flex justify-center items-center h-[10rem] pb-4">
+                    <div class="flex items-center h-[6rem] pb-1">
                         <div class="grid grid-cols-3 block-grid gap-2">
                             <p class="bg-accent"/><p class="bg-accent"/><p class="bg-base"/>
                             <p class="bg-accent"/><p class="bg-base"/><p class="bg-accent"/>
                         </div>
                     </div>
-                    <h2>Compose</h2>
+                    <h2>Collect</h2>
                     <p>briqs are construction blocks stored on the blockchain.</p>
                     <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.</p>
                     <p>Your briqs are yours, forever.</p>
                 </div>
                 <div>
-                    <div class="flex justify-center items-center h-[10rem] pb-4">
+                    <div class="flex items-center h-[6rem] pb-1">
                         <div class="grid grid-cols-2 block-grid gap-2">
                             <p class="bg-accent"/><p class="bg-accent"/>
                             <p class="bg-accent"/><p class="bg-accent"/>
@@ -131,7 +143,7 @@ onMounted(async () => {
                     <p>Disassemble your set to get your briqs back and build something new.</p>
                 </div>
                 <div>
-                    <div class="flex justify-center items-center h-[10rem] pb-4">
+                    <div class="flex items-center h-[6rem] pb-1">
                         <div class="grid grid-cols-3 block-grid gap-2">
                             <p class="bg-base"/><p class="bg-accent"/><p class="bg-base"/>
                             <p class="bg-accent"/><p class="bg-accent"/><p class="bg-accent"/>
@@ -145,6 +157,10 @@ onMounted(async () => {
         </div>
     </div>
     <div class="container mx-auto mb-20 px-20">
+        <div class="text-center mb-8">
+            <p class="text-accent">Genesis Sale</p>
+            <h2 class="font-medium text-xl">Discover the new theme</h2>
+        </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
             <div class="bg-black text-white rounded-lg flex flex-col gap-20 py-20 items-center justify-between">
                 <h1>Starknet City</h1>
@@ -152,9 +168,9 @@ onMounted(async () => {
             </div>
         </routerlink>
     </div>
-    <div class="bg-[#FEF6F3]">
-        <div class="container m-auto p-20">
-            <p class="text-xl my-8">Trusted by</p>
+    <div class="bg-[#F6C844] w-full border-t-2 border-b-2 border-black">
+        <div class="container m-auto px-20 my-16">
+            <p class="text-xl font-medium my-8">Trusted by</p>
             <div class="grid grid-cols-3 gap-4">
                 <div
                     v-for="icon of [[FabricIcon, '#000000'], [FirstIcon, '#15132A'], [StarkwareIcon, '#28286E']]" :key="icon[0]"
@@ -173,7 +189,7 @@ h2 {
     @apply text-xl font-semibold my-2;
 }
 .explanations > div {
-    @apply rounded bg-base p-8 border border-darker;
+    @apply rounded-lg bg-base p-8 border border-darker;
 }
 .explanations p {
     @apply my-4;

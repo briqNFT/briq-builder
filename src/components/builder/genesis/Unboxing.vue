@@ -129,16 +129,42 @@ const loadingState = new class implements FsmState {
             });
         });
 
-
         await this.hasEnoughFrames;
-        const avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
-        const minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
-        console.log('avgFps', avgFps, 'minFps', minFps, this.fps);
+        let avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
+        let minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
 
-        if (minFps > 20 || avgFps > 25) {
-            quality.value = SceneQuality.LOW;
+        if (minFps > 25 || avgFps > 30) {
             // Switch to lower quality scene.
+            quality.value = SceneQuality.MEDIUM;
             await setupScene(quality.value);
+
+            this.hasEnoughFrames = new Promise((resolve, _) => {
+                this.setEnoughFrames = resolve;
+            });
+            this.fps.length = 0;
+            await this.hasEnoughFrames;
+            avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
+            minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
+            if (minFps > 25 || avgFps > 30) {
+                quality.value = SceneQuality.LOW;
+                await setupScene(quality.value);
+            }
+        } else if (avgFps < 20) {
+            // Try ultra
+            quality.value = SceneQuality.ULTRA;
+            await setupScene(quality.value);
+            this.hasEnoughFrames = new Promise((resolve, _) => {
+                this.setEnoughFrames = resolve;
+            });
+            this.fps.length = 0;
+            await this.hasEnoughFrames;
+            avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
+            minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
+            if (minFps > 25 || avgFps > 30) {
+                // Reset to high
+                quality.value = SceneQuality.HIGH;
+                await setupScene(quality.value);
+            }
         }
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
