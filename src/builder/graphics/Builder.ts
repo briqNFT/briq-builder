@@ -11,6 +11,8 @@ import {
     RenderPass,
     SSAARenderPass,
     SAOPass,
+    SSAOPass,
+    SMAAPass,
     ShaderPass,
     GammaCorrectionShader,
     FXAAShader,
@@ -117,9 +119,13 @@ function resizeRendererToDisplaySize(renderer, composer, camera) {
         composer.setSize(width, height);
 
         if (builderSettings.aaLevel === 'FXAA') {
-            composer.passes[1].uniforms['resolution'].value.x = 1 / width;
-            composer.passes[1].uniforms['resolution'].value.y = 1 / height;
+            composer.passes[composer.passes.length - 1].uniforms['resolution'].value.x = 1 / width;
+            composer.passes[composer.passes.length - 1].uniforms['resolution'].value.y = 1 / height;
         }
+        for (const pass of composer.passes)
+            if (pass.setSize)
+                pass.setSize(width, height);
+
         const canvas = renderer.domElement;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
@@ -134,38 +140,29 @@ function recreateRenderer(canvas, scene, camera) {
 
     renderer.setClearColor(0x000000, 0);
 
-    const composer = new EffectComposer(renderer);
-    if (builderSettings.aaLevel !== '0' && builderSettings.aaLevel !== 'FXAA') {
-        const renderPass = new SSAARenderPass(scene, camera);
+    const parameters = {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        format: THREE.RGBAFormat,
+        type: THREE.FloatType,
+    };
+    const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, parameters);
+    const composer = new EffectComposer(renderer, renderTarget);
+    if (builderSettings.aaLevel !== '0' && builderSettings.aaLevel !== 'FXAA' && builderSettings.aaLevel !== 'SMAA') {
+        const renderPass = new SSAARenderPass(scene, camera, 0x000000, 1.0);
         renderPass.sampleLevel = +builderSettings.aaLevel;
         composer.addPass(renderPass);
     } else {
         const renderPass = new RenderPass(scene, camera);
         composer.addPass(renderPass);
-        if (builderSettings.aaLevel === 'FXAA') {
-            const copyPass = new ShaderPass(FXAAShader);
-            const size = new THREE.Vector2();
-            renderer.getSize(size);
-            copyPass.uniforms['resolution'].value.x = 1 / size.x;
-            copyPass.uniforms['resolution'].value.y = 1 / size.y;
-            composer.addPass(copyPass);
-        }
     }
     if (builderSettings.useSAO) {
-        const saoPass = new SAOPass(scene, camera, true, true);
-        saoPass.params = {
-            output: 0,
-            saoBias: 1,
-            saoIntensity: 0.1,
-            saoScale: 200,
-            saoKernelRadius: 40,
-            saoMinResolution: 0,
-            saoBlur: true,
-            saoBlurRadius: 8,
-            saoBlurStdDev: 4,
-            saoBlurDepthCutoff: 0.01,
-        };
-        composer.addPass(saoPass);
+        const aoPass = new SSAOPass(scene, camera, 200, 200);
+        aoPass.output = SSAOPass.OUTPUT.Default;
+        aoPass.kernelRadius = 0.25;
+        aoPass.minDistance = 0.0001;
+        aoPass.maxDistance = 0.001;
+        composer.addPass(aoPass);
     }
     {
         const overlayScene = new THREE.Scene();
@@ -191,7 +188,21 @@ function recreateRenderer(canvas, scene, camera) {
         const copyPass = new ShaderPass(GammaCorrectionShader);
         composer.addPass(copyPass);
     }
-    //resizeRendererToDisplaySize(renderer, composer, camera);
+
+    if (builderSettings.aaLevel === 'FXAA') {
+        const copyPass = new ShaderPass(FXAAShader);
+        const size = new THREE.Vector2();
+        renderer.getSize(size);
+        copyPass.uniforms['resolution'].value.x = 1 / size.x;
+        copyPass.uniforms['resolution'].value.y = 1 / size.y;
+        composer.addPass(copyPass);
+    } else if (builderSettings.aaLevel === 'SMAA') {
+        const size = new THREE.Vector2();
+        renderer.getSize(size);
+        const copyPass = new SMAAPass(size.x, size.y);
+        composer.addPass(copyPass);
+    }
+
     _takeScreenshot = _createTakeScreenshot(renderer, composer);
     return [renderer, composer];
 }

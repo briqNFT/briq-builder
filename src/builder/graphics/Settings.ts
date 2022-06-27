@@ -9,7 +9,7 @@ class Settings {
     // If false, the changes are not serialised.
     saveActive = true;
 
-    aaLevel!: '0' | 'FXAA' | '1' | '2' | '3' | '4';
+    aaLevel!: '0' | 'FXAA' | 'SMAA' | '2' | '3' | '4';
     useSAO!: boolean;
     planeColor!: string;
     gridColor!: string;
