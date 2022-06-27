@@ -10,6 +10,7 @@ import {
     GammaCorrectionShader,
     OrbitControls,
     SkeletonUtils,
+    SMAAPass,
 } from '@/three';
 
 import { GLTFLoader } from '@/three';
@@ -31,6 +32,13 @@ let boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D };
 let canvas: HTMLCanvasElement;
 
 const boxes = [] as THREE.Mesh[];
+
+export enum SceneQuality {
+    LOW,
+    MEDIUM,
+    HIGH,
+    ULTRA,
+}
 
 export async function useRenderer(_canvas: HTMLCanvasElement) {
     await threeSetupComplete;
@@ -75,12 +83,14 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
             renderer.setSize(width, height, false);
             composer.setSize(width, height);
 
-            // FXAA
-            composer.passes[2].uniforms['resolution'].value.x = 1 / width;
-            composer.passes[2].uniforms['resolution'].value.y = 1 / height;
-
             // SSAO
             composer.passes[1].setSize(width, height);
+
+            // FXAA
+            composer.passes[3].uniforms['resolution'].value.x = 1 / width;
+            composer.passes[3].uniforms['resolution'].value.y = 1 / height;
+            // SMAA
+            composer.passes[4].setSize(width, height);
 
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -95,7 +105,15 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
         renderer.shadowMap.needsUpdate = true;
         renderer.shadowMap.enabled = true;
         renderer.setClearColor(0xF00000, 0);
-        composer = new EffectComposer(renderer);
+
+        const parameters = {
+            minFilter: THREE.LinearFilter,
+            magFilter: THREE.LinearFilter,
+            format: THREE.RGBAFormat,
+            type: THREE.FloatType,
+        };
+        const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, parameters);
+        composer = new EffectComposer(renderer, renderTarget);
         {
             const renderPass = new RenderPass(scene, camera);
             composer.addPass(renderPass);
@@ -126,7 +144,7 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
             aoPass.overrideVisibility = function() {
                 const scene = aoPass.scene;
                 const cache = aoPass._visibilityCache;
-                scene.traverse( function ( object ) {
+                scene.traverse(function (object: any) {
                     cache.set( object, object.visible );
                     if (object.name === 'fire')
                         object.visible = false;
@@ -139,24 +157,20 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
 
             aoPass.output = SSAOPass.OUTPUT.Default;
             aoPass.kernelRadius = 0.1;
-            aoPass.minDistance = 0.005;
+            aoPass.minDistance = 0.001;
             aoPass.maxDistance = 0.02;
             composer.addPass(aoPass);
 
-            const copyPass = new ShaderPass(FXAAShader);
-            copyPass.uniforms['resolution'].value.x = 1 / size.x;
-            copyPass.uniforms['resolution'].value.y = 1 / size.y;
-            composer.addPass(copyPass);
-
-            console.log(size);
-        }
-        {
-            /* ThreeJS auto-renders the final pass to the screen directly, which breaks my scene layering. */
-            /* Instead, add a manual 'write to screen' pass */
             const copyPass = new ShaderPass(GammaCorrectionShader);
             composer.addPass(copyPass);
+
+            const fxaaPass = new ShaderPass(FXAAShader);
+            composer.addPass(fxaaPass);
+
+            const smaaPass = new SMAAPass(200, 200);
+            composer.addPass(smaaPass);
+
         }
-        //resizeRendererToDisplaySize(renderer, composer, camera);
         return [renderer, composer];
     }
 
@@ -175,27 +189,15 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
 }
 
 
-export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
+export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
     scene.clear();
 
-    /*
-    renderer.shadowMap.type = {
-        'LOW': THREE.PCFShadowMap,
-        'MEDIUM': THREE.PCFShadowMap,
-        'HIGH': THREE.PCFShadowMap,
-    }[quality];
-    renderer.shadowMap.needsUpdate = true;*/
-
-    if (quality === 'LOW') {
-        composer.passes[1].enabled = false;
-        composer.passes[2].enabled = false;
-    } else if (quality === 'MEDIUM') {
-        composer.passes[1].enabled = false;
-        composer.passes[2].enabled = true;
-    } else {
-        composer.passes[1].enabled = true;
-        composer.passes[2].enabled = true;
-    }
+    // SSAO is costly, enable on ultra.
+    composer.passes[1].enabled = quality >= SceneQuality.ULTRA;
+    // FXAA is fast enough, enable on Medium.
+    composer.passes[3].enabled = quality === SceneQuality.MEDIUM;
+    // SMAA is better, enable on High onwards.
+    composer.passes[4].enabled = quality > SceneQuality.MEDIUM;
 
     camera.position.set(-2, 1.8, -2);
     camera.lookAt(new THREE.Vector3(2, 0, 2));
@@ -227,38 +229,47 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     }
 
     const shouldLambert = (obj: any) => {
-        if (quality === 'LOW' && obj.name === 'car_rug')
+        if (quality < SceneQuality.HIGH && obj.name === 'fireplace_inner')
+            return true;
+        if (quality === SceneQuality.LOW && obj.name === 'car_rug')
             return true;
         return false;
     };
 
     const shouldPhong = (obj: any) => {
-        if (obj.name === 'Plane003_1' || obj.name === 'car_rug')
-            return false;
-        if (obj.parent.name === 'gamecube')
-            return false;
-        if (obj.parent.name === 'tv' && obj.material.name === 'plastic_black')
-            return false;
-        return quality !== 'HIGH';
+        if (obj.material.name === 'wooden_floor')
+            return quality < SceneQuality.MEDIUM
+        return quality < SceneQuality.HIGH;
     }
 
     const processMaterials = (obj: any) => {
-        if (obj.material && shouldPhong(obj)) {
-            const newMat = new THREE.MeshPhongMaterial();
-            newMat.color = obj.material.color;
-            newMat.map = obj.material.map;
-            newMat.reflectivity = obj.material.metalness;
-            newMat.emissive = obj.material.emissive;
-            newMat.shininess = obj.material.roughness > 0.5 ? 120 : 10;
-            newMat.side = THREE.DoubleSide;
-            obj.material = newMat;
-        } else if (obj.material && shouldLambert(obj)) {
+        if (obj.material && shouldLambert(obj)) {
             const newMat = new THREE.MeshLambertMaterial();
             newMat.color = obj.material.color;
             newMat.map = obj.material.map;
             newMat.reflectivity = obj.material.metalness;
             obj.material = newMat;
 
+        } else if (obj.material && shouldPhong(obj)) {
+            const newMat = new THREE.MeshPhongMaterial();
+            newMat.color = obj.material.color;
+            newMat.map = obj.material.map;
+            newMat.normalMap = obj.material.normalMap;
+            newMat.reflectivity = 0.0;
+            newMat.reflectivity = obj.material.metalness;
+            newMat.emissive = obj.material.emissive;
+            if (obj.material.name === 'wooden_floor') {
+                newMat.shininess = 200;
+                newMat.specular = new THREE.Color(0x555555);
+            } else if (obj.material.name === 'plastic_black' || obj.parent.name === 'gamecube') {
+                newMat.shininess = 30;
+                newMat.specular = new THREE.Color(0x666666);
+            } else {
+                newMat.shininess = obj.material.roughness < 0.2 ? 900 : obj.material.roughness < 0.7 ? 30 : 1;
+                newMat.specular = new THREE.Color(0x111111);
+            }
+            newMat.side = THREE.DoubleSide;
+            obj.material = newMat;
         } else if (obj.parent.name === 'tv' && obj.material.name === 'plastic_black')
             obj.material.side = THREE.DoubleSide;
         obj.children.forEach(processMaterials);
@@ -272,13 +283,12 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
         mesh_.traverse(mesh => {
             if (casters.indexOf(mesh.name) !== -1)
                 castShadow(mesh);
-            if (true || ['room', 'car_rug', 'sofa', 'fireplace', 'christmas_tree'].indexOf(mesh.name) !== -1)
-                receiveShadow(mesh);
+            receiveShadow(mesh);
         });
-        // Special case: the lamp mast mustn't cast shadows or things look crap.
+        // Special case: the lamp post mustn't cast shadows or things look crap.
         if (mesh_.name === 'lamp')
             mesh_.children[1].castShadow = false;
-        // The christmas tree has a particularly bad edge tha tmakes shadows look weird unless rotated.
+        // The christmas tree has a particularly bad edge that makes shadows look weird unless rotated.
         if (mesh_.name === 'christmas_tree')
             mesh_.rotateY(-Math.PI * 0.13);
         processMaterials(mesh_);
@@ -315,7 +325,7 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     scene.add(light);
 
     /* Add a secondary support light for the lamp stand. */
-    if (quality === 'HIGH') {
+    if (quality >= SceneQuality.MEDIUM) {
         const lightSupport = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.1, 10.0);
         lightSupport.position.set(0.58, 1.0, 2.47);
         lightSupport.shadow.bias = -0.001;
@@ -351,7 +361,7 @@ export async function setupScene(quality: 'LOW' | 'MEDIUM' | 'HIGH' = 'HIGH') {
     chimneyLight.shadow.normalBias = 0.1;
     chimneyLight.shadow.camera.near = 0.05;
     chimneyLight.shadow.camera.far = 10.0;
-    if (quality === 'LOW') {
+    if (quality === SceneQuality.LOW) {
         chimneyLight.shadow.radius = 8;
         chimneyLight.shadow.mapSize = new THREE.Vector2(256, 256);
     } else {

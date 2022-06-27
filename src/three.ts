@@ -25,6 +25,8 @@ export let SAOPass: typeof three_wrapper.SAOPass;
 export let SSAOPass: typeof three_wrapper.SSAOPass;
 export let ShaderPass: typeof three_wrapper.ShaderPass;
 export let SSAARenderPass: typeof three_wrapper.SSAARenderPass;
+export let SMAAPass: typeof three_wrapper.SMAAPass;
+
 export let CopyShader: typeof three_wrapper.CopyShader;
 export let GammaCorrectionShader: typeof three_wrapper.GammaCorrectionShader;
 export let FXAAShader: typeof three_wrapper.FXAAShader;
@@ -45,6 +47,8 @@ async function setup() {
     SSAOPass = wrapper.SSAOPass;
     ShaderPass = wrapper.ShaderPass;
     SSAARenderPass = wrapper.SSAARenderPass;
+    SMAAPass = wrapper.SMAAPass;
+
     CopyShader = wrapper.CopyShader;
     GammaCorrectionShader = wrapper.GammaCorrectionShader;
     FXAAShader = wrapper.FXAAShader;

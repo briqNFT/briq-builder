@@ -8,7 +8,7 @@ import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMou
 import { useBuilder } from '@/builder/BuilderStore';
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, addBox, materials, graphicsFrame, getBoxAt, resetGraphics } from './UnboxingGraphics';
+import { setupScene, useRenderer, addBox, materials, graphicsFrame, getBoxAt, resetGraphics, SceneQuality } from './UnboxingGraphics';
 import LookAtBoxVue from './Texts/LookAtBox.vue';
 import { hexUuid } from '@/Uuid';
 import WalletsVue from './Texts/Wallets.vue';
@@ -62,7 +62,7 @@ const camInterp = ref(0);
 const selectedObject = shallowRef(undefined as THREE.Mesh | undefined);
 const hoveredObject = shallowRef(undefined as THREE.Mesh | undefined);
 
-const quality = ref('HIGH');
+const quality = ref(SceneQuality.HIGH);
 
 //////////////////////////////
 //////////////////////////////
@@ -95,7 +95,6 @@ const loadingState = new class implements FsmState {
 
     async onEnter() {
         const userData = genesisUserStore.fetchData();
-        console.log('in On Enter');
         await sceneReady;
         await userData;
         const pos = [
@@ -130,16 +129,17 @@ const loadingState = new class implements FsmState {
             });
         });
 
-        console.log('Frames');
 
         await this.hasEnoughFrames;
         const avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
         const minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
         console.log('avgFps', avgFps, 'minFps', minFps, this.fps);
 
-        if (minFps > 20 || avgFps > 25)
+        if (minFps > 20 || avgFps > 25) {
+            quality.value = SceneQuality.LOW;
             // Switch to lower quality scene.
-            await setupScene('LOW');
+            await setupScene(quality.value);
+        }
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
@@ -522,10 +522,11 @@ const useMockWallet = () => {
             <FireplaceAudio/>
         </div>
         <div class="absolute bottom-[1rem] left-0 text-base">
-            <select v-model="quality" @change="setupScene(quality.value)">
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
+            <select v-model="quality" @change="setupScene(quality)">
+                <option :value="SceneQuality.LOW">Low</option>
+                <option :value="SceneQuality.MEDIUM">Medium</option>
+                <option :value="SceneQuality.HIGH">High</option>
+                <option :value="SceneQuality.ULTRA">Ultra</option>
             </select>
         </div>
     </template>
