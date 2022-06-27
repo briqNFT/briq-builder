@@ -552,7 +552,7 @@ const useMockWallet = () => {
             <p v-if="step === 'LOADING'">...Loading Scene...</p>
             <template v-else>
                 <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
-                <Btn v-if="APP_ENV === 'dev'" @click="useMockWallet">Dev</Btn>
+                <Btn v-if="APP_ENV !== 'prod'" @click="useMockWallet">Dev</Btn>
             </template>
         </div>
     </Transition>
