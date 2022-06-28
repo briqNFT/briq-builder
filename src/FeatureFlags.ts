@@ -3,6 +3,7 @@ import { logDebug } from './Messages';
 
 export const featureFlags = reactive({
     multiMaterials: false,
+    bigBuilder: false,
 });
 
 // No leading zeros
@@ -12,6 +13,8 @@ const admins = [
     '0x4a9ad47f5086e917bf67077954bd62685d8746c7504026bf43bbecb1fa6dde0',
     '0x583397ff26e17af2562a7e035ee0fbda8f8cbbd1aef5c25b11ea9d8782b1179',
 ];
+
+const Stefan = '0x051761d49c74a0790F4412973ceF39015F0aeC0ddf3619094E2c59e5682646c5';
 
 const starBuilders = [
     '0x583397ff26e17af2562a7e035ee0fbda8f8cbbd1aef5c25b11ea9d8782b1179',
@@ -38,6 +41,8 @@ async function checkOnStore() {
             featureFlags.multiMaterials = false;
         else
             featureFlags.multiMaterials = false;
+        if (wallet.walletStore2.userWalletAddress === Stefan || admins.indexOf(wallet.walletStore2.userWalletAddress) !== -1)
+            featureFlags.bigBuilder = true;
 
     });
 }

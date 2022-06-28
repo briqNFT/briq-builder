@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Slider from '@/components/generic/Slider.vue'
-import { computed } from 'vue';
+import { computed } from 'vue';
+
+import { featureFlags } from '@/FeatureFlags';
 
 const canvasSize = computed({
     get: () => builderSettings.canvasSize * 2,
@@ -62,7 +64,8 @@ const canvasSize = computed({
                 </select>
             </p>
             <label><p class="flex items-center gap-1">
-                <Slider class="w-[8rem]" :min="10" :step="10" :max="CONF.builderSettings.maxCanvasSize * 2 || 100" v-model="canvasSize"/>
+                <Slider v-if="featureFlags.bigBuilder" class="w-[8rem]" :min="10" :step="10" :max="300" v-model="canvasSize"/>
+                <Slider v-else class="w-[8rem]" :min="10" :step="10" :max="CONF.builderSettings.maxCanvasSize * 2 || 100" v-model="canvasSize"/>
                 Canvas size ({{ `${builderSettings.canvasSize * 2}x${builderSettings.canvasSize * 2}` }})
             </p></label>
         </div>
