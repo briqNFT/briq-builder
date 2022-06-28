@@ -42,7 +42,7 @@ async function checkOnStore() {
             featureFlags.multiMaterials = false;
         else
             featureFlags.multiMaterials = false;
-        if (wallet.walletStore2.userWalletAddress === Stefan || admins.indexOf(wallet.walletStore2.userWalletAddress) !== -1)
+        if (wallet.walletStore.userWalletAddress === Stefan || admins.indexOf(wallet.walletStore.userWalletAddress) !== -1)
             featureFlags.bigBuilder = true;
 
     });
