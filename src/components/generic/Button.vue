@@ -106,11 +106,11 @@ html.v2design button:not(.btn)::before {
 }
 
 html.v2design button:not(.btn):not(:disabled):hover::before {
-    @apply bg-light-accent;
+    @apply bg-darker;
 }
 
 html.v2design button:not(.btn):not(:disabled):active::before {
-    @apply bg-light-accent;
+    @apply bg-darker;
 }
 
 html.v2design button:not(.btn):disabled {
