@@ -19,6 +19,7 @@ module.exports = {
 
                 base: withOpacityValue('--color-base'),
                 accent: withOpacityValue('--color-accent'),
+                'accent-secondary': withOpacityValue('--color-accent-secondary'),
                 'light-accent': withOpacityValue('--color-light-accent'),
                 darker: withOpacityValue('--color-darker'),
                 darkest: withOpacityValue('--color-darkest'),

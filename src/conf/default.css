@@ -3,7 +3,8 @@ html.v2design {
     --color-body: 250 250 250;
     --color-base: 255 255 255;
     --color-accent: 235 86 0;
-    --color-light-accent: 245 170 128;
+    --color-accent-secondary: 255 113 31;
+    --color-light-accent: 255 231 217; /*245 170 128;*/
     --color-darker: 230 230 230;
     --color-darkest: 100 100 100;
     --color-dark: 0 0 0;

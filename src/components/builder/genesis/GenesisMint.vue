@@ -59,10 +59,10 @@ onMounted(async () => {
 <template>
     <!-- Make it absolute so h-screen works below -->
     <Header class="absolute left-0 right-0 z-50"/>
-    <div class="bg-base">
+    <div>
         <div class="container m-auto relative h-screen p-[6rem] flex flex-col overflow-hidden">
             <div class="grow-[3]"/>
-            <div class="z-50 flex flex-wrap justify-around items-center">
+            <div class="flex flex-wrap justify-around items-center">
                 <div class="relative p-20">
                     <div>
                         <h1 class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
@@ -71,7 +71,7 @@ onMounted(async () => {
                 </div>
                 <component
                     v-if="!modelViewerLoading"
-                    :is="modelViewer" class="flex-1 min-w-[10rem] h-full w-full"
+                    :is="modelViewer" class="flex-1 min-w-[10rem] h-full w-full z-0"
                     reveal="manual" loading="eager" shadow-intensity="0.5" shadow-softness="1" disable-zoom camera-controls auto-rotate="true"
                     field-of-view="40deg" camera-target="2m 23m 2m"
                     style="background-color: unset; --poster-color: transparent"/>
@@ -80,15 +80,15 @@ onMounted(async () => {
             </div>
             <div class="grow-[6]"/>
         </div>
-        <div class="container m-auto absolute top-0 left-0 right-0">
+        <div class="pointer-events-none user-select-none container m-auto absolute top-0 left-0 right-0">
             <div class="relative w-full h-screen">
-                <div class="pointer-events-none user-select-none absolute z-50 left-0" :style="{ top: `${150 - briqParallax}px` }">
+                <div class="absolute z-10 left-0" :style="{ top: `${150 - briqParallax}px` }">
                     <BriqsOverlayT/>
                 </div>
-                <div class="pointer-events-none user-select-none absolute z-50 left-0" :style="{ bottom: `${-120 + briqParallax}px` }">
+                <div class="absolute z-10 left-0" :style="{ bottom: `${-120 + briqParallax}px` }">
                     <BriqsOverlayB class="w-[1432px] h-[780px] relative top-[150px] tall-md:top-[0px]"/>
                 </div>
-                <div class="pointer-events-none user-select-none absolute z-50 lg:right-[-600px] xl:right-[-250px] 2xl:right-[-100px]" :style="{ top: `${150 - briqParallax}px` }">
+                <div class="absolute z-10 lg:right-[-600px] xl:right-[-250px] 2xl:right-[-100px]" :style="{ top: `${150 - briqParallax}px` }">
                     <BriqsOverlayR class="w-[1432px] h-[780px]"/>
                 </div>
             </div>

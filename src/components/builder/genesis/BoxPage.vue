@@ -31,10 +31,6 @@ const boxName = computed(() => item.value._data?.name ?? route.params.box);
 </script>
 
 <style scoped>
-.theme-box-page {
-    @apply bg-gray-100 text-black;
-}
-
 h2 {
     @apply text-lg font-medium my-2;
 }
@@ -67,7 +63,7 @@ p {
 </style>
 
 <template>
-    <div class="relative theme-box-page">
+    <div class="relative">
         <Header/>
         <div>
             <div class="container m-auto">

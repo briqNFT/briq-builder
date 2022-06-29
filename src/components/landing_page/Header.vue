@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { genesisUserStore } from '@/builder/GenesisStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { computed, watchEffect } from 'vue';
@@ -34,17 +35,22 @@ watchEffect(() => {
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
                 </div>
                 <router-link v-if="genesisUserStore.availableBoxes?.length" to="/unboxing">
-                    <div class="rounded border border-darker bg-base p-2">
+                    <Btn secondary class="before:border-darker">
                         <i class="fa-solid fa-box-open"/> {{ genesisUserStore.availableBoxes?.length || 0 }}
-                    </div>
+                    </Btn>
                 </router-link>
-                <div class="rounded border border-darker bg-base p-2">
+                <Btn secondary class="before:border-darker">
                     <i class="fa-solid fa-cube"/> {{ 0 }}
-                </div>
+                </Btn>
                 <div class="flex-none">
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <Btn v-else-if="walletStore?.userWalletAddress" class="flex-none" @click="walletStore!.openWalletSelector()"><span class="px-2">{{ walletStore.getShortAddress() }}</span></Btn>
+                    <MenuDropdown v-else-if="walletStore?.userWalletAddress">
+                        <template #button><span class="px-2">{{ walletStore.getShortAddress() }}</span></template>
+                        <Btn no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn>
+                        <Btn no-background icon><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
+                        <Btn no-background icon><i class="fa-solid fa-power-off"/> Disconnect</Btn>
+                    </menudropdown>
                 </div>
             </div>
         </div>

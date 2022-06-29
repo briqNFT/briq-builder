@@ -46,13 +46,10 @@ const saleStartsIn = computed(() => {
 </script>
 
 <style scoped>
-.theme-main-page {
-    @apply bg-gray-100 text-black;
-}
 </style>
 
 <template>
-    <div class="theme-main-page">
+    <div>
         <Header/>
         <template v-if="themeStatus === 'LOADED'">
             <div class="container m-auto">
