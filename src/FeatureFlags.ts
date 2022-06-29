@@ -14,7 +14,7 @@ const admins = [
     '0x583397ff26e17af2562a7e035ee0fbda8f8cbbd1aef5c25b11ea9d8782b1179',
 ];
 
-const Stefan = '0x051761d49c74a0790F4412973ceF39015F0aeC0ddf3619094E2c59e5682646c5';
+const Stefan = '0x51761d49c74a0790f4412973cef39015f0aec0ddf3619094e2c59e5682646c5';
 
 const starBuilders = [
     '0x583397ff26e17af2562a7e035ee0fbda8f8cbbd1aef5c25b11ea9d8782b1179',
