@@ -13,6 +13,8 @@ import ThemesListingVue from './components/builder/genesis/ThemesListing.vue';
 import ThemeMainPageVue from './components/builder/genesis/ThemeMainPage.vue';
 import BoxPageVue from './components/builder/genesis/BoxPage.vue';
 
+import ImageLoaderVue from '@/components/ImageLoader.vue';
+
 import { CONF } from './Conf';
 
 let loader;
@@ -96,6 +98,11 @@ export const routes = [
         path: '/box/:theme/:box',
         name: 'Box',
         component: BoxPageVue,
+    },
+    {
+        path: '/image',
+        name: 'Image loader',
+        component: ImageLoaderVue,
     },
     {
         path: '/unboxing',
