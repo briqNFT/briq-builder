@@ -133,6 +133,7 @@ const loadingState = new class implements FsmState {
         let avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
         let minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
 
+        /*
         if (minFps > 25 || avgFps > 30) {
             // Switch to lower quality scene.
             quality.value = SceneQuality.MEDIUM;
@@ -165,7 +166,7 @@ const loadingState = new class implements FsmState {
                 quality.value = SceneQuality.HIGH;
                 await setupScene(quality.value);
             }
-        }
+        }*/
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
@@ -287,7 +288,6 @@ const checkBoxState = new class implements FsmState {
 
     onPointerMove(event: PointerEvent) {
         let box = getBoxAt(event);
-        console.log(box);
         hoveredObject.value = box;
     }
 }
@@ -547,7 +547,7 @@ const useMockWallet = () => {
         <div class="absolute bottom-0 left-0 text-base">
             <FireplaceAudio/>
         </div>
-        <div class="absolute bottom-[1rem] left-0 text-base">
+        <div class="absolute bottom-[3rem] left-0 text-base">
             <select v-model="quality" @change="setupScene(quality)">
                 <option :value="SceneQuality.LOW">Low</option>
                 <option :value="SceneQuality.MEDIUM">Medium</option>

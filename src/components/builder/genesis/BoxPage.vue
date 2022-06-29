@@ -26,7 +26,7 @@ const {
 } = useBoxData(token_id.value);
 
 const themeName = computed(() => route.params.theme);
-const boxName = computed(() => item.value._data?.name ?? route.params.box);
+const boxName = computed(() => item.value.name ?? route.params.box);
 
 </script>
 
@@ -71,8 +71,8 @@ p {
                     <a
                         @click="router.go(-1)"
                         class="text-accent">
-                        <Btn>
-                            <i class="fa-solid fa-arrow-left"/> Go back
+                        <Btn secondary>
+                            <i class="fa-solid fa-chevron-left"/> Go back
                         </Btn>
                     </a>
                 </p>

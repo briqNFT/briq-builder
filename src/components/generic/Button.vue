@@ -51,11 +51,11 @@ html.v2design button.icon i {
 html.v2design .btn {
     @apply text-text-on-accent;
     @apply min-h-[2.5rem];
-    @apply px-4 py-4;
+    @apply px-3 py-4;
 }
 
 html.v2design .btn::before {
-    @apply bg-accent border border-dark rounded-md;
+    @apply bg-accent border border-dark rounded;
 }
 
 html.v2design .btn:not(:disabled):hover::before {

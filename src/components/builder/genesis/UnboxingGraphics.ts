@@ -296,7 +296,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
     }
 
     const meshes = roomSceneGlb.map(x => x.clone(true));
-    console.log(meshes);
+    //console.log(meshes);
 
     const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv', 'gamecube_controller'];
     for(const mesh_ of meshes) {
@@ -416,8 +416,10 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
         scene.add(fire_);
     }
 
-    for (const box of boxes)
+    for (const box of boxes) {
         scene.add(box);
+        box.userData.anim.play()
+    }
 }
 
 import DefaultBox from '@/assets/genesis/default_box.png';
@@ -430,10 +432,11 @@ export function addBox(boxData: any, scene: THREE.Scene) {
     const anim = mixer.clipAction(boxGlb.anim)
     anim.timeScale = -2;
     anim.paused = false;
-    anim.setLoop(THREE.LoopRepeat, 1);
+    anim.setLoop(THREE.LoopRepeat, 100);
     anim.play();
     mixer.setTime(0.001);
 
+    box.userData.anim = anim;
     box.userData.mixer = mixer;
     box.position.set(...boxData.position);
     box.rotateY(Math.PI);
@@ -617,6 +620,11 @@ const fireSource = async function(useSimplex: boolean) {
 
 let lightTime = 0.0;
 export function graphicsFrame(delta: number) {
+    boxes.forEach(box => {
+        box.userData.mixer.update(delta);
+    });
+
+
     fireMaterial.uniforms['time'].value += delta;
     lightTime += delta * 12.0;
     const intensity = (Math.sin(2 * lightTime) + Math.sin(Math.PI * lightTime)) / 4.0 + 0.5;
