@@ -17,7 +17,7 @@ const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbl
 </script>
 
 <template>
-    <div ref="window" :class="'container rounded-lg bg-base alternate-buttons m-8 shadow-xl relative ' + _size">
+    <div ref="window" :class="'container p-0 rounded-lg bg-base alternate-buttons m-8 shadow-xl relative ' + _size">
         <div class="relative h-full pt-2 pb-4" v-if="!isv2design">
             <!-- Center the title, but let it get pushed slightly left if needed for the close button.-->
             <h3 v-if="!!$slots.title" class="text-center w-full px-4 pb-2 flex justify-between">
@@ -42,8 +42,8 @@ const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbl
                 <i class="fas fa-times"/>
             </button>
         </div>
-        <div class="relative h-full pt-2 pb-4" v-else>
-            <div class="flex justify-between items-center px-8 py-4">
+        <div class="relative h-full px-4 py-4" v-else>
+            <div class="flex justify-between items-center px-4 pt-2 pb-4">
                 <h3 class="font-semibold" v-if="!!$slots.title"><slot name="title"/></h3>
                 <h2 class="font-semibold" v-if="!!$slots['big-title']"><slot name="big-title"/></h2>
 
