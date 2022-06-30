@@ -417,10 +417,9 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
         scene.add(fire_);
     }
 
-    for (const box of boxes) {
+    for (const box of boxes)
         scene.add(box);
-        box.userData.anim.play()
-    }
+
 }
 
 import DefaultBox from '@/assets/genesis/default_box.png';

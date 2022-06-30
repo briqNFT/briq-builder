@@ -133,7 +133,6 @@ const loadingState = new class implements FsmState {
         let avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
         let minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
 
-        /*
         if (minFps > 25 || avgFps > 30) {
             // Switch to lower quality scene.
             quality.value = SceneQuality.MEDIUM;
@@ -166,7 +165,7 @@ const loadingState = new class implements FsmState {
                 quality.value = SceneQuality.HIGH;
                 await setupScene(quality.value);
             }
-        }*/
+        }
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
