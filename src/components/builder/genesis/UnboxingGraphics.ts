@@ -49,7 +49,8 @@ function recreateRenderer(quality: SceneQuality) {
     renderer.shadowMap.enabled = true;
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.setClearColor(0xF00000, 0);
-    renderer.info.autoReset = false;
+    // Somehow breaks animations.
+    //renderer.info.autoReset = false;
 
     if (quality >= SceneQuality.MEDIUM) {
         const parameters = {
@@ -432,11 +433,10 @@ export function addBox(boxData: any, scene: THREE.Scene) {
     const anim = mixer.clipAction(boxGlb.anim)
     anim.timeScale = -2;
     anim.paused = false;
-    anim.setLoop(THREE.LoopRepeat, 100);
+    anim.setLoop(THREE.LoopRepeat, 1);
     anim.play();
     mixer.setTime(0.001);
 
-    box.userData.anim = anim;
     box.userData.mixer = mixer;
     box.position.set(...boxData.position);
     box.rotateY(Math.PI);
@@ -620,11 +620,6 @@ const fireSource = async function(useSimplex: boolean) {
 
 let lightTime = 0.0;
 export function graphicsFrame(delta: number) {
-    boxes.forEach(box => {
-        box.userData.mixer.update(delta);
-    });
-
-
     fireMaterial.uniforms['time'].value += delta;
     lightTime += delta * 12.0;
     const intensity = (Math.sin(2 * lightTime) + Math.sin(Math.PI * lightTime)) / 4.0 + 0.5;
