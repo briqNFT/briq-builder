@@ -356,7 +356,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
     const meshes = roomSceneGlb.map(x => x.clone(true));
     //console.log(meshes);
 
-    const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv', 'gamecube_controller'];
+    const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv', 'gamecube_controller', 'car_rug'];
     for(const mesh_ of meshes) {
         mesh_.traverse(mesh => {
             if (casters.indexOf(mesh.name) !== -1)
@@ -397,7 +397,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
         light.shadow.mapSize = new THREE.Vector2(512, 512);
     }
     light.shadow.bias = -0.001;
-    light.shadow.normalBias = 0.1;
+    light.shadow.normalBias = 0.08;
     light.shadow.camera.near = 0.03;
     light.shadow.camera.far = 10;
 
@@ -409,7 +409,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
         const lightSupport = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.1, 10.0);
         lightSupport.position.set(0.58, 1.0, 2.47);
         lightSupport.shadow.bias = -0.001;
-        lightSupport.shadow.normalBias = 0.1;
+        lightSupport.shadow.normalBias = 0.05;
         lightSupport.shadow.camera.near = 0.03;
         lightSupport.shadow.camera.far = 10;
         lightSupport.shadow.radius = 16;
@@ -437,7 +437,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
     chimneyLight = new THREE.PointLight(new THREE.Color('#ffaa22').convertSRGBToLinear(), 1.2, 5.0);
     chimneyLight.position.set(2.6, 0.4, 0.5);
     chimneyLight.shadow.bias = -0.001;
-    chimneyLight.shadow.normalBias = 0.1;
+    chimneyLight.shadow.normalBias = 0.01;
     chimneyLight.shadow.camera.near = 0.05;
     chimneyLight.shadow.camera.far = 10.0;
     // Massive hack to use linear filtering on shadow map.
