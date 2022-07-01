@@ -8,7 +8,7 @@ import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMou
 import { useBuilder } from '@/builder/BuilderStore';
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, addBox, materials, graphicsFrame, getBoxAt, resetGraphics, SceneQuality } from './UnboxingGraphics';
+import { setupScene, useRenderer, addBox, materials, graphicsFrame, getBoxAt, resetGraphics, SceneQuality, boxMaterials, boxTexture } from './UnboxingGraphics';
 import LookAtBoxVue from './Texts/LookAtBox.vue';
 import { hexUuid } from '@/Uuid';
 import WalletsVue from './Texts/Wallets.vue';
@@ -120,11 +120,16 @@ const loadingState = new class implements FsmState {
         const loader = new THREE.TextureLoader();
         boxesData.forEach(data => {
             loader.loadAsync(genesisStore.boxTexture(data.box_name)).then(x => {
-                materials[data.box_name].forEach(mat => {
-                    x.encoding = THREE.sRGBEncoding;
-                    x.flipY = false;
-                    mat.map = x;
-                    mat.needsUpdate = true;
+                if (!boxTexture[data.box_name])
+                    boxTexture[data.box_name] = {
+                        texture: x,
+                        users: [],
+                    }
+                boxTexture[data.box_name].texture = x;
+                boxTexture[data.box_name].texture.encoding = THREE.sRGBEncoding;
+                boxTexture[data.box_name].texture.flipY = false;
+                boxTexture[data.box_name].users.forEach(box => {
+                    box.children[1].children[0].material.map = x;
                 })
             });
         });
@@ -400,30 +405,32 @@ onBeforeMount(() => {
 
     boxWatcher = watchEffect(() => {
         if (selectedObject.value)
-            for (const box of boxes) {
-                box.children[1].children[0].material.transparent = true;
-                box.children[1].children[0].material.opacity = selectedObject.value?.uuid === box.uuid ? 1.0 : 0.1;
-                box.children[1].children[1].material.transparent = true;
-                box.children[1].children[1].material.opacity = selectedObject.value?.uuid === box.uuid ? 1.0 : 0.1;
-                box.children[1].children[1].receiveShadow = selectedObject.value?.uuid !== box.uuid;
-                box.children[1].children[0].receiveShadow = selectedObject.value?.uuid !== box.uuid;
-            }
+            for (const box of boxes)
+                if (selectedObject.value?.uuid === box.uuid) {
+                    box.children[1].children[0].material = boxMaterials.default[0].clone();
+                    box.children[1].children[1].material = boxMaterials.default[1];
+                    box.children[1].children[0].material.map = boxTexture[box.userData.box_name].texture;
+                    box.children[1].children[0].receiveShadow = false;
+                } else {
+                    box.children[1].children[0].material = boxMaterials.hidden[0].clone();
+                    box.children[1].children[1].material = boxMaterials.hidden[1];
+                    box.children[1].children[0].material.map = boxTexture[box.userData.box_name].texture;
+                    box.children[1].children[0].receiveShadow = true;
+                }
         else
             for (const box of boxes) {
-                box.children[1].children[0].material.transparent = false;
-                box.children[1].children[1].material.transparent = false;
-                box.children[1].children[0].material.opacity = 1.0;
-                box.children[1].children[1].material.opacity = 1.0;
-                box.children[1].children[1].receiveShadow = true;
+                box.children[1].children[0].material = boxMaterials.default[0].clone();
+                box.children[1].children[1].material = boxMaterials.default[1];
+                box.children[1].children[0].material.map = boxTexture[box.userData.box_name].texture;
                 box.children[1].children[0].receiveShadow = true;
             }
-        for (const box of boxes)
-            if (hoveredObject.value?.uuid === box.uuid) {
-                box.children[1].children[0].material.emissiveIntensity = 0.1;
-                if (selectedObject.value?.uuid !== box.uuid && box.children[1].children[1].material.transparent)
-                    box.children[1].children[0].material.opacity = 0.5;
-            } else
-                box.children[1].children[0].material.emissiveIntensity = 0.0;
+        if (hoveredObject.value?.uuid)
+            for (const box of boxes)
+                if (hoveredObject.value?.uuid === box.uuid)
+                    if (selectedObject.value?.uuid !== box.uuid) {
+                        box.children[1].children[0].material = boxMaterials.hovered[0].clone();
+                        box.children[1].children[0].material.map = boxTexture[box.userData.box_name].texture;
+                    }
     })
 });
 

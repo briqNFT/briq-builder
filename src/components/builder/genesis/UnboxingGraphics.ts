@@ -5,7 +5,6 @@ import {
     RenderPass,
     ShaderPass,
     FXAAShader,
-    SAOPass,
     SSAOPass,
     GammaCorrectionShader,
     OrbitControls,
@@ -17,6 +16,8 @@ import { GLTFLoader } from '@/three';
 
 import HomeScene from '@/assets/genesis/briqs_box_xmas.glb?url';
 import BriqBox from '@/assets/genesis/briqs_box.glb?url';
+
+import DefaultBox from '@/assets/genesis/default_box.png';
 
 let scene: THREE.Scene;
 let camera: THREE.Camera;
@@ -32,6 +33,8 @@ let boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D };
 
 let canvas: HTMLCanvasElement;
 
+let defaultBoxTexture: THREE.Texture;
+
 const boxes = [] as THREE.Mesh[];
 
 export enum SceneQuality {
@@ -41,13 +44,20 @@ export enum SceneQuality {
     ULTRA,
 }
 
+export const materials = {} as { [box_name: string]: THREE.Material[] };
+export const boxMaterials = {
+    default: undefined as unknown as [THREE.MeshStandardMaterial, THREE.MeshStandardMaterial],
+    hovered: undefined as unknown as [THREE.MeshStandardMaterial, THREE.MeshStandardMaterial],
+    hidden: undefined as unknown as [THREE.MeshStandardMaterial, THREE.MeshStandardMaterial],
+};
+export const boxTexture = {} as { [box_name: string]: {
+    texture: THREE.Texture,
+    users: THREE.Mesh[]
+}};
+
 function recreateRenderer(quality: SceneQuality) {
-    if (renderer)
-        renderer.dispose();
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
     renderer.shadowMap.needsUpdate = true;
     renderer.shadowMap.enabled = true;
-    renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.setClearColor(0xF00000, 0);
     // Somehow breaks animations.
     //renderer.info.autoReset = false;
@@ -60,9 +70,12 @@ function recreateRenderer(quality: SceneQuality) {
             type: THREE.FloatType,
         };
         const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, parameters);
+        renderTarget.texture.encoding = THREE.sRGBEncoding;
         composer = new EffectComposer(renderer, renderTarget);
-    } else
+    } else {
+        renderer.outputEncoding = THREE.sRGBEncoding;
         composer = new EffectComposer(renderer);
+    }
 
     {
         const renderPass = new RenderPass(scene, camera);
@@ -126,13 +139,113 @@ function recreateRenderer(quality: SceneQuality) {
     return [renderer, composer];
 }
 
+function resizeRendererToDisplaySize() {
+    const canvas = renderer.domElement;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+        renderer.setSize(width, height, false);
+        composer.setSize(width, height);
+
+        // SSAO
+        composer.passes[1].setSize(width, height);
+
+        // FXAA
+        composer.passes[3].uniforms['resolution'].value.x = 1 / width;
+        composer.passes[3].uniforms['resolution'].value.y = 1 / height;
+        // SMAA
+        composer.passes[4].setSize(width, height);
+
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+    }
+    return needResize;
+}
+
+export function render() {
+    if (!composer)
+        return;
+    resizeRendererToDisplaySize();
+    composer.render();
+    //renderer.info.reset();
+}
+
 export async function useRenderer(_canvas: HTMLCanvasElement) {
+    // We only need to run this once.
+    if (boxGlb)
+        return;
+
     await threeSetupComplete;
 
+    const defaultLoader = new THREE.TextureLoader();
+    defaultBoxTexture = defaultLoader.load(DefaultBox, (tex) => {
+        tex.encoding = THREE.sRGBEncoding;
+        tex.flipY = false;
+    });
+
+    const boxPromise = new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
+        const loader = new GLTFLoader();
+        loader.load(
+            BriqBox,
+            (gltf: any) => {
+                boxMaterials.default = [
+                    gltf.scene.children.slice()[0].children[1].children[0].material.clone(),
+                    gltf.scene.children.slice()[0].children[1].children[1].material.clone(),
+                ];
+                boxMaterials.hovered = [
+                    gltf.scene.children.slice()[0].children[1].children[0].material.clone(),
+                    gltf.scene.children.slice()[0].children[1].children[1].material.clone(),
+                ];
+                boxMaterials.hidden = [
+                    gltf.scene.children.slice()[0].children[1].children[0].material.clone(),
+                    gltf.scene.children.slice()[0].children[1].children[1].material.clone(),
+                ];
+
+                boxMaterials.hidden[0].transparent = true;
+                boxMaterials.hidden[1].transparent = true;
+                boxMaterials.hidden[0].opacity = 0.1;
+                boxMaterials.hidden[1].opacity = 0.1;
+
+                boxMaterials.default[0].map = defaultBoxTexture;
+                boxMaterials.default[0].map.encoding = THREE.sRGBEncoding;
+                boxMaterials.default[0].normalMap!.encoding = THREE.sRGBEncoding;
+                boxMaterials.default[0].normalMap!.needsUpdate = true;
+
+                boxMaterials.hovered[0].emissive = new THREE.Color(0xffffff);
+                boxMaterials.hovered[0].emissiveMap = defaultBoxTexture;
+                boxMaterials.hovered[0].emissiveMap.encoding = THREE.sRGBEncoding;
+                boxMaterials.hovered[0].emissiveIntensity = 0.1;
+                boxMaterials.hovered[0].needsUpdate = true;
+
+                resolve({
+                    anim: gltf.animations[0],
+                    box: gltf.scene.children.slice()[0],
+                });
+            },
+            () => {},
+            (error: any) => reject(error),
+        );
+    });
+    const roomPromise = new Promise((resolve: (_: THREE.Mesh[]) => void, reject) => {
+        const loader = new GLTFLoader();
+        loader.load(
+            HomeScene,
+            (gltf: any) => {
+                resolve(gltf.scene.children.slice(1));
+            },
+            () => {},
+            (error: any) => reject(error),
+        );
+    })
+
+    // Now create scene items.
     canvas = _canvas;
 
     scene = new THREE.Scene();
 
+    /* Create the camera early, because it's needed for the post-processor. */
     const fov = 45;
     const aspect = 2;
     const near = 0.5;
@@ -144,54 +257,10 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     controls.enableDamping = true;
     controls.target = new THREE.Vector3(2, 0, 2);
 
-    if (!boxGlb)
-        boxGlb = await new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
-            const loader = new GLTFLoader();
-            loader.load(
-                BriqBox,
-                (gltf: any) => {
-                    resolve({
-                        anim: gltf.animations[0],
-                        box: gltf.scene.children.slice()[0],
-                    });
-                },
-                () => {},
-                (error: any) => reject(error),
-            );
-        });
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
 
-    function resizeRendererToDisplaySize() {
-        const canvas = renderer.domElement;
-        const width = canvas.clientWidth;
-        const height = canvas.clientHeight;
-        const needResize = canvas.width !== width || canvas.height !== height;
-        if (needResize) {
-            renderer.setSize(width, height, false);
-            composer.setSize(width, height);
-
-            // SSAO
-            composer.passes[1].setSize(width, height);
-
-            // FXAA
-            composer.passes[3].uniforms['resolution'].value.x = 1 / width;
-            composer.passes[3].uniforms['resolution'].value.y = 1 / height;
-            // SMAA
-            composer.passes[4].setSize(width, height);
-
-            const canvas = renderer.domElement;
-            camera.aspect = canvas.clientWidth / canvas.clientHeight;
-            camera.updateProjectionMatrix();
-        }
-        return needResize;
-    }
-
-    function render() {
-        if (!composer)
-            return;
-        resizeRendererToDisplaySize();
-        composer.render();
-        //renderer.info.reset();
-    }
+    boxGlb = await boxPromise;
+    roomSceneGlb = await roomPromise;
 
     return {
         camera,
@@ -224,18 +293,6 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
 
     scene.background = new THREE.Color('#230033').convertSRGBToLinear();
 
-    if (!roomSceneGlb)
-        roomSceneGlb = await new Promise((resolve: (_: THREE.Mesh[]) => void, reject) => {
-            const loader = new GLTFLoader();
-            loader.load(
-                HomeScene,
-                (gltf: any) => {
-                    resolve(gltf.scene.children.slice(1));
-                },
-                () => {},
-                (error: any) => reject(error),
-            );
-        })
     const obj = new THREE.Group();
 
     const castShadow = (obj: any) => {
@@ -420,10 +477,32 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
     for (const box of boxes)
         scene.add(box);
 
-}
+    // Do an initial render pass to precompile shaders.
+    const fakeObjs = [
+        SkeletonUtils.clone(boxGlb.box),
+        SkeletonUtils.clone(boxGlb.box),
+        SkeletonUtils.clone(boxGlb.box),
+        SkeletonUtils.clone(boxGlb.box),
+    ];
 
-import DefaultBox from '@/assets/genesis/default_box.png';
-export const materials = {} as { [box_name: string]: THREE.Material[] };
+    // It's important to compile all states in advance so that the first click on a box is smooth.
+    fakeObjs[0].children[1].children[0].material = boxMaterials.default[0];
+    fakeObjs[0].children[1].children[1].material = boxMaterials.default[1];
+    fakeObjs[1].children[1].children[0].material = boxMaterials.hovered[0];
+    fakeObjs[1].children[1].children[1].material = boxMaterials.hovered[1];
+    fakeObjs[2].children[1].children[0].material = boxMaterials.hidden[0];
+    fakeObjs[2].children[1].children[1].material = boxMaterials.hidden[1];
+
+    scene.add(fakeObjs[0]);
+    scene.add(fakeObjs[1]);
+    scene.add(fakeObjs[2]);
+
+    composer.render(scene, camera);
+
+    scene.remove(fakeObjs[0]);
+    scene.remove(fakeObjs[1])
+    scene.remove(fakeObjs[2])
+}
 
 export function addBox(boxData: any, scene: THREE.Scene) {
     const box = SkeletonUtils.clone(boxGlb.box);
@@ -443,38 +522,24 @@ export function addBox(boxData: any, scene: THREE.Scene) {
     box.userData.uid = boxData.uid;
     box.userData.box_token_id = boxData.box_token_id;
     box.userData.box_name = boxData.box_name;
+
+    if (!boxTexture[boxData.box_name])
+        boxTexture[boxData.box_name] = {
+            texture: defaultBoxTexture,
+            users: [box],
+        }
+    else
+        boxTexture[boxData.box_name].users.push(box);
+
     box.children[1].children[0].castShadow = true;
     box.children[1].children[0].receiveShadow = true;
     box.children[1].children[1].receiveShadow = true;
 
-    const defaultLoader = new THREE.TextureLoader();
-    const defaultTexture = defaultLoader.load(DefaultBox);
-    defaultTexture.encoding = THREE.sRGBEncoding;
-    defaultTexture.flipY = false;
+    box.children[1].children[0].material = boxMaterials.default[0].clone();
+    box.children[1].children[1].material = boxMaterials.default[1];
 
-    box.children[1].children[0].material = box.children[1].children[0].material.clone();
-    box.children[1].children[1].material = box.children[1].children[1].material.clone();
-
-    box.children[1].children[0].material.color = new THREE.Color('#ffffff');
-    box.children[1].children[1].material.color = new THREE.Color('#ffffff');
-
-    (box.children[1].children[0].material.map as THREE.Texture) = defaultTexture;
-    if (!materials[boxData.box_name])
-        materials[boxData.box_name] = [];
-    materials[boxData.box_name].push(box.children[1].children[0].material);
-
-    (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.encoding = THREE.sRGBEncoding;
-    (box.children[1].children[0].material as THREE.MeshStandardMaterial).normalMap.needsUpdate = true;
-
-    (box.children[1].children[0].material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0xffffff);
-    (box.children[1].children[1].material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0xffffff);
-    (box.children[1].children[0].material as THREE.MeshStandardMaterial).emissiveMap = defaultTexture;
-    (box.children[1].children[1].material as THREE.MeshStandardMaterial).emissiveMap = defaultTexture;
-    (box.children[1].children[0].material as THREE.MeshStandardMaterial).needsUpdate = true;
-    (box.children[1].children[1].material as THREE.MeshStandardMaterial).needsUpdate = true;
-
+    box.children[1].children[0].material.map = boxTexture[boxData.box_name].texture;
     // Collision detection: for perf reasons we compute against a box.
-    // TODO: do this much better.
 
     // Set an artificial bounding box that'll be big enough
     //box.children[1].children[0].geometry.boundingSphere = new THREE.Sphere(undefined, 1);
@@ -635,6 +700,33 @@ export function graphicsFrame(delta: number) {
     );
     chimneyLight.intensity = (intensity + randomDisturb * 0.05) * 0.25 + 0.85;
 }
+
+setInterval(() => {
+    console.log(renderer.info.programs?.map(prog => {
+        if (prog.name === 'MeshStandardMaterial') {
+            const params = prog.cacheKey.split(',');
+            params[26] = (+params[26]).toString(2);
+            params[27] = (+params[27]).toString(2);
+            return {
+                name: prog.name,
+                id: prog.id,
+                cacheKey: params.join(','),
+            }
+        }
+        return {
+            name: prog.name,
+            id: prog.id,
+            cacheKey: prog.cacheKey.split(','),
+        }
+    }))
+    console.log(boxMaterials);
+    console.log(scene);
+    scene.traverseVisible(mesh => {
+        if (mesh.material instanceof THREE.MeshPhysicalMaterial)
+            console.log(mesh.name, mesh.material)
+    })
+}, 2500);
+
 
 export function getBoxAt(event: PointerEvent) {
     const rc = new THREE.Raycaster();
