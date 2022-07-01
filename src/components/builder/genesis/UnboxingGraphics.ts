@@ -701,33 +701,6 @@ export function graphicsFrame(delta: number) {
     chimneyLight.intensity = (intensity + randomDisturb * 0.05) * 0.25 + 0.85;
 }
 
-setInterval(() => {
-    console.log(renderer.info.programs?.map(prog => {
-        if (prog.name === 'MeshStandardMaterial') {
-            const params = prog.cacheKey.split(',');
-            params[26] = (+params[26]).toString(2);
-            params[27] = (+params[27]).toString(2);
-            return {
-                name: prog.name,
-                id: prog.id,
-                cacheKey: params.join(','),
-            }
-        }
-        return {
-            name: prog.name,
-            id: prog.id,
-            cacheKey: prog.cacheKey.split(','),
-        }
-    }))
-    console.log(boxMaterials);
-    console.log(scene);
-    scene.traverseVisible(mesh => {
-        if (mesh.material instanceof THREE.MeshPhysicalMaterial)
-            console.log(mesh.name, mesh.material)
-    })
-}, 2500);
-
-
 export function getBoxAt(event: PointerEvent) {
     const rc = new THREE.Raycaster();
     const cv = canvas;
