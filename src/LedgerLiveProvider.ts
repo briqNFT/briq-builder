@@ -191,6 +191,7 @@ class LedgerStarknetObject {
     isConnected = false;
     account = undefined as undefined | Account; // 
     enabled: Promise<LedgerStarknetObject> | null = null;
+    listeners = {};
     
     targetOrigin = DEFAULT_TARGET_ORIGIN;
     timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS;
@@ -319,9 +320,9 @@ class LedgerStarknetObject {
         }
     
         // If the method is a request from the parent window, it is likely a subscription.
-        /*
         if ('method' in message) {
           switch (message.method) {
+            /*
             case 'notification':
               this.emitNotification(message.params);
               break;
@@ -341,16 +342,17 @@ class LedgerStarknetObject {
             case 'networkChanged':
               this.emitNetworkChanged(message.params[0]);
               break;
-    
+            */
             case 'accountsChanged':
-              this.emitAccountsChanged(message.params[0]);
-              break;
+                this.account = new LedgerAccount(getProvider(), message.params[0][0], new LedgerSigner());
+                this.listeners['accountsChanged']();
+                break;
           }
-        }*/
+        }
     };
 
-    on() {
-            
+    on(event, func) {
+        this.listeners[event] = func;
     }
 }
 
