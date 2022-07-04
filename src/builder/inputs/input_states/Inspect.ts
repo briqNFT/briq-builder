@@ -31,8 +31,12 @@ const getRotationHelperMesh = (() => {
         //cone.translate(0, 1.5, 0);
         const geometry = cone;
 
+        const RED = new THREE.Color(0x962400).convertSRGBToLinear();
+        const GREEN = new THREE.Color(0x009624).convertSRGBToLinear();
+        const BLUE = new THREE.Color(0x002496).convertSRGBToLinear();
+
         {
-            const material = new THREE.MeshPhongMaterial({ color: 0x002496, opacity: 0.9, transparent: true });
+            const material = new THREE.MeshPhongMaterial({ color: BLUE, opacity: 0.9, transparent: true });
             const mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.rotateX(Math.PI / 2);
@@ -41,7 +45,7 @@ const getRotationHelperMesh = (() => {
             mainMesh.add(mesh);
         }
         {
-            const material = new THREE.MeshPhongMaterial({ color: 0x962400, opacity: 0.9, transparent: true });
+            const material = new THREE.MeshPhongMaterial({ color: RED, opacity: 0.9, transparent: true });
             const mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             //mesh.position.set(0, 0.5, 1.0);
@@ -50,7 +54,7 @@ const getRotationHelperMesh = (() => {
             mainMesh.add(mesh);
         }
         {
-            const material = new THREE.MeshPhongMaterial({ color: 0x009624, opacity: 0.9, transparent: true });
+            const material = new THREE.MeshPhongMaterial({ color: GREEN, opacity: 0.9, transparent: true });
             const mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             //mesh.position.set(1.0, 0.5, 0.5);
@@ -78,8 +82,12 @@ const getMovementHelperMesh = (() => {
         cone.translate(0, 1.5, 0);
         const geometry = BufferGeometryUtils.mergeBufferGeometries([new THREE.BoxGeometry(0.2, 2, 0.2), cone]);
 
+        const RED = new THREE.Color(0x962400).convertSRGBToLinear();
+        const GREEN = new THREE.Color(0x009624).convertSRGBToLinear();
+        const BLUE = new THREE.Color(0x002496).convertSRGBToLinear();
+
         {
-            const material = new THREE.MeshPhongMaterial({ color: 0x002496, opacity: 0.9, transparent: true });
+            const material = new THREE.MeshPhongMaterial({ color: BLUE, opacity: 0.9, transparent: true });
             const mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.position.set(0, 1.0, 0);
@@ -87,7 +95,7 @@ const getMovementHelperMesh = (() => {
             mainMesh.add(mesh);
         }
         {
-            const material = new THREE.MeshPhongMaterial({ color: 0x962400, opacity: 0.9, transparent: true });
+            const material = new THREE.MeshPhongMaterial({ color: RED, opacity: 0.9, transparent: true });
             const mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.position.set(0, 0, 1.0);
@@ -96,7 +104,7 @@ const getMovementHelperMesh = (() => {
             mainMesh.add(mesh);
         }
         {
-            const material = new THREE.MeshPhongMaterial({ color: 0x009624, opacity: 0.9, transparent: true });
+            const material = new THREE.MeshPhongMaterial({ color: GREEN, opacity: 0.9, transparent: true });
             const mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = RO;
             mesh.position.set(1.0, 0, 0);

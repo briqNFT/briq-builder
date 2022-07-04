@@ -137,7 +137,7 @@ function recreateRenderer(canvas, scene, camera) {
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = builderSettings.aaLevel !== '0' ? THREE.VSMShadowMap : THREE.BasicShadowMap; //THREE.VSMShadowMap; //THREE.PCFShadowMap;
-
+    //renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.setClearColor(0x000000, 0);
 
     const parameters = {
@@ -162,7 +162,7 @@ function recreateRenderer(canvas, scene, camera) {
         renderPass.accumulate = false;
         renderPass.accumulateIndex = - 1;
         composer.addPass(renderPass);
-        */
+        // */
     }
     if (builderSettings.useSAO) {
         const aoPass = new SSAOPass(scene, camera, 200, 200);
@@ -329,7 +329,7 @@ export async function main(canvas) {
             composer.passes[0].accumulateIndex = - 1;
         }, 500)
     });
-    */
+    //*/
 
     canvas.addEventListener(
         'touchstart',

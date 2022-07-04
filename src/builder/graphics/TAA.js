@@ -1,7 +1,11 @@
+/**
+ * Copy of Three JS's examples TAA pass.
+ * Custom precision is used, and also my SSAA class.
+ */
 import {
     WebGLRenderTarget,
 } from 'three';
-import { SSAARenderPass } from 'three/examples/jsm/postprocessing/SSAARenderPass.js';
+import { SSAARenderPass } from './SSAARenderPass.js';
 
 /**
  *
@@ -91,7 +95,7 @@ class TAARenderPass extends SSAARenderPass {
                 renderer.render( this.scene, this.camera );
 
                 renderer.setRenderTarget( this.sampleRenderTarget );
-                if ( this.accumulateIndex === 0 ) {
+                if (this.accumulateIndex === 0 ) {
                     renderer.setClearColor( this.clearColor, this.clearAlpha );
                     renderer.clear();
                 }
@@ -110,7 +114,7 @@ class TAARenderPass extends SSAARenderPass {
         }
 
         const accumulationWeight = this.accumulateIndex * sampleWeight;
-        if ( accumulationWeight > 0 ) {
+        if (accumulationWeight > 0 ) {
 
             this.copyUniforms[ 'opacity' ].value = 1.0;
             this.copyUniforms[ 'tDiffuse' ].value = this.sampleRenderTarget.texture;
@@ -120,7 +124,7 @@ class TAARenderPass extends SSAARenderPass {
 
         }
 
-        if ( accumulationWeight < 1.0 ) {
+        if (accumulationWeight < 1.0 ) {
 
             this.copyUniforms[ 'opacity' ].value = 1.0 - accumulationWeight;
             this.copyUniforms[ 'tDiffuse' ].value = this.holdRenderTarget.texture;

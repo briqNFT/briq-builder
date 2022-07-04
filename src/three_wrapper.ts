@@ -13,7 +13,7 @@ export { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 export { SAOPass } from 'three/examples/jsm/postprocessing/SAOPass.js';
 export { SSAOPass } from '@/builder/graphics/BetterSSAOPass.js';
 export { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-export { SSAARenderPass } from 'three/examples/jsm/postprocessing/SSAARenderPass.js';
+export { SSAARenderPass } from '@/builder/graphics/SSAARenderPass.js';
 
 export { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 export { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
