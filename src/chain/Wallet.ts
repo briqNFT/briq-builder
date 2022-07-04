@@ -17,6 +17,7 @@ import { connect, disconnect, IStarknetWindowObject } from '@/starknet_wrapper';
 
 import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
+import { goLedgerLive } from '@/LedgerLiveProvider';
 
 class WalletStore {
     signer: undefined | AccountInterface = undefined;
@@ -31,13 +32,17 @@ class WalletStore {
         const storedAddress = window.localStorage.getItem('user_address');
         logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
 
-        if (APP_ENV === 'dev')
-            setupMockWallet();
+        if (APP_ENV === 'dev') {
+            //setupMockWallet();
+        }
 
+        this.enableWallet(goLedgerLive());
+        /*
         const cwo = await connect({ showList: false });
 
         if (cwo)
             this.enableWallet(cwo);
+        */
 
         // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
         setWalletInitComplete();

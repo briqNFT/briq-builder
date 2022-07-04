@@ -6,7 +6,7 @@ export const MATERIAL_GENESIS = '0x1';
 
 export const CONF = {
     theme: 'default',
-    briqMaterials: APP_ENV === 'dev' ? ['0x1', '0x3', '0x4', '0x5', '0x6'] : ['0x1'],
+    briqMaterials: false && APP_ENV === 'dev' ? ['0x1', '0x3', '0x4', '0x5', '0x6'] : ['0x1'],
     defaultMaterial: MATERIAL_GENESIS,
     builderSettings: {
         darkMode: {
