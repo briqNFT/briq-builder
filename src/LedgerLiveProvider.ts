@@ -167,7 +167,7 @@ class LedgerAccount extends Account {
         if (endpoint != 'add_transaction')
             return super.fetchEndpoint(endpoint, query, request);
         // We are now in add_transaction mode
-        const res = await starknetObject?.send("eth_sendTransaction", [{ from: starknetObject.account?.address }])
+        const res = await starknetObject?.send("eth_sendTransaction", [{ request }]);
         console.log(endpoint, query, request, res);
         return { result: [] };
     }
