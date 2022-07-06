@@ -52,7 +52,6 @@ body {
     @apply text-text font-sans font-normal leading-tight;
 }
 
-
 html h1 {
     @apply text-max font-medium;
 }
@@ -64,7 +63,6 @@ html h2 {
 html h3 {
     @apply text-lg font-medium;
 }
-
 
 html:not(.v2design) body {
     @apply font-light;

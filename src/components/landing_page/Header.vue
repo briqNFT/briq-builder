@@ -2,8 +2,11 @@
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { genesisUserStore } from '@/builder/GenesisStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import { computed, watchEffect } from 'vue';
+import { watchEffect } from 'vue';
 import Notifications from '../Notifications.vue';
+
+import ProfileIcon from '@/assets/profile/profile_small.svg';
+import briqIcon from '@/assets/landing/briq-icon.svg';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -25,12 +28,12 @@ watchEffect(() => {
 <template>
     <div>
         <div
-            class="header m-auto flex justify-between items-center text-center alternate-buttons">
+            class="header container m-auto py-4 flex justify-between items-center text-center alternate-buttons">
             <div class="flex">
-                <routerLink to="/genesis"><h2 class="briq-logo briq text-[32px]">briq</h2></routerLink>
+                <routerLink to="/genesis"><h2 class="briq-logo text-[32px]">briq</h2></routerLink>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="flex gap-8 flex-wrap justify-center md:justify-end font-normal">
+            <div class="flex items-stretch gap-4">
+                <div class="flex gap-8 flex-wrap justify-center items-center md:justify-end font-normal">
                     <routerLink to="/team"><p>Team</p></routerLink>
                     <routerLink to="/builder"><p>Create</p></routerLink>
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
@@ -40,22 +43,22 @@ watchEffect(() => {
                         <i class="fa-solid fa-box-open"/> {{ genesisUserStore.availableBoxes?.length || 0 }}
                     </Btn>
                 </router-link>
-                <Btn secondary class="before:border-darker">
-                    <i class="fa-solid fa-cube"/> {{ 0 }}
+                <Btn secondary class="before:border-darker flex items-center justify-center gap-2">
+                    <briqIcon class="inline-block"/> {{ 0 }}
                 </Btn>
                 <div class="flex-none">
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <MenuDropdown v-else-if="walletStore?.userWalletAddress">
-                        <template #button><span class="px-2">{{ walletStore.getShortAddress() }}</span></template>
-                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
-                        <Btn no-background icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
-                        <Btn no-background icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
+                    <MenuDropdown no-background v-else-if="walletStore?.userWalletAddress">
+                        <template #button><ProfileIcon width="1.8rem" height="1.8rem" class="inline-block mx-2"/></template>
+                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full text-left" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                        <Btn no-background class="text-left" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
+                        <Btn no-background class="text-left" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                     </MenuDropdown>
                 </div>
-                <MenuDropdown>
+                <MenuDropdown no-background class="min-w-[3rem]">
                     <template #icon><i class="fa-regular fa-bell"/></template>
-                    <Notifications/>
+                    <Notifications class="p-4"/>
                 </MenuDropdown>
             </div>
         </div>
@@ -63,13 +66,6 @@ watchEffect(() => {
 </template>
 
 <style scoped>
-.header > div {
-    @apply py-8;
-}
-.header {
-    @apply container m-auto;
-}
-
 .alpha-pill {
     position: relative;
 }

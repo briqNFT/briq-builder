@@ -23,7 +23,7 @@ defineProps<{
 <style>
 html.v2design button {
     z-index: 0;
-    @apply text-left;
+    @apply text-center;
     @apply px-2 py-3;
     @apply text-md font-normal leading-none;
     @apply min-h-[1.5rem];

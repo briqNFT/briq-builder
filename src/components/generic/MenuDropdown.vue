@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 const opened = ref(false);
 
-const CLOSE_AFTER_FOCUS_LOSS_DELAY = 15000;
+const CLOSE_AFTER_FOCUS_LOSS_DELAY = 450;
 let closeTimer: any;
 const willClose = () => closeTimer = setTimeout(() => opened.value = false, CLOSE_AFTER_FOCUS_LOSS_DELAY);
 const dropClose = () => closeTimer && clearTimeout(closeTimer);
@@ -18,7 +18,7 @@ div[data-name='menu'] {
 
 <template>
     <div class="relative" @pointerenter="dropClose" @pointerleave="willClose">
-        <Btn secondary @click="opened = !opened">
+        <Btn secondary class="h-full w-full" v-bind="$attrs" @click="opened = !opened">
             <slot name="button"/>
             <span :class="opened ? 'text-accent' : ''"><slot name="icon">
                 <i v-if="opened" class="fa-solid fa-chevron-up"/>
@@ -32,3 +32,10 @@ div[data-name='menu'] {
         </div>
     </div>
 </template>
+
+<script lang="ts">
+export default defineComponent({
+    // I manually declare attrs on the button
+    inheritAttrs: false,
+});
+</script>
