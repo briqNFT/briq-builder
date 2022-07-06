@@ -3,6 +3,7 @@ import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { genesisUserStore } from '@/builder/GenesisStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { computed, watchEffect } from 'vue';
+import Notifications from '../Notifications.vue';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -50,8 +51,12 @@ watchEffect(() => {
                         <router-link :to="{ name: 'Profile' }"><Btn class="w-full" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
                         <Btn no-background icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
                         <Btn no-background icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
-                    </menudropdown>
+                    </MenuDropdown>
                 </div>
+                <MenuDropdown>
+                    <template #icon><i class="fa-regular fa-bell"/></template>
+                    <Notifications/>
+                </MenuDropdown>
             </div>
         </div>
     </div>

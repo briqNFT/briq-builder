@@ -26,7 +26,7 @@ const {
 } = useBoxData(token_id.value);
 
 const themeName = computed(() => route.params.theme);
-const boxName = computed(() => item.value.name ?? route.params.box);
+const boxName = computed(() => item.value?.name ?? route.params.box);
 
 </script>
 
@@ -119,7 +119,7 @@ p {
                     </div>
                     <div class="flex flex-col gap-6">
                         <h1 class="text-lg font-semibold">{{ boxName }}</h1>
-                        <template v-if="saledata?.isLive() && saledata.total_quantity === 1">
+                        <template v-if="saledata?.isLive() && saledata?.total_quantity === 1">
                             <div>
                                 <h2>Sale ends on</h2>
                                 <p class="my-4">July 1, 2022 at 11:32 AM GMT+1</p>
@@ -176,7 +176,7 @@ p {
                                         <p class="text-copy font-medium">{{ i[0] }}</p>
                                     </div>
                                 </div>
-                                <template v-if="saledata.total_quantity > 1">
+                                <template v-if="saledata?.total_quantity > 1">
                                     <div>
                                         <h2>Starting price</h2>
                                         <p class="text-xl font-medium">1 <i class="fa-brands fa-ethereum"/></p>
@@ -184,7 +184,7 @@ p {
                                 </template>
                             </div>
                         </template>
-                        <template v-if="saledata.total_quantity > 1">
+                        <template v-if="saledata?.total_quantity > 1">
                             <div>
                                 <h2>How a Dutch auction works</h2>
                                 <div>

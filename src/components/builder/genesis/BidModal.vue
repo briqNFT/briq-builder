@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
+import { BidNotif } from './BidNotif';
 defineEmits(['close']);
 
 const step = ref('MAKE_BID' as 'MAKE_BID' | 'PROCESSING' | 'BID_COMPLETE');
+
+const bid = ref(0);
+
+const makeBid = () => {
+    new BidNotif({ bidValue: bid.value }).push();
+    step.value = 'PROCESSING';
+}
 
 watch(step, (nv, _) => {
     if (nv === 'PROCESSING')
@@ -24,13 +32,13 @@ watch(step, (nv, _) => {
             <div>
                 <p>
                     Make your bid<br>
-                    <input class="w-full my-2" :placeholder="`Bid Ξ ${1.35} or more`">
+                    <input class="w-full my-2" v-model="bid" :placeholder="`Bid Ξ ${1.35} or more`">
                 </p>
                 <p class="text-right text-sm text-darkest">Available: Ξ 2.35</p>
             </div>
             <div class="flex justify-end gap-4">
                 <Btn secondary @click="$emit('close')">Cancel</Btn>
-                <Btn @click="step = 'PROCESSING'">Place a bid</Btn>
+                <Btn @click="makeBid">Place a bid</Btn>
             </div>
         </div>
     </WindowVue>
