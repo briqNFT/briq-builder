@@ -49,8 +49,8 @@ watchEffect(() => {
                 <div class="flex-none">
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <MenuDropdown no-background v-else-if="walletStore?.userWalletAddress">
-                        <template #button><ProfileIcon width="1.8rem" height="1.8rem" class="inline-block mx-2"/></template>
+                    <MenuDropdown no-background v-else-if="walletStore?.userWalletAddress" class="text-xs">
+                        <template #button><ProfileIcon width="1.5rem" height="1.5rem" class="inline-block mx-2"/></template>
                         <router-link :to="{ name: 'Profile' }"><Btn class="w-full text-left" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
                         <Btn no-background class="text-left" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
                         <Btn no-background class="text-left" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
