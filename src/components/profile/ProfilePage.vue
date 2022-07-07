@@ -80,7 +80,10 @@ const sections = ['All items', 'Sealed boxes', 'Booklets', 'Genesis Sets', 'Pers
                 <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any official Genesis sets.</p>
                     <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
-                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                    <div class="mt-2 flex gap-2">
+                        <Btn secondary>Browse the themes</Btn>
+                        <RouterLink :to="{ name: 'Builder' }"><Btn>Go to Builder</Btn></RouterLink>
+                    </div>
                 </div>
             </div>
             <div>

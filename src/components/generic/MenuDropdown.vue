@@ -3,7 +3,7 @@ import { defineComponent, ref } from 'vue';
 
 const opened = ref(false);
 
-const CLOSE_AFTER_FOCUS_LOSS_DELAY = 450;
+const CLOSE_AFTER_FOCUS_LOSS_DELAY = 250;
 let closeTimer: any;
 const willClose = () => closeTimer = setTimeout(() => opened.value = false, CLOSE_AFTER_FOCUS_LOSS_DELAY);
 const dropClose = () => closeTimer && clearTimeout(closeTimer);
