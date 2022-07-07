@@ -1,22 +1,35 @@
 import { h, reactive, watchEffect } from 'vue';
 import { logDebug } from './Messages';
 
-const NOTIFICATION_VERSION = 1;
+const NOTIFICATION_STORAGE_VERSION = 1;
+
 export abstract class Notif {
     abstract type: string;
+    version = 1;
+    timestamp: number;
+    read = false;
+
+    constructor(data: any) {
+        this.read = data.read;
+        this.timestamp = data.timestamp || Date.now();
+    }
 
     /** For convenience, allow pushing to the manager from a notification type so you only need to import that type. */
     push() {
         notificationsManager.push(this);
     }
 
-    render() {
+    abstract get summary(): string;
+
+    render(): any {
         return h('p', this.type);
     }
 
     _serialize() {
         return Object.assign({
             type: this.type,
+            read: this.read,
+            timestamp: this.timestamp,
         }, this.serialize())
     }
 
@@ -29,9 +42,13 @@ class UnprocessedNotification extends Notif {
     serType: string;
 
     constructor(serializedData: any) {
-        super();
+        super(serializedData);
         this.serializedData = serializedData;
         this.serType = this.serializedData.type;
+    }
+
+    get summary() {
+        return this.serializedData;
     }
 
     serialize() {
@@ -58,7 +75,7 @@ class NotificationManager {
     _setupDiskSync() {
         try {
             const notifs = JSON.parse(window.localStorage.getItem('notifications')!)
-            if (notifs.version !== NOTIFICATION_VERSION)
+            if (notifs.version !== NOTIFICATION_STORAGE_VERSION)
                 throw new Error();
             for (const notifData of notifs.notifications)
                 this.push(new UnprocessedNotification(notifData));
@@ -71,7 +88,7 @@ class NotificationManager {
         watchEffect(() => {
             logDebug('SERIALIZING NOTIFICATIONS')
             window.localStorage.setItem('notifications', JSON.stringify({
-                version: NOTIFICATION_VERSION,
+                version: NOTIFICATION_STORAGE_VERSION,
                 notifications: this.notifications.map(x => x._serialize()),
             }))
         });

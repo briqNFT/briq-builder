@@ -6,10 +6,19 @@ defineEmits(['close']);
 
 const step = ref('MAKE_BID' as 'MAKE_BID' | 'PROCESSING' | 'BID_COMPLETE');
 
-const bid = ref(0);
+const props = defineProps<{
+    metadata: {
+        item: string,
+    },
+}>();
+
+const bid = ref(undefined as undefined | number);
 
 const makeBid = () => {
-    new BidNotif({ bidValue: bid.value }).push();
+    new BidNotif({
+        value: bid.value || 0,
+        item: props.metadata.item,
+    }).push();
     step.value = 'PROCESSING';
 }
 
@@ -32,7 +41,7 @@ watch(step, (nv, _) => {
             <div>
                 <p>
                     Make your bid<br>
-                    <input class="w-full my-2" v-model="bid" :placeholder="`Bid Ξ ${1.35} or more`">
+                    <input class="w-full my-2" type="number" min="0" v-model="bid" :placeholder="`Bid Ξ ${1.35} or more`">
                 </p>
                 <p class="text-right text-sm text-darkest">Available: Ξ 2.35</p>
             </div>

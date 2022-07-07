@@ -1,24 +1,31 @@
 import { Notif, notificationsManager } from '@/Notifications';
-import { h } from 'vue';
 import BidNotifVue from './BidNotif.vue';
 
 type Ser = {
-    bidValue: number
+    value: number,
+    item: string,
 };
 
 export class BidNotif extends Notif {
     type = 'box_bid';
     value: number;
+    item: string;
 
     constructor(data: Ser) {
-        super();
-        this.value = data.bidValue;
+        super(data);
+        this.value = data.value;
+        this.item = data.item;
     }
 
     serialize(): Ser {
         return {
-            bidValue: this.value,
+            value: this.value,
+            item: this.item,
         };
+    }
+
+    get summary() {
+        return `Your bid of ${this.value} is being processed.`;
     }
 
     render() {

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { defineComponent, ref } from 'vue';
 
+defineProps<{
+    closeOnClick?: boolean
+}>();
+
 const opened = ref(false);
 
 const CLOSE_AFTER_FOCUS_LOSS_DELAY = 250;
@@ -27,7 +31,7 @@ div[data-name='menu'] {
             </span>
         </Btn>
         <!-- Close on click so that clicking on button works as expected. -->
-        <div v-if="opened" data-name="menu" @click="opened = false" class="after:absolute after:top-[-1rem] after:h-4 after:w-full absolute my-2 right-0 flex flex-col gap-1 bg-base shadow rounded-md px-2 py-2 w-max z-50">
+        <div v-if="opened" data-name="menu" @click="closeOnClick ? opened = false : ''" class="after:absolute after:top-[-1rem] after:h-4 after:w-full absolute my-2 right-0 flex flex-col gap-1 bg-base shadow rounded-md px-2 py-2 w-max z-50">
             <slot/>
         </div>
     </div>

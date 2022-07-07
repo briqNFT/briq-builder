@@ -10,10 +10,6 @@ import { useBoxData } from './BoxData';
 const route = useRoute();
 const router = useRouter();
 
-const placeBid = () => {
-    pushModal(BidModalVue);
-}
-
 const token_id = computed(() => `${route.params.theme}/${route.params.box}`);
 
 const {
@@ -27,6 +23,12 @@ const {
 
 const themeName = computed(() => route.params.theme);
 const boxName = computed(() => item.value?.name ?? route.params.box);
+
+const placeBid = () => {
+    pushModal(BidModalVue, {
+        item: token_id.value,
+    });
+}
 
 </script>
 
