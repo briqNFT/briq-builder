@@ -1,5 +1,5 @@
 import { Notif, notificationsManager } from '@/Notifications';
-import BidNotifVue from './BidNotif.vue';
+import BidNotifVue from '@/components/builder/genesis/BidNotif.vue';
 
 type Ser = {
     value: number,

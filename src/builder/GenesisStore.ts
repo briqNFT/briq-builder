@@ -21,11 +21,9 @@ class PerUser<Data> {
         watch([toRef(walletStore, 'userWalletAddress')], () => {
             if (this._currentWallet === walletStore.userWalletAddress)
                 return;
-            console.log('tatara', this);
             if (!(walletStore.userWalletAddress in this._perWallet))
                 this._perWallet[walletStore.userWalletAddress] = new this._type();
             this._currentWallet = walletStore.userWalletAddress;
-            console.log('tatara', 'set a new value');
         }, {
             immediate: true,
         })

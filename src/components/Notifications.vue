@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { notificationsManager } from '@/Notifications';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
-const notifs = notificationsManager.notifications;
+const notifs = computed(() => notificationsManager.notifications.filter(x => x.shouldShow()));
 
 const details = ref(undefined as undefined | number);
 </script>

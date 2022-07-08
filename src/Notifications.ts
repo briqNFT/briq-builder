@@ -1,4 +1,5 @@
 import { h, reactive, watchEffect } from 'vue';
+import { maybeStore } from './chain/WalletLoading';
 import { logDebug } from './Messages';
 
 const NOTIFICATION_STORAGE_VERSION = 1;
@@ -8,15 +9,23 @@ export abstract class Notif {
     version = 1;
     timestamp: number;
     read = false;
+    // Mark that this notification is relevant for a given user.
+    // Intended as sort of opaque, current format is network/user_address
+    user_id: string | undefined;
 
     constructor(data: any) {
         this.read = data.read;
         this.timestamp = data.timestamp || Date.now();
+        this.user_id = data.user_id ?? maybeStore.value?.user_id;
     }
 
     /** For convenience, allow pushing to the manager from a notification type so you only need to import that type. */
     push() {
         notificationsManager.push(this);
+    }
+
+    shouldShow() {
+        return !this.user_id || maybeStore.value?.user_id === this.user_id;
     }
 
     abstract get summary(): string;
@@ -30,6 +39,7 @@ export abstract class Notif {
             type: this.type,
             read: this.read,
             timestamp: this.timestamp,
+            user_id: this.user_id,
         }, this.serialize())
     }
 

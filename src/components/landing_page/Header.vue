@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { genesisUserStore } from '@/builder/GenesisStore';
+import { bidStore } from '@/builder/BidStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import { watchEffect } from 'vue';
+import { onMounted, watchEffect, computed } from 'vue';
 import Notifications from '../Notifications.vue';
 
 import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
+import { notificationsManager } from '@/Notifications';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -23,6 +25,13 @@ const connectDebugWallet = () => window.useDebugProvider();
 watchEffect(() => {
     maybeStore.value?.userWalletAddress && genesisUserStore.fetchData && genesisUserStore.fetchData();
 });
+
+onMounted(() => {
+    bidStore.setup();
+});
+
+const hasUnreadNotifications = computed(() => notificationsManager.notifications.some(x => x.shouldShow() && !x.read));
+
 </script>
 
 <template>
@@ -57,7 +66,10 @@ watchEffect(() => {
                     </MenuDropdown>
                 </div>
                 <MenuDropdown no-background class="min-w-[3rem]">
-                    <template #icon><i class="fa-regular fa-bell"/></template>
+                    <template #icon>
+                        <i class="fa-regular fa-bell"/>
+                        <span class="text-accent absolute top-2 right-2 text-lg" v-if="hasUnreadNotifications">•</span>
+                    </template>
                     <Notifications class="p-4 min-w-[26rem]"/>
                 </MenuDropdown>
             </div>

@@ -10,7 +10,13 @@ import ProfileIcon from '@/assets/profile/profile.svg';
 
 import { maybeStore } from '@/chain/WalletLoading';
 
-const sections = ['All items', 'Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
+import { ref } from 'vue';
+
+const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
+
+const activeTab = ref('INVENTORY' as 'INVENTORY' | 'ACTIVITY');
+
+const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
 
 </script>
 
@@ -47,11 +53,11 @@ const sections = ['All items', 'Sealed boxes', 'Booklets', 'Genesis Sets', 'Pers
         <h2>{{ maybeStore?.userWalletAddress || 'No wallet selected' }}</h2>
         <p class="my-4"><span class="font-medium">Available briqs:</span> 800/1200</p>
         <div class="flex gap-12 mt-8">
-            <p class="pb-4 border-b-4 border-accent">Inventory</p>
-            <p>Shopping Activity</p>
+            <p :class="activeTab === 'INVENTORY' ? 'pb-4 border-b-4 border-accent' : 'hover:cursor-pointer'" @click="activeTab = 'INVENTORY'">Inventory</p>
+            <p :class="activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-accent' : 'hover:cursor-pointer'" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
         </div>
     </div>
-    <div class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
+    <div v-if="activeTab === 'INVENTORY'" class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
         <div>
             <h2>Inventory</h2>
             <div class="mt-4 flex flex-col gap-2">
@@ -91,6 +97,32 @@ const sections = ['All items', 'Sealed boxes', 'Booklets', 'Genesis Sets', 'Pers
                 <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have personal creations.</p>
                     <p>Get some briqs and start building!</p>
+                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div v-else class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
+        <div>
+            <h2>Shopping Activity</h2>
+            <div class="mt-4 flex flex-col gap-2">
+                <Btn no-background class="text-left" v-for="section of shoppingSections">{{ section }}</Btn>
+            </div>
+        </div>
+        <div>
+            <div>
+                <h3>Ongoing Auction Bids</h3>
+                <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <p class="font-semibold">You have no bids on ongoing auctions.</p>
+                    <p>Browse the available items in our Genesis collections!</p>
+                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                </div>
+            </div>
+            <div>
+                <h3>Purchased items</h3>
+                <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <p class="font-semibold">You have not yet bought any utem</p>
+                    <p>Browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
             </div>

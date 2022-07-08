@@ -18,6 +18,8 @@ import { APP_ENV } from '@/Meta';
 
 export class WalletStore {
     signer: undefined | AccountInterface = undefined;
+
+    // See also user_id below.
     userWalletAddress = '';
 
     starknetObject?: IStarknetWindowObject;
@@ -110,6 +112,10 @@ export class WalletStore {
         if (!this.userWalletAddress)
             return undefined;
         return this.userWalletAddress.substring(0, 5) + '...' + this.userWalletAddress.substring(this.userWalletAddress.length - 4);
+    }
+
+    get user_id() {
+        return `${getCurrentNetwork()}/${this.userWalletAddress}`;
     }
 }
 

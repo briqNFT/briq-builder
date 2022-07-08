@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
-import { BidNotif } from './BidNotif';
+import { bidStore } from '@/builder/BidStore';
 defineEmits(['close']);
 
 const step = ref('MAKE_BID' as 'MAKE_BID' | 'PROCESSING' | 'BID_COMPLETE');
@@ -15,10 +15,8 @@ const props = defineProps<{
 const bid = ref(undefined as undefined | number);
 
 const makeBid = () => {
-    new BidNotif({
-        value: bid.value || 0,
-        item: props.metadata.item,
-    }).push();
+    console.log(bidStore, bidStore.current);
+    bidStore.current?.makeBid(bid.value || 0, props.metadata.item);
     step.value = 'PROCESSING';
 }
 
