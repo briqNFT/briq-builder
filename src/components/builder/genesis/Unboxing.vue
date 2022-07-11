@@ -17,7 +17,8 @@ import AfterUnboxVue from './Texts/AfterUnbox.vue';
 
 import { APP_ENV } from '@/Meta';
 
-import { genesisUserStore, useGenesisStore } from '@/builder/GenesisStore';
+import { userBoxesStore } from '@/builder/UserBoxes';
+import { useGenesisStore } from '@/builder/GenesisStore';
 import contractStore from '@/chain/Contracts';
 
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
@@ -94,7 +95,7 @@ const loadingState = new class implements FsmState {
     }
 
     async onEnter() {
-        const userData = genesisUserStore.current?.fetchData();
+        const userData = userBoxesStore.current?.fetchData();
         await sceneReady;
         await userData;
         const pos = [
@@ -108,7 +109,7 @@ const loadingState = new class implements FsmState {
             [1.3, 0.42, 1.0],
             [0.7, 0.42, 1.2],
         ]
-        const boxesData = genesisUserStore.current?.availableBoxes.map((token_id, i) => ({
+        const boxesData = userBoxesStore.current?.availableBoxes.map((token_id, i) => ({
             uid: hexUuid(),
             box_token_id: token_id,
             box_name: token_id.endsWith('1') ? 'starknet_city/spaceman' : 'starknet_city/base_module_1',

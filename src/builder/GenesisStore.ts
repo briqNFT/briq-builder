@@ -1,30 +1,9 @@
-import { computed, reactive, toRef, watch, watchEffect } from 'vue';
-
-import type { WalletStore } from '@/chain/Wallet';
-import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
+import { computed, watchEffect } from 'vue';
 
 import { defineStore } from 'pinia'
 import { backendManager } from '@/Backend';
 import { CHAIN_NETWORKS, getCurrentNetwork } from '@/chain/Network';
 import { APP_ENV } from '@/Meta';
-import { perUserStorable, perUserStore } from './PerUserStore';
-
-class GenesisUserStore implements perUserStorable {
-    availableBoxes = [] as string[];
-
-    async fetchData() {
-        const contractStore = (await import('@/Dispatch')).contractStore;
-        await walletInitComplete;
-        this.availableBoxes = await contractStore.box!.getUnopenedBoxes(maybeStore.value!.userWalletAddress);
-    }
-
-    onEnter() {
-        this.fetchData();
-    }
-}
-
-export const genesisUserStore = perUserStore(GenesisUserStore);
-genesisUserStore.setup();
 
 // TODO: I am reinventing graphQL only slower I think.
 
