@@ -135,10 +135,10 @@ const loadingState = new class implements FsmState {
         });
 
         await this.hasEnoughFrames;
-        let avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
-        let minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
+        this.fps.sort((a, b) => b - a);
+        let medianFPS = this.fps[Math.floor(this.fps.length / 2)];
 
-        if (minFps > 25 || avgFps > 30) {
+        if (medianFPS > 25) {
             // Switch to lower quality scene.
             quality.value = SceneQuality.MEDIUM;
             await setupScene(quality.value);
@@ -148,13 +148,13 @@ const loadingState = new class implements FsmState {
             });
             this.fps.length = 0;
             await this.hasEnoughFrames;
-            avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
-            minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
-            if (minFps > 25 || avgFps > 30) {
+            this.fps.sort((a, b) => b - a);
+            medianFPS = this.fps[Math.floor(this.fps.length / 2)];
+            if (medianFPS > 25) {
                 quality.value = SceneQuality.LOW;
                 await setupScene(quality.value);
             }
-        } else if (avgFps < 20) {
+        } else if (medianFPS < 18) {
             // Try ultra
             quality.value = SceneQuality.ULTRA;
             await setupScene(quality.value);
@@ -163,9 +163,9 @@ const loadingState = new class implements FsmState {
             });
             this.fps.length = 0;
             await this.hasEnoughFrames;
-            avgFps = this.fps.reduce((prev, cur) => prev + cur) / this.fps.length;
-            minFps = this.fps.reduce((prev, cur) => Math.min(prev, cur), this.fps[0]);
-            if (minFps > 25 || avgFps > 30) {
+            this.fps.sort((a, b) => b - a);
+            medianFPS = this.fps[Math.floor(this.fps.length / 2)];
+            if (medianFPS > 20) {
                 // Reset to high
                 quality.value = SceneQuality.HIGH;
                 await setupScene(quality.value);
@@ -436,7 +436,7 @@ onBeforeMount(() => {
 
 import Stats from 'stats.js';
 
-let lastTime = 0;
+let lastTime: number;
 let mounted = false;
 onMounted(async () => {
     mounted = true;
@@ -462,7 +462,7 @@ onMounted(async () => {
         if (!mounted)
             return;
         if (!lastTime)
-            lastTime = time;
+            lastTime = time - 16;
         const delta = time - lastTime;
         lastTime = time;
 
@@ -472,7 +472,7 @@ onMounted(async () => {
         setupData.render();
         requestAnimationFrame(frame);
     }
-    frame(0.001);
+    requestAnimationFrame(frame);
 
     /** FPS counter */
     var stats = new Stats();
