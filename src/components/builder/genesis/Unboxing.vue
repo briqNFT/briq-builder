@@ -70,7 +70,7 @@ const quality = ref(SceneQuality.HIGH);
 type steps = 'CHECK_WALLET' | 'LOADING' | 'SAPIN' | 'CHECK_BOX' | 'UNBOXING' | 'UNBOXED';
 
 interface FsmState {
-    onEnter(): Promise<void>;
+    onEnter(): Promise<any>;
     onLeave?: (to: string) => Promise<void>;
     frame?: (delta: number) => void;
     onClick?: (event: PointerEvent) => void;
@@ -94,7 +94,7 @@ const loadingState = new class implements FsmState {
     }
 
     async onEnter() {
-        const userData = genesisUserStore.fetchData();
+        const userData = genesisUserStore.current?.fetchData();
         await sceneReady;
         await userData;
         const pos = [
@@ -108,12 +108,12 @@ const loadingState = new class implements FsmState {
             [1.3, 0.42, 1.0],
             [0.7, 0.42, 1.2],
         ]
-        const boxesData = genesisUserStore.availableBoxes.map((token_id, i) => ({
+        const boxesData = genesisUserStore.current?.availableBoxes.map((token_id, i) => ({
             uid: hexUuid(),
             box_token_id: token_id,
             box_name: token_id.endsWith('1') ? 'starknet_city/spaceman' : 'starknet_city/base_module_1',
             position: pos[i],
-        }));
+        })) || [];
         for (const box of boxesData)
             boxes.push(addBox(box, scene));
 

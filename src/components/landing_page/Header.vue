@@ -3,7 +3,7 @@ import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { genesisUserStore } from '@/builder/GenesisStore';
 import { bidStore } from '@/builder/BidStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import { onMounted, watchEffect, computed } from 'vue';
+import { onMounted, computed } from 'vue';
 import Notifications from '../Notifications.vue';
 
 import ProfileIcon from '@/assets/profile/profile_small.svg';
@@ -22,9 +22,10 @@ const connectWallet = () => {
 }
 const connectDebugWallet = () => window.useDebugProvider();
 
-watchEffect(() => {
+/*watchEffect(() => {
     maybeStore.value?.userWalletAddress && genesisUserStore.fetchData && genesisUserStore.fetchData();
 });
+*/
 
 onMounted(() => {
     bidStore.setup();
@@ -47,9 +48,9 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
                     <routerLink to="/builder"><p>Create</p></routerLink>
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
                 </div>
-                <router-link v-if="genesisUserStore.availableBoxes?.length" to="/unboxing">
+                <router-link v-if="genesisUserStore.current?.availableBoxes?.length" to="/unboxing">
                     <Btn secondary class="before:border-darker">
-                        <i class="fa-solid fa-box-open"/> {{ genesisUserStore.availableBoxes?.length || 0 }}
+                        <i class="fa-solid fa-box-open"/> {{ genesisUserStore.current?.availableBoxes?.length || 0 }}
                     </Btn>
                 </router-link>
                 <Btn secondary class="before:border-darker flex items-center justify-center gap-2">
