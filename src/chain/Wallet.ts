@@ -116,7 +116,9 @@ export class WalletStore {
         return this.userWalletAddress.substring(0, 5) + '...' + this.userWalletAddress.substring(this.userWalletAddress.length - 4);
     }
 
-    get user_id(): UserID {
+    get user_id(): UserID | undefined {
+        if (!this.userWalletAddress)
+            return undefined;
         return `${getCurrentNetwork()}/${this.userWalletAddress}`;
     }
 }
