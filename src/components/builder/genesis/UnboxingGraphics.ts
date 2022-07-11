@@ -173,11 +173,20 @@ export function render() {
 }
 
 export async function useRenderer(_canvas: HTMLCanvasElement) {
-    // We only need to run this once.
-    if (boxGlb)
-        return;
-
     await threeSetupComplete;
+
+    canvas = _canvas;
+
+    // Have to recreate renderer, to update the canvas.
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
+
+    // We only need the rest once.
+    if (boxGlb)
+        return {
+            camera,
+            scene,
+            render,
+        };
 
     const defaultLoader = new THREE.TextureLoader();
     defaultBoxTexture = defaultLoader.load(DefaultBox, (tex) => {
@@ -241,8 +250,6 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     })
 
     // Now create scene items.
-    canvas = _canvas;
-
     scene = new THREE.Scene();
 
     /* Create the camera early, because it's needed for the post-processor. */
@@ -256,8 +263,6 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     const controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
     controls.target = new THREE.Vector3(2, 0, 2);
-
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
 
     boxGlb = await boxPromise;
     roomSceneGlb = await roomPromise;
