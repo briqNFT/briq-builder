@@ -16,6 +16,8 @@ import { connect, disconnect, IStarknetWindowObject } from '@/starknet_wrapper';
 import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
 
+export type UserID = string;
+
 export class WalletStore {
     signer: undefined | AccountInterface = undefined;
 
@@ -114,7 +116,7 @@ export class WalletStore {
         return this.userWalletAddress.substring(0, 5) + '...' + this.userWalletAddress.substring(this.userWalletAddress.length - 4);
     }
 
-    get user_id() {
+    get user_id(): UserID {
         return `${getCurrentNetwork()}/${this.userWalletAddress}`;
     }
 }

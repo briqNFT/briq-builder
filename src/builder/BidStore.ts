@@ -1,11 +1,10 @@
 import { backendManager } from '@/Backend';
-import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { logDebug } from '@/Messages';
 import { Notif, notificationsManager } from '@/Notifications';
-import { reactive, watchEffect } from 'vue';
 import { useGenesisStore } from './GenesisStore';
 import { BidNotif } from './BidNotif';
 import { hexUuid } from '@/Uuid';
+import { perUserStorable, perUserStore } from './PerUserStore';
 
 class FailedBidNotif extends Notif {
     type = 'failed_bid';
@@ -41,11 +40,11 @@ interface Bid {
     value: number,
 }
 
-class UserBidStore {
+class UserBidStore implements perUserStorable {
     lastConfirmedBlock = -1;
     bids = [] as Bid[];
 
-    syncBlock() {
+    onEnter() {
         logDebug('SYNCING USER BID BLOCK')
         //backendManager.fetch('v1/bids')
         const bidData = {
@@ -91,29 +90,4 @@ class UserBidStore {
     }
 }
 
-export const bidStore = reactive(new class<T> {
-    _perWallet = {} as { [wallet: string]: T };
-    currentWallet = undefined as undefined | string;
-
-    get current() {
-        if (!this.currentWallet)
-            return undefined;
-        return this._perWallet[this.currentWallet];
-    }
-    /* Exists solely for the purpose of being called somewhere, so that the import is used & things happen. */
-    _setup = false;
-    setup() {
-        if (this._setup)
-            return;
-        walletInitComplete.then(() => {
-            watchEffect(() => {
-                bidStore.currentWallet = maybeStore.value?.userWalletAddress || undefined;
-                if (bidStore.currentWallet && !bidStore._perWallet[bidStore.currentWallet])
-                    bidStore._perWallet[bidStore.currentWallet] = new UserBidStore();
-                bidStore.current?.syncBlock();
-            })
-        })
-        this._setup = true;
-    }
-
-}<UserBidStore>)
+export const bidStore =  perUserStore(UserBidStore);
