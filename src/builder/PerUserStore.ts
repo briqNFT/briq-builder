@@ -1,6 +1,6 @@
-import { reactive, watchEffect } from 'vue';
+import { reactive, Ref, watchEffect } from 'vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import type { UserID } from '@/chain/Wallet';
+import type { UserID, WalletStore } from '@/chain/Wallet';
 
 export interface perUserStorable {
     onEnter?(oldAddress: string | undefined, newAddress: string): void
@@ -18,13 +18,13 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
     }
     /* Exists solely for the purpose of being called somewhere, so that the import is used & things happen. */
     _setup = false;
-    setup() {
+    setup(_walletInitComplete: typeof walletInitComplete = walletInitComplete, _maybeStore: typeof maybeStore = maybeStore) {
         if (this._setup)
             return;
-        walletInitComplete.then(() => {
+        _walletInitComplete.then(() => {
             watchEffect(() => {
                 const old = this.currentWallet;
-                this.currentWallet = maybeStore.value?.user_id || undefined;
+                this.currentWallet = _maybeStore.value?.user_id || undefined;
                 if (this.currentWallet && !this._perWallet[this.currentWallet])
                     this._perWallet[this.currentWallet] = new classType();
                 if (old)
