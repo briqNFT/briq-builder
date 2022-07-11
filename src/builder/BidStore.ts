@@ -90,4 +90,4 @@ class UserBidStore implements perUserStorable {
     }
 }
 
-export const bidStore =  perUserStore(UserBidStore);
+export const userBidsStore =  perUserStore(UserBidStore);

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
-import { bidStore } from '@/builder/BidStore';
+import { userBidsStore } from '@/builder/bidStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { onMounted, computed } from 'vue';
 import Notifications from '../Notifications.vue';
@@ -23,7 +23,7 @@ const connectWallet = () => {
 const connectDebugWallet = () => window.useDebugProvider();
 
 onMounted(() => {
-    bidStore.setup();
+    userBidsStore.setup();
 });
 
 const hasUnreadNotifications = computed(() => notificationsManager.notifications.some(x => x.shouldShow() && !x.read));

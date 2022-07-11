@@ -17,10 +17,11 @@ export default class BoxContract {
 
     async getUnopenedBoxes(owner: string): Promise<string[]> {
         try {
-            return await backendManager.post('mock_chain/getUnopenedBoxes', { owner: owner });
+            const boxIDs = await backendManager.post('mock_chain/getUnopenedBoxes', { owner: owner });
+            return boxIDs.map(box => box.endsWith('1') ? 'starknet_city/spaceman' : 'starknet_city/base_module_1')
         } catch(err) {
             console.error(err);
-            return ['0xb0a001', '0xb0a002'];
+            return ['starknet_city/spaceman', 'starknet_city/base_module_1'];
         }
     }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBoxData, CARD_MODES } from './BoxData';
+import { useBoxData, CARD_MODES } from '@/builder/BoxData';
 
 const props = defineProps<{
     tokenName: string,
@@ -10,6 +10,7 @@ const {
     genesisStore,
     itemQuery,
     item,
+    saleQuery,
     saledata,
     getActualMode,
     durationLeft,
@@ -42,11 +43,13 @@ const actualMode = getActualMode(props.mode);
                     <img class="min-h-0 min-w-0 max-h-[10rem]" :src="genesisStore.coverItemRoute(tokenName)">
                 </p>
                 <h3 class="font-medium text-md">{{ item.name }} </h3>
-                <div class="flex justify-between">
-                    <p v-if="saledata.total_quantity === 1" class="text-sm font-light text-darkest">UNIQUE</p>
-                    <p v-else class="text-sm font-light text-darkest">{{ saledata.quantity_left }} / {{ saledata.total_quantity }}</p>
-                    <p v-if="actualMode === 'PRESALE'" class="text-right">{{ Math.floor(saledata.sale_duration) / 3600 }}h</p>
-                </div>
+                <template v-if="actualMode === 'PRESALE' || actualMode === 'SALE'">
+                    <div v-if="saleQuery._status === 'LOADED'" class="flex justify-between">
+                        <p v-if="saledata?.total_quantity === 1" class="text-sm font-light text-darkest">UNIQUE</p>
+                        <p v-else class="text-sm font-light text-darkest">{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }}</p>
+                        <p v-if="actualMode === 'PRESALE'" class="text-right">{{ Math.floor(saledata?.sale_duration) / 3600 }}h</p>
+                    </div>
+                </template>
                 <template v-if="actualMode === 'SALE'">
                     <hr>
                     <p class="flex justify-between"><span>Last Bid</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>

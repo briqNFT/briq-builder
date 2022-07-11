@@ -6,7 +6,7 @@ import Footer from '@/components/landing_page/Footer.vue';
 import BoxListing from './BoxListing.vue';
 import ModalsVue, { pushModal } from '@/components/Modals.vue';
 import BidModalVue from './BidModal.vue';
-import { useBoxData } from './BoxData';
+import { useBoxData } from '@/builder/BoxData';
 const route = useRoute();
 const router = useRouter();
 

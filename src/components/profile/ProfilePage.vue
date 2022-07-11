@@ -11,6 +11,10 @@ import ProfileIcon from '@/assets/profile/profile.svg';
 import { maybeStore } from '@/chain/WalletLoading';
 
 import { ref } from 'vue';
+import { userBoxesStore } from '@/builder/UserBoxes';
+import { userBookletsStore } from '@/builder/UserBooklets';
+import { userBidsStore } from '@/builder/bidStore';
+import BoxListing from '../builder/genesis/BoxListing.vue';
 
 const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
 
@@ -67,15 +71,18 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
         <div>
             <div>
                 <h3>Sealed boxes</h3>
-                <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any boxes.</p>
                     <p>Browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
+                <div v-else>
+                    <BoxListing mode="INVENTORY" :boxes="userBoxesStore.current!.availableBoxes"/>
+                </div>
             </div>
             <div>
                 <h3>Booklets</h3>
-                <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div v-if="!userBookletsStore.current?.booklets.length" class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any booklets.</p>
                     <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
@@ -112,7 +119,7 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
         <div>
             <div>
                 <h3>Ongoing Auction Bids</h3>
-                <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div v-if="!userBidsStore.current?.bids.length" class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You have no bids on ongoing auctions.</p>
                     <p>Browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
