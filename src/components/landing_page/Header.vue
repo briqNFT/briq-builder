@@ -37,8 +37,8 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
             <div class="flex">
                 <routerLink to="/genesis"><h2 class="briq-logo text-[32px]">briq</h2></routerLink>
             </div>
-            <div class="flex items-stretch gap-4">
-                <div class="flex gap-8 flex-wrap justify-center items-center md:justify-end font-normal">
+            <div class="flex items-stretch gap-2">
+                <div class="flex gap-1 md:gap-6 mx-2 md:mr-4 text-sm md:text-md flex-wrap justify-center items-center md:justify-end font-normal">
                     <routerLink to="/themes"><p>Themes</p></routerLink>
                     <routerLink to="/builder"><p>Create</p></routerLink>
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
@@ -48,11 +48,11 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
                         <i class="fa-solid fa-box-open"/> {{ userBoxesStore.current?.availableBoxes?.length || 0 }}
                     </Btn>
                 </router-link>
-                <Btn secondary class="before:border-darker flex items-center justify-center gap-2">
+                <div class="border-darker bg-base px-3 border rounded-md flex items-center justify-center gap-2">
                     <briqIcon class="inline-block"/> {{ 0 }}
-                </Btn>
+                </div>
                 <div class="flex-none">
-                    <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
+                    <Btn v-if="!walletStore?.userWalletAddress" class="flex-none hidden md:block" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
                     <MenuDropdown no-background :close-on-click="true" v-else-if="walletStore?.userWalletAddress" class="text-xs">
                         <template #button><ProfileIcon width="1.5rem" height="1.5rem" class="inline-block mx-2"/></template>

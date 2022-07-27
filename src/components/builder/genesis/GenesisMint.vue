@@ -60,12 +60,12 @@ onMounted(async () => {
     <!-- Make it absolute so h-screen works below -->
     <Header class="absolute left-0 right-0 z-50"/>
     <div>
-        <div class="container m-auto relative h-screen p-[6rem] flex flex-col overflow-hidden">
+        <div class="container m-auto relative h-screen lg:p-[6rem] flex flex-col overflow-hidden">
             <div class="grow-[3]"/>
             <div class="flex flex-wrap justify-around items-center">
-                <div class="relative p-20">
+                <div class="relative md:p-10 lg:p-20">
                     <div>
-                        <h1 class="text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
+                        <h1 class="text-xl md:text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
                         <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
                     </div>
                 </div>
@@ -80,7 +80,7 @@ onMounted(async () => {
             </div>
             <div class="grow-[6]"/>
         </div>
-        <div class="pointer-events-none user-select-none container m-auto absolute top-0 left-0 right-0">
+        <div class="pointer-events-none user-select-none container m-auto absolute top-0 left-0 right-0 overflow-hidden">
             <div class="relative w-full h-screen">
                 <div class="absolute z-10 left-0" :style="{ top: `${150 - briqParallax}px` }">
                     <BriqsOverlayT/>
@@ -112,12 +112,12 @@ onMounted(async () => {
         </p>
     </div>
     <div>
-        <div class="container m-auto p-20">
+        <div class="container m-auto py-10 md:p-20">
             <div class="text-center mb-8">
                 <p class="text-accent">Principle</p>
                 <h2 class="font-medium text-xl">A highly modular material</h2>
             </div>
-            <div class="grid grid-cols-3 gap-8 explanations">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 explanations">
                 <div>
                     <div class="flex items-center h-[6rem] pb-1">
                         <div class="grid grid-cols-3 block-grid gap-2">
@@ -156,22 +156,22 @@ onMounted(async () => {
             </div>
         </div>
     </div>
-    <div class="container mx-auto mb-20 px-20">
+    <div class="container mx-auto mb-4 md:mb-20 px-4 md:px-20">
         <div class="text-center mb-8">
             <p class="text-accent">Genesis Sale</p>
             <h2 class="font-medium text-xl">Discover the new theme</h2>
         </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
-            <div class="bg-black text-white rounded-lg flex flex-col gap-20 py-20 items-center justify-between">
+            <div class="bg-black text-white rounded-lg flex flex-col gap-20 py-20 px-4 items-center justify-between">
                 <h1>Starknet City</h1>
                 <p>Discover the briq genesis sale <i class="fa-solid fa-arrow-right"/></p>
             </div>
         </routerlink>
     </div>
     <div class="bg-[#F6C844] w-full border-t-2 border-b-2 border-black">
-        <div class="container m-auto px-20 my-16">
+        <div class="container m-auto px-4 md:px-20 my-4 md:my-16">
             <p class="text-xl font-medium my-8">Trusted by</p>
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div
                     v-for="icon of [[FabricIcon, '#000000'], [FirstIcon, '#15132A'], [StarkwareIcon, '#28286E']]" :key="icon[0]"
                     class="h-[10rem] w-full rounded flex justify-center items-center px-8 py-4" :style="{ backgroundColor: icon[1] }">

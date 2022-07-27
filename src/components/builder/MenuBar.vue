@@ -11,11 +11,11 @@ import HistoryLog from './modals/HistoryLog.vue';
             <Btn tooltip="Manage your local & on-chain set." @click="openSetBrowser">
                 <i class="far fa-folder"/> Manage Sets
             </Btn>
-            <UndoRedo/>
+            <UndoRedo class="hidden md:block"/>
             <Btn tooltip="Open the undo/redo history log" @click="pushModal(HistoryLog)">
                 <i class="fas fa-history"/>
             </Btn>
-            <a href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f" target="_blank"><Btn tooltip="Access the briq help"><i class="far fa-circle-question"/> Help</Btn></a>
+            <a class="hidden md:block" href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f" target="_blank"><Btn tooltip="Access the briq help"><i class="far fa-circle-question"/> Help</Btn></a>
         </div>
     </div>
 </template>

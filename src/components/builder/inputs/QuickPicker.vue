@@ -108,14 +108,14 @@ const pickNFT = (nft: any) => {
 };
 
 const choiceLayout = computed(() => {
-    // For small # of items, the layout is a single column (or 2 rows in smartphone mode)
+    // For small # of items, the layout is a single column
     if (palette.value.getNbChoices() < 14)
-        return 'grid grid-rows-2 grid-flow-col gap-0.5 md:flex md:flex-col';
+        return ' gap-0.5 flex flex-col';
     // For larger # of items, the layout is a few columns
     else if (palette.value.getNbChoices() < 24)
-        return 'grid grid-rows-2 grid-flow-col gap-0.5 md:grid-cols-2 md:grid-flow-row';
+        return 'gap-0.5 grid-cols-2 grid-flow-row';
     else
-        return 'grid grid-rows-2 grid-flow-col gap-0.5 md:grid-cols-3 md:grid-flow-row';
+        return 'gap-0.5 grid-cols-3 grid-flow-row';
 })
 
 </script>

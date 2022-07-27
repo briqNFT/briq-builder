@@ -24,9 +24,9 @@ defineProps<{
 html.v2design button {
     z-index: 0;
     @apply text-center;
-    @apply px-2 py-3;
-    @apply text-md font-normal leading-none;
-    @apply min-h-[1.5rem];
+    @apply px-1 md:px-2 py-1.5 md:py-3;
+    @apply text-sm md:text-md font-normal leading-none;
+    @apply min-h-[1rem] md:min-h-[1.5rem];
     @apply select-none;
     @apply relative;
 }
@@ -51,8 +51,8 @@ html.v2design button.icon i {
 html.v2design .btn {
     @apply text-center;
     @apply text-text-on-accent;
-    @apply min-h-[2.5rem];
-    @apply px-3 py-4;
+    @apply min-h-[2rem] md:min-h-[2.5rem];
+    @apply px-1 md:px-3 py-2 md:py-4;
 }
 
 html.v2design .btn::before {
