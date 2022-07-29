@@ -53,6 +53,7 @@ export class SaleData {
     }
 
     isLive() {
+        console.log('toro', this, this.sale_start)
         return this.sale_start < Date.now() / 1000.0 && this.durationLeft() > 0;
     }
 }

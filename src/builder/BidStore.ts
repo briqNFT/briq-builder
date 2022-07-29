@@ -6,6 +6,8 @@ import { BidNotif } from './BidNotif';
 import { hexUuid } from '@/Uuid';
 import { perUserStorable, perUserStore } from './PerUserStore';
 
+import contractStore from '@/chain/Contracts';
+
 class FailedBidNotif extends Notif {
     type = 'failed_bid';
     item: string;
@@ -74,7 +76,8 @@ class UserBidStore implements perUserStorable {
         this.lastConfirmedBlock = bidData.block;
     }
 
-    makeBid(value: number, item: string) {
+    async makeBid(value: number, item: string) {
+        await contractStore.auction.makeBid();
         const tx_hash = hexUuid();
         const newBid = {
             tx_hash,

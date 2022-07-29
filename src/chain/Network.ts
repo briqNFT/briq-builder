@@ -32,7 +32,7 @@ export function setNetwork(networkName: CHAIN_NETWORKS) {
 export async function chooseDefaultNetwork() {
     if (APP_ENV === 'dev')
         try {
-            await fetch('http://localhost:5000/is_alive');
+            await fetch('http://localhost:5050/is_alive');
             network.network = 'localhost';
             console.log('Switching to local provider');
         } catch (_) {}

@@ -16,6 +16,7 @@ const {
     genesisStore,
     itemQuery,
     item,
+    saleQuery,
     saledata,
     getActualMode,
     durationLeft,
@@ -121,6 +122,7 @@ p {
                     </div>
                     <div class="flex flex-col gap-6">
                         <h1 class="text-lg font-semibold">{{ boxName }}</h1>
+                        <p> {{ saleQuery }} {{ saledata?.isLive() || "no" }}</p>
                         <template v-if="saledata?.isLive() && saledata?.total_quantity === 1">
                             <div>
                                 <h2>Sale ends on</h2>
@@ -150,11 +152,11 @@ p {
                         <template v-else-if="saledata?.isLive()">
                             <div>
                                 <h2>Availability</h2>
-                                <p>{{ saledata.quantity_left }} / {{ saledata.total_quantity }} left</p>
+                                <p>{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }} left</p>
                             </div>
                             <div>
                                 <h2>Current Price</h2>
-                                <p class="text-xl font-medium">{{ saledata.price }} <i class="fa-brands fa-ethereum"/></p>
+                                <p class="text-xl font-medium">{{ saledata?.price }} <i class="fa-brands fa-ethereum"/></p>
                             </div>
                             <div>
                                 <h2>Next price drop in</h2>

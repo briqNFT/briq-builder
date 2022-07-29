@@ -20,7 +20,7 @@ const config = {
 // TODO: reduce duplication with frontend.
 function getApiUrl(hostname: string | undefined) {
     if (!hostname || hostname.indexOf('localhost') !== -1)
-        return 'localhost:5050';
+        return 'localhost:5055';
     if (hostname.indexOf('test') !== -1)
         return 'api.test.sltech.company';
     if (hostname.indexOf('sltech.company') !== -1 || hostname.indexOf('briq.construction') !== -1)

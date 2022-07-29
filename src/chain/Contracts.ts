@@ -1,6 +1,7 @@
 import BriqContract from './contracts/briq';
 import SetContract from './contracts/set';
 import MintContract from './contracts/mint';
+import AuctionContract from './contracts/auction';
 
 export const ADDRESSES = {
     mock: {
@@ -10,9 +11,9 @@ export const ADDRESSES = {
         box: '0xD',
     },
     localhost: {
-        briq: '0x05877d55d7a7ae8f65d6b3d059cfa68557b2a2fcd84ba04a9dcc46a55edf161a',
-        set: '0x0706e8ffb66f5485d02e3c064975fd58f8c3e7367b92d0f509055c4cce288f7b',
-        mint: '0x0549b84101aacd11fa4cfba50dcc2b2d4a6af46fe06cd4d60e3cbf7bb3ac3c4c',
+        briq: '0x040f7073063fd8949d79659930e64359da5c7782d92c2208ff7e2317b5d6f69f',
+        set: '0x0475879f1c77ef0446716755f79690ad7a0a949f17115e1a089128300121e126',
+        auction: '0x04b91ecb5908df3c4a669f6b4a2c56729cc56c99c2cde78ad29fc06f8e870625',
     },
     'starknet-testnet': {
         briq: '0x01531b29c83b9a22adc1a4d1e148bec286227e81e13c14c0ec150ac86aef446f',
@@ -42,7 +43,7 @@ const IMPL = {
     'localhost': {
         briq: BriqContract,
         set: SetContract,
-        mint: MintContract,
+        auction: AuctionContract,
     },
     'starknet-testnet': {
         briq: BriqContract,
@@ -76,6 +77,7 @@ const contractStore = reactive({
     set: undefined as undefined | SetContract,
     box: undefined as undefined | BoxContract,
     multicall: undefined as any,
+    auction: undefined as undefined | AuctionContract,
 });
 
 export default contractStore;

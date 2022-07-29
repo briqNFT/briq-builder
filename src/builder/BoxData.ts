@@ -10,7 +10,7 @@ export function useBoxData(tokenName: string) {
     const itemQuery = computed(() => genesisStore.metadata[tokenName]);
     const item = computed(() => itemQuery.value._data);
     const saleQuery = computed(() => genesisStore.saledata[tokenName]);
-    const saledata = computed(() => item.value._data);
+    const saledata = computed(() => saleQuery.value?._data);
 
     const getActualMode = (mode?: CARD_MODES) => computed(() => {
         if (mode !== 'AUTO')

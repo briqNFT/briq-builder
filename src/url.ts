@@ -12,7 +12,7 @@ export default function getBaseUrl() {
         return 'https://api.test.sltech.company';
 
     return {
-        dev: 'http://localhost:5050',
+        dev: 'http://localhost:5055',
         test: 'https://api.test.sltech.company',
         prod: `https://api.${getCanonicalDomain()}`,
     }[APP_ENV];

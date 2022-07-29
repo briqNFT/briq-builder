@@ -8,12 +8,6 @@ class BlockchainProvider {
 
     constructor(p: any) {
         this.provider = p;
-        this.provider
-            .getContractAddresses()
-            .then()
-            .catch(() => {
-                this.alive = false;
-            });
     }
 
     isAlive() {
