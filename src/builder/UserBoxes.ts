@@ -1,6 +1,8 @@
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { perUserStorable, perUserStore } from './PerUserStore';
 
+
+
 class UserBoxesStore implements perUserStorable {
     availableBoxes = [] as string[];
 

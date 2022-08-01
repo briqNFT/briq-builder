@@ -77,10 +77,11 @@ class UserBidStore implements perUserStorable {
     }
 
     async makeBid(value: number, item: string) {
-        await contractStore.auction.makeBid();
-        const tx_hash = hexUuid();
+        const genesisStore = useGenesisStore();
+        const itemData = genesisStore.metadata[item]._data!;
+        const tx_response = await contractStore.auction?.approveAndBid(contractStore.eth_bridge_contract, itemData.token_id, itemData.auction_id, value)
         const newBid = {
-            tx_hash,
+            tx_hash: tx_response!.transaction_hash,
             value: value,
             item: item,
             status: 'TENTATIVE',
