@@ -10,9 +10,9 @@ export const ADDRESSES = {
         box: '0xD',
     },
     localhost: {
-        briq: '0x040f7073063fd8949d79659930e64359da5c7782d92c2208ff7e2317b5d6f69f',
-        set: '0x0475879f1c77ef0446716755f79690ad7a0a949f17115e1a089128300121e126',
-        auction: '0x04b91ecb5908df3c4a669f6b4a2c56729cc56c99c2cde78ad29fc06f8e870625',
+        briq: '0x020b2a2baa5f0c679ba7647ed803e975bb6badfe9334b5944a547ac12ef4c099',
+        set: '0x03ab0330cff177e3f154cc143b46e9ddac39041ba8ce201def9e3ca8e2aa921a',
+        auction: '0x05dd2d089793684e837e01dc136503721f5915af46b8096a7363bb9dbd44901c',
         eth_bridge_contract: '0x62230ea046a9a5fbc261ac77d03c8d41e5d442db2284587570ab46455fd2488',
     },
     'starknet-testnet': {
@@ -52,14 +52,14 @@ const IMPL = {
     },
 };
 
-import { reactive, watchEffect, toRef, ref } from 'vue';
+import { shallowReactive, watchEffect, toRef, ref } from 'vue';
 import { logDebug } from '../Messages';
 import { CHAIN_NETWORKS, getCurrentNetwork } from './Network';
 import { getProvider } from './Provider';
 import MulticallContract from './contracts/Multicall';
 import BoxContract from './contracts/box';
 
-const contractStore = reactive({
+const contractStore = shallowReactive({
     briq: undefined as undefined | BriqContract,
     set: undefined as undefined | SetContract,
     box: undefined as undefined | BoxContract,

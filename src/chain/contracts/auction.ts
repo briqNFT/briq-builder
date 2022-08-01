@@ -6,6 +6,8 @@ import { bnToUint256 } from 'starknet/utils/uint256';
 
 import ABI from './starknet-testnet/auction.json';
 import type ERC20Contract from './erc20';
+import { toRaw } from 'vue';
+import { BigNumberish } from 'starknet/utils/number';
 
 export default class AuctionContract {
     contract: Contract;
@@ -17,14 +19,14 @@ export default class AuctionContract {
         return this.contract.address;
     }
 
-    approveAndBid(erc20_contract: ERC20Contract, box_token_id: number, index: number, amount: number) {
+    approveAndBid(erc20_contract: ERC20Contract, box_token_id: number, index: number, amount: BigNumberish) {
         return (this.contract.providerOrAccount as AccountInterface).execute([
-            erc20_contract.contract.populateTransaction.approve(this.contract.address, bnToUint256(toBN(amount))),
+            erc20_contract.contract.populateTransaction['approve'](this.contract.address, bnToUint256(toBN(amount))),
             this.contract.populateTransaction.make_bid({
                 bidder: this.contract.providerOrAccount.address,
-                auction_index: 0,
-                box_token_id: '0x62230ea046a9a5fbc261ac77d03c8d41e5d442db2284587570ab46455fd2488',
-                bid_amount: 10,
+                auction_index: index,
+                box_token_id: box_token_id,
+                bid_amount: amount,
             }),
         ]);
     }

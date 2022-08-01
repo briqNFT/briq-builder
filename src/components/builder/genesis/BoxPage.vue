@@ -6,7 +6,11 @@ import Footer from '@/components/landing_page/Footer.vue';
 import BoxListing from './BoxListing.vue';
 import ModalsVue, { pushModal } from '@/components/Modals.vue';
 import BidModalVue from './BidModal.vue';
+import BuyModalVue from './BuyModal.vue';
 import { useBoxData } from '@/builder/BoxData';
+import { maybeStore } from '@/chain/WalletLoading';
+import { userBalance } from '@/builder/UserBalance';
+
 const route = useRoute();
 const router = useRouter();
 
@@ -25,8 +29,26 @@ const {
 const themeName = computed(() => route.params.theme);
 const boxName = computed(() => item.value?.name ?? route.params.box);
 
+const canBid = computed(() => {
+    if (!maybeStore.value?.userWalletAddress || userBalance.current?.balance?._status !== 'LOADED')
+        return false;
+    return itemQuery._status !== 'ERROR';
+})
+
 const placeBid = () => {
     pushModal(BidModalVue, {
+        item: token_id.value,
+    });
+}
+
+const canBuy = computed(() => {
+    if (!maybeStore.value?.userWalletAddress)
+        return false;
+    return itemQuery._status !== 'ERROR';
+})
+
+const buy = () => {
+    pushModal(BuyModalVue, {
         item: token_id.value,
     });
 }
@@ -122,7 +144,6 @@ p {
                     </div>
                     <div class="flex flex-col gap-6">
                         <h1 class="text-lg font-semibold">{{ boxName }}</h1>
-                        <p> {{ saleQuery }} {{ saledata?.isLive() || "no" }}</p>
                         <template v-if="saledata?.isLive() && saledata?.total_quantity === 1">
                             <div>
                                 <h2>Sale ends on</h2>
@@ -139,7 +160,12 @@ p {
                             <div>
                                 <h2>Winning Bid</h2>
                                 <p class="text-xl font-medium my-4"><i class="fa-brands fa-ethereum"/> 1.35</p>
-                                <Btn class="text-white" :disabled="itemQuery._status === 'ERROR'" @click="placeBid">Place a bid</Btn>
+                                <Btn
+                                    class="text-white"
+                                    :disabled="!canBid"
+                                    @click="placeBid">
+                                    Place a bid
+                                </Btn>
                             </div>
                             <h2>Previous bids</h2>
                             <div class="flex flex-col gap-2 pt-2">
@@ -163,7 +189,7 @@ p {
                                 <p class="text-xl font-medium">7min 30 seconds</p>
                             </div>
                             <div>
-                                <Btn>Buy now</Btn>
+                                <Btn :disabled="!canBuy" @click="buy">Buy now</Btn>
                             </div>
                         </template>
                         <template v-else>

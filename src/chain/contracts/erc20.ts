@@ -1,5 +1,7 @@
 import type { Provider } from '@/starknet_wrapper';
-import { Contract, FunctionAbi } from 'starknet';
+import type { AccountInterface, FunctionAbi } from 'starknet';
+import { Contract } from 'starknet';
+import { uint256ToBN } from 'starknet/utils/uint256';
 
 import ABI from './starknet-testnet/erc20.json';
 
@@ -11,5 +13,10 @@ export default class ERC20Contract {
 
     getAddress() {
         return this.contract.address;
+    }
+
+    async getBalance(): Promise<string> {
+        const result = await this.contract.balanceOf((this.contract.providerOrAccount as AccountInterface).address);
+        return uint256ToBN(result.balance).toString();
     }
 }

@@ -7,6 +7,7 @@ import { hexUuid } from '@/Uuid';
 import { perUserStorable, perUserStore } from './PerUserStore';
 
 import contractStore from '@/chain/Contracts';
+import { BigNumberish, toFelt } from 'starknet/utils/number';
 
 class FailedBidNotif extends Notif {
     type = 'failed_bid';
@@ -39,7 +40,7 @@ interface Bid {
     block: number,
     status: 'CONFIRMED' | 'TENTATIVE' | 'PENDING';
     item: string,
-    value: number,
+    value: string,
 }
 
 class UserBidStore implements perUserStorable {
@@ -76,13 +77,13 @@ class UserBidStore implements perUserStorable {
         this.lastConfirmedBlock = bidData.block;
     }
 
-    async makeBid(value: number, item: string) {
+    async makeBid(value: BigNumberish, item: string) {
         const genesisStore = useGenesisStore();
         const itemData = genesisStore.metadata[item]._data!;
         const tx_response = await contractStore.auction?.approveAndBid(contractStore.eth_bridge_contract, itemData.token_id, itemData.auction_id, value)
         const newBid = {
             tx_hash: tx_response!.transaction_hash,
-            value: value,
+            value: toFelt(value),
             item: item,
             status: 'TENTATIVE',
             block: -1,

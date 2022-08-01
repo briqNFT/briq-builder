@@ -5,6 +5,10 @@ import { backendManager } from '@/Backend';
 import { CHAIN_NETWORKS, getCurrentNetwork } from '@/chain/Network';
 import { APP_ENV } from '@/Meta';
 
+import { userBalance } from './UserBalance';
+
+userBalance.setup();
+
 // TODO: I am reinventing graphQL only slower I think.
 
 export class Fetchable<T> {

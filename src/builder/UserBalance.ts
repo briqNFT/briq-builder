@@ -1,0 +1,22 @@
+import { perUserStorable, perUserStore } from './PerUserStore';
+
+import { Fetchable } from './GenesisStore';
+import { BigNumberish, toBN } from 'starknet/utils/number';
+
+class UserBalance implements perUserStorable {
+    balance = new Fetchable<BigNumberish>();
+
+    async onEnter() {
+        await this.balance.fetch((await import('@/Dispatch')).contractStore.eth_bridge_contract!.getBalance());
+    }
+
+    asEth(): number | undefined {
+        if (this.balance._status !== 'LOADED')
+            return undefined;
+        return toBN(this.balance._data).div(toBN('' + 10**16)).toNumber() / 100;
+    }
+}
+
+export const userBalance = perUserStore(UserBalance);
+userBalance.setup();
+
