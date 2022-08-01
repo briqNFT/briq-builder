@@ -13,7 +13,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { ref } from 'vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBookletsStore } from '@/builder/UserBooklets';
-import { userBidsStore } from '@/builder/bidStore';
+import { userBidsStore } from '@/builder/BidStore';
 import BoxListing from '../builder/genesis/BoxListing.vue';
 
 const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];

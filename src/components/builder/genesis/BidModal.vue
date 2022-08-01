@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
-import { userBidsStore } from '@/builder/bidStore';
+import { userBidsStore } from '@/builder/BidStore';
 defineEmits(['close']);
 
 const step = ref('MAKE_BID' as 'MAKE_BID' | 'PROCESSING' | 'BID_COMPLETE');

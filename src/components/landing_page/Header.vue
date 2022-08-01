@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
-import { userBidsStore } from '@/builder/bidStore';
+import { userBidsStore } from '@/builder/BidStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { onMounted, computed } from 'vue';
 import Notifications from '../Notifications.vue';
