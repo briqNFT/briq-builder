@@ -35,13 +35,14 @@ export class WalletStore {
 
         if (APP_ENV !== 'prod')
             setupMockWallet();
-        else {
-            const cwo = await connect({ showList: false });
+        const cwo = await connect({ showList: false });
 
-            if (cwo)
-                // Don't await this, we don't care
-                this.enableWallet(cwo);
-        }
+        if (cwo)
+            // Don't await this, we don't care
+            cwo.isPreauthorized().then(x => {
+                if (x)
+                    this.enableWallet(cwo)
+            });
 
         // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
         setWalletInitComplete(this);
