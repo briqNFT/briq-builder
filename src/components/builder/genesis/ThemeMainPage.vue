@@ -71,7 +71,7 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
         <Header/>
         <div>
             <div class="bg-black text-white">
-                <div class="h-[600px] relative">
+                <div class="h-[585px] relative">
                     <div class="absolute w-full h-full theme-bg">
                         <img :src="isLive ? StarknetPlanetTheme : StarknetPlanetWaitingTheme" alt="logo" class="absolute max-w-none maw-h-none top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]">
                     </div>
