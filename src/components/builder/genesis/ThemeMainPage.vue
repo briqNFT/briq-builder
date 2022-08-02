@@ -8,6 +8,7 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 
 import StarknetPlanetWaitingTheme from '@/assets/genesis/starknet_planet_waiting_theme.png?url';
 import StarknetPlanetTheme from '@/assets/genesis/starknet_planet_theme.png?url';
+import starknet_planet_logo from '@/assets/genesis/starknet_planet_logo.png?url';
 
 const route = useRoute();
 
@@ -52,6 +53,17 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
 </script>
 
 <style scoped>
+.theme-bg::after {
+    content: "";
+    @apply absolute top-0 left-[50%] translate-x-[-50%] w-full h-full max-w-[1440px] min-w-[1280px];
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 90%, rgba(0, 0, 0, 1) 100%),
+        linear-gradient(90deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.2) 100%),
+        linear-gradient(-90deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.2) 100%),
+        linear-gradient(90deg, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 1) 100%),
+        linear-gradient(-90deg, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 1) 100%),
+        linear-gradient(120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%),
+        linear-gradient(-120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%)
+}
 </style>
 
 <template>
@@ -59,24 +71,26 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
         <Header/>
         <div>
             <div class="bg-black text-white">
-                <div class="min-h-[600px]" :style="`background: url('${isLive ? StarknetPlanetTheme : StarknetPlanetWaitingTheme}') center top no-repeat`">
-                    <div
-                        class="min-h-[500px] container m-auto p-8"
-                        style="background: linear-gradient(115deg, rgba(0,0,0,1) 0%, rgba(255,255,255,0) 43%);">
-                        <h1 class="text-left font-black uppercase my-16">{{ themeData.name || route.params.theme }}</h1>
+                <div class="h-[600px] relative">
+                    <div class="absolute w-full h-full theme-bg">
+                        <img :src="isLive ? StarknetPlanetTheme : StarknetPlanetWaitingTheme" alt="logo" class="absolute max-w-none maw-h-none top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]">
+                    </div>
+                    <div class="min-h-[500px] container py-16 m-auto px-2 md:px-8 lg:px-16 relative z-1">
+                        <!--<h1 class="text-left font-black uppercase my-16">{{ themeData.name || route.params.theme }}</h1>-->
+                        <h1><img class="pl-[5rem]" :src="starknet_planet_logo" :alt="themeData.name || route.params.theme"></h1>
                         <div class="my-16">
                             <h3>{{ themeData.tagline ?? "Build the city of the future (placeholder)" }}</h3>
                             <p>{{ themeData.description }}</p>
                         </div>
                         <template v-if="!isLive">
-                            <div class="w-[28rem] my-8 px-4 pt-2 pb-4  border border-accent rounded backdrop-blur-md backdrop-brightness-50">
-                                <p class="my-2">Sale starting soon</p>
+                            <div class="w-[340px] my-8 px-4 pt-2 pb-4 border border-accent rounded backdrop-blur-md backdrop-brightness-50">
+                                <p class="my-2 text-sm">Sale starting soon</p>
                                 <div class="grid grid-cols-4 auction-countdown gap-2">
                                     <div
                                         v-for="i in saleStartsIn" :key="i[0]"
                                         class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
                                         <p class="text-xl">{{ i[1] }}</p>
-                                        <p class="text-md uppercase">{{ i[0] }}</p>
+                                        <p class="text-xs capitalize">{{ i[0] }}</p>
                                     </div>
                                 </div>
                             </div>
