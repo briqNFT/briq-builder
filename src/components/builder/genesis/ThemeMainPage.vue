@@ -59,8 +59,8 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 90%, rgba(0, 0, 0, 1) 100%),
         linear-gradient(90deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.2) 100%),
         linear-gradient(-90deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.2) 100%),
-        linear-gradient(90deg, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 1) 100%),
-        linear-gradient(-90deg, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 1) 100%),
+        linear-gradient(90deg, rgba(0, 0, 0, 0) 85%, rgba(0, 0, 0, 1) 100%),
+        linear-gradient(-90deg, rgba(0, 0, 0, 0) 85%, rgba(0, 0, 0, 1) 100%),
         linear-gradient(120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%),
         linear-gradient(-120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%)
 }
