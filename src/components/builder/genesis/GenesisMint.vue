@@ -16,6 +16,10 @@ import { nextTick } from 'vue';
 
 import { h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
+// TODO: link to backend
+import StarknetPlanetWaitingTheme from '@/assets/genesis/starknet_planet_waiting_theme.png?url';
+import starknet_planet_logo from '@/assets/genesis/starknet_planet_logo.png?url';
+
 const modelViewerLoading = ref(true);
 const modelViewerLoadingPromise = import('@google/model-viewer');
 modelViewerLoadingPromise.then(() => modelViewerLoading.value = false);
@@ -162,9 +166,12 @@ onMounted(async () => {
             <h2 class="font-medium text-xl">Discover the new theme</h2>
         </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
-            <div class="bg-black text-white rounded-lg flex flex-col gap-20 py-20 px-4 items-center justify-between">
-                <h1>Starknet City</h1>
-                <p>Discover the briq genesis sale <i class="fa-solid fa-arrow-right"/></p>
+            <div class="h-[400px] bg-black text-white rounded-lg relative overflow-hidden">
+                <img :src="StarknetPlanetWaitingTheme" class="absolute max-w-none h-full xl:h-auto xl:w-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
+                <div class="z-1 px-16 py-4 relative h-full flex flex-col justify-around items-center xl:items-start w-full">
+                    <img :src="starknet_planet_logo" class="w-auto h-auto">
+                    <p>Discover the briq genesis sale <i class="fa-solid fa-arrow-right"/></p>
+                </div>
             </div>
         </routerlink>
     </div>

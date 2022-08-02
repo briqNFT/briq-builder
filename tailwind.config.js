@@ -41,7 +41,6 @@ module.exports = {
             },
             screens: {
                 '2xl': '1440px',
-                '3xl': '1536px',
                 'tall-sm': { 'raw': '(min-height: 640px)' },
                 'tall-md': { 'raw': '(min-height: 768px)' },
                 'tall-lg': { 'raw': '(min-height: 900px)' },

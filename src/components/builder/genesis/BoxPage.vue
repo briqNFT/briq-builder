@@ -96,7 +96,7 @@ p {
                     <a
                         @click="router.go(-1)"
                         class="text-accent">
-                        <Btn secondary>
+                        <Btn secondary no-background>
                             <i class="fa-solid fa-chevron-left"/> Go back
                         </Btn>
                     </a>
