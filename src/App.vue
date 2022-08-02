@@ -53,15 +53,15 @@ body {
 }
 
 html h1 {
-    @apply text-max font-medium;
+    @apply text-max font-semibold;
 }
 
 html h2 {
-    @apply text-xl font-medium;
+    @apply text-xl font-semibold;
 }
 
 html h3 {
-    @apply text-lg font-medium;
+    @apply text-lg font-semibold;
 }
 
 html:not(.v2design) body {
