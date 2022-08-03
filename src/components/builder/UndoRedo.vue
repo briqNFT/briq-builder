@@ -2,10 +2,10 @@
     <div>
         <Hotkey name="undo" :data="{ key: 'z', ctrl: true }" :handler="() => undo()"/>
         <Hotkey name="redo" :data="{ key: 'z', ctrl: true, shift: true }" :handler="() => redo()"/>
-        <Btn @click="undo" :disabled="!canUndo" tooltip="Undo (Ctrl + Z)">
+        <Btn v-bind="$attrs" @click="undo" :disabled="!canUndo" tooltip="Undo (Ctrl + Z)">
             <p><i class="fas fa-undo"/></p>
         </Btn>
-        <Btn @click="redo" :disabled="!canRedo" class="ml-1" tooltip="Redo (Ctrl + Shift + Z)">
+        <Btn v-bind="$attrs" @click="redo" :disabled="!canRedo" class="ml-1" tooltip="Redo (Ctrl + Shift + Z)">
             <p><i class="fas fa-redo"/></p>
         </Btn>
     </div>

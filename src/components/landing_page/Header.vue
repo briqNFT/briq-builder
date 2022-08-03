@@ -4,11 +4,12 @@ import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBidsStore } from '@/builder/BidStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { onMounted, computed } from 'vue';
-import Notifications from '../Notifications.vue';
+import NotificationsList from '../NotificationsList.vue';
 
 import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import { notificationsManager } from '@/Notifications';
+import NotificationsMenu from '../NotificationsMenu.vue';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -41,7 +42,7 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
                 <div class="flex gap-1 md:gap-6 mx-2 md:mr-4 text-sm md:text-md flex-wrap justify-center items-center md:justify-end font-normal">
                     <routerLink to="/themes"><p>Themes</p></routerLink>
                     <routerLink to="/builder"><p>Create</p></routerLink>
-                    <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener"><p>Resources</p></a>
+                    <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank"><p>Resources</p></a>
                 </div>
                 <router-link v-if="userBoxesStore.current?.availableBoxes?.length" to="/unboxing">
                     <Btn secondary class="before:border-darker">
@@ -61,13 +62,7 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
                         <Btn no-background class="text-left" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                     </MenuDropdown>
                 </div>
-                <MenuDropdown no-background class="min-w-[3rem]">
-                    <template #icon>
-                        <i class="fa-regular fa-bell"/>
-                        <span class="text-accent absolute top-2 right-2 text-lg" v-if="hasUnreadNotifications">•</span>
-                    </template>
-                    <Notifications class="p-4 min-w-[26rem]"/>
-                </MenuDropdown>
+                <NotificationsMenu/>
             </div>
         </div>
     </div>
@@ -88,12 +83,6 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
     right: -1rem;
 
     @apply rounded-md shadow-sm;
-}
-html:not(.v2design) .briq-logo {
-    @apply bg-base;
-}
-html:not(.v2design) * {
-    @apply text-md font-medium;
 }
 
 </style>

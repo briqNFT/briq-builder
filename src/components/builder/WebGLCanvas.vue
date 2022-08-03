@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full h-screen block p-0 m-0">
+    <div class="absolute w-full h-screen block p-0 m-0">
         <canvas
             class="w-full h-full"
             id="backgroundgl"

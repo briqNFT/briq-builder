@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 
 defineProps<{
     closeOnClick?: boolean
@@ -12,6 +12,14 @@ let closeTimer: any;
 const willClose = () => closeTimer = setTimeout(() => opened.value = false, CLOSE_AFTER_FOCUS_LOSS_DELAY);
 const dropClose = () => closeTimer && clearTimeout(closeTimer);
 
+const dropdownButton = ref(null as unknown as HTMLElement);
+const dropdownPositionCSS = computed(() => {
+    // This isn't actually reactive but meh
+    if (dropdownButton.value.getBoundingClientRect().right > window.innerWidth / 2)
+        return 'absolute right-0';
+    return 'absolute left-0';
+});
+
 </script>
 
 <style scoped>
@@ -21,7 +29,7 @@ div[data-name='menu'] {
 </style>
 
 <template>
-    <div class="relative" @pointerenter="dropClose" @pointerleave="willClose">
+    <div class="relative" ref="dropdownButton" @pointerenter="dropClose" @pointerleave="willClose">
         <Btn secondary class="h-full w-full" v-bind="$attrs" @click="opened = !opened">
             <slot name="button"/>
             <span :class="opened ? 'text-accent' : ''"><slot name="icon">
@@ -31,7 +39,9 @@ div[data-name='menu'] {
             </span>
         </Btn>
         <!-- Close on click so that clicking on button works as expected. -->
-        <div v-if="opened" data-name="menu" @click="closeOnClick ? opened = false : ''" class="after:absolute after:top-[-1rem] after:h-4 after:w-full absolute my-2 right-0 flex flex-col gap-1 bg-base shadow rounded-md px-2 py-2 w-max z-50">
+        <div
+            v-if="opened" data-name="menu" @click="closeOnClick ? opened = false : ''"
+            :class="`after:absolute after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-base shadow rounded-md px-2 py-2 w-max z-50`">
             <slot/>
         </div>
     </div>

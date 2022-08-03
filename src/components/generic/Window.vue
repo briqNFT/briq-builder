@@ -7,8 +7,6 @@ const props = defineProps<{
 
 const window = ref(null as unknown as HTMLDivElement);
 
-const isv2design = document.documentElement.classList.contains('v2design');
-
 const _size = computed(() => props?.size || 'md:w-2/5 w-auto');
 
 // This doesn't use Vue's system to allow bubbling up.
@@ -18,31 +16,7 @@ const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbl
 
 <template>
     <div ref="window" :class="'container p-0 rounded-lg bg-base alternate-buttons m-8 shadow-xl relative ' + _size">
-        <div v-if="!isv2design" class="relative h-full pt-2 pb-4">
-            <!-- Center the title, but let it get pushed slightly left if needed for the close button.-->
-            <h3 v-if="!!$slots.title" class="text-center w-full px-4 pb-2 flex justify-between">
-                <span class="flex-1"/>
-                <slot name="title"/>
-                <span class="grow w-2"/>
-            </h3>
-            <h2 v-if="!!$slots['big-title']" class="text-center w-full px-4 pb-2 flex justify-between">
-                <span class="flex-1"/>
-                <slot name="big-title"/>
-                <span class="grow w-2"/>
-            </h2>
-
-            <slot name="content">
-                <div class="px-8 relative">
-                    <slot/>
-                </div>
-            </slot>
-            <button
-                @click="close"
-                class="absolute top-0.5 right-0.5 hover:text-sm text-xs font-light bg-accent h-5 w-5 rounded inline-flex justify-center items-center">
-                <i class="fas fa-times"/>
-            </button>
-        </div>
-        <div v-else class="relative h-full px-4 py-4">
+        <div class="relative h-full px-4 py-4">
             <div class="flex justify-between items-center px-4 pt-2 pb-4">
                 <h3 class="font-semibold" v-if="!!$slots.title"><slot name="title"/></h3>
                 <h2 class="font-semibold" v-if="!!$slots['big-title']"><slot name="big-title"/></h2>

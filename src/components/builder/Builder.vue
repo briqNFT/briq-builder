@@ -2,14 +2,10 @@
 import WebGLCanvas from './WebGLCanvas.vue';
 import MenuBar from './MenuBar.vue';
 import SideBar from './SideBar.vue';
-import SideBarRight from './SideBarRight.vue';
 import Modals from '../Modals.vue';
 import Messages from '../Messages.vue';
 import Booklet from './Booklet.vue';
 
-import AlphaBanner from '../AlphaBanner.vue';
-import AlphaLogo from './AlphaLogo.vue';
-import SetToolbar from './SetToolbar.vue';
 import CursorTooltip from '../generic/CursorTooltip.vue';
 
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
@@ -49,16 +45,12 @@ onMounted(async () => {
 
 <template>
     <div class="fixed w-screen h-screen">
-        <WebGLCanvas/>
-        <AlphaLogo/>
+        <WebGLCanvas class="z-[-1]"/>
         <MenuBar/>
-        <SetToolbar/>
         <SideBar/>
         <Booklet/>
-        <SideBarRight/>
     </div>
     <Modals/>
     <Messages/>
-    <AlphaBanner/>
     <CursorTooltip/>
 </template>

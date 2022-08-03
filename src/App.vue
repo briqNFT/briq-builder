@@ -26,10 +26,7 @@ watchEffect(() => {
 });
 
 watch([() => route.name as unknown as string], (_, __) => {
-    if (route.name !== 'Builder' && route.name !== 'Share')
-        document.documentElement.classList.add('v2design');
-    else
-        document.documentElement.classList.remove('v2design');
+    document.documentElement.classList.add('v2design');
 }, {
     immediate: true,
 });
@@ -64,21 +61,6 @@ html h3 {
     @apply text-lg font-semibold;
 }
 
-html:not(.v2design) body {
-    @apply font-light;
-}
-
-html:not(.v2design) h1 {
-    @apply text-max font-medium;
-}
-
-html:not(.v2design) h2 {
-    @apply text-4xl font-medium;
-}
-
-html:not(.v2design) h3 {
-    @apply text-xl font-normal;
-}
 
 .briq-logo {
     @apply font-logo font-medium select-none text-accent tracking-wide;
@@ -88,18 +70,10 @@ html:not(.v2design) h3 {
     @apply bg-accent text-white px-5 leading-none pt-[0.4rem] pb-[0.6rem] rounded-[2px];
 }
 
-/* Overwrite the default outline color */
-html:not(.v2design) button, a {
-    @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-darker;
-}
 html.v2design button, a {
     @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-accent;
 }
 
-
-html:not(.v2design) input, select, textarea {
-    @apply rounded-sm px-2 py-0.5 bg-white text-black dark:bg-darker dark:text-text;
-}
 
 html.v2design input {
     @apply rounded p-4 border-2 border-darker;

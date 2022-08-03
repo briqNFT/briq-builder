@@ -118,39 +118,4 @@ html.v2design button:not(.btn):disabled {
     @apply text-darkest;
 }
 
-
-/** BUILDER SETTINGS */
-
-html:not(.v2design) .btn {
-    @apply bg-base rounded-sm px-3 py-1;
-    @apply border-base border-2;
-    @apply shadow-sm;
-    @apply font-extralight leading-none tracking-tight;
-    min-height: 2.5rem;
-    @apply select-none;
-}
-html:not(.v2design) .btn:not(:disabled):hover {
-    @apply border-b-2 border-deep-blue;
-}
-html:not(.v2design) .btn:not(:disabled):active {
-    @apply border-2 border-deep-blue bg-accent;
-}
-html:not(.v2design) .btn:disabled {
-    @apply bg-gray-300 dark:bg-gray-700;
-    @apply text-gray-600 dark:text-gray-500 dark:border-black;
-}
-
-html:not(.v2design) .alternate-buttons .btn {
-    @apply font-medium border-text rounded border-4 px-1;
-}
-html:not(.v2design) .alternate-buttons .btn:not(:disabled):hover {
-    @apply border-4 border-deep-blue;
-}
-html:not(.v2design) .alternate-buttons .btn:not(:disabled):active {
-    @apply border-4 bg-accent;
-}
-
-html:not(.v2design) .alternate-buttons .btn:disabled {
-    @apply dark:border-black;
-}
 </style>
