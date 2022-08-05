@@ -10,6 +10,10 @@ import BuyModalVue from './BuyModal.vue';
 import { useBoxData } from '@/builder/BoxData';
 import { maybeStore } from '@/chain/WalletLoading';
 import { userBalance } from '@/builder/UserBalance';
+import { productBidsStore } from '@/builder/BidStore';
+import { useBids } from '@/components/BidComposable';
+
+import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 
 const route = useRoute();
 const router = useRouter();
@@ -28,6 +32,12 @@ const {
 
 const themeName = computed(() => route.params.theme);
 const boxName = computed(() => item.value?.name ?? route.params.box);
+
+productBidsStore.fetch(token_id.value);
+
+const previousBids = computed(() => productBidsStore.bids(token_id.value));
+
+const { currentBid, currentBidString } = useBids(token_id.value);
 
 const canBid = computed(() => {
     if (!maybeStore.value?.userWalletAddress || userBalance.current?.balance?._status !== 'LOADED')
@@ -159,7 +169,7 @@ p {
                             </div>
                             <div>
                                 <h2>Winning Bid</h2>
-                                <p class="text-xl font-medium my-4"><i class="fa-brands fa-ethereum"/> 1.35</p>
+                                <p class="text-xl font-medium my-4">{{ currentBidString }}</p>
                                 <Btn
                                     class="text-white"
                                     :disabled="!canBid"
@@ -169,10 +179,17 @@ p {
                             </div>
                             <h2>Previous bids</h2>
                             <div class="flex flex-col gap-2 pt-2">
-                                <div v-for="i in new Array(5)" class="flex justify-between">
-                                    <p>0xcafe0123babe</p>
-                                    <p>1.35 eth <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
-                                </div>
+                                <template v-if="productBidsStore.status === 'OK'">
+                                    <p v-if="!Object.keys(previousBids.bids).length">There are no bids on this item.</p>
+                                    <a
+                                        v-for="i in previousBids.bids" :key="i.tx_hash"
+                                        :href="`https://${'goerli.'}voyager.online/tx/${i.tx_hash}`" target="_blank">
+                                        <div class="flex justify-between">
+                                            <p>{{ i.tx_hash.substring(0, 8) + "..." + i.tx_hash.slice(-8) }}</p>
+                                            <p>{{ readableUnit(i.bid_amount) }} {{ readableNumber(i.bid_amount) }} <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
+                                        </div>
+                                    </a>
+                                </template>
                             </div>
                         </template>
                         <template v-else-if="saledata?.isLive()">

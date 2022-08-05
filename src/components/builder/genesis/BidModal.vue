@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
-import { userBidsStore } from '@/builder/BidStore';
+import { productBidsStore, userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
 import { toBN } from 'starknet/utils/number.js';
+import { useBids } from '@/components/BidComposable.js';
 defineEmits(['close']);
 
 const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'BID_COMPLETE');
@@ -14,7 +15,7 @@ const props = defineProps<{
     },
 }>();
 
-const currentBid = computed(() => toBN(135).mul(toBN('10000000000000000')));
+const { currentBid, currentBidString } = useBids(props.metadata.item);
 
 const bid = ref(undefined as undefined | number);
 
@@ -67,7 +68,7 @@ const makeBid = async () => {
         <div class="flex flex-col gap-8">
             <div class="flex flex-col items-center gap-2">
                 <p class="text-md">Current winning bid</p>
-                <p class="text-lg font-semibold">{{ currentBid.div(toBN('10000000000000000')).toString() / 100 }}<i class="fa-brands fa-ethereum"/></p>
+                <p class="text-lg font-semibold">{{ currentBidString }}</p>
             </div>
             <div>
                 <p>

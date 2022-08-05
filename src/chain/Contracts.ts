@@ -16,10 +16,12 @@ export const ADDRESSES = {
         eth_bridge_contract: '0x62230ea046a9a5fbc261ac77d03c8d41e5d442db2284587570ab46455fd2488',
     },
     'starknet-testnet': {
-        briq: '0x01531b29c83b9a22adc1a4d1e148bec286227e81e13c14c0ec150ac86aef446f',
-        set: '0x04591e35e7a0c6273267a9e5b6355c3d57a3f7a01a31b14f3fa6636746e8d9ed',
-        box: '0x04591e35e7a0c6273267a9e5b6355c3d57a3f7a01a31b14f3fa6636746e8d9ed',
-        eth_bridge_contract: '0x62230ea046a9a5fbc261ac77d03c8d41e5d442db2284587570ab46455fd2488',
+        briq: '0x009c80aaf74330a0b56dddefc4e6bab33d03415e67a0092cc048b0d6fb2cc3dd',
+        set: '0x032ded561a3c59d063bf16a1de833ac2826370ad1662baba548c08fa29eba850',
+        box: '0x07f4c8f5d2e70955bf9b4275abb48781049839dc0a45a3f7d0761c61d61811cc',
+        booklet: '0x048580b27b4cb0ac15069ba2bf9a8586cb072f65dbcd4659a220a747f57f89e6',
+        auction: '0x04a97166c6718f85162f05270274ccede8e20e6aaa47a389f478d9df71ee6a95',
+        eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
     },
     'starknet-mainnet': {
         briq: '',
@@ -43,7 +45,7 @@ const IMPL = {
         briq: BriqContract,
         set: SetContract,
         box: BoxContract,
-        multicall: MulticallContract,
+        auction: AuctionContract,
         eth_bridge_contract: ERC20Contract,
     },
     'starknet-mainnet': {
@@ -56,14 +58,12 @@ import { shallowReactive, watchEffect, toRef, ref } from 'vue';
 import { logDebug } from '../Messages';
 import { CHAIN_NETWORKS, getCurrentNetwork } from './Network';
 import { getProvider } from './Provider';
-import MulticallContract from './contracts/Multicall';
 import BoxContract from './contracts/box';
 
 const contractStore = shallowReactive({
     briq: undefined as undefined | BriqContract,
     set: undefined as undefined | SetContract,
     box: undefined as undefined | BoxContract,
-    multicall: undefined as any,
     auction: undefined as undefined | AuctionContract,
     eth_bridge_contract: undefined as undefined | ERC20Contract,
 });

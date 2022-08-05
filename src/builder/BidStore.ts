@@ -8,6 +8,9 @@ import { perUserStorable, perUserStore } from './PerUserStore';
 
 import contractStore from '@/chain/Contracts';
 import { BigNumberish, toFelt } from 'starknet/utils/number';
+import { getCurrentNetwork } from '@/chain/Network';
+import { maybeStore } from '@/chain/WalletLoading';
+import { reactive } from 'vue';
 
 class FailedBidNotif extends Notif {
     type = 'failed_bid';
@@ -40,22 +43,27 @@ interface Bid {
     block: number,
     status: 'CONFIRMED' | 'TENTATIVE' | 'PENDING';
     item: string,
-    value: string,
+    bid_amount: string,
 }
 
 class UserBidStore implements perUserStorable {
     lastConfirmedBlock = -1;
     bids = [] as Bid[];
 
-    onEnter() {
+    async onEnter() {
         logDebug('SYNCING USER BID BLOCK')
-        //backendManager.fetch('v1/bids')
+        const bidDatas = await backendManager.fetch(`v1/bids/user/${getCurrentNetwork()}/${maybeStore.value?.userWalletAddress}`)
+
         const bidData = {
-            block: 13414,
-            bids: {} as { [tx_hash: string]: Bid },
+            block: 0,
+            bids: {},
         };
-        if (bidData.block <= this.lastConfirmedBlock)
-            return;
+        for (const bid of bidDatas) {
+            bidData.block = Math.max(bid.block, bidData.block);
+            bidData.bids[bid.tx_hash] = bid;
+        }
+        console.log(bidDatas, bidData);
+
         for (let i = 0; i < this.bids.length; ++i) {
             const bid = this.bids[i];
             // Can't find the bid and should have been confirmed -> mark it failed.
@@ -80,10 +88,11 @@ class UserBidStore implements perUserStorable {
     async makeBid(value: BigNumberish, item: string) {
         const genesisStore = useGenesisStore();
         const itemData = genesisStore.metadata[item]._data!;
+        console.log('TOTORO', contractStore)
         const tx_response = await contractStore.auction?.approveAndBid(contractStore.eth_bridge_contract, itemData.token_id, itemData.auction_id, value)
         const newBid = {
             tx_hash: tx_response!.transaction_hash,
-            value: toFelt(value),
+            bid_amount: toFelt(value),
             item: item,
             status: 'TENTATIVE',
             block: -1,
@@ -95,4 +104,48 @@ class UserBidStore implements perUserStorable {
     }
 }
 
-export const userBidsStore =  perUserStore(UserBidStore);
+export const userBidsStore = perUserStore(UserBidStore);
+
+class ProductBidsStore {
+    _bids = {} as { [box_id: string]: { bids: { [bid_id: string]: Bid }, lastConfirmedBlock: number, lastRefresh: number } }
+
+    status = 'PENDING' as 'PENDING' | 'OK' | 'ERROR';
+
+    setup(box_id: string) {
+        if (!(box_id in this._bids))
+            this._bids[box_id] = {
+                bids: {},
+                lastConfirmedBlock: 0,
+                lastRefresh: 0,
+            }
+    }
+
+    async fetch(box_id: string) {
+        this.setup(box_id);
+        if (Date.now() - this._bids[box_id].lastRefresh < 2000)
+            return;
+        if (this.status === 'ERROR')
+            this.status = 'PENDING';
+        try {
+            const bidDatas = await backendManager.fetch(`v1/bids/box/${getCurrentNetwork()}/${box_id}`)
+            // TODO: use something else for ID
+            for (const bid of bidDatas) {
+                this._bids[box_id].bids[bid.tx_hash] = bid;
+                this._bids[box_id].lastConfirmedBlock = Math.max(bid.block, this._bids[box_id].lastConfirmedBlock);
+            }
+            this.status = 'OK';
+        } catch(err) {
+            console.error(err);
+            this.status = 'ERROR';
+        }
+        this._bids[box_id].lastRefresh = Date.now();
+    }
+
+    bids(box_id: string) {
+        this.setup(box_id);
+        this.fetch(box_id);
+        return this._bids[box_id];
+    }
+}
+
+export const productBidsStore = reactive(new ProductBidsStore());

@@ -13,7 +13,7 @@ class UserBalance implements perUserStorable {
     asEth(): number | undefined {
         if (this.balance._status !== 'LOADED')
             return undefined;
-        return toBN(this.balance._data).div(toBN('' + 10**16)).toNumber() / 100;
+        return toBN(this.balance._data).div(toBN('' + 10**15)).toNumber() / 1000;
     }
 }
 
