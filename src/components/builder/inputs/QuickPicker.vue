@@ -121,7 +121,30 @@ const choiceLayout = computed(() => {
 </script>
 
 <template>
-    <div class="w-full">
+    <div class="rounded overflow-hidden border border-darker bg-base max-w-[200px]">
+        <div class="bg-[#f7f7f7] p-4">
+            <h4 class="font-medium">Palette</h4>
+        </div>
+        <div class="p-4">
+            <div class="flex items-center gap-1">
+                <div class="inline-block w-7 h-7 rounded-sm" :style="{ backgroundColor: inputStore.currentColor }"/>
+                <input type="text" v-model="inputStore.currentColor" class="py-0 h-8" size="7">
+            </div>
+            <div class="flex flex-wrap gap-1 my-2">
+                <Btn
+                    secondary
+                    v-for="[key, material, color, name] in choices" :key="key"
+                    no-style
+                    :class="`rounded-sm w-7 h-7 p-0 flex justify-center items-center mat-${material}`"
+                    :style="addMaterialCSS(material, color)"
+                    :tooltip="'Select color ' + name"
+                    @click="pickBriq(key)"
+                    @dblclick="pickBriq(key); changeColor()"/>
+                <Btn no-background class="p-0 w-7 h-7 flex justify-center items-center">+</Btn>
+            </div>
+        </div>
+    </div>
+    <div v-if="false" class="w-full">
         <div class="grid grid-cols-3 gap-0.5 my-0.5">
             <Btn class="col-span-3" @click="resetAll" tooltip="Reset the palette to default colors">Reset</Btn>
             <Btn class="col-span-3" @click="addAllActive" tooltip="Add the set colors to the palette">Add set<br>colors</Btn>
@@ -130,7 +153,7 @@ const choiceLayout = computed(() => {
                 class="p-0" @click="addCurrentChoice" tooltip="Add the current color to the palette permanently">
                 <i class="fa-solid fa-add"/>
             </Btn>
-            <Btn v-else="" class="p-0" @click="addChoice" tooltip="Add a new color"><i class="fa-solid fa-add"/></Btn>
+            <Btn v-else class="p-0" @click="addChoice" tooltip="Add a new color"><i class="fa-solid fa-add"/></Btn>
             <Btn class="p-0" @click="deleteChoice" tooltip="Remove the current color from the palette"><i class="far fa-trash-alt"/></Btn>
             <Btn class="p-0" @click="changeColor" tooltip="Edit selected color"><i class="fa-solid fa-pen-to-square"/></Btn>
         </div>
