@@ -32,7 +32,7 @@ export default defineComponent({
     content: 'alpha';
     font-style: italic;
 
-    @apply bg-accent px-2 py-0.5 text-text-on-accent text-sm leading-5;
+    @apply bg-primary px-2 py-0.5 text-text-on-primary text-sm leading-5;
     position: absolute;
     bottom: 0;
     right: 0;

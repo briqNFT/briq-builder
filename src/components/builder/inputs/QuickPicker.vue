@@ -121,7 +121,7 @@ const choiceLayout = computed(() => {
 </script>
 
 <template>
-    <div class="rounded overflow-hidden border border-darker bg-base max-w-[200px]">
+    <div class="rounded overflow-hidden border border-grad-darker bg-grad-lightest max-w-[200px]">
         <div class="bg-[#f7f7f7] p-4">
             <h4 class="font-medium">Palette</h4>
         </div>

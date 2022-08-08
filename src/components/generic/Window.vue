@@ -15,7 +15,7 @@ const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbl
 </script>
 
 <template>
-    <div ref="window" :class="'container p-0 rounded-lg bg-base alternate-buttons m-8 shadow-xl relative ' + _size">
+    <div ref="window" :class="'container p-0 rounded-lg bg-grad-lightest alternate-buttons m-8 shadow-xl relative ' + _size">
         <div class="relative h-full px-4 py-4">
             <div class="flex justify-between items-center px-4 pt-2 pb-4">
                 <h3 class="font-semibold" v-if="!!$slots.title"><slot name="title"/></h3>

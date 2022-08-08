@@ -66,7 +66,7 @@ const makeBid = async () => {
             <h3 class="m-0 p-0">Item</h3>
             <hr>
             <div class="flex gap-4 justify-between">
-                <p><img class="p-8 rounded border border-darker max-h-[120px]" :src="genesisStore.coverItemRoute(props.metadata.item)"></p>
+                <p><img class="p-8 rounded border border-grad-darker max-h-[120px]" :src="genesisStore.coverItemRoute(props.metadata.item)"></p>
                 <div class="flex-1"><h4>{{ props.metadata.item?.split("/")?.[0] }}</h4><h2>{{ item?.name }}</h2></div>
                 <p>1.35 ETH</p>
             </div>

@@ -579,7 +579,7 @@ const useMockWallet = () => {
     <Transition name="fade">
         <div
             v-if="step === 'CHECK_WALLET' || step === 'LOADING'"
-            class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-base bg-repeat bg-auto alternate-buttons flex-col gap-4 bg-opacity-100 transition-all"
+            class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-grad-lightest bg-repeat bg-auto alternate-buttons flex-col gap-4 bg-opacity-100 transition-all"
             :style="{ backgroundImage: `url(${BriqsOverlay})`, backgroundSize: '1000px auto' }">
             <h2>briq unboxing</h2>
             <p v-if="step === 'LOADING'">...Loading Scene...</p>

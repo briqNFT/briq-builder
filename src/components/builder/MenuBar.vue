@@ -35,14 +35,14 @@ const getNbBriqs = computed(() => {
 
 <style scoped>
 .divider {
-    @apply w-[1px] bg-darker h-[24px];
+    @apply w-[1px] bg-grad-light h-[24px];
 }
 </style>
 
 <template>
     <div class="m-4 flex justify" v-if="!inputStore.hideInput">
         <div class="flex-1 basis-1 flex">
-            <div class="flex items-center gap-2 border border-darker bg-base rounded">
+            <div class="flex items-center gap-2 border border-grad-darker bg-grad-lightest rounded">
                 <MenuDropdown no-background icon class="pr-0" :close-on-click="true">
                     <template #button><i class="fa-solid fa-bars"/></template>
                     <Btn no-background>New creation</Btn>
@@ -53,7 +53,7 @@ const getNbBriqs = computed(() => {
                 <div class="divider"/>
                 <div class="flex gap-2 items-baseline">
                     <p class="font-semibold">{{ $store.state.builderData.currentSet.name }}</p>
-                    <p class="text-darkest">{{ getNbBriqs }}</p>
+                    <p class="text-grad-darker">{{ getNbBriqs }}</p>
                 </div>
                 <div class="divider"/>
                 <UndoRedo no-background secondary class="px-1"/>
@@ -67,14 +67,14 @@ const getNbBriqs = computed(() => {
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-center">
-            <div class="border bg-base rounded flex gap-2 px-2">
+            <div class="border bg-grad-lightest rounded flex gap-2 px-2">
                 <Btn no-background><i class="fas fa-mouse-pointer"/></Btn>
                 <Btn no-background><i class="fas fa-cube"/></Btn>
                 <Btn no-background><i class="fas fa-video"/></Btn>
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-end">
-            <div class="flex items-stretch gap-0 border bg-base rounded">
+            <div class="flex items-stretch gap-0 border bg-grad-lightest rounded">
                 <div class="flex items-center justify-center gap-2 px-4">
                     <briqIcon class="inline-block"/> {{ 0 }}
                 </div>

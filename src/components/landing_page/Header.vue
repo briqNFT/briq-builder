@@ -45,21 +45,21 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank"><p>Resources</p></a>
                 </div>
                 <router-link v-if="userBoxesStore.current?.availableBoxes?.length" to="/unboxing">
-                    <Btn secondary class="before:border-darker">
+                    <Btn secondary class="before:border-grad-darker">
                         <i class="fa-solid fa-box-open"/> {{ userBoxesStore.current?.availableBoxes?.length || 0 }}
                     </Btn>
                 </router-link>
-                <div class="border-darker bg-base px-3 border rounded-md flex items-center justify-center gap-2">
+                <div class="border-grad-light px-3 border rounded flex items-center justify-center gap-2">
                     <briqIcon class="inline-block"/> {{ 0 }}
                 </div>
                 <div class="flex-none">
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none hidden md:inline-block" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <MenuDropdown no-background :close-on-click="true" v-else-if="walletStore?.userWalletAddress" class="text-xs">
-                        <template #button><ProfileIcon width="1.5rem" height="1.5rem" class="inline-block mx-2"/></template>
-                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full text-left" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
-                        <Btn no-background class="text-left" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
-                        <Btn no-background class="text-left" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
+                    <MenuDropdown no-background icon :close-on-click="true" v-else-if="walletStore?.userWalletAddress" class="text-xs">
+                        <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
+                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                        <Btn no-background class="justify-start" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
+                        <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                     </MenuDropdown>
                 </div>
                 <NotificationsMenu/>
@@ -77,7 +77,7 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
     content: 'alpha';
     font-style: italic;
 
-    @apply bg-accent px-2 py-0.5 text-text-on-accent text-sm;
+    @apply bg-primary px-2 py-0.5 text-text-on-primary text-sm;
     position: absolute;
     top: -1rem;
     right: -1rem;

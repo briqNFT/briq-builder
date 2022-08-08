@@ -80,7 +80,7 @@
                             <p v-if="exporting === 'ERROR'">
                                 There was an error while exporting your set.<br>The following step failed:
                                 {{ errorStep }}. Full error:<br>
-                                <span class="bg-accent p-1 text-sm font-light tracking-tight">{{
+                                <span class="bg-primary p-1 text-sm font-light tracking-tight">{{
                                     errorDetails.toString()
                                 }}</span>
                             </p>

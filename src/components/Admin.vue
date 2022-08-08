@@ -118,7 +118,7 @@ const masterInit = async () => {
                     <p v-if="customResult">Result: {{ JSON.stringify(customResult) }}</p>
                 </div>
             </div>
-            <div class="border-l-4 border-darker mr-4">
+            <div class="border-l-4 border-grad-darker mr-4">
                 <div>
                     <h2>Wallet</h2>
                     <p>Current address: {{ wallet.userWalletAddress }}</p>
@@ -135,7 +135,7 @@ const masterInit = async () => {
 
 <style scoped>
 h2 {
-    @apply border-t-4 border-darker mb-4;
+    @apply border-t-4 border-grad-darker mb-4;
 }
 .main > div {
     @apply my-4;

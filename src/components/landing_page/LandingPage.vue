@@ -15,7 +15,7 @@ import AlphaBanner from '../AlphaBanner.vue';
 
 <template>
     <div
-        class="w-full h-full bg-base text-white dark:text-gray-200 text-lg relative text-center font-sans alternate-buttons">
+        class="w-full h-full bg-grad-lightest text-white dark:text-gray-200 text-lg relative text-center font-sans alternate-buttons">
         <Header/>
         <div class="row">
             <div class="flex flex-wrap justify-around md:my-6 my-10">
@@ -32,7 +32,7 @@ import AlphaBanner from '../AlphaBanner.vue';
                 <div class="centerall flex-1"><GMIcon class="lg:scale-100 scale-75 dark:opacity-80"/></div>
             </div>
         </div>
-        <div class="bg-darker my-20 row">
+        <div class="bg-grad-light my-20 row">
             <div class="flex flex-wrap justify-between">
                 <div class="md:centerleft centerall flex-auto"><ComposableIcon class="dark:opacity-80"/></div>
                 <div class="md:centerright centerall flex-initial">
@@ -46,7 +46,7 @@ import AlphaBanner from '../AlphaBanner.vue';
                 </div>
             </div>
         </div>
-        <div class="row bg-darker my-20">
+        <div class="row bg-grad-light my-20">
             <div class="flex flex-wrap justify-between">
                 <div class="centerall md:centerleft flex-initial">
                     <h2>NFTs should be interoperable</h2>
@@ -60,7 +60,7 @@ import AlphaBanner from '../AlphaBanner.vue';
                 <div class="centerall md:centerright flex-auto"><InteroperableIcon class="dark:opacity-80"/></div>
             </div>
         </div>
-        <div class="row bg-darker my-20">
+        <div class="row bg-grad-light my-20">
             <div class="flex flex-wrap justify-between">
                 <div class="centerall md:centerleft flex-auto"><OnChainIcon class="dark:opacity-80"/></div>
                 <div class="centerall md:centerright flex-initial">
@@ -153,7 +153,7 @@ svg {
     content: 'alpha';
     font-style: italic;
 
-    @apply bg-accent px-2 py-0.5 text-text-on-accent text-sm;
+    @apply bg-primary px-2 py-0.5 text-text-on-primary text-sm;
     position: absolute;
     top: 0;
     right: 0;

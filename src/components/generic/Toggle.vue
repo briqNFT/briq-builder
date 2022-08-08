@@ -21,7 +21,7 @@
 }
 
 .custom-toggle.enabled {
-    @apply bg-accent;
+    @apply bg-primary;
     border-radius: 3.4em;
 }
 

@@ -3,7 +3,7 @@
         <a :href="getRelativeShareLink('testnet', setId, version)" target="_blank">
             <div
                 v-if="setData"
-                class="bg-accent rounded px-4 py-2 h-full w-full flex flex-col hover:outline-4 hover:outline hover:outline-darker">
+                class="bg-primary rounded px-4 py-2 h-full w-full flex flex-col hover:outline-4 hover:outline hover:outline-darker">
                 <h3 class="text-center break-words">{{ setData?.name || setId }}</h3>
                 <div class="flex-1 flex flex-col justify-center min-h-[2rem] my-2">
                     <div><img v-if="imgSrc" :src="imgSrc" class="rounded"></div>

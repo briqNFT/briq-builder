@@ -114,13 +114,13 @@ const hotkeyPreset = (preset: string) => {
                 <Btn @click="addPreset">Add view <br>to presets</Btn>
                 <Btn @click="addCustomPreset">Add custom<br>preset</Btn>
                 <Tooltip tooltip="How wide the angle of view is.">
-                    <div class="bg-base rounded px-1 pt-1 pb-2 shadow-sm font-light select-none text-center leading-sm text-sm">
+                    <div class="bg-grad-lightest rounded px-1 pt-1 pb-2 shadow-sm font-light select-none text-center leading-sm text-sm">
                         Field Of View<br>
                         <Slider :min="5" :max="150" v-model="fov"/>
                     </div>
                 </Tooltip>
 
-                <h4 class="bg-accent rounded px-2 py-1 my-1 text-center font-semibold">Presets</h4>
+                <h4 class="bg-primary rounded px-2 py-1 my-1 text-center font-semibold">Presets</h4>
                 <Btn @click="resetCamera">Default</Btn>
                 <Btn @click="resetToPseudoIso">Pseudo-<br>Isometric</Btn>
             </div>

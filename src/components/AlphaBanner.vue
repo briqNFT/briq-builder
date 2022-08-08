@@ -1,6 +1,6 @@
 <template>
     <div v-if="!close" class="fixed top-0 left-0 right-0 mx-auto container text-center font-medium">
-        <div class="bg-accent rounded-bl-lg rounded-br-lg inline-block relative">
+        <div class="bg-primary rounded-bl-lg rounded-br-lg inline-block relative">
             <p class="inline-block px-8 py-1 shadow-lg">
                 <span class="briq-logo">briq</span> is in alpha on StarkNet testnet!
                 <span class="visible md:hidden"><br></span>

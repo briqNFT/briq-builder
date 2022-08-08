@@ -83,7 +83,7 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                             <p>{{ themeData.description }}</p>
                         </div>
                         <template v-if="!isLive">
-                            <div class="w-[340px] my-8 px-4 pt-2 pb-4 border border-accent rounded backdrop-blur-md backdrop-brightness-50">
+                            <div class="w-[340px] my-8 px-4 pt-2 pb-4 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
                                 <p class="my-2 text-sm">Sale starting soon</p>
                                 <div class="grid grid-cols-4 auction-countdown gap-2">
                                     <div
@@ -118,12 +118,12 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                         </div>
                     </template>
                     <template v-else-if="themeStatus === 'FETCHING'">
-                        <div class="h-[400px] flex justify-center items-center"><p class="text-xl font-medium text-darkest italic">Loading collection <i class="fas fa-spinner animate-spin-slow"/></p></div>
+                        <div class="h-[400px] flex justify-center items-center"><p class="text-xl font-medium text-grad-darker italic">Loading collection <i class="fas fa-spinner animate-spin-slow"/></p></div>
                     </template>
                     <template v-else-if="themeStatus === 'ERROR'">
                         <div class="h-[400px] flex justify-center items-center flex-col">
                             <p class="text-xl font-medium my-4">Error loading data</p>
-                            <p class="rounded bg-darker font-mono text-copy border-darkest border p-4">{{ genesisStore.themedata[themeName]._error }}</p>
+                            <p class="rounded bg-grad-light font-mono text-copy border-grad-darkest border p-4">{{ genesisStore.themedata[themeName]._error }}</p>
                         </div>
                     </template>
                 </div>

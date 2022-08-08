@@ -36,11 +36,11 @@ import { hexUuid } from '../../../Uuid';
             @selectSet="(val: boolean) => onSelectSet(setId, val)"/>
         <div
             v-for="oldSet of legacySets"
-            class="w-full relative flex flex-col bg-darker rounded px-4 py-2 border-4 border-darker">
+            class="w-full relative flex flex-col bg-grad-light rounded px-4 py-2 border-4 border-grad-darker">
             <div
                 class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded p-4 flex justify-center items-center">
                 <button @click="openMigrateModal(oldSet)">
-                    <p class="font-semibold text-center -rotate-[30deg] bg-base bg-opacity-80 px-4 rounded-md">
+                    <p class="font-semibold text-center -rotate-[30deg] bg-grad-lightest bg-opacity-80 px-4 rounded-md">
                         Migration Needed!<br>Click here<br>to migrate set
                     </p>
                 </button>

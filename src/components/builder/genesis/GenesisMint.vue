@@ -118,15 +118,15 @@ onMounted(async () => {
     <div>
         <div class="container m-auto py-10 md:p-20">
             <div class="text-center mb-8">
-                <p class="text-accent">Principle</p>
+                <p class="text-primary">Principle</p>
                 <h2 class="font-medium text-xl">A highly modular material</h2>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 explanations">
                 <div>
                     <div class="flex items-center h-[6rem] pb-1">
                         <div class="grid grid-cols-3 block-grid gap-2">
-                            <p class="bg-accent"/><p class="bg-accent"/><p class="bg-base"/>
-                            <p class="bg-accent"/><p class="bg-base"/><p class="bg-accent"/>
+                            <p class="bg-primary"/><p class="bg-primary"/><p class="bg-grad-lightest"/>
+                            <p class="bg-primary"/><p class="bg-grad-lightest"/><p class="bg-primary"/>
                         </div>
                     </div>
                     <h2>Collect</h2>
@@ -137,8 +137,8 @@ onMounted(async () => {
                 <div>
                     <div class="flex items-center h-[6rem] pb-1">
                         <div class="grid grid-cols-2 block-grid gap-2">
-                            <p class="bg-accent"/><p class="bg-accent"/>
-                            <p class="bg-accent"/><p class="bg-accent"/>
+                            <p class="bg-primary"/><p class="bg-primary"/>
+                            <p class="bg-primary"/><p class="bg-primary"/>
                         </div>
                     </div>
                     <h2>Build</h2>
@@ -149,8 +149,8 @@ onMounted(async () => {
                 <div>
                     <div class="flex items-center h-[6rem] pb-1">
                         <div class="grid grid-cols-3 block-grid gap-2">
-                            <p class="bg-base"/><p class="bg-accent"/><p class="bg-base"/>
-                            <p class="bg-accent"/><p class="bg-accent"/><p class="bg-accent"/>
+                            <p class="bg-grad-lightest"/><p class="bg-primary"/><p class="bg-grad-lightest"/>
+                            <p class="bg-primary"/><p class="bg-primary"/><p class="bg-primary"/>
                         </div>
                     </div>
                     <h2>Play</h2>
@@ -162,7 +162,7 @@ onMounted(async () => {
     </div>
     <div class="container mx-auto mb-4 md:mb-20 px-4 md:px-20">
         <div class="text-center mb-8">
-            <p class="text-accent">Genesis Sale</p>
+            <p class="text-primary">Genesis Sale</p>
             <h2 class="font-medium text-xl">Discover the new theme</h2>
         </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
@@ -196,7 +196,7 @@ h2 {
     @apply text-xl font-semibold my-2;
 }
 .explanations > div {
-    @apply rounded-lg bg-base p-8 border border-darker;
+    @apply rounded-lg bg-grad-lightest p-8 border border-grad-darker;
 }
 .explanations p {
     @apply my-4;

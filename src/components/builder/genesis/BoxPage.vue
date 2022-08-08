@@ -36,6 +36,7 @@ const boxName = computed(() => item.value?.name ?? route.params.box);
 productBidsStore.fetch(token_id.value);
 
 const previousBids = computed(() => productBidsStore.bids(token_id.value));
+const hasBids = computed(() => Object.keys(previousBids.value.bids).length);
 
 const { currentBid, currentBidString } = useBids(token_id.value);
 
@@ -74,11 +75,11 @@ p {
 }
 
 .auction-countdown {
-    @apply border border-darker rounded bg-base;
+    @apply border border-grad-light rounded bg-grad-lightest;
 }
 
 .auction-countdown > div {
-    @apply border-r border-darker py-4;
+    @apply border-r border-grad-light py-4;
 }
 
 .auction-countdown > div:last-child {
@@ -86,7 +87,7 @@ p {
 }
 
 .attribute {
-    @apply bg-base rounded-md border border-darker p-6;
+    @apply bg-grad-lightest rounded-md border border-grad-light p-6;
     @apply flex flex-col gap-3;
 }
 .attribute h3 {
@@ -105,7 +106,7 @@ p {
                 <p class="my-6">
                     <a
                         @click="router.go(-1)"
-                        class="text-accent">
+                        class="text-primary">
                         <Btn secondary no-background>
                             <i class="fa-solid fa-chevron-left"/> Go back
                         </Btn>
@@ -113,7 +114,7 @@ p {
                 </p>
                 <div class="grid grid-cols-[8fr_4fr] gap-6">
                     <div class="flex flex-col gap-6">
-                        <div class="flex justify-center items-center min-h-[34rem] bg-base rounded-lg border-darker border">
+                        <div class="flex justify-center items-center min-h-[34rem] bg-grad-lightest rounded-lg border-grad-light border">
                             <img v-if="itemQuery._status !== 'ERROR'" :src="genesisStore.coverItemRoute(token_id)">
                             <div v-else><p>Error while loading box data</p></div>
                         </div>
@@ -169,7 +170,8 @@ p {
                             </div>
                             <div>
                                 <h2>Winning Bid</h2>
-                                <p class="text-xl font-medium my-4">{{ currentBidString }}</p>
+                                <p v-if="hasBids" class="text-xl font-medium my-4">{{ currentBidString }}</p>
+                                <p v-else class="my-4">There are no bids on this item.</p>
                                 <Btn
                                     class="text-white"
                                     :disabled="!canBid"
@@ -180,7 +182,7 @@ p {
                             <h2>Previous bids</h2>
                             <div class="flex flex-col gap-2 pt-2">
                                 <template v-if="productBidsStore.status === 'OK'">
-                                    <p v-if="!Object.keys(previousBids.bids).length">There are no bids on this item.</p>
+                                    <p v-if="!hasBids">There are no bids on this item.</p>
                                     <a
                                         v-for="i in previousBids.bids" :key="i.tx_hash"
                                         :href="`https://${'goerli.'}voyager.online/tx/${i.tx_hash}`" target="_blank">

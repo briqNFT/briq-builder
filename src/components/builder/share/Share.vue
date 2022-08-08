@@ -37,7 +37,7 @@ import { backendManager } from '@/Backend';
         <div
             v-if="loadingStatus === 'loading'"
             class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
-            <div class="rounded bg-base px-8 py-4">
+            <div class="rounded bg-grad-lightest px-8 py-4">
                 <h2 class="text-center p-2">Loading</h2>
                 <p class="text-lg">Set {{ set_id ?? '' }} is currently loading...</p>
             </div>
@@ -45,7 +45,7 @@ import { backendManager } from '@/Backend';
         <div
             v-else-if="loadingStatus === 'error'"
             class="bg-black bg-opacity-40 h-screen w-screen fixed left-0 top-0 flex justify-center items-center">
-            <div class="rounded bg-base px-8 py-4">
+            <div class="rounded bg-grad-lightest px-8 py-4">
                 <h2 class="text-center p-2">Error loading set</h2>
                 <p class="text-lg">{{ loadingData.text }}</p>
                 <p class="alternate-buttons m-2">

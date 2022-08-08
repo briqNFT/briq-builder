@@ -75,7 +75,7 @@ const makeBid = async () => {
                     Make your bid<br>
                     <input :disabled="step === 'SIGNING'" class="w-full my-2" type="number" min="0" :max="balance" step="0.1" v-model="bid" :placeholder="`Bid Ξ ${1.35} or more`">
                 </p>
-                <p class="text-right text-sm text-darkest">Available: Ξ {{ balance }}</p>
+                <p class="text-right text-sm text-grad-darker">Available: Ξ {{ balance }}</p>
             </div>
             <div class="flex justify-end items-center gap-4">
                 <p v-if="canMakeBidReason" class="text-red-300 text-sm">{{ canMakeBidReason }}</p>

@@ -1,30 +1,31 @@
 
-html.v2design {
-    --color-body: 250 250 250;
-    --color-base: 255 255 255;
-    --color-accent: 235 86 0;
-    --color-accent-secondary: 255 113 31;
-    --color-light-accent: 255 231 217; /*245 170 128;*/
-    --color-darker: 220 220 220;
-    --color-darkest: 100 100 100;
-    --color-dark: 0 0 0;
-    --color-text: 43 43 43;
-    --color-text-on-accent: 255 255 255;
-}
+html, ::before, ::after {
+    --color-background: 250 250 250;
+    --color-primary: 243 88 0;
+    --color-primary-darker: 225 81 0;
+    --color-primary-lighter: 255 113 31;
+    --color-primary-lightest: 245 170 128;
 
-html {
-    --color-body: var(--color-base);
-    --color-base: 235 86 0;
-    --color-accent: 247 137 74;
-    --color-darker: 201 74 0;
-    --color-text: 255 255 255;
-    --color-text-on-accent: 13, 8, 69;
+    --color-grad-darkest: 5 5 5;
+    --color-grad-darker: 43 43 43;
+    --color-grad-dark: 105 105 116;
+    --color-grad-light: 229 232 235;
+    --color-grad-lighter: 242 243 245;
+    --color-grad-lightest: 255 255 255;
+
+    --color-info-normal: 0 149 235;
+    --color-info-warning: 246 200 68;
+    --color-info-success: 17 137 6;
+    --color-info-error: 245 34 45;
+
+    --color-text-on-background: var(--color-grad-darker);
+    --color-text-on-primary: var(--color-grad-lightest);
 }
 
 html.dark {
     --color-base: 117 41 0;
-    --color-accent: 155 56 3;
+    --color-primary: 155 56 3;
     --color-darker: 50 20 0;
     --color-text: 220 220 220;
-    --color-text-on-accent: 13, 8, 69;
+    --color-text-on-primary: 13, 8, 69;
 }

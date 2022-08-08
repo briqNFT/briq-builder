@@ -47,7 +47,7 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
             <div class="absolute top-0 right-[-100px]"><BriqsOverlayR/></div>
         </div>
     </div>
-    <div class="bg-white p-8 pb-0 flex flex-col items-center border-b border-darker">
+    <div class="bg-white p-8 pb-0 flex flex-col items-center border-b border-grad-darker">
         <div class="relative bottom-[6rem] right-[4rem] pb-[4rem]">
             <div class="absolute h-[8rem] w-[8rem] bg-body border-4 border-base rounded-md shadow-md flex justify-center items-center">
                 <ProfileIcon width="100%" height="100%"/>
@@ -57,8 +57,8 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
         <h2>{{ maybeStore?.userWalletAddress || 'No wallet selected' }}</h2>
         <p class="my-4"><span class="font-medium">Available briqs:</span> 800/1200</p>
         <div class="flex gap-12 mt-8">
-            <p :class="activeTab === 'INVENTORY' ? 'pb-4 border-b-4 border-accent' : 'hover:cursor-pointer'" @click="activeTab = 'INVENTORY'">Inventory</p>
-            <p :class="activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-accent' : 'hover:cursor-pointer'" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
+            <p :class="activeTab === 'INVENTORY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer'" @click="activeTab = 'INVENTORY'">Inventory</p>
+            <p :class="activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer'" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
         </div>
     </div>
     <div v-if="activeTab === 'INVENTORY'" class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
@@ -71,7 +71,7 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
         <div>
             <div>
                 <h3>Sealed boxes</h3>
-                <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any boxes.</p>
                     <p>Browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
@@ -82,7 +82,7 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
             </div>
             <div>
                 <h3>Booklets</h3>
-                <div v-if="!userBookletsStore.current?.booklets.length" class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any booklets.</p>
                     <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
@@ -90,7 +90,7 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
             </div>
             <div>
                 <h3>Genesis Sets</h3>
-                <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any official Genesis sets.</p>
                     <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
                     <div class="mt-2 flex gap-2">
@@ -101,7 +101,7 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
             </div>
             <div>
                 <h3>Personal creations</h3>
-                <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have personal creations.</p>
                     <p>Get some briqs and start building!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
@@ -119,7 +119,7 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
         <div>
             <div>
                 <h3>Ongoing Auction Bids</h3>
-                <div v-if="!userBidsStore.current?.bids.length" class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div v-if="!userBidsStore.current?.bids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You have no bids on ongoing auctions.</p>
                     <p>Browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
@@ -127,7 +127,7 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
             </div>
             <div>
                 <h3>Purchased items</h3>
-                <div class="bg-base rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You have not yet bought any utem</p>
                     <p>Browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>

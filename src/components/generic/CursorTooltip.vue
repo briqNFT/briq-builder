@@ -12,7 +12,7 @@ const vMounted = {
 <template>
     <div
         v-if="show"
-        class="fixed bg-accent rounded pointer-events-none px-2 py-1 shadow font-medium text-sm w-max"
+        class="fixed bg-primary rounded pointer-events-none px-2 py-1 shadow font-medium text-sm w-max"
         :style="getPositionCSS"
         ref="tooltipDiv"
         v-mounted>

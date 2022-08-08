@@ -2,8 +2,8 @@
     <div
         v-if="!isFiltered"
         :class="
-            'w-full relative flex flex-col bg-darker rounded hover:ring-2 ring-accent px-4 py-2 border-4' +
-                (isCurrent ? ' border-deep-blue' : ' border-darker')
+            'w-full relative flex flex-col bg-grad-light rounded hover:ring-2 ring-primary px-4 py-2 border-4' +
+                (isCurrent ? ' border-deep-blue' : ' border-grad-darker')
         "
         @click="$emit('selectSet', !selected)"
         @dblclick="selectSet">
@@ -94,7 +94,7 @@
             <div
                 @click.stop="$emit('open', undefined)"
                 v-if="openDetails"
-                class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-base w-full rounded p-4 border-2 border-accent">
+                class="my-2 flex flex-col gap-2 shadow-xl text-sm absolute bottom-5 bg-grad-lightest w-full rounded p-4 border-2 border-primary">
                 <Btn
                     tooltip="See details about this set."
                     class="bg-transparent"
@@ -192,8 +192,8 @@
         rgba(0, 0, 0, 0),
         rgba(0, 0, 0, 0),
         10px,
-        rgba(var(--color-accent)) 10px,
-        rgba(var(--color-accent)) 15px
+        rgba(var(--color-primary)) 10px,
+        rgba(var(--color-primary)) 15px
     );
 }
 </style>

@@ -46,7 +46,7 @@ const openProfile = () => {
             <button class="text-xs px-2 mb-2 leading-none" @click="minimized = false">Expand<br>booklet</button>
             <img class="m-auto h-12" :src="getImgSrc(booklet, bookletData.nb_pages)">
         </div>
-        <div v-else-if="!minimized" class="pointer-events-auto bg-base rounded p-4 pb-6 flex-col flex items-center gap-2 relative">
+        <div v-else-if="!minimized" class="pointer-events-auto bg-grad-lightest rounded p-4 pb-6 flex-col flex items-center gap-2 relative">
             <div class="absolute w-full top-0 flex justify-between text-xs gap-2 px-2">
                 <button @click="openProfile">Change Booklet</button>
                 <button @click="minimized = true">Minimize</button>

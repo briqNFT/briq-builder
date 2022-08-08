@@ -3,7 +3,7 @@
         <template #big-title>Export set</template>
         <h3 class="text-center">{{ set.id }}</h3>
         <div class="flex flex-nowrap items-center gap-3">
-            <div class="w-full bg-accent rounded flex justify-around items-center p-2 my-4">
+            <div class="w-full bg-primary rounded flex justify-around items-center p-2 my-4">
                 <button
                     class="flex flex-col justify-center items-center text-sm md:text-md"
                     :disabled="step(exporting) > step('CONFIRMATION')"
@@ -87,8 +87,8 @@
                                     });
                                 "
                                 :class="
-                                    'bg-darker rounded flex items-center flex-col p-2 select-none cursor-pointer hover:ring-2 ring-accent ' +
-                                        (set.name === data[1] ? '!bg-accent' : '')
+                                    'bg-grad-light rounded flex items-center flex-col p-2 select-none cursor-pointer hover:ring-2 ring-primary ' +
+                                        (set.name === data[1] ? '!bg-primary' : '')
                                 ">
                                 <component :is="data[2]" class="w-6 h-6"/>
                                 <h4 class="text-center text-xs">{{ data[0] }}</h4>
@@ -204,7 +204,7 @@
                         <p class="mt-8" v-if="exporting === 'ERROR'">
                             There was an error while exporting your set.<br>The following step failed:
                             {{ errorStep }}. Full error:<br>
-                            <span class="bg-accent p-1 text-sm font-light tracking-tight">{{
+                            <span class="bg-primary p-1 text-sm font-light tracking-tight">{{
                                 errorDetails.toString()
                             }}</span>
                         </p>
@@ -223,7 +223,7 @@
         </div>
         <div
             :class="
-                'w-full bg-accent rounded flex justify-between items-center p-2 my-2' +
+                'w-full bg-primary rounded flex justify-between items-center p-2 my-2' +
                     (step(exporting) < step('SIGNING') ? '' : ' invisible')
             ">
             <Btn :disabled="!canGoBack" @click="exporting = exportSteps[step(exporting) - 1]">

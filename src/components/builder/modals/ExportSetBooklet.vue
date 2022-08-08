@@ -88,11 +88,11 @@ const doSetExport = async () => {
                     <div class="flex w-full justify-around items-center">
                         <img :src="getImgSrc('spaceman', 8)">
                         <div>
-                            <div class="w-[8rem] py-4 bg-accent rounded text-center font-semibold"><p>briq<br>Seal of Authenticity</p></div>
+                            <div class="w-[8rem] py-4 bg-primary rounded text-center font-semibold"><p>briq<br>Seal of Authenticity</p></div>
                         </div>
                     </div>
                     <div class="flex flex-nowrap items-center gap-3 w-full">
-                        <div class="w-full bg-accent rounded flex justify-around items-center p-2 my-4">
+                        <div class="w-full bg-primary rounded flex justify-around items-center p-2 my-4">
                             <button
                                 class="flex flex-col justify-center items-center text-sm md:text-md"
                                 :disabled="at(current_step) > at('CONFIRMATION')"

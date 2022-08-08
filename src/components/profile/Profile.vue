@@ -14,14 +14,14 @@
 }
 
 .item-gallery {
-    @apply bg-accent rounded-md p-4 my-4;
+    @apply bg-primary rounded-md p-4 my-4;
 }
 
 .item-gallery .items {
     @apply flex gap-2;
 }
 .item-gallery .item {
-    @apply bg-darker rounded p-2 h-[10rem] w-[10rem];
+    @apply bg-grad-light rounded p-2 h-[10rem] w-[10rem];
 }
 </style>
 

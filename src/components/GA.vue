@@ -47,7 +47,7 @@ export default defineComponent({
     bottom: 1rem;
     right: 1rem;
     z-index: 100;
-    @apply bg-gray-200 dark:bg-gray-400 text-deep-blue;
+    @apply bg-gray-200 dark:bg-gray-400 text-grad-dark;
 }
 .buttons {
     display: flex;
@@ -60,7 +60,7 @@ export default defineComponent({
     display: block;
     flex-basis: 50%;
     border: 2px solid;
-    @apply border-deep-blue rounded;
+    @apply border-grad-dark rounded;
 }
 .legal {
     font-size: 0.8rem;

@@ -15,19 +15,23 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                body: withOpacityValue('--color-body'),
-
-                base: withOpacityValue('--color-base'),
-                accent: withOpacityValue('--color-accent'),
-                'accent-secondary': withOpacityValue('--color-accent-secondary'),
-                'light-accent': withOpacityValue('--color-light-accent'),
-                darker: withOpacityValue('--color-darker'),
-                darkest: withOpacityValue('--color-darkest'),
-                dark: withOpacityValue('--color-dark'),
-
-                text: withOpacityValue('--color-text'),
-                'text-on-accent': withOpacityValue('--color-text-on-accent'),
-                'deep-blue': '#0D0845',
+                background: withOpacityValue('--color-background'),
+                primary: withOpacityValue('--color-primary'),
+                'primary-darker': withOpacityValue('--color-primary-darker'),
+                'primary-lighter': withOpacityValue('--color-primary-lighter'),
+                'primary-lightest': withOpacityValue('--color-primary-lightest'),
+                'grad-darkest': withOpacityValue('--color-grad-darkest'),
+                'grad-darker': withOpacityValue('--color-grad-darker'),
+                'grad-dark': withOpacityValue('--color-grad-dark'),
+                'grad-light': withOpacityValue('--color-grad-light'),
+                'grad-lighter': withOpacityValue('--color-grad-lighter'),
+                'grad-lightest': withOpacityValue('--color-grad-lightest'),
+                'info-normal': withOpacityValue('--color-info-normal'),
+                'info-warning': withOpacityValue('--color-info-warning'),
+                'info-error': withOpacityValue('--color-info-error'),
+                'info-success': withOpacityValue('--color-info-success'),
+                'text-on-background': withOpacityValue('--color-text-on-background'),
+                'text-on-primary': withOpacityValue('--color-text-on-primary'),
             },
             keyframes: {
                 'text-loop': {

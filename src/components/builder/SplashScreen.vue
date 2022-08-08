@@ -55,7 +55,7 @@ export default defineComponent({
 <style scoped>
 #floatingMenu {
     @apply fixed w-full h-full flex flex-wrap justify-center content-center text-center;
-    @apply bg-base;
+    @apply bg-grad-lightest;
     z-index: 10000;
     transition: all 0.5s;
 }

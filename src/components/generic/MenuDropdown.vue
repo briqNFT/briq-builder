@@ -7,7 +7,7 @@ defineProps<{
 
 const opened = ref(false);
 
-const CLOSE_AFTER_FOCUS_LOSS_DELAY = 250;
+const CLOSE_AFTER_FOCUS_LOSS_DELAY = 250000;
 let closeTimer: any;
 const willClose = () => closeTimer = setTimeout(() => opened.value = false, CLOSE_AFTER_FOCUS_LOSS_DELAY);
 const dropClose = () => closeTimer && clearTimeout(closeTimer);
@@ -32,7 +32,7 @@ div[data-name='menu'] {
     <div class="relative" ref="dropdownButton" @pointerenter="dropClose" @pointerleave="willClose">
         <Btn secondary class="h-full w-full" v-bind="$attrs" @click="opened = !opened">
             <slot name="button"/>
-            <span :class="opened ? 'text-accent' : ''"><slot name="icon">
+            <span :class="opened ? 'text-primary' : ''"><slot name="icon">
                 <i v-if="opened" class="fa-solid fa-chevron-up"/>
                 <i v-else class="fa-solid fa-chevron-down"/>
             </slot>
@@ -41,7 +41,7 @@ div[data-name='menu'] {
         <!-- Close on click so that clicking on button works as expected. -->
         <div
             v-if="opened" data-name="menu" @click="closeOnClick ? opened = false : ''"
-            :class="`after:absolute after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-base shadow rounded-md px-2 py-2 w-max z-50`">
+            :class="`after:absolute after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-grad-lightest shadow rounded-md px-2 py-2 w-max z-50`">
             <slot/>
         </div>
     </div>

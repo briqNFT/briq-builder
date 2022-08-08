@@ -11,7 +11,7 @@ import StarkwareIcon from '../../assets/starkware.png';
 <template>
     <div class="">
         <Header/>
-        <h1 class="text-center overflow-auto my-4 py-8 lg:py-12 font-display !text-8xl font-semibold bg-darker">
+        <h1 class="text-center overflow-auto my-4 py-8 lg:py-12 font-display !text-8xl font-semibold bg-grad-light">
             Team
         </h1>
         <div class="my-8 lg:my-16 overflow-auto flex flex-around flex-wrap md:flex-nowrap text-center container m-auto">
@@ -19,7 +19,7 @@ import StarkwareIcon from '../../assets/starkware.png';
                 <p>
                     <img
                         style="border-radius: 50%"
-                        class="shadow-xl border-deep-blue border-8 max-w-[20rem]"
+                        class="shadow-xl border-grad-dark border-8 max-w-[20rem]"
                         :src="Sylve">
                 </p>
                 <h1 class="py-4 md:py-8">Sylve CHEVET</h1>
@@ -32,7 +32,7 @@ import StarkwareIcon from '../../assets/starkware.png';
                 <p>
                     <img
                         style="border-radius: 50%"
-                        class="shadow-xl border-deep-blue border-8 max-w-[20rem]"
+                        class="shadow-xl border-grad-dark border-8 max-w-[20rem]"
                         :src="Lancelot">
                 </p>
                 <h1 class="py-4 md:py-8">Lancelot de&nbsp;FERRIÈRE</h1>
@@ -41,7 +41,7 @@ import StarkwareIcon from '../../assets/starkware.png';
                 <h3 class="py-2 md:py-4"><a href="https://twitter.com/wraitii">@wraitii</a></h3>
             </div>
         </div>
-        <div class="flex justify-center gap-10 !my-16 py-16 text-5xl bg-darker">
+        <div class="flex justify-center gap-10 !my-16 py-16 text-5xl bg-grad-light">
             <a href="https://twitter.com/briqNFT" target="_blank"><p><i class="fab fa-twitter"/></p></a>
             <a href="https://discord.gg/kpvbDCw5pr" target="_blank"><p><i class="fab fa-discord"/></p></a>
             <a href="https://github.com/briqNFT/" target="_blank"><p><i class="fab fa-github"/></p></a>

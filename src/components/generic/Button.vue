@@ -16,12 +16,12 @@ defineProps<{
 
 <template>
     <Tooltip :tooltip="tooltip">
-        <button v-bind="$attrs" :class="[noStyle || noBackground ? '' : 'btn', secondary ? 'secondary' : '', icon ? 'icon' : ''].join(' ')"><slot/></button>
+        <button v-bind="$attrs" :class="[noStyle ? 'nostyle' : '', noBackground ? '' : 'btn', secondary ? 'secondary' : '', icon ? 'icon' : ''].join(' ')"><slot/></button>
     </Tooltip>
 </template>
 
 <style>
-html.v2design button {
+#app button {
     z-index: 0;
     @apply inline-flex justify-center items-center;
     @apply px-2 md:px-3 py-2 md:py-3;
@@ -30,90 +30,91 @@ html.v2design button {
     @apply relative;
 }
 
-/* Use a pseudo-element to avoid the layout changing when the size changes */
-html.v2design button::before {
-    content: '';
-    z-index: -1;
-    @apply w-full h-full absolute top-0 left-0;
-}
-
-html.v2design button:not(:disabled):active::before {
-    @apply w-[calc(100%-0.25rem)] h-[calc(100%-0.25rem)] top-0.5 left-0.5;
-}
-
-
-html.v2design button.icon i {
+#app button.icon > i, #app button.icon > svg {
     @apply w-6 pr-1 inline-flex justify-center items-baseline;
 }
 
+/* No background design */
+#app button:not(.btn):not(.nostyle) {
+    @apply text-text-on-background;
+}
+
+#app button:not(.btn):not(.nostyle):not(:disabled):active {
+    @apply text-primary;
+}
+
+#app button:not(.btn):not(.nostyle)::before {
+    content: '';
+    z-index: -1;
+    @apply w-full h-full absolute top-0 left-0;
+    @apply rounded-sm;
+}
+
+#app button:not(.btn):not(.nostyle):not(:disabled):hover::before {
+    @apply bg-grad-lighter;
+}
+
+#app button:not(.btn):not(.nostyle):not(:disabled):active::before {
+    @apply bg-grad-lighter;
+}
+
+#app button:not(.btn):not(.nostyle):disabled {
+    @apply text-grad-darker;
+}
+
+
 /* Primary design */
-html.v2design .btn {
-    @apply text-text-on-accent;
+#app .btn {
+    @apply text-text-on-primary;
     @apply h-[2rem] md:h-[2.5rem];
     @apply px-1 md:px-3 py-2 md:py-4;
 }
 
-html.v2design .btn::before {
-    @apply bg-accent border border-dark rounded;
+/* Use a pseudo-element to avoid the layout changing when the size changes */
+#app .btn::before {
+    content: '';
+    z-index: -1;
+    @apply w-full h-full absolute top-0 left-0;
+    @apply bg-primary border border-grad-darker rounded;
 }
 
-html.v2design .btn:not(:disabled):hover::before {
-    @apply bg-accent-secondary;
+#app .btn:not(:disabled):hover::before {
+    @apply bg-primary-lighter;
 }
 
-html.v2design .btn:not(:disabled):active::before {
-    @apply bg-accent-secondary;
+#app .btn:not(:disabled):active::before {
+    /* 2px on either side */
+    @apply w-[calc(100%-0.125rem)] h-[calc(100%-0.125rem)] top-[0.0625rem] left-[0.0625rem];
+    @apply bg-primary-lighter;
 }
 
-html.v2design .btn:disabled::before {
-    @apply bg-light-accent border-darkest;
+#app .btn:disabled::before {
+    @apply bg-primary-lightest;
 }
 
 /* Secondary button design */
-html.v2design .btn.secondary {
-    @apply text-text;
+#app .btn.secondary {
+    @apply text-text-on-background;
 }
 
-html.v2design .btn.secondary::before {
-    @apply bg-base border-darkest;
+#app .btn.secondary::before {
+    @apply bg-grad-lightest border-grad-light;
 }
 
-html.v2design .btn.secondary:not(:disabled):hover::before {
-    @apply bg-darker;
+#app .btn.secondary:not(:disabled):hover::before {
+    @apply bg-grad-lighter;
 }
 
-html.v2design .btn.secondary:not(:disabled):active::before {
-    @apply bg-darker;
+#app .btn.secondary:not(:disabled):active::before {
+    @apply bg-grad-lighter;
 }
 
-html.v2design .btn.secondary:disabled::before {
-    @apply bg-darker;
+#app .btn.secondary:disabled::before {
+    @apply bg-grad-lightest;
 }
 
-html.v2design .btn.secondary:disabled {
-    @apply text-darker;
-}
-
-
-/* No background design */
-html.v2design button:not(.btn) {
-    @apply text-text;
-}
-
-html.v2design button:not(.btn)::before {
-    @apply rounded-sm;
-}
-
-html.v2design button:not(.btn):not(:disabled):hover::before {
-    @apply bg-darker;
-}
-
-html.v2design button:not(.btn):not(:disabled):active::before {
-    @apply bg-darker;
-}
-
-html.v2design button:not(.btn):disabled {
-    @apply text-darkest;
+#app .btn.secondary:disabled {
+    --tw-text-opacity: 0.5;
 }
 
 </style>

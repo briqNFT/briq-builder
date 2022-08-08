@@ -4,7 +4,7 @@
         <div class="w-full text-lg">
             <template v-if="!set">
                 <h3>There was an error while loading "{{ file.name }}"</h3>
-                <p class="bg-accent rounded font-mono text-sm px-2 py-1 my-2">
+                <p class="bg-primary rounded font-mono text-sm px-2 py-1 my-2">
                     {{ error }}
                     <Btn class="text-sm" @click="copyError"><i class="fas fa-copy"/></Btn>
                 </p>
@@ -20,7 +20,7 @@
                 </p>
                 <p
                     v-if="loader?.warnings?.length"
-                    class="bg-accent rounded font-mono text-sm px-2 py-1 my-2 max-h-40 overflow-auto">
+                    class="bg-primary rounded font-mono text-sm px-2 py-1 my-2 max-h-40 overflow-auto">
                     <Btn class="float-right text-sm" @click="copyError"><i class="fas fa-copy"/></Btn>
                     <span class="font-bold">Some warnings while importing</span><br>
                     <span v-for="warning in loader?.warnings">{{ warning }}<br></span>

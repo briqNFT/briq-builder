@@ -45,8 +45,8 @@ onMounted(() => {
 
 <style>
 body {
-    @apply bg-body min-h-screen;
-    @apply text-text font-sans font-normal leading-tight;
+    @apply bg-background min-h-screen;
+    @apply text-text-on-background font-sans font-normal leading-tight;
 }
 
 html h1 {
@@ -63,29 +63,29 @@ html h3 {
 
 
 .briq-logo {
-    @apply font-logo font-medium select-none text-accent tracking-wide;
+    @apply font-logo font-medium select-none text-primary tracking-wide;
 }
 
 .briq-logo.briq {
-    @apply bg-accent text-white px-5 leading-none pt-[0.4rem] pb-[0.6rem] rounded-[2px];
+    @apply bg-primary text-white px-5 leading-none pt-[0.4rem] pb-[0.6rem] rounded-[2px];
 }
 
-html.v2design button, a {
-    @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-accent;
+html button, a {
+    @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-primary;
 }
 
 
-html.v2design input {
-    @apply rounded p-4 border-2 border-darker;
-    @apply disabled:text-darker;
+html input {
+    @apply rounded p-4 border-2 border-grad-darker;
+    @apply disabled:text-grad-light;
 }
 
-html.v2design input:not(:disabled):hover, html.v2design input:focus, html.v2design input:focus-visible {
-    @apply border-accent outline-0;
+html input:not(:disabled):hover, html input:focus, html input:focus-visible {
+    @apply border-primary outline-0;
 }
 
-html.v2design input:focus {
-    @apply shadow-[0_0_3px_black] shadow-light-accent;
+html input:focus {
+    @apply shadow-[0_0_3px_black] shadow-primary-lighter;
 }
 
 /* Hack for get-starknet */

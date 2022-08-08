@@ -53,9 +53,9 @@ const actualMode = getActualMode(props.mode);
                 <template v-if="actualMode === 'SALE'">
                     <hr class="my-2">
                     <div class="p-4 pt-0 flex flex-col gap-2">
-                        <p class="flex justify-between"><span class="text-darkest">Last Bid</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>
+                        <p class="flex justify-between"><span class="text-grad-dark">Last Bid</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>
                         <p class="flex justify-between">
-                            <span class="text-darkest">Sales End</span>
+                            <span class="text-grad-dark">Sales End</span>
                             <span v-if="durationLeft > 24*60*60">{{ Math.floor(durationLeft/24/60/60) }} day(s) left</span>
                             <span v-else-if="durationLeft > 60*60">{{ Math.floor(durationLeft/60/60) }} hour(s) left</span>
                             <span v-else-if="durationLeft > 60">{{ Math.floor(durationLeft/60) }} minute(s) left</span>

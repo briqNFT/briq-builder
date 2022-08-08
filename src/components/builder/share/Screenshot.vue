@@ -4,7 +4,7 @@
         <!-- This is here just to trigger the recompute. -->
         <template v-if="image"/>
         <div class="max-h-[40rem] overflow-auto">
-            <canvas class="border-accent border-8 my-2 w-full object-contain" ref="screenshot"/>
+            <canvas class="border-primary border-8 my-2 w-full object-contain" ref="screenshot"/>
         </div>
         <div class="my-2 flex justify-between">
             <div class="flex-1">

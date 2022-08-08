@@ -11,18 +11,18 @@
                 v-for="(briq, i) of briqs"
                 @click="onClick(i)"
                 @dblclick="onDoubleClick(i)"
-                :class="i == selected ? 'bg-accent' : ''">
+                :class="i == selected ? 'bg-primary' : ''">
                 <template v-if="isActualBriq(briq)">
                     <td>{{ briq.id }}</td>
-                    <td v-if="show('material')" class="bg-accent bg-opacity-30">{{ briq.material }}</td>
+                    <td v-if="show('material')" class="bg-primary bg-opacity-30">{{ briq.material }}</td>
                     <td v-if="show('color')">{{ briq.color }}</td>
-                    <td v-if="show('set')" class="bg-accent bg-opacity-30">{{ briq.set }}</td>
+                    <td v-if="show('set')" class="bg-primary bg-opacity-30">{{ briq.set }}</td>
                 </template>
                 <template v-else="">
                     <td>{{ briq.token_id || 'Fungible x' + briq.qty }}</td>
-                    <td v-if="show('material')" class="bg-accent bg-opacity-30">{{ briq.material }}</td>
+                    <td v-if="show('material')" class="bg-primary bg-opacity-30">{{ briq.material }}</td>
                     <td v-if="show('color')"/>
-                    <td v-if="show('set')" class="bg-accent bg-opacity-30"/>
+                    <td v-if="show('set')" class="bg-primary bg-opacity-30"/>
                 </template>
             </tr>
         </table>
