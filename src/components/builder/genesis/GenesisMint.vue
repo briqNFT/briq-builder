@@ -196,7 +196,7 @@ h2 {
     @apply text-xl font-semibold my-2;
 }
 .explanations > div {
-    @apply rounded-lg bg-grad-lightest p-8 border border-grad-darker;
+    @apply rounded-lg bg-grad-lightest p-8 border border-grad-light;
 }
 .explanations p {
     @apply my-4;

@@ -53,7 +53,7 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
                     <briqIcon class="inline-block"/> {{ 0 }}
                 </div>
                 <div class="flex-none">
-                    <Btn v-if="!walletStore?.userWalletAddress" class="flex-none hidden md:inline-block" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
+                    <Btn v-if="!walletStore?.userWalletAddress" class="flex-none hidden md:inline-flex" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
                     <MenuDropdown no-background icon :close-on-click="true" v-else-if="walletStore?.userWalletAddress" class="text-xs">
                         <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>

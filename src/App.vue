@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router';
 import { onMounted, provide, watch, watchEffect } from 'vue';
 
 import { CONF } from './Conf';
+import NotificationsPopups from './components/NotificationsPopups.vue';
 
 let mgr = new HotkeyManager();
 // Some basic hotkeys available everywhere
@@ -41,6 +42,7 @@ onMounted(() => {
 <template>
     <GA/>
     <router-view/>
+    <NotificationsPopups/>
 </template>
 
 <style>

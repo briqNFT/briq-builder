@@ -13,7 +13,7 @@ html, ::before, ::after {
     --color-grad-lighter: 242 243 245;
     --color-grad-lightest: 255 255 255;
 
-    --color-info-normal: 0 149 235;
+    --color-info-info: 0 149 235;
     --color-info-warning: 246 200 68;
     --color-info-success: 17 137 6;
     --color-info-error: 245 34 45;

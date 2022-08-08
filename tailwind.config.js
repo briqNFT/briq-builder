@@ -26,7 +26,7 @@ module.exports = {
                 'grad-light': withOpacityValue('--color-grad-light'),
                 'grad-lighter': withOpacityValue('--color-grad-lighter'),
                 'grad-lightest': withOpacityValue('--color-grad-lightest'),
-                'info-normal': withOpacityValue('--color-info-normal'),
+                'info-info': withOpacityValue('--color-info-info'),
                 'info-warning': withOpacityValue('--color-info-warning'),
                 'info-error': withOpacityValue('--color-info-error'),
                 'info-success': withOpacityValue('--color-info-success'),
