@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 
-defineProps<{
-    closeOnClick?: boolean
+const props = defineProps<{
+    closeOnClick?: boolean,
+    noMarker?: boolean,
+    menuPosition?: string,
 }>();
 
 const opened = ref(false);
@@ -14,6 +16,8 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
 
 const dropdownButton = ref(null as unknown as HTMLElement);
 const dropdownPositionCSS = computed(() => {
+    if (props.menuPosition)
+        return props.menuPosition;
     // This isn't actually reactive but meh
     if (dropdownButton.value.getBoundingClientRect().right > window.innerWidth / 2)
         return 'absolute right-0';
@@ -26,13 +30,16 @@ const dropdownPositionCSS = computed(() => {
 div[data-name='menu'] {
     @apply bg-red-200;
 }
+div[data-name='menu'] > :not(hr) {
+    @apply mx-2;
+}
 </style>
 
 <template>
     <div class="relative" ref="dropdownButton" @pointerenter="dropClose" @pointerleave="willClose">
         <Btn secondary class="h-full w-full" v-bind="$attrs" @click="opened = !opened">
             <slot name="button"/>
-            <span :class="opened ? 'text-primary' : ''"><slot name="icon">
+            <span v-if="!noMarker" :class="opened ? 'text-primary' : ''"><slot name="icon">
                 <i v-if="opened" class="fa-solid fa-chevron-up"/>
                 <i v-else class="fa-solid fa-chevron-down"/>
             </slot>
@@ -41,7 +48,7 @@ div[data-name='menu'] {
         <!-- Close on click so that clicking on button works as expected. -->
         <div
             v-if="opened" data-name="menu" @click="closeOnClick ? opened = false : ''"
-            :class="`after:absolute after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-grad-lightest shadow rounded-md px-2 py-2 w-max z-50`">
+            :class="`after:absolute after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-grad-lightest shadow rounded-md py-2 w-max z-50`">
             <slot/>
         </div>
     </div>

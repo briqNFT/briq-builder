@@ -41,9 +41,9 @@ const getNbBriqs = computed(() => {
 
 <template>
     <div class="m-4 flex justify" v-if="!inputStore.hideInput">
-        <div class="flex-1 basis-1 flex">
-            <div class="flex items-center gap-2 border border-grad-darker bg-grad-lightest rounded">
-                <MenuDropdown no-background icon class="pr-0" :close-on-click="true">
+        <div class="flex-1 basis-1 min-w-max flex">
+            <div class="flex flex-none items-center px-2 py-1 gap-2 border border-grad-light bg-grad-lightest rounded-md">
+                <MenuDropdown no-background no-marker menu-position="absolute left-[-0.5rem]" :close-on-click="true">
                     <template #button><i class="fa-solid fa-bars"/></template>
                     <Btn no-background>New creation</Btn>
                     <Btn no-background>Manage your sets</Btn>
@@ -51,12 +51,12 @@ const getNbBriqs = computed(() => {
                     <Btn no-background>Settings</Btn>
                 </MenuDropdown>
                 <div class="divider"/>
-                <div class="flex gap-2 items-baseline">
+                <div class="flex flex-none px-2 gap-2 items-baseline">
                     <p class="font-semibold">{{ $store.state.builderData.currentSet.name }}</p>
-                    <p class="text-grad-darker">{{ getNbBriqs }}</p>
+                    <p class="text-grad-dark">{{ getNbBriqs }}</p>
                 </div>
                 <div class="divider"/>
-                <UndoRedo no-background secondary class="px-1"/>
+                <UndoRedo no-background secondary class="flex-none px-1"/>
                 <Btn no-background secondary tooltip="Open the undo/redo history log" @click="pushModal(HistoryLog)">
                     <i class="fas fa-history"/>
                 </Btn>
@@ -67,24 +67,24 @@ const getNbBriqs = computed(() => {
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-center">
-            <div class="border bg-grad-lightest rounded flex gap-2 px-2">
+            <div class="border bg-grad-lightest rounded-md flex gap-2 px-2 py-1">
                 <Btn no-background><i class="fas fa-mouse-pointer"/></Btn>
                 <Btn no-background><i class="fas fa-cube"/></Btn>
                 <Btn no-background><i class="fas fa-video"/></Btn>
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-end">
-            <div class="flex items-stretch gap-0 border bg-grad-lightest rounded">
-                <div class="flex items-center justify-center gap-2 px-4">
+            <div class="flex items-stretch gap-1 px-2 py-1 border bg-grad-lightest rounded-md">
+                <div class="flex items-center justify-center font-medium gap-2 px-2">
                     <briqIcon class="inline-block"/> {{ 0 }}
                 </div>
                 <div>
                     <Btn v-if="!maybeStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <MenuDropdown no-background icon :close-on-click="true" v-else-if="maybeStore?.userWalletAddress" class="text-xs px-1">
-                        <template #button><ProfileIcon width="1.5rem" height="1.5rem" class="inline-block mx-2"/></template>
-                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full text-left" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
-                        <Btn no-background class="text-left" icon @click="maybeStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
-                        <Btn no-background class="text-left" icon @click="maybeStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
+                    <MenuDropdown no-background icon :close-on-click="true" v-else-if="maybeStore?.userWalletAddress" class="text-xs">
+                        <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
+                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                        <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
+                        <Btn no-background class="justify-start" icon @click="maybeStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                     </MenuDropdown>
                 </div>
                 <NotificationsMenu/>
@@ -92,4 +92,5 @@ const getNbBriqs = computed(() => {
             </div>
         </div>
     </div>
+    <div id="menuSpot"/>
 </template>

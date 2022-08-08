@@ -16,7 +16,7 @@ defineProps<{
 
 <template>
     <Tooltip :tooltip="tooltip">
-        <button v-bind="$attrs" :class="[noStyle ? 'nostyle' : '', noBackground ? '' : 'btn', secondary ? 'secondary' : '', icon ? 'icon' : ''].join(' ')"><slot/></button>
+        <button v-bind="$attrs" :class="[noStyle ? 'nostyle' : '', noStyle || noBackground ? '' : 'btn', secondary ? 'secondary' : '', icon ? 'icon' : ''].join(' ')"><slot/></button>
     </Tooltip>
 </template>
 

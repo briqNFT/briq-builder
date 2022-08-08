@@ -121,8 +121,8 @@ const choiceLayout = computed(() => {
 </script>
 
 <template>
-    <div class="rounded overflow-hidden border border-grad-darker bg-grad-lightest max-w-[200px]">
-        <div class="bg-[#f7f7f7] p-4">
+    <div class="rounded-md overflow-hidden border border-grad-light bg-grad-lightest max-w-[200px]">
+        <div class="bg-lighter p-4">
             <h4 class="font-medium">Palette</h4>
         </div>
         <div class="p-4">
@@ -132,9 +132,8 @@ const choiceLayout = computed(() => {
             </div>
             <div class="flex flex-wrap gap-1 my-2">
                 <Btn
-                    secondary
-                    v-for="[key, material, color, name] in choices" :key="key"
                     no-style
+                    v-for="[key, material, color, name] in choices" :key="key"
                     :class="`rounded-sm w-7 h-7 p-0 flex justify-center items-center mat-${material}`"
                     :style="addMaterialCSS(material, color)"
                     :tooltip="'Select color ' + name"

@@ -37,7 +37,7 @@ const getBadPickReason = computed(() => {
             <div class="flex-auto flex justify-stretch items-center flex-col font-medium pt-8">
                 <ColorPicker
                     :color="color || metadata?.color"
-                    @colorChange="
+                    @color-change="
                         (col) => {
                             color = col;
                         }

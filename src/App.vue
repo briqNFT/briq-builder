@@ -76,7 +76,7 @@ html button, a {
 
 
 html input {
-    @apply rounded p-4 border-2 border-grad-darker;
+    @apply rounded p-4 border-2 border-grad-light;
     @apply disabled:text-grad-light;
 }
 
