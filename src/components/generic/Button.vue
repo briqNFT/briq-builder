@@ -2,6 +2,7 @@
 /**
  * A generic Button component that can automatically set a tooltip.
  */
+import { ref } from 'vue';
 import Tooltip from './Tooltip.vue';
 
 defineProps<{
@@ -13,11 +14,17 @@ defineProps<{
     forceActive?: boolean
 }>();
 
+const button = ref(null as unknown as HTMLButtonElement);
+defineExpose({
+    button,
+})
+
 </script>
 
 <template>
     <Tooltip :tooltip="tooltip">
         <button
+            ref="button"
             v-bind="$attrs"
             :class="[noStyle ? 'nostyle' : '',
                      noStyle || noBackground ? '' : 'btn',

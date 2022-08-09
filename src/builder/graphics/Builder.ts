@@ -280,6 +280,11 @@ export function render() {
     composer.render();
 }
 
+let _sceneSetup: CallableFunction;
+export const sceneSetup = new Promise(resolve => {
+    _sceneSetup = resolve;
+});
+
 export async function main(canvas) {
     await threeSetupComplete;
 
@@ -339,4 +344,6 @@ export async function main(canvas) {
         },
         { passive: false },
     );
+
+    _sceneSetup();
 }

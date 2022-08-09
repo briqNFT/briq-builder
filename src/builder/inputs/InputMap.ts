@@ -22,7 +22,7 @@ export const inputMap: { [key: string]: typeof BuilderInputState } = {
     inspect_va: VASelect,
     inspect_box: BoxSelect,
     drag: DragInput,
-    rotate: RotateInput,    
+    rotate: RotateInput,
     copy_paste: CopyPasteInput,
 
     camera: CameraInput,

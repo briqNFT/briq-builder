@@ -14,6 +14,11 @@ import briqIcon from '@/assets/landing/briq-icon.svg';
 import { useStore } from 'vuex';
 import { computed, ref } from 'vue';
 import MenuBuilder from './MenuBuilder.vue';
+import { useBuilderInput } from './InputComposable';
+import Flyout from '../generic/Flyout.vue';
+import { usePresetHelpers } from './inputs/CameraComposable';
+import Tooltip from '../generic/Tooltip.vue';
+import Slider from '../generic/Slider.vue';
 
 const store = useStore();
 
@@ -28,11 +33,57 @@ const getNbBriqs = computed(() => {
     if (['inspect', 'inspect_va', 'inspect_box', 'drag', 'rotate', 'copy_paste'].indexOf(
         inputStore.currentInput,
     ) !== -1 && inputStore.selectionMgr.selectedBriqs.length > 0)
-        selected = `${inputStore.selectionMgr.selectedBriqs.length} selected\n`;
-    return `${selected}${used} briqs`;
+        selected = ` (${inputStore.selectionMgr.selectedBriqs.length} selected)`;
+    return `${used} briqs${selected}`;
 });
 
 const menuOpen = ref(false);
+
+const { activeInputButton, switchToState } = useBuilderInput();
+
+const cameraButton = ref(null as unknown as { button: HTMLButtonElement });
+const cameraFlyout = ref(null as unknown as HTMLElement);
+const vPositionToCamera = {
+    mounted: (el: HTMLElement) => {
+        cameraFlyout.value = el;
+        const pos = cameraButton.value.button.getBoundingClientRect();
+        el.style.top = `${pos.bottom}px`;
+        el.style.left = `${pos.left}px`;
+    },
+}
+
+let willCloseCameraFlyout = undefined as undefined | number;
+const _showCameraFlyout = ref(false);
+const showCameraFlyout = () => {
+    console.log('showCameraFlyout');
+    _showCameraFlyout.value = true;
+    if (willCloseCameraFlyout)
+        clearTimeout(willCloseCameraFlyout);
+    willCloseCameraFlyout = undefined;
+}
+
+const hideCameraFlyout = () => {
+    willCloseCameraFlyout = setTimeout(() => {
+        if (willCloseCameraFlyout)
+            _showCameraFlyout.value = false;
+    }, 250) as unknown as number;
+};
+
+const {
+    presets,
+    editing,
+    editingName,
+    fov,
+    isValidName,
+    usePreset,
+    deletePreset,
+    renamePreset,
+    resetCamera,
+    resetToPseudoIso,
+    centerCamera,
+} = usePresetHelpers();
+
+
 </script>
 
 <style scoped>
@@ -65,9 +116,17 @@ const menuOpen = ref(false);
         </div>
         <div class="flex-1 basis-1 flex justify-center">
             <div class="border bg-grad-lightest rounded-md flex gap-2 px-2 py-1">
-                <Btn no-background><i class="fas fa-mouse-pointer"/></Btn>
-                <Btn no-background><i class="fas fa-cube"/></Btn>
-                <Btn no-background><i class="fas fa-video"/></Btn>
+                <Btn no-background @click="switchToState('inspect')" :force-active="activeInputButton === 'select'"><i class="fas fa-mouse-pointer"/></Btn>
+                <Btn no-background @click="switchToState('place')" :force-active="activeInputButton === 'place'"><i class="fas fa-cube"/></Btn>
+                <Btn
+                    ref="cameraButton"
+                    no-background
+                    @click="switchToState('camera')"
+                    :force-active="activeInputButton === 'camera'"
+                    @pointerenter="showCameraFlyout"
+                    @pointerleave="hideCameraFlyout">
+                    <i class="fas fa-video"/>
+                </Btn>
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-end">
@@ -90,4 +149,20 @@ const menuOpen = ref(false);
         </div>
     </div>
     <MenuBuilder :open="menuOpen"/>
+    <Flyout
+        ref="cameraFlyout" v-if="_showCameraFlyout" v-position-to-camera class="!absolute top-0 w-max p-2 my-2"
+        @pointerenter="showCameraFlyout"
+        @pointerleave="hideCameraFlyout">
+        <Btn no-background>Center on Selection</Btn>
+        <hr>
+        <Tooltip tooltip="How wide the angle of view is.">
+            <div class="bg-grad-lightest rounded px-1 pt-1 pb-2 shadow-sm font-light select-none text-center leading-sm text-sm">
+                Field Of View<br>
+                <Slider :min="5" :max="150" v-model="fov"/>
+            </div>
+        </Tooltip>
+        <hr>
+        <h4>Camera</h4>
+        <p>Dropdown here</p>
+    </Flyout>
 </template>

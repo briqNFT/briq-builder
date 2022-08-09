@@ -1,8 +1,8 @@
-import { ref, computed, watchEffect, onBeforeMount } from 'vue'
+import { ref, computed, watchEffect, onBeforeMount, onMounted } from 'vue'
 
 import { dispatchBuilderAction } from '../../../builder/graphics/Dispatch';
 
-import { camera } from '@/builder/graphics/Builder';
+import { camera, sceneSetup } from '@/builder/graphics/Builder';
 import { orbitControls } from '@/builder/graphics/Builder';
 
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
@@ -14,17 +14,17 @@ const fsm = builderInputFsm.gui;
 export function usePresetHelpers() {
     const presets = ref([]);
 
-    const editing = ref("");
-    const editingName = ref("");
+    const editing = ref('');
+    const editingName = ref('');
 
     onBeforeMount(() => {
-        let data = window.localStorage.getItem('briq_camera_presets');
+        const data = window.localStorage.getItem('briq_camera_presets');
         try {
             presets.value = JSON.parse(data!).data;
         } catch(e) {
             window.localStorage.removeItem('briq_camera_presets');
         }
-    
+
         watchEffect(() => {
             window.localStorage.setItem('briq_camera_presets', JSON.stringify({
                 version: 1,
@@ -58,10 +58,19 @@ export function usePresetHelpers() {
     };
 
     //// FOV / Camera logic
+    // Can honestly say this is one of the worst hacks in this codebase -_-
+    const fov = ref(+camera?.fov || 45);
 
-    const fov = ref(+camera.fov);
+    onMounted(async () => {
+        await sceneSetup;
+        fov.value = +camera.fov;
+        console.log('totoro', fov.value);
+    })
 
     watchEffect(() => {
+        fov.value; // reactivity
+        if (!camera)
+            return;
         camera.fov = +fov.value;
         camera.updateProjectionMatrix();
     })
@@ -95,13 +104,13 @@ export function usePresetHelpers() {
         orbitControls.controls.target = new THREE.Vector3(0, 0, 0);
         camera.updateProjectionMatrix();
     }
-    
+
     const centerCamera = () => {
         dispatchBuilderAction('set_camera_target', {
             target: [fsm.focusPos.x, fsm.focusPos.y, fsm.focusPos.z],
         });
         camera.updateProjectionMatrix();
-    };    
+    };
 
     return {
         presets,

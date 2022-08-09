@@ -17,7 +17,7 @@ export const CONF = {
         lightMode: {
             planeColor: '#bf4300',
             gridColor: '#eaeaea',
-            backgroundColor: '#eaeaea',
+            backgroundColor: '#f2f3f5',
         },
         canvasSize: 10,
         maxCanvasSize: 50,
