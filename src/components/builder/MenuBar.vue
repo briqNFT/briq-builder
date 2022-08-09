@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import UndoRedo from './UndoRedo.vue';
-import SetBrowser from './set_browser/SetBrowserContainer.vue';
 
 import HistoryLog from './modals/HistoryLog.vue';
 import MenuDropdown from '../generic/MenuDropdown.vue';
@@ -13,7 +12,9 @@ import { inputStore } from '../../builder/inputs/InputStore';
 import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import { useStore } from 'vuex';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import MenuBuilder from './MenuBuilder.vue';
+
 const store = useStore();
 
 const getNbBriqs = computed(() => {
@@ -31,6 +32,7 @@ const getNbBriqs = computed(() => {
     return `${selected}${used} briqs`;
 });
 
+const menuOpen = ref(false);
 </script>
 
 <style scoped>
@@ -40,16 +42,11 @@ const getNbBriqs = computed(() => {
 </style>
 
 <template>
-    <div class="m-4 flex justify" v-if="!inputStore.hideInput">
+    <div class="mx-4 mt-4 flex justify" v-if="!inputStore.hideInput">
         <div class="flex-1 basis-1 min-w-max flex">
             <div class="flex flex-none items-center px-2 py-1 gap-2 border border-grad-light bg-grad-lightest rounded-md">
-                <MenuDropdown no-background no-marker menu-position="absolute left-[-0.5rem]" :close-on-click="true">
-                    <template #button><i class="fa-solid fa-bars"/></template>
-                    <Btn no-background>New creation</Btn>
-                    <Btn no-background>Manage your sets</Btn>
-                    <hr>
-                    <Btn no-background>Settings</Btn>
-                </MenuDropdown>
+                <router-link :to="{ name: 'Profile' }"><Btn no-background><i class="fa-solid fa-arrow-left"/></Btn></router-link>
+                <Btn no-background @click="menuOpen = !menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
                 <div class="flex flex-none px-2 gap-2 items-baseline">
                     <p class="font-semibold">{{ $store.state.builderData.currentSet.name }}</p>
@@ -92,5 +89,5 @@ const getNbBriqs = computed(() => {
             </div>
         </div>
     </div>
-    <div id="menuSpot"/>
+    <MenuBuilder :open="menuOpen"/>
 </template>

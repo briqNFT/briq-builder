@@ -4,7 +4,7 @@ import contractStore from '@/chain/Contracts';
 import { createChainBriqs } from '@/builder/ChainBriqs';
 import { createChainSets } from '@/builder/ChainSets';
 
-import { setsManager as sm, checkForInitialGMSet, synchronizeSetsLocally, setsManager, SetInfo } from '@/builder/SetsManager';
+import { setsManager as sm, checkForInitialGMSet, setupLocalSetWatcher, setsManager, SetInfo } from '@/builder/SetsManager';
 import { watchEffectAndWait } from '@/Async';
 
 import { isLoaded as storeIsLoaded } from '@/store/StoreLoading';
@@ -53,7 +53,7 @@ async function initializeLocalData() {
     const { setsManager } = useBuilder();
     setsManager.clear();
     setsManager.loadFromStorage();
-    synchronizeSetsLocally();
+    setupLocalSetWatcher();
 }
 
 async function initializeStartSet() {

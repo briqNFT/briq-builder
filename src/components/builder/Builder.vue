@@ -18,6 +18,7 @@ import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { inputInitComplete } from '@/builder/inputs/InputLoading';
 
 import { store } from '@/store/Store';
+import { useRoute, useRouter } from 'vue-router';
 
 const { setsManager, chainBriqs } = useBuilder();
 
@@ -28,9 +29,17 @@ provide('messages', {
 });
 provide('featureFlags', featureFlags);
 
+const route = useRoute();
+const router = useRouter();
+
 ///
 onMounted(async () => {
     await inputInitComplete;
+    if (route.query['set'])
+        try {
+            await store.dispatch('builderData/select_set', route.query['set']);
+            router.replace({ 'query': null });
+        } catch(_) { /* ignore */ }
     const info = setsManager.getInfo(store.state.builderData.currentSet.id);
 
     if (info.status === 'ONCHAIN_LOADED')

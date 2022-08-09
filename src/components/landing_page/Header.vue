@@ -49,11 +49,10 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
                         <i class="fa-solid fa-box-open"/> {{ userBoxesStore.current?.availableBoxes?.length || 0 }}
                     </Btn>
                 </router-link>
-                <div class="border-grad-light px-3 border rounded flex items-center justify-center gap-2">
+                <div v-if="walletStore?.userWalletAddress" class="border-grad-light px-3 border rounded flex items-center justify-center gap-2">
                     <briqIcon class="inline-block"/> {{ 0 }}
                 </div>
                 <div class="flex-none">
-                    <Btn v-if="!walletStore?.userWalletAddress" class="flex-none hidden md:inline-flex" @click="connectDebugWallet"><span class="px-2">Dev</span></Btn>
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
                     <MenuDropdown no-background icon :close-on-click="true" v-else-if="walletStore?.userWalletAddress" class="text-xs">
                         <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
@@ -62,7 +61,7 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
                         <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                     </MenuDropdown>
                 </div>
-                <NotificationsMenu/>
+                <NotificationsMenu v-if="walletStore?.userWalletAddress"/>
             </div>
         </div>
     </div>

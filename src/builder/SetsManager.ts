@@ -215,30 +215,32 @@ export const setsManager = reactive(new SetsManager());
 
 const storageHandlers: { [sid: string]: WatchStopHandle } = {};
 export function synchronizeSetsLocally() {
-    watchEffect(() => {
-        for (const sid in setsManager.setsInfo) {
-            if (storageHandlers[sid])
-                continue;
-            storageHandlers[sid] = watchEffect(() => {
-                const info = setsManager.setsInfo[sid];
-                logDebug('SET STORAGE HANDLER - Serializing set ', sid);
-                if (!info || info.status === 'ONCHAIN_ONLY') {
-                    // Delete
-                    if (window.localStorage.getItem('briq_set_' + sid)) {
-                        logDebug('SET STORAGE HANDLER - deleted local set', sid);
-                        window.localStorage.removeItem('briq_set_' + sid);
-                    }
-                    if (!info) {
-                        logDebug('SET STORAGE HANDLER - unwatching ', sid);
-                        storageHandlers[sid]();
-                        delete storageHandlers[sid];
-                    }
-                    return;
+    for (const sid in setsManager.setsInfo) {
+        if (storageHandlers[sid])
+            continue;
+        storageHandlers[sid] = watchEffect(() => {
+            const info = setsManager.setsInfo[sid];
+            logDebug('SET STORAGE HANDLER - Serializing set ', sid);
+            if (!info || info.status === 'ONCHAIN_ONLY') {
+                // Delete
+                if (window.localStorage.getItem('briq_set_' + sid)) {
+                    logDebug('SET STORAGE HANDLER - deleted local set', sid);
+                    window.localStorage.removeItem('briq_set_' + sid);
                 }
-                window.localStorage.setItem('briq_set_' + sid, JSON.stringify(info.serialize()));
-            });
-        }
-    });
+                if (!info) {
+                    logDebug('SET STORAGE HANDLER - unwatching ', sid);
+                    storageHandlers[sid]();
+                    delete storageHandlers[sid];
+                }
+                return;
+            }
+            window.localStorage.setItem('briq_set_' + sid, JSON.stringify(info.serialize()));
+        });
+    }
+}
+
+export function setupLocalSetWatcher() {
+    watchEffect(() => synchronizeSetsLocally());
 }
 
 import { defaultModel } from '@/conf/realms';

@@ -31,7 +31,6 @@ const onScroll = (_event: Event) => {
 }
 
 onBeforeMount(() => {
-    //    document.body.style.backgroundColor = 'rgb(var(--color-base))';
     window.addEventListener('scroll', onScroll);
 });
 onBeforeUnmount(() => {

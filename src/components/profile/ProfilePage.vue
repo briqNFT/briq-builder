@@ -10,11 +10,14 @@ import ProfileIcon from '@/assets/profile/profile.svg';
 
 import { maybeStore } from '@/chain/WalletLoading';
 
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBookletsStore } from '@/builder/UserBooklets';
 import { userBidsStore } from '@/builder/BidStore';
 import BoxListing from '../builder/genesis/BoxListing.vue';
+import { setsManager } from '@/builder/SetsManager';
+import MenuDropdown from '../generic/MenuDropdown.vue';
+import { useSetHelpers } from '../builder/SetComposable';
 
 const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
 
@@ -22,6 +25,15 @@ const activeTab = ref('INVENTORY' as 'INVENTORY' | 'ACTIVITY');
 
 const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
 
+const creations = computed(() => {
+    return Object.values(setsManager.setsInfo).map(x => x.local!);
+})
+
+const {
+    openSetInBuilder,
+    duplicateSet,
+    deleteLocalSet,
+} = useSetHelpers();
 </script>
 
 <style scoped>
@@ -47,9 +59,9 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
             <div class="absolute top-0 right-[-100px]"><BriqsOverlayR/></div>
         </div>
     </div>
-    <div class="bg-white p-8 pb-0 flex flex-col items-center border-b border-grad-darker">
+    <div class="bg-grad-lightest p-8 pb-0 flex flex-col items-center border-b border-grad-light">
         <div class="relative bottom-[6rem] right-[4rem] pb-[4rem]">
-            <div class="absolute h-[8rem] w-[8rem] bg-body border-4 border-base rounded-md shadow-md flex justify-center items-center">
+            <div class="absolute z-50 h-[8rem] w-[8rem] bg-grad-lighter border-4 border-grad-lightest rounded-md shadow-md flex justify-center items-center">
                 <ProfileIcon width="100%" height="100%"/>
             </div>
         </div>
@@ -101,10 +113,32 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
             </div>
             <div>
                 <h3>Personal creations</h3>
-                <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div v-if="!creations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have personal creations.</p>
                     <p>Get some briqs and start building!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
+                </div>
+                <div v-else class="my-4 grid grid-cols-4 gap-6">
+                    <div class="shadow hover:shadow-lg rounded bg-lightest p-4" v-for="creation in creations" :key="creation.id">
+                        <div class="bg-grad-light rounded flex justify-center items-center min-h-[4rem] mb-2">Here be preview</div>
+                        <h4 class="font-semibold">{{ creation.name }}</h4>
+                        <p class="text-xs break-all text-grad-dark flex justify-between">
+                            {{ creation.id }}
+                            <MenuDropdown no-background no-marker :close-on-click="true" class="w-min p-1 text-sm text-grad-light">
+                                <template #button><i class="fas fa-ellipsis-h"/></template>
+                                <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
+                                <Btn no-background>(todo) Mint on chain</Btn>
+                                <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
+                                <Btn no-background>(TODO) Download</Btn>
+                                <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                            </MenuDropdown>
+                        </p>
+                        <hr class="my-4">
+                        <p class="flex justify-between text-sm">
+                            <span class="text-grad-dark">briqs used</span>
+                            <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

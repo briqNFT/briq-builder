@@ -1,44 +1,24 @@
 <script setup lang="ts">
-import { reactive, ref  } from 'vue';
+import { ref  } from 'vue';
 import NotificationPopup from './NotificationPopup.vue';
+import { notificationPopups, pushPopup } from './NotificationsComposable';
 
 const computeTopPos = () => Math.max(0, parseFloat(getComputedStyle(document.documentElement).fontSize) * 4 - window.scrollY);
 const topPos = ref(computeTopPos());
 window.addEventListener('scroll', () => topPos.value = computeTopPos());
 
-interface Popup {
-    _uid: any;
-    type: 'info' | 'warning' | 'success' | 'error';
-}
+pushPopup('info');
+setTimeout(() => pushPopup('warning'), 500);
+setTimeout(() => pushPopup('success'), 4500);
+setTimeout(() => pushPopup('error'), 5500);
 
-const popups = reactive([] as Popup[]);
-
-popups.push({
-    _uid: 'toto',
-    'type': 'info',
-})
-setTimeout(() => popups.push({
-    _uid: 'toto2',
-    'type': 'warning',
-}), 500);
-
-setTimeout(() => popups.push({
-    _uid: 'toto3',
-    'type': 'success',
-}), 4500);
-
-setTimeout(() => popups.push({
-    _uid: 'toto4',
-    'type': 'error',
-}), 5500);
-
-const closePopup = (i: number) => popups.splice(i, 1);
+const closePopup = (i: number) => notificationPopups.splice(i, 1);
 </script>
 
 <template>
     <div class="z-[1000] fixed m-4 right-0 flex flex-col gap-4" :style="{ top: `${topPos}px` }">
         <TransitionGroup name="popupfade">
-            <NotificationPopup v-for="popup, i of popups" :key="popup._uid" :type="popup.type" @close="closePopup(i)">
+            <NotificationPopup v-for="popup, i of notificationPopups" :key="popup._uid" :type="popup.type" @close="closePopup(i)">
                 <template #title>
                     Bid is confirmed
                 </template>
