@@ -24,7 +24,7 @@ const route = useRoute();
 
 document.documentElement.classList.add(CONF.theme);
 watchEffect(() => {
-    watchForDarkMode(route.name !== 'Builder' && route.name !== 'Share');
+    watchForDarkMode()//route.name !== 'Builder' && route.name !== 'Share');
 });
 
 watch([() => route.name as unknown as string], (_, __) => {

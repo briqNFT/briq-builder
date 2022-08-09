@@ -22,10 +22,25 @@ html, ::before, ::after {
     --color-text-on-primary: var(--color-grad-lightest);
 }
 
-html.dark {
-    --color-base: 117 41 0;
-    --color-primary: 155 56 3;
-    --color-darker: 50 20 0;
-    --color-text: 220 220 220;
-    --color-text-on-primary: 13, 8, 69;
+html.dark, .dark::before, .dark::after {
+    --color-background: 23 23 23;
+    --color-primary: 243 88 0;
+    --color-primary-darker: 225 81 0;
+    --color-primary-lighter: 255 113 31;
+    --color-primary-lightest: 245 170 128;
+
+    --color-grad-lightest: 45 45 45;
+    --color-grad-lighter: 83 83 83;
+    --color-grad-light: 105 105 116;
+    --color-grad-dark: 189 212 215;
+    --color-grad-darker: 222 223 225;
+    --color-grad-darkest: 235 235 235;
+
+    --color-info-info: 0 149 235;
+    --color-info-warning: 246 200 68;
+    --color-info-success: 17 137 6;
+    --color-info-error: 245 34 45;
+
+    --color-text-on-background: var(--color-grad-darker);
+    --color-text-on-primary: var(--color-grad-darkest);
 }
