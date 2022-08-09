@@ -46,7 +46,7 @@ const menuOpen = ref(false);
         <div class="flex-1 basis-1 min-w-max flex">
             <div class="flex flex-none items-center px-2 py-1 gap-2 border border-grad-light bg-grad-lightest rounded-md">
                 <router-link :to="{ name: 'Profile' }"><Btn no-background><i class="fa-solid fa-arrow-left"/></Btn></router-link>
-                <Btn no-background @click="menuOpen = !menuOpen"><i class="fa-solid fa-bars"/></Btn>
+                <Btn no-background @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
                 <div class="flex flex-none px-2 gap-2 items-baseline">
                     <p class="font-semibold">{{ $store.state.builderData.currentSet.name }}</p>

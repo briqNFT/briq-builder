@@ -89,7 +89,7 @@ defineProps<{
             &:hover::before {
                 @apply bg-primary-lighter;
             }
-            &:active::before {
+            &:active::before, &.forceActive::before {
                 /* 2px on either side */
                 @apply w-[calc(100%-0.125rem)] h-[calc(100%-0.125rem)] top-[0.0625rem] left-[0.0625rem];
                 @apply bg-primary-lighter;
@@ -115,7 +115,7 @@ defineProps<{
                 &:hover::before {
                     @apply bg-grad-lighter;
                 }
-                &:active::before {
+                &:active::before, &.forceActive::before {
                     @apply bg-grad-lighter;
                 }
             }
