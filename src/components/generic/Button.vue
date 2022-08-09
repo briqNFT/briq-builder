@@ -9,14 +9,23 @@ defineProps<{
     secondary?: boolean,
     noStyle?: boolean,
     noBackground?: boolean,
-    icon?: boolean
+    icon?: boolean,
+    forceActive?: boolean
 }>();
 
 </script>
 
 <template>
     <Tooltip :tooltip="tooltip">
-        <button v-bind="$attrs" :class="[noStyle ? 'nostyle' : '', noStyle || noBackground ? '' : 'btn', secondary ? 'secondary' : '', icon ? 'icon' : ''].join(' ')"><slot/></button>
+        <button
+            v-bind="$attrs"
+            :class="[noStyle ? 'nostyle' : '',
+                     noStyle || noBackground ? '' : 'btn',
+                     secondary ? 'secondary' : '',
+                     icon ? 'icon' : '',
+                     forceActive ? 'forceActive' : ''].join(' ')">
+            <slot/>
+        </button>
     </Tooltip>
 </template>
 
@@ -39,7 +48,7 @@ defineProps<{
     @apply text-text-on-background;
 }
 
-#app button:not(.btn):not(.nostyle):not(:disabled):active {
+#app button:not(.btn):not(.nostyle):not(:disabled):active, #app button:not(.btn):not(.nostyle):not(:disabled).forceActive {
     @apply text-primary;
 }
 
