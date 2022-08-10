@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBuilderInput } from './InputComposable';
 import QuickPicker from './inputs/QuickPicker.vue';
+import CameraFlyout from './CameraFlyout.vue';
 
 const { activeInputButton, fsm } =  useBuilderInput();
 </script>
@@ -8,6 +9,7 @@ const { activeInputButton, fsm } =  useBuilderInput();
 <template>
     <div class="mx-4 mt-1 w-max">
         <QuickPicker v-if="activeInputButton === 'place'"/>
+        <CameraFlyout v-if="activeInputButton === 'camera'"/>
     </div>
     <div
         v-if="fsm.selectionBox"

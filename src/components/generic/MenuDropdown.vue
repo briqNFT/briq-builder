@@ -27,9 +27,6 @@ const dropdownPositionCSS = computed(() => {
 </script>
 
 <style scoped>
-div[data-name='menu'] {
-    @apply bg-red-200;
-}
 div[data-name='menu'] > :not(hr) {
     @apply mx-2;
 }

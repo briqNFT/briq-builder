@@ -1,0 +1,147 @@
+<script setup lang="ts">
+import Flyout from '../generic/Flyout.vue';
+import Tooltip from '../generic/Tooltip.vue';
+import Slider from '../generic/Slider.vue';
+import { usePresetHelpers } from './inputs/CameraComposable';
+import DropDown from '../generic/DropDown.vue';
+import { ref, Ref, toRaw, watchEffect } from 'vue';
+
+const {
+    presets,
+    editing,
+    editingName,
+    fov,
+    isValidName,
+    usePreset,
+    deletePreset,
+    renamePreset,
+    resetCamera,
+    resetToPseudoIso,
+    centerCamera,
+    cameraSettings,
+} = usePresetHelpers();
+
+const mode = ref('regular' as 'regular' | 'new-camera');
+
+const onClick = (option: string, item: Ref<string | undefined>) => {
+    if (option === 'Add new camera') {
+        mode.value = 'new-camera';
+        return;
+    }
+    if (option === 'Custom')
+        return;
+    else if (option === 'Default')
+        resetCamera()
+    else if (option === 'Pseudo-isometric')
+        resetToPseudoIso();
+    else
+        usePreset(presets.value.filter(x => x.name === option)[0]);
+    item.value = option;
+}
+
+
+const _position = ref(0);
+const _target = ref(0);
+const _fov = ref(0);
+const _name = ref('New camera');
+
+watchEffect(() => {
+    _position.value = cameraSettings.value.position.map(x => Math.round(x*1000)/1000);
+    _target.value = cameraSettings.value.target.map(x => Math.round(x*1000)/1000);
+    _fov.value = cameraSettings.value.fov;
+})
+
+watchEffect(() => {
+    usePreset({
+        position: _position.value,
+        target: _target.value,
+        fov: _fov.value,
+    })
+})
+
+const addPreset = () => {
+    presets.value.push({
+        name: toRaw(_name.value),
+        position: toRaw(_position.value),
+        target: toRaw(_target.value),
+        fov: toRaw(_fov.value),
+    });
+    mode.value = 'regular';
+
+}
+</script>
+
+<style scoped>
+.numberInput > span {
+    @apply relative;
+}
+.numberInput > span >span {
+    @apply absolute top-[50%] translate-y-[-50%] left-3 text-primary pointer-events-none;
+}
+
+.numberInput > span > input {
+    @apply pl-8
+}
+
+</style>
+
+<template>
+    <Flyout :class="mode === 'regular' ? 'p-2' : 'p-4'">
+        <template v-if="mode === 'regular'">
+            <Btn no-background>Center on Selection</Btn>
+            <hr>
+            <Tooltip tooltip="How wide the angle of view is.">
+                <div class="bg-grad-lightest rounded px-1 pt-1 pb-2 shadow-sm font-light select-none text-center leading-sm text-sm">
+                    Field Of View<br>
+                    <Slider :min="5" :max="150" v-model="fov"/>
+                </div>
+            </Tooltip>
+            <hr>
+            <h4>Camera</h4>
+            <DropDown
+                :options="['Custom', 'Default', 'Pseudo-isometric', ...presets.map(x => x.name), '', 'Add new camera']"
+                default-option="Custom"
+                :on-click="onClick">
+                <template #input="{ open, isOpen, selectedOption }">
+                    <div @click="open" tabindex="0" :class="`select-none border-grad-light hover:border-primary ${isOpen ? '!border-primary' : ''} border p-2 rounded text-grad-dark`">
+                        {{ selectedOption }}
+                    </div>
+                </template>
+            </DropDown>
+        </template>
+        <template v-else>
+            <Hotkey name="accept" :data="{ code: 'Enter' }" :handler="addPreset"/>
+            <h3 class="flex justify-between items-center">Add new camera <Btn no-background class="p-1" @click="mode='regular'"><i class="fas fa-times"/></Btn></h3>
+            <div class="flex flex-col gap-2 mt-2">
+                <div>
+                    <h4>Name</h4>
+                    <p><input type="text" size="12" maxlength="12" v-model="_name"></p>
+                </div>
+                <div>
+                    <h4>Position</h4>
+                    <p class="flex gap-2 numberInput">
+                        <span><span>X</span><input type="number" min="-300" max="300" v-model="_position[0]"></span>
+                        <span><span>Y</span><input type="number" min="-300" max="300" v-model="_position[1]"></span>
+                        <span><span>Z</span><input type="number" min="-300" max="300" v-model="_position[2]"></span>
+                    </p>
+                </div>
+                <div>
+                    <p>Target</p>
+                    <p class="flex gap-2 numberInput">
+                        <span><span>X</span><input type="number" min="-300" max="300" v-model="_target[0]"></span>
+                        <span><span>Y</span><input type="number" min="-300" max="300" v-model="_target[1]"></span>
+                        <span><span>Z</span><input type="number" min="-300" max="300" v-model="_target[2]"></span>
+                    </p>
+                </div>
+                <div>
+                    <p>Field of view</p>
+                    <p><input type="number" min="5" max="150" v-model="_fov"></p>
+                    <p class="flex justify-center mt-4">
+                        <Btn v-if="isValidName(_name)" @click="addPreset">Add preset</Btn>
+                        <Btn v-else="" tooltip="A preset with this name already exists" :disabled="true">Add preset</Btn>
+                    </p>
+                </div>
+            </div>
+        </template>
+    </Flyout>
+</template>

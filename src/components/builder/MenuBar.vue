@@ -15,10 +15,7 @@ import { useStore } from 'vuex';
 import { computed, ref } from 'vue';
 import MenuBuilder from './MenuBuilder.vue';
 import { useBuilderInput } from './InputComposable';
-import Flyout from '../generic/Flyout.vue';
-import { usePresetHelpers } from './inputs/CameraComposable';
-import Tooltip from '../generic/Tooltip.vue';
-import Slider from '../generic/Slider.vue';
+import CameraFlyout from './CameraFlyout.vue';
 
 const store = useStore();
 
@@ -55,7 +52,7 @@ const vPositionToCamera = {
 let willCloseCameraFlyout = undefined as undefined | number;
 const _showCameraFlyout = ref(false);
 const showCameraFlyout = () => {
-    console.log('showCameraFlyout');
+    console.log('showCameraFlyout totoro');
     _showCameraFlyout.value = true;
     if (willCloseCameraFlyout)
         clearTimeout(willCloseCameraFlyout);
@@ -63,26 +60,12 @@ const showCameraFlyout = () => {
 }
 
 const hideCameraFlyout = () => {
+    console.log('hideCameraFlyout totoro')
     willCloseCameraFlyout = setTimeout(() => {
         if (willCloseCameraFlyout)
             _showCameraFlyout.value = false;
     }, 250) as unknown as number;
 };
-
-const {
-    presets,
-    editing,
-    editingName,
-    fov,
-    isValidName,
-    usePreset,
-    deletePreset,
-    renamePreset,
-    resetCamera,
-    resetToPseudoIso,
-    centerCamera,
-} = usePresetHelpers();
-
 
 </script>
 
@@ -149,20 +132,11 @@ const {
         </div>
     </div>
     <MenuBuilder :open="menuOpen"/>
-    <Flyout
-        ref="cameraFlyout" v-if="_showCameraFlyout" v-position-to-camera class="!absolute top-0 w-max p-2 my-2"
+    <CameraFlyout
+        v-if="_showCameraFlyout"
+        v-position-to-camera
+        ref="cameraFlyout"
+        class="!absolute top-0 w-max mt-2"
         @pointerenter="showCameraFlyout"
-        @pointerleave="hideCameraFlyout">
-        <Btn no-background>Center on Selection</Btn>
-        <hr>
-        <Tooltip tooltip="How wide the angle of view is.">
-            <div class="bg-grad-lightest rounded px-1 pt-1 pb-2 shadow-sm font-light select-none text-center leading-sm text-sm">
-                Field Of View<br>
-                <Slider :min="5" :max="150" v-model="fov"/>
-            </div>
-        </Tooltip>
-        <hr>
-        <h4>Camera</h4>
-        <p>Dropdown here</p>
-    </Flyout>
+        @pointerleave="hideCameraFlyout"/>
 </template>
