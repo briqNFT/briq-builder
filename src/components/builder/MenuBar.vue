@@ -34,8 +34,6 @@ const getNbBriqs = computed(() => {
     return `${used} briqs${selected}`;
 });
 
-const menuOpen = ref(false);
-
 const { activeInputButton, switchToState } = useBuilderInput();
 
 const cameraButton = ref(null as unknown as { button: HTMLButtonElement });
@@ -49,10 +47,11 @@ const vPositionToCamera = {
     },
 }
 
+const menuOpen = ref(false);
+
 let willCloseCameraFlyout = undefined as undefined | number;
 const _showCameraFlyout = ref(false);
 const showCameraFlyout = () => {
-    console.log('showCameraFlyout totoro');
     _showCameraFlyout.value = true;
     if (willCloseCameraFlyout)
         clearTimeout(willCloseCameraFlyout);
@@ -60,7 +59,6 @@ const showCameraFlyout = () => {
 }
 
 const hideCameraFlyout = () => {
-    console.log('hideCameraFlyout totoro')
     willCloseCameraFlyout = setTimeout(() => {
         if (willCloseCameraFlyout)
             _showCameraFlyout.value = false;

@@ -64,7 +64,6 @@ export function usePresetHelpers() {
     onMounted(async () => {
         await sceneSetup;
         fov.value = +camera.fov;
-        console.log('totoro', fov.value);
     })
 
     watchEffect(() => {
@@ -93,19 +92,25 @@ export function usePresetHelpers() {
     requestAnimationFrame(updateCameraSettings);
 
     const resetCamera = () => {
-        fov.value = 75;
+        fov.value = 45;
         dispatchBuilderAction('put_all_in_view');
         camera.updateProjectionMatrix();
     }
 
     const resetToPseudoIso = () => {
-        fov.value = 35;
+        fov.value = 25;
         camera.position.set(35, 35, -60);
         orbitControls.controls.target = new THREE.Vector3(0, 0, 0);
         camera.updateProjectionMatrix();
     }
 
+    const canCenterCamera = computed(() => {
+        return !!fsm.focusPos;
+    });
+
     const centerCamera = () => {
+        if (canCenterCamera.value)
+            return;
         dispatchBuilderAction('set_camera_target', {
             target: [fsm.focusPos.x, fsm.focusPos.y, fsm.focusPos.z],
         });
@@ -124,6 +129,7 @@ export function usePresetHelpers() {
         cameraSettings,
         resetCamera,
         resetToPseudoIso,
+        canCenterCamera,
         centerCamera,
     }
 }

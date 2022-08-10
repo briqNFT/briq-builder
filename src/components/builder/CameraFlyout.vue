@@ -8,15 +8,13 @@ import { ref, Ref, toRaw, watchEffect } from 'vue';
 
 const {
     presets,
-    editing,
-    editingName,
     fov,
     isValidName,
     usePreset,
     deletePreset,
-    renamePreset,
     resetCamera,
     resetToPseudoIso,
+    canCenterCamera,
     centerCamera,
     cameraSettings,
 } = usePresetHelpers();
@@ -39,6 +37,9 @@ const onClick = (option: string, item: Ref<string | undefined>) => {
     item.value = option;
 }
 
+const onOpenContextMenu = (option: string) => {
+    return presets.value.some(x => x.name === option);
+}
 
 const _position = ref(0);
 const _target = ref(0);
@@ -88,7 +89,7 @@ const addPreset = () => {
 <template>
     <Flyout :class="mode === 'regular' ? 'p-2' : 'p-4'">
         <template v-if="mode === 'regular'">
-            <Btn no-background>Center on Selection</Btn>
+            <Btn no-background @click="centerCamera" :disabled="!canCenterCamera">Center on Selection</Btn>
             <hr>
             <Tooltip tooltip="How wide the angle of view is.">
                 <div class="bg-grad-lightest rounded px-1 pt-1 pb-2 shadow-sm font-light select-none text-center leading-sm text-sm">
@@ -101,11 +102,15 @@ const addPreset = () => {
             <DropDown
                 :options="['Custom', 'Default', 'Pseudo-isometric', ...presets.map(x => x.name), '', 'Add new camera']"
                 default-option="Custom"
-                :on-click="onClick">
+                :on-click="onClick"
+                :on-open-context-menu="onOpenContextMenu">
                 <template #input="{ open, isOpen, selectedOption }">
                     <div @click="open" tabindex="0" :class="`select-none border-grad-light hover:border-primary ${isOpen ? '!border-primary' : ''} border p-2 rounded text-grad-dark`">
                         {{ selectedOption }}
                     </div>
+                </template>
+                <template #contextMenu="{ target, close }">
+                    <Btn no-background @click="deletePreset({ name: target }), close()">Remove</Btn>
                 </template>
             </DropDown>
         </template>

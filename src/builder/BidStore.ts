@@ -88,7 +88,6 @@ class UserBidStore implements perUserStorable {
     async makeBid(value: BigNumberish, item: string) {
         const genesisStore = useGenesisStore();
         const itemData = genesisStore.metadata[item]._data!;
-        console.log('TOTORO', contractStore)
         const tx_response = await contractStore.auction?.approveAndBid(contractStore.eth_bridge_contract, itemData.token_id, itemData.auction_id, value)
         const newBid = {
             tx_hash: tx_response!.transaction_hash,

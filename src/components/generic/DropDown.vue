@@ -7,11 +7,13 @@ const props = withDefaults(defineProps<{
     options: string[],
     defaultOption?: string,
     onClick?: (option: string, selectedOption: Ref<string | undefined>) => void,
+    onOpenContextMenu?: (option: string) => boolean,
     menuPosition?: string,
     closeOnClick?: boolean,
 }>(), {
     defaultOption: undefined,
     onClick: undefined,
+    onOpenContextMenu: undefined,
     menuPosition: undefined,
     closeOnClick: true,
 });
@@ -21,6 +23,8 @@ const selectedOption = ref(props.defaultOption || undefined);
 
 const opened = ref(false);
 
+const contextMenuTarget = ref(null as null | HTMLElement);
+
 const _onClick = (option: string) => {
     if (props.onClick)
         props.onClick(option, selectedOption);
@@ -28,6 +32,12 @@ const _onClick = (option: string) => {
         selectedOption.value = option;
     if (props.closeOnClick)
         opened.value = false;
+}
+
+const _onOpenContextMenu = (event: PointerEvent, option: string) => {
+    if (props.onOpenContextMenu && !props.onOpenContextMenu(option))
+        return;
+    contextMenuTarget.value = (event.target as HTMLElement).nextElementSibling as HTMLElement;
 }
 
 const CLOSE_AFTER_FOCUS_LOSS_DELAY = 250000;
@@ -62,8 +72,22 @@ const dropdownPositionCSS = computed(() => {
         <Flyout v-show="opened" v-bind="$attrs" class="menu w-max my-1 z-50 flex flex-col !absolute py-2" :style="dropdownPositionCSS">
             <template v-for="option, i in options" :key="i">
                 <hr v-if="option === ''" class="my-2">
-                <Btn v-else no-background class="justify-between" @click="_onClick(option)">{{ option }}<span v-if="selectedOption === option"><i class="ml-2 fas fa-check"/></span></Btn>
+                <template v-else>
+                    <Btn
+                        no-background class="justify-between"
+                        @click.prevent.stop="_onClick(option)"
+                        @contextmenu.prevent.stop="(e: PointerEvent) => _onOpenContextMenu(e, option)">
+                        {{ option }}<span v-if="selectedOption === option"><i class="ml-2 fas fa-check"/></span>
+                    </Btn>
+                    <!-- This empty div is there to teleport the context menu. -->
+                    <div class="relative" :data-target="option"/>
+                </template>
             </template>
+            <Teleport v-if="contextMenuTarget" :to="contextMenuTarget">
+                <Flyout class="!absolute z-[50] top-[-1rem] right-0">
+                    <slot :target="contextMenuTarget.dataset.target" :close="() => contextMenuTarget = null" name="contextMenu"/>
+                </Flyout>
+            </Teleport>
         </Flyout>
     </div>
 </template>

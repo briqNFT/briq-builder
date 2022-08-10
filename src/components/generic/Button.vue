@@ -74,7 +74,7 @@ defineExpose({
         }
 
         &:disabled {
-            @apply text-grad-darker;
+            @apply text-grad-dark;
         }
     }
 
