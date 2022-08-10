@@ -109,7 +109,7 @@ export function usePresetHelpers() {
     });
 
     const centerCamera = () => {
-        if (canCenterCamera.value)
+        if (!canCenterCamera.value)
             return;
         dispatchBuilderAction('set_camera_target', {
             target: [fsm.focusPos.x, fsm.focusPos.y, fsm.focusPos.z],

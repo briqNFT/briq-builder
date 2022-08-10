@@ -37,7 +37,7 @@ defineExpose({
 </template>
 
 <style>
-#app button {
+button {
     z-index: 0;
     @apply inline-flex justify-center items-center;
     @apply px-2 md:px-3 py-2 md:py-3;

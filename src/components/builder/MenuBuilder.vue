@@ -79,7 +79,7 @@ const duplicate = () => openSetInBuilder(duplicateSet(currentSet.id).id);
             <Flyout id="menuFlyout" class="mx-4 mt-1 flex flex-col w-max rounded-md text-sm font-normal" @click="">
                 <template v-if="mode === 'MENU'">
                     <Btn @click="renameSet" no-background>Rename set</Btn>
-                    <RouterLink :to="{ name: 'Profile' }"><Btn no-background>Manage my sets</Btn></RouterLink>
+                    <RouterLink :to="{ name: 'Profile' }"><Btn class="w-full" no-background>Manage my sets</Btn></RouterLink>
                     <hr>
                     <Btn @click="createNewSetAndOpen" no-background>New creation</Btn>
                     <Btn @click="importSetFromFile" no-background>Import from file</Btn>
