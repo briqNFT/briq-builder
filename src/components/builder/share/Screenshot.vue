@@ -54,7 +54,7 @@ import { takeScreenshot } from '../../../builder/graphics/Builder';
 import { downloadData } from '../../../url';
 import builderSettings from '../../../builder/graphics/Settings';
 import { pushModal } from '../../Modals.vue';
-import Settings from '../modals/Settings.vue';
+import Settings from '../Settings.vue';
 
 import { defineComponent, watch } from 'vue';
 import { getShareLink } from '../Sharing';

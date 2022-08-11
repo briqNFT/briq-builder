@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Settings from '../builder/modals/Settings.vue';
+import Settings from '../builder/Settings.vue';
 import TransactionsMin from './TransactionsMin.vue';
 import BriqDetails from './BriqDetails.vue';
 import BlockchainStatus from './BlockchainStatus.vue';

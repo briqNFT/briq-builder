@@ -12,15 +12,17 @@
             @mousedown.self.stop="close()"/>
         <Hotkey name="escape" :handler="() => close()"/>
         <div :class="'flex min-h-screen w-screen invisible ' + modalAlignment">
+            <!-- metadata/vbind is duplicated as backwards compatibility -->
             <component
                 :metadata="data.metadata"
+                v-bind="data.metadata"
                 :is="data.modal"
                 :class="visible ? 'visible' : 'invisible'"
                 @close="close"
                 @_close="close"
                 @hide="toggleVisibility(false)"
                 @show="toggleVisibility(true)"
-                @toggleVisibility="toggleVisibility"/>
+                @toggle-visibility="toggleVisibility"/>
         </div>
     </div>
 </template>

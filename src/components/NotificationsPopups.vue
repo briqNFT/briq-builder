@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref  } from 'vue';
+import { h, ref  } from 'vue';
 import NotificationPopup from './NotificationPopup.vue';
 import { notificationPopups, pushPopup } from './NotificationsComposable';
 
@@ -7,23 +7,23 @@ const computeTopPos = () => Math.max(0, parseFloat(getComputedStyle(document.doc
 const topPos = ref(computeTopPos());
 window.addEventListener('scroll', () => topPos.value = computeTopPos());
 
-pushPopup('info');
-setTimeout(() => pushPopup('warning'), 500);
-setTimeout(() => pushPopup('success'), 4500);
-setTimeout(() => pushPopup('error'), 5500);
+pushPopup('info', 'Some information');
+setTimeout(() => pushPopup('warning', 'Some random warning'), 500);
+setTimeout(() => pushPopup('success', 'This however is a success'), 4500);
+setTimeout(() => pushPopup('error', h('p', 'This a direct component error')), 5500);
 
 const closePopup = (i: number) => notificationPopups.splice(i, 1);
 </script>
 
 <template>
-    <div class="z-[1000] fixed m-4 right-0 flex flex-col gap-4" :style="{ top: `${topPos}px` }">
+    <div class="z-[1000] fixed m-4 right-0 flex flex-col items-end gap-4" :style="{ top: `${topPos}px` }">
         <TransitionGroup name="popupfade">
             <NotificationPopup v-for="popup, i of notificationPopups" :key="popup._uid" :type="popup.type" @close="closePopup(i)">
                 <template #title>
                     Bid is confirmed
                 </template>
-                <p>Amount: some amount</p>
-                <p>Item: starkgate</p>
+                <p v-if="typeof popup.message === 'string'" class="break-all whitespace-pre">{{ popup.message }}</p>
+                <component v-else :is="popup.message"/>
             </NotificationPopup>
         </TransitionGroup>
     </div>

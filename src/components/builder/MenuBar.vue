@@ -4,27 +4,29 @@ import UndoRedo from './UndoRedo.vue';
 import HistoryLog from './modals/HistoryLog.vue';
 import MenuDropdown from '../generic/MenuDropdown.vue';
 import NotificationsMenu from '../NotificationsMenu.vue';
-import { maybeStore } from '@/chain/WalletLoading';
+import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 
 import { inputStore } from '../../builder/inputs/InputStore';
 
 // TODO: remove redundancy with Header.vue
 import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
-import { useStore } from 'vuex';
 import { computed, ref } from 'vue';
 import MenuBuilder from './MenuBuilder.vue';
 import { useBuilderInput } from './InputComposable';
 import CameraFlyout from './CameraFlyout.vue';
+import { useCurrentSet } from './CurrentSet';
+import ExportSetVue from './modals/ExportSet.vue';
+import { pushModal } from '../Modals.vue';
 
-const store = useStore();
+const { currentSet } = useCurrentSet();
 
 const getNbBriqs = computed(() => {
     // Vue reactiveness, this is opt-in for performance.
-    store.state.builderData.currentSet.usedByMaterial_;
+    currentSet.value.usedByMaterial_;
     let used = 0;
-    for (let mat in store.state.builderData.currentSet.usedByMaterial)
-        used += store.state.builderData.currentSet.usedByMaterial[mat];
+    for (let mat in currentSet.value.usedByMaterial)
+        used += currentSet.value.usedByMaterial[mat];
 
     let selected = '';
     if (['inspect', 'inspect_va', 'inspect_box', 'drag', 'rotate', 'copy_paste'].indexOf(
@@ -33,6 +35,17 @@ const getNbBriqs = computed(() => {
         selected = ` (${inputStore.selectionMgr.selectedBriqs.length} selected)`;
     return `${used} briqs${selected}`;
 });
+
+
+let _clicked = false;
+const connectWallet = () => {
+    if (maybeStore.value)
+        maybeStore.value.openWalletSelector()
+    else if (!_clicked) {
+        _clicked = true;
+        walletInitComplete.then(() => maybeStore.value!.openWalletSelector());
+    }
+}
 
 const { activeInputButton, switchToState } = useBuilderInput();
 
@@ -81,7 +94,7 @@ const hideCameraFlyout = () => {
                 <Btn no-background @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
                 <div class="flex flex-none px-2 gap-2 items-baseline">
-                    <p class="font-semibold">{{ $store.state.builderData.currentSet.name }}</p>
+                    <p class="font-semibold">{{ currentSet.name }}</p>
                     <p class="text-grad-dark">{{ getNbBriqs }}</p>
                 </div>
                 <div class="divider"/>
@@ -125,7 +138,7 @@ const hideCameraFlyout = () => {
                     </MenuDropdown>
                 </div>
                 <NotificationsMenu/>
-                <Btn>Mint</Btn>
+                <Btn @click="pushModal(ExportSetVue, { setId: currentSet.id })">Mint</Btn>
             </div>
         </div>
     </div>

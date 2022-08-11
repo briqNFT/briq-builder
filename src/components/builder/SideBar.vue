@@ -17,7 +17,7 @@ const { inputStore } = useBuilderInput();
 </script>
 
 <template>
-    <div class="mx-4 mt-1 w-max">
+    <div class="mx-4 mt-1 w-max" id="sidebar">
         <QuickPicker v-if="activeInputButton === 'place'"/>
         <CameraFlyout v-if="activeInputButton === 'camera'"/>
         <Flyout

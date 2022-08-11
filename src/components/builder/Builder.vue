@@ -59,7 +59,4 @@ onMounted(async () => {
         <SideBar/>
         <Booklet/>
     </div>
-    <Modals/>
-    <Messages/>
-    <CursorTooltip/>
 </template>

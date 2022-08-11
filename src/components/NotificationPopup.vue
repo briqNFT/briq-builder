@@ -37,7 +37,7 @@ onMounted(() => {
 </style>
 
 <template>
-    <Flyout class="p-4 flyout text-sm">
+    <Flyout class="p-4 flyout text-sm overflow-hidden">
         <div>
             <div class="flex justify-between items-center pb-1">
                 <h4 class="font-medium py-1"><i :style="{ color: `rgb(var(--color-info-${type}))` }" :class="icon"/><slot name="title"/></h4>

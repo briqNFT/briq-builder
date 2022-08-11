@@ -1,627 +1,275 @@
-<template>
-    <Window class="md:!w-4/5 lg:!w-3/5 xl:!w-1/2 !w-auto min-h-[35rem]">
-        <template #big-title>Export set</template>
-        <h3 class="text-center">{{ set.id }}</h3>
-        <div class="flex flex-nowrap items-center gap-3">
-            <div class="w-full bg-primary rounded flex justify-around items-center p-2 my-4">
-                <button
-                    class="flex flex-col justify-center items-center text-sm md:text-md"
-                    :disabled="step(exporting) > step('CONFIRMATION')"
-                    @click="exporting = 'METADATA'">
-                    <i :class="getStepIcon('METADATA')"/>Details
-                </button>
-                <i class="text-sm fas fa-arrow-right"/>
-                <button
-                    class="flex flex-col justify-center items-center text-sm md:text-md"
-                    :disabled="step(exporting) > step('CONFIRMATION')"
-                    @click="exporting = 'PREVIEW'">
-                    <i :class="getStepIcon('PREVIEW')"/>Preview
-                </button>
-                <i class="text-sm fas fa-arrow-right"/>
-                <button
-                    class="flex flex-col justify-center items-center text-sm md:text-md"
-                    :disabled="step(exporting) > step('CONFIRMATION')"
-                    @click="exporting = 'CONFIRMATION'">
-                    <i :class="getStepIcon('CONFIRMATION')"/>Confirmation
-                </button>
-                <i class="text-sm fas fa-arrow-right"/>
-                <button class="flex flex-col justify-center items-center text-sm md:text-md" :disabled="true">
-                    <i :class="getStepIcon('TWEET')"/> Export
-                </button>
-            </div>
-        </div>
-        <div class="overflow-hidden w-full">
-            <div
-                class="flex flex-nowrap relative"
-                :style="{ left: `-${Math.min(step('SIGNING'), step(exporting)) * 100}%` }">
-                <div class="flex-none w-full">
-                    <h2 class="text-center">Error</h2>
-                    <div class="text-lg font-semibold">
-                        <p v-if="!hasAccount">
-                            You haven't connected your wallet!<br>briq currently supports Argent-X on Starknet
-                            Testnet. Click on the 'Connect' button for instructions.
-                        </p>
-                        <p v-else-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
-                        <p v-else-if="transactionPending">
-                            An export is already ongoing - see Transaction {{ pending_transaction?.hash }}
-                        </p>
-                        <p v-else-if="needMinting">
-                            You have not yet minted any briqs!<br>Click
-                            <button @click="openMintModal" class="underline">here</button> to claim your briqs.
-                        </p>
-                        <p v-else-if="notEnoughBriqs">
-                            You don't own enough briqs to export this set.<br>
-                            You can disassemble a set to get briqs back and build again,
-                            <a
-                                href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f#2d0d637eabcc4f83b4bed745962af3ef"
-                                target="blank_"
-                                class="underline font-normal">click here to learn more</a>
-                        </p>
-                    </div>
-                </div>
-                <div v-if="CONF.theme !== 'realms'" class="flex-none w-full">
-                    <div class="my-2 flex flex-col gap-2">
-                        <h3 class="font-medium">
-                            Set name <button @click="rename"><i class="far fa-edit"/></button>
-                        </h3>
-                        <h2 class="break-words">{{ set.name }}</h2>
-                        <div class="my-4"/>
-                        <h3 class="font-medium">
-                            Set description <button @click="changeDescription"><i class="far fa-edit"/></button>
-                        </h3>
-                        <p class="text-lg">{{ set.description }}</p>
-                    </div>
-                </div>
-                <div v-else="" class="flex-none w-full">
-                    <div class="my-2 flex flex-col">
-                        <h2 class="text-center">Select the wonder you built</h2>
-                        <div class="grid grid-cols-4 gap-1">
-                            <div
-                                v-for="data in realmsData"
-                                :key="data[0]"
-                                @click="
-                                    $store.dispatch('builderData/change_set_name', { set: set, name: data[1] });
-                                    $store.commit('builderData/change_set_desc', {
-                                        set: set,
-                                        desc: `${data[1]}, the Wonder of the ${data[0]}.`,
-                                    });
-                                "
-                                :class="
-                                    'bg-grad-light rounded flex items-center flex-col p-2 select-none cursor-pointer hover:ring-2 ring-primary ' +
-                                        (set.name === data[1] ? '!bg-primary' : '')
-                                ">
-                                <component :is="data[2]" class="w-6 h-6"/>
-                                <h4 class="text-center text-xs">{{ data[0] }}</h4>
-                                <h3 class="text-center text-md">{{ data[1] }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex-none w-full">
-                    <div class="flex flex-col justify-evenly h-full">
-                        <img class="m-auto my-0 max-h-[25rem] rounded-md" :src="screenshot">
-                        <div class="flex justify-evenly">
-                            <Btn @click="cropScreenshot">Crop Image</Btn>
-                            <Btn @click="retakeScreenshot">Retake Screenshot</Btn>
-                        </div>
-                    </div>
-                </div>
-                <div v-if="CONF.theme !== 'realms'" class="flex-none w-full">
-                    <h3 class="text-center break-words">{{ set.name }}</h3>
-                    <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
-                    <div class="flex justify-around items-center">
-                        <p class="flex-initial"><img class="max-h-[20rem] m-auto rounded-md" :src="screenshot"></p>
-                    </div>
-                    <div class="flex justify-around my-8">
-                        <div class="flex flex-col justify-start basis-1/2 text-center">
-                            <p><button class="block mx-auto btn" @click="exportSetLocally">Export locally</button></p>
-                            <p>Download a local copy of your set</p>
-                        </div>
-                        <div class="flex flex-col justify-start basis-1/2 text-center">
-                            <p>
-                                <button
-                                    class="block mx-auto btn"
-                                    :disabled="
-                                        transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs
-                                    "
-                                    @click="exportSetOnChain">
-                                    Mint on chain
-                                </button>
-                            </p>
-                            <p v-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
-                            <p v-else-if="transactionPending">...Export is ongoing...</p>
-                            <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
-                            <div v-else-if="!hasBriqsAndSets">
-                                <p>briqs need to be loaded before you can export a set.</p>
-                                <p v-if="chainBriqs.fetchingBriqs">...Please wait while briqs are loading...</p>
-                                <p v-else="">
-                                    There was an error loading briqs.
-                                    <button @click="chainBriqs.loadFromChain()">Click to retry</button>
-                                </p>
-                            </div>
-                            <p v-else="">Assemble briqs into a set on the blockchain</p>
-                        </div>
-                    </div>
-                </div>
-                <div v-else="" class="flex-none w-full">
-                    <p class="flex justify-center">
-                        <component
-                            class="w-8 h-8"
-                            :is="realmsData.find((x) => x[1] === set.name)?.[2] || realmsData[0][2]"/>
-                    </p>
-                    <h4 class="text-center">
-                        {{ realmsData.find((x) => x[1] === set.name)?.[0] || realmsData[0][0] }}
-                    </h4>
-                    <h3 class="text-center break-words">{{ set.name || set.id }}</h3>
-                    <div class="flex justify-around items-center">
-                        <p class="flex-initial"><img class="max-h-[25rem] m-auto rounded-md" :src="screenshot"></p>
-                    </div>
-                    <h4 class="text-center">{{ set.getNbBriqs() }} briqs</h4>
-                    <div
-                        v-if="transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs"
-                        class="flex justify-around my-2 text-center">
-                        <p v-if="alreadyOnChain">This set is already on chain. Copy it to export it anew.</p>
-                        <p v-else-if="transactionPending">...Export is ongoing...</p>
-                        <p v-else-if="notEnoughBriqs">You don't own enough briqs to export this set.</p>
-                        <div v-else-if="!hasBriqsAndSets">
-                            <p>briqs need to be loaded before you can export a set.</p>
-                            <p v-if="chainBriqs.fetchingBriqs">...Please wait while briqs are loading...</p>
-                            <p v-else="">
-                                There was an error loading briqs.
-                                <button @click="chainBriqs.loadFromChain()">Click to retry</button>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div :class="'flex-none w-full'">
-                    <div class="text-lg font-medium">
-                        <p>1 - Signing: <i :class="getStepIcon('SIGNING')"/></p>
-                        <p>2 - Sending transaction: <i :class="getStepIcon('SENDING_TRANSACTION')"/></p>
-                        <p>
-                            3 - Waiting for transaction to be received:
-                            <i :class="getStepIcon('WAITING_FOR_CONFIRMATION')"/>
-                        </p>
-                        <p class="mx-8">
-                            Hash: {{ pending_transaction?.hash ? '' : '(pending)'
-                            }}<span class="tracking-tighter text-sm font-light">{{ pending_transaction?.hash }}</span>
-                        </p>
-                        <p class="mx-8">Status: {{ pending_transaction?.status ?? '(pending)' }}</p>
-                        <template v-if="CONF.theme === 'realms'">
-                            <p :class="step(exporting) >= step('TWEET') ? '' : 'pointer-events-none'">
-                                <a
-                                    @click="exporting = 'DONE'"
-                                    target="_blank"
-                                    :href="`https://twitter.com/intent/tweet?text=${tweetContent}&url=${link}`">
-                                    4 -
-                                    <Btn class="mx-2" :disabled="exporting !== 'TWEET' && exporting !== 'DONE'">Tweet about it</Btn></a><span class="text-md" v-if="exporting === 'TWEET'">(or
-                                    <span class="font-semibold cursor-pointer" @click="exporting = 'DONE'">skip this step</span>)</span>
-                            </p>
-                        </template>
-                        <p class="mt-8" v-if="exporting === 'DONE'">
-                            You’ve successfully signed your transaction! It is now pending on StarkNet.<br>You can now
-                            close this modal.
-                        </p>
-                        <p class="mt-8" v-if="exporting === 'ERROR'">
-                            There was an error while exporting your set.<br>The following step failed:
-                            {{ errorStep }}. Full error:<br>
-                            <span class="bg-primary p-1 text-sm font-light tracking-tight">{{
-                                errorDetails.toString()
-                            }}</span>
-                        </p>
-                        <Btn
-                            class="my-2"
-                            v-if="exporting === 'ERROR'"
-                            @click="
-                                exporting = 'METADATA';
-                                errorStep = undefined;
-                            ">
-                            Start over
-                        </Btn>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div
-            :class="
-                'w-full bg-primary rounded flex justify-between items-center p-2 my-2' +
-                    (step(exporting) < step('SIGNING') ? '' : ' invisible')
-            ">
-            <Btn :disabled="!canGoBack" @click="exporting = exportSteps[step(exporting) - 1]">
-                <span class="mx-4">Back</span>
-            </Btn>
-            <Btn
-                :disabled="!canGoForward"
-                v-if="step(exporting) < step('CONFIRMATION')"
-                @click="exporting = exportSteps[step(exporting) + 1]">
-                <span class="mx-4">Next</span>
-            </Btn>
-            <Btn
-                :disabled="transactionPending || alreadyOnChain || !hasBriqsAndSets || notEnoughBriqs"
-                v-if="CONF.theme === 'realms' && step(exporting) === step('CONFIRMATION')"
-                @click="exportSetOnChain">
-                <span class="mx-4">Mint</span>
-            </Btn>
-        </div>
-    </Window>
-</template>
-
-<script lang="ts">
-import { downloadJSON } from '../../../url';
-import { SetData } from '../../../builder/SetData';
-
-import { transactionsManager, Transaction } from '../../../builder/Transactions';
-
-import contractStore from '@/chain/Contracts';
-import { walletStore } from '@/chain/Wallet';
-import { setsManager } from '../../../builder/SetsManager';
-import BriqTable from '../BriqTable.vue';
-import RenameSet from '../modals/RenameSet.vue';
-import ChangeSetDescription from '../modals/ChangeSetDescription.vue';
-import { pushModal } from '../../Modals.vue';
-
-import { VERSION } from '../../../Meta';
-
-import builderSettings from '../../../builder/graphics/Settings';
-
-import { CONF } from '@/Conf';
-
-import * as realms from '@/assets/realms/orders';
-
-const realmsData = [
-    ['The Order of Anger', 'The Glowing Geyser', realms.Anger],
-    ['The Order of Detection', 'The Pale Pillar', realms.Detection],
-    ['The Order of Fury', 'The Cerulean Chamber', realms.Fury],
-    ['The Order of Rage', 'The Pagoda of Fortune', realms.Rage],
-    ['The Order of Reflection', 'Pantheon Of Chaos', realms.Reflection],
-    ['The Order of the Fox', 'Altar Of The Void', realms.Fox],
-    ['The Order of the Twins', 'Sanctum Of The Oracle', realms.Twins],
-    ['The Order of Vitriol', 'The Perpetual Fjord', realms.Vitriol],
-    ['The Order of Brilliance', 'Infinity Spire', realms.Brilliance],
-    ['The Order of Enlightenment', 'The Ancestral Trees', realms.Enlightenment],
-    ['The Order of Giants', 'The Amaranthine Rock', realms.Giants],
-    ['The Order of Perfection', 'Sanctum Of Purpose', realms.Perfection],
-    ['The Order of Power', 'The Origin Oasis', realms.Power],
-    ['The Order of Protection', 'The Mirror Grotto', realms.Protection],
-    ['The Order of Skill', 'The Weeping Willow', realms.Skill],
-    ['The Order of Titans', 'The Solemn Catacombs', realms.Titans],
-];
-
-import { takeScreenshot } from '../../../builder/graphics/Builder';
-import ScreenshotVue from './Screenshot.vue';
-import CropScreenshotVue from './CropScreenshot.vue';
-
-import { getShareLink } from '@/components/builder/Sharing';
-
-type ExportSteps =
-    | 'PRECHECKS'
-    | 'METADATA'
-    | 'PREVIEW'
-    | 'CONFIRMATION'
-    | 'SIGNING'
-    | 'SENDING_TRANSACTION'
-    | 'WAITING_FOR_CONFIRMATION'
-    | 'TWEET'
-    | 'ERROR'
-    | 'DONE';
-const exportSteps = [
-    'PRECHECKS',
-    'METADATA',
-    'PREVIEW',
-    'CONFIRMATION',
-    'SIGNING',
-    'SENDING_TRANSACTION',
-    'WAITING_FOR_CONFIRMATION',
-    'TWEET',
-    'ERROR',
-    'DONE',
-];
-
-import { addBreadCrumb } from '@/Monitoring';
-
-import { defineComponent } from 'vue';
-import { logDebug } from '@/Messages';
+<script setup lang="ts">
 import { backendManager } from '@/Backend';
+import { useBuilder } from '@/builder/BuilderStore';
+import builderSettings from '@/builder/graphics/Settings';
+import { SetData } from '@/builder/SetData';
+import { setsManager } from '@/builder/SetsManager';
+import contractStore from '@/chain/Contracts';
 import { getCurrentNetwork } from '@/chain/Network';
-export default defineComponent({
-    data() {
-        return {
-            pending_transaction: undefined as Transaction | undefined,
-            exporting: 'METADATA' as ExportSteps,
-            exportSteps,
-            errorStep: undefined as undefined | ExportSteps,
-            errorDetails: '',
-            screenshot: '' as string,
-            screenshotPromise: undefined as Promise<string> | undefined,
-            ogImage: '' as string,
+import { maybeStore } from '@/chain/WalletLoading';
+import Window from '@/components/generic/Window.vue';
+import { pushPopup } from '@/components/NotificationsComposable';
+import { logDebug } from '@/Messages';
+import { downloadJSON } from '@/url';
+import { computed, ref, toRef, watch } from 'vue';
+import { useStore } from 'vuex';
+import { useScreenshotHelpers } from '../ScreenshotComposable';
 
-            _exportSet: undefined as SetData | undefined,
-        };
+const { chainBriqs } = useBuilder();
+
+defineEmits(['close']);
+
+const props = defineProps<{
+    setId: string,
+    screenshot?: string,
+    // Unchanged preview image.
+    originalImage?: string,
+}>();
+
+const store = useStore();
+
+const { previewImage, imageProcessing, takeScreenshot, updateImage, retakeScreenshot, cropScreenshot } = useScreenshotHelpers(props.screenshot, props.originalImage);
+
+if (!previewImage.value)
+    takeScreenshot().then(img => updateImage(img, true))
+
+const setData = computed(() => setsManager.getInfo(props.setId).getSet()!)
+
+const setName = computed({
+    get() {
+        return setData.value.name;
     },
-    props: ['metadata'],
-    emits: ['hide', 'show'],
-    inject: ['messages', 'reportError', 'chainBriqs'],
-    async beforeMount() {
-        // Hide until we've screenshotted, or the window 'pops'.
-        this.$emit('hide');
-
-        if (CONF.theme === 'realms' && !realmsData.find((x) => x[1] === this.set.name))
-            await this.$store.dispatch('builderData/change_set_name', { set: this.set, name: '' });
-
-        this.pending_transaction = transactionsManager
-            .get('export_set')
-            .filter((x) => x.isOk() && x?.metadata?.setId === this.set.id)?.[0];
-        if (!this.hasAccount || this.needMinting || this.notEnoughBriqs)
-            this.exporting = 'PRECHECKS';
-        let img = new Image();
-        if (this.metadata.screenshot)
-            img.src = this.metadata.screenshot;
-        else
-            img.src = takeScreenshot();
-        img.decode().then(async () => {
-            //await sleep();
-            this.ogImage = img.src;
-            this.screenshotPromise = this.prepareImage(img);
-            this.screenshot = await this.screenshotPromise;
-            this.$emit('show');
-        });
+    async set(name: string) {
+        await store.dispatch('builderData/change_set_name', { set: setData.value, name });
     },
-    computed: {
-        CONF() {
-            return CONF;
-        },
-        realmsData() {
-            return realmsData;
-        },
-        tweetContent() {
-            return encodeURIComponent(
-                `I built the @lootrealms Wonder "${this.set.name}" with @briqNFT! We're trailblazing the way to #StarkNet layer 2 @starkwareLTD\n`,
-            );
-        },
-        link() {
-            return encodeURIComponent(getShareLink('testnet', this.exportSet?.id || ''));
-        },
-        wallet() {
-            return walletStore;
-        },
-        setInfo() {
-            return setsManager.getInfo(this.set.id);
-        },
-        set() {
-            return this.metadata.set;
-        },
-        alreadyOnChain() {
-            return (this.setInfo?.status && this.setInfo?.status !== 'LOCAL') || this.pending_transaction?.isOnChain();
-        },
-        transactionPending() {
-            return this.pending_transaction?.isPending() ?? false;
-        },
-        hasAccount() {
-            return !!this.wallet.signer;
-        },
-        needMinting() {
-            return false; // TODO: rewrite this.
-        },
-        hasBriqsAndSets() {
-            return this.chainBriqs.status === 'OK';
-        },
-        notEnoughBriqs() {
-            // if there is no exportable set, then we have some briq-related issue.
-            return this.hasBriqsAndSets && !this.exportSet;
-        },
-        canGoBack() {
-            return (
-                this.step(this.exporting) <= this.step('CONFIRMATION') &&
-                this.step(this.exporting) > this.step('METADATA')
-            );
-        },
-        canGoForward() {
-            return this.set.name && this.step(this.exporting) != this.step('PRECHECKS');
-        },
-        exportSet() {
-            if (this._exportSet)
-                return this._exportSet;
-            let data = this.set.serialize();
-            let exportSet = new SetData(data.id);
-            exportSet.deserialize(data);
-            try {
-                exportSet.swapForRealBriqs(this.chainBriqs);
-            } catch (err) {
-                return;
-            }
-            this._exportSet = exportSet;
-            return this._exportSet;
-        },
-    },
-    methods: {
-        async prepareImage(img: HTMLImageElement): Promise<string> {
-            let c = document.createElement('canvas');
-            let ctx = c.getContext('2d')!;
-            let ratio = Math.min(1, Math.min(800 / img.width, 600 / img.height));
-
-            c.width = Math.floor(img.width * ratio);
-            c.height = Math.floor(img.height * ratio);
-
-            // Prevent images from being too tall by adding transparent sides.
-            let whRatio = img.width / img.height;
-            let imgBlitStart = 0;
-            if (whRatio < 0.75) {
-                imgBlitStart = (c.height * 0.75 - c.width) / 2.0 / ratio;
-                c.width = c.height * 0.75;
-            }
-
-            ctx.scale(ratio, ratio);
-            ctx.drawImage(img, imgBlitStart, 0);
-            return (await fetch(c.toDataURL('image/png'))).url;
-        },
-        step(step: ExportSteps) {
-            return exportSteps.indexOf(step);
-        },
-        getStepIcon(step: ExportSteps) {
-            if (this.errorStep) {
-                if (step === this.errorStep)
-                    return 'fas fa-times';
-                if (this.step(this.errorStep) < this.step(step))
-                    return 'far fa-circle';
-                return 'fas fa-check';
-            }
-            if (this.step(step) === this.step(this.exporting))
-                return 'fas fa-circle';
-            else if (this.step(step) > this.step(this.exporting))
-                return 'far fa-circle';
-            else
-                return 'fas fa-check';
-        },
-        async openMintModal() {
-            await pushModal(MintModalVue);
-        },
-        async retakeScreenshot() {
-            let img = new Image();
-            let url = (await pushModal(ScreenshotVue, { background: false })) as string;
-            // Nothing to do if we cancelled.
-            if (!url)
-                return;
-            img.src = url;
-            await img.decode();
-            this.ogImage = img.src;
-            this.screenshotPromise = this.prepareImage(img);
-            this.screenshot = await this.screenshotPromise;
-        },
-        async cropScreenshot() {
-            let img = new Image();
-            let url = (await pushModal(CropScreenshotVue, { screenshot: this.ogImage })) as string;
-            // Nothing to do if we cancelled.
-            if (!url)
-                return;
-            img.src = url;
-            await img.decode();
-            this.screenshotPromise = this.prepareImage(img);
-            this.screenshot = await this.screenshotPromise;
-        },
-        async rename() {
-            await pushModal(RenameSet, { set: this.set.id });
-        },
-        async changeDescription() {
-            this.$store.commit('builderData/change_set_desc', {
-                set: this.set,
-                desc:
-                    (await pushModal(ChangeSetDescription, { name: this.set.name, desc: this.set.description })) ||
-                    'A set made of briqs',
-            });
-        },
-        exportSetLocally: function () {
-            downloadJSON(this.set.serialize(), this.set.id + '.json');
-        },
-        exportSetOnChain: async function () {
-            if (!contractStore.set)
-                return;
-            try {
-                if (!this.exportSet)
-                    throw new Error('The set could not be exported');
-                // Update the name in case it changed.
-                this.exportSet.name = this.set.name;
-                this.exportSet.description = this.set.description;
-
-                if (this.set.name.length > 200)
-                    throw new Error('Set name too long, max length is 200 characters.');
-
-                let token_hint = this.set.id;
-                this.exportSet.id = contractStore.set.precomputeTokenId(this.wallet.userWalletAddress, token_hint);
-
-                let data = this.exportSet.serialize();
-
-                data.recommendedSettings = builderSettings.getSettingsForSetExport();
-
-                this.exporting = 'SIGNING';
-
-                const message = {
-                    domain: {
-                        name: 'briq',
-                        chainId: false ? 1 : 3,
-                        version: VERSION,
-                    },
-                    types: {
-                        StarkNetDomain: [
-                            { name: 'name', type: 'felt' },
-                            { name: 'chainId', type: 'felt' },
-                            { name: 'version', type: 'felt' },
-                        ],
-                        Message: [{ name: 'message', type: 'felt' }],
-                    },
-                    primaryType: 'Message',
-                    message: {
-                        message: 'mint_set',
-                    },
-                };
-
-                let signature = await this.wallet.signer.signMessage(message);
-                this.exporting = 'SENDING_TRANSACTION';
-
-                await backendManager.storeSet({
-                    owner: this.wallet.userWalletAddress,
-                    token_id: data.id,
-                    chain_id: getCurrentNetwork(),
-                    data: data,
-                    message_hash: await this.wallet.signer.hashMessage(message),
-                    signature: signature,
-                    image_base64: await this.screenshotPromise,
-                });
-
-                // Debug
-                //downloadJSON(data, data.id + ".json")
-                let TX = await contractStore.set.assemble(
-                    this.wallet.userWalletAddress,
-                    token_hint,
-                    data.briqs.map((x: any) => x.data),
-                    // Point to the 'permanent' API. TODO: IFPS?
-                    'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
-                );
-
-                // Mark the transaction as waiting.
-                new Transaction(TX.transaction_hash, 'export_set', { setId: data.id });
-
-                this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
-
-                this.exporting = 'WAITING_FOR_CONFIRMATION';
-                await new Promise((resolve) => {
-                    // Poll the transaction status regularly.
-                    let regularly: any;
-                    regularly = setInterval(async () => {
-                        await this.pending_transaction!.poll();
-                        if (this.pending_transaction!.isPending() || !this.pending_transaction!.isOk()) {
-                            clearInterval(regularly);
-                            resolve(null);
-                        }
-                    }, 3000);
-                });
-                this.messages.pushMessage('Set exported ' + data.id + ' - TX ' + TX.transaction_hash);
-                logDebug('Set exported ' + data.id);
-
-                let info = setsManager.onSetMinted(this.set.id, this.exportSet);
-                info.chain_owner = this.wallet.userWalletAddress;
-                this.$store.dispatch('builderData/select_set', this.exportSet.id);
-
-                if (CONF.theme === 'realms')
-                    this.exporting = 'TWEET';
-                else
-                    this.exporting = 'DONE';
-            } catch (err) {
-                if (err?.message === 'User abort') {
-                    this.messages.pushMessage('Export aborted.');
-                    this.errorDetails = 'Aborted by user';
-                } else if (err === 'Timeout') {
-                    this.messages.pushMessage('Error while exporting set - wallet timeout.');
-                    this.errorDetails = 'Wallet timeout';
-                } else {
-                    this.messages.pushMessage('Error while exporting set - check browser console for details');
-                    this.errorDetails = err;
-                    console.error(err);
-                    this.reportError(err);
-                }
-                this.errorStep = this.exporting;
-                this.exporting = 'ERROR';
-            }
-        },
-    },
-    components: { BriqTable, RenameSet },
 });
+const setDescription = computed({
+    get() {
+        return setData.value.description;
+    },
+    async set(desc: string) {
+        await store.commit('builderData/change_set_desc', { set: setData.value, desc });
+    },
+});
+
+const downloadSet = () => {
+    downloadJSON(setData.value.serialize(), setData.value.id + '.json');
+}
+
+// To check for real briqs, attempt to convert the set (do this separately for serialization reasons).
+const exportSet = ref(undefined as undefined | SetData);
+watch([setData, toRef(chainBriqs, 'byMaterial')], () => {
+    let data = setData.value.serialize();
+    let es = new SetData(data.id);
+    es.deserialize(data);
+    try {
+        es.swapForRealBriqs(chainBriqs);
+    } catch (err) {
+        exportSet.value = undefined;
+        return;
+    }
+    exportSet.value = es;
+})
+
+const hasSigner = computed(() => !!(maybeStore.value?.signer));
+const hasLoadedBriqs = computed(() => chainBriqs.status === 'OK');
+// If there is no exportSet, then we have an error in swapping for real briqs.
+const hasEnoughBriqs = computed(() => hasLoadedBriqs.value && exportSet.value);
+
+// TODO: check if the set is being minted or is already minted (based on ID);
+const alreadyMinted = false;
+const validationError = computed(() => {
+    // TODO: remove before prod
+    return undefined;
+    if (!hasSigner.value)
+        return {
+            code: 'NO_SIGNER',
+            title: 'Wallet not connected',
+            message: 'You must connect a wallet before you can mint briqs',
+        }
+    if (!hasLoadedBriqs.value)
+        return {
+            code: 'BRIQS_NOT_LOADED',
+            title: 'Briqs are not loaded yet',
+            message: 'Please wait until briqs are loaded to mint this set.',
+        }
+    if (!hasEnoughBriqs.value)
+        return {
+            code: 'NOT_ENOUGH_BRIQS',
+            title: 'Not enough briqs',
+            message: 'You don’t have enough briqs to mint your set. Disassemble some of your other sets or buy new ones on the first (see our themes) or secondary markets (see on Aspect).',
+        }
+    return undefined;
+})
+
+const mintingError = ref('');
+const exportStep = ref('' as '' | 'PREPARING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE');
+
+const startMinting = async () => {
+    exportStep.value = 'PREPARING';
+    if (!contractStore.set)
+        return;
+    if (validationError.value)
+        return;
+    try {
+        if (!exportSet.value)
+            throw new Error('The set could not be exported');
+
+        if (exportSet.value.name.length > 200)
+            throw new Error('Set name too long, max length is 200 characters.');
+
+        let token_hint = setData.value.id;
+        exportSet.value.id = contractStore.set.precomputeTokenId(maybeStore.value!.userWalletAddress, token_hint);
+
+        let data = exportSet.value.serialize();
+
+        data.recommendedSettings = builderSettings.getSettingsForSetExport();
+
+        /*exportStep.value = 'SIGNING';
+
+        const message = {
+            domain: {
+                name: 'briq',
+                chainId: false ? 1 : 3,
+                version: VERSION,
+            },
+            types: {
+                StarkNetDomain: [
+                    { name: 'name', type: 'felt' },
+                    { name: 'chainId', type: 'felt' },
+                    { name: 'version', type: 'felt' },
+                ],
+                Message: [{ name: 'message', type: 'felt' }],
+            },
+            primaryType: 'Message',
+            message: {
+                message: 'mint_set',
+            },
+        };
+
+        let signature = await this.wallet.signer.signMessage(message);
+        */
+        exportStep.value = 'SENDING_TRANSACTION';
+
+        await backendManager.storeSet({
+            owner: maybeStore.value!.userWalletAddress,
+            token_id: data.id,
+            chain_id: getCurrentNetwork(),
+            data: data,
+            //message_hash: await this.wallet.signer.hashMessage(message),
+            //signature: signature,
+            image_base64: await imageProcessing.value,
+        });
+
+        // Debug
+        //downloadJSON(data, data.id + ".json")
+        let TX = await contractStore.set.assemble(
+            maybeStore.value!.userWalletAddress,
+            token_hint,
+            data.briqs.map((x: any) => x.data),
+            // Point to the 'permanent' API. TODO: IFPS?
+            'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
+        );
+
+        // Mark the transaction as waiting.
+        //new Transaction(TX.transaction_hash, 'export_set', { setId: data.id });
+
+        //this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
+
+        exportStep.value = 'WAITING_FOR_CONFIRMATION';
+        /*
+        await new Promise((resolve) => {
+            // Poll the transaction status regularly.
+            let regularly: any;
+            regularly = setInterval(async () => {
+                await this.pending_transaction!.poll();
+                if (this.pending_transaction!.isPending() || !this.pending_transaction!.isOk()) {
+                    clearInterval(regularly);
+                    resolve(null);
+                }
+            }, 3000);
+        });
+        */
+        pushPopup('success', `Set exported ${data.id} - TX ${TX.transaction_hash}`);
+        logDebug('Set exported ' + data.id);
+
+        let info = setsManager.onSetMinted(setData.value.id, exportSet.value);
+        info.chain_owner = maybeStore.value!.userWalletAddress;
+        store.dispatch('builderData/select_set', exportSet.value.id);
+
+        exportStep.value = 'DONE';
+    } catch (err: any) {
+        if (err?.message === 'User abort') {
+            pushPopup('error', 'Export aborted.');
+            mintingError.value = 'Aborted by user';
+        } else if (err === 'Timeout') {
+            pushPopup('error', 'Error while exporting set - wallet timeout.');
+            mintingError.value = 'Wallet timeout';
+        } else {
+            pushPopup('error', 'Error while exporting set - check browser console for details');
+            mintingError.value = err;
+            console.error(err);
+            //this.reportError(err);
+        }
+        mintingError.value = err;
+    }
+}
+
 </script>
+
+<template>
+    <template v-if="validationError">
+        <Window>
+            <template #title>{{ validationError.title }}</template>
+            <div>
+                {{ validationError.message }}
+            </div>
+        </Window>
+    </template>
+    <template v-else-if="!exportStep">
+        <Window size="w-[40rem]">
+            <template #title>Export set</template>
+            <div class="relative">
+                <div class="absolute top-2 right-2 flex gap-2">
+                    <Btn secondary @click="cropScreenshot"><i class="fa-solid fa-crop-simple"/></Btn>
+                    <Btn secondary @click="retakeScreenshot"><i class="fa-solid fa-camera"/></Btn>
+                </div>
+                <img :src="previewImage">
+            </div>
+            <div class="my-2">
+                <h3>Name</h3>
+                <p><input type="text" v-model="setName" size="61"></p>
+            </div>
+            <div class="my-2">
+                <h3>Description</h3>
+                <p>
+                    <textarea v-model="setDescription" cols="60"/>
+                </p>
+            </div>
+            <div class="flex justify-between gap-2">
+                <Btn secondary @click="$emit('close')">Cancel</Btn>
+                <div class="inline-flex grow justify-end"><Btn no-background class="self-end" @click="downloadSet">Save file locally</Btn></div>
+                <Btn primary class="self-end" @click="startMinting">Mint</Btn>
+            </div>
+        </Window>
+    </template>
+    <template v-else>
+        <Window>
+            <template #title>{{ mintingError ? 'Error while exporting' : 'Exporting set' }}</template>
+            <div v-if="mintingError">
+                <p>Unfortunately we encountered an error while minting the set.</p>
+                <p>{{ mintingError }}</p>
+                <div class="flex justify-between pt-4">
+                    <Btn secondary @click="$emit('close')">Close</Btn>
+                    <div>
+                        <Btn no-background @click="exportStep = ''" class="mr-2">Go back</Btn>
+                        <Btn @click="startMinting">Try again</Btn>
+                    </div>
+                </div>
+            </div>
+            <template v-else>
+                <p>Your set is under export.</p>
+            </template>
+        </Window>
+    </template>
+</template>

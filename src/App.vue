@@ -11,6 +11,7 @@ import { onMounted, provide, watch, watchEffect } from 'vue';
 import { CONF } from './Conf';
 import NotificationsPopups from './components/NotificationsPopups.vue';
 import Modals from './components/Modals.vue';
+import CursorTooltip from './components/generic/CursorTooltip.vue';
 
 let mgr = new HotkeyManager();
 // Some basic hotkeys available everywhere
@@ -45,6 +46,7 @@ onMounted(() => {
     <router-view/>
     <NotificationsPopups/>
     <Modals/>
+    <CursorTooltip/>
 </template>
 
 <style>
@@ -79,17 +81,16 @@ html button, a {
 }
 
 
-html input {
+input, textarea {
     @apply rounded px-4 py-2 border border-grad-light;
     @apply disabled:text-grad-light;
-}
+    &:not(:disabled):hover, &:focus, &:focus-visible {
+        @apply border-primary outline-0;
+    }
 
-html input:not(:disabled):hover, html input:focus, html input:focus-visible {
-    @apply border-primary outline-0;
-}
-
-html input:focus {
-    @apply shadow-[0_0_3px_black] shadow-primary-lighter;
+    &:focus {
+        @apply shadow-[0_0_3px_black] shadow-primary-lighter;
+    }
 }
 
 /* Hack for get-starknet */

@@ -11,7 +11,7 @@ import { pushPopup } from '../NotificationsComposable';
 import { useCurrentSet } from './CurrentSet';
 import ImportVoxModalVue from './modals/ImportVoxModal.vue';
 import RenameSetVue from './modals/RenameSet.vue';
-import Settings from './modals/Settings.vue';
+import Settings from './Settings.vue';
 import { useSetHelpers } from './SetComposable';
 
 const props = withDefaults(defineProps<{
@@ -57,8 +57,7 @@ const importSetFromFile = async () => {
                 await store.dispatch('builderData/select_set', set.id);
             }
         } catch (err) {
-            pushPopup('error')
-            //this.messages.pushMessage('Error while loading file ' + fileHandle.name + ' - ' + err.message);
+            pushPopup('error', `Error while loading file ${fileHandle.name}\n${err?.message}`);
             console.error(err);
         }
 }

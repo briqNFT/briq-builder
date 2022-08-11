@@ -96,7 +96,7 @@ import { backendManager } from '@/Backend';
 <script lang="ts">
 import { pushMessage, setTooltip } from '@/Messages';
 import { pushModal } from '../../Modals.vue';
-import Settings from '../modals/Settings.vue';
+import Settings from '../Settings.vue';
 import InfoWidget from '../modals/InfoWidget.vue';
 import Screenshot from './Screenshot.vue';
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';

@@ -27,7 +27,7 @@ class BackendManager {
         return `${this.url}/v1/preview/${chain_id}/${set_id}`;
     }
 
-    storeSet(data: { owner: string, token_id: string, chain_id: string, data: any, message_hash: string, signature: any, image_base64: any }) {
+    storeSet(data: { owner: string, token_id: string, chain_id: string, data: any, image_base64: any, message_hash?: string, signature?: any}) {
         return backendManager.post('v1/store_set', data);
     }
 

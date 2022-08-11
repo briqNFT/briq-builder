@@ -1,36 +1,21 @@
 <script setup lang="ts">
-import { usePresetHelpers } from '../inputs/CameraComposable';
-import CameraVue from '../inputs/Camera.vue';
-
-const {
-    presets,
-    usePreset,
-    resetCamera,
-    centerCamera,
-} = usePresetHelpers();
-
+import Flyout from '@/components/generic/Flyout.vue';
 </script>
 
 <template>
     <div>
         <h2 class="visible text-center text-[5rem] opacity-50 pointer-events-none">SCREENSHOTTING</h2>
-        <teleport to="#inputComp">
-            <div class="flex flex-col my-4 gap-1">
-                <Btn @click="returnScreen"><i class="fas fa-camera"/> Take Screenshot</Btn>
-                <Btn @click="$emit('close')"><i class="fas fa-ban"/> Cancel</Btn>
-            </div>
-
-            <CameraVue/>
-
-            <div class="flex flex-col my-4 gap-1 w-full">
-                <Btn @click="openSettings">Open Settings</Btn>
-                <Btn v-if="!builderSettings.transparentBackground" @click="builderSettings.transparentBackground = true">
-                    Set transparent<br>background
-                </Btn>
-                <Btn v-if="builderSettings.transparentBackground" @click="builderSettings.transparentBackground = false">
-                    Set opaque<br>background
-                </Btn>
-            </div>
+        <teleport to="#sidebar">
+            <Flyout>
+                <div class="flex flex-col gap-1 p-2 mt-2">
+                    <Btn primary icon class="justify-start text-sm" @click="returnScreen"><i class="fas fa-camera"/> Take Screenshot</Btn>
+                    <Btn secondary icon class="justify-start text-sm" @click="$emit('close')"><i class="fas fa-ban"/> Cancel</Btn>
+                    <Btn no-background class="justify-start text-sm" @click="builderSettings.transparentBackground = !builderSettings.transparentBackground">
+                        {{ builderSettings.transparentBackground ? 'Show' : 'Hide' }} background
+                    </Btn>
+                    <Btn no-background class="justify-start text-sm" @click="openSettings">Open Settings</Btn>
+                </div>
+            </Flyout>
         </teleport>
     </div>
 </template>
@@ -39,14 +24,14 @@ const {
 import { takeScreenshot } from '@/builder/graphics/Builder';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { pushModal, setOnlyShowLast } from '@/components/Modals.vue';
-import SettingsVue from './Settings.vue';
+import SettingsVue from '@/components/builder/Settings.vue';
 
 import builderSettings from '@/builder/graphics/Settings';
 
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
-import { defineComponent } from 'vue';
+import { defineComponent, h } from 'vue';
 export default defineComponent({
     data() {
         return {
@@ -106,8 +91,9 @@ export default defineComponent({
             this.$emit('close', await this.screenshotPromise!);
         },
         openSettings() {
-            pushModal(SettingsVue, { background: 'rgba(0, 0, 0, 0.1)', align: 'justify-end items-start' });
+            pushModal(h(ModalComponentVue, { title: 'Settings', component: SettingsVue, size: 'w-max' }), { background: 'rgba(0, 0, 0, 0.1)', align: 'justify-end items-start' });
         },
     },
-});
+});import ModalComponentVue from '@/components/generic/ModalComponent.vue';
+
 </script>

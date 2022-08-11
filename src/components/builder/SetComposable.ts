@@ -36,7 +36,7 @@ export function useSetHelpers() {
             }).then(btn => btn === 0 ? deleteLocalSet(setId, true) : null)
         else {
             setsManager.deleteLocalSet(setId);
-            pushPopup('success');
+            pushPopup('success', 'Set successfully deleted');
         }
     };
     return {

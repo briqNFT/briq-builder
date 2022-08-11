@@ -17,7 +17,7 @@ const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbl
 <template>
     <div ref="window" :class="'container p-0 rounded-lg bg-grad-lightest alternate-buttons m-8 shadow-xl relative ' + _size">
         <div class="relative h-full px-4 py-4">
-            <div class="flex justify-between items-center px-4 pt-2 pb-4">
+            <div class="flex justify-between items-center px-4 py-2">
                 <h3 class="font-semibold" v-if="!!$slots.title"><slot name="title"/></h3>
                 <h2 class="font-semibold" v-if="!!$slots['big-title']"><slot name="big-title"/></h2>
 
@@ -29,7 +29,7 @@ const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbl
             </div>
 
             <slot name="content">
-                <div class="px-8 relative py-4">
+                <div class="px-4 relative pb-4">
                     <slot/>
                 </div>
             </slot>

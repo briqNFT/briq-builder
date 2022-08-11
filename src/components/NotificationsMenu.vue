@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { notificationsManager } from '@/Notifications';
+import { computed } from 'vue';
 import MenuDropdown from './generic/MenuDropdown.vue';
 import NotificationsList from './NotificationsList.vue';
+
+const hasUnreadNotifications = computed(() => notificationsManager.notifications.some(x => x.shouldShow() && !x.read));
 </script>
 
 <template>

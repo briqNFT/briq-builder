@@ -27,8 +27,6 @@ onMounted(() => {
     userBidsStore.setup();
 });
 
-const hasUnreadNotifications = computed(() => notificationsManager.notifications.some(x => x.shouldShow() && !x.read));
-
 </script>
 
 <template>
