@@ -5,15 +5,26 @@ import CameraFlyout from './CameraFlyout.vue';
 import Flyout from '../generic/Flyout.vue';
 import { usePresetHelpers } from './inputs/CameraComposable';
 import Toggle from '../generic/Toggle.vue';
+import Hotkey from '../generic/Hotkey.vue';
+import { useStore } from 'vuex';
+import { pushPopup } from '../NotificationsComposable';
 
-const { activeInputButton, fsm } =  useBuilderInput();
+const { inputStore, activeInputButton, fsm } =  useBuilderInput();
 
 const {
     canCenterCamera,
     centerCamera,
 } = usePresetHelpers();
 
-const { inputStore } = useBuilderInput();
+const store = useStore();
+const deleteBriqs = async () => {
+    await store.dispatch(
+        'builderData/place_briqs',
+        inputStore.selectionMgr.selectedBriqs.map((briq) => ({ pos: briq.position })),
+    );
+    pushPopup('info', 'briqs deleted');
+
+}
 </script>
 
 <template>
@@ -32,6 +43,10 @@ const { inputStore } = useBuilderInput();
                 <Btn no-background :disabled="!canCenterCamera" @click="centerCamera" class="p-2 justify-start !text-sm">Center on selection</Btn>
             </div>
         </Flyout>
+    </div>
+    <div>
+        <Hotkey v-if="activeInputButton === 'select'" name="delete-1" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"/>
+        <Hotkey v-if="activeInputButton === 'select'" name="delete-2" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"/>
     </div>
     <div
         v-if="fsm.selectionBox"

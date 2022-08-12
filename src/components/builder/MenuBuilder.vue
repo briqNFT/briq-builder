@@ -92,6 +92,7 @@ const duplicate = () => openSetInBuilder(duplicateSet(currentSet.id).id);
                     <Btn no-background>Paste</Btn>
                     <hr>
                     <Btn no-background>Select all objects</Btn>
+                    <Btn no-background>Delete selected briqs</Btn>
                     <hr>
                     <Btn @click="mode = 'SETTINGS'" no-background>Settings</Btn>
                     <Btn no-background>Help</Btn>
