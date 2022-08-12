@@ -47,7 +47,7 @@ const actualMode = getActualMode(props.mode);
                     <div v-if="saleQuery._status === 'LOADED'" class="px-4 flex justify-between">
                         <p v-if="saledata?.total_quantity === 1" class="text-sm">Unique</p>
                         <p v-else class="text-sm">{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }} left</p>
-                        <p v-if="actualMode === 'PRESALE'" class="text-right">{{ Math.floor(saledata?.sale_duration) / 3600 }}h</p>
+                        <p v-if="actualMode === 'PRESALE'" class="text-right">{{ Math.floor(saledata?.auction_duration) / 3600 }}h</p>
                     </div>
                 </template>
                 <template v-if="actualMode === 'SALE'">

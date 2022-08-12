@@ -18,7 +18,7 @@ export function useBoxData(tokenName: string) {
         return 'SALE';
     });
 
-    const durationLeft = computed(() => saledata.value?.sale_start + saledata.value?.sale_duration - Date.now() / 1000);
+    const durationLeft = computed(() => saledata.value?.durationLeft());
 
     return {
         genesisStore,

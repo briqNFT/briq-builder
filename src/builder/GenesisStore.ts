@@ -53,12 +53,17 @@ export class SaleData {
     }
 
     durationLeft() {
-        return this.sale_start + this.sale_duration - Date.now() / 1000;
+        return this.auction_start + this.auction_duration - Date.now() / 1000;
     }
 
     isLive() {
-        console.log('toro', this, this.sale_start)
-        return this.sale_start < Date.now() / 1000.0 && this.durationLeft() > 0;
+        console.log(this, this.auction_start, Date.now() / 1000.0, this.durationLeft())
+        return this.auction_start < Date.now() / 1000.0 && this.durationLeft() > 0;
+    }
+
+    get price() {
+        const timePercent = this.durationLeft() / this.auction_duration;
+        return this.initial_price * timePercent;
     }
 }
 
