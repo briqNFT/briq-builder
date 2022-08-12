@@ -2,6 +2,8 @@
 import BriqSwapModal from '../modals/BriqSwapModal.vue';
 import { pushModal } from '../../Modals.vue';
 import Hotkey from '../../generic/Hotkey.vue';
+import QuickPicker from './QuickPicker.vue';
+
 </script>
 
 <template>
@@ -67,6 +69,16 @@ import Hotkey from '../../generic/Hotkey.vue';
                 tooltip="Delete selected briqs. Hotkey: delete/backspace">
                 Delete
             </Btn>
+            <Btn
+                v-if="editMode"
+                :disabled="!selection.selectedBriqs.length"
+                @click="paintBriqs"
+                tooltip="Paint selected briqs.">
+                Paint
+            </Btn>
+            <QuickPicker/>
+
+
             <Hotkey
                 v-if="editMode"
                 name="delete-1"
@@ -151,6 +163,15 @@ export default defineComponent({
         },
         copy() {
             builderInputFsm.switchTo('copy_paste');
+        },
+        async paintBriqs(){
+            await this.$store.dispatch('builderData/set_briq_color',
+                this.selection.selectedBriqs.map((briq) => ({
+                pos: briq.position,
+                color: inputStore.currentColor,
+                material: inputStore.currentMaterial,})),
+            );
+            this.messages.pushMessage('briqs painted');
         },
         async deleteBriqs() {
             await this.$store.dispatch(

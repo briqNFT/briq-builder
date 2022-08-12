@@ -2,7 +2,7 @@ import { MouseInputState } from './BuilderInputState';
 import getPreviewCube from '@/builder/graphics/PreviewCube';
 import { inputStore } from '../InputStore';
 import { store } from '@/store/Store';
-
+import { SelectionManager, selectionRender } from '../Selection';
 import type { SetData } from '@/builder/SetData';
 
 import { THREE } from '@/three';

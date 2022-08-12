@@ -45,6 +45,7 @@ import { pushModal } from '../Modals.vue';
                 :disabled="isCameraMode">
                 <i class="fas fa-video"/>
             </Btn>
+            
         </div>
         <div
             id="inputComp"
