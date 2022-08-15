@@ -67,7 +67,8 @@ module.exports = {
             md: '1rem',
             lg: '1.25rem',
             xl: '1.5rem',
-            max: '2rem',
+            '2xl': '2rem',
+            max: '2.5rem',
         },
         fontFamily: {
             logo: ['Raleway', 'Work Sans', 'ui-sans-serif', 'system-ui'],

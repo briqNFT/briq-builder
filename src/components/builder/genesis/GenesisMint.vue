@@ -59,6 +59,25 @@ onMounted(async () => {
 
 </script>
 
+<style scoped>
+
+h3 {
+    @apply my-2;
+}
+h4 {
+    @apply text-primary  font-medium;
+}
+.explanations > div {
+    @apply rounded-lg bg-grad-lightest p-8 border border-grad-light;
+}
+.explanations p {
+    @apply my-4;
+}
+.block-grid p {
+    @apply h-8 w-8 rounded-sm p-0 m-0;
+}
+</style>
+
 <template>
     <!-- Make it absolute so h-screen works below -->
     <Header class="absolute left-0 right-0 z-50"/>
@@ -68,7 +87,7 @@ onMounted(async () => {
             <div class="flex flex-wrap justify-around items-center">
                 <div class="relative md:p-10 lg:p-20">
                     <div>
-                        <h1 class="text-xl md:text-max font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
+                        <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
                         <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
                     </div>
                 </div>
@@ -117,8 +136,8 @@ onMounted(async () => {
     <div>
         <div class="container m-auto py-10 md:p-20">
             <div class="text-center mb-8">
-                <p class="text-primary">Principle</p>
-                <h2 class="font-medium text-xl">A highly modular material</h2>
+                <h4 class="text-primary">Principle</h4>
+                <h1>A highly modular material</h1>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 explanations">
                 <div>
@@ -128,7 +147,7 @@ onMounted(async () => {
                             <p class="bg-primary"/><p class="bg-grad-lightest"/><p class="bg-primary"/>
                         </div>
                     </div>
-                    <h2>Collect</h2>
+                    <h3>Collect</h3>
                     <p>briqs are construction blocks stored on the blockchain.</p>
                     <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.</p>
                     <p>Your briqs are yours, forever.</p>
@@ -140,7 +159,7 @@ onMounted(async () => {
                             <p class="bg-primary"/><p class="bg-primary"/>
                         </div>
                     </div>
-                    <h2>Build</h2>
+                    <h3>Build</h3>
                     <p>briq can be assembled to create NFTs. These NFT are called sets.</p>
                     <p>Transfer, sell, lend, break your NFTs any way you want.</p>
                     <p>Disassemble your set to get your briqs back and build something new.</p>
@@ -152,7 +171,7 @@ onMounted(async () => {
                             <p class="bg-primary"/><p class="bg-primary"/><p class="bg-primary"/>
                         </div>
                     </div>
-                    <h2>Play</h2>
+                    <h3>Play</h3>
                     <p>briqs sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
                     <p>Integrate briq in any way you want. Seize the briqs of construction.</p>
                 </div>
@@ -161,8 +180,8 @@ onMounted(async () => {
     </div>
     <div class="container mx-auto mb-4 md:mb-20 px-4 md:px-20">
         <div class="text-center mb-8">
-            <p class="text-primary">Genesis Sale</p>
-            <h2 class="font-medium text-xl">Discover the new theme</h2>
+            <h4>Genesis Sale</h4>
+            <h1>Discover the new theme</h1>
         </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
             <div class="h-[400px] bg-black text-white rounded-lg relative overflow-hidden">
@@ -189,21 +208,6 @@ onMounted(async () => {
     </div>
     <Footer/>
 </template>
-
-<style scoped>
-h2 {
-    @apply text-xl font-semibold my-2;
-}
-.explanations > div {
-    @apply rounded-lg bg-grad-lightest p-8 border border-grad-light;
-}
-.explanations p {
-    @apply my-4;
-}
-.block-grid p {
-    @apply h-8 w-8 rounded-sm p-0 m-0;
-}
-</style>
 
 <style>
 /* Hide the progress bar, I'm styling manually */

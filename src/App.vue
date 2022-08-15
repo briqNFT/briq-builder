@@ -60,15 +60,15 @@ h1 {
 }
 
 h2 {
-    @apply text-xl font-semibold;
+    @apply text-2xl font-semibold;
 }
 
 h3 {
-    @apply text-lg font-semibold;
+    @apply text-xl font-semibold;
 }
 
 h4 {
-    @apply text-md font-semibold;
+    @apply text-lg font-semibold;
 }
 
 h5 {
