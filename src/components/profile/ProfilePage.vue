@@ -78,9 +78,9 @@ const {
     </div>
     <div v-if="activeTab === 'INVENTORY'" class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
         <div>
-            <h2>Inventory</h2>
+            <h2 class="pl-3">Inventory</h2>
             <div class="mt-4 flex flex-col gap-2">
-                <Btn no-background class="text-left" v-for="section of sections">{{ section }}</Btn>
+                <Btn no-background class="justify-start" v-for="section of sections">{{ section }}</Btn>
             </div>
         </div>
         <div>
@@ -150,7 +150,7 @@ const {
         <div>
             <h2>Shopping Activity</h2>
             <div class="mt-4 flex flex-col gap-2">
-                <Btn no-background class="text-left" v-for="section of shoppingSections">{{ section }}</Btn>
+                <Btn no-background class="justify-start" v-for="section of shoppingSections">{{ section }}</Btn>
             </div>
         </div>
         <div>

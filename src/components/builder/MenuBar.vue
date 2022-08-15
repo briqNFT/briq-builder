@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue';
 import UndoRedo from './UndoRedo.vue';
 
 import HistoryLog from './modals/HistoryLog.vue';
@@ -11,7 +12,7 @@ import { inputStore } from '../../builder/inputs/InputStore';
 // TODO: remove redundancy with Header.vue
 import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
-import { computed, ref } from 'vue';
+import { useBuilder } from '@/builder/BuilderStore';
 import MenuBuilder from './MenuBuilder.vue';
 import { useBuilderInput } from './InputComposable';
 import CameraFlyout from './CameraFlyout.vue';
@@ -46,6 +47,8 @@ const connectWallet = () => {
         walletInitComplete.then(() => maybeStore.value!.openWalletSelector());
     }
 }
+
+const { chainBriqs } = useBuilder();
 
 const { activeInputButton, switchToState } = useBuilderInput();
 
@@ -126,7 +129,7 @@ const hideCameraFlyout = () => {
         <div class="flex-1 basis-1 flex justify-end">
             <div class="flex items-stretch gap-1 px-2 py-1 border bg-grad-lightest rounded-md">
                 <div class="flex items-center justify-center font-medium gap-2 px-2">
-                    <briqIcon class="inline-block"/> {{ 0 }}
+                    <briqIcon class="inline-block"/> {{ chainBriqs.getNbBriqs() }}
                 </div>
                 <div>
                     <Btn v-if="!maybeStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
