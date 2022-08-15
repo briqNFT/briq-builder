@@ -7,6 +7,9 @@ export type CARD_MODES = 'AUTO' | 'PRESALE' | 'SALE' | 'INVENTORY';
 export function useBoxData(tokenName: string) {
     const genesisStore = useGenesisStore();
 
+    const themeID = computed(() => tokenName.split('/')[0]);
+    const themeData = computed(() => genesisStore.themedata[themeID.value]._data);
+
     const itemQuery = computed(() => genesisStore.metadata[tokenName]);
     const item = computed(() => itemQuery.value._data);
     const saleQuery = computed(() => genesisStore.saledata[tokenName]);
@@ -22,6 +25,8 @@ export function useBoxData(tokenName: string) {
 
     return {
         genesisStore,
+        themeID,
+        themeData,
         itemQuery,
         item,
         saleQuery,

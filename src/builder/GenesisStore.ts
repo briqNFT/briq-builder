@@ -68,6 +68,18 @@ export class SaleData {
 }
 
 
+export class ThemeData {
+    name!: string;
+    tagline!: string;
+    description!: string;
+
+    constructor(themeData: any) {
+        for (const key in themeData)
+            this[key] = themeData[key];
+    }
+}
+
+
 let initialCall = () => {
     const useStore = defineStore('genesis_data', {
         state: () => {
@@ -84,7 +96,7 @@ let initialCall = () => {
                 return autoFetchable(state._metadata as any, (prop) => backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`));
             },
             themedata(state) {
-                return autoFetchable(state._themedata as any, (theme_id) => backendManager.fetch(`v1/${state.network}/${theme_id}/data`));
+                return autoFetchable(state._themedata as any, async (theme_id) => new ThemeData(await backendManager.fetch(`v1/${state.network}/${theme_id}/data`)));
             },
             boxes(state) {
                 return autoFetchable(state._boxes as any, (theme_id) => backendManager.fetch(`v1/${state.network}/${theme_id}/boxes`));
