@@ -55,18 +55,29 @@ body {
     @apply text-text-on-background font-sans font-normal leading-tight;
 }
 
-html h1 {
+h1 {
     @apply text-max font-semibold;
 }
 
-html h2 {
+h2 {
     @apply text-xl font-semibold;
 }
 
-html h3 {
+h3 {
     @apply text-lg font-semibold;
 }
 
+h4 {
+    @apply text-md font-semibold;
+}
+
+h5 {
+    @apply text-sm font-semibold;
+}
+
+h6 {
+    @apply text-xs font-semibold;
+}
 
 .briq-logo {
     @apply font-logo font-medium select-none text-primary tracking-wide;
