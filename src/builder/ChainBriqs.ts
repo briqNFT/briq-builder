@@ -7,6 +7,8 @@ import { logDebug, pushMessage } from '../Messages';
 import { reportError } from '../Monitoring';
 
 import { CONF } from '@/Conf';
+import { backendManager } from '@/Backend';
+import { getCurrentNetwork } from '@/chain/Network';
 
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number; nft_ids: string[] };
@@ -68,16 +70,16 @@ export class ChainBriqs {
     }
 
     _getTokens = ticketing(function (this: ChainBriqs) {
-        return this.briqContract!.fullBalanceOf(this.addr!);
+        return backendManager.fetch(`v1/user/briqs/${getCurrentNetwork()}/${this.addr}`);
     });
 
     async loadFromChain() {
         this.fetchingBriqs = true;
-        if (!this.briqContract || !this.addr) {
+        if (!this.addr) {
             this.reset();
             return;
         }
-        logDebug('CHAIN BRIQS - LOADING ', this.briqContract?.address, this.addr);
+        logDebug('CHAIN BRIQS - LOADING ', this.addr);
         try {
             const balance = await this._getTokens();
             this.parseChainData(balance);
@@ -106,7 +108,7 @@ export class ChainBriqs {
 
     _getBalance = ticketing(async function (this: ChainBriqs) {
         let total = 0;
-        const data = await this.briqContract!.fullBalanceOf(this.addr!);
+        const data = await this._getTokens();
         for (const mat in data)
             total += data[mat].ft_balance;
         return total;

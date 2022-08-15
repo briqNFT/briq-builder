@@ -1,15 +1,19 @@
+import { backendManager } from '@/Backend';
+import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { perUserStorable, perUserStore } from './PerUserStore';
-
 
 
 class UserBoxesStore implements perUserStorable {
     availableBoxes = [] as string[];
 
     async fetchData() {
-        const contractStore = (await import('@/Dispatch')).contractStore;
         await walletInitComplete;
-        this.availableBoxes = await contractStore.box!.getUnopenedBoxes(maybeStore.value!.userWalletAddress);
+        try {
+            this.availableBoxes = (await backendManager.fetch(`v1/user/boxes/${getCurrentNetwork()}/${maybeStore.value!.userWalletAddress}`)).box_token_ids
+        } catch(ex) {
+            console.error(ex);
+        }
     }
 
     onEnter() {
@@ -19,4 +23,3 @@ class UserBoxesStore implements perUserStorable {
 
 export const userBoxesStore = perUserStore(UserBoxesStore);
 userBoxesStore.setup();
-
