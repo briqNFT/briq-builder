@@ -201,7 +201,7 @@ p {
                             </div>
                             <div>
                                 <h2>Current Price</h2>
-                                <p class="text-xl font-medium">{{ saledata?.price }} <i class="fa-brands fa-ethereum"/></p>
+                                <p class="text-xl font-medium">{{ readableNumber(saledata?.price) }} {{ readableUnit(saledata?.price) }}</p>
                             </div>
                             <div>
                                 <h2>Next price drop in</h2>

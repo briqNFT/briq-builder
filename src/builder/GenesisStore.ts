@@ -63,6 +63,7 @@ export class SaleData {
 
     get price() {
         const timePercent = this.durationLeft() / this.auction_duration;
+        // TODO: this has to be BN
         return this.initial_price * timePercent;
     }
 }

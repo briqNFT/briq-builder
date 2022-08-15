@@ -5,6 +5,7 @@ import { productBidsStore, userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
 import { toBN } from 'starknet/utils/number.js';
 import { useBids } from '@/components/BidComposable.js';
+import { fromETH } from '@/BigNumberForHumans';
 defineEmits(['close']);
 
 const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'BID_COMPLETE');
@@ -17,15 +18,10 @@ const props = defineProps<{
 
 const { currentBid, currentBidString } = useBids(props.metadata.item);
 
-const bid = ref(undefined as undefined | number);
+const bid = ref(undefined as undefined | string);
 
 const weiBid = computed(() => {
-    const stringBid = (+bid.value).toString().split('.');
-    if (stringBid.length === 1)
-        return toBN(stringBid[0]).mul(toBN('1000000000000000000'));
-    const intpart = stringBid[0];
-    const fractpart = stringBid[1].padEnd(18, '0');
-    return toBN(intpart).mul(toBN('1000000000000000000')).add(toBN(fractpart));
+    return fromETH(bid.value?.toString() || '0');
 })
 
 const balance = computed(() => userBalance.current?.asEth());

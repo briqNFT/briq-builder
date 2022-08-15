@@ -6,6 +6,7 @@ import WindowVue from '@/components/generic/Window.vue';
 import { userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
 import { toBN } from 'starknet/utils/number.js';
+import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 defineEmits(['close']);
 
 const {
@@ -30,7 +31,7 @@ const props = defineProps<{
 
 const balance = computed(() => userBalance.current?.asEth());
 
-const weiPrice = computed(() => toBN('1450000000000000000'))
+const weiPrice = computed(() => toBN(Math.floor(saledata.value?.price || 0).toString()))
 
 const canMakeBid = computed(() => {
     return balance.value && toBN(userBalance.current?.balance._data).cmp(weiPrice) >= 0;
@@ -71,7 +72,9 @@ const makeBid = async () => {
                 <router-link :to="{ name: 'Theme', params: { theme: themeID } }"><h5 class="text-primary text-xs">{{ themeData?.name }}</h5></router-link>
                 <h4 class="test-sm font-semibold mt-2">{{ item?.name }}</h4>
             </div>
-            <p>1.35 ETH</p>
+            <p>
+                {{ readableNumber(weiPrice) }} {{ readableUnit(weiPrice) }}
+            </p>
         </div>
         <div class="flex justify-end items-center gap-4">
             <p v-if="canMakeBidReason" class="text-red-300 text-sm">{{ canMakeBidReason }}</p>

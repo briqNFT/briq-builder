@@ -34,7 +34,7 @@ export function readableUnit(number: BigNumberish) {
 // Because this is an annoying problem and JS has no good tools to do this,
 // I'll implement a basic level of support that should be mostly 'good enough'.
 // Furthermore, there is no guarantee that the number will actually fit into a javascript number.
-export function fromETH(numberString: string, _unit = 'ETH' as const/* | 'GWEI' | 'WEI'*/) {
+export function fromETH(numberString: string, _unit = 'ETH' as const/* | 'GWEI' | 'WEI'*/): BigNumberish {
     // Assume that the decimals will be either a dot or a comma.
     // If we run into oddities, bail out and return NaN.
     const dots = numberString.match(/\./g)?.length || 0;
