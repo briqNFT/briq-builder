@@ -62,7 +62,7 @@ const importSetFromFile = async () => {
         }
 }
 
-const duplicate = () => openSetInBuilder(duplicateSet(currentSet.id).id);
+const duplicate = () => openSetInBuilder(duplicateSet(currentSet.value.id).id);
 
 </script>
 
@@ -80,8 +80,8 @@ const duplicate = () => openSetInBuilder(duplicateSet(currentSet.id).id);
                     <Btn @click="renameSet" no-background>Rename set</Btn>
                     <RouterLink :to="{ name: 'Profile' }"><Btn class="w-full" no-background>Manage my sets</Btn></RouterLink>
                     <hr>
-                    <Btn @click="createNewSetAndOpen" no-background>New creation</Btn>
-                    <Btn @click="importSetFromFile" no-background>Import from file</Btn>
+                    <Btn @click="createNewSetAndOpen()" no-background>New creation</Btn>
+                    <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
                     <Btn @click="duplicate" no-background>Duplicate creation</Btn>
                     <Btn no-background>(todo) Save to computer</Btn>
                     <hr>

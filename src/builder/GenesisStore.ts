@@ -57,7 +57,6 @@ export class SaleData {
     }
 
     isLive() {
-        console.log(this, this.auction_start, Date.now() / 1000.0, this.durationLeft())
         return this.auction_start < Date.now() / 1000.0 && this.durationLeft() > 0;
     }
 

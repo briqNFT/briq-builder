@@ -1,7 +1,8 @@
 import { computed } from 'vue';
-import { useStore } from 'vuex'
+import { useStore } from 'vuex';
 
 export function useCurrentSet() {
-    const currentSet = computed(() => useStore().state.builderData.currentSet);
+    const store = useStore();
+    const currentSet = computed(() => store.state.builderData.currentSet);
     return { currentSet };
 }
