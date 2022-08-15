@@ -6,6 +6,8 @@ import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { onMounted, computed } from 'vue';
 import NotificationsList from '../NotificationsList.vue';
 
+import { useBuilder } from '@/builder/BuilderStore';
+
 import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import { notificationsManager } from '@/Notifications';
@@ -27,6 +29,8 @@ onMounted(() => {
     userBidsStore.setup();
 });
 
+const { chainBriqs } = useBuilder();
+
 </script>
 
 <template>
@@ -37,7 +41,7 @@ onMounted(() => {
                 <routerLink to="/genesis"><h2 class="briq-logo text-[32px]">briq</h2></routerLink>
             </div>
             <div class="flex items-stretch gap-2">
-                <div class="flex gap-1 md:gap-6 mx-2 md:mr-4 text-sm md:text-md flex-wrap justify-center items-center md:justify-end font-normal">
+                <div class="flex gap-1 md:gap-6 mx-2 md:mr-4 text-sm md:text-md flex-wrap justify-center items-center md:justify-end font-medium">
                     <routerLink to="/themes"><p>Themes</p></routerLink>
                     <routerLink to="/builder"><p>Create</p></routerLink>
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank"><p>Resources</p></a>
@@ -47,8 +51,8 @@ onMounted(() => {
                         <i class="fa-solid fa-box-open"/> {{ userBoxesStore.current?.availableBoxes?.length || 0 }}
                     </Btn>
                 </router-link>
-                <div v-if="walletStore?.userWalletAddress" class="border-grad-light px-3 border rounded flex items-center justify-center gap-2">
-                    <briqIcon class="inline-block"/> {{ 0 }}
+                <div v-if="walletStore?.userWalletAddress" class="border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
+                    <briqIcon class="inline-block"/> {{ chainBriqs.getNbBriqs() }}
                 </div>
                 <div class="flex-none">
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>

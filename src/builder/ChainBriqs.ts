@@ -69,9 +69,9 @@ export class ChainBriqs {
         logDebug('CHAIN BRIQS - ADDRESS IS ', addr, addr.value);
     }
 
-    _getTokens = ticketing(function (this: ChainBriqs) {
+    _getTokens(this: ChainBriqs) {
         return backendManager.fetch(`v1/user/briqs/${getCurrentNetwork()}/${this.addr}`);
-    });
+    }
 
     async loadFromChain() {
         this.fetchingBriqs = true;
