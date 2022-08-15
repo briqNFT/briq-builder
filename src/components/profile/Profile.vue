@@ -51,7 +51,7 @@
                 </div>
             </div>
             <div class="flex flex-col justify-around">
-                <div class="flex justify-center items-center text-4xl font-medium">
+                <div class="flex justify-center items-center text-[3rem] font-medium">
                     IMAGE 820/1000 briqs used
                 </div>
                 <div>

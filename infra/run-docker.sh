@@ -2,7 +2,7 @@
 set -e
 
 npx vite build --outDir infra/dist/www/
-npx vite build --outDir infra/dist/www/server --ssr server/main.ts
+npx vite build --outDir infra/dist/server/ --ssr server/main.ts
 
 NAME="briq-builder"
 TAG=${TAG:=$(git rev-parse HEAD)}

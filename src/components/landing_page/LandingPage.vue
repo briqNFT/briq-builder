@@ -92,7 +92,7 @@ import AlphaBanner from '../AlphaBanner.vue';
                     </div>
                 </div>
             </div>
-            <div class="flex justify-center gap-10 !my-10 text-5xl">
+            <div class="flex justify-center gap-10 !my-10 text-[4rem]">
                 <a href="https://twitter.com/briqNFT" rel="noopener" target="_blank"><p><i class="fab fa-twitter"/></p></a>
                 <a href="https://discord.gg/kpvbDCw5pr" rel="noopener" target="_blank"><p><i class="fab fa-discord"/></p></a>
                 <a href="https://github.com/briqNFT/" rel="noopener" target="_blank"><p><i class="fab fa-github"/></p></a>

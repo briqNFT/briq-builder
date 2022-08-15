@@ -41,7 +41,7 @@ import StarkwareIcon from '../../assets/starkware.png';
                 <h3 class="py-2 md:py-4"><a href="https://twitter.com/wraitii">@wraitii</a></h3>
             </div>
         </div>
-        <div class="flex justify-center gap-10 !my-16 py-16 text-5xl bg-grad-light">
+        <div class="flex justify-center gap-10 !my-16 py-16 text-[4rem] bg-grad-light">
             <a href="https://twitter.com/briqNFT" target="_blank"><p><i class="fab fa-twitter"/></p></a>
             <a href="https://discord.gg/kpvbDCw5pr" target="_blank"><p><i class="fab fa-discord"/></p></a>
             <a href="https://github.com/briqNFT/" target="_blank"><p><i class="fab fa-github"/></p></a>
@@ -75,14 +75,14 @@ import StarkwareIcon from '../../assets/starkware.png';
 
 <style scoped>
 h1 {
-    @apply text-max font-semibold;
+    @apply text-[5rem] font-semibold;
 }
 h2 {
-    @apply text-5xl font-semibold;
+    @apply text-[4rem] font-semibold;
 }
 h3,
 h4 {
-    @apply text-4xl font-semibold italic;
+    @apply text-[3rem] font-semibold italic;
 }
 </style>
 
