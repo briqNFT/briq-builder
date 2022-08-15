@@ -11,7 +11,7 @@
     "coverage": "vitest run --coverage",
     "dev-server": "vite build --ssr server/main.ts --outDir dist/server -w -m development",
     "build-server": "vite build --ssr server/main.ts --outDir dist/server",
-    "server": "node dist_server/main.js",
+    "server": "node dist_server/main.mjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue",
     "lint-fix": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"
   },

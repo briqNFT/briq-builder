@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { createServer: createViteServer } = require('vite');
+import { createServer as createViteServer } from 'vite';
 // Somehow didn't work if I just import above - some error when building.
 import type { createServer, ViteDevServer } from 'vite';
 
@@ -16,6 +16,8 @@ const config = {
     hostname: '0.0.0.0',
     port: DEV ? 3000 : 5000,
 };
+
+const __dirname = path.resolve();
 
 // TODO: reduce duplication with frontend.
 function getApiUrl(hostname: string | undefined) {
@@ -44,7 +46,7 @@ async function runServer() {
     }
     // Load the transformed dist/index.html
     else
-        template = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf-8');
+        template = fs.readFileSync(path.resolve(__dirname, './index.html'), 'utf-8');
 
     app.use(async (req: http.IncomingMessage, res) => {
         console.log('GET ', req.url);

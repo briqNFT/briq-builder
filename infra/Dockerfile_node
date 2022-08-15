@@ -3,6 +3,7 @@ FROM node:latest
 ENV NODE_ENV=production
 
 COPY infra/dist/server/ /var/www/sltech/
+COPY infra/dist/www/index.html /var/www/sltech/index.html
 COPY package-lock.json /var/www/sltech/
 COPY package.json /var/www/sltech/
 
