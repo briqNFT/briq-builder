@@ -4,27 +4,27 @@ import { toBN } from 'starknet/utils/number';
 
 type Ser = {
     value: string,
-    item: string,
+    box_id: string,
     tx_hash: string | undefined,
 };
 
 export class BidNotif extends Notif {
     type = 'box_bid';
     value: string;
-    item: string;
+    box_id: string;
     tx_hash: string | undefined;
 
     constructor(data: Ser) {
         super(data);
         this.value = data.value;
-        this.item = data.item;
+        this.box_id = data.box_id;
         this.tx_hash = data.tx_hash;
     }
 
     serialize(): Ser {
         return {
             value: this.value,
-            item: this.item,
+            box_id: this.box_id,
             tx_hash: this.tx_hash,
         };
     }

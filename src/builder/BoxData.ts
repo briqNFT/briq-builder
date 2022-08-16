@@ -2,7 +2,7 @@
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { computed } from 'vue';
 
-export type CARD_MODES = 'AUTO' | 'PRESALE' | 'SALE' | 'INVENTORY';
+export type CARD_MODES = 'AUTO' | 'PRESALE' | 'SALE' | 'INVENTORY' | 'BID';
 
 export function useBoxData(tokenName: string) {
     const genesisStore = useGenesisStore();

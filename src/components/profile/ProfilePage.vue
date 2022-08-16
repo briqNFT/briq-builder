@@ -13,7 +13,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { computed, ref } from 'vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBookletsStore } from '@/builder/UserBooklets';
-import { userBidsStore } from '@/builder/BidStore';
+import { userBidsStore, productBidsStore, Bid } from '@/builder/BidStore';
 import BoxListing from '../builder/genesis/BoxListing.vue';
 import { setsManager } from '@/builder/SetsManager';
 import MenuDropdown from '../generic/MenuDropdown.vue';
@@ -24,6 +24,32 @@ const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creation
 const activeTab = ref('INVENTORY' as 'INVENTORY' | 'ACTIVITY');
 
 const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
+
+const bids = computed(() => {
+    const bids = {} as { [key: string]: Bid }
+    for (const bid of userBidsStore.current?.bids ?? [])
+        if (!(bid.bid_id in bids))
+            bids[bid.box_id] = bid;
+        else if (bids[bid.box_id])
+            bids[bid.box_id] = bid;
+    return Object.values(bids);
+});
+
+const winningBids = computed(() => {
+    const boxes = [];
+    for (let bid of bids.value)
+        if (productBidsStore.bids(bid.box_id).highest_bid === bid.bid_id)
+            boxes.push(bid.box_id);
+    return boxes;
+})
+
+const losingBids = computed(() => {
+    const boxes = [];
+    for (let bid of bids.value)
+        if (productBidsStore.bids(bid.box_id).highest_bid !== bid.bid_id)
+            boxes.push(bid.box_id);
+    return boxes;
+})
 
 const creations = computed(() => {
     return Object.values(setsManager.setsInfo).map(x => x.local!);
@@ -155,17 +181,31 @@ const {
         </div>
         <div>
             <div>
-                <h3>Ongoing Auction Bids</h3>
-                <div v-if="!userBidsStore.current?.bids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">You have no bids on ongoing auctions.</p>
+                <h3>Winning bids on ongoing auctions</h3>
+                <div v-if="!winningBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <p class="font-semibold">You have no winning bids on ongoing auctions.</p>
                     <p>Browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
+                </div>
+                <div v-else>
+                    <BoxListing :boxes="winningBids" :mode="'BID'"/>
+                </div>
+            </div>
+            <div>
+                <h3>Losing bids on ongoing auctions</h3>
+                <div v-if="!losingBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <p class="font-semibold">No losing bids to report.</p>
+                    <p>Browse the available items in our Genesis collections!</p>
+                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                </div>
+                <div v-else>
+                    <BoxListing :boxes="losingBids" :mode="'BID'"/>
                 </div>
             </div>
             <div>
                 <h3>Purchased items</h3>
                 <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">You have not yet bought any utem</p>
+                    <p class="font-semibold">You have not yet bought any item</p>
                     <p>Browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>

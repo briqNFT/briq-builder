@@ -3,7 +3,6 @@ import { logDebug } from '@/Messages';
 import { Notif, notificationsManager } from '@/Notifications';
 import { useGenesisStore } from './GenesisStore';
 import { BidNotif } from './BidNotif';
-import { hexUuid } from '@/Uuid';
 import { perUserStorable, perUserStore } from './PerUserStore';
 
 import contractStore from '@/chain/Contracts';
@@ -14,23 +13,23 @@ import { reactive } from 'vue';
 
 class FailedBidNotif extends Notif {
     type = 'failed_bid';
-    item: string;
+    box_id: string;
     value: number;
 
     constructor(data: any) {
         super(data);
-        this.item = data.item;
+        this.box_id = data.box_id;
         this.value = data.value;
     }
 
     get summary() {
         const genesisStore = useGenesisStore();
-        return `Your bid on ${ genesisStore.metadata[this.item]._data?.name || this.item } of ${ this.value } ETH has failed to process`;
+        return `Your bid on ${ genesisStore.metadata[this.box_id]._data?.name || this.box_id } of ${ this.value } ETH has failed to process`;
     }
 
     serialize() {
         return {
-            item: this.item,
+            box_id: this.box_id,
             value: this.value,
         }
     }
@@ -38,11 +37,12 @@ class FailedBidNotif extends Notif {
 
 notificationsManager.register('failed_bid', FailedBidNotif);
 
-interface Bid {
+export interface Bid {
+    bid_id: string,
     tx_hash: string,
     block: number,
     status: 'CONFIRMED' | 'TENTATIVE' | 'PENDING';
-    item: string,
+    box_id: string,
     bid_amount: string,
 }
 
@@ -60,14 +60,14 @@ class UserBidStore implements perUserStorable {
         };
         for (const bid of bidDatas) {
             bidData.block = Math.max(bid.block, bidData.block);
-            bidData.bids[bid.tx_hash] = bid;
+            bidData.bids[bid.bid_id] = bid;
         }
         console.log(bidDatas, bidData);
 
         for (let i = 0; i < this.bids.length; ++i) {
             const bid = this.bids[i];
             // Can't find the bid and should have been confirmed -> mark it failed.
-            const newBidData = bidData.bids[bid.tx_hash];
+            const newBidData = bidData.bids[bid.bid_id];
             if (!newBidData) {
                 if (bid.block <= bidData.block) {
                     notificationsManager.push(new FailedBidNotif(bid));
@@ -85,14 +85,15 @@ class UserBidStore implements perUserStorable {
         this.lastConfirmedBlock = bidData.block;
     }
 
-    async makeBid(value: BigNumberish, item: string) {
+    async makeBid(value: BigNumberish, box_id: string) {
         const genesisStore = useGenesisStore();
-        const itemData = genesisStore.metadata[item]._data!;
+        const itemData = genesisStore.metadata[box_id]._data!;
         const tx_response = await contractStore.auction?.approveAndBid(contractStore.eth_bridge_contract, itemData.token_id, itemData.auction_id, value)
         const newBid = {
+            bid_id: tx_response!.transaction_hash,
             tx_hash: tx_response!.transaction_hash,
             bid_amount: toFelt(value),
-            item: item,
+            box_id: box_id,
             status: 'TENTATIVE',
             block: -1,
         } as Bid;
@@ -106,7 +107,7 @@ class UserBidStore implements perUserStorable {
 export const userBidsStore = perUserStore(UserBidStore);
 
 class ProductBidsStore {
-    _bids = {} as { [box_id: string]: { bids: { [bid_id: string]: Bid }, lastConfirmedBlock: number, lastRefresh: number } }
+    _bids = {} as { [box_id: string]: { bids: { [bid_id: string]: Bid }, highest_bid: undefined | string, lastConfirmedBlock: number, lastRefresh: number } }
 
     status = 'PENDING' as 'PENDING' | 'OK' | 'ERROR';
 
@@ -114,6 +115,7 @@ class ProductBidsStore {
         if (!(box_id in this._bids))
             this._bids[box_id] = {
                 bids: {},
+                highest_bid: undefined,
                 lastConfirmedBlock: 0,
                 lastRefresh: 0,
             }
@@ -127,10 +129,10 @@ class ProductBidsStore {
             this.status = 'PENDING';
         try {
             const bidDatas = await backendManager.fetch(`v1/bids/box/${getCurrentNetwork()}/${box_id}`)
-            // TODO: use something else for ID
             for (const bid of bidDatas) {
-                this._bids[box_id].bids[bid.tx_hash] = bid;
+                this._bids[box_id].bids[bid.bid_id] = bid;
                 this._bids[box_id].lastConfirmedBlock = Math.max(bid.block, this._bids[box_id].lastConfirmedBlock);
+                this._bids[box_id].highest_bid = bid.bid_id;
             }
             this.status = 'OK';
         } catch(err) {
