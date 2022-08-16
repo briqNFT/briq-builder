@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { h, ref  } from 'vue';
 import NotificationPopup from './NotificationPopup.vue';
-import { notificationPopups, pushPopup } from './NotificationsComposable';
+import { notificationPopups, pushPopup } from '@/Notifications';
 
 const computeTopPos = () => Math.max(0, parseFloat(getComputedStyle(document.documentElement).fontSize) * 4 - window.scrollY);
 const topPos = ref(computeTopPos());
 window.addEventListener('scroll', () => topPos.value = computeTopPos());
 
-pushPopup('info', 'Some information');
-setTimeout(() => pushPopup('warning', 'Some random warning'), 500);
-setTimeout(() => pushPopup('success', 'This however is a success'), 4500);
-setTimeout(() => pushPopup('error', h('p', 'This a direct component error')), 5500);
+pushPopup('info', 'Warning', 'Some information');
+setTimeout(() => pushPopup('warning', 'TItle B', 'Some random warning'), 500);
+setTimeout(() => pushPopup('success', 'Title C', 'This however is a success'), 4500);
+setTimeout(() => pushPopup('error', 'Componen', h('p', 'This a direct component error')), 5500);
 
 const closePopup = (i: number) => notificationPopups.splice(i, 1);
 </script>
@@ -18,12 +18,11 @@ const closePopup = (i: number) => notificationPopups.splice(i, 1);
 <template>
     <div class="z-[1000] fixed m-4 right-0 flex flex-col items-end gap-4" :style="{ top: `${topPos}px` }">
         <TransitionGroup name="popupfade">
-            <NotificationPopup v-for="popup, i of notificationPopups" :key="popup._uid" :type="popup.type" @close="closePopup(i)">
+            <NotificationPopup v-for="popup, i of notificationPopups" :key="popup._uid" :level="popup.level" @close="closePopup(i)">
                 <template #title>
-                    Bid is confirmed
+                    {{ popup.title }}
                 </template>
-                <p v-if="typeof popup.message === 'string'" class="break-all whitespace-pre">{{ popup.message }}</p>
-                <component v-else :is="popup.message"/>
+                <component :is="popup.component"/>
             </NotificationPopup>
         </TransitionGroup>
     </div>

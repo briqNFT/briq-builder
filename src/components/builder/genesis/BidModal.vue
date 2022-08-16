@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, Ref, ref, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
-import { productBidsStore, userBidsStore } from '@/builder/BidStore';
+import { Bid, userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
 import { toBN } from 'starknet/utils/number.js';
 import { useBids } from '@/components/BidComposable.js';
 import { fromETH } from '@/BigNumberForHumans';
+import { pushPopup } from '@/Notifications';
 defineEmits(['close']);
 
-const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'BID_COMPLETE');
+const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'BID_COMPLETE' | 'ERROR');
 
 const props = defineProps<{
     metadata: {
@@ -44,16 +45,34 @@ const canMakeBidReason = computed(() => {
     return undefined;
 })
 
+const ongoingBidData = ref(undefined as undefined | Bid);
+const ongoingBid = computed(() => {
+    return userBidsStore.current?.bids.filter(bid => {
+        return bid.box_id === ongoingBidData.value?.box_id && bid.tx_hash == ongoingBidData.value?.tx_hash;
+    })?.[0];
+});
 
 const makeBid = async () => {
     step.value = 'SIGNING';
     try {
-        let tx = await userBidsStore.current?.makeBid(weiBid.value, props.metadata.item);
-        console.log(tx);
+        let newBid = await userBidsStore.current?.makeBid(weiBid.value, props.metadata.item);
+        ongoingBidData.value = newBid;
         step.value = 'PROCESSING';
+        pushPopup('info', 'Transaction sent', `Transaction was sent.\nHash: ${newBid?.tx_hash}`);
+        let watcher: any;
+        watcher = watchEffect(() => {
+            if (ongoingBid.value?.status === 'PENDING' || ongoingBid.value?.status === 'CONFIRMED') {
+                watcher();
+                step.value = 'BID_COMPLETE';
+            } else if (ongoingBid.value?.status === 'REJECTED') {
+                watcher();
+                step.value = 'ERROR';
+            }
+        })
     } catch(err) {
         console.error(err);
         step.value = 'MAKE_BID';
+        pushPopup('error', 'Error sending TX', `An error happened while sending the transaction:\n${err}`);
     }
 }
 </script>
@@ -85,9 +104,8 @@ const makeBid = async () => {
         <div class="flex flex-col gap-8">
             <p>
                 Your transaction has been sent and should be confirmed shortly.
-                You can check the status of your transaction from the profile dropdown.
             </p>
-
+            <p>TX hash: {{ ongoingBid?.tx_hash }}</p>
             <p>See transaction on <a href="">Voyager</a></p>
 
             <p>You can now close this pop-up.</p>
@@ -98,7 +116,6 @@ const makeBid = async () => {
         <div class="flex flex-col gap-8">
             <p>Your bid of {{ 3.24 }} <i class="fa-brands fa-ethereum"/> is confirmed.</p>
             <p>Come back in X hours and check if you've won!</p>
-
             <p>See transaction on <a href="">Voyager</a></p>
 
             <p>You can now close this pop-up.</p>

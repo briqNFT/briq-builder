@@ -15,7 +15,7 @@ export interface Bid {
     bid_id: string,
     tx_hash: string,
     block: number,
-    status: 'CONFIRMED' | 'TENTATIVE' | 'PENDING';
+    status: 'CONFIRMED' | 'TENTATIVE' | 'PENDING' | 'REJECTED';
     box_id: string,
     bid_amount: string,
 }
@@ -23,6 +23,28 @@ export interface Bid {
 class UserBidStore implements perUserStorable {
     lastConfirmedBlock = -1;
     bids = [] as Bid[];
+
+    meta = {} as { [bid_id: string]: {
+        status: 'UNKNOWN' | 'TENTATIVE' | 'PENDING' | 'REJECTED' | 'CONFIRMED',
+    }}
+
+    _init() {
+        setInterval(() => this.poll(), 3000);
+    }
+
+    _serialize() {
+        return {
+            lastConfirmedBlock: this.lastConfirmedBlock,
+            bids: this.bids,
+            meta: this.meta,
+        }
+    }
+
+    _deserialize(data: ReturnType<UserBidStore['_serialize']>) {
+        this.lastConfirmedBlock = data.lastConfirmedBlock;
+        this.bids = data.bids;
+        this.meta = data.meta;
+    }
 
     async onEnter() {
         logDebug('SYNCING USER BID BLOCK')
@@ -39,21 +61,21 @@ class UserBidStore implements perUserStorable {
 
         for (let i = 0; i < this.bids.length; ++i) {
             const bid = this.bids[i];
-            // Can't find the bid and should have been confirmed -> mark it failed.
             const newBidData = bidData.bids[bid.bid_id];
-            if (!newBidData) {
-                if (bid.block <= bidData.block) {
-                    // notificationsManager.push(new FailedBidNotif(bid));
-                    this.bids.splice(i, 1);
-                    i--;
+            if (newBidData) {
+                if (bid.status !== 'CONFIRMED') {
+                    bid.status = 'CONFIRMED';
+                    this.notifyConfirmed(bid);
                 }
-            } else if (bid.status !== 'CONFIRMED')
-                bid.status = 'CONFIRMED';
-            newBidData._found = true;
+                newBidData._found = true;
+            }
         }
         for (const txHash in bidData.bids)
-            if (!bidData.bids[txHash]._found)
+            if (!bidData.bids[txHash]._found) {
+                bidData.bids[txHash].status = 'CONFIRMED';
                 this.bids.push(bidData.bids[txHash]);
+                this.notifyConfirmed(bidData.bids[txHash])
+            }
 
         this.lastConfirmedBlock = bidData.block;
     }
@@ -70,9 +92,9 @@ class UserBidStore implements perUserStorable {
             status: 'TENTATIVE',
             block: -1,
         } as Bid;
-        userBidNotifMetadata.current!.registerTentativeBid(newBid);
+        this.registerTentativeBid(newBid);
         this.bids.push(newBid);
-        return newBid;
+        return this.bids[this.bids.length - 1];
     }
 
     async poll() {
@@ -80,28 +102,21 @@ class UserBidStore implements perUserStorable {
         for (const bid of this.bids) {
             if (bid.status !== 'TENTATIVE')
                 continue;
-            const status = blockchainProvider.value?.getTransactionStatus(bid.tx_hash);
+            const status = await blockchainProvider.value?.getTransactionStatus(bid.tx_hash);
             if (status === 'PENDING' || status === 'ACCEPTED_ON_L2' || status === 'ACCEPTED_ON_L1') {
                 bid.status = 'PENDING';
-                userBidNotifMetadata.current!.notifyPending(bid);
+                this.notifyPending(bid);
             } else if (status === 'REJECTED') {
-                userBidNotifMetadata.current!.notifyRejected(bid);
+                bid.status = 'REJECTED';
+                this.notifyRejected(bid);
                 dropList.push(bid.bid_id);
             }
         }
         for (const drop of dropList)
             this.bids.splice(this.bids.findIndex(x => x.bid_id === drop), 1);
     }
-}
 
-export const userBidsStore = perUserStore(UserBidStore);
-
-class BidNotifMetadata implements perUserStorable {
-    meta = {} as { [bid_id: string]: {
-        status: 'UNKNOWN' | 'TENTATIVE' | 'PENDING' | 'REJECTED',
-    }}
-
-    async onEnter() {}
+    /** Notifications stuff */
 
     registerTentativeBid(bid: Bid) {
         if (this.meta[bid.bid_id])
@@ -114,7 +129,7 @@ class BidNotifMetadata implements perUserStorable {
                 tx_hash: bid.tx_hash,
             },
             read: true,
-        }).push();
+        }).push(true);
     }
 
     notifyPending(bid: Bid) {
@@ -126,7 +141,7 @@ class BidNotifMetadata implements perUserStorable {
                 tx_hash: bid.tx_hash,
             },
             read: wasTentative,
-        }).push();
+        }).push(true);
     }
 
     notifyRejected(bid: Bid) {
@@ -138,11 +153,23 @@ class BidNotifMetadata implements perUserStorable {
                 tx_hash: bid.tx_hash,
             },
             read: wasRejected,
-        }).push();
+        }).push(true);
+    }
+
+    notifyConfirmed(bid: Bid) {
+        const wasConfirmed = this.meta[bid.bid_id]?.status !== 'CONFIRMED';
+        this.meta[bid.bid_id] = { status: 'CONFIRMED' };
+        new Notification({
+            type: 'confirmed_bid',
+            data: {
+                tx_hash: bid.tx_hash,
+            },
+            read: wasConfirmed,
+        }).push(true);
     }
 }
 
-const userBidNotifMetadata = perUserStore(BidNotifMetadata)
+export const userBidsStore = perUserStore(UserBidStore);
 
 
 class ProductBidsStore {

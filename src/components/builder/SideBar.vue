@@ -7,7 +7,6 @@ import { usePresetHelpers } from './inputs/CameraComposable';
 import Toggle from '../generic/Toggle.vue';
 import Hotkey from '../generic/Hotkey.vue';
 import { useStore } from 'vuex';
-import { pushPopup } from '../NotificationsComposable';
 
 const { inputStore, activeInputButton, fsm } =  useBuilderInput();
 
@@ -22,7 +21,6 @@ const deleteBriqs = async () => {
         'builderData/place_briqs',
         inputStore.selectionMgr.selectedBriqs.map((briq) => ({ pos: briq.position })),
     );
-    pushPopup('info', 'briqs deleted');
 
 }
 </script>

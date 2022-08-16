@@ -3,7 +3,7 @@ import { setsManager, synchronizeSetsLocally } from '@/builder/SetsManager';
 import { useRouter } from 'vue-router';
 import TextModalVue from '../generic/TextModal.vue';
 import { pushModal } from '../Modals.vue';
-import { pushPopup } from '../NotificationsComposable';
+import { pushPopup } from '@/Notifications';
 
 export function useSetHelpers() {
     const router = useRouter();
@@ -36,7 +36,7 @@ export function useSetHelpers() {
             }).then(btn => btn === 0 ? deleteLocalSet(setId, true) : null)
         else {
             setsManager.deleteLocalSet(setId);
-            pushPopup('success', 'Set successfully deleted');
+            pushPopup('success', 'Set deleted', 'Set successfully deleted');
         }
     };
     return {

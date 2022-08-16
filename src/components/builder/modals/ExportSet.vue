@@ -8,7 +8,7 @@ import contractStore from '@/chain/Contracts';
 import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
 import Window from '@/components/generic/Window.vue';
-import { pushPopup } from '@/components/NotificationsComposable';
+import { pushPopup } from '@/Notifications';
 import { logDebug } from '@/Messages';
 import { downloadJSON } from '@/url';
 import { computed, ref, toRef, watch } from 'vue';
@@ -190,7 +190,7 @@ const startMinting = async () => {
             }, 3000);
         });
         */
-        pushPopup('success', `Set exported ${data.id} - TX ${TX.transaction_hash}`);
+        pushPopup('success', 'Set exported', `Set exported ${data.id} - TX ${TX.transaction_hash}`);
         logDebug('Set exported ' + data.id);
 
         let info = setsManager.onSetMinted(setData.value.id, exportSet.value);
@@ -200,13 +200,13 @@ const startMinting = async () => {
         exportStep.value = 'DONE';
     } catch (err: any) {
         if (err?.message === 'User abort') {
-            pushPopup('error', 'Export aborted.');
+            pushPopup('error', 'Mint error', 'Export aborted.');
             mintingError.value = 'Aborted by user';
         } else if (err === 'Timeout') {
-            pushPopup('error', 'Error while exporting set - wallet timeout.');
+            pushPopup('error', 'Mint error', 'Error while exporting set - wallet timeout.');
             mintingError.value = 'Wallet timeout';
         } else {
-            pushPopup('error', 'Error while exporting set - check browser console for details');
+            pushPopup('error', 'Mint error', 'Error while exporting set\ncheck browser console for details');
             mintingError.value = err;
             console.error(err);
             //this.reportError(err);

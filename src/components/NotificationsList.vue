@@ -10,7 +10,7 @@ const notifs = computed(() => notificationsManager.notifications.filter(x => x.s
         <div v-for="notif, i of notifs" :key="i" class="w-full">
             <div :class="['w-full text-left relative flex justify-between rounded-sm p-2', notif.read ? 'text-grad-darker' : 'hover:bg-grad-light'].join(' ')" @click="notif.read = true">
                 <div class="grow">
-                    <p v-if="notif.type === 'TEXT'">{{ notif.data }}</p>
+                    <component :is="notif.component" :data="notif.data"/>
                     <p class="text-xs text-grad-darker">
                         {{ notif.timestamp }}
                     </p>

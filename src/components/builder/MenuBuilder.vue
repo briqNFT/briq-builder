@@ -7,7 +7,7 @@ import { ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import Flyout from '../generic/Flyout.vue';
 import { pushModal } from '../Modals.vue';
-import { pushPopup } from '../NotificationsComposable';
+import { pushPopup } from '@/Notifications';
 import { useCurrentSet } from './CurrentSet';
 import ImportVoxModalVue from './modals/ImportVoxModal.vue';
 import RenameSetVue from './modals/RenameSet.vue';
@@ -57,7 +57,7 @@ const importSetFromFile = async () => {
                 await store.dispatch('builderData/select_set', set.id);
             }
         } catch (err) {
-            pushPopup('error', `Error while loading file ${fileHandle.name}\n${err?.message}`);
+            pushPopup('error', 'Error loading file', `Error while loading file ${fileHandle.name}\n${err?.message}`);
             console.error(err);
         }
 }
