@@ -26,7 +26,7 @@ onMounted(() => {
     @apply transition-all;
 }
 #app .flyout:not(:hover) .showOnHover {
-    @apply hidden;
+    @apply invisible;
 }
 
 @keyframes fillbar { from { width: 0%; } to { width:100%; }  }
@@ -43,7 +43,7 @@ onMounted(() => {
                 <h4 class="font-medium py-1"><i :style="{ color: `rgb(var(--color-info-${type}))` }" :class="icon"/><slot name="title"/></h4>
                 <button
                     @click="$emit('close')"
-                    class="p-1 text-xs showOnHover inline-flex justify-center items-center">
+                    class="p-1 ml-1 text-xs showOnHover inline-flex justify-center items-center">
                     <i class="fas fa-times"/>
                 </button>
             </div>

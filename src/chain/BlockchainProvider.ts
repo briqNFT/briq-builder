@@ -14,8 +14,8 @@ class BlockchainProvider {
         return this.alive;
     }
 
-    getTransactionStatus(tx_hash: string) {
-        return this.provider.getTransactionStatus(tx_hash);
+    getTransactionStatus(tx_hash: string): 'NOT_RECEIVED' | 'RECEIVED' | 'PENDING' | 'ACCEPTED_ON_L2' | 'ACCEPTED_ON_L1' | 'REJECTED' {
+        return this.provider.getTransactionStatus(tx_hash)?.tx_status || 'NOT_RECEIVED';
     }
 
     getTransaction(tx_hash: string) {

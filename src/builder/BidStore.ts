@@ -1,8 +1,7 @@
 import { backendManager } from '@/Backend';
 import { logDebug } from '@/Messages';
-import { Notif, notificationsManager } from '@/Notifications';
+import { Notification, notificationsManager } from '@/Notifications';
 import { useGenesisStore } from './GenesisStore';
-import { BidNotif } from './BidNotif';
 import { perUserStorable, perUserStore } from './PerUserStore';
 
 import contractStore from '@/chain/Contracts';
@@ -10,32 +9,7 @@ import { BigNumberish, toFelt } from 'starknet/utils/number';
 import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
 import { reactive } from 'vue';
-
-class FailedBidNotif extends Notif {
-    type = 'failed_bid';
-    box_id: string;
-    value: number;
-
-    constructor(data: any) {
-        super(data);
-        this.box_id = data.box_id;
-        this.value = data.value;
-    }
-
-    get summary() {
-        const genesisStore = useGenesisStore();
-        return `Your bid on ${ genesisStore.metadata[this.box_id]._data?.name || this.box_id } of ${ this.value } ETH has failed to process`;
-    }
-
-    serialize() {
-        return {
-            box_id: this.box_id,
-            value: this.value,
-        }
-    }
-}
-
-notificationsManager.register('failed_bid', FailedBidNotif);
+import { blockchainProvider } from '@/chain/BlockchainProvider';
 
 export interface Bid {
     bid_id: string,
@@ -62,7 +36,6 @@ class UserBidStore implements perUserStorable {
             bidData.block = Math.max(bid.block, bidData.block);
             bidData.bids[bid.bid_id] = bid;
         }
-        console.log(bidDatas, bidData);
 
         for (let i = 0; i < this.bids.length; ++i) {
             const bid = this.bids[i];
@@ -70,7 +43,7 @@ class UserBidStore implements perUserStorable {
             const newBidData = bidData.bids[bid.bid_id];
             if (!newBidData) {
                 if (bid.block <= bidData.block) {
-                    notificationsManager.push(new FailedBidNotif(bid));
+                    // notificationsManager.push(new FailedBidNotif(bid));
                     this.bids.splice(i, 1);
                     i--;
                 }
@@ -97,14 +70,80 @@ class UserBidStore implements perUserStorable {
             status: 'TENTATIVE',
             block: -1,
         } as Bid;
-        // The notification will handle its own polling logic.
-        new BidNotif(newBid).push();
+        userBidNotifMetadata.current!.registerTentativeBid(newBid);
         this.bids.push(newBid);
         return newBid;
+    }
+
+    async poll() {
+        const dropList = [];
+        for (const bid of this.bids) {
+            if (bid.status !== 'TENTATIVE')
+                continue;
+            const status = blockchainProvider.value?.getTransactionStatus(bid.tx_hash);
+            if (status === 'PENDING' || status === 'ACCEPTED_ON_L2' || status === 'ACCEPTED_ON_L1') {
+                bid.status = 'PENDING';
+                userBidNotifMetadata.current!.notifyPending(bid);
+            } else if (status === 'REJECTED') {
+                userBidNotifMetadata.current!.notifyRejected(bid);
+                dropList.push(bid.bid_id);
+            }
+        }
+        for (const drop of dropList)
+            this.bids.splice(this.bids.findIndex(x => x.bid_id === drop), 1);
     }
 }
 
 export const userBidsStore = perUserStore(UserBidStore);
+
+class BidNotifMetadata implements perUserStorable {
+    meta = {} as { [bid_id: string]: {
+        status: 'UNKNOWN' | 'TENTATIVE' | 'PENDING' | 'REJECTED',
+    }}
+
+    async onEnter() {}
+
+    registerTentativeBid(bid: Bid) {
+        if (this.meta[bid.bid_id])
+            return;
+        this.meta[bid.bid_id] = { status: 'TENTATIVE' };
+
+        new Notification({
+            type: 'tentative_bid',
+            data: {
+                tx_hash: bid.tx_hash,
+            },
+            read: true,
+        }).push();
+    }
+
+    notifyPending(bid: Bid) {
+        const wasTentative = this.meta[bid.bid_id]?.status !== 'TENTATIVE';
+        this.meta[bid.bid_id] = { status: 'PENDING' };
+        new Notification({
+            type: 'pending_bid',
+            data: {
+                tx_hash: bid.tx_hash,
+            },
+            read: wasTentative,
+        }).push();
+    }
+
+    notifyRejected(bid: Bid) {
+        const wasRejected = this.meta[bid.bid_id]?.status !== 'REJECTED';
+        this.meta[bid.bid_id] = { status: 'REJECTED' };
+        new Notification({
+            type: 'rejected_bid',
+            data: {
+                tx_hash: bid.tx_hash,
+            },
+            read: wasRejected,
+        }).push();
+    }
+}
+
+const userBidNotifMetadata = perUserStore(BidNotifMetadata)
+
 
 class ProductBidsStore {
     _bids = {} as { [box_id: string]: { bids: { [bid_id: string]: Bid }, highest_bid: undefined | string, lastConfirmedBlock: number, lastRefresh: number } }

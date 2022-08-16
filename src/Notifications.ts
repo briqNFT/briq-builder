@@ -1,11 +1,11 @@
-import { h, reactive, watchEffect } from 'vue';
+import { reactive, watchEffect } from 'vue';
 import { maybeStore } from './chain/WalletLoading';
 import { logDebug } from './Messages';
 
 const NOTIFICATION_STORAGE_VERSION = 1;
 
-export abstract class Notif {
-    abstract type: string;
+export class Notification {
+    type = 'TEXT' as const;
     version = 1;
     timestamp: number;
     read = false;
@@ -13,10 +13,14 @@ export abstract class Notif {
     // Intended as sort of opaque, current format is network/user_address
     user_id: string | undefined;
 
+    data: any;
+
     constructor(data: any) {
+        this.type = data.type;
         this.read = data.read;
         this.timestamp = data.timestamp || Date.now();
         this.user_id = data.user_id ?? maybeStore.value?.user_id;
+        this.data = data.data;
     }
 
     /** For convenience, allow pushing to the manager from a notification type so you only need to import that type. */
@@ -28,57 +32,21 @@ export abstract class Notif {
         return !this.user_id || maybeStore.value?.user_id === this.user_id;
     }
 
-    abstract get summary(): string;
-
-    render(): any {
-        return h('p', this.type);
-    }
-
-    _serialize() {
-        return Object.assign({
+    serialize() {
+        return {
             type: this.type,
             read: this.read,
             timestamp: this.timestamp,
             user_id: this.user_id,
-        }, this.serialize())
-    }
-
-    abstract serialize(): Record<string, any>;
-}
-
-class UnprocessedNotification extends Notif {
-    serializedData: any;
-    type = '__';
-    serType: string;
-
-    constructor(serializedData: any) {
-        super(serializedData);
-        this.serializedData = serializedData;
-        this.serType = this.serializedData.type;
-    }
-
-    get summary() {
-        return this.serializedData;
-    }
-
-    serialize() {
-        return this.serializedData;
+            data: this.data,
+        };
     }
 }
-
 
 class NotificationManager {
-    notifications = [] as Notif[];
+    notifications = [] as Notification[];
 
-    notifTypes = {};
-
-    // Recommend calling _processUnprocessed after this to process potentially unprocessed notifications.
-    register(uid: string, notifType) {
-        console.log('NOTIF MGR - registering ', uid);
-        this.notifTypes[uid] = notifType;
-    }
-
-    push(notif: Notif) {
+    push(notif: Notification) {
         this.notifications.push(notif);
     }
 
@@ -88,34 +56,21 @@ class NotificationManager {
             if (notifs.version !== NOTIFICATION_STORAGE_VERSION)
                 throw new Error();
             for (const notifData of notifs.notifications)
-                this.push(new UnprocessedNotification(notifData));
+                this.push(new Notification(notifData));
         } catch(_) {
             // otherwise ignored
             console.error(_);
         }
-        console.log('NOTIF MGR - SETUP');
-        this._processUnprocessed();
+        logDebug('NOTIF MGR - SETUP');
         watchEffect(() => {
             logDebug('SERIALIZING NOTIFICATIONS')
             window.localStorage.setItem('notifications', JSON.stringify({
                 version: NOTIFICATION_STORAGE_VERSION,
-                notifications: this.notifications.map(x => x._serialize()),
+                notifications: this.notifications.map(x => x.serialize()),
             }))
         });
-    }
-
-    _processUnprocessed() {
-        for (let i = 0; i < this.notifications.length; ++i) {
-            if (this.notifications[i].type !== '__')
-                continue;
-            const notif = (this.notifications[i] as UnprocessedNotification);
-            if (notif.serType in this.notifTypes)
-                this.notifications.splice(i, 1, new this.notifTypes[notif.serType](notif.serializedData));
-        }
-
     }
 }
 
 export const notificationsManager = reactive(new NotificationManager());
-// Setup the sync in the next macrotask so that modules have a chance to register their notification types.
-setTimeout(() => notificationsManager._setupDiskSync(), 0);
+notificationsManager._setupDiskSync();
