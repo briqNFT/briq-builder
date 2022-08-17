@@ -148,6 +148,8 @@ class UserBidStore implements perUserStorable {
             level: 'info',
             data: {
                 tx_hash: bid.tx_hash,
+                box_id: bid.box_id,
+                amount: bid.bid_amount,
             },
             read: true,
         }).push(true);
@@ -162,6 +164,8 @@ class UserBidStore implements perUserStorable {
             level: 'error',
             data: {
                 tx_hash: bid.tx_hash,
+                box_id: bid.box_id,
+                amount: bid.bid_amount,
             },
             read: wasRejected,
         }).push(true);
@@ -176,6 +180,8 @@ class UserBidStore implements perUserStorable {
             level: 'success',
             data: {
                 tx_hash: bid.tx_hash,
+                box_id: bid.box_id,
+                amount: bid.bid_amount,
             },
             read: wasTentative,
         }).push(true);
@@ -190,6 +196,8 @@ class UserBidStore implements perUserStorable {
             level: 'success',
             data: {
                 tx_hash: bid.tx_hash,
+                box_id: bid.box_id,
+                amount: bid.bid_amount,
             },
             read: wasConfirmed,
         }).push(true);

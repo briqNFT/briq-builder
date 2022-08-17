@@ -34,7 +34,7 @@ const themeList = computed(() => {
     <div class="container m-auto">
         <h1>Themes</h1>
         <div class="grid grid-cols-3 gap-4 my-8">
-            <RouterLink v-for="theme of themeList" :key="theme" :to="`/theme/${theme}`">
+            <RouterLink v-for="theme of themeList" :key="theme" :to="{ name: 'Theme', params: { theme: theme } }">
                 <div class="h-[15rem] flex flex-col justify-center items-center gap-8 text-white bg-black rounded-lg">
                     <h2>{{ genesisStore.themedata[theme]._data?.name }}</h2>
                     <p>{{ genesisStore.themedata[theme]._data?.description }}</p>

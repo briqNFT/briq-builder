@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<{
         <component
             v-for="token_id, i in props.boxes" :key="token_id + i"
             :is="genesisStore.metadata[token_id]._status === 'ERROR' ? 'div' : 'router-link'"
-            :to="{ name: 'Box', 'params': { 'theme': token_id.split('/')[0], 'box': token_id.split('/')[1] } }">
+            :to="{ name: props.mode === 'INVENTORY' ? 'UserBox' : 'BoxSale', 'params': { 'theme': token_id.split('/')[0], 'box': token_id.split('/')[1] } }">
             <BoxCardVue :mode="mode" :token-name="token_id"/>
         </component>
     </div>

@@ -148,7 +148,7 @@ const {
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
                 <div v-else class="my-4 grid grid-cols-4 gap-6">
-                    <div class="card shadow hover:shadow-lg rounded bg-lightest p-4" v-for="creation in creations" :key="creation.id">
+                    <div class="card bg-grad-lightest shadow hover:shadow-lg rounded bg-lightest p-4" v-for="creation in creations" :key="creation.id">
                         <div class="bg-grad-light rounded flex justify-center items-center min-h-[4rem] mb-2">Here be preview</div>
                         <h4 class="font-semibold">{{ creation.name }}</h4>
                         <p class="text-xs break-all text-grad-dark flex justify-between">

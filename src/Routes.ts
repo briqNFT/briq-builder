@@ -90,13 +90,18 @@ export const routes = [
         component: ThemesListingVue,
     },
     {
-        path: '/theme/:theme',
+        path: '/sale/:theme',
         name: 'Theme',
         component: ThemeMainPageVue,
     },
     {
-        path: '/box/:theme/:box',
-        name: 'Box',
+        path: '/sale/:theme/:box',
+        name: 'BoxSale',
+        component: BoxPageVue,
+    },
+    {
+        path: '/user/box/:theme/:box',
+        name: 'UserBox',
         component: BoxPageVue,
     },
     {

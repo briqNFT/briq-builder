@@ -18,6 +18,8 @@ import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 const route = useRoute();
 const router = useRouter();
 
+const mode = route.name === 'UserBox' ? 'INVENTORY' : 'SALE';
+
 const token_id = computed(() => `${route.params.theme}/${route.params.box}`);
 
 const {
@@ -155,7 +157,23 @@ p {
                     </div>
                     <div class="flex flex-col gap-6">
                         <h1 class="text-lg font-semibold">{{ boxName }}</h1>
-                        <template v-if="saledata?.isLive() && saledata?.total_quantity === 1">
+                        <template v-if="mode === 'INVENTORY'">
+                            <div>
+                                <h2>Unopened box</h2>
+                                <p>Your box is still under blister, open it to see what’s inside or keep it closed. Note that once it’s done you can’t go back.</p>
+                                <Btn primary class="p-4 my-4">Unbox</Btn>
+                            </div>
+                            <div>
+                                <h2>Bought at</h2>
+                                <p class="text-xl font-medium my-4">{{ readableUnit("3092834092834092834") }} {{ readableNumber("3092834092834092834") }}</p>
+                                <Btn secondary>See on Aspect</Btn><Btn secondary>See on Mintsquare</Btn>
+                            </div>
+                            <div>
+                                <h2>Item activity</h2>
+                                <p>Some activity here</p>
+                            </div>
+                        </template>
+                        <template v-else-if="saledata?.isLive() && saledata?.total_quantity === 1">
                             <div>
                                 <h2>Sale ends on</h2>
                                 <p class="my-4">July 1, 2022 at 11:32 AM GMT+1</p>
