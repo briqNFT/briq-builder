@@ -20,7 +20,7 @@ export interface Bid {
     bid_amount: string,
 }
 
-const USER_SYNC_DELAY = 5000;
+const USER_SYNC_DELAY = 30000;
 
 class UserBidStore implements perUserStorable {
     lastConfirmedBlock = -1;
@@ -31,7 +31,7 @@ class UserBidStore implements perUserStorable {
     }}
 
     _init() {
-        setTimeout(() => this.poll(), USER_SYNC_DELAY);
+        setTimeout(() => this.poll(), 500);
     }
 
     _serialize() {

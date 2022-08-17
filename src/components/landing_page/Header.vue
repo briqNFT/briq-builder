@@ -12,6 +12,7 @@ import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import { notificationsManager } from '@/Notifications';
 import NotificationsMenu from '../NotificationsMenu.vue';
+import { userPurchaseStore } from '@/builder/UserPurchase';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -27,6 +28,7 @@ const connectDebugWallet = () => window.useDebugProvider();
 
 onMounted(() => {
     userBidsStore.setup();
+    userPurchaseStore.setup();
 });
 
 const { chainBriqs } = useBuilder();

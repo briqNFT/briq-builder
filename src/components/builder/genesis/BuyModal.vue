@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useBoxData, CARD_MODES } from '@/builder/BoxData';
 
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
 import { userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
 import { toBN } from 'starknet/utils/number.js';
 import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
+import { Purchase, userPurchaseStore } from '@/builder/UserPurchase';
+import { pushPopup } from '@/Notifications';
 defineEmits(['close']);
 
 const {
@@ -21,7 +23,7 @@ const {
     durationLeft,
 } = useBoxData(props.metadata.item);
 
-const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'BID_COMPLETE');
+const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'BID_COMPLETE' | 'ERROR');
 
 const props = defineProps<{
     metadata: {
@@ -39,24 +41,42 @@ const canMakeBid = computed(() => {
 
 const canMakeBidReason = computed(() => {
     if (!balance.value)
-        return 'Unknown balance';
+        return undefined;
     if (toBN(userBalance.current?.balance._data).cmp(weiPrice) < 0)
         return 'Insufficient balance';
     return undefined;
 })
 
 
+const ongoingBidData = ref(undefined as undefined | string);
+const ongoingBid = computed(() => {
+    if (ongoingBidData.value)
+        return userPurchaseStore.current?.purchases[ongoingBidData.value];
+    return undefined;
+});
+
+
 const makeBid = async () => {
     step.value = 'SIGNING';
     try {
-        const itemData = genesisStore.metadata[props.metadata.item]._data!;
-        const contractStore = (await import('@/Dispatch')).contractStore;
-        const tx_response = await contractStore.auction?.approveAndBid(contractStore.eth_bridge_contract, itemData.token_id, itemData.auction_id, weiPrice.value.toString())
-        console.log('tx_response', tx_response);
+        let purchase = await userPurchaseStore.current!.makePurchase(props.metadata.item, weiPrice.value.toString())
+        ongoingBidData.value = purchase.tx_hash;
         step.value = 'PROCESSING';
+        pushPopup('info', 'Transaction sent', `Transaction was sent.\nHash: ${purchase.tx_hash}`)
+        let watcher: any;
+        watcher = watchEffect(() => {
+            if (ongoingBid.value?.status === 'CONFIRMED') {
+                watcher();
+                step.value = 'BID_COMPLETE';
+            } else if (ongoingBid.value?.status === 'REJECTED') {
+                watcher();
+                step.value = 'ERROR';
+            }
+        })
     } catch(err) {
         console.error(err);
-        step.value = 'MAKE_BID';
+        step.value = 'ERROR';
+        pushPopup('error', 'Error sending TX', `An error happened while sending the transaction:\n${err}`);
     }
 }
 </script>
@@ -103,6 +123,13 @@ const makeBid = async () => {
             <p>See transaction on <a href="">Voyager</a></p>
 
             <p>You can now close this pop-up.</p>
+        </div>
+    </WindowVue>
+    <WindowVue v-else-if="step === 'ERROR'" :size="'md:w-[40rem]'">
+        <template #big-title>Error <i class="fas fa-circle-exclamation text-info-error"/></template>
+        <div class="flex flex-col gap-8">
+            <p>Unfortunately, there was an error while processing your purchase.</p>
+            <p><Btn primary @click="step = 'MAKE_BID'">Go back</Btn></p>
         </div>
     </WindowVue>
 </template>
