@@ -46,8 +46,18 @@ class UserBidStore implements perUserStorable {
         this.meta = data.meta;
     }
 
+    matchBid(to_match: Bid, bids: { [key: string]: Bid }) {
+        if (bids[to_match.bid_id])
+            return bids[to_match.bid_id];
+        // This assumes that the tentative bids come from the frontend, which is likely fair.
+        for (const bid_id in bids)
+            if (bids[bid_id].box_id === to_match.box_id && bids[bid_id].tx_hash == to_match.tx_hash)
+                return bids[bid_id]
+        return undefined;
+    }
+
     async onEnter() {
-        logDebug('SYNCING USER BID BLOCK')
+        logDebug('USER BID STORE - SYNCING')
         const bidDatas = await backendManager.fetch(`v1/bids/user/${getCurrentNetwork()}/${maybeStore.value?.userWalletAddress}`)
 
         const bidData = {
@@ -61,7 +71,7 @@ class UserBidStore implements perUserStorable {
 
         for (let i = 0; i < this.bids.length; ++i) {
             const bid = this.bids[i];
-            const newBidData = bidData.bids[bid.bid_id];
+            const newBidData = this.matchBid(bid, bidData.bids);
             if (newBidData) {
                 if (bid.status !== 'CONFIRMED') {
                     bid.status = 'CONFIRMED';
@@ -172,8 +182,17 @@ class UserBidStore implements perUserStorable {
 export const userBidsStore = perUserStore(UserBidStore);
 
 
+export interface ProductBid {
+    bidder: string,
+    bid_amount: string,
+    bid_id: string,
+    tx_hash: string,
+    block: number,
+    timestamp: string,
+}
+
 class ProductBidsStore {
-    _bids = {} as { [box_id: string]: { bids: { [bid_id: string]: Bid }, highest_bid: undefined | string, lastConfirmedBlock: number, lastRefresh: number } }
+    _bids = {} as { [box_id: string]: { bids: { [bid_id: string]: ProductBid }, highest_bid: undefined | string, lastConfirmedBlock: number, lastRefresh: number } }
 
     status = 'PENDING' as 'PENDING' | 'OK' | 'ERROR';
 
@@ -194,7 +213,7 @@ class ProductBidsStore {
         if (this.status === 'ERROR')
             this.status = 'PENDING';
         try {
-            const bidDatas = await backendManager.fetch(`v1/bids/box/${getCurrentNetwork()}/${box_id}`)
+            const bidDatas = await backendManager.fetch(`v1/bids/box/${getCurrentNetwork()}/${box_id}`) as ProductBid[];
             for (const bid of bidDatas) {
                 this._bids[box_id].bids[bid.bid_id] = bid;
                 this._bids[box_id].lastConfirmedBlock = Math.max(bid.block, this._bids[box_id].lastConfirmedBlock);

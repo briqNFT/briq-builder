@@ -180,14 +180,14 @@ p {
                                 </Btn>
                             </div>
                             <h2>Previous bids</h2>
-                            <div class="flex flex-col gap-2 pt-2">
+                            <div class="flex flex-col-reverse gap-2 pt-2">
                                 <template v-if="productBidsStore.status === 'OK'">
                                     <p v-if="!hasBids">There are no bids on this item.</p>
                                     <a
                                         v-for="i in previousBids.bids" :key="i.bid_id"
                                         :href="`https://${'goerli.'}voyager.online/tx/${i.bid_id}`" target="_blank">
                                         <div class="flex justify-between">
-                                            <p>{{ i.tx_hash.substring(0, 8) + "..." + i.tx_hash.slice(-8) }}</p>
+                                            <p>{{ i.bidder.substring(0, 8) + "..." + i.bidder.slice(-8) }}</p>
                                             <p>{{ readableUnit(i.bid_amount) }} {{ readableNumber(i.bid_amount) }} <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
                                         </div>
                                     </a>

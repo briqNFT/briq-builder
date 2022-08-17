@@ -9,7 +9,7 @@ import { fromETH } from '@/BigNumberForHumans';
 import { pushPopup } from '@/Notifications';
 defineEmits(['close']);
 
-const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'BID_COMPLETE' | 'ERROR');
+const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'PENDING' | 'BID_COMPLETE' | 'ERROR');
 
 const props = defineProps<{
     metadata: {
@@ -61,7 +61,9 @@ const makeBid = async () => {
         pushPopup('info', 'Transaction sent', `Transaction was sent.\nHash: ${newBid?.tx_hash}`);
         let watcher: any;
         watcher = watchEffect(() => {
-            if (ongoingBid.value?.status === 'PENDING' || ongoingBid.value?.status === 'CONFIRMED') {
+            if (ongoingBid.value?.status === 'PENDING')
+                step.value = 'PENDING';
+            else if (ongoingBid.value?.status === 'CONFIRMED') {
                 watcher();
                 step.value = 'BID_COMPLETE';
             } else if (ongoingBid.value?.status === 'REJECTED') {
@@ -71,7 +73,7 @@ const makeBid = async () => {
         })
     } catch(err) {
         console.error(err);
-        step.value = 'MAKE_BID';
+        step.value = 'ERROR';
         pushPopup('error', 'Error sending TX', `An error happened while sending the transaction:\n${err}`);
     }
 }
@@ -111,14 +113,34 @@ const makeBid = async () => {
             <p>You can now close this pop-up.</p>
         </div>
     </WindowVue>
+    <WindowVue v-else-if="step === 'PENDING'" :size="'md:w-[40rem]'">
+        <template #big-title>Transaction pending <i class="fas fa-circle-check"/></template>
+        <div class="flex flex-col gap-8">
+            <p>
+                Your bid of {{ 3.24 }} <i class="fa-brands fa-ethereum"/> is confirmed.<br>
+                In a few more seconds, it will appear in the list of bids.
+            </p>
+            <p>Come back in X hours and check if you've won!</p>
+            <p>See transaction on <a href="">Voyager</a></p>
+
+            <p>You can now close this pop-up.</p>
+        </div>
+    </WindowVue>
     <WindowVue v-else-if="step === 'BID_COMPLETE'" :size="'md:w-[40rem]'">
-        <template #big-title>Transaction complete <i class="fa-regular fa-circle-check"/></template>
+        <template #big-title>Transaction complete <i class="fas fa-circle-check"/></template>
         <div class="flex flex-col gap-8">
             <p>Your bid of {{ 3.24 }} <i class="fa-brands fa-ethereum"/> is confirmed.</p>
             <p>Come back in X hours and check if you've won!</p>
             <p>See transaction on <a href="">Voyager</a></p>
 
             <p>You can now close this pop-up.</p>
+        </div>
+    </WindowVue>
+    <WindowVue v-else-if="step === 'ERROR'" :size="'md:w-[40rem]'">
+        <template #big-title>Error <i class="fas fa-circle-xmark"/></template>
+        <div class="flex flex-col gap-8">
+            <p>Unfortunately, there was an error while processing your bid.</p>
+            <p><Btn primary @click="step = 'MAKE_BID'">Go back</Btn></p>
         </div>
     </WindowVue>
 </template>
