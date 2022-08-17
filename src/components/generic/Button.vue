@@ -46,7 +46,7 @@ button {
     @apply relative;
 
     &.icon > i, &.icon > svg {
-        @apply w-6 pr-1 inline-flex justify-center items-baseline;
+        @apply w-4 mr-3 inline-flex justify-center items-baseline;
     }
 
     /* no-background variant */

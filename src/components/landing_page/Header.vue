@@ -36,15 +36,15 @@ const { chainBriqs } = useBuilder();
 <template>
     <div>
         <div
-            class="header container m-auto py-4 flex justify-between items-center text-center alternate-buttons">
+            class="header container m-auto py-3 px-8 flex justify-between items-center text-center alternate-buttons">
             <div class="flex">
                 <routerLink to="/genesis"><h2 class="briq-logo text-[32px]">briq</h2></routerLink>
             </div>
             <div class="flex items-stretch gap-2">
-                <div class="flex gap-1 md:gap-6 mx-2 md:mr-4 text-sm md:text-md flex-wrap justify-center items-center md:justify-end font-medium">
-                    <routerLink to="/themes"><p>Themes</p></routerLink>
-                    <routerLink to="/builder"><p>Create</p></routerLink>
-                    <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank"><p>Resources</p></a>
+                <div class="flex gap-1 md:gap-6 mx-2 md:mr-4 flex-wrap justify-center items-center md:justify-end text-sm md:text-md font-medium">
+                    <routerLink to="/themes"><p class="hover:text-primary">Themes</p></routerLink>
+                    <routerLink to="/builder"><p class="hover:text-primary">Create</p></routerLink>
+                    <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank"><p class="hover:text-primary">Resources</p></a>
                 </div>
                 <router-link v-if="userBoxesStore.current?.availableBoxes?.length" to="/unboxing">
                     <Btn secondary class="before:border-grad-darker">
@@ -57,7 +57,7 @@ const { chainBriqs } = useBuilder();
                 <div class="flex-none">
                     <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
                     <MenuDropdown no-background icon :close-on-click="true" v-else-if="walletStore?.userWalletAddress" class="text-xs">
-                        <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
+                        <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block !mr-2"/></template>
                         <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
                         <Btn no-background class="justify-start" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
                         <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>

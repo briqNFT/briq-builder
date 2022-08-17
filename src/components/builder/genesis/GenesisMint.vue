@@ -61,20 +61,20 @@ onMounted(async () => {
 
 <style scoped>
 
+h1 {
+    @apply font-medium;
+}
 h3 {
-    @apply my-2;
+    @apply mt-6 mb-4 text-2xl;
 }
 h4 {
-    @apply text-primary  font-medium;
+    @apply mb-4 text-md text-primary font-medium;
 }
 .explanations > div {
     @apply rounded-lg bg-grad-lightest p-8 border border-grad-light;
 }
-.explanations p {
-    @apply my-4;
-}
 .block-grid p {
-    @apply h-8 w-8 rounded-sm p-0 m-0;
+    @apply text-base box-content h-6 w-6 border-2 border-grad-lightest shadow-sm rounded-sm p-0 m-0;
 }
 </style>
 
@@ -87,7 +87,7 @@ h4 {
             <div class="flex flex-wrap justify-around items-center">
                 <div class="relative md:p-10 lg:p-20">
                     <div>
-                        <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-tighter my-8">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
+                        <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-tighter my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
                         <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
                     </div>
                 </div>
@@ -118,7 +118,7 @@ h4 {
     </div>
     <div
         class="bg-[#F6C844] w-full overflow-hidden z-[-100] border-t-2 border-b-2 border-black">
-        <p class="py-4 flex items-center text-xl text-black font-medium w-max">
+        <p class="py-4 flex items-center text-black text-2xl font-semibold w-max">
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
@@ -141,20 +141,20 @@ h4 {
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 explanations">
                 <div>
-                    <div class="flex items-center h-[6rem] pb-1">
-                        <div class="grid grid-cols-3 block-grid gap-2">
-                            <p class="bg-primary"/><p class="bg-primary"/><p class="bg-grad-lightest"/>
-                            <p class="bg-primary"/><p class="bg-grad-lightest"/><p class="bg-primary"/>
+                    <div class="flex items-center">
+                        <div class="grid grid-cols-3 block-grid">
+                            <p class="bg-primary"/><p class="bg-primary"/><p class="bg-grad-lightest shadow-none"/>
+                            <p class="bg-primary"/><p class="bg-grad-lightest shadow-none"/><p class="bg-primary translate-x-[-0.5rem]"/>
                         </div>
                     </div>
                     <h3>Collect</h3>
-                    <p>briqs are construction blocks stored on the blockchain.</p>
-                    <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.</p>
+                    <p>briqs are construction blocks stored on the blockchain.<br><br></p>
+                    <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.<br><br></p>
                     <p>Your briqs are yours, forever.</p>
                 </div>
                 <div>
-                    <div class="flex items-center h-[6rem] pb-1">
-                        <div class="grid grid-cols-2 block-grid gap-2">
+                    <div class="flex items-center">
+                        <div class="grid grid-cols-2 block-grid">
                             <p class="bg-primary"/><p class="bg-primary"/>
                             <p class="bg-primary"/><p class="bg-primary"/>
                         </div>
@@ -165,9 +165,9 @@ h4 {
                     <p>Disassemble your set to get your briqs back and build something new.</p>
                 </div>
                 <div>
-                    <div class="flex items-center h-[6rem] pb-1">
-                        <div class="grid grid-cols-3 block-grid gap-2">
-                            <p class="bg-grad-lightest"/><p class="bg-primary"/><p class="bg-grad-lightest"/>
+                    <div class="flex items-center">
+                        <div class="grid grid-cols-3 block-grid">
+                            <p class="bg-grad-lightest shadow-none"/><p class="bg-primary"/><p class="bg-grad-lightest shadow-none"/>
                             <p class="bg-primary"/><p class="bg-primary"/><p class="bg-primary"/>
                         </div>
                     </div>
@@ -181,27 +181,27 @@ h4 {
     <div class="container mx-auto mb-4 md:mb-20 px-4 md:px-20">
         <div class="text-center mb-8">
             <h4>Genesis Sale</h4>
-            <h1>Discover the new theme</h1>
+            <h1>Starknet Planet</h1>
         </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
             <div class="h-[400px] bg-black text-white rounded-lg relative overflow-hidden">
                 <img :src="StarknetPlanetWaitingTheme" class="absolute max-w-none h-full xl:h-auto xl:w-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
-                <div class="z-1 px-16 py-4 relative h-full flex flex-col justify-around items-center xl:items-start w-full">
-                    <img :src="starknet_planet_logo" class="w-auto h-auto">
-                    <p>Discover the briq genesis sale <i class="fa-solid fa-arrow-right"/></p>
+                <div class="z-1 p-8 relative h-full flex flex-col justify-between items-center xl:items-start w-full">
+                    <img :src="starknet_planet_logo" class="w-auto h-auto m-8">
+                    <p>Discover the new theme <i class="fa-solid fa-arrow-right"/></p>
                 </div>
             </div>
         </routerlink>
     </div>
-    <div class="bg-[#F6C844] w-full border-t-2 border-b-2 border-black">
-        <div class="container m-auto px-4 md:px-20 my-4 md:my-16">
-            <p class="text-xl font-medium my-8">Trusted by</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-info-warning w-full border-t border-b border-black">
+        <div class="container m-auto px-4 md:px-20 my-4 md:my-20">
+            <p class="text-max font-medium my-10">Trusted by</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div
                     v-for="icon of [[FabricIcon, '#000000'], [FirstIcon, '#15132A'], [StarkwareIcon, '#28286E']]" :key="icon[0]"
-                    class="h-[10rem] w-full rounded flex justify-center items-center px-8 py-4" :style="{ backgroundColor: icon[1] }">
-                    <p v-if="typeof icon[0] === 'string'" class="flex-initial flex max-h-full py-8"><img class="object-contain shrink min-h-0 min-w-0" :src="icon[0]"></p>
-                    <component v-else :is="icon[0]" fill="#fafafa" class="shrink w-full h-full min-h-0 min-w-0"/>
+                    class="h-[10rem] w-full rounded flex justify-center items-center px-12 py-6" :style="{ backgroundColor: icon[1] }">
+                    <p v-if="typeof icon[0] === 'string'" class="flex-initial flex max-h-full py-4"><img class="object-contain shrink min-h-0 min-w-0" :src="icon[0]"></p>
+                    <component v-else :is="icon[0]" fill="#fafafa" width="360px" class="shrink w-full h-full min-h-0 min-w-0"/>
                 </div>
             </div>
         </div>
