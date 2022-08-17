@@ -7,11 +7,6 @@ const computeTopPos = () => Math.max(0, parseFloat(getComputedStyle(document.doc
 const topPos = ref(computeTopPos());
 window.addEventListener('scroll', () => topPos.value = computeTopPos());
 
-pushPopup('info', 'Warning', 'Some information');
-setTimeout(() => pushPopup('warning', 'TItle B', 'Some random warning'), 500);
-setTimeout(() => pushPopup('success', 'Title C', 'This however is a success'), 4500);
-setTimeout(() => pushPopup('error', 'Componen', h('p', 'This a direct component error')), 5500);
-
 const closePopup = (i: number) => notificationPopups.splice(i, 1);
 </script>
 

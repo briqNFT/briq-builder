@@ -13,6 +13,7 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
             <i class="fa-regular fa-bell"/>
             <span class="text-primary absolute top-2 right-2 text-lg" v-if="hasUnreadNotifications">•</span>
         </template>
-        <NotificationsList class="p-4 min-w-[26rem]"/>
+        <h4 class="p-2 text-left font-medium">Notifications</h4>
+        <NotificationsList class="mx-4 my-2 mt-0 min-w-[26rem]"/>
     </MenuDropdown>
 </template>

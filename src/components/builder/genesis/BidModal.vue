@@ -114,7 +114,7 @@ const makeBid = async () => {
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'PENDING'" :size="'md:w-[40rem]'">
-        <template #big-title>Transaction pending <i class="fas fa-circle-check"/></template>
+        <template #big-title>Transaction pending <i class="fas fa-circle-check text-info-success"/></template>
         <div class="flex flex-col gap-8">
             <p>
                 Your bid of {{ 3.24 }} <i class="fa-brands fa-ethereum"/> is confirmed.<br>
@@ -127,7 +127,7 @@ const makeBid = async () => {
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'BID_COMPLETE'" :size="'md:w-[40rem]'">
-        <template #big-title>Transaction complete <i class="fas fa-circle-check"/></template>
+        <template #big-title>Transaction complete <i class="fas fa-circle-check text-info-success"/></template>
         <div class="flex flex-col gap-8">
             <p>Your bid of {{ 3.24 }} <i class="fa-brands fa-ethereum"/> is confirmed.</p>
             <p>Come back in X hours and check if you've won!</p>
@@ -137,7 +137,7 @@ const makeBid = async () => {
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'ERROR'" :size="'md:w-[40rem]'">
-        <template #big-title>Error <i class="fas fa-circle-xmark"/></template>
+        <template #big-title>Error <i class="fas fa-circle-exclamation text-info-error"/></template>
         <div class="flex flex-col gap-8">
             <p>Unfortunately, there was an error while processing your bid.</p>
             <p><Btn primary @click="step = 'MAKE_BID'">Go back</Btn></p>

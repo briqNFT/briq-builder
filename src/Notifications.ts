@@ -27,7 +27,7 @@ export function pushPopup(level = 'info' as NotificationLevel, title: string, me
 const NOTIFICATION_STORAGE_VERSION = 1;
 
 export class Notification {
-    type = 'TEXT' as const;
+    type = 'text';
     version = 1;
     timestamp: number;
     read = false;
@@ -41,12 +41,13 @@ export class Notification {
     data: any;
 
     constructor(data: any) {
-        this.type = data.type;
-        this.read = data.read;
+        this.title = data.title;
+        this.type = data.type || 'text';
+        this.read = data.read || false;
         this.timestamp = data.timestamp || Date.now();
         this.user_id = data.user_id ?? maybeStore.value?.user_id;
+        this.level = data.level || 'info';
         this.data = data.data;
-        this.title = data.title;
     }
 
     /** For convenience, allow pushing to the manager from a notification type so you only need to import that type. */
@@ -64,6 +65,7 @@ export class Notification {
             read: this.read,
             timestamp: this.timestamp,
             user_id: this.user_id,
+            level: this.level,
             data: this.data,
             title: this.title,
         };
@@ -85,7 +87,7 @@ class NotificationManager {
             if (notifs.version !== NOTIFICATION_STORAGE_VERSION)
                 throw new Error();
             for (const notifData of notifs.notifications)
-                this.push(new Notification(notifData));
+                this.push(new Notification(notifData), true);
         } catch(_) {
             // otherwise ignored
             console.error(_);

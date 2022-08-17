@@ -40,7 +40,7 @@ onMounted(() => {
     <Flyout class="p-4 flyout text-sm overflow-hidden">
         <div>
             <div class="flex justify-between items-center pb-1">
-                <h4 class="font-medium py-1"><i :style="{ color: `rgb(var(--color-info-${level}))` }" :class="icon"/> <slot name="title"/></h4>
+                <h5 class="font-medium py-1"><i :style="{ color: `rgb(var(--color-info-${level}))` }" :class="icon"/> <slot name="title"/></h5>
                 <button
                     @click="$emit('close')"
                     class="p-1 ml-1 text-xs showOnHover inline-flex justify-center items-center">

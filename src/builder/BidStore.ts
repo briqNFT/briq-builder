@@ -20,6 +20,8 @@ export interface Bid {
     bid_amount: string,
 }
 
+const USER_SYNC_DELAY = 5000;
+
 class UserBidStore implements perUserStorable {
     lastConfirmedBlock = -1;
     bids = [] as Bid[];
@@ -29,7 +31,7 @@ class UserBidStore implements perUserStorable {
     }}
 
     _init() {
-        setInterval(() => this.poll(), 3000);
+        setTimeout(() => this.poll(), USER_SYNC_DELAY);
     }
 
     _serialize() {
@@ -57,6 +59,10 @@ class UserBidStore implements perUserStorable {
     }
 
     async onEnter() {
+        await this.syncBids();
+    }
+
+    async syncBids() {
         logDebug('USER BID STORE - SYNCING')
         const bidDatas = await backendManager.fetch(`v1/bids/user/${getCurrentNetwork()}/${maybeStore.value?.userWalletAddress}`)
 
@@ -80,11 +86,11 @@ class UserBidStore implements perUserStorable {
                 newBidData._found = true;
             }
         }
-        for (const txHash in bidData.bids)
-            if (!bidData.bids[txHash]._found) {
-                bidData.bids[txHash].status = 'CONFIRMED';
-                this.bids.push(bidData.bids[txHash]);
-                this.notifyConfirmed(bidData.bids[txHash])
+        for (const bid_id in bidData.bids)
+            if (!bidData.bids[bid_id]._found) {
+                bidData.bids[bid_id].status = 'CONFIRMED';
+                this.bids.push(bidData.bids[bid_id]);
+                this.notifyConfirmed(bidData.bids[bid_id])
             }
 
         this.lastConfirmedBlock = bidData.block;
@@ -108,6 +114,8 @@ class UserBidStore implements perUserStorable {
     }
 
     async poll() {
+        await this.syncBids();
+
         const dropList = [];
         for (const bid of this.bids) {
             if (bid.status !== 'TENTATIVE')
@@ -124,6 +132,7 @@ class UserBidStore implements perUserStorable {
         }
         for (const drop of dropList)
             this.bids.splice(this.bids.findIndex(x => x.bid_id === drop), 1);
+        setTimeout(() => this.poll(), USER_SYNC_DELAY);
     }
 
     /** Notifications stuff */
@@ -135,22 +144,12 @@ class UserBidStore implements perUserStorable {
 
         new Notification({
             type: 'tentative_bid',
+            title: 'Bid sent',
+            level: 'info',
             data: {
                 tx_hash: bid.tx_hash,
             },
             read: true,
-        }).push(true);
-    }
-
-    notifyPending(bid: Bid) {
-        const wasTentative = this.meta[bid.bid_id]?.status !== 'TENTATIVE';
-        this.meta[bid.bid_id] = { status: 'PENDING' };
-        new Notification({
-            type: 'pending_bid',
-            data: {
-                tx_hash: bid.tx_hash,
-            },
-            read: wasTentative,
         }).push(true);
     }
 
@@ -159,6 +158,8 @@ class UserBidStore implements perUserStorable {
         this.meta[bid.bid_id] = { status: 'REJECTED' };
         new Notification({
             type: 'rejected_bid',
+            title: 'Rejected bid',
+            level: 'error',
             data: {
                 tx_hash: bid.tx_hash,
             },
@@ -166,11 +167,27 @@ class UserBidStore implements perUserStorable {
         }).push(true);
     }
 
+    notifyPending(bid: Bid) {
+        const wasTentative = this.meta[bid.bid_id]?.status !== 'TENTATIVE';
+        this.meta[bid.bid_id] = { status: 'PENDING' };
+        new Notification({
+            type: 'pending_bid',
+            title: 'Pending bid',
+            level: 'success',
+            data: {
+                tx_hash: bid.tx_hash,
+            },
+            read: wasTentative,
+        }).push(true);
+    }
+
     notifyConfirmed(bid: Bid) {
-        const wasConfirmed = this.meta[bid.bid_id]?.status !== 'CONFIRMED';
+        const wasConfirmed = this.meta[bid.bid_id]?.status !== 'CONFIRMED' && this.meta[bid.bid_id]?.status !== 'PENDING';
         this.meta[bid.bid_id] = { status: 'CONFIRMED' };
         new Notification({
             type: 'confirmed_bid',
+            title: 'Bid confirmed',
+            level: 'success',
             data: {
                 tx_hash: bid.tx_hash,
             },
@@ -180,7 +197,6 @@ class UserBidStore implements perUserStorable {
 }
 
 export const userBidsStore = perUserStore(UserBidStore);
-
 
 export interface ProductBid {
     bidder: string,

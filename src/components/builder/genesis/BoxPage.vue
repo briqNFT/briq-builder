@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import BoxListing from './BoxListing.vue';
-import ModalsVue, { pushModal } from '@/components/Modals.vue';
+import { pushModal } from '@/components/Modals.vue';
 import BidModalVue from './BidModal.vue';
 import BuyModalVue from './BuyModal.vue';
 import { useBoxData } from '@/builder/BoxData';
@@ -253,5 +253,4 @@ p {
         </div>
         <Footer/>
     </div>
-    <ModalsVue/>
 </template>
