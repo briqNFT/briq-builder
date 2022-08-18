@@ -32,7 +32,7 @@ export class Fetchable<T> {
 
 const autoFetchable = <T>(wraps: { [prop: string]: Fetchable<T> }, t: (prop: string) => Promise<T>) => {
     return new Proxy(wraps, {
-        get: (target, prop: string, receiver) => {
+        get: (target, prop: string, receiver): Fetchable<T> => {
             if (Reflect.has(target, prop))
                 return Reflect.get(target, prop, receiver);
             target[prop] = new Fetchable<T>();
@@ -79,30 +79,40 @@ export class ThemeData {
     }
 }
 
+export interface BoxMetadata {
+    name: string;
+    description: string;
+    auction_id: number;
+    token_id: number;
+    briqs: any[];
+    nb_pages: number;
+    version: number;
+}
+
 
 let initialCall = () => {
     const useStore = defineStore('genesis_data', {
         state: () => {
             return {
                 network: { dev: 'mock', test: 'starknet-testnet', prod: 'starknet' }[APP_ENV],
-                _metadata: {} as { [box_uid: string]: Fetchable<Record<string, any>> },
+                _metadata: {} as { [box_uid: string]: Fetchable<BoxMetadata> },
                 _saledata: {} as { [box_uid: string]: Fetchable<SaleData> },
                 _boxes: {} as { [theme_uid: string]: Fetchable<string[]> },
-                _themedata: {} as { [theme_uid: string]: Fetchable<Record<string, any>> },
+                _themedata: {} as { [theme_uid: string]: Fetchable<ThemeData> },
             }
         },
         getters: {
             metadata(state) {
-                return autoFetchable(state._metadata as any, (prop) => backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`));
+                return autoFetchable<BoxMetadata>(state._metadata, (prop) => backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`));
             },
             themedata(state) {
-                return autoFetchable(state._themedata as any, async (theme_id) => new ThemeData(await backendManager.fetch(`v1/${state.network}/${theme_id}/data`)));
+                return autoFetchable(state._themedata, async (theme_id) => new ThemeData(await backendManager.fetch(`v1/${state.network}/${theme_id}/data`)));
             },
             boxes(state) {
                 return autoFetchable(state._boxes as any, (theme_id) => backendManager.fetch(`v1/${state.network}/${theme_id}/boxes`));
             },
             saledata(state) {
-                return autoFetchable(state._saledata as any, async (prop) => new SaleData(await backendManager.fetch(`v1/${state.network}/${prop}/saledata`)));
+                return autoFetchable(state._saledata, async (prop) => new SaleData(await backendManager.fetch(`v1/${state.network}/${prop}/saledata`)));
             },
             coverItemRoute() {
                 return (token_id: string) => computed(() => {

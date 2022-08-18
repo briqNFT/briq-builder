@@ -128,6 +128,13 @@ export class SetsManager {
         return this.setsInfo[sid];
     }
 
+    getBookletSet(booklet_id: string) {
+        console.log(this.setsInfo, booklet_id)
+        for (const sid in this.setsInfo)
+            if (this.setsInfo[sid].booklet === booklet_id)
+                return this.setsInfo[sid].getSet();
+    }
+
     /**
      * Return a random local set. Used to easily query a local set, since the builder needs to always have one for now.
      * @returns a local set, or undefined if none exist.

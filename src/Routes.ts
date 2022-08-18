@@ -16,6 +16,7 @@ import BoxPageVue from './components/builder/genesis/BoxPage.vue';
 import ImageLoaderVue from '@/components/ImageLoader.vue';
 
 import { CONF } from './Conf';
+import SetPageVue from './components/builder/genesis/SetPage.vue';
 
 let loader;
 async function loadExtraPages() {
@@ -103,6 +104,11 @@ export const routes = [
         path: '/user/box/:theme/:box',
         name: 'UserBox',
         component: BoxPageVue,
+    },
+    {
+        path: '/user/set/:theme/:booklet',
+        name: 'UserSet',
+        component: SetPageVue,
     },
     {
         path: '/image',

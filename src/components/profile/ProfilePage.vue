@@ -52,7 +52,11 @@ const losingBids = computed(() => {
 })
 
 const creations = computed(() => {
-    return Object.values(setsManager.setsInfo).map(x => x.local!);
+    return Object.values(setsManager.setsInfo).filter(x => !x.booklet && x.local!).map(x => x.local);
+})
+
+const creationsWIP = computed(() => {
+    return Object.values(setsManager.setsInfo).filter(x => !x.booklet && x.local!).map(x => x.local);
 })
 
 const {
@@ -122,15 +126,20 @@ const {
                 </div>
             </div>
             <div>
-                <h3>Booklets</h3>
+                <h3>Unbuilt Booklets</h3>
                 <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any booklets.</p>
                     <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
+                <div v-else class="flex">
+                    <div v-for="booklet of userBookletsStore.current?.booklets" class="rounded bg-grad-lightest shadow hover:shadow-lg">
+                        <RouterLink :to="`user/set/${booklet}`"><p>{{ booklet }}</p></RouterLink>
+                    </div>
+                </div>
             </div>
             <div>
-                <h3>Genesis Sets</h3>
+                <h3>Official Sets</h3>
                 <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any official Genesis sets.</p>
                     <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
@@ -148,7 +157,38 @@ const {
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
                 <div v-else class="my-4 grid grid-cols-4 gap-6">
-                    <div class="card bg-grad-lightest shadow hover:shadow-lg rounded bg-lightest p-4" v-for="creation in creations" :key="creation.id">
+                    <div class="card bg-grad-lightest shadow hover:shadow-lg rounded p-4" v-for="creation in creations" :key="creation.id">
+                        <div class="bg-grad-light rounded flex justify-center items-center min-h-[4rem] mb-2">Here be preview</div>
+                        <h4 class="font-semibold">{{ creation.name }}</h4>
+                        <p class="text-xs break-all text-grad-dark flex justify-between">
+                            {{ creation.id }}
+                            <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                <template #button><i class="fas fa-ellipsis-h"/></template>
+                                <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
+                                <Btn no-background>(todo) Mint on chain</Btn>
+                                <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
+                                <Btn no-background>(TODO) Download</Btn>
+                                <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                            </MenuDropdown>
+                        </p>
+                        <hr class="my-4">
+                        <p class="flex justify-between text-sm">
+                            <span class="text-grad-dark">briqs used</span>
+                            <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3>Work in progress</h3>
+                <p>WIP sets are stored on this computer only and shared across wallets.</p>
+                <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <p class="font-semibold">You don't have work-in-progress sets.</p>
+                    <p>Get some briqs and start building!</p>
+                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                </div>
+                <div v-else class="my-4 grid grid-cols-4 gap-6">
+                    <div class="card bg-grad-lightest shadow hover:shadow-lg rounded p-4" v-for="creation in creationsWIP" :key="creation.id">
                         <div class="bg-grad-light rounded flex justify-center items-center min-h-[4rem] mb-2">Here be preview</div>
                         <h4 class="font-semibold">{{ creation.name }}</h4>
                         <p class="text-xs break-all text-grad-dark flex justify-between">
