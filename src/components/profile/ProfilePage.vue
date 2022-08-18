@@ -13,6 +13,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { computed, ref } from 'vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBookletsStore } from '@/builder/UserBooklets';
+import { userSetStore } from '@/builder/UserSets';
 import { userBidsStore, productBidsStore, Bid } from '@/builder/BidStore';
 import BoxListing from '../builder/genesis/BoxListing.vue';
 import { setsManager } from '@/builder/SetsManager';
@@ -52,11 +53,11 @@ const losingBids = computed(() => {
 })
 
 const creations = computed(() => {
-    return Object.values(setsManager.setsInfo).filter(x => !x.booklet && x.local!).map(x => x.local);
+    return userSetStore.current!.sets;
 })
 
 const creationsWIP = computed(() => {
-    return Object.values(setsManager.setsInfo).filter(x => !x.booklet && x.local!).map(x => x.local);
+    return Object.values(setsManager.setsInfo).filter(x => !x.booklet).map(x => x.getSet());
 })
 
 const {

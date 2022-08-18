@@ -1,14 +1,11 @@
 import { reactive, WatchStopHandle } from 'vue';
-import SetContract from '../chain/contracts/set';
 import { SetData } from './SetData';
 import { Briq } from './Briq';
 
 import { hexUuid } from '../Uuid';
-import { ignoreOutdated, isOutdated, ticketing } from '../Async';
-import { reportError } from '../Monitoring';
 
-import { toRef, watch, watchEffect } from 'vue';
-import { logDebug, pushMessage } from '../Messages';
+import { watchEffect } from 'vue';
+import { logDebug } from '../Messages';
 
 import { CONF } from '@/Conf';
 
@@ -16,88 +13,55 @@ import * as fflate from 'fflate';
 
 export type SET_STATUS = 'ONCHAIN_ONLY' | 'ONCHAIN_LOADED' | 'ONCHAIN_EDITING' | 'LOCAL';
 
-const SETINFO_VERSION = 1;
+const SETINFO_VERSION = 2;
 
 export class SetInfo {
     id: string;
-    local?: SetData;
-    status: SET_STATUS = 'LOCAL';
-
+    setData!: SetData;
     booklet: string | undefined;
 
-    chain_owner = '';
-
-    constructor(sid: string, status?: SET_STATUS) {
+    constructor(sid: string, setData?: SetData) {
         this.id = sid;
-        if (status)
-            this.status = status;
+        if (setData)
+            this.setData = setData;
     }
 
     serialize() {
-        const raw = JSON.stringify(this.local?.serialize());
+        const raw = JSON.stringify(this.setData.serialize());
         // Use compression to get 10-20x size gains, since Chrome prevents local storage above 5MB.
         const data = fflate.strFromU8(fflate.zlibSync(fflate.strToU8(raw)), true);
         return {
             version: SETINFO_VERSION,
             id: this.id,
-            status: this.status,
             booklet: this.booklet,
-            chain_owner: this.chain_owner,
-            local: data,
+            setData: data,
         };
     }
 
     deserialize(data: any) {
-        this.status = data.status;
         this.id = data.id;
         this.booklet = data?.booklet;
-        this.chain_owner = data.chain_owner;
-        if (data.local)
-            try {
-                const raw = fflate.strFromU8(fflate.unzlibSync(fflate.strToU8(data.local, true)));
-                this.local = new SetData(data.id).deserialize(JSON.parse(raw));
-            } catch (_) {
-                // Assume older version of the storage.
-                this.local = new SetData(data.id).deserialize(data.local);
-            }
+
+        const raw = fflate.strFromU8(fflate.unzlibSync(fflate.strToU8(data.setData, true)));
+        this.setData = new SetData(data.id).deserialize(JSON.parse(raw));
 
         // TODO: check coherence.
         return this;
     }
 
     getSet() {
-        return this.local;
+        return this.setData;
     }
 
     setLocal(set: SetData) {
-        this.local = set;
+        this.setData = set;
         return this;
-    }
-
-    /**
-     * @returns Whether this set currently exists on chain. LOCAL & ONCHAIN_EDITING thus return false.
-     */
-    isOnChain() {
-        return this.status === 'ONCHAIN_ONLY' || this.status === 'ONCHAIN_LOADED';
-    }
-
-    /**
-     * @returns Whether the current set is being edited. Semantically !isOnChain
-     */
-    isEditing() {
-        return this.status === 'ONCHAIN_EDITING' || this.status === 'LOCAL';
-    }
-
-    isLocalOnly() {
-        return this.status === 'LOCAL';
     }
 }
 
 export class SetsManager {
     setList: Array<string> = [];
     setsInfo: { [setId: string]: SetInfo } = {};
-
-    fetchingChainSets = false;
 
     clear() {
         this.setList.splice(0, this.setList.length);
@@ -129,7 +93,6 @@ export class SetsManager {
     }
 
     getBookletSet(booklet_id: string) {
-        console.log(this.setsInfo, booklet_id)
         for (const sid in this.setsInfo)
             if (this.setsInfo[sid].booklet === booklet_id)
                 return this.setsInfo[sid].getSet();
@@ -141,8 +104,7 @@ export class SetsManager {
      */
     getLocalSet() {
         for (const sid in this.setsInfo)
-            if (this.setsInfo[sid].local)
-                return this.setsInfo[sid].local;
+            return this.setsInfo[sid].setData;
     }
 
     createLocalSet() {
@@ -152,44 +114,30 @@ export class SetsManager {
         return set;
     }
 
-    _deleteSet(sid: string) {
-        if (!this.setsInfo[sid])
-            return;
-        const idx = this.setList.indexOf(sid);
-        if (idx === -1)
-            throw new Error('Set part of setData but not part of setList, this should be impossible.');
-        this.setList.splice(idx, 1);
-        delete this.setsInfo[sid];
-        // Delete localstorage after for it may have been reloaded otherwise.
-        window.localStorage.removeItem('briq_set_' + sid);
-    }
-
     /**
      * Register a new local set.
      */
     registerLocalSet(set: SetData) {
         if (this.setsInfo[set.id])
             throw new Error('Set with ID ' + set.id + ' already exists');
-        this.setsInfo[set.id] = new SetInfo(set.id, 'LOCAL').setLocal(set);
+        this.setsInfo[set.id] = new SetInfo(set.id, set);
         this.setList.push(set.id);
         return this.setsInfo[set.id];
     }
 
     /**
-     * Delete the local copy of a set, possibly revealing the on-chain copy.
+     * Delete the local copy of a set.
      * @param sid ID of the set.
      */
     deleteLocalSet(sid: string) {
         const data = this.setsInfo[sid];
         if (!data)
             return;
-        if (data.status === 'LOCAL')
-            return this._deleteSet(sid);
-        data.status = 'ONCHAIN_ONLY';
-        delete data.local;
+        const idx = this.setList.indexOf(sid);
+        this.setList.splice(idx, 1);
+        delete this.setsInfo[sid];
         // Delete localstorage after for it may have been reloaded otherwise.
         window.localStorage.removeItem('briq_set_' + sid);
-        // TODO: reload set
     }
 
     duplicateLocally(set: SetData) {
@@ -210,9 +158,7 @@ export class SetsManager {
         } else
             this.setsInfo[newSet.id] = new SetInfo(newSet.id);
 
-        this.setsInfo[newSet.id].status = 'ONCHAIN_LOADED';
-        this.setsInfo[newSet.id].chain = newSet;
-        this.setsInfo[newSet.id].local = newSet;
+        this.setsInfo[newSet.id].setData = newSet;
 
         return this.setsInfo[newSet.id];
     }
@@ -228,7 +174,7 @@ export function synchronizeSetsLocally() {
         storageHandlers[sid] = watchEffect(() => {
             const info = setsManager.setsInfo[sid];
             logDebug('SET STORAGE HANDLER - Serializing set ', sid);
-            if (!info || info.status === 'ONCHAIN_ONLY') {
+            if (!info) {
                 // Delete
                 if (window.localStorage.getItem('briq_set_' + sid)) {
                     logDebug('SET STORAGE HANDLER - deleted local set', sid);

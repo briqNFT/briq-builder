@@ -3,11 +3,11 @@ import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import type { UserID, WalletStore } from '@/chain/Wallet';
 
 export interface perUserStorable {
-    _init(): void;
+    _init?(): void;
     onEnter?(oldAddress: string | undefined, newAddress: string): void
     onLeave?(oldAddress: string, newAddress: string | undefined): void
 
-    _deserialize(data: Record<string, any>): void;
+    _deserialize?(data: Record<string, any>): void;
     _serialize?(): Record<string, any>;
 }
 

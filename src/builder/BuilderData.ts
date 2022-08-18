@@ -282,16 +282,13 @@ export const builderDataStore = (() => {
         mutations: {
             select_set(state: any, data: string) {
                 const info = setsManager.getInfo(data);
-                const set = info.local;
+                const set = info.getSet();
                 if (!set)
                     throw new Error('Could not find local set with ID ' + data);
                 state.currentSet = set;
                 inputStore.selectionMgr.selectSet(state.currentSet);
                 if (builderInputFsm.store)
-                    if (info.status === 'ONCHAIN_LOADED')
-                        builderInputFsm.switchTo('inspect');
-                    else
-                        builderInputFsm.switchTo('place');
+                    builderInputFsm.switchTo('place');
                 dispatchBuilderAction('select_set', state.currentSet);
             },
             update_set(state: any, data: any) {
