@@ -13,14 +13,13 @@ import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 import { onMounted, provide } from 'vue';
 import { featureFlags } from '@/FeatureFlags';
 import { pushMessage, setTooltip } from '../../Messages';
-import { useBuilder } from '@/builder/BuilderStore';
+import { useBuilder } from '@/components/builder/BuilderComposable';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { inputInitComplete } from '@/builder/inputs/InputLoading';
 
-import { store } from '@/store/Store';
 import { useRoute, useRouter } from 'vue-router';
 
-const { setsManager, chainBriqs } = useBuilder();
+const { setsManager, chainBriqs, currentSet, selectSet } = useBuilder();
 
 provide('chainBriqs', chainBriqs);
 provide('messages', {
@@ -37,16 +36,16 @@ onMounted(async () => {
     await inputInitComplete;
     if (route.query['set'])
         try {
-            await store.dispatch('builderData/select_set', route.query['set']);
+            await selectSet(route.query['set']);
             router.replace({ 'query': null });
         } catch(_) { /* ignore */ }
-    const info = setsManager.getInfo(store.state.builderData.currentSet.id);
+    const info = setsManager.getInfo(currentSet.value.id);
 
     if (info.status === 'ONCHAIN_LOADED')
         builderInputFsm.switchTo('inspect');
     else
         builderInputFsm.switchTo('place');
-    dispatchBuilderAction('select_set', store.state.builderData.currentSet);
+    dispatchBuilderAction('select_set', currentSet.value);
 
     dispatchBuilderAction('put_all_in_view');
 });

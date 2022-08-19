@@ -5,9 +5,9 @@ import TextModalVue from '../generic/TextModal.vue';
 import { pushModal } from '../Modals.vue';
 import { pushPopup } from '@/Notifications';
 
-export function useSetHelpers() {
-    const router = useRouter();
+import { router } from '@/Routes';
 
+export function useSetHelpers() {
     const openSetInBuilder = (setId: string) => {
         window.open(router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`, '_blank');
     }

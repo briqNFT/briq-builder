@@ -53,7 +53,7 @@ const losingBids = computed(() => {
 })
 
 const creations = computed(() => {
-    return userSetStore.current!.sets;
+    return userSetStore.current?.sets || [];
 })
 
 const creationsWIP = computed(() => {

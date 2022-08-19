@@ -1,118 +1,49 @@
-import { ref, markRaw, toRef, watchEffect } from 'vue';
+import { computed, shallowReadonly, shallowRef } from 'vue';
 
 import contractStore from '@/chain/Contracts';
-import { createChainBriqs } from '@/builder/ChainBriqs';
 import { createChainSets } from '@/builder/ChainSets';
 
-import { setsManager as sm, checkForInitialGMSet, setupLocalSetWatcher, setsManager, SetInfo } from '@/builder/SetsManager';
-import { watchEffectAndWait } from '@/Async';
+import { setsManager as sm, setsManager } from '@/builder/SetsManager';
 
-import { isLoaded as storeIsLoaded } from '@/store/StoreLoading';
 import { store } from '@/store/Store';
-import { walletInitComplete } from '@/chain/WalletLoading';
-import { logDebug } from '@/Messages';
-import { setSync } from './SetSync';
-import { bookletStore } from '@/components/builder/BookletComposable';
+import { SetData } from './SetData';
+import { inputStore } from '@/builder/inputs/InputStore';
+import { builderInputFsm } from '@/builder/inputs/BuilderInput';
+import { dispatchBuilderAction } from './graphics/Dispatch';
+import { currentSet as ___currentSet } from './BuilderData';
 
 /**
- * Returns refs for easier destructuring.
- * This acts as the 'root' for the builder store,
- * but by itself basically all data is in other objects.
+ * A lot of components in a number of places need to access the 'current set' loaded in the builder.
+ * This makes load order of files rather tricky, because this needs to be loaded super early.
+ * The file layout is designed so that this isn't too clunky.
  */
-export const useBuilder = (() => {
-    const currentSetInfo = ref(undefined as unknown as SetInfo);
-    const chainBriqs = createChainBriqs();
+export const builderStore = (() => {
+    const currentSetInfo = computed(() => {
+        return sm.getInfo(currentSet.value?.id);
+    });
+    const _currentSet = shallowRef(undefined as unknown as SetData);
+    const currentSet = shallowReadonly(_currentSet);
     const chainSets = createChainSets();
-    return () => ({
+
+    const selectSet = async (setId: string) => {
+        const info = setsManager.getInfo(setId);
+        const set = info.getSet();
+        if (!set)
+            throw new Error('Could not find local set with ID ' + setId);
+        _currentSet.value = set;
+        inputStore.selectionMgr.selectSet(currentSet.value);
+        ___currentSet.value = set;
+        if (builderInputFsm.store)
+            builderInputFsm.switchTo('place');
+        dispatchBuilderAction('select_set', currentSet.value);
+    }
+    return {
         currentSetInfo,
+        currentSet,
+        selectSet,
         store,
         contractStore,
-        chainBriqs,
         chainSets,
         setsManager: sm,
-    });
+    };
 })();
-
-async function initializeChainBackend() {
-    logDebug('BUILDER INIT - CHAIN BACKEND');
-    const { contractStore, setsManager, chainBriqs, chainSets } = useBuilder();
-
-    const walletStore = await walletInitComplete; // Wait until we've completed wallet init (or failed)
-
-    chainBriqs.setAddress(toRef(walletStore, 'userWalletAddress'));
-    watchEffect(() => {
-        chainBriqs.setContract(contractStore.briq);
-    });
-
-    chainSets.watchForChain(contractStore, walletStore);
-
-    setSync.sync(setsManager, chainSets);
-}
-
-async function initializeLocalData() {
-    const { setsManager } = useBuilder();
-    setsManager.clear();
-    setsManager.loadFromStorage();
-    setupLocalSetWatcher();
-}
-
-async function initializeStartSet() {
-    const { setsManager } = useBuilder();
-
-    await storeIsLoaded;
-    const set = checkForInitialGMSet();
-    if (set)
-        await store.dispatch('builderData/select_set', set.id);
-
-    const previousSet = window.localStorage.getItem('current_set');
-    if (previousSet && setsManager.getInfo(previousSet))
-        await store.dispatch('builderData/select_set', previousSet);
-
-    // Must have a local set.
-    await watchEffectAndWait(async () => {
-        if (
-            !store.state.builderData.currentSet ||
-            !setsManager.getInfo(store.state.builderData.currentSet.id)
-        ) {
-            let set = setsManager.getLocalSet();
-            if (!set)
-                set = setsManager.createLocalSet();
-            await store.dispatch('builderData/select_set', set.id);
-        }
-    });
-
-    logDebug('BUILDER - START SET INITIALIZED');
-
-    // For storage space optimisation, delete non-current chain-only sets.
-    for (const sid in setsManager.setsInfo)
-        if (store.state.builderData.currentSet.id !== sid && setsManager.setsInfo[sid].isOnChain())
-            setsManager.deleteLocalSet(sid);
-
-    watchEffect(() => {
-        window.localStorage.setItem('current_set', store.state.builderData.currentSet.id);
-    });
-}
-
-async function watchCurrentSetInfo() {
-    await storeIsLoaded;
-    watchEffect(() => {
-        const { currentSetInfo } = useBuilder();
-        currentSetInfo.value = setsManager.getInfo(store.state.builderData.currentSet.id);
-    });
-}
-
-async function initializeBuilder() {
-    initializeChainBackend();
-
-    watchCurrentSetInfo();
-
-    await initializeLocalData();
-
-    await initializeStartSet();
-
-    // Reset history so we start fresh, because at this point other operations have polluted it.
-    await store.dispatch('reset_history');
-}
-
-// This data is initialised right away when this module is loaded for the first time.
-initializeBuilder();

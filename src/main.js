@@ -16,18 +16,7 @@ import { createPinia } from 'pinia'
 app.use(createPinia())
 
 // Routing
-import { createWebHistory, createRouter } from 'vue-router';
-import { routes } from './Routes';
-const router = createRouter({
-    history: createWebHistory(),
-    routes,
-    scrollBehavior(to, from, savedPosition) {
-        if (savedPosition)
-            return savedPosition
-        else
-            return { top: 0 }
-    },
-});
+import { router } from './Routes';
 app.use(router);
 
 import { setupMonitoring } from './Monitoring';

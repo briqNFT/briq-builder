@@ -16,6 +16,12 @@ import type { HotkeyHandle } from '@/Hotkeys';
 import { watchEffect, WatchStopHandle } from 'vue';
 import { BoxSelection, VoxelAlignedSelection } from './SelectHelpers';
 import { inputStore } from '../InputStore';
+import { useSetHelpers } from '@/components/builder/SetComposable';
+import { builderStore } from '@/builder/BuilderStore';
+
+const { openSetInBuilder } = useSetHelpers();
+
+const { currentSet } = builderStore;
 
 const getRotationHelperMesh = (() => {
     let mainMesh: THREE.Object3D;
@@ -134,14 +140,14 @@ export class InspectInput extends MouseInputState {
     _canMove() {
         return (
             inputStore.showMoveGizmo &&
-            setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED'
+            setsManager.getInfo(currentSet.value.id)?.status !== 'ONCHAIN_LOADED'
         );
     }
 
     _canRotate() {
         return (
             inputStore.showRotateGizmo &&
-            setsManager.getInfo(store.state.builderData.currentSet.id)?.status !== 'ONCHAIN_LOADED'
+            setsManager.getInfo(currentSet.value.id)?.status !== 'ONCHAIN_LOADED'
         );
     }
 
@@ -169,7 +175,7 @@ export class InspectInput extends MouseInputState {
         // Update the movement gizmo when needed.
         this.meshWatcher = watchEffect(() => {
             // Reactivity trigger so that getCenterPos gets recomputed properly.
-            store.state.builderData.currentSet.briqs_;
+            currentSet.value.briqs_;
             const avgPos = this.fsm.store.selectionMgr.getCenterPos();
             this.gui.focusPos = avgPos;
             this.mesh.visible = !!avgPos && this._canMove();
@@ -217,7 +223,7 @@ export class InspectInput extends MouseInputState {
         if (!pos || pos[1] < 0)
             this.gui.briq = undefined;
         else
-            this.gui.briq = (store.state.builderData.currentSet as SetData).getAt(...pos);
+            this.gui.briq = (currentSet.value as SetData).getAt(...pos);
     }
 
     async onPointerDown(event: PointerEvent) {
@@ -289,7 +295,7 @@ export class InspectInput extends MouseInputState {
         const newSet = setsManager.createLocalSet();
         for (const briq of this.fsm.store.selectionMgr.selectedBriqs)
             newSet.placeBriq(...briq.position, briq);
-        store.dispatch('builderData/select_set', newSet.id);
+        openSetInBuilder(newSet.id);
     }
 }
 
@@ -344,7 +350,7 @@ export class VASelect extends VoxelAlignedSelection {
                     z <= Math.max(this.initialClickPos[2], pos[2]);
                     ++z
                 ) {
-                    const briq = store.state.builderData.currentSet.getAt(x, y, z);
+                    const briq = currentSet.value.getAt(x, y, z);
                     if (briq)
                         briqs.push(briq);
                 }
@@ -480,7 +486,7 @@ export class DragInput extends MouseInputState {
                 Math.round(-res.y + briq.position![1]),
                 Math.round(-res.z + briq.position![2]),
             ];
-            if (store.state.builderData.currentSet.getAt(...bp)) {
+            if (currentSet.value.getAt(...bp)) {
                 overlay = false;
                 break;
             }

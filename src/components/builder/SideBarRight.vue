@@ -104,7 +104,7 @@ import { walletStore } from '@/chain/Wallet';
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
 
 import { defineComponent, toRef, ref } from 'vue';
-import { useRecording } from '@/builder/Recording';
+import { useRecording } from '@/components/builder/Recording';
 export default defineComponent({
     data() {
         return {

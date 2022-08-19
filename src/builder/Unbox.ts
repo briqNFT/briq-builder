@@ -1,8 +1,8 @@
 import contractStore from '@/chain/Contracts';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { useSetHelpers } from '@/components/builder/SetComposable';
-import { useBuilder } from './BuilderStore';
 import { useGenesisStore } from './GenesisStore';
+import { setsManager } from './SetsManager';
 
 export function useUnboxHelpers() {
     const genesisStore = useGenesisStore();
@@ -17,7 +17,6 @@ export function useUnboxHelpers() {
 
     const createBookletSet = (set_name: string, booklet_id: string) => {
         // Create a new local set with the proper booklet.
-        const { setsManager } = useBuilder();
 
         const set = setsManager.createLocalSet();
         set.name = set_name;

@@ -4,6 +4,9 @@ import getPreviewCube from '@/builder/graphics/PreviewCube';
 import { store } from '@/store/Store';
 
 import { THREE } from '@/three';
+import { builderStore } from '@/builder/BuilderStore';
+
+const { currentSet } = builderStore;
 
 export class EraserInput extends MouseInputState {
     lastClickPos: [number, number, number] | undefined;
@@ -71,7 +74,7 @@ export class EraserMultiInput extends VoxelAlignedSelection {
                     z <= Math.max(this.initialClickPos[2], pos[2]);
                     ++z
                 )
-                    if (store.state.builderData.currentSet.getAt(x, y, z))
+                    if (currentSet.value.getAt(x, y, z))
                         actionData.push({ pos: [x, y, z] });
         await store.dispatch('builderData/place_briqs', actionData);
     }

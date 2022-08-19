@@ -12,15 +12,14 @@ import { inputStore } from '../../builder/inputs/InputStore';
 // TODO: remove redundancy with Header.vue
 import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
-import { useBuilder } from '@/builder/BuilderStore';
 import MenuBuilder from './MenuBuilder.vue';
 import { useBuilderInput } from './InputComposable';
 import CameraFlyout from './CameraFlyout.vue';
-import { useCurrentSet } from './CurrentSet';
+import { useBuilder } from '@/components/builder/BuilderComposable';
 import ExportSetVue from './modals/ExportSet.vue';
 import { pushModal } from '../Modals.vue';
 
-const { currentSet } = useCurrentSet();
+const { currentSet } = useBuilder();
 
 const getNbBriqs = computed(() => {
     // Vue reactiveness, this is opt-in for performance.
@@ -128,20 +127,25 @@ const hideCameraFlyout = () => {
         </div>
         <div class="flex-1 basis-1 flex justify-end">
             <div class="flex items-stretch gap-1 px-2 py-1 border bg-grad-lightest rounded-md">
-                <div class="flex items-center justify-center font-medium gap-2 px-2">
-                    <briqIcon class="inline-block"/> {{ chainBriqs.getNbBriqs() }}
-                </div>
-                <div>
-                    <Btn v-if="!maybeStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <MenuDropdown no-background icon :close-on-click="true" v-else-if="maybeStore?.userWalletAddress" class="text-xs">
-                        <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
-                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
-                        <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
-                        <Btn no-background class="justify-start" icon @click="maybeStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
-                    </MenuDropdown>
-                </div>
-                <NotificationsMenu/>
-                <Btn @click="pushModal(ExportSetVue, { setId: currentSet.id })">Mint</Btn>
+                <template v-if="maybeStore?.userWalletAddress">
+                    <div class="flex items-center justify-center font-medium gap-2 px-2">
+                        <briqIcon class="inline-block"/> {{ chainBriqs?.getNbBriqs() }}
+                    </div>
+                    <div>
+                        <MenuDropdown no-background icon :close-on-click="true" class="text-xs">
+                            <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
+                            <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                            <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
+                            <Btn no-background class="justify-start" icon @click="maybeStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
+                        </MenuDropdown>
+                    </div>
+                    <NotificationsMenu/>
+                    <Btn @click="pushModal(ExportSetVue, { setId: currentSet.id })">Mint</Btn>
+                </template>
+                <template v-else>
+                    <Btn class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
+                    <Btn disabled="true">Mint</Btn>
+                </template>
             </div>
         </div>
     </div>

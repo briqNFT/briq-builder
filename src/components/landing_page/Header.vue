@@ -6,7 +6,7 @@ import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { onMounted, computed } from 'vue';
 import NotificationsList from '../NotificationsList.vue';
 
-import { useBuilder } from '@/builder/BuilderStore';
+import { useBuilder } from '@/components/builder/BuilderComposable';
 
 import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
@@ -53,19 +53,23 @@ const { chainBriqs } = useBuilder();
                         <i class="fa-solid fa-box-open"/> {{ userBoxesStore.current?.availableBoxes?.length || 0 }}
                     </Btn>
                 </router-link>
-                <div v-if="walletStore?.userWalletAddress" class="border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
-                    <briqIcon class="inline-block"/> {{ chainBriqs.getNbBriqs() }}
-                </div>
-                <div class="flex-none">
-                    <Btn v-if="!walletStore?.userWalletAddress" class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <MenuDropdown no-background icon :close-on-click="true" v-else-if="walletStore?.userWalletAddress" class="text-xs">
-                        <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block !mr-2"/></template>
-                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
-                        <Btn no-background class="justify-start" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
-                        <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
-                    </MenuDropdown>
-                </div>
-                <NotificationsMenu v-if="walletStore?.userWalletAddress"/>
+                <template v-if="walletStore?.userWalletAddress">
+                    <div class="border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
+                        <briqIcon class="inline-block"/> {{ chainBriqs?.getNbBriqs() }}
+                    </div>
+                    <div class="flex-none">
+                        <MenuDropdown no-background icon :close-on-click="true" class="text-xs">
+                            <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block !mr-2"/></template>
+                            <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                            <Btn no-background class="justify-start" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
+                            <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
+                        </MenuDropdown>
+                    </div>
+                    <NotificationsMenu/>
+                </template>
+                <template v-else>
+                    <Btn class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
+                </template>
             </div>
         </div>
     </div>

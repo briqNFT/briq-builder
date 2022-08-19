@@ -8,7 +8,7 @@ import { useStore } from 'vuex';
 import Flyout from '../generic/Flyout.vue';
 import { pushModal } from '../Modals.vue';
 import { pushPopup } from '@/Notifications';
-import { useCurrentSet } from './CurrentSet';
+import { useBuilder } from '@/components/builder/BuilderComposable';
 import ImportVoxModalVue from './modals/ImportVoxModal.vue';
 import RenameSetVue from './modals/RenameSet.vue';
 import Settings from './Settings.vue';
@@ -29,10 +29,10 @@ watch(toRef(props, 'open'), (o, n) => {
 
 });
 
-const { currentSet } = useCurrentSet();
+const { currentSet, selectSet } = useBuilder();
 
 const renameSet = () => {
-    pushModal(RenameSetVue, { set: currentSet.id })
+    pushModal(RenameSetVue, { set: currentSet.value.id })
 }
 
 const store = useStore();
@@ -54,7 +54,6 @@ const importSetFromFile = async () => {
                 let set = new SetData(contents.id).deserialize(contents);
                 set.id = hexUuid();
                 createNewSetAndOpen(set);
-                await store.dispatch('builderData/select_set', set.id);
             }
         } catch (err) {
             pushPopup('error', 'Error loading file', `Error while loading file ${fileHandle.name}\n${err?.message}`);

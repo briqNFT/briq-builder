@@ -5,7 +5,7 @@ import {
 
 import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, shallowRef, WatchStopHandle, onUnmounted } from 'vue';
 
-import { useBuilder } from '@/builder/BuilderStore';
+import { useBuilder } from '@/components/builder/BuilderComposable';
 import { walletStore } from '@/chain/Wallet';
 
 import { setupScene, useRenderer, addBox, materials, graphicsFrame, getBoxAt, resetGraphics, SceneQuality, boxMaterials, boxTexture } from './UnboxingGraphics';

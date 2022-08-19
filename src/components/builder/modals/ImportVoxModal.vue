@@ -69,6 +69,7 @@ export default defineComponent({
     },
     methods: {
         importSet() {
+            /*
             setsManager.registerLocalSet(this.set);
             // Things are placed centered
             let maxV = 0;
@@ -79,6 +80,7 @@ export default defineComponent({
             this.$store.dispatch('builderData/select_set', this.set.id);
             dispatchBuilderAction('put_all_in_view');
             this.$emit('close');
+            */
         },
         copyError() {
             navigator.clipboard.writeText(this.error);

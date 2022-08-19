@@ -5,8 +5,6 @@ import { registerUndoableAction } from './UndoRedo';
 
 import { dispatchBuilderAction } from './graphics/Dispatch';
 
-import { palettesMgr } from './Palette';
-
 import { hexUuid } from '../Uuid';
 
 import builderSettings from './graphics/Settings';
@@ -19,9 +17,12 @@ import { store } from '@/store/Store';
 
 import { THREE } from '@/three';
 import { builderInputFsm } from './inputs/BuilderInput';
-import { bookletStore } from '@/components/builder/BookletComposable';
+import { computed, ref } from 'vue';
 
 const initSet = new SetData(hexUuid());
+
+// this is clunky AF, see BuilderStore
+export const currentSet = ref(null as unknown as SetData);
 
 function isWithinBounds(x: number, y: number, z: number) {
     const size = builderSettings.canvasSize;
@@ -31,22 +32,7 @@ function isWithinBounds(x: number, y: number, z: number) {
 export const builderDataStore = (() => {
     return {
         namespaced: true,
-        state: () => ({
-            currentSet: initSet,
-        }),
         actions: {
-            ////////////
-            //// Local set Management
-            ////////////
-            select_set({ commit }: any, data: any) {
-                commit('select_set', data);
-                inputStore.selectionMgr.clear();
-            },
-            update_set({ commit }: any, data: any) {
-                commit('update_set', data);
-                inputStore.selectionMgr.clear();
-            },
-
             ////////////
             //// Set commands
             ////////////
@@ -114,7 +100,7 @@ export const builderDataStore = (() => {
                         briq.position[1] + (data.delta.y || 0),
                         briq.position[2] + (data.delta.z || 0),
                     ];
-                    const targetCell = state.currentSet.getAt(...targetPos);
+                    const targetCell = currentSet.value.getAt(...targetPos);
                     targets.push({
                         pos: targetPos,
                         color: targetCell?.color,
@@ -140,7 +126,7 @@ export const builderDataStore = (() => {
                     inputStore.selectionMgr.clear();
                     commit('place_briqs', removal);
                     commit('place_briqs', add);
-                    const br = selectAtPos.map((x) => state.currentSet.getAt(...x));
+                    const br = selectAtPos.map((x) => currentSet.value.getAt(...x));
                     inputStore.selectionMgr.select(br);
                 };
                 _do();
@@ -210,7 +196,7 @@ export const builderDataStore = (() => {
 
                 const replacedBriqs = {} as { [key: string]: any };
                 for (const uid in targetPos) {
-                    const briq = state.currentSet.getAt(...targetPos[uid].pos);
+                    const briq = currentSet.value.getAt(...targetPos[uid].pos);
                     // Ignore briqs that are part of the movement.
                     if (briq && !targetPos[briq._uuid] && data.allow_overwrite)
                         replacedBriqs[briq._uuid] = {
@@ -251,7 +237,7 @@ export const builderDataStore = (() => {
                     const br = [];
                     for (const uid in targetPos)
                         if (targetPos[uid])
-                            br.push(state.currentSet.getAt(...targetPos[uid].pos));
+                            br.push(currentSet.value.getAt(...targetPos[uid].pos));
                     inputStore.selectionMgr.select(br);
                     inputStore.selectionMgr.updateGraphics();
                 };
@@ -269,7 +255,7 @@ export const builderDataStore = (() => {
 
                         commit('place_briqs', Object.values(replacedBriqs));
 
-                        const br = originalBriqs.map((x) => state.currentSet.getAt(...x.pos));
+                        const br = originalBriqs.map((x) => currentSet.value.getAt(...x.pos));
                         inputStore.selectionMgr.select(br);
                         inputStore.selectionMgr.updateGraphics();
                     },
@@ -280,22 +266,6 @@ export const builderDataStore = (() => {
             },
         },
         mutations: {
-            select_set(state: any, data: string) {
-                const info = setsManager.getInfo(data);
-                const set = info.getSet();
-                if (!set)
-                    throw new Error('Could not find local set with ID ' + data);
-                state.currentSet = set;
-                inputStore.selectionMgr.selectSet(state.currentSet);
-                if (builderInputFsm.store)
-                    builderInputFsm.switchTo('place');
-                dispatchBuilderAction('select_set', state.currentSet);
-            },
-            update_set(state: any, data: any) {
-                state.currentSet.deserialize(data);
-                inputStore.selectionMgr.clear();
-                dispatchBuilderAction('select_set', state.currentSet);
-            },
             change_set_name(state: any, data: any) {
                 data.set.name = data.name;
             },
@@ -314,37 +284,37 @@ export const builderDataStore = (() => {
                 }[],
             ) {
                 for (const briqData of data) {
-                    const cell = state.currentSet.getAt(...briqData.pos);
+                    const cell = currentSet.value.getAt(...briqData.pos);
                     if (cell && briqData.color && !briqData.allow_overwrite)
                         continue;
                     const briq = briqData.color
                         ? new Briq(briqData.material, briqData.color).setNFTid(briqData.id)
                         : undefined;
-                    state.currentSet.placeBriq(...briqData.pos, briq);
+                    currentSet.value.placeBriq(...briqData.pos, briq);
                 }
                 //dispatchBuilderAction("place_briqs", grphcs);
                 inputStore.selectionMgr.clear();
             },
             move_briqs(state: any, data: { delta: { x?: number; y?: number; z?: number }; briqs: Briq[] }) {
-                state.currentSet.moveBriqs(data.delta.x ?? 0, data.delta.y ?? 0, data.delta.z ?? 0, data.briqs);
-                dispatchBuilderAction('select_set', state.currentSet);
+                currentSet.value.moveBriqs(data.delta.x ?? 0, data.delta.y ?? 0, data.delta.z ?? 0, data.briqs);
+                dispatchBuilderAction('select_set', currentSet.value);
             },
 
             set_briq_color(state: any, data: any) {
                 for (const d of data)
-                    state.currentSet.modifyBriq(...d.pos, d);
+                    currentSet.value.modifyBriq(...d.pos, d);
                 //dispatchBuilderAction("place_briqs", data);
             },
             clear: (state: any) => {
-                state.currentSet.reset();
+                currentSet.value.reset();
                 inputStore.selectionMgr.clear();
                 dispatchBuilderAction('reset');
             },
             undo_clear: (state: any, data: any) => {
-                state.currentSet.reset();
-                state.currentSet.deserialize(data);
+                currentSet.value.reset();
+                currentSet.value.deserialize(data);
                 inputStore.selectionMgr.clear();
-                dispatchBuilderAction('select_set', state.currentSet);
+                dispatchBuilderAction('select_set', currentSet.value);
             },
 
             /*
@@ -352,10 +322,10 @@ export const builderDataStore = (() => {
             {
                 for (let [ogId, newId] of data.swaps)
                 {
-                    state.currentSet.swapBriq(ogId, data.briqsDB.get(newId));
+                    currentSet.value.swapBriq(ogId, data.briqsDB.get(newId));
                     inputStore.selectionMgr.replace(ogId, data.briqsDB.get(newId)!);
                 }
-                dispatchBuilderAction("select_set", state.currentSet);
+                dispatchBuilderAction("select_set", currentSet.value);
             },
             */
 
@@ -382,7 +352,7 @@ registerUndoableAction(
             transientActionState.cells = [];
             transientActionState.selected = inputStore.selectionMgr.selectedBriqs.map((x) => x.position);
             for (const data of payload) {
-                const cell = (state.builderData.currentSet as SetData).getAt(...data.pos);
+                const cell = (currentSet as SetData).getAt(...data.pos);
                 transientActionState.cells.push({
                     pos: data.pos,
                     color: cell?.color,
@@ -415,7 +385,7 @@ registerUndoableAction(
         onBefore: ({ transientActionState }: any, payload: any, state: any) => {
             const colors = [];
             for (const d of payload) {
-                const cell = (state.builderData.currentSet as SetData).getAt(...(d.pos as [number, number, number]));
+                const cell = (currentSet as SetData).getAt(...(d.pos as [number, number, number]));
                 if (cell)
                     colors.push({ color: cell.color, material: cell.material });
             }
@@ -439,11 +409,12 @@ registerUndoableAction(
     (data: any) => 'Change briq color',
 );
 
+/*
 registerUndoableAction(
     'builderData/select_set',
     {
         onBefore: ({ transientActionState }: any, payload: any, state: any) => {
-            transientActionState.set = state.builderData.currentSet.id;
+            transientActionState.set = currentSet.id;
         },
         onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
             await store.dispatch('push_command_to_history', {
@@ -460,12 +431,13 @@ registerUndoableAction(
     },
     (data: any) => 'Select set #' + data.undoData,
 );
+*/
 
 registerUndoableAction(
     'builderData/clear',
     {
         onBefore: ({ transientActionState }: any, payload: any, state: any) => {
-            transientActionState.data = state.builderData.currentSet.serialize();
+            transientActionState.data = currentSet.value.serialize();
         },
         onAfter: async ({ transientActionState, store }: any, payload: any, state: any) => {
             await store.dispatch('push_command_to_history', {

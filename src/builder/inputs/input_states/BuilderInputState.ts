@@ -2,7 +2,7 @@ import builderSettings from '../../graphics/Settings';
 import { getIntersectionPos } from '../../graphics/SetRendering';
 import type { BuilderInputFSM } from '../BuilderInput';
 
-export class BuilderInputState {
+export abstract class BuilderInputState {
     fsm: BuilderInputFSM;
     canvas: HTMLCanvasElement;
 

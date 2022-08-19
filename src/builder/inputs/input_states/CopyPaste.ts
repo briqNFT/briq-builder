@@ -6,6 +6,9 @@ import type { HotkeyHandle } from '@/Hotkeys';
 import { SelectionManager, selectionRender } from '../Selection';
 import { THREE } from '@/three';
 import { pushMessage } from '@/Messages';
+import { builderStore } from '@/builder/BuilderStore';
+
+const { currentSet } = builderStore;
 
 export class CopyPasteInput extends MouseInputState {
     lastClickPos: [number, number, number] | undefined;
@@ -117,7 +120,7 @@ export class CopyPasteInput extends MouseInputState {
                 Math.round(pos[1] + briq.position![1] + corr[1] - this.selectionCenter.y),
                 Math.round(pos[2] + briq.position![2] + corr[2] - this.selectionCenter.z),
             ];
-            if (store.state.builderData.currentSet.getAt(...bp)) {
+            if (currentSet.value.getAt(...bp)) {
                 overlay = false;
                 break;
             }
@@ -164,7 +167,7 @@ export class CopyPasteInput extends MouseInputState {
                 Math.round(pos[1] + briq.position![1] + corr[1] - this.selectionCenter.y),
                 Math.round(pos[2] + briq.position![2] + corr[2] - this.selectionCenter.z),
             ];
-            if (store.state.builderData.currentSet.getAt(...bp) && this.fsm.store.briqOverlayMode === 'KEEP') {
+            if (currentSet.value.getAt(...bp) && this.fsm.store.briqOverlayMode === 'KEEP') {
                 didOverlay = true;
                 continue;
             }

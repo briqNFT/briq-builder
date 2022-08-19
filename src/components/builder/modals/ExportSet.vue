@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { backendManager } from '@/Backend';
-import { useBuilder } from '@/builder/BuilderStore';
+import { useBuilder } from '@/components/builder/BuilderComposable';
 import builderSettings from '@/builder/graphics/Settings';
 import { SetData } from '@/builder/SetData';
 import { setsManager } from '@/builder/SetsManager';
@@ -15,7 +15,7 @@ import { computed, ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useScreenshotHelpers } from '../ScreenshotComposable';
 
-const { chainBriqs } = useBuilder();
+const { chainBriqs, selectSet } = useBuilder();
 
 defineEmits(['close']);
 
@@ -72,7 +72,7 @@ watch([setData, toRef(chainBriqs, 'byMaterial')], () => {
 })
 
 const hasSigner = computed(() => !!(maybeStore.value?.signer));
-const hasLoadedBriqs = computed(() => chainBriqs.status === 'OK');
+const hasLoadedBriqs = computed(() => chainBriqs?.status === 'OK');
 // If there is no exportSet, then we have an error in swapping for real briqs.
 const hasEnoughBriqs = computed(() => hasLoadedBriqs.value && exportSet.value);
 
@@ -194,8 +194,7 @@ const startMinting = async () => {
         logDebug('Set exported ' + data.id);
 
         let info = setsManager.onSetMinted(setData.value.id, exportSet.value);
-        info.chain_owner = maybeStore.value!.userWalletAddress;
-        store.dispatch('builderData/select_set', exportSet.value.id);
+        selectSet(exportSet.value.id);
 
         exportStep.value = 'DONE';
     } catch (err: any) {

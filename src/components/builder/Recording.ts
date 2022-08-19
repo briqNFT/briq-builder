@@ -1,10 +1,9 @@
-import { store } from '@/store/Store';
 import { watchEffect, ref } from 'vue';
-import type { SetData } from './SetData';
-import type { Briq } from './Briq';
 import { downloadJSON } from '@/url';
+import { useBuilder } from './BuilderComposable';
 
 export const useRecording = () => {
+    const { currentSet } = useBuilder();
     const isRecording = ref(false);
 
     let record = [];
@@ -12,15 +11,14 @@ export const useRecording = () => {
     let lastStep = [] as any[];
 
     watchEffect(() => {
-        const currentSet = store.state.builderData.currentSet as SetData;
-        currentSet.briqs_;
+        currentSet.value.briqs_;
         if (!isRecording.value)
             return;
         for (const briq of lastStep)
             briq._found = false;
 
         // Store some extra data over regular serialization for simplicity.
-        const data = currentSet.getAllBriqs().map(x => {
+        const data = currentSet.value.getAllBriqs().map(x => {
             const uid = '' + x.position[0] + x.position[1] + x.position[2] + x.material + x.color;
             const last = lastStep.find(o => o.uid == uid);
             if (last)

@@ -6,7 +6,7 @@ import { useStore } from 'vuex';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import { CONF } from '@/Conf';
-import { useBuilder } from '@/builder/BuilderStore';
+import { useBuilder } from '@/components/builder/BuilderComposable';
 
 export const bookletStore = reactive({
     bookletData: null as any,

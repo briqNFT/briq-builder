@@ -164,8 +164,6 @@ export class SetsManager {
     }
 }
 
-export const setsManager = reactive(new SetsManager());
-
 const storageHandlers: { [sid: string]: WatchStopHandle } = {};
 export function synchronizeSetsLocally() {
     for (const sid in setsManager.setsInfo) {
@@ -192,9 +190,10 @@ export function synchronizeSetsLocally() {
     }
 }
 
-export function setupLocalSetWatcher() {
-    watchEffect(() => synchronizeSetsLocally());
-}
+export const setsManager = reactive(new SetsManager());
+setsManager.loadFromStorage();
+watchEffect(() => synchronizeSetsLocally());
+
 
 import { defaultModel } from '@/conf/realms';
 

@@ -1,5 +1,4 @@
 import { Briq } from './Briq';
-import type IBriqContract from '../chain/contracts/briq';
 import { reactive, watchEffect } from 'vue';
 import type { Ref } from 'vue';
 import { ticketing, isOutdated } from '../Async';
@@ -9,6 +8,7 @@ import { reportError } from '../Monitoring';
 import { CONF } from '@/Conf';
 import { backendManager } from '@/Backend';
 import { getCurrentNetwork } from '@/chain/Network';
+import { perUserStorable, perUserStore } from './PerUserStore';
 
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number; nft_ids: string[] };
@@ -32,12 +32,11 @@ class NFTNotAvailable extends Error {
 /**
  * Responsible for maintaining the state of 'on-chain' briqs, as opposed to local set-briqs.
  */
-export class ChainBriqs {
+export class ChainBriqs implements perUserStorable {
     fetchingBriqs = false;
 
     byMaterial: { [material: string]: BALANCE } = {};
 
-    briqContract: undefined | IBriqContract;
     addr: undefined | string;
 
     fastBalance = 0;
@@ -50,17 +49,10 @@ export class ChainBriqs {
         this.byMaterial = {};
     }
 
-    watch() {
-        watchEffect(() => {
-            this.loadFromChain();
-            this.updateFastBalance();
-        });
-        return this;
-    }
-
-    setContract(contract?: IBriqContract) {
-        this.briqContract = contract;
-        logDebug('CHAIN BRIQS - CONTRACT IS ', contract);
+    onEnter(_old: string, n: string) {
+        this.addr = n;
+        this.loadFromChain();
+        this.updateFastBalance();
     }
 
     setAddress(addr: Ref<string>) {
@@ -115,7 +107,7 @@ export class ChainBriqs {
     });
 
     async updateFastBalance() {
-        if (!this.briqContract || !this.addr) {
+        if (!this.addr) {
             this.reset();
             return;
         }
@@ -191,6 +183,5 @@ export class ChainBriqs {
     }
 }
 
-export function createChainBriqs() {
-    return reactive(new ChainBriqs()).watch();
-}
+const _chainBriqs = perUserStore(ChainBriqs);
+export const chainBriqs = _chainBriqs.current;

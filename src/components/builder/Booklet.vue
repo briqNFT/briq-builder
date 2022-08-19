@@ -6,7 +6,7 @@ import Slider from '../generic/Slider.vue';
 import { pushModal } from '../Modals.vue';
 import { useBooklet } from './BookletComposable';
 import ExportSetBookletVue from './modals/ExportSetBooklet.vue';
-import { useBuilder } from '@/builder/BuilderStore';
+import { useBuilder } from '@/components/builder/BuilderComposable';
 import ProfileVue from '../profile/Profile.vue';
 import WindowVue from '../generic/Window.vue';
 
