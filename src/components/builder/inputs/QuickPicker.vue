@@ -12,6 +12,9 @@ import type { ChainBriqs } from '@/builder/ChainBriqs';
 import { computed, inject, toRef } from 'vue';
 
 import { addMaterialCSS } from '@/Conf';
+import { useBuilder } from '../BuilderComposable';
+
+const { currentSet } = useBuilder();
 
 const store = useStore();
 
@@ -26,7 +29,7 @@ const currentKey = computed(() => packPaletteChoice(inputStore.currentMaterial, 
 
 const availableNFTs = computed(() => {
     let nfts = (chainBriqs as ChainBriqs).getNFTs();
-    let briqs = store.state.builderData.currentSet.getAllBriqs();
+    let briqs = currentSet.value.getAllBriqs();
     let av = [];
     for (let nft of nfts)
         if (!briqs.find((x: any) => x.id === nft.token_id))
@@ -76,7 +79,7 @@ const deleteChoice = () => {
 
 const setColors = computed((): { [key: string]: number } => {
     let ret = {} as { [key:string]: number };
-    store.state.builderData.currentSet.forEach((cell: Briq) => {
+    currentSet.value.forEach((cell: Briq) => {
         const key = packPaletteChoice(cell.material, cell.color);
         if (key in ret)
             ++ret[key];

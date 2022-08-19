@@ -7,6 +7,9 @@ import { THREE } from '@/three';
 import { VoxelAlignedSelection } from './SelectHelpers';
 
 import { watchEffect } from 'vue';
+import { builderStore } from '@/builder/BuilderStore';
+
+const { currentSet } = builderStore;
 
 export class PlacerInput extends MouseInputState {
     onEnter() {
@@ -76,7 +79,7 @@ export class PlacerMultiInput extends VoxelAlignedSelection {
                     z <= Math.max(this.initialClickPos[2], pos[2]);
                     ++z
                 )
-                    if (!store.state.builderData.currentSet.getAt(x, y, z))
+                    if (!currentSet.value.getAt(x, y, z))
                         briqs.push({
                             pos: [x, y, z],
                             color: inputStore.currentColor,

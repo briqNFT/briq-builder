@@ -352,7 +352,7 @@ registerUndoableAction(
             transientActionState.cells = [];
             transientActionState.selected = inputStore.selectionMgr.selectedBriqs.map((x) => x.position);
             for (const data of payload) {
-                const cell = (currentSet as SetData).getAt(...data.pos);
+                const cell = (currentSet.value as SetData).getAt(...data.pos);
                 transientActionState.cells.push({
                     pos: data.pos,
                     color: cell?.color,
@@ -385,7 +385,7 @@ registerUndoableAction(
         onBefore: ({ transientActionState }: any, payload: any, state: any) => {
             const colors = [];
             for (const d of payload) {
-                const cell = (currentSet as SetData).getAt(...(d.pos as [number, number, number]));
+                const cell = (currentSet.value as SetData).getAt(...(d.pos as [number, number, number]));
                 if (cell)
                     colors.push({ color: cell.color, material: cell.material });
             }

@@ -53,7 +53,7 @@ export function useBooklet() {
     const shapeValidity = ref(0);
 
 
-    const { currentSetInfo } = useBuilder();
+    const { currentSet, currentSetInfo } = useBuilder();
     watch(currentSetInfo, () => {
         if (currentSetInfo.value && currentSetInfo.value.booklet)
             loadBookletData(currentSetInfo.value.booklet);
@@ -69,7 +69,7 @@ export function useBooklet() {
     watchEffect(() => {
         if (!bookletStore.bookletData)
             return;
-        const set = store.state.builderData.currentSet as SetData;
+        const set = currentSet.value as SetData;
         set.briqs_;
         const currentBriqs = set.getAllBriqs();
         const targetBriqs = bookletStore.bookletData.briqs.slice();

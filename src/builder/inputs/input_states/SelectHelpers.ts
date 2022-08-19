@@ -8,6 +8,8 @@ import { camera, overlayObjects } from '@/builder/graphics/Builder';
 import type { HotkeyHandle } from '@/Hotkeys';
 import type { Briq } from '@/builder/Briq';
 
+const { currentSet } = builderStore;
+
 export class BoxSelection extends MouseInputState {
     startX!: number;
     startY!: number;
@@ -81,7 +83,7 @@ export class BoxSelection extends MouseInputState {
             const cpos1 = new THREE.Vector3();
             const cpos2 = new THREE.Vector3();
             const cbox = new THREE.Box3(cpos1, cpos2);
-            store.state.builderData.currentSet.forEach((briq, pos) => {
+            currentSet.value.forEach((briq, pos) => {
                 cpos1.x = pos[0];
                 cpos1.y = pos[1];
                 cpos1.z = pos[2];
@@ -101,6 +103,7 @@ export class BoxSelection extends MouseInputState {
     async doAction(briqs: Briq[]) {}
 }
 import Ruler from '@/assets/ruler.png';
+import { builderStore } from '@/builder/BuilderStore';
 
 function createRulerObject() {
     const texture = new THREE.TextureLoader().load(Ruler);
@@ -114,8 +117,8 @@ function createRulerObject() {
     const material = new THREE.ShaderMaterial( {
         uniforms: {
             x_y_z: { value: new THREE.Vector3(0, 0, 0) },
-            tex: { value: texture }
-        },    
+            tex: { value: texture },
+        },
         vertexShader: `
         uniform vec3 x_y_z;
         attribute vec3 color;
@@ -129,7 +132,7 @@ function createRulerObject() {
             gl_Position = projectionMatrix * modelViewPosition; 
         }
         `,
-        fragmentShader: 
+        fragmentShader:
         `
         varying vec2 tc;
         varying vec3 col;
@@ -137,7 +140,7 @@ function createRulerObject() {
         void main() {
             gl_FragColor = mix(vec4(1.0), vec4(0.0, 0.0, 0.0, 1.0), texture2D(tex, tc).a);
         }
-        `
+        `,
     });
     material.side = THREE.DoubleSide;
     const ret = new THREE.Mesh();//new THREE.BoxBufferGeometry(1, 1, 1));
@@ -147,7 +150,7 @@ function createRulerObject() {
     const geom = new THREE.BufferGeometry();
 
     const WIDTH = 0.4;
-    
+
     vertices.push(...[0, 0, 0]);
     uvs.push(...[0, 0]);
     colors.push(...[0, 0, 0]);
@@ -231,8 +234,7 @@ export class VoxelAlignedSelection extends MouseInputState {
         this.currentClickPos = this.initialClickPos;
         this.updatePreviewCube();
 
-        if (this.showRuler)
-        {
+        if (this.showRuler) {
             this.ruler = createRulerObject();
             overlayObjects.add(this.ruler);
         }
@@ -284,7 +286,7 @@ export class VoxelAlignedSelection extends MouseInputState {
             this.initialClickPos[0] === this.currentClickPos[0] ? 0 : Math.abs(this.initialClickPos[0] - this.currentClickPos[0]) + 1,
             this.initialClickPos[1] === this.currentClickPos[1] ? 0 : Math.abs(this.initialClickPos[1] - this.currentClickPos[1]) + 1,
             this.initialClickPos[2] === this.currentClickPos[2] ? 0 : Math.abs(this.initialClickPos[2] - this.currentClickPos[2]) + 1,
-        )};
+        ) };
         this.ruler.position.set(
             Math.min(this.initialClickPos[0], this.currentClickPos[0]),
             Math.min(this.initialClickPos[1], this.currentClickPos[1]),

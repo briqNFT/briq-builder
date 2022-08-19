@@ -9,6 +9,9 @@ import { THREE } from '@/three';
 import { VoxelAlignedSelection } from './SelectHelpers';
 
 import { watchEffect } from 'vue';
+import { builderStore } from '@/builder/BuilderStore';
+
+const { currentSet } = builderStore;
 
 export class PainterInput extends MouseInputState {
     onEnter() {
@@ -50,9 +53,8 @@ export class PainterInput extends MouseInputState {
 
         // Left-click paints, right-click samples the briq color.
         if (event.button === 2) {
-            const target = (store.state.builderData.currentSet as SetData).getAt(...pos);
-            if (target)
-            {
+            const target = (currentSet.value as SetData).getAt(...pos);
+            if (target) {
                 inputStore.currentMaterial = target.material;
                 inputStore.currentColor = target.color;
             }
@@ -83,7 +85,7 @@ export class PainterMultiInput extends VoxelAlignedSelection {
         for (let x = Math.min(this.initialClickPos[0], pos[0]); x <= Math.max(this.initialClickPos[0], pos[0]); ++x)
             for (let y = Math.min(this.initialClickPos[1], pos[1]); y <= Math.max(this.initialClickPos[1], pos[1]); ++y)
                 for (let z = Math.min(this.initialClickPos[2], pos[2]); z <= Math.max(this.initialClickPos[2], pos[2]); ++z)
-                    if (store.state.builderData.currentSet.getAt(x, y, z))
+                    if (currentSet.value.getAt(x, y, z))
                         actionData.push({
                             pos: [x, y, z],
                             color: inputStore.currentColor,
