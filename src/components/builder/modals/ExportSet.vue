@@ -14,6 +14,7 @@ import { downloadJSON } from '@/url';
 import { computed, ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useScreenshotHelpers } from '../ScreenshotComposable';
+import { userSetStore } from '@/builder/UserSets';
 
 const { chainBriqs, selectSet } = useBuilder();
 
@@ -33,7 +34,10 @@ const { previewImage, imageProcessing, takeScreenshot, updateImage, retakeScreen
 if (!previewImage.value)
     takeScreenshot().then(img => updateImage(img, true))
 
-const setData = computed(() => setsManager.getInfo(props.setId).getSet()!)
+const setData = ref(setsManager.getInfo(props.setId).getSet()!);
+watch(toRef(props, 'setId'), () => {
+    setData.value = setsManager.getInfo(props.setId).getSet()!;
+})
 
 const setName = computed({
     get() {
@@ -63,24 +67,24 @@ watch([setData, toRef(chainBriqs, 'byMaterial')], () => {
     let es = new SetData(data.id);
     es.deserialize(data);
     try {
-        es.swapForRealBriqs(chainBriqs);
+        es.swapForRealBriqs(chainBriqs.value!);
     } catch (err) {
         exportSet.value = undefined;
         return;
     }
     exportSet.value = es;
+}, {
+    immediate: true,
 })
 
 const hasSigner = computed(() => !!(maybeStore.value?.signer));
-const hasLoadedBriqs = computed(() => chainBriqs?.status === 'OK');
+const hasLoadedBriqs = computed(() => chainBriqs.value?.status === 'OK');
 // If there is no exportSet, then we have an error in swapping for real briqs.
 const hasEnoughBriqs = computed(() => hasLoadedBriqs.value && exportSet.value);
 
 // TODO: check if the set is being minted or is already minted (based on ID);
 const alreadyMinted = false;
 const validationError = computed(() => {
-    // TODO: remove before prod
-    return undefined;
     if (!hasSigner.value)
         return {
             code: 'NO_SIGNER',
@@ -151,30 +155,7 @@ const startMinting = async () => {
         */
         exportStep.value = 'SENDING_TRANSACTION';
 
-        await backendManager.storeSet({
-            owner: maybeStore.value!.userWalletAddress,
-            token_id: data.id,
-            chain_id: getCurrentNetwork(),
-            data: data,
-            //message_hash: await this.wallet.signer.hashMessage(message),
-            //signature: signature,
-            image_base64: await imageProcessing.value,
-        });
-
-        // Debug
-        //downloadJSON(data, data.id + ".json")
-        let TX = await contractStore.set.assemble(
-            maybeStore.value!.userWalletAddress,
-            token_hint,
-            data.briqs.map((x: any) => x.data),
-            // Point to the 'permanent' API. TODO: IFPS?
-            'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
-        );
-
-        // Mark the transaction as waiting.
-        //new Transaction(TX.transaction_hash, 'export_set', { setId: data.id });
-
-        //this.pending_transaction = transactionsManager.getTx(TX.transaction_hash);
+        const TX = await userSetStore.current!.mintSet(token_hint, data, await imageProcessing.value);
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
         /*
@@ -193,7 +174,7 @@ const startMinting = async () => {
         pushPopup('success', 'Set exported', `Set exported ${data.id} - TX ${TX.transaction_hash}`);
         logDebug('Set exported ' + data.id);
 
-        let info = setsManager.onSetMinted(setData.value.id, exportSet.value);
+        setsManager.deleteLocalSet(setData.value.id);
         selectSet(exportSet.value.id);
 
         exportStep.value = 'DONE';

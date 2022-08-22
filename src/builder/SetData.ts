@@ -156,10 +156,9 @@ export class SetData {
             throw new Error(`No cell at position ${x}, ${y}, ${z}`);
         if (data.color)
             cell.color = data.color;
-        if (data.material)
-        {
+        if (data.material) {
             --this.usedByMaterial[cell.material];
-            ++this.usedByMaterial[data.material];    
+            ++this.usedByMaterial[data.material];
             cell.material = data.material;
         }
         this.briqs_ += 1;

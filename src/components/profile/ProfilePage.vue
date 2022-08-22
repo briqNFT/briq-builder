@@ -53,7 +53,14 @@ const losingBids = computed(() => {
 })
 
 const creations = computed(() => {
-    return userSetStore.current?.sets || [];
+    return userSetStore.current?.sets.map(setId => {
+        const data = userSetStore.current?.setData[setId];
+        return {
+            id: setId,
+            name: data?.name || setId,
+            nb_briqs: data?.getNbBriqs?.() || 0,
+        }
+    }) || [];
 })
 
 const creationsWIP = computed(() => {
@@ -95,7 +102,7 @@ const {
     </div>
     <div class="bg-grad-lightest p-8 pb-0 flex flex-col items-center border-b border-grad-light">
         <div class="relative bottom-[6rem] right-[4rem] pb-[4rem]">
-            <div class="absolute z-50 h-[8rem] w-[8rem] bg-grad-lighter border-4 border-grad-lightest rounded-md shadow-md flex justify-center items-center">
+            <div class="absolute z-10 h-[8rem] w-[8rem] bg-grad-lighter border-4 border-grad-lightest rounded-md shadow-md flex justify-center items-center">
                 <ProfileIcon width="100%" height="100%"/>
             </div>
         </div>
@@ -146,7 +153,6 @@ const {
                     <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
                     <div class="mt-2 flex gap-2">
                         <Btn secondary>Browse the themes</Btn>
-                        <RouterLink :to="{ name: 'Builder' }"><Btn>Go to Builder</Btn></RouterLink>
                     </div>
                 </div>
             </div>
@@ -175,7 +181,7 @@ const {
                         <hr class="my-4">
                         <p class="flex justify-between text-sm">
                             <span class="text-grad-dark">briqs used</span>
-                            <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
+                            <span class="font-semibold">{{ creation.nb_briqs }}</span>
                         </p>
                     </div>
                 </div>
@@ -186,7 +192,10 @@ const {
                 <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have work-in-progress sets.</p>
                     <p>Get some briqs and start building!</p>
-                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                    <div class="flex gap-2 mt-2">
+                        <Btn secondary>Browse the themes</Btn>
+                        <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
+                    </div>
                 </div>
                 <div v-else class="my-4 grid grid-cols-4 gap-6">
                     <div class="card bg-grad-lightest shadow hover:shadow-lg rounded p-4" v-for="creation in creationsWIP" :key="creation.id">

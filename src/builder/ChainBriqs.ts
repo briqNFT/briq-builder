@@ -1,5 +1,5 @@
 import { Briq } from './Briq';
-import { reactive, watchEffect } from 'vue';
+import { reactive, toRef, watchEffect } from 'vue';
 import type { Ref } from 'vue';
 import { ticketing, isOutdated } from '../Async';
 import { logDebug, pushMessage } from '../Messages';
@@ -53,6 +53,7 @@ export class ChainBriqs implements perUserStorable {
         this.addr = n;
         this.loadFromChain();
         this.updateFastBalance();
+        console.log('totoro', 'loading for ', n)
     }
 
     setAddress(addr: Ref<string>) {
@@ -62,7 +63,8 @@ export class ChainBriqs implements perUserStorable {
     }
 
     _getTokens(this: ChainBriqs) {
-        return backendManager.fetch(`v1/user/briqs/${getCurrentNetwork()}/${this.addr}`);
+        // addr contains the network as part of the user ID.
+        return backendManager.fetch(`v1/user/briqs/${this.addr}`);
     }
 
     async loadFromChain() {
@@ -184,4 +186,5 @@ export class ChainBriqs implements perUserStorable {
 }
 
 const _chainBriqs = perUserStore(ChainBriqs);
-export const chainBriqs = _chainBriqs.current;
+_chainBriqs.setup();
+export const chainBriqs = toRef(_chainBriqs, 'current');
