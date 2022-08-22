@@ -27,7 +27,7 @@ const {
 } = useBooklet();
 
 const { currentSetInfo } = useBuilder();
-const booklet = computed(() => currentSetInfo.value.booklet);
+const booklet = computed(() => currentSetInfo.value?.booklet);
 
 const openProfile = () => {
     pushModal(h(WindowVue, {

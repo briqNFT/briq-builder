@@ -18,6 +18,10 @@ import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { inputInitComplete } from '@/builder/inputs/InputLoading';
 
 import { useRoute, useRouter } from 'vue-router';
+import { userSetStore } from '@/builder/UserSets';
+import { SetData } from '@/builder/SetData';
+import { backendManager } from '@/Backend';
+import { getCurrentNetwork } from '@/chain/Network';
 
 const { setsManager, chainBriqs, currentSet, selectSet } = useBuilder();
 
@@ -36,15 +40,21 @@ onMounted(async () => {
     await inputInitComplete;
     if (route.query['set'])
         try {
-            await selectSet(route.query['set']);
+            const setId = route.query['set'] as string;
+            if (setsManager.getInfo(setId))
+                await selectSet(setsManager.getInfo(setId).getSet());
+            else if (userSetStore.current?.setData[setId])
+                await selectSet(userSetStore.current.setData[setId]);
+            else {
+                // This is likely to fail but we won't care too much.
+                const data = new SetData(setId).deserialize(await backendManager.fetch(`v1/metadata/${getCurrentNetwork()}/${setId}.json`));
+                await selectSet(data);
+            }
             router.replace({ 'query': null });
-        } catch(_) { /* ignore */ }
-    const info = setsManager.getInfo(currentSet.value.id);
+        } catch(_) {
+            console.error(_) /* ignore */
+        }
 
-    if (info.status === 'ONCHAIN_LOADED')
-        builderInputFsm.switchTo('inspect');
-    else
-        builderInputFsm.switchTo('place');
     dispatchBuilderAction('select_set', currentSet.value);
 
     dispatchBuilderAction('put_all_in_view');

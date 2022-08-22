@@ -3,10 +3,10 @@ import { computed, shallowReadonly, shallowRef } from 'vue';
 import contractStore from '@/chain/Contracts';
 import { createChainSets } from '@/builder/ChainSets';
 
-import { setsManager as sm, setsManager } from '@/builder/SetsManager';
+import { setsManager as sm } from '@/builder/SetsManager';
 
 import { store } from '@/store/Store';
-import { SetData } from './SetData';
+import type { SetData } from './SetData';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { dispatchBuilderAction } from './graphics/Dispatch';
@@ -25,16 +25,14 @@ export const builderStore = (() => {
     const currentSet = shallowReadonly(_currentSet);
     const chainSets = createChainSets();
 
-    const selectSet = async (setId: string) => {
-        const info = setsManager.getInfo(setId);
-        const set = info.getSet();
-        if (!set)
-            throw new Error('Could not find local set with ID ' + setId);
+    const selectSet = async (set: SetData) => {
         _currentSet.value = set;
         inputStore.selectionMgr.selectSet(currentSet.value);
         ___currentSet.value = set;
-        if (builderInputFsm.store)
-            builderInputFsm.switchTo('place');
+        if (builderInputFsm.store) {
+            const isLocal = sm.getInfo(currentSet.value?.id);
+            builderInputFsm.switchTo(isLocal ? 'place' : 'camera');
+        }
         dispatchBuilderAction('select_set', currentSet.value);
     }
     return {

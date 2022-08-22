@@ -175,7 +175,7 @@ const startMinting = async () => {
         logDebug('Set exported ' + data.id);
 
         setsManager.deleteLocalSet(setData.value.id);
-        selectSet(exportSet.value.id);
+        selectSet(exportSet.value);
 
         exportStep.value = 'DONE';
     } catch (err: any) {

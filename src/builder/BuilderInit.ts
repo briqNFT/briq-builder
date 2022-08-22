@@ -29,21 +29,19 @@ async function initializeStartSet() {
     await storeIsLoaded;
     const set = checkForInitialGMSet();
     if (set)
-        await selectSet(set.id);
+        await selectSet(set);
 
     const previousSet = window.localStorage.getItem('current_set');
-    if (previousSet && setsManager.getInfo(previousSet))
-        await selectSet(previousSet);
+    if (previousSet && setsManager.getInfo(previousSet)?.getSet())
+        await selectSet(setsManager.getInfo(previousSet).getSet());
 
     // Must have a local set.
     await watchEffectAndWait(async () => {
-        if (!currentSet.value ||
-            !setsManager.getInfo(currentSet.value.id)
-        ) {
+        if (!currentSet.value) {
             let set = setsManager.getLocalSet();
             if (!set)
                 set = setsManager.createLocalSet();
-            await selectSet(set.id);
+            await selectSet(set);
         }
     });
 
