@@ -19,6 +19,7 @@ import BoxListing from '../builder/genesis/BoxListing.vue';
 import { setsManager } from '@/builder/SetsManager';
 import MenuDropdown from '../generic/MenuDropdown.vue';
 import { useSetHelpers } from '../builder/SetComposable';
+import { router } from '@/Routes';
 
 const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
 
@@ -164,7 +165,10 @@ const {
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
                 <div v-else class="my-4 grid grid-cols-4 gap-6">
-                    <div class="card bg-grad-lightest shadow hover:shadow-lg rounded p-4" v-for="creation in creations" :key="creation.id">
+                    <div
+                        class="card bg-grad-lightest shadow hover:shadow-lg rounded p-4"
+                        @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
+                        v-for="creation in creations" :key="creation.id">
                         <div class="bg-grad-light rounded flex justify-center items-center min-h-[4rem] mb-2">Here be preview</div>
                         <h4 class="font-semibold">{{ creation.name }}</h4>
                         <p class="text-xs break-all text-grad-dark flex justify-between">

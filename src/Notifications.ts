@@ -53,6 +53,7 @@ export class Notification {
     /** For convenience, allow pushing to the manager from a notification type so you only need to import that type. */
     push(maybePopup = false) {
         notificationsManager.push(this, maybePopup);
+        return this;
     }
 
     shouldShow() {

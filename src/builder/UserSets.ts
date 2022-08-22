@@ -103,6 +103,20 @@ class UserSetStore implements perUserStorable {
         return TX;
     }
 
+    async disassemble(token_id: string) {
+        const TX = await contractStore.set!.disassemble(
+            maybeStore.value!.userWalletAddress,
+            token_id,
+            this.setData[token_id],
+        );
+        this.metadata[token_id] = {
+            set_id: token_id,
+            status: 'TENTATIVE_DELETED',
+            tx_hash: TX.transaction_hash,
+        }
+        return TX;
+    }
+
     async poll() {
         await this.fetchData();
         for (const setId in this.metadata)

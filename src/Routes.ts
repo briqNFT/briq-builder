@@ -111,6 +111,11 @@ export const routes = [
         component: SetPageVue,
     },
     {
+        path: '/user/set/:set_id',
+        name: 'UserCreation',
+        component: SetPageVue,
+    },
+    {
         path: '/image',
         name: 'Image loader',
         component: ImageLoaderVue,
