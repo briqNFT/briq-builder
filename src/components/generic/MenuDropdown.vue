@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps<{
     closeOnClick?: boolean,
@@ -24,6 +24,17 @@ const dropdownPositionCSS = computed(() => {
     return 'absolute left-0';
 });
 
+const closeIfOutside = (event: Event) => {
+    if (!event.target || !dropdownButton.value.contains(event.target as Node))
+        opened.value = false;
+}
+onMounted(() => {
+    window.addEventListener('click', closeIfOutside, { capture: true });
+});
+onUnmounted(() => {
+    window.removeEventListener('click', closeIfOutside, { capture: true })
+});
+
 </script>
 
 <style scoped>
@@ -34,7 +45,7 @@ div[data-name='menu'] > :not(hr) {
 
 <template>
     <div class="relative" ref="dropdownButton" @pointerenter="dropClose" @pointerleave="willClose">
-        <Btn secondary class="h-full w-full" v-bind="$attrs" @click="opened = !opened">
+        <Btn secondary class="h-full w-full" v-bind="$attrs" @click.stop="opened = !opened">
             <slot name="button"/>
             <span v-if="!noMarker" :class="opened ? 'text-primary' : ''"><slot name="icon">
                 <i v-if="opened" class="fa-solid fa-chevron-up"/>
@@ -44,7 +55,7 @@ div[data-name='menu'] > :not(hr) {
         </Btn>
         <!-- Close on click so that clicking on button works as expected. -->
         <div
-            v-if="opened" data-name="menu" @click="closeOnClick ? opened = false : ''"
+            v-if="opened" data-name="menu" @click.stop="closeOnClick ? opened = false : ''"
             :class="`after:absolute after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-grad-lightest shadow rounded-md py-2 w-max z-50`">
             <slot/>
         </div>

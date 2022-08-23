@@ -1,19 +1,19 @@
 import { backendManager } from '@/Backend';
 import { logDebug } from '@/Messages';
-import { Notification, notificationsManager } from '@/Notifications';
+import { Notification } from '@/Notifications';
 import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
 
 import contractStore from '@/chain/Contracts';
 import { BigNumberish, toFelt } from 'starknet/utils/number';
 import { getCurrentNetwork } from '@/chain/Network';
-import { maybeStore } from '@/chain/WalletLoading';
 import { reactive } from 'vue';
 import { blockchainProvider } from '@/chain/BlockchainProvider';
 
 export interface Bid {
     bid_id: string,
     tx_hash: string,
+    timestamp: number,
     block: number,
     status: 'CONFIRMED' | 'TENTATIVE' | 'PENDING' | 'REJECTED';
     box_id: string,
@@ -23,6 +23,7 @@ export interface Bid {
 const USER_SYNC_DELAY = 30000;
 
 class UserBidStore implements perUserStorable {
+    user_id!: string;
     lastConfirmedBlock = -1;
     bids = [] as Bid[];
 
@@ -64,13 +65,14 @@ class UserBidStore implements perUserStorable {
 
     async syncBids() {
         logDebug('USER BID STORE - SYNCING')
-        const bidDatas = await backendManager.fetch(`v1/bids/user/${getCurrentNetwork()}/${maybeStore.value?.userWalletAddress}`)
+        const bidDatas = await backendManager.fetch(`v1/bids/user/${this.user_id}`)
 
         const bidData = {
             block: 0,
             bids: {},
         };
         for (const bid of bidDatas) {
+            bid.timestamp = (new Date(bid.timestamp)).valueOf();
             bidData.block = Math.max(bid.block, bidData.block);
             bidData.bids[bid.bid_id] = bid;
         }
@@ -103,6 +105,7 @@ class UserBidStore implements perUserStorable {
         const newBid = {
             bid_id: tx_response!.transaction_hash,
             tx_hash: tx_response!.transaction_hash,
+            timestamp: Date.now(),
             bid_amount: toFelt(value),
             box_id: box_id,
             status: 'TENTATIVE',
@@ -146,6 +149,7 @@ class UserBidStore implements perUserStorable {
             type: 'tentative_bid',
             title: 'Bid sent',
             level: 'info',
+            timestamp: bid.timestamp,
             data: {
                 tx_hash: bid.tx_hash,
                 box_id: bid.box_id,
@@ -162,6 +166,7 @@ class UserBidStore implements perUserStorable {
             type: 'rejected_bid',
             title: 'Rejected bid',
             level: 'error',
+            timestamp: bid.timestamp,
             data: {
                 tx_hash: bid.tx_hash,
                 box_id: bid.box_id,
@@ -178,6 +183,7 @@ class UserBidStore implements perUserStorable {
             type: 'pending_bid',
             title: 'Pending bid',
             level: 'success',
+            timestamp: bid.timestamp,
             data: {
                 tx_hash: bid.tx_hash,
                 box_id: bid.box_id,
@@ -194,6 +200,7 @@ class UserBidStore implements perUserStorable {
             type: 'confirmed_bid',
             title: 'Bid confirmed',
             level: 'success',
+            timestamp: bid.timestamp,
             data: {
                 tx_hash: bid.tx_hash,
                 box_id: bid.box_id,
@@ -212,7 +219,7 @@ export interface ProductBid {
     bid_id: string,
     tx_hash: string,
     block: number,
-    timestamp: string,
+    timestamp: number,
 }
 
 class ProductBidsStore {
@@ -239,6 +246,7 @@ class ProductBidsStore {
         try {
             const bidDatas = await backendManager.fetch(`v1/bids/box/${getCurrentNetwork()}/${box_id}`) as ProductBid[];
             for (const bid of bidDatas) {
+                bid.timestamp = (new Date(bid.timestamp)).valueOf();
                 this._bids[box_id].bids[bid.bid_id] = bid;
                 this._bids[box_id].lastConfirmedBlock = Math.max(bid.block, this._bids[box_id].lastConfirmedBlock);
                 this._bids[box_id].highest_bid = bid.bid_id;

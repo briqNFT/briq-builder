@@ -8,7 +8,7 @@ import NotificationsList from '../NotificationsList.vue';
 
 import { useBuilder } from '@/components/builder/BuilderComposable';
 
-import ProfileIcon from '@/assets/profile/profile_small.svg';
+import SmallProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import { notificationsManager } from '@/Notifications';
 import NotificationsMenu from '../NotificationsMenu.vue';
@@ -59,7 +59,7 @@ const { chainBriqs } = useBuilder();
                     </div>
                     <div class="flex-none">
                         <MenuDropdown no-background icon :close-on-click="true" class="text-xs">
-                            <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block !mr-2"/></template>
+                            <template #button><SmallProfileIcon width="1rem" height="1rem" class="inline-block !mr-2"/></template>
                             <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
                             <Btn no-background class="justify-start" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
                             <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>

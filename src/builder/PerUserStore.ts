@@ -3,6 +3,8 @@ import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import type { UserID, WalletStore } from '@/chain/Wallet';
 
 export interface perUserStorable {
+    user_id: string;
+
     _init?(): void;
     onEnter?(oldAddress: string | undefined, newAddress: string): void
     onLeave?(oldAddress: string, newAddress: string | undefined): void
@@ -42,12 +44,13 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
                     this.currentWallet = _maybeStore.value?.user_id || undefined;
                     if (this.currentWallet && !this._perWallet[this.currentWallet]) {
                         this._perWallet[this.currentWallet] = new classType();
+                        this._perWallet[this.currentWallet].user_id = this.currentWallet;
                         this._perWallet[this.currentWallet]?._init?.();
                     }
                     if (old)
                         this._perWallet[old].onLeave?.(old, this.currentWallet);
                     if (this.currentWallet)
-                    this.current!.onEnter?.(old, this.currentWallet);
+                        this.current!.onEnter?.(old, this.currentWallet);
                 })
             })
             this._setup = true;
@@ -59,6 +62,7 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
                 for (const wallet in serializedData.data) {
                     if (!this._perWallet[wallet]) {
                         this._perWallet[wallet] = new classType();
+                        this._perWallet[wallet].user_id = wallet;
                         this._perWallet[wallet]?._init?.();
                     }
                     this._perWallet[wallet]._deserialize(serializedData.data[wallet])

@@ -20,6 +20,7 @@ import { setsManager } from '@/builder/SetsManager';
 import MenuDropdown from '../generic/MenuDropdown.vue';
 import { useSetHelpers } from '../builder/SetComposable';
 import { router } from '@/Routes';
+import { chainBriqs } from '@/builder/ChainBriqs';
 
 const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
 
@@ -64,6 +65,8 @@ const creations = computed(() => {
     }) || [];
 })
 
+const userAddress = computed(() => maybeStore.value?.userWalletAddress);
+
 const creationsWIP = computed(() => {
     return Object.values(setsManager.setsInfo).filter(x => !x.booklet).map(x => x.getSet());
 })
@@ -107,15 +110,16 @@ const {
                 <ProfileIcon width="100%" height="100%"/>
             </div>
         </div>
-        <div/>
-        <h2>{{ maybeStore?.userWalletAddress || 'No wallet selected' }}</h2>
-        <p class="my-4"><span class="font-medium">Available briqs:</span> 800/1200</p>
-        <div class="flex gap-12 mt-8">
+        <h2 class="hidden xl:block">{{ userAddress || 'No wallet selected' }}</h2>
+        <h2 class="block xl:hidden">{{ userAddress ? `${userAddress.slice(0, 8)}...${userAddress.slice(-8)}` : 'No wallet selected' }}</h2>
+        <p class="my-4"><span class="font-medium">Available briqs:</span> {{ chainBriqs?.getNbBriqs() || 0 }}</p>
+        <div class="flex gap-12 mt-8" v-if="userAddress">
             <p :class="activeTab === 'INVENTORY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer'" @click="activeTab = 'INVENTORY'">Inventory</p>
             <p :class="activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer'" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
         </div>
+        <div v-else class="mb-8"><p>Connect your wallet to access more functionality.</p></div>
     </div>
-    <div v-if="activeTab === 'INVENTORY'" class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
+    <div v-if="activeTab === 'INVENTORY' && userAddress" class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
         <div>
             <h2 class="pl-3">Inventory</h2>
             <div class="mt-4 flex flex-col gap-2">
@@ -226,7 +230,7 @@ const {
             </div>
         </div>
     </div>
-    <div v-else class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
+    <div v-else-if="userAddress" class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
         <div>
             <h2>Shopping Activity</h2>
             <div class="mt-4 flex flex-col gap-2">
@@ -262,6 +266,42 @@ const {
                     <p class="font-semibold">You have not yet bought any item</p>
                     <p>Browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div v-else class="container m-auto my-8">
+        <div>
+            <h3>Work in progress</h3>
+            <p>WIP sets are stored on this computer only and shared across wallets.</p>
+            <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <p class="font-semibold">You don't have work-in-progress sets.</p>
+                <p>Get some briqs and start building!</p>
+                <div class="flex gap-2 mt-2">
+                    <Btn secondary>Browse the themes</Btn>
+                    <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
+                </div>
+            </div>
+            <div v-else class="my-4 grid grid-cols-4 gap-6">
+                <div class="card bg-grad-lightest shadow hover:shadow-lg rounded p-4" v-for="creation in creationsWIP" :key="creation.id">
+                    <div class="bg-grad-light rounded flex justify-center items-center min-h-[4rem] mb-2">Here be preview</div>
+                    <h4 class="font-semibold">{{ creation.name }}</h4>
+                    <p class="text-xs break-all text-grad-dark flex justify-between">
+                        {{ creation.id }}
+                        <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                            <template #button><i class="fas fa-ellipsis-h"/></template>
+                            <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
+                            <Btn no-background>(todo) Mint on chain</Btn>
+                            <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
+                            <Btn no-background>(TODO) Download</Btn>
+                            <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                        </MenuDropdown>
+                    </p>
+                    <hr class="my-4">
+                    <p class="flex justify-between text-sm">
+                        <span class="text-grad-dark">briqs used</span>
+                        <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
+                    </p>
                 </div>
             </div>
         </div>

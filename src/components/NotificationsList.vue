@@ -24,26 +24,21 @@ const border = (i: number) => {
 <template>
     <div v-if="notifs.length" class="text-sm flex flex-col-reverse">
         <div v-for="notif, i of notifs" :key="i" class="w-full">
-            <div :class="['w-full text-left relative flex justify-between p-2', border(i), notif.read ? 'text-grad-darker' : 'hover:bg-grad-light'].join(' ')" @click="notif.read = true">
+            <div :class="['w-full text-left relative flex justify-between p-3 select-none', border(i), notif.read ? 'text-grad-darker' : 'hover:bg-grad-light'].join(' ')" @click="notif.read = true">
                 <div class="grow">
-                    <h5 class="font-medium"><i :style="{ color: `rgb(var(--color-info-${notif.level}))` }" :class="icons[notif.level]"/> {{ notif.title }}</h5>
+                    <h5 class="font-medium py-2">
+                        <i :style="{ color: `rgb(var(--color-info-${notif.level}))` }" :class="icons[notif.level]"/> {{ notif.title }}
+                    </h5>
                     <template v-if="notif.type === 'text'">
                         <p>{{ notif.data }}</p>
                     </template>
-                    <template v-else-if="notif.type === 'tentative_bid'">
-                        <p>TX: {{ notif.data.tx_hash }}</p>
-                    </template>
-                    <template v-else-if="notif.type === 'confirmed_bid'">
-                        <p>TX: {{ notif.data.tx_hash }}</p>
-                    </template>
-                    <template v-else-if="notif.type === 'pending_bid'">
-                        <p>TX: {{ notif.data.tx_hash }}</p>
-                    </template>
-                    <template v-else-if="notif.type === 'rejected_bid'">
-                        <p>TX: {{ notif.data.tx_hash }}</p>
-                    </template>
-                    <p class="text-xs text-grad-darker">
-                        {{ notif.timestamp }}
+                    <template v-else-if="notif.type === 'tentative_bid'"/>
+                    <template v-else-if="notif.type === 'confirmed_bid'"/>
+                    <template v-else-if="notif.type === 'pending_bid'"/>
+                    <template v-else-if="notif.type === 'rejected_bid'"/>
+                    <p class="text-xs text-grad-dark mt-2 flex justify-between">
+                        <span>{{ new Date(notif.timestamp).toLocaleString("en-uk", { dateStyle: "long", timeStyle: "short" }) }}</span>
+                        <span v-if="notif.data.tx_hash"><a :href="`https://goerli.voyager.online/tx/${notif.data.tx_hash}`" target="_blank" class="text-primary">TX</a></span>
                     </p>
                 </div>
                 <p class="basis-[20px] text-right text-primary text-lg">{{ notif.read ? '' : '•' }}</p>

@@ -10,7 +10,7 @@ import BuyModalVue from './BuyModal.vue';
 import { useBoxData } from '@/builder/BoxData';
 import { maybeStore } from '@/chain/WalletLoading';
 import { userBalance } from '@/builder/UserBalance';
-import { productBidsStore } from '@/builder/BidStore';
+import { productBidsStore, userBidsStore } from '@/builder/BidStore';
 import { useBids } from '@/components/BidComposable';
 
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
@@ -38,10 +38,16 @@ const boxName = computed(() => item.value?.name ?? route.params.box);
 
 productBidsStore.fetch(token_id.value);
 
-const previousBids = computed(() => productBidsStore.bids(token_id.value));
-const hasBids = computed(() => Object.keys(previousBids.value.bids).length);
+const previousBids = computed(() => Object.values(productBidsStore.bids(token_id.value).bids).sort((a, b) => b.timestamp - a.timestamp));
+const hasBids = computed(() => previousBids.value.length);
 
 const { currentBid, currentBidString } = useBids(token_id.value);
+
+const userBids = computed(() => userBidsStore.current?.bids ?? []);
+
+const hasHighestBid = computed(() => {
+    return userBids.value.some(x => x.bid_id === productBidsStore.bids(token_id.value).highest_bid)
+})
 
 const canBid = computed(() => {
     if (!maybeStore.value?.userWalletAddress || userBalance.current?.balance?._status !== 'LOADED')
@@ -193,25 +199,28 @@ p {
                                 <h2>Winning Bid</h2>
                                 <p v-if="hasBids" class="text-xl font-medium my-4">{{ currentBidString }}</p>
                                 <p v-else class="my-4">There are no bids on this item.</p>
+                                <p v-if="hasHighestBid" class="my-4">You currently have the highest bid.</p>
                                 <Btn
-                                    class="text-white"
+                                    :secondary="hasHighestBid"
                                     :disabled="!canBid"
                                     @click="placeBid">
                                     Place a bid
                                 </Btn>
                             </div>
                             <h2>Previous bids</h2>
-                            <div class="flex flex-col-reverse gap-2 pt-2">
+                            <div class="flex flex-col bg-grad-lightest rounded border border-grad-light">
                                 <template v-if="productBidsStore.status === 'OK'">
                                     <p v-if="!hasBids">There are no bids on this item.</p>
                                     <a
-                                        v-for="i in previousBids.bids" :key="i.bid_id"
-                                        :href="`https://${'goerli.'}voyager.online/tx/${i.bid_id}`" target="_blank">
+                                        v-for="i in previousBids.slice(0, 10)" :key="i.bid_id"
+                                        :href="`https://${'goerli.'}voyager.online/tx/${i.bid_id}`" target="_blank"
+                                        class="block border-b border-grad-light last:border-none px-4 py-3">
                                         <div class="flex justify-between">
-                                            <p>{{ i.bidder.substring(0, 8) + "..." + i.bidder.slice(-8) }}</p>
+                                            <p class="text-primary">{{ i.bidder.substring(0, 8) + "..." + i.bidder.slice(-8) }}</p>
                                             <p>{{ readableUnit(i.bid_amount) }} {{ readableNumber(i.bid_amount) }} <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
                                         </div>
                                     </a>
+                                    <p v-if="previousBids.length > 10" class="px-4 py-3 text-sm italic text-center">...Older bids are hidden...</p>
                                 </template>
                             </div>
                         </template>
@@ -254,7 +263,7 @@ p {
                                 </template>
                             </div>
                         </template>
-                        <template v-if="saledata?.total_quantity > 1">
+                        <template v-if="mode === 'SALE' && saledata?.total_quantity > 1">
                             <div>
                                 <h2>How a Dutch auction works</h2>
                                 <div>

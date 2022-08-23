@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useBoxData, CARD_MODES } from '@/builder/BoxData';
 import { computed } from 'vue';
+import { userBidsStore, productBidsStore } from '@/builder/BidStore';
+import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 
 const props = defineProps<{
     tokenName: string,
@@ -19,14 +21,19 @@ const {
 
 const actualMode = getActualMode(props.mode);
 
-import { userBidsStore, productBidsStore } from '@/builder/BidStore';
-
 const bids = computed(() => userBidsStore.current?.bids ?? []);
 
 const hasHighestBid = computed(() => {
     if (actualMode.value !== 'BID')
         return false;
     return bids.value.some(x => x.bid_id === productBidsStore.bids(props.tokenName).highest_bid)
+})
+const highestBid = computed(() => {
+    if (actualMode.value !== 'BID')
+        return '0';
+    if (!productBidsStore.bids(props.tokenName).highest_bid)
+        return '0';
+    return productBidsStore.bids(props.tokenName).bids[productBidsStore.bids(props.tokenName).highest_bid!].bid_amount;
 })
 </script>
 
@@ -65,8 +72,8 @@ const hasHighestBid = computed(() => {
                     <hr class="my-2">
                     <div class="p-4 pt-0 flex flex-col gap-2">
                         <p v-if="actualMode === 'SALE'" class="flex justify-between"><span class="text-grad-dark">Last Bid</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>
-                        <p v-else-if="hasHighestBid" class="flex justify-between"><span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>
-                        <p v-else class="flex justify-between"><span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span><i class="fa-brands fa-ethereum"/> 0.4</span></p>
+                        <p v-else-if="hasHighestBid" class="flex justify-between"><span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span>{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span></p>
+                        <p v-else class="flex justify-between"><span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span>{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span></p>
                         <p class="flex justify-between">
                             <span class="text-grad-dark">Sales End</span>
                             <span v-if="durationLeft > 24*60*60">{{ Math.floor(durationLeft/24/60/60) }} day(s) left</span>
