@@ -1,6 +1,4 @@
 import { backendManager } from '@/Backend';
-import { getCurrentNetwork } from '@/chain/Network';
-import { maybeStore } from '@/chain/WalletLoading';
 import { Notification } from '@/Notifications';
 import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
@@ -16,6 +14,7 @@ export interface Purchase {
  * This class exists to easily keep track of ongoing purchases.
  */
 class UserPurchases implements perUserStorable {
+    user_id!: string;
     purchases = {} as { [tx_hash: string]: Purchase }
 
     _init() {
@@ -54,8 +53,9 @@ class UserPurchases implements perUserStorable {
             const item = this.purchases[hash];
             if (item.status !== 'TENTATIVE')
                 continue;
-            const transferData = await backendManager.fetch(`v1/box/get_transfer/${getCurrentNetwork()}/${item.box_id}/${item.tx_hash}`)
-            if (transferData && transferData.to === maybeStore.value?.userWalletAddress) {
+            const [network, wallet_id] = this.user_id.split('/');
+            const transferData = await backendManager.fetch(`v1/box/get_transfer/${network}/${item.box_id}/${item.tx_hash}`)
+            if (transferData && transferData.to === wallet_id) {
                 item.status = 'CONFIRMED';
                 this.notifyConfirmed(item);
             }

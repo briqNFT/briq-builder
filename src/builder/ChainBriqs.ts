@@ -33,11 +33,11 @@ class NFTNotAvailable extends Error {
  * Responsible for maintaining the state of 'on-chain' briqs, as opposed to local set-briqs.
  */
 export class ChainBriqs implements perUserStorable {
+    user_id!: string;
+
     fetchingBriqs = false;
 
     byMaterial: { [material: string]: BALANCE } = {};
-
-    addr: undefined | string;
 
     fastBalance = 0;
 
@@ -56,24 +56,18 @@ export class ChainBriqs implements perUserStorable {
         console.log('totoro', 'loading for ', n)
     }
 
-    setAddress(addr: Ref<string>) {
-        // Because we are reactive, this will get unwrapped silently. Typescript complains.
-        this.addr = addr as unknown as string;
-        logDebug('CHAIN BRIQS - ADDRESS IS ', addr, addr.value);
-    }
-
     _getTokens(this: ChainBriqs) {
         // addr contains the network as part of the user ID.
-        return backendManager.fetch(`v1/user/briqs/${this.addr}`);
+        return backendManager.fetch(`v1/user/briqs/${this.user_id}`);
     }
 
     async loadFromChain() {
         this.fetchingBriqs = true;
-        if (!this.addr) {
+        if (!this.user_id) {
             this.reset();
             return;
         }
-        logDebug('CHAIN BRIQS - LOADING ', this.addr);
+        logDebug('CHAIN BRIQS - LOADING ', this.user_id);
         try {
             const balance = await this._getTokens();
             this.parseChainData(balance);
@@ -109,7 +103,7 @@ export class ChainBriqs implements perUserStorable {
     });
 
     async updateFastBalance() {
-        if (!this.addr) {
+        if (!this.user_id) {
             this.reset();
             return;
         }

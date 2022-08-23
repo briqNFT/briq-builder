@@ -1,15 +1,13 @@
 import { backendManager } from '@/Backend';
-import { getCurrentNetwork } from '@/chain/Network';
-import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { perUserStorable, perUserStore } from './PerUserStore';
 
 class UserBookletsStore implements perUserStorable {
+    user_id!: string;
     booklets = [] as string[];
 
     async fetchData() {
-        await walletInitComplete;
         try {
-            this.booklets = (await backendManager.fetch(`v1/user/booklets/${getCurrentNetwork()}/${maybeStore.value!.userWalletAddress}`)).booklets
+            this.booklets = (await backendManager.fetch(`v1/user/booklets/${this.user_id}`)).booklets
         } catch(ex) {
             console.error(ex);
         }

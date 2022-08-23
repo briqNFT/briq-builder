@@ -4,6 +4,7 @@ import { Fetchable } from './GenesisStore';
 import { BigNumberish, toBN } from 'starknet/utils/number';
 
 class UserBalance implements perUserStorable {
+    user_id!: string;
     balance = new Fetchable<BigNumberish>();
 
     async onEnter() {

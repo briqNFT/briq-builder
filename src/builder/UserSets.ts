@@ -1,14 +1,13 @@
 import { backendManager } from '@/Backend';
 import { blockchainProvider } from '@/chain/BlockchainProvider';
 import contractStore from '@/chain/Contracts';
-import { getCurrentNetwork } from '@/chain/Network';
-import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { Notification } from '@/Notifications';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { SetData } from './SetData';
 
 
 class UserSetStore implements perUserStorable {
+    user_id!: string;
     _sets = [] as string[];
     // Only store metadata on sets where something is happening. Rest are assumed live.
     metadata = {} as { [setId: string]: {
@@ -58,15 +57,15 @@ class UserSetStore implements perUserStorable {
     }
 
     async fetchData() {
-        await walletInitComplete;
         try {
-            this._sets = (await backendManager.fetch(`v1/user/sets/${getCurrentNetwork()}/${maybeStore.value!.userWalletAddress}`)).sets;
+            this._sets = (await backendManager.fetch(`v1/user/sets/${this.user_id}`)).sets;
         } catch(ex) {
             console.error(ex);
         }
+        const network = this.user_id.split('/')[0];
         for (const setId of this._sets)
             if (!this._setData[setId])
-                this._setData[setId] = new SetData(setId).deserialize(await backendManager.fetch(`v1/metadata/${getCurrentNetwork()}/${setId}.json`));
+                this._setData[setId] = new SetData(setId).deserialize(await backendManager.fetch(`v1/metadata/${network}/${setId}.json`));
 
     }
 
@@ -78,7 +77,7 @@ class UserSetStore implements perUserStorable {
         // Debug
         //downloadJSON(data, data.id + ".json")
         const TX = await contractStore.set!.assemble(
-            maybeStore.value!.userWalletAddress,
+            this.user_id.split('/')[1],
             token_hint,
             data.briqs.map((x: any) => x.data),
             // Point to the 'permanent' API. TODO: IFPS?
@@ -87,9 +86,9 @@ class UserSetStore implements perUserStorable {
 
         // Send a hint to the backend.
         backendManager.storeSet({
-            owner: maybeStore.value!.userWalletAddress,
+            chain_id: this.user_id.split('/')[0],
+            owner: this.user_id.split('/')[1],
             token_id: data.id,
-            chain_id: getCurrentNetwork(),
             data: data,
             image_base64: image,
         });
@@ -105,7 +104,7 @@ class UserSetStore implements perUserStorable {
 
     async disassemble(token_id: string) {
         const TX = await contractStore.set!.disassemble(
-            maybeStore.value!.userWalletAddress,
+            this.user_id.split('/')[1],
             token_id,
             this.setData[token_id],
         );
