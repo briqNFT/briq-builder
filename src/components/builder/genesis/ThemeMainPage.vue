@@ -9,6 +9,7 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import StarknetPlanetWaitingTheme from '@/assets/genesis/starknet_planet_waiting_theme.png?url';
 import StarknetPlanetTheme from '@/assets/genesis/starknet_planet_theme.png?url';
 import starknet_planet_logo from '@/assets/genesis/starknet_planet_logo.png?url';
+import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 const route = useRoute();
 
@@ -64,6 +65,14 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
         linear-gradient(120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%),
         linear-gradient(-120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%)
 }
+
+.faq p {
+    @apply mb-4 text-justify text-sm;
+}
+.faq p a {
+    @apply text-primary;
+}
+
 </style>
 
 <template>
@@ -129,25 +138,47 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                 </div>
             </template>
             <div class="bg-black text-white">
-                <div class="container max-w-[800px] m-auto py-16">
-                    <h2 class="text-center">FAQ</h2>
-                    <div class="flex flex-col gap-8">
-                        <div>
-                            <h3>Some Question Here bb ? </h3>
-                            <p>Lorem ipsum dolor it sametLorem ips Lorem ipsum dolor it sametLorem ipsum Lorem ipsum dolor it sametLorem ipsum Lorem ipsum dolor it same tLorem ipsum um tLorem ipsum um </p>
-                        </div>
-                        <div>
-                            <h3>Some Question Here bb ? </h3>
-                            <p>Lorem ipsum dolor it sametLorem ips Lorem ipsum dolor it sametLorem ipsum Lorem ipsum dolor it sametLorem ipsum Lorem ipsum dolor it same tLorem ipsum um tLorem ipsum um </p>
-                        </div>
-                        <div>
-                            <h3>Some Question Here bb ? </h3>
-                            <p>Lorem ipsum dolor it sametLorem ips Lorem ipsum dolor it sametLorem ipsum Lorem ipsum dolor it sametLorem ipsum Lorem ipsum dolor it same tLorem ipsum um tLorem ipsum um </p>
-                        </div>
-                        <div>
-                            <h3>Some Question Here bb ? </h3>
-                            <p>Lorem ipsum dolor it sametLorem ips Lorem ipsum dolor it sametLorem ipsum Lorem ipsum dolor it sametLorem ipsum Lorem ipsum dolor it same tLorem ipsum um tLorem ipsum um </p>
-                        </div>
+                <div class="container max-w-[36rem] m-auto py-8">
+                    <h2 class="text-center mb-8">FAQ</h2>
+                    <div class="faq flex flex-col gap-4">
+                        <ToggleParagraph>
+                            <template #title>What is Starknet Planet?</template>
+                            <p>StarkNet Planet is the first official theme created for briq. It’s a composition of many different sets on the theme of venturing into the unknown.</p>
+                            <p>It celebrates the diversity of the StarkNet ecosystem and the playfulness of playing with spaceships and rockets as a kid. You will find spacemen, rocket ships, and different modules representing projects from the StarkNet ecosystem.</p>
+                        </ToggleParagraph>
+                        <ToggleParagraph>
+                            <template #title>What’s a briq box?</template>
+                            <p>A briq box is an NFT which holds briqs and instructions on how to build an official briq set. If you follow the instructions in the booklet and mint the set, we will verify it on the blockchain and give you a seal of authenticity.</p>
+                            <p>You can choose to keep the briq box like a collectioner or you can choose to open up the box. All our NFT’s are tradable.</p>
+                            <p>Unboxing your box is a one-time action that can’t be undone: once a box is opened, it will be burned and you’ll get the briqs and the booklet NFT in your wallet in exchange. Once you have your briqs and the instruction booklet, you can start building your official set.</p>
+                        </ToggleParagraph>
+                        <ToggleParagraph>
+                            <template #title>How does the instruction booklet work?</template>
+                            <p>The instruction booklet details how to build an official set. It’s represented as a little booklet, in the form of an NFT. You can trade the booklet or use it to create an official set. </p>
+                            <p>To build an official set you need to build the correct set by following the instructions and hold the corresponding booklet in your wallet. If you build the correct shape without the booklet, you can still mint it your set, but it will not be an official one.</p>
+                        </ToggleParagraph>
+                        <ToggleParagraph>
+                            <template #title>What happens when I’ve finished building my official set?</template>
+                            <p>Once you have built the correct shape in the briq builder, the system will tell you that you can now mint it. Minting an official set will consume some briqs and the instruction booklet.</p>
+                        </ToggleParagraph>
+                        <ToggleParagraph>
+                            <template #title>What happens if I disassemble an official set?</template>
+                            <p>Disassembling an official set will burn it, and you will receive the corresponding booklet NFT and the briqs.</p>
+                        </ToggleParagraph>
+                        <ToggleParagraph>
+                            <template #title>On which blockchain is briq available?</template>
+                            <p>Briq is available on StarkNet, a validity rollup working on Ethereum (more information <a href="https://starkware.co/starknet/" target="_blank">here</a>). </p>
+                            <p>In terms of wallet you can use <a href="https://www.argent.xyz/argent-x/" target="_blank">Argent X</a> and <a href="https://braavos.app/" target="_blank">Braavos</a>. Metamask doesn’t yet work on StarkNet. We recommend using the Chrome browser.</p>
+                        </ToggleParagraph>
+                        <ToggleParagraph>
+                            <template #title>How do I build a set presented in a box?</template>
+                            <p>Get the box, unbox it, then select it in your user profile to start building it in the <router-link :to="{ name: 'Builder' }" target="_blank">briq builder</router-link> and follow the instructions.</p>
+                            <p>If you need help using the builder, go to the <a href="https://www.notion.so/4a4958337970483dbfc2c1184290b42f" target="_blank">help center</a>.</p>
+                        </ToggleParagraph>
+                        <ToggleParagraph>
+                            <template #title>Something doesn’t work, what should I do?</template>
+                            <p><a href="https://t.co/qlTufO3FDt" target="_blank">Reach out to us on Discord</a>, the team will help you out!</p>
+                        </ToggleParagraph>
                     </div>
                 </div>
             </div>
