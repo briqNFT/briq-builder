@@ -11,6 +11,7 @@ import { inputStore } from '@/builder/inputs/InputStore';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { dispatchBuilderAction } from './graphics/Dispatch';
 import { currentSet as ___currentSet } from './BuilderData';
+import { logDebug } from '@/Messages';
 
 /**
  * A lot of components in a number of places need to access the 'current set' loaded in the builder.
@@ -29,10 +30,10 @@ export const builderStore = (() => {
         _currentSet.value = set;
         inputStore.selectionMgr.selectSet(currentSet.value);
         ___currentSet.value = set;
-        if (builderInputFsm.store) {
-            const isLocal = sm.getInfo(currentSet.value?.id);
-            builderInputFsm.switchTo(isLocal ? 'place' : 'camera');
-        }
+
+        const isLocal = sm.getInfo(currentSet.value?.id);
+        builderInputFsm.switchTo(isLocal ? 'place' : 'camera');
+
         dispatchBuilderAction('select_set', currentSet.value);
     }
     return {

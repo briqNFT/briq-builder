@@ -8,6 +8,7 @@ import type { HotkeyManager } from '../../Hotkeys';
 
 import { reactive } from 'vue';
 import { inputInitComplete, setInputInitComplete } from './InputLoading';
+import { logDebug } from '@/Messages';
 
 export class BuilderInputFSM {
     state!: BuilderInputState;
@@ -20,15 +21,25 @@ export class BuilderInputFSM {
 
     _initialisePromise: any;
 
+    _preinitState: any;
+
     initialize(canv: HTMLCanvasElement, oc: OrbitControls, store: typeof inputStore, hotkeyMgr: HotkeyManager) {
         this.canvas = canv;
         this.orbitControls = oc;
         this.store = store;
         this.hotkeyMgr = hotkeyMgr;
         setInputInitComplete();
+        logDebug('FSM - initialised');
+        if (this._preinitState)
+            this.switchTo(...this._preinitState);
     }
 
     switchTo(state: string, data?: object) {
+        // We might be called before we're initialised, so just remember the latest call for convenience.
+        if (!this.store) {
+            this._preinitState = [state, data];
+            return;
+        }
         if (this.state)
             this.state._onExit();
         const oldState = this.state;
