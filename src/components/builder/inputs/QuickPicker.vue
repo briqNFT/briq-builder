@@ -126,7 +126,7 @@ const choiceLayout = computed(() => {
 <template>
     <div class="rounded-md overflow-hidden border border-grad-light bg-grad-lightest max-w-[200px] !text-sm">
         <div class="bg-grad-lighter p-4">
-            <h4 class="font-medium">Palette</h4>
+            <h4 class="font-medium text-md">Palette</h4>
         </div>
         <div class="p-4">
             <div class="flex items-center gap-1">

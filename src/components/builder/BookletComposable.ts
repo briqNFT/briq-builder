@@ -1,59 +1,52 @@
 import type { SetData } from '@/builder/SetData';
-import { markRaw, reactive, ref, toRef, watchEffect, watch } from 'vue';
-import { useStore } from 'vuex';
-
-
+import { markRaw, reactive, ref, toRef, watchEffect, watch, computed } from 'vue';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import { CONF } from '@/Conf';
 import { useBuilder } from '@/components/builder/BuilderComposable';
+import { getCurrentNetwork } from '@/chain/Network';
+import { backendManager } from '@/Backend';
 
 export const bookletStore = reactive({
     bookletData: null as any,
+    minimized: false,
 });
 
 
 const OgPalette = Object.assign({}, CONF.defaultPalette);
 
-function loadBookletData(booklet: string) {
+async function loadBookletData(booklet: string) {
     if (!booklet)
         return;
 
     try {
-        fetch(booklet + '/shape.json').then(
-            async data => {
-                const metadata = await data.json();
-                bookletStore.bookletData = markRaw(metadata);
+        const metadata = await backendManager.fetch(`v1/box/data/${getCurrentNetwork()}/${booklet}.json`)
+        bookletStore.bookletData = markRaw(metadata);
 
-                // Change default palette & update colors.
-                for (const key in CONF.defaultPalette)
-                    delete CONF.defaultPalette[key];
-                for (const briq of metadata.briqs)
-                    CONF.defaultPalette[packPaletteChoice(briq.data.material, briq.data.color)] = briq.data.color;
+        // Change default palette & update colors.
+        for (const key in CONF.defaultPalette)
+            delete CONF.defaultPalette[key];
+        for (const briq of metadata.briqs)
+            CONF.defaultPalette[packPaletteChoice(briq.data.material, briq.data.color)] = briq.data.color;
 
-                const palette = palettesMgr.getCurrent();
-                palette.reset(true);
-                const choice = palette.getFirstChoice();
-                inputStore.currentColor = choice.color;
-                inputStore.currentMaterial = choice.material;
-            },
-        ).catch(() => {
-            bookletStore.bookletData = undefined;
-        })
+        const palette = palettesMgr.getCurrent();
+        palette.reset(true);
+        const choice = palette.getFirstChoice();
+        inputStore.currentColor = choice.color;
+        inputStore.currentMaterial = choice.material;
     } catch(e) {
+        bookletStore.bookletData = undefined;
         console.warn(e);
     }
 }
 
 export function useBooklet() {
-    const getImgSrc = (booklet: string, page: number) => `/${booklet}/step_${page - 1}.png`;
-
-    const store = useStore();
+    const getImgSrc = (booklet: string, page: number) => `${backendManager.url}/v1/box/step_image/${getCurrentNetwork()}/${booklet}/${page - 1}.png`;
 
     const shapeValidity = ref(0);
 
-
     const { currentSet, currentSetInfo } = useBuilder();
+    const booklet = computed(() => currentSetInfo.value.booklet);
     watch(currentSetInfo, () => {
         if (currentSetInfo.value && currentSetInfo.value.booklet)
             loadBookletData(currentSetInfo.value.booklet);
@@ -106,8 +99,10 @@ export function useBooklet() {
     })
 
     return {
+        minimized: toRef(bookletStore, 'minimized'),
         getImgSrc,
         shapeValidity,
+        booklet,
         bookletData: toRef(bookletStore, 'bookletData'),
     };
 }

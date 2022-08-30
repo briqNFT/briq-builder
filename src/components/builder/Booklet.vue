@@ -1,76 +1,55 @@
 <script setup lang="ts">
-import { computed, h, ref } from 'vue';
-import { useStore } from 'vuex';
+import { computed, ref } from 'vue';
 import Tooltip from '@/components/generic/Tooltip.vue';
 import Slider from '../generic/Slider.vue';
-import { pushModal } from '../Modals.vue';
 import { useBooklet } from './BookletComposable';
-import ExportSetBookletVue from './modals/ExportSetBooklet.vue';
 import { useBuilder } from '@/components/builder/BuilderComposable';
-import ProfileVue from '../profile/Profile.vue';
-import WindowVue from '../generic/Window.vue';
 
 const currentPage = ref(1)
 
-const store = useStore();
-
-const minimized = ref(false);
-
-const onMint = async () => {
-    await pushModal(ExportSetBookletVue, { set: store.state.builderData.currentSet });
-}
+const {
+    currentSet,
+    currentSetInfo,
+} = useBuilder();
 
 const {
     getImgSrc,
     shapeValidity,
+    booklet,
     bookletData,
+    minimized,
 } = useBooklet();
-
-const { currentSetInfo } = useBuilder();
-const booklet = computed(() => currentSetInfo.value?.booklet);
-
-const openProfile = () => {
-    pushModal(h(WindowVue, {
-        size:'w-full',
-    }, {
-        'big-title': () => 'Booklets',
-        'content': () => h(ProfileVue),
-    }));
-}
 </script>
 
+<style scoped>
+.progress-bar::after {
+    content: '';
+    @apply absolute left-0 top-0 w-full h-full bg-info-error rounded bg-white bg-opacity-50;
+    clip-path: inset(0 0 70% 0);
+}
+</style>
 <template>
-    <div v-if="booklet" class="absolute top-0 bottom-0 right-0 pointer-events-none flex flex-col alternate-buttons m-4">
-        <div class="grow basis-[6rem]"/>
-        <div v-if="minimized" class="pointer-events-auto rounded border-dashed border-4 border-base relative text-base px-2 pb-2">
-            <button class="text-xs px-2 mb-2 leading-none" @click="minimized = false">Expand<br>booklet</button>
-            <img class="m-auto h-12" :src="getImgSrc(booklet, bookletData.nb_pages)">
-        </div>
-        <div v-else-if="!minimized" class="pointer-events-auto bg-grad-lightest rounded p-4 pb-6 flex-col flex items-center gap-2 relative">
-            <div class="absolute w-full top-0 flex justify-between text-xs gap-2 px-2">
-                <button @click="openProfile">Change Booklet</button>
-                <button @click="minimized = true">Minimize</button>
-            </div>
+    <div v-if="booklet && !minimized" class="mx-4 mt-1 w-fit min-w-[16rem] float-right border border-grad-light !shadow-none !text-sm rounded-md bg-grad-lightest">
+        <h6 class="font-medium text-sm bg-grad-lighter bg-opacity-50 rounded-t-md px-4 py-3">Booklet</h6>
+        <div>
             <template v-if="!!bookletData">
-                <Tooltip :tooltip="`Construction progress: ${Math.floor(shapeValidity*100)}%`">
-                    <div class="progress-bar absolute left-0 bottom-0 rounded-b-md bg-red-600 h-4 w-full border-t-4 border-white">
-                        <div v-if="shapeValidity < 1" class="progress-bar absolute left-0 top-0 rounded-b-md rounded-r-md bg-green-600 h-3" :style="{ width: `${shapeValidity*100}%`}"/>
-                        <div v-else="" class="progress-bar absolute left-0 top-0 rounded-b-md bg-green-600 h-3" :style="{ width: `${shapeValidity*100}%`}">
-                            <p class="text-center text-xs leading-none tracking-wide font-semibold">Complete!</p>
-                        </div>
+                <div class="flex px-4 py-3 text-sm font-regular justify-between border-b border-grad-light">
+                    <i @click="currentPage = Math.max(currentPage - 1, 1)" class="fas fa-chevron-left"/>
+                    <span>{{ currentPage }}/{{ +bookletData.nb_pages || 1 }}</span>
+                    <i @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)" class="fas fa-chevron-right"/>
+                </div>
+                <div class="w-full px-4 py-3 flex justify-center items-center"><img :src="getImgSrc(booklet, currentPage)"></div>
+                <div class="border-t border-grad-light px-4 py-3">
+                    <p class="flex justify-between"><span>Progress</span><span class="text-right">{{ Math.floor(shapeValidity*100) }}%</span></p>
+                    <div class="my-2 h-2 w-full relative bg-grad-lighter rounded">
+                        <div class="progress-bar absolute left-0 top-0 h-full bg-info-warning rounded" :style="{ width: `${shapeValidity*100}%`}"/>
                     </div>
-                </Tooltip>
-                <h2>{{ bookletData.name }}</h2>
-                <p>Eye Hint</p>
-                <img :src="getImgSrc(booklet, currentPage)">
-                <p class="w-full"><Slider :min="1" :max="+bookletData.nb_pages || 1" v-model="currentPage"/></p>
-                <Btn class="w-[10rem] my-1" :disabled="shapeValidity < 1" @click="onMint">Mint</Btn>
+                </div>
             </template>
             <template v-else>
                 <p>Loading booklet data</p>
-                <p><i class="fas fa-spinner animate-spin"/></p>
+                <p class="text-center"><i class="fas fa-spinner animate-spin"/></p>
             </template>
         </div>
-        <div class="grow basis-[6rem]"/>
     </div>
 </template>

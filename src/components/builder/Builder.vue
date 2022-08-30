@@ -65,7 +65,7 @@ onMounted(async () => {
     <div class="fixed w-screen h-screen">
         <WebGLCanvas class="z-[-1]"/>
         <MenuBar/>
-        <SideBar/>
         <Booklet/>
+        <SideBar/>
     </div>
 </template>

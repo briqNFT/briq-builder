@@ -18,6 +18,7 @@ import CameraFlyout from './CameraFlyout.vue';
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import ExportSetVue from './modals/ExportSet.vue';
 import { pushModal } from '../Modals.vue';
+import { useBooklet } from './BookletComposable';
 
 const { currentSet } = useBuilder();
 
@@ -80,6 +81,11 @@ const hideCameraFlyout = () => {
     }, 250) as unknown as number;
 };
 
+const {
+    booklet,
+    minimized,
+} = useBooklet();
+
 </script>
 
 <style scoped>
@@ -126,6 +132,9 @@ const hideCameraFlyout = () => {
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-end">
+            <div v-if="booklet" class="rounded-md bg-grad-lightest border mr-1 flex justify-center items-center p-1">
+                <Btn no-background :force-active="!minimized" @click="minimized = !minimized"><i class="fa-solid fa-book-open"/></Btn>
+            </div>
             <div class="flex items-stretch gap-1 px-2 py-1 border bg-grad-lightest rounded-md">
                 <template v-if="maybeStore?.userWalletAddress">
                     <div class="flex items-center justify-center font-medium gap-2 px-2">
