@@ -3,7 +3,6 @@ import BriqPicker from '../modals/BriqPicker.vue';
 import PaletteManager from '../modals/PaletteManager.vue';
 
 import { useStore } from 'vuex';
-import { inputStore } from '../../../builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr, unpackPaletteChoice } from '../../../builder/Palette';
 import { pushModal } from '../../Modals.vue';
 import { builderInputFsm } from '../../../builder/inputs/BuilderInput';
@@ -17,12 +16,12 @@ import { addMaterialCSS } from '@/Conf';
 import { useBuilder } from '../BuilderComposable';
 import ColorPicker from '@/components/generic/ColorPicker.vue';
 import Flyout from '@/components/generic/Flyout.vue';
+import { useBuilderInput } from '../InputComposable';
 
 const { currentSet } = useBuilder();
 
-const store = useStore();
+const { inputStore, switchToState } = useBuilderInput();
 
-const messages = inject('messages');
 const chainBriqs = inject('chainBriqs');
 
 // TODO: reduce duplication here.
@@ -131,8 +130,11 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
 <template>
     <div class="flex flex-col">
         <div class="rounded-md border border-grad-light bg-grad-lightest max-w-[16rem] !text-sm">
-            <div class="bg-grad-lighter p-4 bg-opacity-50">
+            <div class="bg-grad-lighter pl-4 pr-2 py-2 bg-opacity-50 flex justify-between items-center">
                 <h4 class="font-medium text-md">Palette</h4>
+                <Btn no-background :force-active="inputStore.currentInput === 'paint'" @click="switchToState(inputStore.currentInput === 'paint' ? 'place' : 'paint')">
+                    <i class="fa-solid fa-paint-roller"/>
+                </Btn>
             </div>
             <div class="p-4">
                 <div class="flex items-center gap-1 relative">
@@ -140,7 +142,7 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
                     <input type="text" v-model="inputStore.currentColor" class="py-0 h-8 pl-8 grow" size="8">
                     <Btn no-background @click="pickerOpen = !pickerOpen" class="p-0"><img :src="ColorWheel"></Btn>
                 </div>
-                <div class="flex flex-wrap gap-1 my-2">
+                <div class="flex flex-wrap gap-1 mt-4">
                     <template v-for="[key, material, color, name] in choices" :key="key">
                         <div>
                             <Btn
