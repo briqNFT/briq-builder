@@ -16,6 +16,7 @@ import { computed, inject, ref, toRef } from 'vue';
 import { addMaterialCSS } from '@/Conf';
 import { useBuilder } from '../BuilderComposable';
 import ColorPicker from '@/components/generic/ColorPicker.vue';
+import Flyout from '@/components/generic/Flyout.vue';
 
 const { currentSet } = useBuilder();
 
@@ -63,21 +64,8 @@ const addCurrentChoice = () => {
     );
 }
 
-const addChoice = async () => {
-    let result = (await pushModal(BriqPicker, { color: inputStore.currentColor })) as [string, string, string];
-    if (!result)
-        return;
-    let [hex, name, material] = result;
-    palette.value.addChoice({ material, color: hex }, name);
-    inputStore.currentColor = hex;
-    inputStore.currentMaterial = material;
-}
-
-const deleteChoice = () => {
-    palette.value.deleteChoice({ material: inputStore.currentMaterial, color: inputStore.currentColor });
-    const { material, color } = palette.value.getFirstChoice();
-    inputStore.currentColor = color;
-    inputStore.currentMaterial = material;
+const deleteTargetChoice = () => {
+    palette.value.deleteChoice({ key: contextMenuTarget.value?.dataset['target'] });
 };
 
 const setColors = computed((): { [key: string]: number } => {
@@ -126,11 +114,23 @@ const choiceLayout = computed(() => {
 
 const pickerOpen = ref(false);
 
+const contextMenuTarget = ref(null as null | HTMLElement);
+
+const onOpenContextMenu = (event: PointerEvent) => {
+    contextMenuTarget.value = (event.target as HTMLElement).nextElementSibling as HTMLElement;
+    willClose();
+}
+
+const INITIAL_DELAY = 750;
+let closeTimer: any;
+const willClose = () => closeTimer = setTimeout(() => contextMenuTarget.value = null, INITIAL_DELAY);
+const dropClose = () => closeTimer && clearTimeout(closeTimer);
+
 </script>
 
 <template>
     <div class="flex flex-col">
-        <div class="rounded-md overflow-hidden border border-grad-light bg-grad-lightest max-w-[16rem] !text-sm">
+        <div class="rounded-md border border-grad-light bg-grad-lightest max-w-[16rem] !text-sm">
             <div class="bg-grad-lighter p-4 bg-opacity-50">
                 <h4 class="font-medium text-md">Palette</h4>
             </div>
@@ -141,16 +141,27 @@ const pickerOpen = ref(false);
                     <Btn no-background @click="pickerOpen = !pickerOpen" class="p-0"><img :src="ColorWheel"></Btn>
                 </div>
                 <div class="flex flex-wrap gap-1 my-2">
-                    <Btn
-                        no-style
-                        v-for="[key, material, color, name] in choices" :key="key"
-                        :class="`rounded-sm w-4 h-4 p-0 flex justify-center items-center mat-${material} hover:ring-2 ring-grad-darkest`"
-                        :style="addMaterialCSS(material, color)"
-                        :tooltip="'Select color ' + name"
-                        @click="pickBriq(key)"
-                        @dblclick="pickBriq(key); changeColor()"/>
+                    <template v-for="[key, material, color, name] in choices" :key="key">
+                        <div>
+                            <Btn
+                                no-style
+                                :class="`rounded-sm w-4 h-4 p-0 flex justify-center items-center mat-${material} hover:ring-2 ring-grad-darkest`"
+                                :style="addMaterialCSS(material, color)"
+                                :tooltip="'Select color ' + name"
+                                @click="pickBriq(key)"
+                                @dblclick="pickBriq(key); changeColor()"
+                                @contextmenu.prevent.stop="onOpenContextMenu"/>
+                            <!-- This empty div is there to teleport the context menu. -->
+                            <div class="relative" :data-target="key"/>
+                        </div>
+                    </template>
                     <Btn no-background @click="addCurrentChoice" class="p-0 w-4 h-4 flex justify-center items-center">+</Btn>
                 </div>
+                <Teleport v-if="contextMenuTarget" :to="contextMenuTarget">
+                    <Flyout class="!absolute z-[50] top-[0] left-0" @pointerenter="dropClose" @pointerleave="contextMenuTarget = null">
+                        <Btn no-background @click="deleteTargetChoice">Remove</Btn>
+                    </Flyout>
+                </Teleport>
             </div>
         </div>
         <div v-if="pickerOpen" class="flex flex-col bg-grad-lightest shadow-md rounded mt-1 p-2">

@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const opened = ref(false);
 
-const CLOSE_AFTER_FOCUS_LOSS_DELAY = 250000;
+const CLOSE_AFTER_FOCUS_LOSS_DELAY = 350;
 let closeTimer: any;
 const willClose = () => closeTimer = setTimeout(() => opened.value = false, CLOSE_AFTER_FOCUS_LOSS_DELAY);
 const dropClose = () => closeTimer && clearTimeout(closeTimer);

@@ -40,11 +40,6 @@ const _onOpenContextMenu = (event: PointerEvent, option: string) => {
     contextMenuTarget.value = (event.target as HTMLElement).nextElementSibling as HTMLElement;
 }
 
-const CLOSE_AFTER_FOCUS_LOSS_DELAY = 250000;
-let closeTimer: any;
-const willClose = () => closeTimer = setTimeout(() => opened.value = false, CLOSE_AFTER_FOCUS_LOSS_DELAY);
-const dropClose = () => closeTimer && clearTimeout(closeTimer);
-
 const dropdownDiv = ref(null as unknown as HTMLElement);
 const dropdownPositionCSS = computed(() => {
     if (!dropdownDiv.value)
