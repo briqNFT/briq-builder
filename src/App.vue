@@ -92,7 +92,7 @@ html button, a {
 }
 
 
-input, textarea {
+input:not([type='color']), textarea, select {
     @apply rounded px-4 py-2 border border-grad-light;
     @apply disabled:text-grad-light;
     &:not(:disabled):hover, &:focus, &:focus-visible {
@@ -102,6 +102,14 @@ input, textarea {
     &:focus {
         @apply shadow-[0_0_3px_black] shadow-primary-lighter;
     }
+}
+
+input[type='color'] {
+    @apply p-0 m-0 w-6 h-6 rounded bg-transparent border-none;
+}
+
+select {
+    @apply px-2;
 }
 
 /* Hack for get-starknet */

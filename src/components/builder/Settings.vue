@@ -10,6 +10,7 @@ import { darkModeStore } from '@/DarkMode';
 
 import { CONF } from '@/Conf';
 import { useStore } from 'vuex';
+import InputColor from '../generic/InputColor.vue';
 
 const store = useStore();
 
@@ -65,9 +66,9 @@ const resetToLast = () => {
 
 <template>
     <div class="root">
-        <h3>Settings</h3>
-        <div class="my-4 settings">
-            <p class="text-grad-dark text-xs italic">Some settings may need reloading to apply properly.</p>
+        <h3 class="mt-4">Settings</h3>
+        <p class="text-grad-dark text-xs italic">Some settings may need reloading to apply properly.</p>
+        <div class="mt-4 mb-2 settings">
             <div class="flex flex-col gap-2">
                 <div>
                     <h4>Anti-aliasing</h4>
@@ -85,27 +86,22 @@ const resetToLast = () => {
                 <hr>
                 <div>
                     <h4>Base plane</h4>
-                    <p>
-                        <input type="color" class="p-0" v-model="builderSettings.planeColor"><label>Base plane<Toggle class="w-10" v-model="builderSettings.showPlane"/></label>
-                    </p>
-                    <p>
-                        <label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" :disabled="!builderSettings.showPlane" v-model="builderSettings.showGrid"/>
-                            Show base grid</label>
-                    </p>
-                    <p class="flex flex-row items-center gap-1 my-0.5">
-                        Base Plane Color
-                    </p>
-                    <p class="flex flex-row items-center gap-1 my-0.5">
-                        <input type="color" class="p-0" v-model="builderSettings.gridColor"> Grid Color
-                    </p>
+                    <div class="flex items-center">
+                        <InputColor v-model="builderSettings.planeColor"/>
+                        <label class="grow inline-flex justify-between">Base plane<Toggle class="w-10" v-model="builderSettings.showPlane"/></label>
+                    </div>
+                    <div class="flex items-center">
+                        <InputColor v-model="builderSettings.gridColor"/>
+                        <label class="grow inline-flex justify-between">Base grid<Toggle class="w-10" v-model="builderSettings.showGrid"/></label>
+                    </div>
                 </div>
                 <hr>
                 <div>
                     <p>
-                        <label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.useSAO"/> Use Screen-space Ambient Occlusion</label>
+                        <label class="w-full inline-flex justify-between items-center gap-1">Use Screen-space Ambient Occlusion <Toggle class="w-10" v-model="builderSettings.useSAO"/></label>
                     </p>
                     <p>
-                        <label class="inline-flex justify-center align-center gap-1"><Toggle class="w-10" v-model="builderSettings.showBorders"/> Show briq borders</label>
+                        <label class="w-full inline-flex justify-between items-center gap-1">Show briq borders <Toggle class="w-10" v-model="builderSettings.showBorders"/></label>
                     </p>
                 </div>
                 <hr>
@@ -120,13 +116,13 @@ const resetToLast = () => {
                 <hr>
                 <div>
                     <p class="flex flex-row items-center gap-1 my-0.5">
-                        <input type="color" class="p-0" v-model="builderSettings.backgroundColor"> Background Color
+                        <InputColor v-model="builderSettings.backgroundColor"/> Background Color
                     </p>
                     <p class="flex flex-row items-center gap-1 my-0.5">
-                        <input type="color" class="p-0" v-model="builderSettings.lightColor"> Light Color
+                        <InputColor v-model="builderSettings.lightColor"/> Light Color
                     </p>
                     <p class="flex flex-row items-center gap-1 my-0.5">
-                        <input type="color" class="p-0" v-model="builderSettings.ambientColor"> Ambient Color
+                        <InputColor v-model="builderSettings.ambientColor"/> Ambient Color
                     </p>
                 </div>
                 <hr>
@@ -139,8 +135,8 @@ const resetToLast = () => {
                 </p>
                 <hr>
                 <div>
-                    <Btn no-background @click="resetToDefault">Reset to defaults</Btn>
-                    <Btn no-background @click="resetToLast" :disabled="!mayUndo">Undo changes</Btn>
+                    <Btn no-background class="text-sm py-2" @click="resetToDefault">Reset to defaults</Btn>
+                    <Btn no-background class="text-sm py-2" @click="resetToLast" :disabled="!mayUndo">Undo changes</Btn>
                 </div>
             </div>
         </div>
