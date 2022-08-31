@@ -1,5 +1,7 @@
 <template>
-    <div ref="colorPicker" class="iro"/>
+    <div ref="parentPicker" class="w-full">
+        <div ref="colorPicker"/>
+    </div>
 </template>
 
 <style scoped></style>
@@ -19,25 +21,32 @@ export default defineComponent({
     mounted() {
         this.colorPicker = new iro.ColorPicker(this.$refs.colorPicker, {
             color: this.color,
-            layoutDirection: 'horizontal',
+            layoutDirection: 'vertical',
+            handleRadius: 4,
+            padding: 4,
+            width: 10, // should be lower than the min-size of the parent for resizing.
             layout: [
                 {
                     component: iro.ui.Box,
                     options: {
-                        borderWidth: 4,
-                        width: 200,
+                        boxHeight: 100,
                     },
                 },
                 {
-                    component: iro.ui.Wheel,
+                    component: iro.ui.Slider,
                     options: {
-                        borderWidth: 4,
-                        width: 200,
+                        sliderType: 'hue',
                     },
                 },
             ],
         });
         this.colorPicker.on(['color:init', 'color:change'], (col) => this.$emit('colorChange', col.hexString));
+
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries)
+                this.colorPicker.resize(entry.contentRect.width)
+        });
+        resizeObserver.observe(this.$refs.parentPicker);
     },
     watch: {
         color(nv, ov) {

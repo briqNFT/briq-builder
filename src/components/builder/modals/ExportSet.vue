@@ -129,48 +129,12 @@ const startMinting = async () => {
 
         data.recommendedSettings = builderSettings.getSettingsForSetExport();
 
-        /*exportStep.value = 'SIGNING';
-
-        const message = {
-            domain: {
-                name: 'briq',
-                chainId: false ? 1 : 3,
-                version: VERSION,
-            },
-            types: {
-                StarkNetDomain: [
-                    { name: 'name', type: 'felt' },
-                    { name: 'chainId', type: 'felt' },
-                    { name: 'version', type: 'felt' },
-                ],
-                Message: [{ name: 'message', type: 'felt' }],
-            },
-            primaryType: 'Message',
-            message: {
-                message: 'mint_set',
-            },
-        };
-
-        let signature = await this.wallet.signer.signMessage(message);
-        */
         exportStep.value = 'SENDING_TRANSACTION';
 
         const TX = await userSetStore.current!.mintSet(token_hint, data, await imageProcessing.value);
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
-        /*
-        await new Promise((resolve) => {
-            // Poll the transaction status regularly.
-            let regularly: any;
-            regularly = setInterval(async () => {
-                await this.pending_transaction!.poll();
-                if (this.pending_transaction!.isPending() || !this.pending_transaction!.isOk()) {
-                    clearInterval(regularly);
-                    resolve(null);
-                }
-            }, 3000);
-        });
-        */
+
         pushPopup('success', 'Set exported', `Set exported ${data.id} - TX ${TX.transaction_hash}`);
         logDebug('Set exported ' + data.id);
 

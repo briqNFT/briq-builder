@@ -9,10 +9,13 @@ import { pushModal } from '../../Modals.vue';
 import { builderInputFsm } from '../../../builder/inputs/BuilderInput';
 import type { ChainBriqs } from '@/builder/ChainBriqs';
 
-import { computed, inject, toRef } from 'vue';
+import ColorWheel from '@/assets/colorwheel.png';
+
+import { computed, inject, ref, toRef } from 'vue';
 
 import { addMaterialCSS } from '@/Conf';
 import { useBuilder } from '../BuilderComposable';
+import ColorPicker from '@/components/generic/ColorPicker.vue';
 
 const { currentSet } = useBuilder();
 
@@ -121,29 +124,37 @@ const choiceLayout = computed(() => {
         return 'gap-0.5 grid-cols-3 grid-flow-row';
 })
 
+const pickerOpen = ref(false);
+
 </script>
 
 <template>
-    <div class="rounded-md overflow-hidden border border-grad-light bg-grad-lightest max-w-[200px] !text-sm">
-        <div class="bg-grad-lighter p-4">
-            <h4 class="font-medium text-md">Palette</h4>
+    <div class="flex flex-col">
+        <div class="rounded-md overflow-hidden border border-grad-light bg-grad-lightest max-w-[16rem] !text-sm">
+            <div class="bg-grad-lighter p-4 bg-opacity-50">
+                <h4 class="font-medium text-md">Palette</h4>
+            </div>
+            <div class="p-4">
+                <div class="flex items-center gap-1 relative">
+                    <div class="inline-block w-4 h-4 rounded-sm absolute left-2 pointer-events-none" :style="{ backgroundColor: inputStore.currentColor }"/>
+                    <input type="text" v-model="inputStore.currentColor" class="py-0 h-8 pl-8 grow" size="8">
+                    <Btn no-background @click="pickerOpen = !pickerOpen" class="p-0"><img :src="ColorWheel"></Btn>
+                </div>
+                <div class="flex flex-wrap gap-1 my-2">
+                    <Btn
+                        no-style
+                        v-for="[key, material, color, name] in choices" :key="key"
+                        :class="`rounded-sm w-4 h-4 p-0 flex justify-center items-center mat-${material} hover:ring-2 ring-grad-darkest`"
+                        :style="addMaterialCSS(material, color)"
+                        :tooltip="'Select color ' + name"
+                        @click="pickBriq(key)"
+                        @dblclick="pickBriq(key); changeColor()"/>
+                    <Btn no-background @click="addCurrentChoice" class="p-0 w-4 h-4 flex justify-center items-center">+</Btn>
+                </div>
+            </div>
         </div>
-        <div class="p-4">
-            <div class="flex items-center gap-1">
-                <div class="inline-block w-7 h-7 rounded-sm" :style="{ backgroundColor: inputStore.currentColor }"/>
-                <input type="text" v-model="inputStore.currentColor" class="py-0 h-8" size="7">
-            </div>
-            <div class="flex flex-wrap gap-1 my-2">
-                <Btn
-                    no-style
-                    v-for="[key, material, color, name] in choices" :key="key"
-                    :class="`rounded-sm w-7 h-7 p-0 flex justify-center items-center mat-${material}`"
-                    :style="addMaterialCSS(material, color)"
-                    :tooltip="'Select color ' + name"
-                    @click="pickBriq(key)"
-                    @dblclick="pickBriq(key); changeColor()"/>
-                <Btn no-background class="p-0 w-7 h-7 flex justify-center items-center">+</Btn>
-            </div>
+        <div v-if="pickerOpen" class="flex flex-col bg-grad-lightest shadow-md rounded mt-1 p-2">
+            <ColorPicker :color="inputStore.currentColor" @color-change="col => inputStore.currentColor = col"/>
         </div>
     </div>
 </template>
