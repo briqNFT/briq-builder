@@ -34,9 +34,9 @@ const {
         <div>
             <template v-if="!!bookletData">
                 <div class="flex px-4 py-1 text-sm font-regular justify-between items-center border-b border-grad-light">
-                    <Btn no-background><i @click="currentPage = Math.max(currentPage - 1, 1)" class="fas fa-chevron-left"/></Btn>
+                    <Btn no-background @click="currentPage = Math.max(currentPage - 1, 1)"><i class="fas fa-chevron-left"/></Btn>
                     <span>{{ currentPage }}/{{ +bookletData.nb_pages || 1 }}</span>
-                    <Btn no-background><i @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)" class="fas fa-chevron-right"/></Btn>
+                    <Btn no-background @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)"><i class="fas fa-chevron-right"/></Btn>
                 </div>
                 <div class="w-full px-4 py-3 flex justify-center items-center"><img :src="getImgSrc(booklet, currentPage)"></div>
                 <div class="border-t border-grad-light px-4 py-3">
