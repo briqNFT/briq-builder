@@ -27,7 +27,7 @@ const deleteBriqs = async () => {
 
 <template>
     <div class="mx-4 mt-1 w-max" id="sidebar">
-        <QuickPicker v-if="activeInputButton === 'place'"/>
+        <QuickPicker v-if="activeInputButton !== 'camera'"/>
         <CameraFlyout v-if="activeInputButton === 'camera'"/>
         <Flyout
             v-if="activeInputButton === 'select'"

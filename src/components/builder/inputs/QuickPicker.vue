@@ -6,40 +6,39 @@ import { useStore } from 'vuex';
 import { packPaletteChoice, palettesMgr, unpackPaletteChoice } from '../../../builder/Palette';
 import { pushModal } from '../../Modals.vue';
 import { builderInputFsm } from '../../../builder/inputs/BuilderInput';
-import type { ChainBriqs } from '@/builder/ChainBriqs';
 
 import ColorWheel from '@/assets/colorwheel.png';
 
-import { computed, inject, ref, toRef } from 'vue';
+import { computed, ref, toRef, watch } from 'vue';
 
 import { addMaterialCSS } from '@/Conf';
-import { useBuilder } from '../BuilderComposable';
 import ColorPicker from '@/components/generic/ColorPicker.vue';
 import Flyout from '@/components/generic/Flyout.vue';
 import { useBuilderInput } from '../InputComposable';
 
-const { currentSet } = useBuilder();
+const { inputStore, activeInputButton, switchToState } = useBuilderInput();
 
-const { inputStore, switchToState } = useBuilderInput();
-
-const chainBriqs = inject('chainBriqs');
+const store = useStore();
 
 // TODO: reduce duplication here.
 const palette = computed(() => palettesMgr.getCurrent());
 const choices = computed(() => palette.value.getChoices());
 
-const currentKey = computed(() => packPaletteChoice(inputStore.currentMaterial, inputStore.currentColor));
+watch([toRef(inputStore, 'currentColor'), toRef(inputStore, 'currentMaterial')], () => {
+    if (activeInputButton.value !== 'select')
+        return;
+    changeColorOfSelectedBriqs();
+})
 
-const availableNFTs = computed(() => {
-    let nfts = (chainBriqs as ChainBriqs).getNFTs();
-    let briqs = currentSet.value.getAllBriqs();
-    let av = [];
-    for (let nft of nfts)
-        if (!briqs.find((x: any) => x.id === nft.token_id))
-            av.push(nft);
-
-    return av;
-});
+const changeColorOfSelectedBriqs = () => {
+    const change = [] as any;
+    inputStore.selectionMgr.selectedBriqs.map(x => change.push({
+        pos: x.position,
+        color: inputStore.currentColor,
+        material: inputStore.currentMaterial,
+    }))
+    store.dispatch('builderData/set_briq_color', change);
+}
 
 const changeColor = async () => {
     let result = (await pushModal(BriqPicker, { color: inputStore.currentColor })) as [string, string, string];
@@ -67,49 +66,15 @@ const deleteTargetChoice = () => {
     palette.value.deleteChoice({ key: contextMenuTarget.value?.dataset['target'] });
 };
 
-const setColors = computed((): { [key: string]: number } => {
-    let ret = {} as { [key:string]: number };
-    currentSet.value.forEach((cell: Briq) => {
-        const key = packPaletteChoice(cell.material, cell.color);
-        if (key in ret)
-            ++ret[key];
-        else
-            ret[key] = 1;
-    });
-    return ret;
-});
-
-const resetAll = () => {
-    palette.value.reset();
-};
-
-const addAllActive = () => {
-    for (let key in setColors.value)
-        palette.value.addChoice({ key }, key);
-};
-
 const pickBriq = (key: string) => {
     const { material, color } = unpackPaletteChoice(key);
     inputStore.currentColor = color;
     inputStore.currentMaterial = material;
     if (inputStore.currentInput === 'place_nft')
         builderInputFsm.switchTo('place');
+    if (activeInputButton.value === 'select')
+        changeColorOfSelectedBriqs();
 };
-
-const pickNFT = (nft: any) => {
-    builderInputFsm.switchTo('place_nft', nft);
-};
-
-const choiceLayout = computed(() => {
-    // For small # of items, the layout is a single column
-    if (palette.value.getNbChoices() < 14)
-        return ' gap-0.5 flex flex-col';
-    // For larger # of items, the layout is a few columns
-    else if (palette.value.getNbChoices() < 24)
-        return 'gap-0.5 grid-cols-2 grid-flow-row';
-    else
-        return 'gap-0.5 grid-cols-3 grid-flow-row';
-})
 
 const pickerOpen = ref(false);
 
