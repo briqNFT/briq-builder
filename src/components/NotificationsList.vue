@@ -2,7 +2,7 @@
 import { notificationsManager } from '@/Notifications';
 import { computed } from 'vue';
 
-const notifs = computed(() => notificationsManager.notifications.filter(x => x.shouldShow()).slice(-10));
+const notifs = computed(() => notificationsManager.notifications.filter(x => x.shouldShow()));
 
 const icons = {
     'info': 'fa-solid fa-clock',

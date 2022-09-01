@@ -56,7 +56,7 @@ div[data-name='menu'] > :not(hr) {
         <!-- Close on click so that clicking on button works as expected. -->
         <div
             v-if="opened" data-name="menu" @click.stop="closeOnClick ? opened = false : ''"
-            :class="`after:absolute after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-grad-lightest shadow rounded-md py-2 w-max z-50`">
+            :class="`after:absolute max-h-[90vh] overflow-scroll after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-grad-lightest shadow rounded-md py-2 w-max z-50`">
             <slot/>
         </div>
     </div>
