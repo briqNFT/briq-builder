@@ -14,6 +14,7 @@ import RenameSetVue from './modals/RenameSet.vue';
 import Settings from './Settings.vue';
 import { useSetHelpers } from './SetComposable';
 import DownloadSetVue from './modals/DownloadSet.vue';
+import { useBuilderInput } from './InputComposable';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
@@ -31,6 +32,7 @@ watch(toRef(props, 'open'), (o, n) => {
 });
 
 const { currentSet, selectSet } = useBuilder();
+const { inputStore, activeInputButton, switchToState, currentInput } = useBuilderInput();
 
 const renameSet = () => {
     pushModal(RenameSetVue, { set: currentSet.value.id })
@@ -68,11 +70,32 @@ const importSetFromFile = async () => {
 
 const duplicate = () => openSetInBuilder(duplicateSet(currentSet.value.id).id);
 
+const selectCopy = () => {
+    if (activeInputButton.value !== 'select')
+        inputStore.selectionMgr.selectAll()
+    switchToState('copy_paste');
+}
+
+const deleteBriqs = async () => {
+    await store.dispatch(
+        'builderData/place_briqs',
+        inputStore.selectionMgr.selectedBriqs.map((briq) => ({ pos: briq.position })),
+    );
+}
+
+const selectAllbriqs = () => {
+    switchToState('inspect');
+    inputStore.selectionMgr.selectAll();
+}
+
 </script>
 
 <style scoped>
 #app button {
-    @apply text-sm justify-start;
+    @apply text-sm justify-between;
+}
+#app button span {
+    @apply text-sm font-mono pl-2;
 }
 </style>
 
@@ -89,14 +112,14 @@ const duplicate = () => openSetInBuilder(duplicateSet(currentSet.value.id).id);
                     <Btn @click="duplicate" no-background>Duplicate creation</Btn>
                     <Btn @click="downloadSetLocally" no-background>Save to computer</Btn>
                     <hr>
-                    <Btn @click="store.dispatch('undo_history')" no-background>Undo</Btn>
-                    <Btn @click="store.dispatch('redo_history')" no-background>Redo</Btn>
+                    <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>⌃U</span></Btn>
+                    <Btn @click="store.dispatch('redo_history')" no-background>Redo <span>⌃⇧U</span></Btn>
                     <hr>
-                    <Btn no-background>Copy</Btn>
-                    <Btn no-background>Paste</Btn>
+                    <Btn no-background @click="selectCopy">Copy <span>⌃C</span></Btn>
+                    <Btn no-background :disabled="currentInput !== 'copy_paste'">Paste <span>⌃V</span></Btn>
                     <hr>
-                    <Btn no-background>Select all objects</Btn>
-                    <Btn no-background>Delete selected briqs</Btn>
+                    <Btn no-background @click="selectAllbriqs">Select all briqs <span>⌃A</span></Btn>
+                    <Btn no-background @click="deleteBriqs" :disabled="!inputStore.selectionMgr.selectedBriqs.length">Delete selected briqs <span>⌦</span></Btn>
                     <hr>
                     <Btn @click="mode = 'SETTINGS'" no-background>Settings</Btn>
                     <Btn no-background>Help</Btn>
@@ -106,5 +129,8 @@ const duplicate = () => openSetInBuilder(duplicateSet(currentSet.value.id).id);
                 </template>
             </Flyout>
         </div>
+        <Hotkey v-if="activeInputButton === 'select'" name="delete-1" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"/>
+        <Hotkey v-if="activeInputButton === 'select'" name="delete-2" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"/>
+        <Hotkey name="select-all" :data="{ key: 'a', ctrl: true }" :handler="selectAllbriqs"/>
     </div>
 </template>

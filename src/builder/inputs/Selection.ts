@@ -127,6 +127,17 @@ export class SelectionManager {
         selectionRender.update(this);
     }
 
+    selectAll() {
+        if (!this.set)
+            return;
+        const briqs = [] as Briq[];
+        this.set.forEach((briq: Briq) => {
+            briqs.push(briq);
+        });
+        this.select(briqs);
+
+    }
+
     add(x: number, y: number, z: number) {
         const briq = this.set?.getAt(x, y, z);
         if (!briq)

@@ -5,6 +5,7 @@ import Slider from '../generic/Slider.vue';
 import { usePresetHelpers } from './inputs/CameraComposable';
 import DropDown from '../generic/DropDown.vue';
 import { ref, Ref, toRaw, watchEffect } from 'vue';
+import { camera, orbitControls } from '@/builder/graphics/Builder';
 
 const {
     presets,
@@ -68,8 +69,24 @@ const addPreset = () => {
         fov: toRaw(_fov.value),
     });
     mode.value = 'regular';
-
 }
+
+const hotkeyPreset = (preset: string) => {
+    const target = orbitControls.controls.target.toArray();
+    usePreset({
+        position: {
+            'x-pos': () => [target[0] + 10, target[1], target[2]],
+            'x-neg': () => [target[0] - 10, target[1], target[2]],
+            'z-pos': () => [target[0], target[1], target[2] + 10],
+            'z-neg': () => [target[0], target[1], target[2] - 10],
+            'y-pos': () => [target[0], target[1] + 10, target[2]],
+            'y-neg': () => [target[0], target[1] - 10, target[2]],
+        }[preset]!(),
+        target: target,
+        fov: camera.fov,
+    });
+}
+
 </script>
 
 <style scoped>
@@ -148,5 +165,11 @@ const addPreset = () => {
                 </div>
             </div>
         </template>
+        <Hotkey name="x-pos-camera" :handler="() => hotkeyPreset('x-pos')" :data="{ code: 'KeyA' }"/>
+        <Hotkey name="x-neg-camera" :handler="() => hotkeyPreset('x-neg')" :data="{ code: 'KeyD' }"/>
+        <Hotkey name="z-pos-camera" :handler="() => hotkeyPreset('z-pos')" :data="{ code: 'KeyW' }"/>
+        <Hotkey name="z-neg-camera" :handler="() => hotkeyPreset('z-neg')" :data="{ code: 'KeyS' }"/>
+        <Hotkey name="y-pos-camera" :handler="() => hotkeyPreset('y-pos')" :data="{ code: 'KeyQ' }"/>
+        <Hotkey name="y-neg-camera" :handler="() => hotkeyPreset('y-neg')" :data="{ code: 'KeyE' }"/>
     </Flyout>
 </template>

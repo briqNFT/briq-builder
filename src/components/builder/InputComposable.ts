@@ -1,6 +1,6 @@
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { inputStore } from '@/builder/inputs/InputStore';
-import { computed } from 'vue';
+import { computed, toRef } from 'vue';
 
 export function useBuilderInput() {
     const activeInputButton = computed(() => ({
@@ -26,6 +26,7 @@ export function useBuilderInput() {
     }
     return {
         inputStore,
+        currentInput: toRef(inputStore, 'currentInput'),
         activeInputButton,
         switchToState,
         fsm: builderInputFsm.gui,

@@ -19,6 +19,7 @@ import { useBuilder } from '@/components/builder/BuilderComposable';
 import ExportSetVue from './modals/ExportSet.vue';
 import { pushModal } from '../Modals.vue';
 import { useBooklet } from './BookletComposable';
+import { useStore } from 'vuex';
 
 const { currentSet } = useBuilder();
 

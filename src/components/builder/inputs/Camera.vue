@@ -100,12 +100,6 @@ const hotkeyPreset = (preset: string) => {
 
 <template>
     <div class="camera-input-panel w-full">
-        <Hotkey name="x-pos-camera" :handler="() => hotkeyPreset('x-pos')" :data="{ code: 'KeyA' }"/>
-        <Hotkey name="x-neg-camera" :handler="() => hotkeyPreset('x-neg')" :data="{ code: 'KeyD' }"/>
-        <Hotkey name="z-pos-camera" :handler="() => hotkeyPreset('z-pos')" :data="{ code: 'KeyW' }"/>
-        <Hotkey name="z-neg-camera" :handler="() => hotkeyPreset('z-neg')" :data="{ code: 'KeyS' }"/>
-        <Hotkey name="y-pos-camera" :handler="() => hotkeyPreset('y-pos')" :data="{ code: 'KeyQ' }"/>
-        <Hotkey name="y-neg-camera" :handler="() => hotkeyPreset('y-neg')" :data="{ code: 'KeyE' }"/>
         <div class="flex flex-col items-stretch gap-1 w-full">
             <div class="flex flex-col gap-1 w-full">
                 <Btn @click="centerCamera" :disabled="!selection.selectedBriqs.length" class="leading-4">

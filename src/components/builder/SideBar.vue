@@ -15,14 +15,6 @@ const {
     centerCamera,
 } = usePresetHelpers();
 
-const store = useStore();
-const deleteBriqs = async () => {
-    await store.dispatch(
-        'builderData/place_briqs',
-        inputStore.selectionMgr.selectedBriqs.map((briq) => ({ pos: briq.position })),
-    );
-
-}
 </script>
 
 <template>
@@ -41,10 +33,6 @@ const deleteBriqs = async () => {
                 <Btn no-background :disabled="!canCenterCamera" @click="centerCamera" class="p-2 justify-start !text-sm">Center on selection</Btn>
             </div>
         </Flyout>
-    </div>
-    <div>
-        <Hotkey v-if="activeInputButton === 'select'" name="delete-1" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"/>
-        <Hotkey v-if="activeInputButton === 'select'" name="delete-2" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"/>
     </div>
     <div
         v-if="fsm.selectionBox"
