@@ -10,6 +10,8 @@ import { userSetStore } from '@/builder/UserSets';
 import { router } from '@/Routes';
 import { TWO } from 'starknet/dist/constants';
 import { Notification, notificationPopups } from '@/Notifications';
+import ProgressBar from '@/components/generic/ProgressBar.vue';
+import { useBooklet } from '../BookletComposable';
 
 const route = useRoute();
 const mode = route.name === 'UserSet' ? 'OFFICIAL' : 'CREATION';
@@ -38,6 +40,10 @@ const { createBookletSet } = useUnboxHelpers();
 const createSet = () => {
     openSetInBuilder(createBookletSet(bookletData.value?.name, booklet_id));
 }
+
+const {
+    shapeValidity,
+} = useBooklet(set, booklet_id);
 
 const disassemble = async () => {
     const TX = await userSetStore.current!.disassemble(route.params.set_id as string);
@@ -80,7 +86,10 @@ const attribs = [
                 <template v-else>
                     <h4>Official set</h4>
                     <h2>Building progress</h2>
-                    <p class="rounded bg-info-warning">progress bar go brr</p>
+                    <p>
+                        {{ Math.floor(shapeValidity * 100) }}%
+                        <ProgressBar class="border-grad-darker border h-4" :percentage="shapeValidity*100"/>
+                    </p>
                     <p>Your official set is unfinished. Make sure that it has all the pieces positioned at the right place to have it completed.</p>
                     <Btn class="w-fit" @click="openSetInBuilder(set!.id)">Open in builder</Btn>
                 </template>

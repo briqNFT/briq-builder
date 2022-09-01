@@ -4,6 +4,7 @@ import Tooltip from '@/components/generic/Tooltip.vue';
 import Slider from '../generic/Slider.vue';
 import { useBooklet } from './BookletComposable';
 import { useBuilder } from '@/components/builder/BuilderComposable';
+import ProgressBar from '../generic/ProgressBar.vue';
 
 const currentPage = ref(1)
 
@@ -21,13 +22,6 @@ const {
 } = useBooklet();
 </script>
 
-<style scoped>
-.progress-bar::after {
-    content: '';
-    @apply absolute left-0 top-0 w-full h-full bg-info-error rounded bg-white bg-opacity-50;
-    clip-path: inset(0 0 70% 0);
-}
-</style>
 <template>
     <div v-if="booklet && !minimized" class="mx-4 mt-1 w-fit min-w-[16rem] float-right border border-grad-light !shadow-none !text-sm rounded-md bg-grad-lightest">
         <h6 class="font-medium text-sm bg-grad-lighter bg-opacity-50 rounded-t-md px-4 py-3">Booklet</h6>
@@ -41,9 +35,7 @@ const {
                 <div class="w-full px-4 py-3 flex justify-center items-center"><img :src="getImgSrc(booklet, currentPage)"></div>
                 <div class="border-t border-grad-light px-4 py-3">
                     <p class="flex justify-between"><span>Progress</span><span class="text-right">{{ Math.floor(shapeValidity*100) }}%</span></p>
-                    <div class="my-2 h-2 w-full relative bg-grad-lighter rounded">
-                        <div class="progress-bar absolute left-0 top-0 h-full bg-info-warning rounded" :style="{ width: `${shapeValidity*100}%`}"/>
-                    </div>
+                    <ProgressBar :percentage="shapeValidity*100"/>
                 </div>
             </template>
             <div v-else class="p-4">

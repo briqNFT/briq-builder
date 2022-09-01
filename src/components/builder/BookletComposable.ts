@@ -1,5 +1,5 @@
 import type { SetData } from '@/builder/SetData';
-import { markRaw, reactive, ref, toRef, watchEffect, watch, computed } from 'vue';
+import { markRaw, reactive, ref, toRef, watchEffect, watch, computed, Ref } from 'vue';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import { CONF } from '@/Conf';
@@ -40,16 +40,16 @@ async function loadBookletData(booklet: string) {
     }
 }
 
-export function useBooklet() {
+export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) {
     const getImgSrc = (booklet: string, page: number) => `${backendManager.url}/v1/box/step_image/${getCurrentNetwork()}/${booklet}/${page - 1}.png`;
 
     const shapeValidity = ref(0);
 
     const { currentSet, currentSetInfo } = useBuilder();
-    const booklet = computed(() => currentSetInfo.value.booklet);
-    watch(currentSetInfo, () => {
-        if (currentSetInfo.value && currentSetInfo.value.booklet)
-            loadBookletData(currentSetInfo.value.booklet);
+    const booklet = computed(() => forceBooklet?.value || currentSetInfo.value.booklet);
+    watch([currentSetInfo, forceSet, forceBooklet], () => {
+        if (booklet.value)
+            loadBookletData(booklet.value);
         else {
             for (const key in CONF.defaultPalette)
                 delete CONF.defaultPalette[key];
@@ -62,7 +62,7 @@ export function useBooklet() {
     watchEffect(() => {
         if (!bookletStore.bookletData)
             return;
-        const set = currentSet.value as SetData;
+        const set = forceSet?.value || currentSet.value as SetData;
         set.briqs_;
         const currentBriqs = set.getAllBriqs();
         const targetBriqs = bookletStore.bookletData.briqs.slice();
