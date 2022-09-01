@@ -145,6 +145,7 @@ export class SetsManager {
         const data = set.serialize();
         delete data.id;
         copy.deserialize(data);
+        copy.name = `Copy of ${copy.getName()}`
         return copy;
     }
 

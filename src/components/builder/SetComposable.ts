@@ -39,6 +39,7 @@ export function useSetHelpers() {
             pushPopup('success', 'Set deleted', 'Set successfully deleted');
         }
     };
+
     return {
         openSetInBuilder,
         createNewSetAndOpen,

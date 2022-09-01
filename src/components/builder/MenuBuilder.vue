@@ -13,6 +13,7 @@ import ImportVoxModalVue from './modals/ImportVoxModal.vue';
 import RenameSetVue from './modals/RenameSet.vue';
 import Settings from './Settings.vue';
 import { useSetHelpers } from './SetComposable';
+import DownloadSetVue from './modals/DownloadSet.vue';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
@@ -39,13 +40,17 @@ const store = useStore();
 
 const { createNewSetAndOpen, duplicateSet, openSetInBuilder } = useSetHelpers();
 
+const downloadSetLocally = () => {
+    pushModal(DownloadSetVue, { setId: currentSet.value.id });
+}
+
 const importSetFromFile = async () => {
     let fileHandles = await showOpenFilePickerPolyfill();
     for (let fileHandle of fileHandles)
         try {
             let file = await fileHandle.getFile();
             if ((file.name as string).endsWith('.vox'))
-                await pushModal(ImportVoxModalVue, { file: file, fileData: file.arrayBuffer() });
+                await pushModal(ImportVoxModalVue, { file: file, data: file.arrayBuffer() });
             else {
                 let contents = JSON.parse(await file.text());
                 // For now, overwrite briqs in Realms/default
@@ -74,7 +79,7 @@ const duplicate = () => openSetInBuilder(duplicateSet(currentSet.value.id).id);
 <template>
     <div class="relative">
         <div v-if="open" class="absolute z-50">
-            <Flyout id="menuFlyout" class="mx-4 mt-1 flex flex-col w-max rounded-md text-sm font-normal" @click="">
+            <Flyout id="menuFlyout" class="mx-4 mt-1 flex flex-col w-max rounded-md text-sm font-normal">
                 <template v-if="mode === 'MENU'">
                     <Btn @click="renameSet" no-background>Rename set</Btn>
                     <RouterLink :to="{ name: 'Profile' }"><Btn class="w-full" no-background>Manage my sets</Btn></RouterLink>
@@ -82,7 +87,7 @@ const duplicate = () => openSetInBuilder(duplicateSet(currentSet.value.id).id);
                     <Btn @click="createNewSetAndOpen()" no-background>New creation</Btn>
                     <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
                     <Btn @click="duplicate" no-background>Duplicate creation</Btn>
-                    <Btn no-background>(todo) Save to computer</Btn>
+                    <Btn @click="downloadSetLocally" no-background>Save to computer</Btn>
                     <hr>
                     <Btn @click="store.dispatch('undo_history')" no-background>Undo</Btn>
                     <Btn @click="store.dispatch('redo_history')" no-background>Redo</Btn>
