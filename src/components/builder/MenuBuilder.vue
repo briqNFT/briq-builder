@@ -92,7 +92,10 @@ const selectAllbriqs = () => {
 
 <style scoped>
 #app button {
-    @apply text-sm justify-between;
+    @apply text-sm justify-between mx-2;
+}
+#app hr {
+    @apply my-2;
 }
 #app button span {
     @apply text-sm font-mono pl-2;
@@ -102,7 +105,7 @@ const selectAllbriqs = () => {
 <template>
     <div class="relative">
         <div v-if="open" class="absolute z-50">
-            <Flyout id="menuFlyout" class="mx-4 mt-1 flex flex-col w-max rounded-md text-sm font-normal">
+            <Flyout id="menuFlyout" class="mx-4 mt-1 py-2 flex flex-col w-max rounded-md text-sm font-normal">
                 <template v-if="mode === 'MENU'">
                     <Btn @click="renameSet" no-background>Rename set</Btn>
                     <RouterLink :to="{ name: 'Profile' }"><Btn class="w-full" no-background>Manage my sets</Btn></RouterLink>
