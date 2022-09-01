@@ -290,7 +290,7 @@ export async function main(canvas) {
 
     overlayObjects = new THREE.Object3D();
 
-    const fov = 75;
+    const fov = 45;
     const aspect = 2; // the canvas default
     const near = 0.5;
     const far = 500;

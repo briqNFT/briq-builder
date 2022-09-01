@@ -107,10 +107,10 @@ const resetToLast = () => {
                 <hr>
                 <div>
                     <h4>Canvas size</h4>
-                    <label><p class="flex items-center gap-1">
-                        <Slider v-if="featureFlags.bigBuilder" class="w-[6rem]" :min="10" :step="10" :max="300" v-model="canvasSize"/>
-                        <Slider v-else class="w-[6rem]" :min="10" :step="10" :max="CONF.builderSettings.maxCanvasSize * 2 || 100" v-model="canvasSize"/>
-                        Canvas size ({{ `${builderSettings.canvasSize * 2}x${builderSettings.canvasSize * 2}` }})
+                    <label><p class="flex items-center justify-between gap-1">
+                        <Slider v-if="featureFlags.bigBuilder" class="w-[6rem] grow" :min="10" :step="10" :max="300" v-model="canvasSize" :show-value="false"/>
+                        <Slider v-else class="w-[6rem] grow" :min="10" :step="10" :max="CONF.builderSettings.maxCanvasSize * 2 || 100" v-model="canvasSize" :show-value="false"/>
+                        <span class="w-16 text-right ml-2">({{ `${builderSettings.canvasSize * 2}x${builderSettings.canvasSize * 2}` }})</span>
                     </p></label>
                 </div>
                 <hr>
