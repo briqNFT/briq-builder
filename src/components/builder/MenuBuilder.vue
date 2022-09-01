@@ -3,7 +3,7 @@ import { SetData } from '@/builder/SetData';
 import { CONF } from '@/Conf';
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
 import { hexUuid } from '@/Uuid';
-import { ref, toRef, watch } from 'vue';
+import { nextTick, ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import Flyout from '../generic/Flyout.vue';
 import { pushModal } from '../Modals.vue';
@@ -15,12 +15,15 @@ import Settings from './Settings.vue';
 import { useSetHelpers } from './SetComposable';
 import DownloadSetVue from './modals/DownloadSet.vue';
 import { useBuilderInput } from './InputComposable';
+import { vCloseOutside } from '@/components/CloseOnClickOutsideComposable';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
 }>(), {
     open: false,
 });
+
+const emit = defineEmits(['close']);
 
 const mode = ref('MENU' as 'MENU' | 'SETTINGS');
 
@@ -88,6 +91,11 @@ const selectAllbriqs = () => {
     inputStore.selectionMgr.selectAll();
 }
 
+const onCloseMenu = () => {
+    setTimeout(() => {
+        emit('close');
+    });
+}
 </script>
 
 <style scoped>
@@ -104,7 +112,7 @@ const selectAllbriqs = () => {
 
 <template>
     <div class="relative">
-        <div v-if="open" class="absolute z-50">
+        <div v-if="open" class="absolute z-50" v-close-outside="onCloseMenu">
             <Flyout id="menuFlyout" class="mx-4 mt-1 py-2 flex flex-col w-max rounded-md text-sm font-normal">
                 <template v-if="mode === 'MENU'">
                     <Btn @click="renameSet" no-background>Rename set</Btn>

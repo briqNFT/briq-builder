@@ -159,7 +159,7 @@ const {
             </div>
         </div>
     </div>
-    <MenuBuilder :open="menuOpen"/>
+    <MenuBuilder :open="menuOpen" @close="menuOpen = false"/>
     <CameraFlyout
         v-if="_showCameraFlyout"
         v-position-to-camera
