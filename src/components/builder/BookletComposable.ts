@@ -1,15 +1,15 @@
 import type { SetData } from '@/builder/SetData';
-import { markRaw, reactive, ref, toRef, watchEffect, watch, computed, Ref, WatchStopHandle, onUnmounted } from 'vue';
+import { reactive, ref, toRef, watchEffect, watch, computed, Ref, onUnmounted } from 'vue';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import { CONF } from '@/Conf';
 import { useBuilder } from '@/components/builder/BuilderComposable';
-import { getCurrentNetwork } from '@/chain/Network';
-import { backendManager } from '@/Backend';
 import { bookletId, getStepImgSrc, BookletData, getBookletData } from '@/builder/BookletData';
 
 export const bookletStore = reactive({
     minimized: false,
+    // For speed we compute this at most in one code path
+    // Note that this relies on 'one set == one booklet'
     shapeValidity: {} as { [booklet: bookletId]: number },
     shapeValidityCalculated: {} as { [booklet: bookletId]: boolean },
 });

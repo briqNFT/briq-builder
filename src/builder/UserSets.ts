@@ -73,7 +73,7 @@ class UserSetStore implements perUserStorable {
         this.fetchData();
     }
 
-    async mintSet(token_hint: string, data: any, image: string | undefined) {
+    async mintSet(token_hint: string, data: any, image: string | undefined) {)
         // Debug
         //downloadJSON(data, data.id + ".json")
         const TX = await contractStore.set!.assemble(
@@ -83,7 +83,24 @@ class UserSetStore implements perUserStorable {
             // Point to the 'permanent' API. TODO: IFPS?
             'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
         );
+        return this._mintSet();
+    }
 
+    async mintBookletSet(token_hint: string, data: any, booklet: string) {
+        // Debug
+        //downloadJSON(data, data.id + ".json")
+        const TX = await contractStore.set!.assemble_with_box(
+            this.user_id.split('/')[1],
+            token_hint,
+            data.briqs.map((x: any) => x.data),
+            // Point to the 'permanent' API. TODO: IFPS?
+            'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
+        );
+
+        return TX;
+    }
+
+    async _mintSet(TX: any, data: any, image: string | undefined) {
         // Send a hint to the backend.
         backendManager.storeSet({
             chain_id: this.user_id.split('/')[0],

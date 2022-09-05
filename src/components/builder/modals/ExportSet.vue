@@ -15,6 +15,7 @@ import { computed, ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useScreenshotHelpers } from '../ScreenshotComposable';
 import { userSetStore } from '@/builder/UserSets';
+import { useBooklet } from '../BookletComposable';
 
 const { chainBriqs, selectSet } = useBuilder();
 
@@ -26,6 +27,15 @@ const props = defineProps<{
     // Unchanged preview image.
     originalImage?: string,
 }>();
+
+
+const {
+    shapeValidity,
+    booklet,
+    bookletData,
+    getStepImgSrc,
+} = useBooklet();
+
 
 const store = useStore();
 
@@ -52,7 +62,7 @@ const setDescription = computed({
         return setData.value.description;
     },
     async set(desc: string) {
-        await store.commit('builderData/change_set_desc', { set: setData.value, desc });
+        store.commit('builderData/change_set_desc', { set: setData.value, desc });
     },
 });
 
@@ -132,6 +142,7 @@ const startMinting = async () => {
         exportStep.value = 'SENDING_TRANSACTION';
 
         const TX = await userSetStore.current!.mintSet(token_hint, data, await imageProcessing.value);
+        const TX = await userSetStore.current!.mintBookletSet(token_hint, data, booklet.value);
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
 
@@ -170,7 +181,7 @@ const startMinting = async () => {
             </div>
         </Window>
     </template>
-    <template v-else-if="!exportStep">
+    <template v-else-if="!exportStep && !booklet">
         <Window size="w-[40rem]">
             <template #title>Export set</template>
             <div class="relative">
@@ -189,6 +200,25 @@ const startMinting = async () => {
                 <p>
                     <textarea v-model="setDescription" cols="60"/>
                 </p>
+            </div>
+            <div class="flex justify-between gap-2">
+                <Btn secondary @click="$emit('close')">Cancel</Btn>
+                <div class="inline-flex grow justify-end"><Btn no-background class="self-end" @click="downloadSet">Save file locally</Btn></div>
+                <Btn primary class="self-end" @click="startMinting">Mint</Btn>
+            </div>
+        </Window>
+    </template>
+    <template v-else-if="!exportStep && booklet">
+        <Window size="w-[40rem]">
+            <template #title>Mint an official set</template>
+            <div class="relative">
+                <img :src="getStepImgSrc(booklet, 1)">
+            </div>
+            <div class="my-2">
+                <h3>{{ bookletData!.name }}</h3>
+            </div>
+            <div class="my-2">
+                <p>{{ bookletData!.description }}</p>
             </div>
             <div class="flex justify-between gap-2">
                 <Btn secondary @click="$emit('close')">Cancel</Btn>

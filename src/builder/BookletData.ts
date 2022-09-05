@@ -1,4 +1,4 @@
-import { markRaw, ref, shallowRef } from 'vue';
+import { markRaw, shallowRef } from 'vue';
 import { getCurrentNetwork } from '@/chain/Network';
 import { backendManager } from '@/Backend';
 import { noParallel } from '@/Async';
@@ -6,6 +6,9 @@ import { noParallel } from '@/Async';
 export type bookletId = string;
 
 export interface BookletData {
+    name: string,
+    nb_pages: number,
+    description: string,
     briqs: { data: { material: string, color: string }, pos: [number, number, number] }[];
 }
 
