@@ -1,4 +1,4 @@
-import { markRaw, ref } from 'vue';
+import { markRaw, ref, shallowRef } from 'vue';
 import { getCurrentNetwork } from '@/chain/Network';
 import { backendManager } from '@/Backend';
 import { noParallel } from '@/Async';
@@ -24,7 +24,7 @@ const loadBookletData = noParallel(async (booklet: bookletId) => {
 });
 
 export function getBookletData(bookletId: bookletId) {
-    const ret = ref(bookletsData?.[bookletId]);
+    const ret = shallowRef(bookletsData?.[bookletId]);
     if (!ret.value)
         loadBookletData(bookletId).then(x => ret.value = x);
     return ret;

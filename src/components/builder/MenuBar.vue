@@ -38,6 +38,16 @@ const getNbBriqs = computed(() => {
     return `${used} briqs${selected}`;
 });
 
+const {
+    shapeValidity,
+    booklet,
+    minimized,
+} = useBooklet();
+
+const canMintSet = computed(() => {
+    return currentSet.value.getNbBriqs() > 0 && (!booklet.value || shapeValidity.value === 1)
+})
+
 
 let _clicked = false;
 const connectWallet = () => {
@@ -81,11 +91,6 @@ const hideCameraFlyout = () => {
             _showCameraFlyout.value = false;
     }, 250) as unknown as number;
 };
-
-const {
-    booklet,
-    minimized,
-} = useBooklet();
 
 </script>
 
@@ -150,7 +155,7 @@ const {
                         </MenuDropdown>
                     </div>
                     <NotificationsMenu/>
-                    <Btn @click="pushModal(ExportSetVue, { setId: currentSet.id })">Mint</Btn>
+                    <Btn @click="pushModal(ExportSetVue, { setId: currentSet.id })" :disabled="!canMintSet">Mint</Btn>
                 </template>
                 <template v-else>
                     <Btn class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
