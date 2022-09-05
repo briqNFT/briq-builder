@@ -64,7 +64,7 @@ const placeBid = () => {
 const canBuy = computed(() => {
     if (!maybeStore.value?.userWalletAddress)
         return false;
-    return itemQuery._status !== 'ERROR';
+    return itemQuery._status !== 'ERROR' && saledata.value?.quantity_left;
 })
 
 const buy = () => {

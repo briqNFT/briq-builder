@@ -6,66 +6,62 @@ import { CONF } from '@/Conf';
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { getCurrentNetwork } from '@/chain/Network';
 import { backendManager } from '@/Backend';
+import { getStepImgSrc, BookletData, getBookletData } from '@/builder/BookletData';
 
 export const bookletStore = reactive({
-    bookletData: null as any,
     minimized: false,
 });
 
-
 const OgPalette = Object.assign({}, CONF.defaultPalette);
 
-async function loadBookletData(booklet: string) {
-    if (!booklet)
-        return;
-
-    try {
-        const metadata = await backendManager.fetch(`v1/box/data/${getCurrentNetwork()}/${booklet}.json`)
-        bookletStore.bookletData = markRaw(metadata);
-
-        // Change default palette & update colors.
-        for (const key in CONF.defaultPalette)
-            delete CONF.defaultPalette[key];
-        for (const briq of metadata.briqs)
-            CONF.defaultPalette[packPaletteChoice(briq.data.material, briq.data.color)] = briq.data.color;
-
-        const palette = palettesMgr.getCurrent();
-        palette.reset(true);
-        const choice = palette.getFirstChoice();
-        inputStore.currentColor = choice.color;
-        inputStore.currentMaterial = choice.material;
-    } catch(e) {
-        bookletStore.bookletData = undefined;
-        console.warn(e);
-    }
-}
-
 export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) {
-    const getImgSrc = (booklet: string, page: number) => `${backendManager.url}/v1/box/step_image/${getCurrentNetwork()}/${booklet}/${page - 1}.png`;
-
-    const shapeValidity = ref(0);
-
     const { currentSet, currentSetInfo } = useBuilder();
+
     const booklet = computed(() => forceBooklet?.value || currentSetInfo.value.booklet);
+
+    let bookletRef = ref<undefined | BookletData>(undefined);
     watch([currentSetInfo, forceSet, forceBooklet], () => {
         if (booklet.value)
-            loadBookletData(booklet.value);
-        else {
+            bookletRef = getBookletData(booklet.value);
+        else
+            bookletRef.value = undefined;
+    }, { immediate: true });
+
+    // Change default palette & update colors.
+    watchEffect(() => {
+        if (bookletRef.value) {
+            for (const key in CONF.defaultPalette)
+                delete CONF.defaultPalette[key];
+            for (const briq of bookletRef.value.briqs)
+                CONF.defaultPalette[packPaletteChoice(briq.data.material, briq.data.color)] = briq.data.color;
+
+            const palette = palettesMgr.getCurrent();
+            palette.reset(true);
+            const choice = palette.getFirstChoice();
+            inputStore.currentColor = choice.color;
+            inputStore.currentMaterial = choice.material;
+        } else {
             for (const key in CONF.defaultPalette)
                 delete CONF.defaultPalette[key];
             Object.assign(CONF.defaultPalette, OgPalette);
         }
-    }, {
-        immediate: true,
     });
 
+    // Compute the progress
+    const shapeValidity = ref(0);
     watchEffect(() => {
-        if (!bookletStore.bookletData)
+        if (!bookletRef.value) {
+            shapeValidity.value = 0;
             return;
+        }
         const set = forceSet?.value || currentSet.value as SetData;
+        if (!set) {
+            shapeValidity.value = 0;
+            return;
+        }
         set.briqs_;
         const currentBriqs = set.getAllBriqs();
-        const targetBriqs = bookletStore.bookletData.briqs.slice();
+        const targetBriqs = bookletRef.value.briqs.slice();
 
         const offset = [Infinity, Infinity, Infinity], offset2 = [Infinity, Infinity, Infinity];
         for (const briq of currentBriqs) {
@@ -100,9 +96,9 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
 
     return {
         minimized: toRef(bookletStore, 'minimized'),
-        getImgSrc,
+        getStepImgSrc,
         shapeValidity,
         booklet,
-        bookletData: toRef(bookletStore, 'bookletData'),
+        bookletData: bookletRef,
     };
 }

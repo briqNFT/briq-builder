@@ -14,7 +14,7 @@ const {
 } = useBuilder();
 
 const {
-    getImgSrc,
+    getStepImgSrc,
     shapeValidity,
     booklet,
     bookletData,
@@ -32,7 +32,7 @@ const {
                     <span>{{ currentPage }}/{{ +bookletData.nb_pages || 1 }}</span>
                     <Btn no-background @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)"><i class="fas fa-chevron-right"/></Btn>
                 </div>
-                <div class="w-full px-4 py-3 flex justify-center items-center"><img :src="getImgSrc(booklet, currentPage)"></div>
+                <div class="w-full px-4 py-3 flex justify-center items-center"><img :src="getStepImgSrc(booklet, currentPage)"></div>
                 <div class="border-t border-grad-light px-4 py-3">
                     <p class="flex justify-between"><span>Progress</span><span class="text-right">{{ Math.floor(shapeValidity*100) }}%</span></p>
                     <ProgressBar :percentage="shapeValidity*100"/>

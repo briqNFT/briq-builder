@@ -6,6 +6,7 @@ import { CHAIN_NETWORKS, getCurrentNetwork } from '@/chain/Network';
 import { APP_ENV } from '@/Meta';
 
 import { userBalance } from './UserBalance';
+import { number } from 'starknet';
 
 userBalance.setup();
 
@@ -47,6 +48,12 @@ const autoFetchable = <T>(wraps: { [prop: string]: Fetchable<T> }, t: (prop: str
 
 
 export class SaleData {
+    total_quantity!: number;
+    quantity_left!: number;
+    auction_start!: number;
+    auction_duration!: number;
+    initial_price!: string;
+
     constructor(saledata: any) {
         for (const key in saledata)
             this[key] = saledata[key];

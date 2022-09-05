@@ -21,6 +21,7 @@ import MenuDropdown from '../generic/MenuDropdown.vue';
 import { useSetHelpers } from '../builder/SetComposable';
 import { router } from '@/Routes';
 import { chainBriqs } from '@/builder/ChainBriqs';
+import BookletCard from '../builder/genesis/BookletCard.vue';
 
 const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
 
@@ -147,7 +148,9 @@ const {
                 </div>
                 <div v-else class="flex">
                     <div v-for="booklet of userBookletsStore.current?.booklets" class="rounded bg-grad-lightest shadow hover:shadow-lg">
-                        <RouterLink :to="`user/set/${booklet}`"><p>{{ booklet }}</p></RouterLink>
+                        <RouterLink :to="`user/set/${booklet}`">
+                            <BookletCard :box-id="booklet"/>
+                        </RouterLink>
                     </div>
                 </div>
             </div>
