@@ -6,6 +6,7 @@ import { noParallel } from '@/Async';
 export type bookletId = string;
 
 export interface BookletData {
+    token_id: string,
     name: string,
     nb_pages: number,
     description: string,
@@ -26,7 +27,14 @@ const loadBookletData = noParallel(async (booklet: bookletId) => {
     } catch(_) { /* ignore */ }
 });
 
-export function getBookletData(bookletId: bookletId) {
+export async function getBookletData(bookletId: bookletId) {
+    const ret = shallowRef(bookletsData?.[bookletId]);
+    if (!ret.value)
+        await loadBookletData(bookletId).then(x => ret.value = x);
+    return ret;
+}
+
+export function getBookletDataSync(bookletId: bookletId) {
     const ret = shallowRef(bookletsData?.[bookletId]);
     if (!ret.value)
         loadBookletData(bookletId).then(x => ret.value = x);

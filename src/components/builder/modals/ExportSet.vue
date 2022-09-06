@@ -141,8 +141,11 @@ const startMinting = async () => {
 
         exportStep.value = 'SENDING_TRANSACTION';
 
-        const TX = await userSetStore.current!.mintSet(token_hint, data, await imageProcessing.value);
-        const TX = await userSetStore.current!.mintBookletSet(token_hint, data, booklet.value);
+        let TX;
+        if (booklet.value)
+            TX = await userSetStore.current!.mintBookletSet(token_hint, data, booklet.value);
+        else
+            TX = await userSetStore.current!.mintSet(token_hint, data, await imageProcessing.value);
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
 

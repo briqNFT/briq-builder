@@ -5,7 +5,7 @@ describe('Load from storage', () => {
     it('should load fine', async () => {
         window.localStorage.setItem(
             'briq_set_0xtoto',
-            '{ "id": "0xtoto", "status": "LOCAL", "local": { "id": "0xtoto", "name": "toto", "briqs": [] } }',
+            '{ "id": "0xtoto", "setData": { "id": "0xtoto", "name": "toto", "briqs": [] } }',
         );
         await setsManager.loadFromStorage();
         expect(setsManager.setList.length).toEqual(1);

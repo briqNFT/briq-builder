@@ -42,8 +42,13 @@ export class SetInfo {
         this.id = data.id;
         this.booklet = data?.booklet;
 
-        const raw = fflate.strFromU8(fflate.unzlibSync(fflate.strToU8(data.setData, true)));
-        this.setData = new SetData(data.id).deserialize(JSON.parse(raw));
+        try {
+            const raw = fflate.strFromU8(fflate.unzlibSync(fflate.strToU8(data.setData, true)));
+            this.setData = new SetData(data.id).deserialize(JSON.parse(raw));
+        } catch(_) {
+            // used for tests
+            this.setData = new SetData(data.id).deserialize(data.setData);
+        }
 
         // TODO: check coherence.
         return this;

@@ -2,6 +2,7 @@ import { backendManager } from '@/Backend';
 import { blockchainProvider } from '@/chain/BlockchainProvider';
 import contractStore from '@/chain/Contracts';
 import { Notification } from '@/Notifications';
+import { getBookletData } from './BookletData';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { SetData } from './SetData';
 
@@ -73,7 +74,7 @@ class UserSetStore implements perUserStorable {
         this.fetchData();
     }
 
-    async mintSet(token_hint: string, data: any, image: string | undefined) {)
+    async mintSet(token_hint: string, data: any, image: string | undefined) {
         // Debug
         //downloadJSON(data, data.id + ".json")
         const TX = await contractStore.set!.assemble(
@@ -83,21 +84,22 @@ class UserSetStore implements perUserStorable {
             // Point to the 'permanent' API. TODO: IFPS?
             'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
         );
-        return this._mintSet();
+        return this._mintSet(TX, data, image);
     }
 
     async mintBookletSet(token_hint: string, data: any, booklet: string) {
         // Debug
         //downloadJSON(data, data.id + ".json")
-        const TX = await contractStore.set!.assemble_with_box(
+        const TX = await contractStore.set!.assemble_with_booklet(
             this.user_id.split('/')[1],
             token_hint,
-            data.briqs.map((x: any) => x.data),
+            (await getBookletData(booklet)).value.token_id,
+            data,
             // Point to the 'permanent' API. TODO: IFPS?
             'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
         );
 
-        return TX;
+        return this._mintSet(TX, data, undefined);
     }
 
     async _mintSet(TX: any, data: any, image: string | undefined) {

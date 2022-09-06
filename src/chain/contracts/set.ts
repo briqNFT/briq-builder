@@ -6,6 +6,7 @@ import { Contract, FunctionAbi } from 'starknet';
 import { computeHashOnElements } from '@/starknet_wrapper';
 
 import SetABI from './starknet-testnet/set_interface.json';
+import { toBN } from 'starknet/utils/number';
 
 export default class SetContract {
     contract: Contract;
@@ -66,12 +67,55 @@ export default class SetContract {
             }
             split_uri.push('0x' + s.join(''));
         }
-
+        console.log(fts);
         return await this.contract.assemble_(owner, token_id_hint, fts, nfts, split_uri);
     }
 
-    async assemble_with_box(owner: string, token_id_hint: string, set: any[], uri: string) {
-        console.log(owner, token_id_hint, set, uri);
+    _compress_shape_item(briq: any) {
+        const two = toBN(2);
+        let colorHex = '0x';
+        for (let i = 0; i < briq.data.color.length; ++i)
+            colorHex += briq.data.color.charCodeAt(i).toString(16).padStart('0');
+        const color_nft_material = toBN(briq.data.material).iadd(toBN(colorHex).imul(two.pow(toBN(136))))
+        const x_y_z = (toBN(briq.pos[2]).add(two.pow(toBN(63)))).iadd(
+            toBN(briq.pos[1]).add(two.pow(toBN(63))).mul(two.pow(toBN(64)))).iadd(
+            toBN(briq.pos[0]).add(two.pow(toBN(63))).mul(two.pow(toBN(128))),
+        )
+        return ['0x' + color_nft_material.toString(16), '0x' + x_y_z.toString(16)]
+    }
+
+    async assemble_with_booklet(owner: string, token_id_hint: string, booklet: string, data: any, uri: string) {
+        const fungibles = {} as { [mat: string]: number };
+        const nfts = [] as string[];
+        const shapes = [];
+        for (const briq of data.briqs) {
+            shapes.push(this._compress_shape_item(briq));
+            if (briq.data.id)
+                nfts.push(briq.data.id);
+            else {
+                if (!fungibles[briq.data.material])
+                    fungibles[briq.data.material] = 0;
+                ++fungibles[briq.data.material];
+            }
+        }
+
+        const fts = [];
+        for (const ft in fungibles)
+            fts.push([ft, '' + fungibles[ft]]);
+
+        const split_uri = [] as string[];
+        for (let i = 0; i < uri.length; i += 31) {
+            const s = [];
+            for (let c = i; c < Math.min(uri.length, i + 31); ++c) {
+                const code = uri.charCodeAt(c);
+                if (code > 255)
+                    throw new Error('Only extended ASCII set is supported');
+                s.push(code.toString(16));
+            }
+            split_uri.push('0x' + s.join(''));
+        }
+        console.log(fts);
+        return await this.contract.assemble_with_booklet_(owner, token_id_hint, split_uri, fts, nfts, booklet, shapes);
     }
 
     async disassemble(owner: string, token_id: string, set: SetData) {

@@ -4,7 +4,7 @@ import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import { CONF } from '@/Conf';
 import { useBuilder } from '@/components/builder/BuilderComposable';
-import { bookletId, getStepImgSrc, BookletData, getBookletData } from '@/builder/BookletData';
+import { bookletId, getStepImgSrc, BookletData, getBookletDataSync } from '@/builder/BookletData';
 
 export const bookletStore = reactive({
     minimized: false,
@@ -25,7 +25,7 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
     let bookletRef = ref<undefined | BookletData>(undefined);
     watch([currentSetInfo, forceSet, forceBooklet].filter(x => x), () => {
         if (booklet.value)
-            bookletRef = getBookletData(booklet.value);
+            bookletRef = getBookletDataSync(booklet.value);
         else
             bookletRef.value = undefined;
     }, { immediate: true });
