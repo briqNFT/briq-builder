@@ -198,7 +198,6 @@ function createRulerObject() {
     ]);
 
     ret.geometry = geom;
-    //ret.geometry.setAttribute('color', new THREE.Float32BufferAttribute([0, 1, 2, 0, 1, 2, 0, 1, 2,], 3) );
     ret.material = material;
     return ret;
 }

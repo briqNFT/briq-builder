@@ -253,11 +253,11 @@ function setupScene() {
     else
         scene.background = null;
 
-    if (builderSettings.showPlane) {
-        if (builderSettings.showGrid)
-            scene.add(generateGrid());
+    if (builderSettings.showPlane)
         generatePlane(scene);
-    }
+
+    if (builderSettings.showGrid)
+        scene.add(generateGrid());
 
     scene.add(getSetObject());
 
