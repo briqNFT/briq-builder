@@ -79,26 +79,26 @@ export class MouseInputState extends BuilderInputState {
     }
 
     canvasSize() {
-        return builderSettings.canvasSize;
+        return 100000;
     }
 
     isWithinBounds(x: number, y: number, z: number) {
-        const size = builderSettings.canvasSize;
+        const size = 100000;
         return x >= -size && x < size && z >= -size && z < size && y >= 0;
     }
 
     clampToBounds(x: number, y: number, z: number): [number, number, number] {
         x =
-            x < -builderSettings.canvasSize
-                ? -builderSettings.canvasSize
-                : x >= builderSettings.canvasSize
-                    ? +builderSettings.canvasSize - 1
+            x < -100000
+                ? -100000
+                : x >= 100000
+                    ? +100000 - 1
                     : x;
         z =
-            z < -builderSettings.canvasSize
-                ? -builderSettings.canvasSize
-                : z >= builderSettings.canvasSize
-                    ? +builderSettings.canvasSize - 1
+            z < -100000
+                ? -100000
+                : z >= 100000
+                    ? +100000 - 1
                     : z;
         return [x, Math.max(y, 0), z];
     }

@@ -25,7 +25,7 @@ const initSet = new SetData(hexUuid());
 export const currentSet = ref(null as unknown as SetData);
 
 function isWithinBounds(x: number, y: number, z: number) {
-    const size = builderSettings.canvasSize;
+    const size = 10000;
     return x >= -size && x < size && y >= 0 && z >= -size && z < size;
 }
 

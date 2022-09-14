@@ -8,6 +8,7 @@ import { VoxelAlignedSelection } from './SelectHelpers';
 
 import { watchEffect } from 'vue';
 import { builderStore } from '@/builder/BuilderStore';
+import { underlayObjects } from '@/builder/graphics/Builder';
 
 const { currentSet } = builderStore;
 
@@ -15,9 +16,13 @@ export class PlacerInput extends MouseInputState {
     onEnter() {
         getPreviewCube().visible = false;
         getPreviewCube().scale.set(1, 1, 1);
+
+        this.grid = createGrid();
+        underlayObjects.add(this.grid);
     }
 
     onExit() {
+        underlayObjects.remove(this.grid);
         getPreviewCube().visible = false;
     }
 
@@ -26,6 +31,7 @@ export class PlacerInput extends MouseInputState {
         if (!pos)
             return;
         getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
+        this.grid.position.set(Math.floor(pos[0]), Math.floor(pos[1]) + 0.01, Math.floor(pos[2]));
         if (this.isWithinBounds(...pos)) {
             getPreviewCube().visible = true;
             (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
@@ -128,4 +134,15 @@ export class NFTPlacerInput extends PlacerInput {
             this.fsm.switchTo('place');
         } catch (_) {}
     }
+}
+
+function createGrid() {
+    const gridXZ = new THREE.GridHelper(
+        10,
+        10,
+        new THREE.Color('#ff0000').convertSRGBToLinear(),
+        new THREE.Color('#ff0000').convertSRGBToLinear(),
+    );
+    gridXZ.position.set(0, 0, 0);
+    return gridXZ
 }

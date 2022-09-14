@@ -96,6 +96,7 @@ function _createTakeScreenshot(renderer, composer) {
         const old = getPreviewCube().visible;
         const old2 = selectionRender.parent?.visible;
         overlayObjects.visible = false;
+        underlayObjects.visible = false;
         getPreviewCube().visible = false;
         selectionRender.hide();
         composer.render();
@@ -105,6 +106,7 @@ function _createTakeScreenshot(renderer, composer) {
         else
             selectionRender.hide();
         overlayObjects.visible = true;
+        underlayObjects.visible = true;
         return renderer.domElement.toDataURL('image/png');
     };
 }
@@ -240,6 +242,7 @@ let scene: THREE.Scene;
 import { selectionRender } from '../inputs/Selection';
 import { getSetObject, handleActions } from './SetRendering.js';
 export var overlayObjects: THREE.Object3D;
+export var underlayObjects: THREE.Object3D;
 
 function setupScene() {
     if (!scene)
@@ -262,6 +265,7 @@ function setupScene() {
     scene.add(getSetObject());
 
     scene.add(getPreviewCube());
+    scene.add(underlayObjects);
 
     selectionRender.setScene(scene);
 
@@ -289,6 +293,7 @@ export async function main(canvas) {
     await threeSetupComplete;
 
     overlayObjects = new THREE.Object3D();
+    underlayObjects = new THREE.Object3D();
 
     const fov = 45;
     const aspect = 2; // the canvas default
