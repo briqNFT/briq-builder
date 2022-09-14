@@ -16,6 +16,7 @@ import { useSetHelpers } from './SetComposable';
 import DownloadSetVue from './modals/DownloadSet.vue';
 import { useBuilderInput } from './InputComposable';
 import { vCloseOutside } from '@/components/CloseOnClickOutsideComposable';
+import { useRecording } from './Recording';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
@@ -33,6 +34,9 @@ watch(toRef(props, 'open'), (o, n) => {
         mode.value = 'MENU';
 
 });
+
+const { isRecording, startRecording, stopRecording } = useRecording();
+
 
 const { currentSet, selectSet } = useBuilder();
 const { inputStore, activeInputButton, switchToState, currentInput } = useBuilderInput();
@@ -132,6 +136,7 @@ const onCloseMenu = () => {
                     <Btn no-background @click="selectAllbriqs">Select all briqs <span>⌃A</span></Btn>
                     <Btn no-background @click="deleteBriqs" :disabled="!inputStore.selectionMgr.selectedBriqs.length">Delete selected briqs <span>⌦</span></Btn>
                     <hr>
+                    <Btn no-background @click="!isRecording ? startRecording() : stopRecording()">{{ !isRecording ? 'Start Recording' : 'Stop Recording' }}</Btn>
                     <Btn @click="mode = 'SETTINGS'" no-background>Settings</Btn>
                     <Btn no-background>Help</Btn>
                 </template>
