@@ -137,6 +137,7 @@ export class NFTPlacerInput extends PlacerInput {
 }
 
 function createGrid() {
+    /*
     const gridXZ = new THREE.GridHelper(
         10,
         10,
@@ -144,5 +145,56 @@ function createGrid() {
         new THREE.Color('#ff0000').convertSRGBToLinear(),
     );
     gridXZ.position.set(0, 0, 0);
-    return gridXZ
+    return gridXZ;
+    */
+    const material = new THREE.ShaderMaterial( {
+        uniforms: {
+        },
+        vertexShader: `
+        varying vec3 pos;
+        varying vec2 tc;
+        void main() {
+            tc = uv;
+            pos = position.xyz;
+            vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_Position = projectionMatrix * modelViewPosition; 
+        }
+        `,
+        fragmentShader:
+        `
+        varying vec3 pos;
+        varying vec2 tc;
+        void main() {
+            float shouldGrid = float(mod(pos.x, 1.0f) < 0.05 || mod(pos.z, 1.0f) < 0.05);
+            float fadeAlpha = clamp(1.5 - length((tc.xy - vec2(0.5, 0.5)) * 2.0) * 2.0, 0.0, 1.0);
+            gl_FragColor = vec4(1.0, 0.0, 0.0, shouldGrid * fadeAlpha);
+        }
+        `,
+    });
+    material.side = THREE.DoubleSide;
+    const ret = new THREE.Mesh();
+    const vertices = [];
+    const uvs = [];
+    const geom = new THREE.BufferGeometry();
+
+    const WIDTH = 9.0;
+
+    vertices.push(...[-WIDTH, 0, -WIDTH]);
+    uvs.push(...[0, 0]);
+    vertices.push(...[-WIDTH, 0, WIDTH]);
+    uvs.push(...[0, 1]);
+    vertices.push(...[WIDTH, 0, -WIDTH]);
+    uvs.push(...[1, 0]);
+    vertices.push(...[WIDTH, 0, WIDTH]);
+    uvs.push(...[1, 1]);
+
+    geom.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geom.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    geom.setIndex([
+        0, 2, 1,  3, 2, 1,
+    ]);
+    ret.geometry = geom;
+    ret.material = material;
+    ret.material.transparent = true;
+    return ret;
 }
