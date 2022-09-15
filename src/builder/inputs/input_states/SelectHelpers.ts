@@ -4,7 +4,7 @@ import { THREE, SelectionBox as ThreeSelectionBox } from '@/three';
 import getPreviewCube from '@/builder/graphics/PreviewCube';
 
 import { store } from '@/store/Store';
-import { camera, overlayObjects } from '@/builder/graphics/Builder';
+import { camera, overlayObjects, underlayObjects } from '@/builder/graphics/Builder';
 import type { HotkeyHandle } from '@/Hotkeys';
 import type { Briq } from '@/builder/Briq';
 
@@ -104,6 +104,7 @@ export class BoxSelection extends MouseInputState {
 }
 import Ruler from '@/assets/ruler.png';
 import { builderStore } from '@/builder/BuilderStore';
+import { ShaderGrid } from '@/builder/graphics/ShaderGrid';
 
 function createRulerObject() {
     const texture = new THREE.TextureLoader().load(Ruler);
@@ -213,6 +214,8 @@ export class VoxelAlignedSelection extends MouseInputState {
 
     showRuler = false;
     ruler!: THREE.Mesh;
+    showGrid = false;
+    grid: ShaderGrid | undefined;
 
     onEnter(data: any) {
         this.curX = data.x;
@@ -238,6 +241,13 @@ export class VoxelAlignedSelection extends MouseInputState {
             overlayObjects.add(this.ruler);
         }
 
+        if (this.showGrid) {
+            this.grid = new ShaderGrid();
+            this.grid.generate();
+            underlayObjects.add(this.grid.grid);
+            this.updateGrid();
+        }
+
         this.fsm.orbitControls.enabled = false;
         this.fsm.store.grabFocus = true;
         this.cancelHotkey = this.fsm.hotkeyMgr.subscribe('escape', () => {
@@ -248,6 +258,8 @@ export class VoxelAlignedSelection extends MouseInputState {
     onExit() {
         this.fsm.hotkeyMgr.unsubscribe(this.cancelHotkey);
         overlayObjects.remove(this.ruler);
+        if (this.showGrid)
+            underlayObjects.remove(this.grid!.grid);
         getPreviewCube().visible = false;
         this.fsm.store.grabFocus = false;
         this.fsm.orbitControls.enabled = true;
@@ -314,6 +326,18 @@ export class VoxelAlignedSelection extends MouseInputState {
         };
     }
 
+    updateGrid() {
+        if (!this.showGrid)
+            return;
+        this.grid?.place(
+            Math.min(this.currentClickPos[0], this.initialClickPos[0]),
+            Math.min(this.currentClickPos[1], this.initialClickPos[1]),
+            Math.min(this.currentClickPos[2], this.initialClickPos[2]),
+            Math.abs(this.currentClickPos[0] - this.initialClickPos[0]),
+            Math.abs(this.currentClickPos[2] - this.initialClickPos[2]),
+        )
+    }
+
     async onPointerMove(event: PointerEvent) {
         this.currentClickPos = this.getIntersectionPos(this.curX, this.curY, !this.extruding);
         if (!this.currentClickPos)
@@ -335,6 +359,7 @@ export class VoxelAlignedSelection extends MouseInputState {
         this.fsm.gui.curX = this.curX;
         this.fsm.gui.curY = this.curY;
 
+        this.updateGrid();
         this.updateRuler();
         this.updatePreviewCube();
     }

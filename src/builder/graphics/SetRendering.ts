@@ -131,6 +131,8 @@ export function getIntersectionPos(xScreen: number, yScreen: number) {
     };
 }
 
+const bounds = {};
+
 function reset() {
     for (const mat in voxels)
         voxels[mat].reset();
@@ -138,6 +140,8 @@ function reset() {
     for (const id in nfts)
         nfts[id].setPos();
     setObject.clear();
+    bounds.min = undefined; //new THREE.Vector3(0, 0, 0);
+    bounds.max = undefined; //new THREE.Vector3(0, 0, 0);
 }
 
 function getVoxelWorld(material: string) {
@@ -152,24 +156,35 @@ function getCanvasSize() {
     return Math.max(5, builderSettings.canvasSize);
 }
 
+function updateBounds(pos) {
+    if (!bounds.min) {
+        bounds.min = pos;
+        bounds.max = pos;
+        return;
+    }
+    bounds.min = [0, 1, 2].map(i => Math.min(pos[i], bounds.min[i]));
+    bounds.max = [0, 1, 2].map(i => Math.max(pos[i], bounds.max[i]));
+}
+
 export function handleActions(dispatchedActions: Array<{ action: string; payload: any }>) {
     for (const item of dispatchedActions)
         if (item.action === 'select_set') {
             reset();
-            for (const data of item.payload.briqs)
+            for (const data of item.payload.briqs) {
+                updateBounds(data.pos);
                 if (data.id) {
                     if (!(data.id in nfts))
                         nfts[data.id] = new briqNFT(data.id);
                     nfts[data.id].setPos(data.pos);
                 } else
                     getVoxelWorld(data.material).setVoxel(...data.pos, data?.color ?? '');
-
-
+            }
             currentSet = item.payload.setId;
         } else if (item.action === 'place_briq' || item.action === 'remove_briq') {
             const data = item.payload;
             if (data.set !== currentSet)
                 continue;
+            updateBounds(data.position);
             if (data?.briq?.id)
                 // NFT
                 if (item.action === 'remove_briq')
@@ -191,25 +206,23 @@ export function handleActions(dispatchedActions: Array<{ action: string; payload
         else if (item.action === 'set_camera_target')
             orbitControls.controls.target.set(...item.payload.target);
         else if (item.action === 'put_all_in_view') {
-            let min = [0, 0, 0];
-            let max = [0, 0, 0];
-            for (const mat in voxels) {
-                const voxWorld = voxels[mat];
-                const [mi, ma] = voxWorld.getAABB();
-                min = min.map((x, i) => Math.min(x, mi[i]));
-                max = max.map((x, i) => Math.max(x, ma[i]));
-            }
-
-            let center = [0, 1, 2].map((i) => (min[i] + max[i]) / 2);
-            const distance = Math.max(10, ...[0, 1, 2].map((i) => max[i] - center[i]));
-            center = center.map(x => Math.abs(x / getCanvasSize()) < 0.5 ? 0 : x);
+            const center = [0, 1, 2].map((i) => (bounds?.min?.[i] + bounds?.max?.[i]) / 2 || 0);
+            const distance = Math.max(10, ...[0, 1, 2].map((i) => (bounds?.max?.[i] - bounds?.min?.[i]) || 0));
             camera.position.set(center[0] + distance * 0.25, center[1] + distance * 0.7, center[2] - distance * 1.2);
-            // The '-3' is a hack to make the default setup slightly better.
-            orbitControls.controls.target.set(center[0], center[1] - 3, center[2]);
+            orbitControls.controls.target.set(...center);
             orbitControls.controls.update();
         }
-
-    dispatchedActions.length = 0;
-    for (const mat in voxels)
-        voxels[mat].updateDirty();
+    if (dispatchedActions.length) {
+        dispatchedActions.length = 0;
+        for (const mat in voxels)
+            voxels[mat].updateDirty();
+        if (bounds.min)
+            grid.place(bounds.min[0], 0, bounds.min[2], bounds.max[0] - bounds.min[0] + 1, bounds.max[2] - bounds.min[2] + 1)
+        else
+            grid.place(0, 0, 0, 0, 0)
+    }
 }
+
+import { ShaderGrid } from './ShaderGrid';
+
+export const grid = new ShaderGrid();

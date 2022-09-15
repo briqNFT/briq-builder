@@ -85,18 +85,6 @@ const resetToLast = () => {
                 </div>
                 <hr>
                 <div>
-                    <h4>Base plane</h4>
-                    <div class="flex items-center">
-                        <InputColor v-model="builderSettings.planeColor"/>
-                        <label class="grow inline-flex justify-between">Base plane<Toggle class="w-10" v-model="builderSettings.showPlane"/></label>
-                    </div>
-                    <div class="flex items-center">
-                        <InputColor v-model="builderSettings.gridColor"/>
-                        <label class="grow inline-flex justify-between">Base grid<Toggle class="w-10" v-model="builderSettings.showGrid"/></label>
-                    </div>
-                </div>
-                <hr>
-                <div>
                     <p>
                         <label class="w-full inline-flex justify-between items-center gap-1">Use Screen-space Ambient Occlusion <Toggle class="w-10" v-model="builderSettings.useSAO"/></label>
                     </p>

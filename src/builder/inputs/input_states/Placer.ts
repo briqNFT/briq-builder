@@ -9,6 +9,7 @@ import { VoxelAlignedSelection } from './SelectHelpers';
 import { watchEffect } from 'vue';
 import { builderStore } from '@/builder/BuilderStore';
 import { underlayObjects } from '@/builder/graphics/Builder';
+import { ShaderGrid } from '@/builder/graphics/ShaderGrid';
 
 const { currentSet } = builderStore;
 
@@ -17,12 +18,13 @@ export class PlacerInput extends MouseInputState {
         getPreviewCube().visible = false;
         getPreviewCube().scale.set(1, 1, 1);
 
-        this.grid = createGrid();
-        underlayObjects.add(this.grid);
+        this.grid = new ShaderGrid();
+        this.grid.generate();
+        underlayObjects.add(this.grid.grid);
     }
 
     onExit() {
-        underlayObjects.remove(this.grid);
+        underlayObjects.remove(this.grid.grid);
         getPreviewCube().visible = false;
     }
 
@@ -31,7 +33,7 @@ export class PlacerInput extends MouseInputState {
         if (!pos)
             return;
         getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-        this.grid.position.set(Math.floor(pos[0]), Math.floor(pos[1]) + 0.01, Math.floor(pos[2]));
+        this.grid.place(...pos);
         if (this.isWithinBounds(...pos)) {
             getPreviewCube().visible = true;
             (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
@@ -69,6 +71,7 @@ export class PlacerMultiInput extends VoxelAlignedSelection {
     onEnter(data: any) {
         this.extruding = true;
         this.showRuler = true;
+        this.showGrid = true;
         super.onEnter(data);
         this.switchBackTo = 'place';
 
@@ -76,6 +79,10 @@ export class PlacerMultiInput extends VoxelAlignedSelection {
             (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
         });
     }
+    async onPointerMove(event: PointerEvent) {
+        super.onPointerMove(event);
+    }
+
     async doAction(pos: [number, number, number]) {
         const briqs = [];
         for (let x = Math.min(this.initialClickPos[0], pos[0]); x <= Math.max(this.initialClickPos[0], pos[0]); ++x)
@@ -134,67 +141,4 @@ export class NFTPlacerInput extends PlacerInput {
             this.fsm.switchTo('place');
         } catch (_) {}
     }
-}
-
-function createGrid() {
-    /*
-    const gridXZ = new THREE.GridHelper(
-        10,
-        10,
-        new THREE.Color('#ff0000').convertSRGBToLinear(),
-        new THREE.Color('#ff0000').convertSRGBToLinear(),
-    );
-    gridXZ.position.set(0, 0, 0);
-    return gridXZ;
-    */
-    const material = new THREE.ShaderMaterial( {
-        uniforms: {
-        },
-        vertexShader: `
-        varying vec3 pos;
-        varying vec2 tc;
-        void main() {
-            tc = uv;
-            pos = position.xyz;
-            vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
-            gl_Position = projectionMatrix * modelViewPosition; 
-        }
-        `,
-        fragmentShader:
-        `
-        varying vec3 pos;
-        varying vec2 tc;
-        void main() {
-            float shouldGrid = float(mod(pos.x, 1.0f) < 0.05 || mod(pos.z, 1.0f) < 0.05);
-            float fadeAlpha = clamp(1.5 - length((tc.xy - vec2(0.5, 0.5)) * 2.0) * 2.0, 0.0, 1.0);
-            gl_FragColor = vec4(1.0, 0.0, 0.0, shouldGrid * fadeAlpha);
-        }
-        `,
-    });
-    material.side = THREE.DoubleSide;
-    const ret = new THREE.Mesh();
-    const vertices = [];
-    const uvs = [];
-    const geom = new THREE.BufferGeometry();
-
-    const WIDTH = 9.0;
-
-    vertices.push(...[-WIDTH, 0, -WIDTH]);
-    uvs.push(...[0, 0]);
-    vertices.push(...[-WIDTH, 0, WIDTH]);
-    uvs.push(...[0, 1]);
-    vertices.push(...[WIDTH, 0, -WIDTH]);
-    uvs.push(...[1, 0]);
-    vertices.push(...[WIDTH, 0, WIDTH]);
-    uvs.push(...[1, 1]);
-
-    geom.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    geom.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-    geom.setIndex([
-        0, 2, 1,  3, 2, 1,
-    ]);
-    ret.geometry = geom;
-    ret.material = material;
-    ret.material.transparent = true;
-    return ret;
 }

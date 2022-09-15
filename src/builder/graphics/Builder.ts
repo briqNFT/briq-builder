@@ -30,14 +30,7 @@ function getCanvasSize() {
 }
 
 function generateGrid() {
-    const gridXZ = new THREE.GridHelper(
-        getCanvasSize() * 2,
-        getCanvasSize() * 2,
-        new THREE.Color(builderSettings.gridColor).convertSRGBToLinear(),
-        new THREE.Color(builderSettings.gridColor).convertSRGBToLinear(),
-    );
-    gridXZ.position.set(0, 0, 0);
-    return gridXZ;
+    return new ShaderGrid();
 }
 
 function generatePlane(scene: THREE.Scene) {
@@ -240,7 +233,7 @@ function addLight(scene: THREE.Scene, x: number, y: number, z: number) {
 let scene: THREE.Scene;
 
 import { selectionRender } from '../inputs/Selection';
-import { getSetObject, handleActions } from './SetRendering.js';
+import { getSetObject, grid, handleActions } from './SetRendering.js';
 export var overlayObjects: THREE.Object3D;
 export var underlayObjects: THREE.Object3D;
 
@@ -256,11 +249,10 @@ function setupScene() {
     else
         scene.background = null;
 
-    if (builderSettings.showPlane)
-        generatePlane(scene);
-
-    if (builderSettings.showGrid)
-        scene.add(generateGrid());
+    //if (builderSettings.showGrid)
+    if (!grid.grid)
+        grid.generate();
+    scene.add(grid.grid);
 
     scene.add(getSetObject());
 
