@@ -3,7 +3,6 @@ import { THREE } from '@/three';
 export class ShaderGrid {
     grid!: THREE.Object3D;
     generate() {
-        console.log(new THREE.Color('#bf4300').convertSRGBToLinear().toArray())
         const material = new THREE.ShaderMaterial( {
             uniforms: {
                 size: { value: new THREE.Vector2(0, 0) },
@@ -34,7 +33,10 @@ export class ShaderGrid {
             `,
         });
         material.side = THREE.DoubleSide;
+        material.transparent = true;
+        material.depthWrite = false;
         const ret = new THREE.Mesh();
+        ret.userData.skipSSAO = true;
         const vertices = [];
         const uvs = [];
         const uv2s = [];
@@ -81,7 +83,6 @@ export class ShaderGrid {
         ]);
         ret.geometry = geom;
         ret.material = material;
-        ret.material.transparent = true;
         this.grid = ret;
         ret.frustumCulled = false;
     }

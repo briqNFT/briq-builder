@@ -420,7 +420,7 @@ class SSAOPass extends Pass {
 
             cache.set( object, object.visible );
 
-            if ( object.isPoints || object.isLine )
+            if ( object.isPoints || object.isLine || object.userData?.skipSSAO )
                 object.visible = false;
 
         } );
