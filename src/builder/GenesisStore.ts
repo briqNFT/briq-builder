@@ -126,6 +126,16 @@ let initialCall = () => {
                     return backendManager.getRoute(`box/cover_item/${this.network}/${token_id}.png`)
                 }).value;
             },
+            coverBoxRoute() {
+                return (token_id: string) => computed(() => {
+                    return backendManager.getRoute(`box/cover_box/${this.network}/${token_id}.png`)
+                }).value;
+            },
+            coverBookletRoute() {
+                return (token_id: string) => computed(() => {
+                    return backendManager.getRoute(`box/cover_booklet/${this.network}/${token_id}.png`)
+                }).value;
+            },
             boxTexture() {
                 return (token_id: string) => computed(() => {
                     return backendManager.getRoute(`box/texture/${this.network}/${token_id}.png`)

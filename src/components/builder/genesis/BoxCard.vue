@@ -58,7 +58,7 @@ const highestBid = computed(() => {
         <div class="bg-white rounded-md gap-1 shadow-sm">
             <template v-if="itemQuery._status === 'LOADED'">
                 <p class="flex-1 min-h-0 min-w-0 flex justify-center items-center my-4">
-                    <img class="min-h-0 min-w-0 max-h-[10rem]" :src="genesisStore.coverItemRoute(tokenName)">
+                    <img class="min-h-0 min-w-0 max-h-[10rem]" :src="genesisStore.coverBoxRoute(tokenName)">
                 </p>
                 <h3 class="font-medium text-md px-4">{{ item.name }} </h3>
                 <template v-if="actualMode === 'PRESALE' || actualMode === 'SALE'">

@@ -33,7 +33,7 @@ export class PlacerInput extends MouseInputState {
         if (!pos)
             return;
         getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-        this.grid.place(...pos);
+        this.grid.place(pos[0], 0, pos[1]);
         if (this.isWithinBounds(...pos)) {
             getPreviewCube().visible = true;
             (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);

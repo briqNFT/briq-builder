@@ -331,7 +331,7 @@ export class VoxelAlignedSelection extends MouseInputState {
             return;
         this.grid?.place(
             Math.min(this.currentClickPos[0], this.initialClickPos[0]),
-            Math.min(this.currentClickPos[1], this.initialClickPos[1]),
+            0,
             Math.min(this.currentClickPos[2], this.initialClickPos[2]),
             Math.abs(this.currentClickPos[0] - this.initialClickPos[0]),
             Math.abs(this.currentClickPos[2] - this.initialClickPos[2]),
