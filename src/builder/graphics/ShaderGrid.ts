@@ -3,7 +3,7 @@ import { THREE } from '@/three';
 export class ShaderGrid {
     grid!: THREE.Object3D;
     generate() {
-        const size = 64;
+        const size = 128;
         const gridData = new Uint8Array(size * size);
         for (let x = 0; x < size; x++)
             for (let y = 0; y < size; y++)
@@ -46,7 +46,7 @@ export class ShaderGrid {
             void main() {
                 float shouldGrid = texture2D(tex, pos.xz).r;
                 // Increase alpha artificially so that on lower mipmaps the color remains darker.
-                gl_FragColor = vec4(color, clamp(shouldGrid * 2.0f, 0.0f, 1.0f) * tc.y);
+                gl_FragColor = vec4(color, clamp(shouldGrid * 3.0f, 0.0f, 1.0f) * tc.y);
             }
             `,
         });
