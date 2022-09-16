@@ -217,7 +217,7 @@ export function handleActions(dispatchedActions: Array<{ action: string; payload
         for (const mat in voxels)
             voxels[mat].updateDirty();
         if (bounds.min)
-            grid.place(bounds.min[0], 0, bounds.min[2], bounds.max[0] - bounds.min[0] + 1, bounds.max[2] - bounds.min[2] + 1)
+            grid.place(bounds.min[0] - 2, 0, bounds.min[2] - 2, bounds.max[0] - bounds.min[0] + 5, bounds.max[2] - bounds.min[2] + 5)
         else
             grid.place(0, 0, 0, 0, 0)
     }
