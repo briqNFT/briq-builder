@@ -44,7 +44,9 @@ export class ShaderGrid {
         const material = new THREE.ShaderMaterial( {
             uniforms: {
                 size: { value: new THREE.Vector2(0, 0) },
-                color: { value: new THREE.Vector3(0.521, 0.0561, 0) },
+                // briq
+                //color: { value: new THREE.Vector3(0.521, 0.0561, 0) },
+                color: { value: new THREE.Vector3(0.4, 0.37, 0.37) },
                 tex: { value: gridTex },
             },
             vertexShader: `
