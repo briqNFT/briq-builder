@@ -111,7 +111,7 @@ const onCloseMenu = () => {
     @apply my-2;
 }
 #app button span {
-    @apply text-sm font-mono pl-2;
+    @apply text-xs pl-2 tracking-tighter;
 }
 </style>
 
@@ -128,14 +128,14 @@ const onCloseMenu = () => {
                     <Btn @click="duplicate" no-background>Duplicate creation</Btn>
                     <Btn @click="downloadSetLocally" no-background>Save to computer</Btn>
                     <hr>
-                    <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>⌃U</span></Btn>
-                    <Btn @click="store.dispatch('redo_history')" no-background>Redo <span>⌃⇧U</span></Btn>
+                    <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>
+                    <Btn @click="store.dispatch('redo_history')" no-background>Redo <span>Ctrl&ThinSpace;+&ThinSpace;Shift&ThinSpace;+&ThinSpace;U</span></Btn>
                     <hr>
-                    <Btn no-background @click="selectCopy">Copy <span>⌃C</span></Btn>
-                    <Btn no-background :disabled="currentInput !== 'copy_paste'">Paste <span>⌃V</span></Btn>
+                    <Btn no-background @click="selectCopy">Copy <span>Ctrl&ThinSpace;+&ThinSpace;C</span></Btn>
+                    <Btn no-background :disabled="currentInput !== 'copy_paste'">Paste <span>Ctrl&ThinSpace;+&ThinSpace;V</span></Btn>
                     <hr>
-                    <Btn no-background @click="selectAllbriqs">Select all briqs <span>⌃A</span></Btn>
-                    <Btn no-background @click="deleteBriqs" :disabled="!inputStore.selectionMgr.selectedBriqs.length">Delete selected briqs <span>⌦</span></Btn>
+                    <Btn no-background @click="selectAllbriqs">Select all briqs <span>Ctrl&ThinSpace;+&ThinSpace;A</span></Btn>
+                    <Btn no-background @click="deleteBriqs" :disabled="!inputStore.selectionMgr.selectedBriqs.length">Delete selected briqs <span class="text-sm">⌦</span></Btn>
                     <hr>
                     <Btn no-background @click="!isRecording ? startRecording() : stopRecording()">{{ !isRecording ? 'Start Recording' : 'Stop Recording' }}</Btn>
                     <Btn @click="mode = 'SETTINGS'" no-background>Settings</Btn>

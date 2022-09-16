@@ -23,7 +23,7 @@ export type HotkeyHandle = [string, number];
 export class HotkeyManager {
     hotkeys: { [hotkey: string]: StoredHotkeyData } = {};
 
-    callbacks: { [hotkey: string]: Array<[number, () => void]> } = {};
+    callbacks: { [hotkey: string]: Array<[number, (event?: Event) => void]> } = {};
     listeners: { [hotkey: string]: (event: any) => void } = {};
     identifier = 1;
 
@@ -84,7 +84,7 @@ export class HotkeyManager {
      * @param callback Callback to call
      * @returns the identifier for unsubscription. Use as an opaque type recommended.
      */
-    subscribe(hotkeyName: string, callback: () => void): HotkeyHandle {
+    subscribe(hotkeyName: string, callback: (event?: Event) => void): HotkeyHandle {
         const data = this.hotkeys[hotkeyName];
         if (!data)
             return [hotkeyName, 0];
@@ -97,7 +97,7 @@ export class HotkeyManager {
                     return;
                 // TODO: allow bubbling & stopping (possibly by returning an ENUM).
                 // For now the bubbling stops at the first hotkey.
-                this.callbacks[hotkeyName][0][1]();
+                this.callbacks[hotkeyName][0][1](event);
             };
             window.addEventListener('hotkey', this.listeners[hotkeyName]);
         }
