@@ -3,11 +3,27 @@ import { THREE } from '@/three';
 export class ShaderGrid {
     grid!: THREE.Object3D;
     generate() {
+        const size = 64;
+        const gridData = new Uint8Array(size * size);
+        for (let x = 0; x < size; x++)
+            for (let y = 0; y < size; y++)
+                if (x === 0 || x === size - 1 || y === 0 || y === size - 1)
+                    gridData[x * size + y] = 255;
+                else
+                    gridData[x * size + y] = 0;
+        const gridTex = new THREE.DataTexture(gridData, size, size, THREE.RedFormat);
+        gridTex.needsUpdate = true;
+        gridTex.magFilter = THREE.NearestFilter;
+        gridTex.minFilter = THREE.NearestMipmapLinearFilter;
+        gridTex.anisotropy = 2;
+        gridTex.wrapS = THREE.RepeatWrapping;
+        gridTex.wrapT = THREE.RepeatWrapping;
+        gridTex.generateMipmaps = true;
         const material = new THREE.ShaderMaterial( {
             uniforms: {
                 size: { value: new THREE.Vector2(0, 0) },
                 color: { value: new THREE.Vector3(0.521, 0.0561, 0) },
-                //color: { value: new THREE.Vector3(0.88, 0.55, 0) },
+                tex: { value: gridTex },
             },
             vertexShader: `
             varying vec3 pos;
@@ -26,9 +42,11 @@ export class ShaderGrid {
             varying vec3 pos;
             varying vec2 tc;
             uniform vec3 color;
+            uniform sampler2D tex;
             void main() {
-                float shouldGrid = float(mod(pos.x, 1.0f) < 0.05 || mod(pos.z, 1.0f) < 0.05);
-                gl_FragColor = vec4(color, shouldGrid * tc.y);
+                float shouldGrid = texture2D(tex, pos.xz).r;
+                // Increase alpha artificially so that on lower mipmaps the color remains darker.
+                gl_FragColor = vec4(color, clamp(shouldGrid * 2.0f, 0.0f, 1.0f) * tc.y);
             }
             `,
         });
