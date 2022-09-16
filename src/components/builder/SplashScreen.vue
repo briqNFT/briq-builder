@@ -9,7 +9,7 @@ import { RealmsLogo } from '@/conf/realms';
             <RealmsLogo class="inline-block relative bottom-[3%]" height="7rem" style="fill: rgba(var(--color-text))"/>
         </h1>
         <h1 v-else="" class="font-bold p-8 briq-logo">briq</h1>
-        <h2>Seize the briqs of construction</h2>
+        <h2>Seize the briqs of creation</h2>
         <!--
     <PickMaterial/>
     <p class="hoverbutton">Hover to pick material</p>

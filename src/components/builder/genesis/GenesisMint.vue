@@ -87,7 +87,7 @@ h4 {
             <div class="flex flex-wrap justify-around items-center">
                 <div class="relative md:p-10 lg:p-20">
                     <div>
-                        <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-tighter my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of construction</h1>
+                        <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-tighter my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
                         <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
                     </div>
                 </div>
@@ -173,7 +173,7 @@ h4 {
                     </div>
                     <h3>Play</h3>
                     <p>briqs sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
-                    <p>Integrate briq in any way you want. Seize the briqs of construction.</p>
+                    <p>Integrate briq in any way you want. Seize the briqs of creation.</p>
                 </div>
             </div>
         </div>

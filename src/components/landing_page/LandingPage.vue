@@ -21,7 +21,7 @@ import AlphaBanner from '../AlphaBanner.vue';
             <div class="flex flex-wrap justify-around md:my-6 my-10">
                 <div class="centerall flex-1">
                     <p class="md:my-4 my-8 text-2xl">
-                        briq is NFT matter.<br>briqs build NFTs that matter.<br>Seize the briqs of construction.
+                        briq is NFT matter.<br>briqs build NFTs that matter.<br>Seize the briqs of creation.
                     </p>
                     <div class="alpha-pill py-4 px-3">
                         <Btn @click="$router.push({ name: 'Builder' })">
@@ -69,7 +69,7 @@ import AlphaBanner from '../AlphaBanner.vue';
                         briqs and sets are stored on-chain for everyone to reuse.<br>
                         briqs don’t have shape, or color, they are up to interpretation.<br>
                         Feel free to use briqs in any way you want.<br>
-                        Seize the briqs of construction.
+                        Seize the briqs of creation.
                     </p>
                 </div>
             </div>
