@@ -86,10 +86,10 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                     </div>
                     <div class="min-h-[500px] container py-16 m-auto px-2 md:px-8 lg:px-16 relative z-1">
                         <!--<h1 class="text-left font-black uppercase my-16">{{ themeData.name || route.params.theme }}</h1>-->
-                        <h1><img class="pl-[5rem]" :src="starknet_planet_logo" :alt="themeData?.name || route.params.theme"></h1>
+                        <h1><img class="pl-[5rem] min-h-[7rem]" :src="starknet_planet_logo" :alt="themeData?.name || route.params.theme"></h1>
                         <div class="my-16">
-                            <h3>{{ themeData?.tagline ?? "Build the city of the future (placeholder)" }}</h3>
-                            <p>{{ themeData?.description }}</p>
+                            <h3>{{ themeData?.tagline ?? "Loading theme name " }}</h3>
+                            <p>{{ themeData?.description ?? 'Loading description' }}</p>
                         </div>
                         <template v-if="!isLive">
                             <div class="w-[340px] my-8 px-4 pt-2 pb-4 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
@@ -98,7 +98,7 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                                     <div
                                         v-for="i in saleStartsIn" :key="i[0]"
                                         class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
-                                        <p class="text-xl">{{ i[1] }}</p>
+                                        <p class="text-xl">{{ i[1] || '??' }}</p>
                                         <p class="text-xs capitalize">{{ i[0] }}</p>
                                     </div>
                                 </div>
@@ -108,9 +108,9 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                 </div>
             </div>
             <template v-if="isLive">
-                <div class="mt-8">
+                <div>
                     <template v-if="themeStatus === 'LOADED'">
-                        <div class="container m-auto">
+                        <div class="container m-auto mt-8">
                             <template v-if="status == 'LOADED'">
                                 <template v-if="auctionBoxes.length">
                                     <h3>Auctions for unique NFTs ({{ auctionBoxes.length }})</h3>
