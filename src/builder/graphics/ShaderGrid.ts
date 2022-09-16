@@ -3,22 +3,44 @@ import { THREE } from '@/three';
 export class ShaderGrid {
     grid!: THREE.Object3D;
     generate() {
-        const size = 128;
-        const gridData = new Uint8Array(size * size);
-        for (let x = 0; x < size; x++)
-            for (let y = 0; y < size; y++)
-                if (x === 0 || x === size - 1 || y === 0 || y === size - 1)
-                    gridData[x * size + y] = 255;
-                else
-                    gridData[x * size + y] = 0;
-        const gridTex = new THREE.DataTexture(gridData, size, size, THREE.RedFormat);
+        function mipmap(size = 128, power = 1) {
+            const gridData = new Uint8Array(size * size);
+            for (let x = 0; x < size; x++)
+                for (let y = 0; y < size; y++)
+                    if (x === 0 || x === size - 1 || y === 0 || y === size - 1)
+                        gridData[x * size + y] = 255 * power;
+                    else
+                        gridData[x * size + y] = 0;
+            return gridData;
+        }
+        function halfmipmap(size = 128, power = 1) {
+            const gridData = new Uint8Array(size * size);
+            for (let x = 0; x < size; x++)
+                for (let y = 0; y < size; y++)
+                    if (x === 0 || y === 0)
+                        gridData[x * size + y] = 255 * power;
+                    else
+                        gridData[x * size + y] = 0;
+            return gridData;
+        }
+        const gridTex = new THREE.DataTexture(mipmap(), 128, 128, THREE.RedFormat);
         gridTex.needsUpdate = true;
         gridTex.magFilter = THREE.NearestFilter;
         gridTex.minFilter = THREE.NearestMipmapLinearFilter;
-        gridTex.anisotropy = 2;
+        gridTex.anisotropy = 4;
         gridTex.wrapS = THREE.RepeatWrapping;
         gridTex.wrapT = THREE.RepeatWrapping;
-        gridTex.generateMipmaps = true;
+        const mipmap2 = (s, f = mipmap, power = 1) => ({ width: s, height: s, data: f(s, power) })
+        gridTex.mipmaps = [
+            mipmap2(128),
+            mipmap2(64),
+            mipmap2(32),
+            mipmap2(16, halfmipmap, 0.8),
+            mipmap2(8, halfmipmap, 0.6),
+            mipmap2(4, halfmipmap, 0.5),
+            mipmap2(2, halfmipmap, 0.3),
+            mipmap2(1, halfmipmap, 0.25),
+        ]
         const material = new THREE.ShaderMaterial( {
             uniforms: {
                 size: { value: new THREE.Vector2(0, 0) },
@@ -45,8 +67,7 @@ export class ShaderGrid {
             uniform sampler2D tex;
             void main() {
                 float shouldGrid = texture2D(tex, pos.xz).r;
-                // Increase alpha artificially so that on lower mipmaps the color remains darker.
-                gl_FragColor = vec4(color, clamp(shouldGrid * 3.0f, 0.0f, 1.0f) * tc.y);
+                gl_FragColor = vec4(color, clamp(shouldGrid, 0.0f, 1.0f) * tc.y);
             }
             `,
         });
