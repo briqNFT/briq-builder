@@ -50,7 +50,6 @@ onMounted(async () => {
                 const data = new SetData(setId).deserialize(await backendManager.fetch(`v1/metadata/${getCurrentNetwork()}/${setId}.json`));
                 await selectSet(data);
             }
-            router.replace({ 'query': null });
         } catch(_) {
             console.error(_) /* ignore */
         }

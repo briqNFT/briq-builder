@@ -31,10 +31,6 @@ async function initializeStartSet() {
     if (set)
         await selectSet(set);
 
-    const previousSet = window.localStorage.getItem('current_set');
-    if (previousSet && setsManager.getInfo(previousSet)?.getSet())
-        await selectSet(setsManager.getInfo(previousSet).getSet());
-
     // Must have a local set.
     await watchEffectAndWait(async () => {
         if (!currentSet.value) {
@@ -46,10 +42,6 @@ async function initializeStartSet() {
     });
 
     logDebug('BUILDER - START SET INITIALIZED');
-
-    watchEffect(() => {
-        window.localStorage.setItem('current_set', currentSet.value.id);
-    });
 }
 
 let _setup = false;

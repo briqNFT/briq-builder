@@ -109,7 +109,8 @@ export class SetsManager {
      */
     getLocalSet() {
         for (const sid in this.setsInfo)
-            return this.setsInfo[sid].setData;
+            if (!this.setsInfo[sid].booklet)
+                return this.setsInfo[sid].setData;
     }
 
     createLocalSet() {
