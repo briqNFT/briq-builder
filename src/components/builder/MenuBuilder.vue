@@ -90,7 +90,8 @@ const deleteBriqs = async () => {
     );
 }
 
-const selectAllbriqs = () => {
+const selectAllbriqs = (event: Event) => {
+    event.preventDefault();
     switchToState('inspect');
     inputStore.selectionMgr.selectAll();
 }
