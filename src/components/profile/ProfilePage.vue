@@ -22,6 +22,7 @@ import { useSetHelpers } from '../builder/SetComposable';
 import { router } from '@/Routes';
 import { chainBriqs } from '@/builder/ChainBriqs';
 import BookletCard from '../builder/genesis/BookletCard.vue';
+import GenericCard from '../builder/genesis/GenericCard.vue';
 
 const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
 
@@ -146,8 +147,8 @@ const {
                     <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
-                <div v-else class="flex">
-                    <div v-for="booklet of userBookletsStore.current?.booklets" class="rounded bg-grad-lightest shadow hover:shadow-lg">
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 my-8 z-50">
+                    <div v-for="booklet of userBookletsStore.current?.booklets">
                         <RouterLink :to="`user/set/${booklet}`">
                             <BookletCard :box-id="booklet"/>
                         </RouterLink>
@@ -171,30 +172,33 @@ const {
                     <p>Get some briqs and start building!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
-                <div v-else class="my-4 grid grid-cols-4 gap-6">
-                    <div
-                        class="card bg-grad-lightest shadow hover:shadow-lg rounded p-4"
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 my-8 z-50">
+                    <GenericCard
+                        v-for="creation in creations" :key="creation.id"
                         @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
-                        v-for="creation in creations" :key="creation.id">
-                        <div class="bg-grad-light rounded flex justify-center items-center min-h-[4rem] mb-2">Here be preview</div>
-                        <h4 class="font-semibold">{{ creation.name }}</h4>
-                        <p class="text-xs break-all text-grad-dark flex justify-between">
-                            {{ creation.id }}
-                            <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
-                                <template #button><i class="fas fa-ellipsis-h"/></template>
-                                <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
-                                <Btn no-background>(todo) Mint on chain</Btn>
-                                <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
-                                <Btn no-background>(TODO) Download</Btn>
-                                <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
-                            </MenuDropdown>
-                        </p>
-                        <hr class="my-4">
-                        <p class="flex justify-between text-sm">
-                            <span class="text-grad-dark">briqs used</span>
-                            <span class="font-semibold">{{ creation.nb_briqs }}</span>
-                        </p>
-                    </div>
+                        :status="creation?.id ? 'LOADED' : 'FETCHING'"
+                        :title="creation.name"
+                        :image-src="undefined">
+                        <template #subtitle>
+                            <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
+                                {{ creation.id }}
+                                <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                    <template #button><i class="fas fa-ellipsis-h"/></template>
+                                    <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
+                                    <Btn no-background>(todo) Mint on chain</Btn>
+                                    <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
+                                    <Btn no-background>(TODO) Download</Btn>
+                                    <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                                </MenuDropdown>
+                            </p>
+                        </template>
+                        <template #content>
+                            <p class="flex justify-between text-sm">
+                                <span class="text-grad-dark">briqs used</span>
+                                <span class="font-semibold">{{ creation.nb_briqs }}</span>
+                            </p>
+                        </template>
+                    </GenericCard>
                 </div>
             </div>
             <div>
@@ -208,27 +212,33 @@ const {
                         <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
                     </div>
                 </div>
-                <div v-else class="my-4 grid grid-cols-4 gap-6">
-                    <div class="card bg-grad-lightest shadow hover:shadow-lg rounded p-4" v-for="creation in creationsWIP" :key="creation.id">
-                        <div class="bg-grad-light rounded flex justify-center items-center min-h-[4rem] mb-2">Here be preview</div>
-                        <h4 class="font-semibold">{{ creation.name }}</h4>
-                        <p class="text-xs break-all text-grad-dark flex justify-between">
-                            {{ creation.id }}
-                            <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
-                                <template #button><i class="fas fa-ellipsis-h"/></template>
-                                <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
-                                <Btn no-background>(todo) Mint on chain</Btn>
-                                <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
-                                <Btn no-background>(TODO) Download</Btn>
-                                <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
-                            </MenuDropdown>
-                        </p>
-                        <hr class="my-4">
-                        <p class="flex justify-between text-sm">
-                            <span class="text-grad-dark">briqs used</span>
-                            <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
-                        </p>
-                    </div>
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 my-8 z-50">
+                    <!-- @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})" -->
+                    <GenericCard
+                        v-for="creation in creationsWIP" :key="creation.id"
+                        :status="creation?.id ? 'LOADED' : 'FETCHING'"
+                        :title="creation.name"
+                        :image-src="undefined">
+                        <template #subtitle>
+                            <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
+                                {{ creation.id }}
+                                <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                    <template #button><i class="fas fa-ellipsis-h"/></template>
+                                    <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
+                                    <Btn no-background>(todo) Mint on chain</Btn>
+                                    <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
+                                    <Btn no-background>(TODO) Download</Btn>
+                                    <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                                </MenuDropdown>
+                            </p>
+                        </template>
+                        <template #content>
+                            <p class="flex justify-between text-sm">
+                                <span class="text-grad-dark">briqs used</span>
+                                <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
+                            </p>
+                        </template>
+                    </GenericCard>
                 </div>
             </div>
         </div>

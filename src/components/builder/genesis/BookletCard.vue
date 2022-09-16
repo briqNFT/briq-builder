@@ -16,6 +16,13 @@ const genesisStore = useGenesisStore();
 
 <template>
     <GenericCardVue :title="bookletData?.name" subtitle="Booklet" :status="!!bookletData ? 'LOADED' : 'ERROR'" :image-src="genesisStore.coverBookletRoute(boxId)">
-        <template #content><p>Toto</p></template>
+        <template #content>
+            <p class="flex justify-between">
+                <span class="attribute">Briqs Needed</span><span class="font-semibold">504</span>
+            </p>
+            <p class="flex justify-between">
+                <span class="attribute">Steps</span><span>32</span>
+            </p>
+        </template>
     </GenericCardVue>
 </template>

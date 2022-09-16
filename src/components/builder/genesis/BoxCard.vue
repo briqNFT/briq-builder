@@ -57,8 +57,8 @@ const highestBid = computed(() => {
     <div :class="'item-card relative ' + itemQuery._status">
         <div class="bg-white rounded-md gap-1 shadow-sm">
             <template v-if="itemQuery._status === 'LOADED'">
-                <p class="flex-1 min-h-0 min-w-0 flex justify-center items-center my-4">
-                    <img class="min-h-0 min-w-0 max-h-[10rem]" :src="genesisStore.coverBoxRoute(tokenName)">
+                <p class="flex-1 min-h-0 min-w-0 flex justify-center items-center">
+                    <img class="min-h-0 min-w-0 h-[12rem]" :src="genesisStore.coverBoxRoute(tokenName)">
                 </p>
                 <h3 class="font-medium text-md px-4">{{ item.name }} </h3>
                 <template v-if="actualMode === 'PRESALE' || actualMode === 'SALE'">
@@ -80,6 +80,19 @@ const highestBid = computed(() => {
                             <span v-else-if="durationLeft > 60*60">{{ Math.floor(durationLeft/60/60) }} hour(s) left</span>
                             <span v-else-if="durationLeft > 60">{{ Math.floor(durationLeft/60) }} minute(s) left</span>
                             <span v-else>{{ Math.floor(durationLeft) }} seconds left</span>
+                        </p>
+                    </div>
+                </template>
+                <template v-if="actualMode === 'INVENTORY'">
+                    <hr class="my-2">
+                    <div class="p-4 pt-0 flex flex-col gap-2">
+                        <p class="flex justify-between">
+                            <span class="text-grad-dark">Bought at</span>
+                            <span>{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                        </p>
+                        <p class="flex justify-between">
+                            <span class="text-grad-dark">On</span>
+                            <span>August 5 2022</span>
                         </p>
                     </div>
                 </template>

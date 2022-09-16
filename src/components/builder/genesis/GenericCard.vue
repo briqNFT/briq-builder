@@ -19,21 +19,25 @@ defineProps<{
 #app .item-card:not(.ERROR):hover > div {
     @apply shadow-lg;
 }
-.item-card p {
+.item-card p, .item-card :slotted(p) {
     @apply text-copy;
+}
+.item-card :slotted(.attribute) {
+    @apply text-copy text-grad-dark;
 }
 </style>
 
 <template>
-    <div :class="'item-card relative ' + status">
-        <div class="bg-white rounded-md gap-1 shadow-sm">
+    <div :class="'item-card relative h-full' + status">
+        <div class="bg-white rounded-md gap-1 shadow-sm h-full">
             <template v-if="status === 'LOADED'">
-                <p class="flex-1 min-h-0 min-w-0 flex justify-center items-center my-4">
-                    <img class="min-h-0 min-w-0 max-h-[10rem]" :src="imageSrc">
+                <p class="flex-1 min-h-0 min-w-0 flex justify-center items-center">
+                    <img class="min-h-0 min-w-0 h-[12rem]" :src="imageSrc">
                 </p>
-                <h3 class="font-medium text-md px-4">{{ title }} </h3>
+                <h3 class="font-medium text-md px-4 break-all">{{ title }} </h3>
 
-                <div v-if="status === 'LOADED'" class="px-4 text-sm flex justify-between">{{ subtitle }}</div>
+                <div class="px-4 text-sm flex justify-between">{{ subtitle }}</div>
+                <slot name="subtitle"/>
                 <template v-if="$slots.content">
                     <hr class="my-2">
                     <div class="p-4 pt-0 flex flex-col gap-2">
