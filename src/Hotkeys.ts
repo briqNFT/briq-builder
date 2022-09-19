@@ -163,7 +163,8 @@ export class HotkeyManager {
             // Don't fire twice.
             for (const hk of this.keyHotkeys?.[event.key] ?? [])
                 if (!fired[hk])
-                    this.maybeFireHotkey(hk, UP);
+                    if (this.maybeFireHotkey(hk, UP))
+                        event.preventDefault();
 
             this.activeCodes[event.code] = false;
             this.activeKeys[event.key] = false;
@@ -187,7 +188,8 @@ export class HotkeyManager {
             // Don't fire twice.
             for (const hk of this.keyHotkeys?.[event.key] ?? [])
                 if (!fired[hk])
-                    this.maybeFireHotkey(hk, DOWN);
+                    if (this.maybeFireHotkey(hk, DOWN))
+                        event.preventDefault();
         }
     }
 
