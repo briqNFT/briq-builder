@@ -39,6 +39,7 @@
     .btn:not(:disabled):active {
         @apply border-2 border-deep-blue bg-accent;
     }
+    
     .btn:disabled {
         @apply bg-gray-300 dark:bg-gray-700;
         @apply text-gray-600 dark:text-gray-500 dark:border-black;

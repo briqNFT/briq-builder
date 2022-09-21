@@ -46,6 +46,14 @@
                             <i class="fas fa-cloud-upload-alt"/> Mint on Chain
                         </Btn>
                     </div>
+                    <div class="justify-self-end flex-none">
+
+                     <Btn
+                            tooltip="Briquify your Ethreum NFT"
+                            @click="briquifyNFT">
+                            <i class="fas fa-cloud-upload-alt"/> Briquify
+                    </Btn>
+                    </div>
                 </div>
             </div>
         </div>
@@ -70,6 +78,7 @@ import { pushModal } from '../Modals.vue';
 
 import { setsManager } from '../../builder/SetsManager';
 import ExportSetVue from './modals/ExportSet.vue';
+import Briquify from './modals/Briquify.vue';
 import { inputStore } from '../../builder/inputs/InputStore';
 
 import { getCurrentNetwork } from '@/chain/Network';
@@ -90,6 +99,9 @@ export default defineComponent({
         },
     },
     methods: {
+        async briquifyNFT() {
+            await pushModal(Briquify, { set: this.$store.state.builderData.currentSet })
+        },
         async mintSet() {
             await pushModal(ExportSetVue, { set: this.$store.state.builderData.currentSet });
         },
