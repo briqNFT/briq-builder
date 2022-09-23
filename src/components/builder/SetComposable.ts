@@ -19,9 +19,9 @@ export function useSetHelpers() {
         openSetInBuilder(set.id);
     }
 
-    const duplicateSet = (setId: string) => {
+    const duplicateSet = (set: SetData) => {
         // TODO -> error reporting.
-        return setsManager.duplicateLocally(setsManager.getInfo(setId).getSet()!);
+        return setsManager.duplicateLocally(set);
     };
     const deleteLocalSet = (setId: string, force = false) => {
         const setInfo = setsManager.getInfo(setId);

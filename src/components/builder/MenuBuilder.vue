@@ -48,7 +48,7 @@ const renameSet = () => {
 
 const store = useStore();
 
-const { saveSetAndOpen, duplicateSet, openSetInBuilder } = useSetHelpers();
+const { saveSetAndOpen } = useSetHelpers();
 
 const downloadSetLocally = () => {
     pushModal(DownloadSetVue, { setId: currentSet.value.id });
@@ -68,7 +68,8 @@ const importSetFromFile = async () => {
                     briq.data.material = CONF.theme === 'realms' ? '0x2' : '0x1';
                 let set = new SetData(contents.id).deserialize(contents);
                 set.id = hexUuid();
-                saveSetAndOpen(set);
+                pushModal(NewSetModalVue, { title: 'Import set', initialSet: set })
+
             }
         } catch (err) {
             pushPopup('error', 'Error loading file', `Error while loading file ${fileHandle.name}\n${err?.message}`);
@@ -124,7 +125,7 @@ const onCloseMenu = () => {
                     <hr>
                     <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
                     <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
-                    <Btn @click="pushModal(NewSetModalVue, { title: 'Duplicate set', initialSet: currentSet })" no-background>Duplicate creation</Btn>
+                    <Btn @click="pushModal(NewSetModalVue, { title: 'Duplicate set', name: `Copy of ${currentSet.name}`, initialSet: currentSet })" no-background>Duplicate creation</Btn>
                     <Btn @click="downloadSetLocally" no-background>Save to computer</Btn>
                     <hr>
                     <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>

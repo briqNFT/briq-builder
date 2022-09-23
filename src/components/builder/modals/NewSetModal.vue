@@ -8,9 +8,10 @@ const { createNewSet, saveSetAndOpen, duplicateSet } = useSetHelpers();
 const props = defineProps<{
     title: string,
     initialSet?: SetData,
+    name?: string,
 }>();
 
-const name = ref(props.initialSet?.name ? `Copy of ${props.initialSet.name}` : 'New Set');
+const name = ref(props.name || props.initialSet.name || 'New Set');
 
 const emit = defineEmits(['close']);
 const onClick = () => {
@@ -19,7 +20,7 @@ const onClick = () => {
         set.name = name.value;
         saveSetAndOpen(set);
     } else {
-        const set = duplicateSet(props.initialSet.id);
+        const set = duplicateSet(props.initialSet);
         set.name = name.value;
         saveSetAndOpen(set);
     }

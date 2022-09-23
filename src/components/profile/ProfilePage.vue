@@ -186,7 +186,7 @@ const {
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
                                     <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
                                     <Btn no-background>(todo) Mint on chain</Btn>
-                                    <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
+                                    <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
                                     <Btn no-background>(TODO) Download</Btn>
                                     <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
                                 </MenuDropdown>
@@ -226,7 +226,7 @@ const {
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
                                     <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
                                     <Btn no-background>(todo) Mint on chain</Btn>
-                                    <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
+                                    <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
                                     <Btn no-background>(TODO) Download</Btn>
                                     <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
                                 </MenuDropdown>
@@ -305,7 +305,7 @@ const {
                             <template #button><i class="fas fa-ellipsis-h"/></template>
                             <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
                             <Btn no-background>(todo) Mint on chain</Btn>
-                            <Btn @click="duplicateSet(creation.id)" no-background>Duplicate</Btn>
+                            <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
                             <Btn no-background>(TODO) Download</Btn>
                             <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
                         </MenuDropdown>
