@@ -93,27 +93,6 @@ const resetToLast = () => {
                     </p>
                 </div>
                 <hr>
-                <div>
-                    <h4>Canvas size</h4>
-                    <label><p class="flex items-center justify-between gap-1">
-                        <Slider v-if="featureFlags.bigBuilder" class="w-[6rem] grow" :min="10" :step="10" :max="300" v-model="canvasSize" :show-value="false"/>
-                        <Slider v-else class="w-[6rem] grow" :min="10" :step="10" :max="CONF.builderSettings.maxCanvasSize * 2 || 100" v-model="canvasSize" :show-value="false"/>
-                        <span class="w-16 text-right ml-2">({{ `${builderSettings.canvasSize * 2}x${builderSettings.canvasSize * 2}` }})</span>
-                    </p></label>
-                </div>
-                <hr>
-                <div>
-                    <p class="flex flex-row items-center gap-1 my-0.5">
-                        <InputColor v-model="builderSettings.backgroundColor"/> Background Color
-                    </p>
-                    <p class="flex flex-row items-center gap-1 my-0.5">
-                        <InputColor v-model="builderSettings.lightColor"/> Light Color
-                    </p>
-                    <p class="flex flex-row items-center gap-1 my-0.5">
-                        <InputColor v-model="builderSettings.ambientColor"/> Ambient Color
-                    </p>
-                </div>
-                <hr>
                 <p>
                     <select v-model="darkModeStore.forcedMode">
                         <option value="">OS Default</option>
