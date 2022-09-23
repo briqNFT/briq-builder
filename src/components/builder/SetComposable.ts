@@ -11,11 +11,9 @@ export function useSetHelpers() {
     const openSetInBuilder = (setId: string) => {
         window.open(router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`, '_blank');
     }
-    const createNewSetAndOpen = (set ?: SetData) => {
-        if (!set)
-            set = setsManager.createLocalSet();
-        else
-            setsManager.registerLocalSet(set);
+
+    const createNewSet = () => setsManager.createLocalSet();
+    const saveSetAndOpen = (set: SetData) => {
         // Have to force the dump to disk or the new window won't be able to find the set.
         synchronizeSetsLocally();
         openSetInBuilder(set.id);
@@ -41,8 +39,9 @@ export function useSetHelpers() {
     };
 
     return {
+        createNewSet,
         openSetInBuilder,
-        createNewSetAndOpen,
+        saveSetAndOpen,
         duplicateSet,
         deleteLocalSet,
     }

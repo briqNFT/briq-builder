@@ -7,7 +7,7 @@ import builderSettings from '@/builder/graphics/Settings';
 import { useSetHelpers } from '../SetComposable';
 import { pushPopup } from '@/Notifications';
 
-const { createNewSetAndOpen } = useSetHelpers();
+const { saveSetAndOpen } = useSetHelpers();
 
 
 const loader = ref(undefined as VoxLoader | undefined);
@@ -42,7 +42,7 @@ const importSet = () => {
         maxV = Math.max(maxV, pos[0], pos[2]);
     });
     builderSettings.canvasSize = Math.ceil(maxV / 5) * 5;
-    createNewSetAndOpen(set.value);
+    saveSetAndOpen(set.value);
     emit('close');
 }
 

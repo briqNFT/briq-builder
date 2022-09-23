@@ -3,7 +3,7 @@ import { SetData } from '@/builder/SetData';
 import { CONF } from '@/Conf';
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
 import { hexUuid } from '@/Uuid';
-import { nextTick, ref, toRef, watch } from 'vue';
+import { ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import Flyout from '../generic/Flyout.vue';
 import { pushModal } from '../Modals.vue';
@@ -17,6 +17,7 @@ import DownloadSetVue from './modals/DownloadSet.vue';
 import { useBuilderInput } from './InputComposable';
 import { vCloseOutside } from '@/components/CloseOnClickOutsideComposable';
 import { useRecording } from './Recording';
+import NewSetModalVue from './modals/NewSetModal.vue';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
@@ -47,7 +48,7 @@ const renameSet = () => {
 
 const store = useStore();
 
-const { createNewSetAndOpen, duplicateSet, openSetInBuilder } = useSetHelpers();
+const { saveSetAndOpen, duplicateSet, openSetInBuilder } = useSetHelpers();
 
 const downloadSetLocally = () => {
     pushModal(DownloadSetVue, { setId: currentSet.value.id });
@@ -67,15 +68,13 @@ const importSetFromFile = async () => {
                     briq.data.material = CONF.theme === 'realms' ? '0x2' : '0x1';
                 let set = new SetData(contents.id).deserialize(contents);
                 set.id = hexUuid();
-                createNewSetAndOpen(set);
+                saveSetAndOpen(set);
             }
         } catch (err) {
             pushPopup('error', 'Error loading file', `Error while loading file ${fileHandle.name}\n${err?.message}`);
             console.error(err);
         }
 }
-
-const duplicate = () => openSetInBuilder(duplicateSet(currentSet.value.id).id);
 
 const selectCopy = () => {
     if (activeInputButton.value !== 'select')
@@ -123,9 +122,9 @@ const onCloseMenu = () => {
                     <Btn @click="renameSet" no-background>Rename set</Btn>
                     <RouterLink :to="{ name: 'Profile' }"><Btn class="w-full" no-background>Manage my sets</Btn></RouterLink>
                     <hr>
-                    <Btn @click="createNewSetAndOpen()" no-background>New creation</Btn>
+                    <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
                     <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
-                    <Btn @click="duplicate" no-background>Duplicate creation</Btn>
+                    <Btn @click="pushModal(NewSetModalVue, { title: 'Duplicate set', initialSet: currentSet })" no-background>Duplicate creation</Btn>
                     <Btn @click="downloadSetLocally" no-background>Save to computer</Btn>
                     <hr>
                     <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>
