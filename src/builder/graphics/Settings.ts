@@ -29,23 +29,8 @@ class Settings {
     reset() {
         this.aaLevel = 'FXAA';
         this.useSAO = false;
-        // If you change these, change settings.vue
-        this.planeColor = useDarkMode()
-            ? CONF.builderSettings.darkMode.planeColor
-            : CONF.builderSettings.lightMode.planeColor;
-        this.gridColor = useDarkMode()
-            ? CONF.builderSettings.darkMode.gridColor
-            : CONF.builderSettings.lightMode.gridColor;
-        this.backgroundColor = useDarkMode()
-            ? CONF.builderSettings.darkMode.backgroundColor
-            : CONF.builderSettings.lightMode.backgroundColor;
         this.showBorders = false;
-        this.showPlane = true;
-        this.showGrid = true;
         this.transparentBackground = false;
-        this.canvasSize = CONF.builderSettings.canvasSize;
-        this.lightColor = '#888888';
-        this.ambientColor = '#888888';
     }
 
     parseStorage() {
