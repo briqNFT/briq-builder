@@ -1,9 +1,6 @@
-import { reactive, watchEffect, markRaw } from 'vue';
+import { reactive, watchEffect } from 'vue';
 
-import { useDarkMode } from '@/DarkMode';
 import { logDebug } from '@/Messages';
-
-import { CONF } from '@/Conf';
 
 class Settings {
     // If false, the changes are not serialised.
@@ -11,16 +8,9 @@ class Settings {
 
     aaLevel!: '0' | 'FXAA' | 'SMAA' | '2' | '3' | '4';
     useSAO!: boolean;
-    planeColor!: string;
-    gridColor!: string;
-    backgroundColor!: string;
     showBorders!: boolean;
-    showPlane!: boolean;
-    showGrid!: boolean;
     transparentBackground!: boolean;
     canvasSize!: number;
-    lightColor!: string;
-    ambientColor!: string;
 
     constructor() {
         this.reset();
@@ -44,42 +34,9 @@ class Settings {
         }
     }
 
-    /* Check if we need to update something */
-    onDarkModeUpdate() {
-        const light = CONF.builderSettings.lightMode;
-        const dark = CONF.builderSettings.darkMode;
-        if (
-            useDarkMode() &&
-            this.planeColor === light.planeColor &&
-            this.gridColor === light.gridColor &&
-            this.backgroundColor === light.backgroundColor
-        ) {
-            builderSettings.planeColor = dark.planeColor;
-            builderSettings.gridColor = dark.gridColor;
-            builderSettings.backgroundColor = dark.backgroundColor;
-        } else if (
-            !useDarkMode() &&
-            this.planeColor === dark.planeColor &&
-            this.gridColor === dark.gridColor &&
-            this.backgroundColor === dark.backgroundColor
-        ) {
-            builderSettings.planeColor = light.planeColor;
-            builderSettings.gridColor = light.gridColor;
-            builderSettings.backgroundColor = light.backgroundColor;
-        }
-    }
-
     getSettingsForSetExport() {
         return {
-            planeColor: this.planeColor,
-            gridColor: this.gridColor,
-            backgroundColor: this.backgroundColor,
             showBorders: this.showBorders,
-            showPlane: this.showPlane,
-            showGrid: this.showGrid,
-            canvasSize: this.canvasSize,
-            lightColor: this.lightColor,
-            ambientColor: this.ambientColor,
         };
     }
 

@@ -10,12 +10,10 @@ export const CONF = {
     defaultMaterial: MATERIAL_GENESIS,
     builderSettings: {
         darkMode: {
-            planeColor: '#591f00',
             gridColor: '#999999',
             backgroundColor: '#1e2229',
         },
         lightMode: {
-            planeColor: '#bf4300',
             gridColor: '#eaeaea',
             backgroundColor: '#FAFAFA',
         },

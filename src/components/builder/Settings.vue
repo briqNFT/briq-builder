@@ -33,7 +33,6 @@ onUnmounted(() => {
         });
 }),
 watch(builderSettings, () => mayUndo.value = true, { deep: true });
-watchEffect(() => builderSettings.onDarkModeUpdate());
 
 const resetToDefault = () => builderSettings.reset();
 const resetToLast = () => {

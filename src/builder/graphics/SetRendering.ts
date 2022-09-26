@@ -5,8 +5,6 @@ import VoxelWorld from './VoxelWorld';
 import { camera, orbitControls } from './Builder';
 import { generateSkybox } from './Skybox';
 
-import builderSettings from './Settings';
-
 import RealmsPic from '@/assets/realms.png';
 
 function generateRealms() {
@@ -131,7 +129,7 @@ export function getIntersectionPos(xScreen: number, yScreen: number) {
     };
 }
 
-const bounds = {};
+export const bounds = {};
 
 function reset() {
     for (const mat in voxels)
@@ -150,10 +148,6 @@ function getVoxelWorld(material: string) {
         setObject.add(voxels[material].object);
     }
     return voxels[material];
-}
-
-function getCanvasSize() {
-    return Math.max(5, builderSettings.canvasSize);
 }
 
 function updateBounds(pos) {

@@ -18,6 +18,11 @@ import {
     FXAAShader,
 } from '@/three';
 
+import { CONF } from '@/Conf';
+
+import { getSetObject, grid, bounds, handleActions } from './SetRendering.js';
+import { useDarkMode } from '@/DarkMode';
+
 export var camera: THREE.Camera;
 
 // OrbitControls, exported so we can pass them to inputs.
@@ -25,28 +30,15 @@ export var orbitControls = {
     controls: undefined,
 };
 
+
+function builderConf() {
+    return CONF.builderSettings[useDarkMode() ? 'darkMode' : 'lightMode'];
+}
+
 function getCanvasSize() {
-    return Math.max(5, builderSettings.canvasSize);
-}
-
-function generateGrid() {
-    return new ShaderGrid();
-}
-
-function generatePlane(scene: THREE.Scene) {
-    const geometry = new THREE.PlaneBufferGeometry(getCanvasSize() * 2, getCanvasSize() * 2);
-    const material = new THREE.MeshPhongMaterial({ color: new THREE.Color(builderSettings.planeColor).convertSRGBToLinear(), side: THREE.FrontSide });
-    const planeXZ = new THREE.Mesh(geometry, material);
-    planeXZ.receiveShadow = true;
-    planeXZ.position.set(0, -0.01, 0);
-    planeXZ.rotateX(-Math.PI / 2);
-
-    const planeUnderside = new THREE.Mesh(geometry, material);
-    planeUnderside.position.set(0, -0.015, 0);
-    planeUnderside.rotateX(Math.PI / 2);
-
-    scene.add(planeXZ);
-    scene.add(planeUnderside);
+    if (!bounds.min)
+        return 5;
+    return Math.max(5, Math.max([0, 1, 2].map(i => bounds.max[i] - bounds.min[i])));
 }
 
 /*
@@ -211,10 +203,10 @@ function recreateRenderer(canvas, scene, camera) {
 }
 
 function addLight(scene: THREE.Scene, x: number, y: number, z: number) {
-    const lightSpot = new THREE.DirectionalLight(new THREE.Color(builderSettings.lightColor).convertSRGBToLinear(), 2.0);
+    const lightSpot = new THREE.DirectionalLight(new THREE.Color(0x888888).convertSRGBToLinear(), 2.0);
     lightSpot.position.set(x, y, z);
     lightSpot.castShadow = true;
-    lightSpot.shadow.bias = builderSettings.canvasSize > 30 ? -0.01 : -0.001;
+    lightSpot.shadow.bias = getCanvasSize() ? -0.01 : -0.001;
     lightSpot.shadow.normalBias = 0.05;
     lightSpot.shadow.camera.near = 0.1;
     lightSpot.shadow.camera.far = getCanvasSize() * 3;
@@ -222,18 +214,17 @@ function addLight(scene: THREE.Scene, x: number, y: number, z: number) {
     lightSpot.shadow.camera.right = getCanvasSize() * 1.3;
     lightSpot.shadow.camera.bottom = -getCanvasSize();
     lightSpot.shadow.camera.top = getCanvasSize() * 3;
-    lightSpot.shadow.mapSize.width = builderSettings.canvasSize > 30 ? 2048 : 1024;
-    lightSpot.shadow.mapSize.height = builderSettings.canvasSize > 30 ? 2048 : 1024;
+    lightSpot.shadow.mapSize.width = getCanvasSize() > 30 ? 2048 : 1024;
+    lightSpot.shadow.mapSize.height = getCanvasSize() > 30 ? 2048 : 1024;
     scene.add(lightSpot);
 
-    const ambientLight = new THREE.AmbientLight(new THREE.Color(builderSettings.ambientColor).convertSRGBToLinear(), 2.0);
+    const ambientLight = new THREE.AmbientLight(new THREE.Color(0x888888).convertSRGBToLinear(), 2.0);
     scene.add(ambientLight);
 }
 
 let scene: THREE.Scene;
 
 import { selectionRender } from '../inputs/Selection';
-import { getSetObject, grid, handleActions } from './SetRendering.js';
 export var overlayObjects: THREE.Object3D;
 export var underlayObjects: THREE.Object3D;
 
@@ -245,11 +236,10 @@ function setupScene() {
     addLight(scene, -1 * getCanvasSize() / 2, 2 * getCanvasSize() / 2, -3 * getCanvasSize() / 2);
 
     if (!builderSettings.transparentBackground)
-        scene.background = new THREE.Color(builderSettings.backgroundColor).convertSRGBToLinear();
+        scene.background = new THREE.Color(builderConf().backgroundColor).convertSRGBToLinear();
     else
         scene.background = null;
 
-    //if (builderSettings.showGrid)
     if (!grid.grid)
         grid.generate();
     scene.add(grid.grid);
