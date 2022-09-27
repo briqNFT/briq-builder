@@ -154,7 +154,8 @@ export class HotkeyManager {
             this.alt = false;
         else if (event.key === 'Shift')
             this.shift = false;
-        else if (event.key === 'Control')
+        // For PC/mac convenience, treat those the same
+        else if (event.key === 'Control' || event.key === 'Meta')
             this.ctrl = false;
         else {
             const fired: { [hk: string]: boolean } = {};
@@ -176,7 +177,7 @@ export class HotkeyManager {
             this.alt = true;
         else if (event.key === 'Shift')
             this.shift = true;
-        else if (event.key === 'Control')
+        else if (event.key === 'Control' || event.key === 'Meta')
             this.ctrl = true;
         else {
             this.activeCodes[event.code] = true;

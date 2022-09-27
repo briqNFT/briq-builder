@@ -146,8 +146,8 @@ const onCloseMenu = () => {
                 </template>
             </Flyout>
         </div>
-        <Hotkey v-if="activeInputButton === 'select'" name="delete-1" :data="{ code: 'Delete' }" :handler="() => deleteBriqs()"/>
-        <Hotkey v-if="activeInputButton === 'select'" name="delete-2" :data="{ code: 'Backspace' }" :handler="() => deleteBriqs()"/>
-        <Hotkey name="select-all" :data="{ key: 'a', ctrl: true }" :handler="selectAllbriqs"/>
+        <Hotkey v-if="activeInputButton === 'select'" name="delete-1" :data="{ onDown: true, code: 'Delete' }" :handler="() => deleteBriqs()"/>
+        <Hotkey v-if="activeInputButton === 'select'" name="delete-2" :data="{ onDown: true, code: 'Backspace' }" :handler="() => deleteBriqs()"/>
+        <Hotkey name="select-all" :data="{ key: 'a', ctrl: true, onDown: true }" :handler="selectAllbriqs"/>
     </div>
 </template>
