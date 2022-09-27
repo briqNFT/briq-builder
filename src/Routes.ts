@@ -36,6 +36,11 @@ export const routes = [
         component: Legal,
     },
     {
+        path: '/legal/:doc',
+        name: 'Legal Doc',
+        component: () => import('@/components/legal/Doc.vue'),
+    },
+    {
         path: '/team',
         name: 'Team',
         component: Team,

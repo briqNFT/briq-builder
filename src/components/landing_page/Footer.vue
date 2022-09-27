@@ -9,7 +9,7 @@
             <a href="https://github.com/briqNFT/" rel="noopener" target="_blank"><p><i class="fab fa-github"/></p></a>
         </div>
         <p>
-            Copyright © 2021 S&L Technologies. All rights reserved.
+            Copyright © 2022 S&L Technologies. All rights reserved.
             <router-link class="font-medium" to="/legal">Legal terms</router-link>
         </p>
     </div>

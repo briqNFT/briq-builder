@@ -99,7 +99,7 @@ import AlphaBanner from '../AlphaBanner.vue';
             </div>
             <div>
                 <p class="font-light">
-                    Copyright © 2021 S&L Technologies. All rights reserved.
+                    Copyright © 2022 S&L Technologies. All rights reserved.
                     <router-link class="font-medium px-4" to="/legal">Legal terms</router-link>
                 </p>
             </div>
