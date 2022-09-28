@@ -81,8 +81,6 @@ class UserSetStore implements perUserStorable {
             this.user_id.split('/')[1],
             token_hint,
             data.briqs.map((x: any) => x.data),
-            // Point to the 'permanent' API. TODO: IFPS?
-            'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
         );
         return this._mintSet(TX, data, image);
     }
@@ -90,13 +88,11 @@ class UserSetStore implements perUserStorable {
     async mintBookletSet(token_hint: string, data: any, booklet: string) {
         // Debug
         //downloadJSON(data, data.id + ".json")
-        const TX = await contractStore.set!.assemble_with_booklet(
+        const TX = await contractStore.set!.assemble(
             this.user_id.split('/')[1],
             token_hint,
-            (await getBookletData(booklet)).value.token_id,
             data,
-            // Point to the 'permanent' API. TODO: IFPS?
-            'https://api.briq.construction/' + backendManager.getMetadataRoute(data.id),
+            (await getBookletData(booklet)).value.token_id,
         );
 
         return this._mintSet(TX, data, undefined);
@@ -122,6 +118,7 @@ class UserSetStore implements perUserStorable {
     }
 
     async disassemble(token_id: string) {
+        // TODO: find the booklet
         const TX = await contractStore.set!.disassemble(
             this.user_id.split('/')[1],
             token_id,
