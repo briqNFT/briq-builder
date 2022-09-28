@@ -3,7 +3,7 @@ import { Contract, FunctionAbi } from 'starknet';
 
 import { backendManager } from '@/Backend';
 
-import ABI from './starknet-testnet/box.json';
+import ABI from './starknet-testnet/box_nft.json';
 
 export default class BoxContract {
     contract: Contract;

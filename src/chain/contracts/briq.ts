@@ -2,7 +2,7 @@ import type { Provider } from '@/starknet_wrapper';
 import { Contract, FunctionAbi } from 'starknet';
 import { toHex } from '@/starknet_wrapper';
 
-import BriqABI from './starknet-testnet/briq_interface.json';
+import BriqABI from './starknet-testnet/briq.json';
 
 export default class BriqContract {
     contract: Contract;

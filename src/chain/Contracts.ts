@@ -16,11 +16,11 @@ export const ADDRESSES = {
         eth_bridge_contract: '0x62230ea046a9a5fbc261ac77d03c8d41e5d442db2284587570ab46455fd2488',
     },
     'starknet-testnet': {
-        briq: '0x009c80aaf74330a0b56dddefc4e6bab33d03415e67a0092cc048b0d6fb2cc3dd',
-        set: '0x032ded561a3c59d063bf16a1de833ac2826370ad1662baba548c08fa29eba850',
-        box: '0x07f4c8f5d2e70955bf9b4275abb48781049839dc0a45a3f7d0761c61d61811cc',
-        booklet: '0x048580b27b4cb0ac15069ba2bf9a8586cb072f65dbcd4659a220a747f57f89e6',
-        auction: '0x04a97166c6718f85162f05270274ccede8e20e6aaa47a389f478d9df71ee6a95',
+        briq: '0x0206a3d41d18e634f1492621dc42144c7dce52530bc90150fe8bcddef7011b4d',
+        set: '0x074fe9c7050d647cb80b5a993c6f532c0150734a69ebe1973c75916a6d808e54',
+        box: '0x041b4b40491788813ba1c830c8e0e7e97b10a604d9dce25259f50352e7ad8b09',
+        booklet: '0x010c5fc9e7ebafe1bb260aa28f23ab93295b59ca5e1e7875c35338968c5a4233',
+        auction: '0x0344c97a38c9b5f632e0f1de386402ff0e3ebcf6878a65f588aa4375f9750c00',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
     },
     'starknet-mainnet': {

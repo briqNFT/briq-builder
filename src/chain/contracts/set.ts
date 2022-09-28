@@ -5,7 +5,7 @@ import { Contract, FunctionAbi } from 'starknet';
 
 import { computeHashOnElements } from '@/starknet_wrapper';
 
-import SetABI from './starknet-testnet/set_interface.json';
+import SetABI from './starknet-testnet/set.json';
 import { toBN } from 'starknet/utils/number';
 
 export default class SetContract {
