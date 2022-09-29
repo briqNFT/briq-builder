@@ -80,7 +80,7 @@ class UserSetStore implements perUserStorable {
         const TX = await contractStore.set!.assemble(
             this.user_id.split('/')[1],
             token_hint,
-            data.briqs.map((x: any) => x.data),
+            data,
         );
         return this._mintSet(TX, data, image);
     }

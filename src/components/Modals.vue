@@ -8,7 +8,9 @@ import Modal from './Modal.vue';
             v-for="(data, index) in store.modals"
             :key="data.id"
             :data="data"
-            :class="onlyShowLast ? (index === store.modals.length - 1 ? '' : 'hidden') : ''"/>
+            :class="onlyShowLast ? (index === store.modals.length - 1 ? '' : 'hidden') : ''"
+            @keydown.stop="()=>{}"
+            @keyup.stop="()=>{}"/>
     </div>
 </template>
 

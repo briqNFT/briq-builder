@@ -67,12 +67,13 @@ export default class SetContract {
                 ++fungibles[briq.data.material];
             }
         }
-
+        shapes.sort((a, b) => a[1].localeCompare(b[1], 'en'));
+        console.log(shapes);
         const fts = [];
         for (const ft in fungibles)
             fts.push([ft, '' + fungibles[ft]]);
 
-        return await this.contract.assemble_(owner, token_id_hint, fts, nfts, shapes, booklet ? [] : [booklet]);
+        return await this.contract.assemble_(owner, token_id_hint, fts, nfts, shapes, booklet ? [booklet] : []);
     }
 
     async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {

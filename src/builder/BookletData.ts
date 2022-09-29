@@ -21,7 +21,7 @@ const loadBookletData = noParallel(async (booklet: bookletId) => {
     if (bookletsData[booklet])
         return bookletsData[booklet];
     try {
-        const metadata = await backendManager.fetch(`v1/box/data/${getCurrentNetwork()}/${booklet}.json`)
+        const metadata = await backendManager.fetch(`v1/booklet/data/${getCurrentNetwork()}/${booklet}.json`)
         bookletsData[booklet] = markRaw(metadata);
         return bookletsData[booklet];
     } catch(_) { /* ignore */ }
