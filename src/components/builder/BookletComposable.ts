@@ -21,14 +21,7 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
     const { currentSet, currentSetInfo } = useBuilder();
 
     const booklet = computed(() => forceBooklet?.value || currentSetInfo.value.booklet as string);
-
-    let bookletRef = ref<undefined | BookletData>(undefined);
-    watch([currentSetInfo, forceSet, forceBooklet].filter(x => x), () => {
-        if (booklet.value)
-            bookletRef = getBookletDataSync(booklet.value);
-        else
-            bookletRef.value = undefined;
-    }, { immediate: true });
+    const bookletRef = computed(() => getBookletDataSync(booklet.value).value);
 
     // Change default palette & update colors.
     watch([bookletRef], () => {

@@ -13,7 +13,7 @@ import ShareVue from './components/builder/share/Share.vue';
 import GalleryVue from './components/builder/gallery/Gallery.vue';
 import * as walletModule from '@/chain/Wallet';
 import _contractStore from './chain/Contracts';
-import UnboxingVue_ from './components/builder/genesis/Unboxing.vue';
+import UnboxingVue_ from './components/builder/genesis/UnboxingLight.vue';
 export { initializeBuilder } from './builder/BuilderInit';
 
 export const UnboxingVue = UnboxingVue_;

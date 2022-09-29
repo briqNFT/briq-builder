@@ -108,6 +108,7 @@ const masterInit = async () => {
                         <select v-model="cc_contract">
                             <option value="set">set</option>
                             <option value="briq">briq</option>
+                            <option value="booklet">booklet</option>
                         </select>
                     </p>
                     <p>Function: <input type="text" v-model="selector"></p>
@@ -143,7 +144,7 @@ h2 {
 </style>
 
 <script lang="ts">
-import contractStore from '@/chain/Contracts';
+import contractStore, { ADDRESSES } from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages';
 import type { AccountInterface, Provider, Signer } from '@/starknet_wrapper';
 import { getSelectorFromName } from '@/starknet_wrapper';
@@ -168,6 +169,7 @@ const callContract = function (provider: Provider, address: string, entryPoint: 
 };
 
 import { defineComponent } from 'vue';
+import { getCurrentNetwork } from '@/chain/Network';
 export default defineComponent({
     data() {
         return {
@@ -258,10 +260,7 @@ export default defineComponent({
 
                 if (walletStore?.signer?.signer) {
                     let tx = await (walletStore.signer as AccountInterface).execute({
-                        contractAddress: (this.cc_contract === 'set'
-                            ? contractStore.set
-                            : contractStore.briq
-                        ).getAddress(),
+                        contractAddress: ADDRESSES[getCurrentNetwork()][this.cc_contract],
                         entrypoint: this.selector,
                         calldata: this.calldata
                             .split(',')
@@ -271,9 +270,7 @@ export default defineComponent({
                     pushMessage(JSON.stringify(tx));
                 } else {
                     let tx = await (walletStore.signer as Signer).invokeFunction(
-                        toBN(
-                            (this.cc_contract === 'set' ? contractStore.set : contractStore.briq).getAddress(),
-                        ).toString(),
+                        toBN(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(),
                         toBN(getSelectorFromName(this.selector)).toString(),
                         this.calldata
                             .split(',')

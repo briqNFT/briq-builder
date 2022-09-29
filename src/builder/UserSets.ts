@@ -88,11 +88,12 @@ class UserSetStore implements perUserStorable {
     async mintBookletSet(token_hint: string, data: any, booklet: string) {
         // Debug
         //downloadJSON(data, data.id + ".json")
+        const bookletData = (await getBookletData(booklet));
         const TX = await contractStore.set!.assemble(
             this.user_id.split('/')[1],
             token_hint,
-            data,
-            (await getBookletData(booklet)).value.token_id,
+            bookletData.value, // pass the booklet data to make sure we have the proper shape layout
+            bookletData.value.token_id,
         );
 
         return this._mintSet(TX, data, undefined);
