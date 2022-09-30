@@ -295,7 +295,7 @@ export class InspectInput extends MouseInputState {
         const newSet = setsManager.createLocalSet();
         for (const briq of this.fsm.store.selectionMgr.selectedBriqs)
             newSet.placeBriq(...briq.position, briq);
-        openSetInBuilder(newSet.id);
+        openSetInBuilder(newSet.id, true);
     }
 }
 

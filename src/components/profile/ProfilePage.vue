@@ -193,11 +193,7 @@ const {
                                 {{ creation.id }}
                                 <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
-                                    <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
-                                    <Btn no-background>(todo) Mint on chain</Btn>
-                                    <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
-                                    <Btn no-background>(TODO) Download</Btn>
-                                    <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                                    <Btn no-background>(TODO) Disassemble</Btn>
                                 </MenuDropdown>
                             </p>
                         </template>
@@ -229,11 +225,7 @@ const {
                                 {{ creation.id }}
                                 <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
-                                    <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
-                                    <Btn no-background>(todo) Mint on chain</Btn>
-                                    <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
-                                    <Btn no-background>(TODO) Download</Btn>
-                                    <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                                    <Btn no-background>(TODO) Disassemble</Btn>
                                 </MenuDropdown>
                             </p>
                         </template>

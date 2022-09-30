@@ -8,8 +8,11 @@ import { pushPopup } from '@/Notifications';
 import { router } from '@/Routes';
 
 export function useSetHelpers() {
-    const openSetInBuilder = (setId: string) => {
-        window.open(router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`, '_blank');
+    const openSetInBuilder = (setId: string, openInNewWindow?: boolean) => {
+        if (openInNewWindow)
+            window.open(router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`, '_blank');
+        else
+            router.push(router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`);
     }
 
     const createNewSet = () => setsManager.createLocalSet();
