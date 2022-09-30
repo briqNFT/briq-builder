@@ -269,9 +269,11 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     }
 }
 
+/*
 import * as Ammo2 from 'ammo.js';
 globalThis.Ammo = Ammo2;
 globalThis.Ammo();
+*/
 //globalThis.Ammo3 = globalThis.Ammo;
 //globalThis.Ammo = async () => globalThis.Ammo3;
 //globalThis.Ammo();
