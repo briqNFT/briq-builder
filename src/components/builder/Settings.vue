@@ -13,25 +13,10 @@ import { useStore } from 'vuex';
 import InputColor from '../generic/InputColor.vue';
 
 const store = useStore();
-
-const canvasSize = computed({
-    get: () => builderSettings.canvasSize * 2,
-    set(newSize: number) {
-        builderSettings.canvasSize = newSize / 2;
-    },
-});
-
 let initState: typeof builderSettings;
 
 const mayUndo = ref(false);
 onMounted(() => initState = JSON.parse(JSON.stringify(builderSettings)));
-onUnmounted(() => {
-    if (builderSettings.canvasSize != initState.canvasSize)
-        store.dispatch('builderData/set_canvas_size', {
-            value: builderSettings.canvasSize,
-            before: initState.canvasSize,
-        });
-}),
 watch(builderSettings, () => mayUndo.value = true, { deep: true });
 
 const resetToDefault = () => builderSettings.reset();

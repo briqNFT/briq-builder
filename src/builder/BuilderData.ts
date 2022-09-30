@@ -331,7 +331,7 @@ export const builderDataStore = (() => {
 
             // hack:
             set_canvas_size(state: unknown, data: { value: number; before: number }) {
-                builderSettings.canvasSize = data.value;
+                //builderSettings.canvasSize = data.value;
             },
         },
         getters: {},

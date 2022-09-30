@@ -10,7 +10,6 @@ class Settings {
     useSAO!: boolean;
     showBorders!: boolean;
     transparentBackground!: boolean;
-    canvasSize!: number;
 
     constructor() {
         this.reset();

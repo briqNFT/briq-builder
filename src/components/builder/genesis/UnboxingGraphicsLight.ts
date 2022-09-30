@@ -14,6 +14,8 @@ import {
 
 import { GLTFLoader } from '@/three';
 
+//import { Ammo } from 'three/addons/physics/AmmoPhysics.js';
+
 import HomeScene from '@/assets/genesis/briqs_box_xmas.glb?url';
 import BriqBox from '@/assets/genesis/briqs_box.glb?url';
 
@@ -174,8 +176,8 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
             render,
         };
 
-    briqCubes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.01, 0.01, 0.01, 2, 2, 2), new THREE.MeshStandardMaterial(), 100);
-    for (let i = 0; i < 100; ++i) {
+    briqCubes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.01, 0.01, 0.01, 2, 2, 2), new THREE.MeshStandardMaterial(), 300);
+    for (let i = 0; i < 300; ++i) {
         briqCubes.setMatrixAt(i, new THREE.Matrix4().setPosition(Math.random() * 0.1, Math.random() * 0.1, Math.random() * 0.1));
         briqCubes.setColorAt(i, new THREE.Color().setRGB(Math.random(), Math.random(), Math.random()))
     }
@@ -267,9 +269,23 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     }
 }
 
+import * as Ammo2 from 'ammo.js';
+globalThis.Ammo = Ammo2;
+globalThis.Ammo();
+//globalThis.Ammo3 = globalThis.Ammo;
+//globalThis.Ammo = async () => globalThis.Ammo3;
+//globalThis.Ammo();
 
+import { AmmoPhysics } from './AmmoPhysics.js';
+
+
+let physicsWorld: AmmoPhysics;
+
+let boxObject;
 export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     scene.clear();
+
+    physicsWorld = await AmmoPhysics();
 
     recreateRenderer(quality);
 
@@ -302,22 +318,41 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     light.shadow.bias = -0.001;
     light.shadow.normalBias = 0.08;
     light.shadow.camera.near = 0.03;
-    light.shadow.camera.far = 10;
+    light.shadow.camera.far = 40;
 
     light.castShadow = true;
     scene.add(light);
 
-    if (sceneBox)
+
+    const floor = new THREE.Mesh(
+        new THREE.BoxGeometry( 3, 1, 3 ),
+        new THREE.ShadowMaterial( { color: 0x111111 } ),
+    );
+    floor.receiveShadow = true;
+    floor.position.y = -1;
+    scene.add( floor );
+
+    physicsWorld.addMesh(floor);
+
+    /*
+    physicsWorld = new AmmoPhysics(scene);
+    // static ground
+    physicsWorld.add.ground({ x: 0, z: 0, y: -1 })
+
+    if (sceneBox) {
         scene.add(sceneBox);
+        sceneBox.add(briqCubes);
+        physicsWorld.add.existing(sceneBox);
+    }
+    */
 
     // Do an initial render pass to precompile shaders.
     composer.render(scene, camera);
 }
 
+let test;
 export function setBox(boxData: any) {
     const box = SkeletonUtils.clone(boxGlb.box) as THREE.Object3D;
-
-    box.add(briqCubes);
 
     let texturedMat;
     box.traverse(mesh => {
@@ -385,11 +420,63 @@ export function setBox(boxData: any) {
     sceneBox = box;
     // We need to add it because we're not re-creating the full scene.
     scene.add(sceneBox);
+    scene.add(briqCubes);
+
+    test = new THREE.Mesh(
+        new THREE.BoxGeometry(0.15, 0.35, 0.45),
+        new THREE.MeshBasicMaterial( { color: 0x441111 } ),
+    );
+    sceneBox.add(test);
+
+    {
+        const transform = new Ammo.btTransform();
+        transform.setIdentity();
+        const vec = new THREE.Vector3();
+        test.getWorldPosition(vec);
+        transform.setOrigin(new Ammo.btVector3(vec.x, vec.y, vec.z));
+        const quat = new THREE.Quaternion();
+        test.getWorldQuaternion(quat);
+        transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
+        const motionState = new physicsWorld.AmmoLib.btDefaultMotionState(transform);
+        const rbInfo = new physicsWorld.AmmoLib.btRigidBodyConstructionInfo(
+            0,
+            motionState,
+            new physicsWorld.AmmoLib.btBoxShape(new physicsWorld.AmmoLib.btVector3(0.075, 0.175, 0.225)),
+        );
+        const body = new physicsWorld.AmmoLib.btRigidBody(rbInfo);
+        body.setActivationState(4); // 4: disable deactivation
+        body.setCollisionFlags(2); // 2 is kinematic
+        physicsWorld.world.addRigidBody(body);
+        test.userData.physicsBody = body;
+    }
+
+    physicsWorld.addMesh(briqCubes, 1);
+
+
     return sceneBox;
 }
 
 
 export function graphicsFrame(delta: number) {
+    if (physicsWorld) {
+        physicsWorld.step(delta * 0.2);
+
+        const ms = test.userData.physicsBody.getMotionState();
+        if ( ms ) {
+            const transform = new Ammo.btTransform();
+            transform.setIdentity();
+            const vec = new THREE.Vector3();
+            test.getWorldPosition(vec);
+            transform.setOrigin(new Ammo.btVector3(vec.x, vec.y, vec.z));
+            const quat = new THREE.Quaternion();
+            test.getWorldQuaternion(quat);
+            transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
+
+            ms.setWorldTransform(transform);
+        }
+    }
+    //if (physicsWorld)
+    //physicsWorld.update(delta*100);
 }
 
 export function getBoxAt(event: PointerEvent) {
