@@ -31,8 +31,8 @@ defineProps<{
     <div :class="'item-card relative h-full' + status">
         <div class="bg-white rounded-md gap-1 shadow-sm h-full">
             <template v-if="status === 'LOADED'">
-                <p class="flex-1 min-h-0 min-w-0 flex justify-center items-center">
-                    <img class="min-h-0 min-w-0 h-[12rem]" :src="imageSrc">
+                <p class="min-h-0 min-w-0 flex justify-center items-center p-4 h-[12rem]">
+                    <img class="min-h-0 min-w-0" :src="imageSrc">
                 </p>
                 <h3 class="font-medium text-md px-4 break-all">{{ title }} </h3>
 

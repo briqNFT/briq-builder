@@ -23,6 +23,8 @@ import { router } from '@/Routes';
 import { chainBriqs } from '@/builder/ChainBriqs';
 import BookletCard from '../builder/genesis/BookletCard.vue';
 import GenericCard from '../builder/genesis/GenericCard.vue';
+import { backendManager } from '@/Backend';
+import { getCurrentNetwork } from '@/chain/Network';
 
 const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
 
@@ -58,13 +60,28 @@ const losingBids = computed(() => {
 
 const creations = computed(() => {
     return userSetStore.current?.sets.map(setId => {
-        const data = userSetStore.current?.setData[setId];
+        if (userSetStore.current?.setData[setId]?.booklet)
+            return undefined;
+        const data = userSetStore.current?.setData[setId]?.data;
         return {
             id: setId,
             name: data?.name || setId,
             nb_briqs: data?.getNbBriqs?.() || 0,
         }
-    }) || [];
+    }).filter(x => !!x) || [];
+})
+
+const officialCreations = computed(() => {
+    return userSetStore.current?.sets.map(setId => {
+        if (!userSetStore.current?.setData[setId]?.booklet)
+            return undefined;
+        const data = userSetStore.current?.setData[setId]?.data;
+        return {
+            id: setId,
+            name: data?.name || setId,
+            nb_briqs: data?.getNbBriqs?.() || 0,
+        }
+    }).filter(x => !!x) || [];
 })
 
 const userAddress = computed(() => maybeStore.value?.userWalletAddress);
@@ -149,7 +166,7 @@ const {
                 </div>
                 <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 my-8 z-50">
                     <div v-for="booklet of userBookletsStore.current?.booklets">
-                        <RouterLink :to="`user/set/${booklet}`">
+                        <RouterLink :to="`user/booklet/${booklet}`">
                             <BookletCard :box-id="booklet"/>
                         </RouterLink>
                     </div>
@@ -157,12 +174,40 @@ const {
             </div>
             <div>
                 <h3>Official Sets</h3>
-                <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any official Genesis sets.</p>
                     <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
                     <div class="mt-2 flex gap-2">
                         <Btn secondary>Browse the themes</Btn>
                     </div>
+                </div>
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 my-8 z-50">
+                    <GenericCard
+                        v-for="creation in officialCreations" :key="creation.id"
+                        @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
+                        :status="creation?.id ? 'LOADED' : 'FETCHING'"
+                        :title="creation.name"
+                        :image-src="backendManager.getPreviewUrl(creation.id)">
+                        <template #subtitle>
+                            <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
+                                {{ creation.id }}
+                                <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                    <template #button><i class="fas fa-ellipsis-h"/></template>
+                                    <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
+                                    <Btn no-background>(todo) Mint on chain</Btn>
+                                    <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
+                                    <Btn no-background>(TODO) Download</Btn>
+                                    <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                                </MenuDropdown>
+                            </p>
+                        </template>
+                        <template #content>
+                            <p class="flex justify-between text-sm">
+                                <span class="text-grad-dark">briqs used</span>
+                                <span class="font-semibold">{{ creation.nb_briqs }}</span>
+                            </p>
+                        </template>
+                    </GenericCard>
                 </div>
             </div>
             <div>
@@ -178,7 +223,7 @@ const {
                         @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
                         :status="creation?.id ? 'LOADED' : 'FETCHING'"
                         :title="creation.name"
-                        :image-src="undefined">
+                        :image-src="backendManager.getPreviewUrl(creation.id)">
                         <template #subtitle>
                             <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
                                 {{ creation.id }}

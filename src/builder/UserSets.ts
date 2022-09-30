@@ -3,6 +3,7 @@ import { blockchainProvider } from '@/chain/BlockchainProvider';
 import contractStore from '@/chain/Contracts';
 import { Notification } from '@/Notifications';
 import { getBookletData } from './BookletData';
+import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { SetData } from './SetData';
 
@@ -17,12 +18,19 @@ class UserSetStore implements perUserStorable {
         tx_hash: string,
     }};
 
-    _setData = {} as { [setId: string]: SetData };
+    _setData = {} as { [setId: string]: {
+            data: SetData,
+            booklet: string | undefined,
+        }
+    };
 
     _serialize() {
         const setData = {} as UserSetStore['setData'];
         for (const setId in this._setData)
-            setData[setId] = this._setData[setId].serialize();
+            setData[setId] = {
+                data: this._setData[setId].data.serialize(),
+                booklet: this._setData[setId].booklet,
+            }
         return {
             sets: this._sets,
             metadata: this.metadata,
@@ -34,7 +42,10 @@ class UserSetStore implements perUserStorable {
         this._sets = data.sets;
         this.metadata = data.metadata;
         for (const setId in data.setData)
-            this._setData[setId] = new SetData(setId).deserialize(data.setData[setId]);
+            this._setData[setId] = {
+                data: new SetData(setId).deserialize(data.setData[setId].data),
+                booklet: data.setData[setId].booklet,
+            }
     }
 
     _init() {
@@ -65,8 +76,13 @@ class UserSetStore implements perUserStorable {
         }
         const network = this.user_id.split('/')[0];
         for (const setId of this._sets)
-            if (!this._setData[setId])
-                this._setData[setId] = new SetData(setId).deserialize(await backendManager.fetch(`v1/metadata/${network}/${setId}.json`));
+            if (!this._setData[setId]) {
+                const data = await backendManager.fetch(`v1/metadata/${network}/${setId}.json`);
+                this._setData[setId] = {
+                    data: new SetData(setId).deserialize(data),
+                    booklet: data.booklet_id,
+                }
+            }
 
     }
 
@@ -88,6 +104,8 @@ class UserSetStore implements perUserStorable {
     async mintBookletSet(token_hint: string, data: any, booklet: string) {
         // Debug
         //downloadJSON(data, data.id + ".json")
+        const genesisStore = useGenesisStore();
+        const image = fetch(genesisStore.coverBookletRoute(booklet));
         const bookletData = (await getBookletData(booklet));
         const TX = await contractStore.set!.assemble(
             this.user_id.split('/')[1],
@@ -96,10 +114,16 @@ class UserSetStore implements perUserStorable {
             bookletData.value.token_id,
         );
 
-        return this._mintSet(TX, data, undefined);
+        const imageBlob = (await (await image).blob());
+        const image_base64 = await new Promise(yes => {
+            const reader = new FileReader() ;
+            reader.onload = x => yes(x);
+            reader.readAsDataURL(imageBlob);
+        });
+        return this._mintSet(TX, data, image_base64);
     }
 
-    async _mintSet(TX: any, data: any, image: string | undefined) {
+    async _mintSet(TX: any, data: any, image: string | undefined, booklet?: string) {
         // Send a hint to the backend.
         backendManager.storeSet({
             chain_id: this.user_id.split('/')[0],
@@ -109,7 +133,10 @@ class UserSetStore implements perUserStorable {
             image_base64: image,
         });
 
-        this._setData[data.id] = new SetData(data.id).deserialize(data);
+        this._setData[data.id] = {
+            data: new SetData(data.id).deserialize(data),
+            booklet: booklet,
+        }
         this.metadata[data.id] = {
             set_id: data.id,
             status: 'TENTATIVE',
@@ -123,7 +150,8 @@ class UserSetStore implements perUserStorable {
         const TX = await contractStore.set!.disassemble(
             this.user_id.split('/')[1],
             token_id,
-            this.setData[token_id],
+            this.setData[token_id].data,
+            this.setData[token_id].booklet,
         );
         this.metadata[token_id] = {
             set_id: token_id,

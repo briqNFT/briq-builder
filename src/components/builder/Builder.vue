@@ -44,7 +44,7 @@ onMounted(async () => {
             if (setsManager.getInfo(setId))
                 await selectSet(setsManager.getInfo(setId).getSet());
             else if (userSetStore.current?.setData[setId])
-                await selectSet(userSetStore.current.setData[setId]);
+                await selectSet(userSetStore.current.setData[setId].data);
             else {
                 // This is likely to fail but we won't care too much.
                 const data = new SetData(setId).deserialize(await backendManager.fetch(`v1/metadata/${getCurrentNetwork()}/${setId}.json`));

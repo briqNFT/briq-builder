@@ -92,7 +92,7 @@ export default class SetContract {
         for (const ft in fungibles)
             fts.push([ft, '' + fungibles[ft]]);
 
-        return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [] : [booklet]);
+        return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [booklet] : []);
     }
 
     async transferOneNFT(sender: string, recipient: string, token_id: string) {

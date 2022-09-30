@@ -1,6 +1,7 @@
 import { reactive, toRef, watch, WatchStopHandle } from 'vue'
 import type { SetsManager } from './SetsManager';
 import type { ChainSets } from './ChainSets';
+import { logDebug } from '@/Messages';
 
 class SetSync {
     localSets!: SetsManager;
@@ -17,16 +18,15 @@ class SetSync {
         watch([
             toRef(localSets, 'setsInfo'), toRef(chainSets, 'setData'),
         ], () => {
-            console.log('SET SYNC', localSets.setsInfo, chainSets.setData)
+            logDebug('SET SYNC', localSets.setsInfo, chainSets.setData)
             for (const sid in this.individualWatchers)
                 delete this.individualWatchers[sid];
             // TODO: be less wasteful
             this.sets.clear();
             localSets.setList.forEach(set => this.sets.add(set));
             chainSets.sets.forEach(set => this.sets.add(set));
-            console.log('SET SYNC - ', this.sets);
+            logDebug('SET SYNC - ', this.sets);
             this.sets.forEach(sid => {
-                console.log(localSets.setsInfo[sid], chainSets.setData[sid]);
                 // NB -> if we want longer-lived watchers, we'll have to change this.
                 watch([localSets.setsInfo[sid], chainSets.setData[sid]].filter(x => x), () => this.syncSetData(sid), { immediate: true });
             })
@@ -36,7 +36,7 @@ class SetSync {
     }
 
     syncSetData(sid: string) {
-        console.log('Watching', sid);
+        logDebug('Watching', sid);
     }
 }
 

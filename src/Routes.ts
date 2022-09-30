@@ -111,8 +111,8 @@ export const routes = [
         component: BoxPageVue,
     },
     {
-        path: '/user/set/:theme/:booklet',
-        name: 'UserSet',
+        path: '/user/booklet/:theme/:booklet',
+        name: 'UserBooklet',
         component: SetPageVue,
     },
     {

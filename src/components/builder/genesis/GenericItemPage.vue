@@ -51,8 +51,11 @@ p, :slotted(p) {
                 <div class="grid grid-cols-[8fr_4fr] gap-6 mb-8">
                     <div class="flex flex-col gap-6">
                         <div class="flex justify-center items-center min-h-[34rem] bg-grad-lightest rounded-lg border-grad-light border">
-                            <template v-if="status !== 'ERROR'">
+                            <template v-if="status === 'LOADED'">
                                 <slot name="image"/>
+                            </template>
+                            <template v-else-if="status === 'FETCHING'">
+                                <p>Loading image</p>
                             </template>
                             <div v-else><p>Error while loading data</p></div>
                         </div>

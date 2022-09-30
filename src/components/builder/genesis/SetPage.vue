@@ -8,42 +8,42 @@ import { useUnboxHelpers } from '@/builder/Unbox';
 import { useSetHelpers } from '../SetComposable';
 import { userSetStore } from '@/builder/UserSets';
 import { router } from '@/Routes';
-import { TWO } from 'starknet/dist/constants';
 import { Notification, notificationPopups } from '@/Notifications';
 import ProgressBar from '@/components/generic/ProgressBar.vue';
 import { useBooklet } from '../BookletComposable';
+import { backendManager } from '@/Backend';
 
 const route = useRoute();
-const mode = route.name === 'UserSet' ? 'OFFICIAL' : 'CREATION';
+const mode = route.name === 'UserBooklet' ? 'BOOKLET' : 'CREATION';
 
-const booklet_id = computed(() => `${route.params.theme}/${route.params.booklet}`);
+const booklet_id = computed(() => mode === 'BOOKLET' ? `${route.params.theme}/${route.params.booklet}` : userSetStore.current?.setData[route.params.set_id as string]?.booklet);
 
-// Data can be either a booklet data or a set data, depending.
+const set = computed(() => {
+    if (mode === 'BOOKLET')
+        return setsManager.getBookletSet(booklet_id.value);
+    return userSetStore.current?.setData[route.params.set_id as string].data;
+});
 
 const genesisStore = useGenesisStore();
 
-const bookletQuery = computed(() => mode === 'OFFICIAL' && genesisStore.metadata[booklet_id.value] || undefined);
+const bookletQuery = computed(() => booklet_id.value ? genesisStore.metadata[booklet_id.value] : undefined);
 const bookletData = computed(() => bookletQuery.value?._data);
 
 const minted = computed(() => {
     return !!userSetStore.current?.setData[route.params.set_id as string];
 })
 
-const set = computed(() => {
-    if (mode === 'OFFICIAL')
-        return setsManager.getBookletSet(booklet_id.value)
-    return userSetStore.current?.setData[route.params.set_id as string];
-});
-
 const { openSetInBuilder } = useSetHelpers();
 const { createBookletSet } = useUnboxHelpers();
 const createSet = () => {
-    openSetInBuilder(createBookletSet(bookletData.value?.name, booklet_id));
+    if (!bookletData.value)
+        return;
+    openSetInBuilder(createBookletSet(bookletData.value?.name, booklet_id.value!));
 }
 
-const {
-    shapeValidity,
-} = useBooklet(set, booklet_id);
+let bookletMetadata = undefined;
+if (booklet_id.value)
+    bookletMetadata = useBooklet(set, booklet_id);
 
 const disassemble = async () => {
     const TX = await userSetStore.current!.disassemble(route.params.set_id as string);
@@ -63,7 +63,7 @@ const disassemble = async () => {
 const attribs = [
     {
         name: 'Pieces',
-        value: bookletData.value?.briqs?.length || 0,
+        value: set.value?.getNbBriqs() || bookletData.value?.briqs?.length || 0,
     },
 ]
 
@@ -71,26 +71,30 @@ const attribs = [
 
 <template>
     <GenericItemPage
-        :status="bookletQuery?._status || 'FETCHING'"
-        :description="bookletData?.description"
+        :status="bookletQuery?._status || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
+        :description="set?.description || bookletData?.description"
         :attributes="attribs">
+        <template #image>
+            <img v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
+            <img v-else :src="backendManager.getPreviewUrl(set!.id)">
+        </template>
         <template #default>
             <h1>{{ set?.name || bookletData?.name }}</h1>
-            <template v-if="mode === 'OFFICIAL'">
+            <template v-if="mode === 'BOOKLET'">
                 <template v-if="!set">
                     <h4>Booklet</h4>
                     <h2>Unstarted booklet</h2>
-                    <p>Click on the button below to open the briq builder and mint your official set.</p>
+                    <p>Click on the button below to open the briq builder and mint your BOOKLET set.</p>
                     <Btn class="w-fit" @click="createSet()">Start building</Btn>
                 </template>
                 <template v-else>
-                    <h4>Official set</h4>
+                    <h4>Booklet set</h4>
                     <h2>Building progress</h2>
                     <p>
-                        {{ Math.floor(shapeValidity * 100) }}%
-                        <ProgressBar class="border-grad-darker border h-4" :percentage="shapeValidity*100"/>
+                        {{ Math.floor(bookletMetadata?.shapeValidity.value * 100) || 0 }}%
+                        <ProgressBar class="border-grad-darker border h-4" :percentage="bookletMetadata?.shapeValidity.value * 100 || 0"/>
                     </p>
-                    <p>Your official set is unfinished. Make sure that it has all the pieces positioned at the right place to have it completed.</p>
+                    <p>Your BOOKLET set is unfinished. Make sure that it has all the pieces positioned at the right place to have it completed.</p>
                     <Btn class="w-fit" @click="openSetInBuilder(set!.id)">Open in builder</Btn>
                 </template>
                 <h2>Want to list your booklet?</h2>
@@ -103,7 +107,7 @@ const attribs = [
                 </div>
             </template>
             <template v-else>
-                <h4>Custom creation</h4>
+                <h4>{{ booklet_id ? 'Official Set' : 'Custom creation' }}</h4>
                 <div v-if="!minted">
                     <h2>Want to sell your set?</h2>
                     <div class="flex gap-2"><Btn secondary>See on Aspect</Btn><Btn secondary>See on Mintsquare</Btn></div>
