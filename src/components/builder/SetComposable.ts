@@ -19,7 +19,7 @@ export function useSetHelpers() {
     const saveSetAndOpen = (set: SetData) => {
         // Have to force the dump to disk or the new window won't be able to find the set.
         synchronizeSetsLocally();
-        openSetInBuilder(set.id);
+        openSetInBuilder(set.id, true);
     }
 
     const duplicateSet = (set: SetData) => {

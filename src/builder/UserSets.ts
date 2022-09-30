@@ -147,11 +147,14 @@ class UserSetStore implements perUserStorable {
 
     async disassemble(token_id: string) {
         // TODO: find the booklet
+        let booklet_token_id;
+        if (this.setData[token_id].booklet)
+            booklet_token_id = (await getBookletData(this.setData[token_id].booklet)).value.token_id;
         const TX = await contractStore.set!.disassemble(
             this.user_id.split('/')[1],
             token_id,
             this.setData[token_id].data,
-            this.setData[token_id].booklet,
+            booklet_token_id,
         );
         this.metadata[token_id] = {
             set_id: token_id,
