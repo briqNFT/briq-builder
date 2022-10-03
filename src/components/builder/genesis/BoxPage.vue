@@ -15,6 +15,7 @@ import { useBids } from '@/components/BidComposable';
 
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { useUnboxHelpers } from '@/builder/Unbox';
+import { ExplorerTxUrl } from '@/chain/Explorer';
 
 const route = useRoute();
 const router = useRouter();
@@ -213,7 +214,7 @@ p {
                                     <p v-if="!hasBids">There are no bids on this item.</p>
                                     <a
                                         v-for="i in previousBids.slice(0, 10)" :key="i.bid_id"
-                                        :href="`https://${'goerli.'}voyager.online/tx/${i.bid_id}`" target="_blank"
+                                        :href="ExplorerTxUrl(i.tx_hash)" target="_blank"
                                         class="block border-b border-grad-light last:border-none px-4 py-3">
                                         <div class="flex justify-between">
                                             <p class="text-primary">{{ i.bidder.substring(0, 8) + "..." + i.bidder.slice(-8) }}</p>

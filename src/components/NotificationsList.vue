@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ExplorerTxUrl } from '@/chain/Explorer';
 import { notificationsManager } from '@/Notifications';
 import { computed } from 'vue';
 
@@ -38,7 +39,7 @@ const border = (i: number) => {
                     <template v-else-if="notif.type === 'rejected_bid'"/>
                     <p class="text-xs text-grad-dark mt-2 flex justify-between">
                         <span>{{ new Date(notif.timestamp).toLocaleString("en-uk", { dateStyle: "long", timeStyle: "short" }) }}</span>
-                        <span v-if="notif.data.tx_hash"><a :href="`https://goerli.voyager.online/tx/${notif.data.tx_hash}`" target="_blank" class="text-primary">TX</a></span>
+                        <span v-if="notif.data.tx_hash"><a :href="ExplorerTxUrl(notif.data.tx_hash)" target="_blank" class="text-primary">TX</a></span>
                     </p>
                 </div>
                 <p class="basis-[20px] text-right text-primary text-lg">{{ notif.read ? '' : '•' }}</p>
