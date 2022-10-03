@@ -139,7 +139,7 @@ const onCloseMenu = () => {
                     <hr>
                     <Btn no-background @click="!isRecording ? startRecording() : stopRecording()">{{ !isRecording ? 'Start Recording' : 'Stop Recording' }}</Btn>
                     <Btn @click="mode = 'SETTINGS'" no-background>Settings</Btn>
-                    <Btn no-background>Help</Btn>
+                    <a href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f" target="_blank"><Btn no-background>Help</Btn></a>
                 </template>
                 <template v-else>
                     <Settings/>

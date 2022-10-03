@@ -20,6 +20,7 @@ import ExportSetVue from './modals/ExportSet.vue';
 import { pushModal } from '../Modals.vue';
 import { useBooklet } from './BookletComposable';
 import { useStore } from 'vuex';
+import Hotkey from '../generic/Hotkey.vue';
 
 const { currentSet } = useBuilder();
 
@@ -115,6 +116,7 @@ const hideCameraFlyout = () => {
                 <UndoRedo no-background secondary class="flex-none px-1"/>
                 <div class="divider"/>
                 <Btn no-background @click="pushModal(ShortcutModal)"><i class="far fa-keyboard"/></Btn>
+                <Hotkey name="help" :data="{ key: '?', shift: true }" :handler="() => pushModal(ShortcutModal)"/>
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-center">
