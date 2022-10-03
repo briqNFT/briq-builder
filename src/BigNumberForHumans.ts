@@ -2,6 +2,7 @@ import { BigNumberish, toBN } from 'starknet/utils/number';
 
 const ONE_ETH = toBN('1000000000000000000');
 const GWEI_THRESHOLD = toBN('100000000000000'); // 100K GWEI
+const GWEI_THRESHOLD_DIV = toBN('1000000000000'); // 1K GWEI to get some remainders
 const WEI_THRESHOLD = toBN('1000000000'); // 1 GWEI
 
 // TODO: support limited precision, which is a much harder problem in general.
@@ -11,7 +12,7 @@ export function readableNumber(number: BigNumberish) {
         // Big enough to be shown in ETH.
         // Since the lib doesn't allow decimals, I'll just divide and print.
         try {
-            return (nb.div(GWEI_THRESHOLD).toNumber() / 10000).toString();
+            return (Math.ceil(nb.div(GWEI_THRESHOLD_DIV).toNumber())/1000000).toString();
         } catch(_) {
             // Number can't be represented in JS -> just print and cut the end.
             return nb.toString().slice(0, -18);

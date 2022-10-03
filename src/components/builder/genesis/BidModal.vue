@@ -5,7 +5,7 @@ import { Bid, userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
 import { toBN } from 'starknet/utils/number.js';
 import { useBids } from '@/components/BidComposable.js';
-import { fromETH } from '@/BigNumberForHumans';
+import { fromETH, readableNumber } from '@/BigNumberForHumans';
 import { pushPopup } from '@/Notifications';
 defineEmits(['close']);
 
@@ -19,7 +19,7 @@ const props = defineProps<{
 
 const { currentBid, currentBidString } = useBids(props.metadata.item);
 
-const bid = ref(undefined as undefined | string);
+const bid = ref(readableNumber(currentBid.value) || undefined as undefined | string);
 
 const weiBid = computed(() => {
     return fromETH(bid.value?.toString() || '0');
