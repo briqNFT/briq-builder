@@ -44,8 +44,8 @@ const { chainBriqs } = useBuilder();
             </div>
             <div class="flex items-stretch gap-2">
                 <div class="flex gap-1 md:gap-6 mx-2 md:mr-4 flex-wrap justify-center items-center md:justify-end text-sm md:text-md font-medium">
+                    <routerLink to="/"><p class="hover:text-primary">Home</p></routerLink>
                     <routerLink to="/themes"><p class="hover:text-primary">Themes</p></routerLink>
-                    <routerLink to="/builder"><p class="hover:text-primary">Create</p></routerLink>
                     <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank"><p class="hover:text-primary">Resources</p></a>
                 </div>
                 <router-link v-if="userBoxesStore.current?.availableBoxes?.length" to="/unboxing">
@@ -70,6 +70,7 @@ const { chainBriqs } = useBuilder();
                 <template v-else>
                     <Btn class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
                 </template>
+                <routerLink to="/builder"><Btn>Create</Btn></routerLink>
             </div>
         </div>
     </div>
