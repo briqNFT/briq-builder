@@ -92,10 +92,10 @@ const replaceColor = async (key: string) => {
 };
 
 const paletteLayout = computed(() => {
-    return 'grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] max-h-[50vh] overflow-y-scroll'
+    return 'grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] max-h-[50vh] overflow-y-auto'
 });
 const setBriqLayout = computed(() => {
-    return 'grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] max-h-[50vh] overflow-y-scroll'
+    return 'grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] max-h-[50vh] overflow-y-auto'
 });
 </script>
 
@@ -108,36 +108,39 @@ const setBriqLayout = computed(() => {
                     <h3>Palette</h3>
                     <div :class="paletteLayout">
                         <p v-for="[key, material, color, name] in choices" class="my-1" :key="key">
-                            <Btn tooltip="Remove from palette"
+                            <Btn
+                                tooltip="Remove from palette"
                                 no-style="true"
                                 :class="'font-semibold '"
                                 @click="deleteChoice(key)">
                                 <i class="fas fa-times"/>
                             </Btn>
-                            <Btn tooltip="Choose a new color based on this one"
+                            <Btn
+                                tooltip="Choose a new color based on this one"
                                 no-style="true"
                                 :class="'ml-1 font-semibold '"
                                 @click="addChoice(color)">
-                                <i class="far fa-copy"></i>
+                                <i class="far fa-copy"/>
                             </Btn>
                             <span
                                 class="w-6 h-6 mx-1 inline-flex justify-center align-center font-bold"
                                 :style="{ borderRadius: '50%', backgroundColor: color, textShadow: '1px 1px 1px rgba(0, 0, 0, 0.4)' }">{{ setColors[key] ?? 0 }}</span>
                             <span class="font-mono">
                                 <Tooltip :tooltip="getNameFromMaterial(material)">
-                                    <component class="inline-block h-4 w-4 drop-shadow-sm" :is="getIconFromMaterial(material)"></component>
+                                    <component class="inline-block h-4 w-4 drop-shadow-sm" :is="getIconFromMaterial(material)"/>
                                 </Tooltip>
                                 {{ name }}</span>
                         </p>
                     </div>
                 </div>
                 <div class="flex gap-1 flex-wrap justify-around">
-                    <Btn class="grow" @click="addChoice()"><i class="fas fa-add"></i> Add new choice</Btn>
-                    <Btn class="grow" @click="resetAll"><i class="fas fa-power-off"></i> Reset to default colors</Btn>
-                    <Btn class="grow"
+                    <Btn class="grow" @click="addChoice()"><i class="fas fa-add"/> Add new choice</Btn>
+                    <Btn class="grow" @click="resetAll"><i class="fas fa-power-off"/> Reset to default colors</Btn>
+                    <Btn
+                        class="grow"
                         :disabled="!store.state.builderData.currentSet.getNbBriqs()"
                         @click="keepActive">
-                        <i class="fa-solid fa-compress"></i> Keep only used colors
+                        <i class="fa-solid fa-compress"/> Keep only used colors
                     </Btn>
                 </div>
             </div>
@@ -146,7 +149,8 @@ const setBriqLayout = computed(() => {
                     <h3>Used in the current set</h3>
                     <div :class="setBriqLayout">
                         <p v-for="[key, material, color, name] in setChoices" class="my-1" :key="key">
-                            <Btn no-style="true" :class="'mx-1 font-semibold' + (palette.choices.indexOf(key) !== -1 ? ' text-gray-500' : '')"
+                            <Btn
+                                no-style="true" :class="'mx-1 font-semibold' + (palette.choices.indexOf(key) !== -1 ? ' text-gray-500' : '')"
                                 tooltip="Add to palette" @click="palette.addChoice(material, color, name)"
                                 :disabled="palette.choices.indexOf(key) !== -1">
                                 <i class="fas fa-add"/>
@@ -161,7 +165,7 @@ const setBriqLayout = computed(() => {
                         </p>
                     </div>
                     <div class="flex gap-1 flex-wrap justify-around">
-                        <Btn class="flex-grow" @click="addAllActive" :disabled="anySetChoiceNotInPalette"><i class="fas fa-add"></i> Add all to palette</Btn>
+                        <Btn class="flex-grow" @click="addAllActive" :disabled="anySetChoiceNotInPalette"><i class="fas fa-add"/> Add all to palette</Btn>
                     </div>
                 </div>
             </div>
