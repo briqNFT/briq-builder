@@ -94,6 +94,7 @@ const {
     openSetInBuilder,
     duplicateSet,
     deleteLocalSet,
+    disassembleSet,
 } = useSetHelpers();
 </script>
 
@@ -193,7 +194,7 @@ const {
                                 {{ creation.id }}
                                 <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
-                                    <Btn no-background>(TODO) Disassemble</Btn>
+                                    <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
                                 </MenuDropdown>
                             </p>
                         </template>
@@ -225,7 +226,7 @@ const {
                                 {{ creation.id }}
                                 <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
-                                    <Btn no-background>(TODO) Disassemble</Btn>
+                                    <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
                                 </MenuDropdown>
                             </p>
                         </template>

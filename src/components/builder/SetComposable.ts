@@ -3,9 +3,10 @@ import { setsManager, synchronizeSetsLocally } from '@/builder/SetsManager';
 import { useRouter } from 'vue-router';
 import TextModalVue from '../generic/TextModal.vue';
 import { pushModal } from '../Modals.vue';
-import { pushPopup } from '@/Notifications';
+import { Notification, pushPopup } from '@/Notifications';
 
 import { router } from '@/Routes';
+import { userSetStore } from '@/builder/UserSets';
 
 export function useSetHelpers() {
     const openSetInBuilder = (setId: string, openInNewWindow?: boolean) => {
@@ -41,11 +42,28 @@ export function useSetHelpers() {
         }
     };
 
+    const disassembleSet = async (setId: string) => {
+        const TX = await userSetStore.current!.disassemble(setId);
+        router.push({ name: 'Profile' });
+        const notif = new Notification({
+            type: 'set_delete_sent',
+            title: 'Disassembling set',
+            level: 'info',
+            data: {
+                tx_hash: TX.transaction_hash,
+            },
+            read: false,
+        }).push();
+        notif.read = true;
+    }
+
+
     return {
         createNewSet,
         openSetInBuilder,
         saveSetAndOpen,
         duplicateSet,
         deleteLocalSet,
+        disassembleSet,
     }
 }

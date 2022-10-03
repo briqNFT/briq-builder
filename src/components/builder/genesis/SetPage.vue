@@ -33,7 +33,7 @@ const minted = computed(() => {
     return !!userSetStore.current?.setData[route.params.set_id as string];
 })
 
-const { openSetInBuilder } = useSetHelpers();
+const { openSetInBuilder, disassembleSet } = useSetHelpers();
 const { createBookletSet } = useUnboxHelpers();
 const createSet = () => {
     if (!bookletData.value)
@@ -44,21 +44,6 @@ const createSet = () => {
 let bookletMetadata = undefined;
 if (booklet_id.value)
     bookletMetadata = useBooklet(set, booklet_id);
-
-const disassemble = async () => {
-    const TX = await userSetStore.current!.disassemble(route.params.set_id as string);
-    router.push({ name: 'Profile' });
-    const notif = new Notification({
-        type: 'set_delete_sent',
-        title: 'Disassembling set',
-        level: 'info',
-        data: {
-            tx_hash: TX.transaction_hash,
-        },
-        read: false,
-    }).push();
-    notif.read = true;
-}
 
 const attribs = [
     {
@@ -115,7 +100,7 @@ const attribs = [
                 <div v-else-if="minted">
                     <h2>Want to disassemble your set?</h2>
                     <p>Once you do it you will get all the briqs back but the set will be destroyed. Note that there is no way back.  </p>
-                    <Btn secondary @click="disassemble">Disassemble</Btn>
+                    <Btn secondary @click="disassembleSet(set!.id)">Disassemble</Btn>
                 </div>
             </template>
         </template>
