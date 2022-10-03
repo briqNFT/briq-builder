@@ -110,7 +110,7 @@ const makeBid = async () => {
                 Your transaction has been sent and should be confirmed shortly.
             </p>
             <p>TX hash: {{ ongoingBid?.tx_hash }}</p>
-            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">StarkScan</a></p>
+            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">Starkscan</a></p>
 
             <p>You can now close this pop-up.</p>
         </div>
@@ -123,7 +123,7 @@ const makeBid = async () => {
                 In a few more seconds, it will appear in the list of bids.
             </p>
             <p>Come back in X hours and check if you've won!</p>
-            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">StarkScan</a></p>
+            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">Starkscan</a></p>
 
             <p>You can now close this pop-up.</p>
         </div>
@@ -133,7 +133,7 @@ const makeBid = async () => {
         <div class="flex flex-col gap-8">
             <p>Your bid of {{ 3.24 }} <i class="fa-brands fa-ethereum"/> is confirmed.</p>
             <p>Come back in X hours and check if you've won!</p>
-            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">StarkScan</a></p>
+            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">Starkscan</a></p>
 
             <p>You can now close this pop-up.</p>
         </div>

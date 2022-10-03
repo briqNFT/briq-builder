@@ -111,7 +111,7 @@ const makeBid = async () => {
                 You can check the status of your transaction from the profile dropdown.
             </p>
 
-            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">StarkScan</a></p>
+            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">Starkscan</a></p>
 
             <p>You can now close this pop-up.</p>
         </div>
@@ -121,7 +121,7 @@ const makeBid = async () => {
         <div class="flex flex-col gap-8">
             <p>Congratulations! You are now the proud owner of a briq Genesis Set.</p>
 
-            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">StarkScan</a></p>
+            <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)">Starkscan</a></p>
 
             <p>You can now close this pop-up.</p>
         </div>
