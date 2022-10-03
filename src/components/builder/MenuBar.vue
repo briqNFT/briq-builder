@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import UndoRedo from './UndoRedo.vue';
 
-import HistoryLog from './modals/HistoryLog.vue';
+import ShortcutModal from './modals/ShortcutModal.vue';
 import MenuDropdown from '../generic/MenuDropdown.vue';
 import NotificationsMenu from '../NotificationsMenu.vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
@@ -113,13 +113,8 @@ const hideCameraFlyout = () => {
                 </div>
                 <div class="divider"/>
                 <UndoRedo no-background secondary class="flex-none px-1"/>
-                <Btn no-background secondary tooltip="Open the undo/redo history log" @click="pushModal(HistoryLog)">
-                    <i class="fas fa-history"/>
-                </Btn>
                 <div class="divider"/>
-                <a href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f" target="_blank">
-                    <Btn icon no-background secondary tooltip="Access the briq help"><i class="far fa-circle-question"/> Help</Btn>
-                </a>
+                <Btn no-background @click="pushModal(ShortcutModal)"><i class="far fa-keyboard"/></Btn>
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-center">
