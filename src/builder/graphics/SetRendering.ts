@@ -160,6 +160,18 @@ function updateBounds(pos) {
     bounds.max = [0, 1, 2].map(i => Math.max(pos[i], bounds.max[i]));
 }
 
+/**
+ * TODO: this doesn't follow the separation logic between builder and builder data.
+ * It shouldn't pull from setsmanager
+ */
+function recalculateBounds() {
+    bounds.min = undefined; //new THREE.Vector3(0, 0, 0);
+    bounds.max = undefined; //new THREE.Vector3(0, 0, 0);
+    setsManager.getInfo(currentSet).getSet().forEach((_, pos) => {
+        updateBounds(pos);
+    });
+}
+
 export function handleActions(dispatchedActions: Array<{ action: string; payload: any }>) {
     for (const item of dispatchedActions)
         if (item.action === 'select_set') {
@@ -178,7 +190,10 @@ export function handleActions(dispatchedActions: Array<{ action: string; payload
             const data = item.payload;
             if (data.set !== currentSet)
                 continue;
-            updateBounds(data.position);
+            if (item.action === 'remove_briq')
+                recalculateBounds();
+            else
+                updateBounds(data.position);
             if (data?.briq?.id)
                 // NFT
                 if (item.action === 'remove_briq')
@@ -218,5 +233,6 @@ export function handleActions(dispatchedActions: Array<{ action: string; payload
 }
 
 import { ShaderGrid } from './ShaderGrid';
+import { setsManager } from '../SetsManager';
 
 export const grid = new ShaderGrid();
