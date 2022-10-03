@@ -38,7 +38,7 @@ function builderConf() {
 function getCanvasSize() {
     if (!bounds.min)
         return 5;
-    return Math.max(5, Math.max([0, 1, 2].map(i => bounds.max[i] - bounds.min[i])));
+    return Math.max(5, ...[0, 1, 2].map(i => bounds.max[i] - bounds.min[i]));
 }
 
 /*
