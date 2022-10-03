@@ -7,10 +7,10 @@ export function useBuilderInput() {
         place: 'place',
         place_multi: 'place',
         place_nft: 'place',
-        paint: 'place',
-        paint_multi: 'place',
-        erase: 'place',
-        erase_multi: 'place',
+        paint: 'paint',
+        paint_multi: 'paint',
+        erase: 'erase',
+        erase_multi: 'erase',
         inspect: 'select',
         inspect_va: 'select',
         inspect_box: 'select',
@@ -19,7 +19,7 @@ export function useBuilderInput() {
         copy_paste: 'select',
         camera: 'camera',
         camera_select: 'camera',
-    })[inputStore.currentInput] as 'place' | 'select' | 'camera' | undefined);
+    })[inputStore.currentInput] as 'place' | 'paint' | 'erase' | 'select' | 'camera' | undefined);
 
     const switchToState = (state: string, data?: any) => {
         builderInputFsm.switchTo(state, data);

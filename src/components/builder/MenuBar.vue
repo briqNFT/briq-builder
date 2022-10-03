@@ -123,16 +123,16 @@ const hideCameraFlyout = () => {
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-center">
-            <div class="border bg-grad-lightest rounded-md flex gap-2 px-2 py-1">
+            <div class="border bg-grad-lightest rounded-md flex gap-1 px-2 py-1">
                 <Btn no-background @click="switchToState('inspect')" :force-active="activeInputButton === 'select'"><i class="fas fa-mouse-pointer"/></Btn>
                 <Btn no-background @click="switchToState('place')" :force-active="activeInputButton === 'place'"><i class="fas fa-cube"/></Btn>
+                <Btn no-background @click="switchToState('paint')" :force-active="activeInputButton === 'paint'"><i class="fas fa-paint-roller"/></Btn>
+                <Btn no-background @click="switchToState('erase')" :force-active="activeInputButton === 'erase'"><i class="fas fa-eraser"/></Btn>
                 <Btn
                     ref="cameraButton"
                     no-background
                     @click="switchToState('camera')"
-                    :force-active="activeInputButton === 'camera'"
-                    @pointerenter="showCameraFlyout"
-                    @pointerleave="hideCameraFlyout">
+                    :force-active="activeInputButton === 'camera'">
                     <i class="fas fa-video"/>
                 </Btn>
             </div>
