@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { h, ref  } from 'vue';
+import {  ref  } from 'vue';
 import NotificationPopup from './NotificationPopup.vue';
-import { notificationPopups, pushPopup } from '@/Notifications';
+import { notificationPopups } from '@/Notifications';
 
 const computeTopPos = () => Math.max(0, parseFloat(getComputedStyle(document.documentElement).fontSize) * 4 - window.scrollY);
 const topPos = ref(computeTopPos());

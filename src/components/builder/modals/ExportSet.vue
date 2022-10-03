@@ -8,10 +8,10 @@ import contractStore from '@/chain/Contracts';
 import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
 import Window from '@/components/generic/Window.vue';
-import { pushPopup } from '@/Notifications';
+import { HashVue, pushPopup } from '@/Notifications';
 import { logDebug } from '@/Messages';
 import { downloadJSON } from '@/url';
-import { computed, ref, toRef, watch } from 'vue';
+import { computed, h, ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useScreenshotHelpers } from '../ScreenshotComposable';
 import { userSetStore } from '@/builder/UserSets';
@@ -149,7 +149,7 @@ const startMinting = async () => {
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
 
-        pushPopup('success', 'Set exported', `Set exported ${data.id} - TX ${TX.transaction_hash}`);
+        pushPopup('success', 'Set exported', h('div', [h('p', `Set '${data.name}' exported`), HashVue(TX.transaction_hash)]));
         logDebug('Set exported ' + data.id);
 
         setsManager.deleteLocalSet(setData.value.id);

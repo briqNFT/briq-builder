@@ -8,7 +8,7 @@ import { userBalance } from '@/builder/UserBalance.js';
 import { toBN } from 'starknet/utils/number.js';
 import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { Purchase, userPurchaseStore } from '@/builder/UserPurchase';
-import { pushPopup } from '@/Notifications';
+import { HashVue, pushPopup } from '@/Notifications';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 defineEmits(['close']);
 
@@ -63,7 +63,7 @@ const makeBid = async () => {
         let purchase = await userPurchaseStore.current!.makePurchase(props.metadata.item, weiPrice.value.toString())
         ongoingBidData.value = purchase.tx_hash;
         step.value = 'PROCESSING';
-        pushPopup('info', 'Transaction sent', `Transaction was sent.\nHash: ${purchase.tx_hash}`)
+        pushPopup('info', 'Transaction sent', HashVue(purchase!.tx_hash));
         let watcher: any;
         watcher = watchEffect(() => {
             if (ongoingBid.value?.status === 'CONFIRMED') {

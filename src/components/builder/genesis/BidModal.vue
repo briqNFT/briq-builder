@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, Ref, ref, watchEffect } from 'vue';
+import { computed, h, Ref, ref, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
 import { Bid, userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
 import { toBN } from 'starknet/utils/number.js';
 import { useBids } from '@/components/BidComposable.js';
 import { fromETH, readableNumber } from '@/BigNumberForHumans';
-import { pushPopup } from '@/Notifications';
+import { HashVue, pushPopup } from '@/Notifications';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 defineEmits(['close']);
 
@@ -59,7 +59,8 @@ const makeBid = async () => {
         let newBid = await userBidsStore.current?.makeBid(weiBid.value, props.metadata.item);
         ongoingBidData.value = newBid;
         step.value = 'PROCESSING';
-        pushPopup('info', 'Transaction sent', `Transaction was sent.\nHash: ${newBid?.tx_hash}`);
+        pushPopup('info', 'Transaction sent', HashVue(newBid!.tx_hash));
+
         let watcher: any;
         watcher = watchEffect(() => {
             if (ongoingBid.value?.status === 'PENDING')

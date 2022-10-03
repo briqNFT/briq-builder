@@ -3,6 +3,7 @@ import { maybeStore } from './chain/WalletLoading';
 import { logDebug } from './Messages';
 
 import { hexUuid } from '@/Uuid';
+import { ExplorerTxUrl } from './chain/Explorer';
 
 export type NotificationLevel = 'info' | 'warning' | 'success' | 'error';
 
@@ -22,6 +23,17 @@ export function pushPopup(level = 'info' as NotificationLevel, title: string, me
         title,
         component: typeof message === 'string' ? h('p', { class: 'whitespace-pre' }, message) : message,
     })
+}
+
+export function HashVue(tx_hash: string) {
+    return h('p', [
+        'Hash: ',
+        h('a', {
+            class: 'text-primary',
+            href: ExplorerTxUrl(tx_hash),
+        }, [`${tx_hash.slice(0, 6)}...${tx_hash.slice(-4)}`],
+        ),
+    ]);
 }
 
 const NOTIFICATION_STORAGE_VERSION = 1;
