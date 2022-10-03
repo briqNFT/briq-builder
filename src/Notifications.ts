@@ -31,6 +31,7 @@ export function HashVue(tx_hash: string) {
         h('a', {
             class: 'text-primary',
             href: ExplorerTxUrl(tx_hash),
+            target: '_blank',
         }, [`${tx_hash.slice(0, 6)}...${tx_hash.slice(-4)}`],
         ),
     ]);
