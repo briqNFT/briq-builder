@@ -125,7 +125,7 @@ const getMovementHelperMesh = (() => {
 })();
 
 export class InspectInput extends MouseInputState {
-    gui!: { briq: Briq | undefined; curX: number; curY: number; focusPos: THREE.Vector3 | undefined };
+    declare gui: { briq: Briq | undefined; curX: number; curY: number; focusPos: THREE.Vector3 | undefined };
 
     lastClickPos: [number, number, number] | undefined;
 

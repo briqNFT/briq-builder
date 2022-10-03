@@ -5,6 +5,7 @@ import type { BuilderInputFSM } from '../BuilderInput';
 export abstract class BuilderInputState {
     fsm: BuilderInputFSM;
     canvas: HTMLCanvasElement;
+    gui: any;
 
     constructor(fsm: BuilderInputFSM, canvas: HTMLCanvasElement) {
         this.fsm = fsm;
