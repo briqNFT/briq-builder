@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import WebGLCanvas from './../WebGLCanvas.vue';
 import Modals from '../../Modals.vue';
-import Messages from '../../Messages.vue';
 import SplashScreen from './../SplashScreen.vue';
 import AlphaBanner from '../../AlphaBanner.vue';
-import AlphaLogo from './../AlphaLogo.vue';
 import { toBN } from '@/starknet_wrapper';
 import { backendManager } from '@/Backend';
 </script>

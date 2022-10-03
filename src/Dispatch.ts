@@ -10,7 +10,6 @@ import BuilderVue from './components/builder/Builder.vue';
 import AdminVue from './components/Admin.vue';
 import DebugVue from './components/debug/Debug.vue';
 import ShareVue from './components/builder/share/Share.vue';
-import GalleryVue from './components/builder/gallery/Gallery.vue';
 import * as walletModule from '@/chain/Wallet';
 import _contractStore from './chain/Contracts';
 import UnboxingVue_ from './components/builder/genesis/UnboxingLight.vue';
@@ -22,7 +21,6 @@ export const Builder = BuilderVue;
 export const Admin = AdminVue;
 export const Debug = DebugVue;
 export const Share = ShareVue;
-export const Gallery = GalleryVue;
 export const Store = StoreModule;
 export const Wallet = walletModule;
 

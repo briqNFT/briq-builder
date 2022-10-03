@@ -73,14 +73,6 @@ export const routes = [
         },
     },
     {
-        path: '/gallery',
-        name: 'Gallery',
-        component: async () => {
-            await loadExtraPages();
-            return loader.Gallery;
-        },
-    },
-    {
         path: '/profile/:address?',
         name: 'Profile',
         component: ProfilePageVue,
