@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { backendManager } from '@/Backend';
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import builderSettings from '@/builder/graphics/Settings';
 import { SetData } from '@/builder/SetData';
 import { setsManager } from '@/builder/SetsManager';
 import contractStore from '@/chain/Contracts';
-import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
 import Window from '@/components/generic/Window.vue';
 import { HashVue, pushPopup } from '@/Notifications';
@@ -36,6 +34,8 @@ const {
     getStepImgSrc,
 } = useBooklet();
 
+// Reload the briqs on-chain in case there was an update.
+chainBriqs.value?.loadFromChain();
 
 const store = useStore();
 
@@ -72,7 +72,7 @@ const downloadSet = () => {
 
 // To check for real briqs, attempt to convert the set (do this separately for serialization reasons).
 const exportSet = ref(undefined as undefined | SetData);
-watch([setData, toRef(chainBriqs, 'byMaterial')], () => {
+watch([setData, toRef(chainBriqs.value, 'byMaterial')], () => {
     let data = setData.value.serialize();
     let es = new SetData(data.id);
     es.deserialize(data);
@@ -85,6 +85,7 @@ watch([setData, toRef(chainBriqs, 'byMaterial')], () => {
     exportSet.value = es;
 }, {
     immediate: true,
+    deep: true,
 })
 
 const hasSigner = computed(() => !!(maybeStore.value?.signer));

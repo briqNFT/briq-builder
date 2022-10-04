@@ -91,8 +91,10 @@ class NotificationManager {
 
     push(notif: Notification, maybePopup = false) {
         this.notifications.push(notif);
-        if (!notif.read && maybePopup)
+        if (!notif.read && maybePopup) {
             pushPopup(notif.level, notif.title, h('p', notif.data))
+            notif.read = true;
+        }
     }
 
     _setupDiskSync() {
