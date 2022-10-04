@@ -18,6 +18,10 @@ class BlockchainProvider {
         return (await this.provider.getTransactionReceipt(tx_hash))?.status || 'NOT_RECEIVED';
     }
 
+    async getTransactionReceipt(tx_hash: string) {
+        return this.provider.getTransactionReceipt(tx_hash);
+    }
+
     getTransaction(tx_hash: string) {
         return this.provider.getTransaction(tx_hash);
     }
