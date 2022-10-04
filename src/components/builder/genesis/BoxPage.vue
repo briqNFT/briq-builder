@@ -244,9 +244,9 @@ p {
                         </template>
                         <template v-else>
                             <div>
-                                <h2>Auction starts on</h2>
+                                <h2>{{ saledata?.total_quantity === 1 ? 'Auction' : 'Sale' }} starts on</h2>
                                 <p class="my-4">
-                                    July 1, 2022 at 11:32 AM GMT+1
+                                    (TODO) July 1, 2022 at 11:32 AM GMT+1
                                 </p>
                                 <div class="grid grid-cols-4 auction-countdown">
                                     <div
@@ -259,7 +259,7 @@ p {
                                 <template v-if="saledata?.total_quantity > 1">
                                     <div>
                                         <h2>Starting price</h2>
-                                        <p class="text-xl font-medium">1 <i class="fa-brands fa-ethereum"/></p>
+                                        <p class="text-xl font-medium">{{ readableNumber(saledata?.price) }} {{ readableUnit(saledata?.price) }}</p>
                                     </div>
                                 </template>
                             </div>

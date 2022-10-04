@@ -59,6 +59,10 @@ export class SaleData {
             this[key] = saledata[key];
     }
 
+    startIn() {
+        return this.auction_start - Date.now() / 1000;
+    }
+
     durationLeft() {
         return this.auction_start + this.auction_duration - Date.now() / 1000;
     }

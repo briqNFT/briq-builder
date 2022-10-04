@@ -15,13 +15,13 @@ export function useBoxData(tokenName: string) {
     const saleQuery = computed(() => genesisStore.saledata[tokenName]);
     const saledata = computed(() => saleQuery.value?._data);
 
+    const durationLeft = computed(() => saledata.value?.durationLeft());
+
     const getActualMode = (mode?: CARD_MODES) => computed(() => {
         if (mode !== 'AUTO')
             return mode;
-        return 'SALE';
+        return saledata.value?.isLive() ? 'SALE' : 'PRESALE';
     });
-
-    const durationLeft = computed(() => saledata.value?.durationLeft());
 
     return {
         genesisStore,

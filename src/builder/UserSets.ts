@@ -77,13 +77,14 @@ class UserSetStore implements perUserStorable {
         }
         const network = this.user_id.split('/')[0];
         for (const setId of this._sets)
-            if (!this._setData[setId]) {
-                const data = await backendManager.fetch(`v1/metadata/${network}/${setId}.json`);
-                this._setData[setId] = {
-                    data: new SetData(setId).deserialize(data),
-                    booklet: data.booklet_id,
-                }
-            }
+            if (!this._setData[setId])
+                try {
+                    const data = await backendManager.fetch(`v1/metadata/${network}/${setId}.json`);
+                    this._setData[setId] = {
+                        data: new SetData(setId).deserialize(data),
+                        booklet: data.booklet_id,
+                    }
+                } catch(_) { /* ignored */}
     }
 
     onEnter() {
