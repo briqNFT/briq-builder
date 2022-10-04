@@ -21,11 +21,11 @@ p :last-child {
         <div class="grid md:grid-cols-2 gap-16">
             <div>
                 <h3>Tools</h3>
-                <p><span>Selection Tool</span><span>1</span></p>
-                <p><span>Place Tool</span><span>2</span></p>
-                <p><span>Paint Tool</span><span>3</span></p>
-                <p><span>Erase Tool</span><span>4</span></p>
-                <p><span>Camera Tool</span><span>5</span></p>
+                <p><span>Select</span><span>1</span></p>
+                <p><span>Place</span><span>2</span></p>
+                <p><span>Paint</span><span>3</span></p>
+                <p><span>Erase</span><span>4</span></p>
+                <p><span>Camera</span><span>5</span></p>
 
                 <h3>Global shortcuts</h3>
                 <p><span>Move Camera</span><span>Left click + Drag</span></p>
