@@ -132,6 +132,11 @@ const hideCameraFlyout = () => {
                     :force-active="activeInputButton === 'camera'">
                     <i class="fas fa-video"/>
                 </Btn>
+                <Hotkey name="group-1" :data="{ code: 'Digit1', onDown: true }" :handler="() => switchToState('inspect')"/>
+                <Hotkey name="group-2" :data="{ code: 'Digit2', onDown: true }" :handler="() => switchToState('place')"/>
+                <Hotkey name="group-3" :data="{ code: 'Digit3', onDown: true }" :handler="() => switchToState('paint')"/>
+                <Hotkey name="group-4" :data="{ code: 'Digit4', onDown: true }" :handler="() => switchToState('erase')"/>
+                <Hotkey name="group-5" :data="{ code: 'Digit5', onDown: true }" :handler="() => switchToState('camera')"/>
             </div>
         </div>
         <div class="flex-1 basis-1 flex justify-end">
