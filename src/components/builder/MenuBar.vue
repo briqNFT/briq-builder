@@ -144,7 +144,7 @@ const hideCameraFlyout = () => {
                         <briqIcon class="inline-block"/> {{ chainBriqs?.getNbBriqs() }}
                     </div>
                     <div>
-                        <MenuDropdown no-background icon :close-on-click="true" class="text-xs">
+                        <MenuDropdown no-background icon class="text-xs">
                             <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
                             <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
                             <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>

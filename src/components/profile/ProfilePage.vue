@@ -192,7 +192,7 @@ const {
                         <template #subtitle>
                             <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
                                 {{ creation.id }}
-                                <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
                                     <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
                                 </MenuDropdown>
@@ -224,7 +224,7 @@ const {
                         <template #subtitle>
                             <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
                                 {{ creation.id }}
-                                <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
                                     <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
                                 </MenuDropdown>
@@ -260,7 +260,7 @@ const {
                         <template #subtitle>
                             <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
                                 {{ creation.id }}
-                                <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
                                     <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
                                     <Btn no-background>(todo) Mint on chain</Btn>
@@ -339,7 +339,7 @@ const {
                     <h4 class="font-semibold">{{ creation.name }}</h4>
                     <p class="text-xs break-all text-grad-dark flex justify-between">
                         {{ creation.id }}
-                        <MenuDropdown no-background no-marker :close-on-click="true" class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                        <MenuDropdown no-background no-marke class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                             <template #button><i class="fas fa-ellipsis-h"/></template>
                             <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
                             <Btn no-background>(todo) Mint on chain</Btn>
