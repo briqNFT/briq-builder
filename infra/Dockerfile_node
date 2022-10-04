@@ -2,13 +2,14 @@ FROM node:latest
 
 ENV NODE_ENV=production
 
-COPY infra/dist/server/ /var/www/sltech/
-COPY infra/dist/www/index.html /var/www/sltech/index.html
+WORKDIR /var/www/sltech/
+
 COPY package-lock.json /var/www/sltech/
 COPY package.json /var/www/sltech/
 
-WORKDIR /var/www/sltech/
-
 RUN npm ci
+
+COPY infra/dist/server/ /var/www/sltech/
+COPY infra/dist/www/index.html /var/www/sltech/index.html
 
 CMD [ "node", "main.mjs" ]
