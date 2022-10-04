@@ -20,8 +20,8 @@ const OgPalette = Object.assign({}, CONF.defaultPalette);
 export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) {
     const { currentSet, currentSetInfo } = useBuilder();
 
-    const booklet = computed(() => forceBooklet?.value || currentSetInfo.value.booklet as string);
-    const bookletRef = computed(() => getBookletDataSync(booklet.value).value);
+    const booklet = computed(() => forceBooklet?.value || currentSetInfo.value?.booklet as string);
+    const bookletRef = computed(() => booklet.value ? getBookletDataSync(booklet.value).value : undefined);
 
     // Change default palette & update colors.
     watch([bookletRef], () => {
@@ -52,6 +52,8 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
         })
         bookletStore.shapeValidityCalculated[booklet.value] = true;
         watchEffect(() => {
+            if (!booklet.value)
+                return;
             if (!bookletRef.value) {
                 bookletStore.shapeValidity[booklet.value] = 0;
                 return;

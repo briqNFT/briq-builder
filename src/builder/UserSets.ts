@@ -83,7 +83,6 @@ class UserSetStore implements perUserStorable {
                     booklet: data.booklet_id,
                 }
             }
-
     }
 
     onEnter() {
@@ -105,7 +104,8 @@ class UserSetStore implements perUserStorable {
         // Debug
         //downloadJSON(data, data.id + ".json")
         const genesisStore = useGenesisStore();
-        const image = fetch(genesisStore.coverBookletRoute(booklet));
+        // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome#solution
+        const image = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please');
         const bookletData = (await getBookletData(booklet));
         const TX = await contractStore.set!.assemble(
             this.user_id.split('/')[1],
@@ -113,14 +113,13 @@ class UserSetStore implements perUserStorable {
             bookletData.value, // pass the booklet data to make sure we have the proper shape layout
             bookletData.value.token_id,
         );
-
         const imageBlob = (await (await image).blob());
         const image_base64 = await new Promise(yes => {
             const reader = new FileReader() ;
-            reader.onload = x => yes(x);
+            reader.onload = _ => reader.result && yes(reader.result);
             reader.readAsDataURL(imageBlob);
         });
-        return this._mintSet(TX, data, image_base64);
+        return this._mintSet(TX, data, image_base64 as string, booklet);
     }
 
     async _mintSet(TX: any, data: any, image: string | undefined, booklet?: string) {
@@ -166,10 +165,18 @@ class UserSetStore implements perUserStorable {
 
     async poll() {
         await this.fetchData();
+        const network = this.user_id.split('/')[0];
         for (const setId in this.metadata)
             if (this.metadata[setId].status === 'TENTATIVE' && this._sets.indexOf(setId) !== -1)  {
                 this.notifyMintingConfirmed(this.metadata[setId]);
                 delete this.metadata[setId];
+                // At this point re-fetch the data just in case we ended up with something un-clean.
+                backendManager.fetch(`v1/metadata/${network}/${setId}.json`).then(data => {
+                    this._setData[setId] = {
+                        data: new SetData(setId).deserialize(data),
+                        booklet: data.booklet_id,
+                    }
+                });
             } else if (this.metadata[setId].status === 'TENTATIVE_DELETED' && this._sets.indexOf(setId) === -1)  {
                 this.notifyDeletionConfirmed(this.metadata[setId]);
                 delete this.metadata[setId];

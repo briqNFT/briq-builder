@@ -68,7 +68,6 @@ export default class SetContract {
             }
         }
         shapes.sort((a, b) => a[1].localeCompare(b[1], 'en'));
-        console.log(shapes);
         const fts = [];
         for (const ft in fungibles)
             fts.push([ft, '' + fungibles[ft]]);

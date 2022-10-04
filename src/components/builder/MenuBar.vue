@@ -19,7 +19,6 @@ import { useBuilder } from '@/components/builder/BuilderComposable';
 import ExportSetVue from './modals/ExportSet.vue';
 import { pushModal } from '../Modals.vue';
 import { useBooklet } from './BookletComposable';
-import { useStore } from 'vuex';
 import Hotkey from '../generic/Hotkey.vue';
 
 const { currentSet } = useBuilder();
@@ -38,6 +37,7 @@ const getNbBriqs = computed(() => {
         selected = ` (${inputStore.selectionMgr.selectedBriqs.length} selected)`;
     return `${used} briqs${selected}`;
 });
+
 
 const {
     shapeValidity,

@@ -245,7 +245,7 @@ const startMinting = async () => {
                 </div>
             </div>
             <template v-else>
-                <p>Your set is under export.</p>
+                <p>Your set is being exported.</p>
             </template>
         </Window>
     </template>
