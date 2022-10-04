@@ -6,7 +6,7 @@ import { setsManager } from '@/builder/SetsManager';
 import contractStore from '@/chain/Contracts';
 import { maybeStore } from '@/chain/WalletLoading';
 import Window from '@/components/generic/Window.vue';
-import { HashVue, pushPopup } from '@/Notifications';
+import { HashVue, Notification, pushPopup } from '@/Notifications';
 import { logDebug } from '@/Messages';
 import { downloadJSON } from '@/url';
 import { computed, h, ref, toRef, watch } from 'vue';
@@ -150,7 +150,18 @@ const startMinting = async () => {
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
 
-        pushPopup('success', 'Set exported', h('div', [h('p', `Set '${data.name}' exported`), HashVue(TX.transaction_hash)]));
+        new Notification({
+            type: 'minting_set',
+            title: 'Minting set',
+            level: 'info',
+            timestamp: Date.now(),
+            data: {
+                tx_hash: TX.transaction_hash,
+                name: data.name,
+            },
+            read: true,
+        }).push(false);
+        pushPopup('info', 'Minting set', h('div', [h('p', `Transaction to mint set '${data.name}' was successfully sent.`), HashVue(TX.transaction_hash)]));
         logDebug('Set exported ' + data.id);
 
         setsManager.deleteLocalSet(setData.value.id);

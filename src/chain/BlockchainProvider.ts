@@ -18,8 +18,8 @@ class BlockchainProvider {
         return (await this.provider.getTransactionReceipt(tx_hash))?.status || 'NOT_RECEIVED';
     }
 
-    async getTransactionReceipt(tx_hash: string) {
-        return this.provider.getTransactionReceipt(tx_hash);
+    async getTransactionBlock(tx_hash: string) {
+        return (await (await fetch(`${this.provider.provider.feederGatewayUrl}/get_transaction?transactionHash=${tx_hash}`)).json()).block_number;
     }
 
     getTransaction(tx_hash: string) {

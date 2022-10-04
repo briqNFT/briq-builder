@@ -6,6 +6,7 @@ import { getBookletData } from './BookletData';
 import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { SetData } from './SetData';
+import { userBookletsStore } from './UserBooklets';
 
 
 class UserSetStore implements perUserStorable {
@@ -132,6 +133,9 @@ class UserSetStore implements perUserStorable {
             image_base64: image,
         });
 
+        if (booklet)
+            userBookletsStore.current!.hideOne(booklet, TX.transaction_hash);
+
         this._setData[data.id] = {
             data: new SetData(data.id).deserialize(data),
             booklet: booklet,
@@ -145,16 +149,19 @@ class UserSetStore implements perUserStorable {
     }
 
     async disassemble(token_id: string) {
-        // TODO: find the booklet
         let booklet_token_id;
         if (this.setData[token_id].booklet)
-            booklet_token_id = (await getBookletData(this.setData[token_id].booklet)).value.token_id;
+            booklet_token_id = (await getBookletData(this.setData[token_id].booklet!)).value.token_id;
         const TX = await contractStore.set!.disassemble(
             this.user_id.split('/')[1],
             token_id,
             this.setData[token_id].data,
             booklet_token_id,
         );
+
+        if (this.setData[token_id].booklet)
+            userBookletsStore.current!.showOne(this.setData[token_id].booklet!, TX.transaction_hash);
+
         this.metadata[token_id] = {
             set_id: token_id,
             status: 'TENTATIVE_DELETED',
