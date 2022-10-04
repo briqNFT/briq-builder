@@ -55,10 +55,9 @@ class UserBookletsStore implements perUserStorable {
                     continue;
                 }
                 if (!update.block) {
-                    const _status = blockchainProvider.value?.getTransactionStatus(update.tx_hash);
                     const _block = blockchainProvider.value?.getTransactionBlock(update.tx_hash);
-                    const status = await _status;
-                    const block = await _block;
+                    const status = (await _block)?.status;
+                    const block = (await _block)?.block_number;
                     if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
                         this.metadata[bookletId].updates.splice(i--, 1);
                         continue;

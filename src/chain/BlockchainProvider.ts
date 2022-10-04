@@ -19,7 +19,11 @@ class BlockchainProvider {
     }
 
     async getTransactionBlock(tx_hash: string) {
-        return (await (await fetch(`${this.provider.provider.feederGatewayUrl}/get_transaction?transactionHash=${tx_hash}`)).json()).block_number;
+        const data = (await (await fetch(`${this.provider.provider.feederGatewayUrl}/get_transaction?transactionHash=${tx_hash}`)).json());
+        return {
+            block_number: data.block_number,
+            status: data.status,
+        }
     }
 
     getTransaction(tx_hash: string) {
