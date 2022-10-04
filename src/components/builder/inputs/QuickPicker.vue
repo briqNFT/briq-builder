@@ -95,11 +95,8 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
 <template>
     <div class="flex flex-col">
         <div class="rounded-md border border-grad-light bg-grad-lightest max-w-[16rem] !text-sm">
-            <div class="bg-grad-lighter pl-4 pr-2 py-2 bg-opacity-50 flex justify-between items-center">
+            <div class="bg-grad-lighter p-4 bg-opacity-50 rounded-t-md">
                 <h4 class="font-medium text-md">Palette</h4>
-                <Btn no-background :force-active="inputStore.currentInput === 'paint'" @click="switchToState(inputStore.currentInput === 'paint' ? 'place' : 'paint')">
-                    <i class="fa-solid fa-paint-roller"/>
-                </Btn>
             </div>
             <div class="p-4">
                 <div class="flex items-center gap-1 relative">
