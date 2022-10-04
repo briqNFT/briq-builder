@@ -118,7 +118,7 @@ const onCloseMenu = () => {
 <template>
     <div class="relative">
         <div v-if="open" class="absolute z-50" v-close-outside="onCloseMenu">
-            <Flyout id="menuFlyout" class="mx-4 mt-1 py-2 flex flex-col w-max rounded-md text-sm font-normal max-h-[80vh] tall-md:max-h-[90vh] overflow-auto">
+            <Flyout id="menuFlyout" class="mx-4 mt-1 py-2 flex flex-col rounded-md text-sm font-normal max-h-[80vh] tall-md:max-h-[90vh] overflow-y-auto overflow-x-hidden">
                 <template v-if="mode === 'MENU'">
                     <Btn @click="renameSet" no-background>Rename set</Btn>
                     <RouterLink :to="{ name: 'Profile' }"><Btn class="w-full" no-background>Manage my sets</Btn></RouterLink>
