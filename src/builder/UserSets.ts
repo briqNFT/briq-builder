@@ -3,6 +3,7 @@ import { blockchainProvider } from '@/chain/BlockchainProvider';
 import contractStore from '@/chain/Contracts';
 import { Notification } from '@/Notifications';
 import { getBookletData } from './BookletData';
+import { chainBriqs } from './ChainBriqs';
 import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { SetData } from './SetData';
@@ -185,9 +186,13 @@ class UserSetStore implements perUserStorable {
                         booklet: data.booklet_id,
                     }
                 });
+                // Reload briqs, we likely have an update.
+                chainBriqs.value?.loadFromChain();
             } else if (this.metadata[setId].status === 'TENTATIVE_DELETED' && this._sets.indexOf(setId) === -1)  {
                 this.notifyDeletionConfirmed(this.metadata[setId]);
                 delete this.metadata[setId];
+                // Reload briqs, we likely have an update.
+                chainBriqs.value?.loadFromChain();
             }
         // At this point, if there remains any we must check for failure.
         if (!Object.keys(this.metadata).length) {
