@@ -104,7 +104,6 @@ export class ChainBriqs implements perUserStorable {
     }
 
     async _parseChainData(chainData: { last_block: number } & { [material: string]: { ft_balance: number; nft_ids: string[] } }) {
-        console.log('totoro', chainData);
         this.byMaterial = {};
         for (const mat in chainData)
             if (mat !== 'last_block')

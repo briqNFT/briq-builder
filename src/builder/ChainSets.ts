@@ -63,7 +63,7 @@ export class ChainSets {
                 pushMessage('Error loading sets from chain - the connection to starknet timed out');
                 console.error(err);
             } else {
-                console.log(err);
+                console.warn(err);
                 pushMessage('Error loading sets from chain - see console for details');
                 reportError(err as Error);
             }

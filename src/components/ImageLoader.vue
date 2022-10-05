@@ -15,7 +15,6 @@ const openFile = async () => {
                 const img = new Image();
                 img.src = ev.target.result;
                 rawImageData.value = img;
-                console.log(rawImageData.value);
             }
             reader.readAsDataURL(file);
         } catch(_) {}

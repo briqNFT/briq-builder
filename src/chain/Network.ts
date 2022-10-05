@@ -1,5 +1,6 @@
 import { reactive } from 'vue';
 import { APP_ENV } from '@/Meta';
+import { logDebug } from '@/Messages';
 
 /**
  * Sort of an abstraction around the idea of a chain + network.
@@ -34,7 +35,7 @@ export async function chooseDefaultNetwork() {
         try {
             await fetch('http://localhost:5050/is_alive');
             network.network = 'localhost';
-            console.log('Switching to local provider');
+            logDebug('Switching to local provider');
         } catch (_) {}
 
 }

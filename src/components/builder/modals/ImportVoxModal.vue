@@ -23,7 +23,6 @@ const props = defineProps<{
 
 onBeforeMount(async () => {
     try {
-        console.log(props);
         loader.value = new VoxLoader(await props.data);
         set.value = loader.value.set;
         set.value.name = props.file.name.replace('.vox', '');
