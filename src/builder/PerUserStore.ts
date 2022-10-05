@@ -41,16 +41,19 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
                 return;
             this._setup = true;
             try {
-                const serializedData = JSON.parse(window.localStorage.getItem(classType.name));
-                if (serializedData.version !== PER_USER_STORE_VERSION)
-                    window.localStorage.removeItem(classType.name);
-                for (const wallet in serializedData.data) {
-                    if (!this._perWallet[wallet]) {
-                        this._perWallet[wallet] = new classType();
-                        this._perWallet[wallet].user_id = wallet;
-                        this._perWallet[wallet]?._init?.();
+                const storedData = window.localStorage.getItem(classType.name);
+                if (storedData) {
+                    const serializedData = JSON.parse(storedData);
+                    if (serializedData.version !== PER_USER_STORE_VERSION)
+                        window.localStorage.removeItem(classType.name);
+                    for (const wallet in serializedData.data) {
+                        if (!this._perWallet[wallet]) {
+                            this._perWallet[wallet] = new classType();
+                            this._perWallet[wallet].user_id = wallet;
+                            this._perWallet[wallet]?._init?.();
+                        }
+                        this._perWallet[wallet]._deserialize(serializedData.data[wallet])
                     }
-                    this._perWallet[wallet]._deserialize(serializedData.data[wallet])
                 }
             } catch(err) {
                 if (APP_ENV === 'dev')
