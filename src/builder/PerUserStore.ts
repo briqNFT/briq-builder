@@ -1,6 +1,7 @@
-import { reactive, Ref, watchEffect } from 'vue';
+import { markRaw, reactive, Ref, toRaw, watchEffect } from 'vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import type { UserID, WalletStore } from '@/chain/Wallet';
+import { APP_ENV } from '@/Meta';
 
 export interface perUserStorable {
     user_id: string;
@@ -38,6 +39,24 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
         setup(_walletInitComplete: typeof walletInitComplete = walletInitComplete, _maybeStore: typeof maybeStore = maybeStore) {
             if (this._setup)
                 return;
+            this._setup = true;
+            try {
+                const serializedData = JSON.parse(window.localStorage.getItem(classType.name));
+                if (serializedData.version !== PER_USER_STORE_VERSION)
+                    window.localStorage.removeItem(classType.name);
+                for (const wallet in serializedData.data) {
+                    if (!this._perWallet[wallet]) {
+                        this._perWallet[wallet] = new classType();
+                        this._perWallet[wallet].user_id = wallet;
+                        this._perWallet[wallet]?._init?.();
+                    }
+                    this._perWallet[wallet]._deserialize(serializedData.data[wallet])
+                }
+            } catch(err) {
+                if (APP_ENV === 'dev')
+                    console.error(err)
+            }
+
             _walletInitComplete.then(() => {
                 watchEffect(() => {
                     const old = this.currentWallet;
@@ -53,21 +72,6 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
                         this.current!.onEnter?.(old, this.currentWallet);
                 })
             })
-            this._setup = true;
-
-            try {
-                const serializedData = JSON.parse(window.localStorage.getItem(classType.name));
-                if (serializedData.version !== PER_USER_STORE_VERSION)
-                    window.localStorage.removeItem(classType.name);
-                for (const wallet in serializedData.data) {
-                    if (!this._perWallet[wallet]) {
-                        this._perWallet[wallet] = new classType();
-                        this._perWallet[wallet].user_id = wallet;
-                        this._perWallet[wallet]?._init?.();
-                    }
-                    this._perWallet[wallet]._deserialize(serializedData.data[wallet])
-                }
-            } catch(_) { /* ignore */ }
 
             watchEffect(() => {
                 const data = {};

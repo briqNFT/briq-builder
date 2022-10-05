@@ -52,6 +52,11 @@ const attribs = [
     },
 ]
 
+const doDisassembly = async () => {
+    if (await disassembleSet(set.value!.id))
+        router.push({ name: 'Profile' });
+}
+
 </script>
 
 <template>
@@ -100,7 +105,7 @@ const attribs = [
                 <div v-else-if="minted">
                     <h2>Want to disassemble your set?</h2>
                     <p>Once you do it you will get all the briqs back but the set will be destroyed. Note that there is no way back.  </p>
-                    <Btn secondary @click="disassembleSet(set!.id)">Disassemble</Btn>
+                    <Btn secondary @click="doDisassembly">Disassemble</Btn>
                 </div>
             </template>
         </template>

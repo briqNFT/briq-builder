@@ -7,6 +7,7 @@ import { Notification, pushPopup } from '@/Notifications';
 
 import { router } from '@/Routes';
 import { userSetStore } from '@/builder/UserSets';
+import DisassembleVue from './modals/Disassemble.vue';
 
 export function useSetHelpers() {
     const openSetInBuilder = (setId: string, openInNewWindow?: boolean) => {
@@ -43,18 +44,7 @@ export function useSetHelpers() {
     };
 
     const disassembleSet = async (setId: string) => {
-        const TX = await userSetStore.current!.disassemble(setId);
-        router.push({ name: 'Profile' });
-        const notif = new Notification({
-            type: 'set_delete_sent',
-            title: 'Disassembling set',
-            level: 'info',
-            data: {
-                tx_hash: TX.transaction_hash,
-            },
-            read: false,
-        }).push();
-        notif.read = true;
+        return await pushModal(DisassembleVue, { setId: setId });
     }
 
 

@@ -2,6 +2,7 @@ import { backendManager } from '@/Backend';
 import { blockchainProvider } from '@/chain/BlockchainProvider';
 import contractStore from '@/chain/Contracts';
 import { Notification } from '@/Notifications';
+import { markRaw } from 'vue';
 import { getBookletData } from './BookletData';
 import { chainBriqs } from './ChainBriqs';
 import { useGenesisStore } from './GenesisStore';
@@ -29,25 +30,20 @@ class UserSetStore implements perUserStorable {
     _serialize() {
         const setData = {} as UserSetStore['setData'];
         for (const setId in this._setData)
-            setData[setId] = {
-                data: this._setData[setId].data.serialize(),
-                booklet: this._setData[setId].booklet,
-            }
+            if (setId in this.metadata || this._sets.indexOf(setId) !== -1)
+                setData[setId] = {
+                    data: this._setData[setId].data.serialize(),
+                    booklet: this._setData[setId].booklet,
+                }
         return {
             sets: this._sets,
-            metadata: this.metadata,
-            setData: setData,
+            metadata: JSON.parse(JSON.stringify(this.metadata)),
         }
     }
 
     _deserialize(data: any) {
         this._sets = data.sets;
         this.metadata = data.metadata;
-        for (const setId in data.setData)
-            this._setData[setId] = {
-                data: new SetData(setId).deserialize(data.setData[setId].data),
-                booklet: data.setData[setId].booklet,
-            }
     }
 
     _init() {

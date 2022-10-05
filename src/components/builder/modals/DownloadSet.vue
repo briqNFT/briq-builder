@@ -2,16 +2,12 @@
 import { backendManager } from '@/Backend';
 import { setsManager } from '@/builder/SetsManager';
 import getBaseUrl, { doDownload, downloadJSON } from '../../../url';
-import { useBuilder } from '../BuilderComposable';
 
 const props = defineProps<{
     setId: string
 }>();
 
-const { chainSets } = useBuilder();
-
 const localSet = setsManager.getInfo(props.setId)?.getSet();
-const chainSet = chainSets.setData?.[props.setId];
 
 const downloadBriq = async () => {
     if (!chainSet)

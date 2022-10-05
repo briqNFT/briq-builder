@@ -5,7 +5,6 @@ export function useBuilder() {
         currentSet,
         currentSetInfo,
         selectSet,
-        chainSets,
         setsManager,
     } = builderStore;
     return {
@@ -13,7 +12,6 @@ export function useBuilder() {
         currentSetInfo,
         selectSet,
         chainBriqs,
-        chainSets,
         setsManager,
     }
 }

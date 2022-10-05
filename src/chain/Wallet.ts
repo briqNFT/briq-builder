@@ -56,7 +56,6 @@ export class WalletStore {
 
     async ensureEnabled(showList = false) {
         const cwo = await connect({ showList });
-        console.log('totoro', cwo);
         if (cwo)
             await this.enableWallet(cwo);
         else if (!showList)

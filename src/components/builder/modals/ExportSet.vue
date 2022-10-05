@@ -14,10 +14,11 @@ import { useStore } from 'vuex';
 import { useScreenshotHelpers } from '../ScreenshotComposable';
 import { userSetStore } from '@/builder/UserSets';
 import { useBooklet } from '../BookletComposable';
+import { router } from '@/Routes';
 
 const { chainBriqs, selectSet } = useBuilder();
 
-defineEmits(['close']);
+const emit = defineEmits(['close']);
 
 const props = defineProps<{
     setId: string,
@@ -87,6 +88,8 @@ watch([setData, toRef(chainBriqs.value, 'byMaterial')], () => {
     immediate: true,
     deep: true,
 })
+
+maybeStore.value?.ensureEnabled();
 
 const hasSigner = computed(() => !!(maybeStore.value?.signer));
 const hasLoadedBriqs = computed(() => chainBriqs.value?.status === 'OK');
@@ -168,6 +171,8 @@ const startMinting = async () => {
         selectSet(exportSet.value);
 
         exportStep.value = 'DONE';
+        setTimeout(() => router.push({ name: 'Profile' }), 0);
+        emit('close');
     } catch (err: any) {
         if (err?.message === 'User abort') {
             pushPopup('error', 'Mint error', 'Export aborted.');

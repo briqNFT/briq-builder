@@ -13,16 +13,12 @@ import { setSync } from './SetSync';
 import { builderStore } from './BuilderStore';
 import contractStore from '@/chain/Contracts';
 
-const { currentSet, selectSet, chainSets } = builderStore;
+const { currentSet, selectSet } = builderStore;
 
 async function initializeChainBackend() {
     logDebug('BUILDER INIT - CHAIN BACKEND');
 
     const walletStore = await walletInitComplete; // Wait until we've completed wallet init (or failed)
-
-    chainSets.watchForChain(contractStore, walletStore);
-
-    setSync.sync(setsManager, chainSets);
 }
 
 async function initializeStartSet() {

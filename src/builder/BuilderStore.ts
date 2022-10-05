@@ -1,7 +1,6 @@
 import { computed, shallowReadonly, shallowRef } from 'vue';
 
 import contractStore from '@/chain/Contracts';
-import { createChainSets } from '@/builder/ChainSets';
 
 import { setsManager as sm } from '@/builder/SetsManager';
 
@@ -11,7 +10,6 @@ import { inputStore } from '@/builder/inputs/InputStore';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { dispatchBuilderAction } from './graphics/Dispatch';
 import { currentSet as ___currentSet } from './BuilderData';
-import { logDebug } from '@/Messages';
 
 /**
  * A lot of components in a number of places need to access the 'current set' loaded in the builder.
@@ -24,7 +22,6 @@ export const builderStore = (() => {
     });
     const _currentSet = shallowRef(undefined as unknown as SetData);
     const currentSet = shallowReadonly(_currentSet);
-    const chainSets = createChainSets();
 
     const selectSet = async (set: SetData) => {
         _currentSet.value = set;
@@ -42,7 +39,6 @@ export const builderStore = (() => {
         selectSet,
         store,
         contractStore,
-        chainSets,
         setsManager: sm,
     };
 })();
