@@ -36,6 +36,9 @@ export class HotkeyManager {
     activeKeys: { [key: string]: boolean } = {};
     activeCodes: { [code: string]: boolean } = {};
 
+    // Used to check if a hotkey was actually fired and detected by a subscriber.
+    _fired = 0;
+
     constructor() {
         window.addEventListener('keydown', (event) => this.onKeyDown(event));
         window.addEventListener('keyup', (event) => this.onKeyUp(event));
@@ -98,6 +101,7 @@ export class HotkeyManager {
                 // TODO: allow bubbling & stopping (possibly by returning an ENUM).
                 // For now the bubbling stops at the first hotkey.
                 this.callbacks[hotkeyName][0][1](event);
+                ++this._fired;
             };
             window.addEventListener('hotkey', this.listeners[hotkeyName]);
         }
@@ -143,8 +147,9 @@ export class HotkeyManager {
                 cancelable: true,
                 detail: { name: hk },
             });
+            this._fired = 0;
             window.dispatchEvent(event);
-            return true;
+            return this._fired > 0;
         }
         return false;
     }
