@@ -88,9 +88,9 @@ export function watchSignerChanges(walletStore: any) {
         const impl = network && IMPL?.[network];
         logDebug('SWITCHING TO NETWORK ', network);
         for (const contr in impl)
-            if (contr in addr)
+            if (!contractStore[contr])
                 contractStore[contr] = new impl[contr](addr[contr], signer.value ? signer.value : provider);
             else
-                contractStore[contr] = undefined;
+                contractStore[contr].connect(addr[contr] || '0xdead', signer.value ? signer.value : provider);
     });
 }

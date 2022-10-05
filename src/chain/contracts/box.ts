@@ -4,10 +4,15 @@ import { Contract, FunctionAbi } from 'starknet';
 import { backendManager } from '@/Backend';
 
 import ABI from './starknet-testnet/box_nft.json';
+import { maybeStore } from '../WalletLoading';
 
 export default class BoxContract {
-    contract: Contract;
+    contract!: Contract;
     constructor(address: string, provider: Provider) {
+        this.connect(address, provider);
+    }
+
+    connect(address: string, provider: Provider) {
         this.contract = new Contract(ABI as FunctionAbi[], address, provider);
     }
 
@@ -15,17 +20,8 @@ export default class BoxContract {
         return this.contract.address;
     }
 
-    async getUnopenedBoxes(owner: string): Promise<string[]> {
-        try {
-            const boxIDs = await backendManager.post('mock_chain/getUnopenedBoxes', { owner: owner });
-            return boxIDs.map(box => box.endsWith('1') ? 'starknet_city/spaceman' : 'starknet_city/base_module_1')
-        } catch(err) {
-            console.error(err);
-            return ['starknet_city/spaceman', 'starknet_city/base_module_1'];
-        }
-    }
-
     async unbox(owner: string, token_id: string) {
+        await maybeStore.value!.ensureEnabled();
         return this.contract.unbox_(owner, token_id);
     }
 }

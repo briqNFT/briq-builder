@@ -7,24 +7,20 @@ import { computeHashOnElements } from '@/starknet_wrapper';
 
 import SetABI from './starknet-testnet/set_nft.json';
 import { toBN } from 'starknet/utils/number';
+import { maybeStore } from '../WalletLoading';
 
 export default class SetContract {
-    contract: Contract;
+    contract!: Contract;
     constructor(address: string, provider: Provider) {
+        this.connect(address, provider);
+    }
+
+    connect(address: string, provider: Provider) {
         this.contract = new Contract(SetABI as FunctionAbi[], address, provider);
     }
 
     getAddress() {
         return this.contract.address;
-    }
-
-    async ownerOf(token_id: string) {
-        return toHex((await this.contract.ownerOf_(token_id)).owner);
-    }
-
-    async balanceDetailsOf(owner: string): Promise<string[]> {
-        const res = await this.contract.balanceDetailsOf_(owner);
-        return res.token_ids.map((x) => toHex(x));
     }
 
     // TODO: add URI
@@ -72,6 +68,7 @@ export default class SetContract {
         for (const ft in fungibles)
             fts.push([ft, '' + fungibles[ft]]);
 
+        await maybeStore.value!.ensureEnabled();
         return await this.contract.assemble_(owner, token_id_hint, fts, nfts, shapes, booklet ? [booklet] : []);
     }
 
@@ -91,10 +88,12 @@ export default class SetContract {
         for (const ft in fungibles)
             fts.push([ft, '' + fungibles[ft]]);
 
+        await maybeStore.value!.ensureEnabled();
         return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [booklet] : []);
     }
 
     async transferOneNFT(sender: string, recipient: string, token_id: string) {
+        await maybeStore.value!.ensureEnabled();
         return await this.contract.transferFrom_(sender, recipient, token_id);
     }
 }

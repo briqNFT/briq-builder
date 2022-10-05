@@ -33,16 +33,13 @@ export class WalletStore {
         const storedAddress = window.localStorage.getItem('user_address');
         logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
 
+        if (storedAddress && storedAddress.indexOf('/')) {
+            this.userWalletAddress = storedAddress.split('/')[1];
+            setNetwork(storedAddress.split('/')[0]);
+        }
+
         if (APP_ENV !== 'prod')
             setupMockWallet();
-        const cwo = await connect({ showList: false });
-
-        if (cwo)
-            // Don't await this, we don't care
-            cwo.isPreauthorized().then(x => {
-                if (x)
-                    this.enableWallet(cwo)
-            });
 
         // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
         setWalletInitComplete(this);
@@ -51,11 +48,22 @@ export class WalletStore {
 
         watchEffect(() => {
             // TODO: switch to IDB
-            logDebug('Writing address ', this.userWalletAddress);
-            window.localStorage.setItem('user_address', this.userWalletAddress);
+            logDebug('Writing address ', this.user_id);
+            window.localStorage.setItem('user_address', this.user_id || '');
         });
-
         return this;
+    }
+
+    async ensureEnabled(showList = false) {
+        const cwo = await connect({ showList });
+        console.log('totoro', cwo);
+        if (cwo)
+            await this.enableWallet(cwo);
+        else if (!showList)
+            this.ensureEnabled(true);
+        await new Promise((resolve, _) => {
+            setTimeout(() => resolve(null), 0);
+        })
     }
 
     async openWalletSelector() {
@@ -68,7 +76,7 @@ export class WalletStore {
     async enableWallet(starknetObj: IStarknetWindowObject) {
         this.starknetObject = starknetObj;
         await this.starknetObject.enable();
-        this.setSignerFromGSW();
+        await this.setSignerFromGSW();
         this.starknetObject.on('accountsChanged', () => this.setSignerFromGSW());
     }
 
