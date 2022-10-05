@@ -137,6 +137,14 @@ class UserSetStore implements perUserStorable {
 
         if (booklet)
             userBookletsStore.current!.hideOne(booklet, TX.transaction_hash);
+        const materials = {};
+        for (const briq of data.briqs) {
+            if (!materials[briq.data.material])
+                materials[briq.data.material] = 0;
+            ++materials[briq.data.material];
+        }
+        for (const mat in materials)
+            chainBriqs.value?.hide(mat, materials[mat], TX.transaction_hash);
 
         this._setData[data.id] = {
             data: new SetData(data.id).deserialize(data),
@@ -163,6 +171,9 @@ class UserSetStore implements perUserStorable {
 
         if (this.setData[token_id].booklet)
             userBookletsStore.current!.showOne(this.setData[token_id].booklet!, TX.transaction_hash);
+
+        for (const mat in this.setData[token_id].data.usedByMaterial)
+            chainBriqs.value?.show(mat, this.setData[token_id].data.usedByMaterial[mat], TX.transaction_hash);
 
         this.metadata[token_id] = {
             set_id: token_id,

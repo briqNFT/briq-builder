@@ -6,8 +6,8 @@ import { perUserStorable, perUserStore } from './PerUserStore';
 class UserBoxesStore implements perUserStorable {
     user_id!: string;
     _availableBoxes = [] as string[];
-    _lastDataFetch: any;
 
+    _lastDataFetch: any;
     // Only store metadata on sets where something is happening. Rest are assumed live.
     metadata = {} as { [id: string]: {
         box_id: string,
