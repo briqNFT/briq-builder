@@ -31,7 +31,7 @@ const getBadPickReason = computed(() => {
 </script>
 
 <template>
-    <Window size="md:w-3/5 w-auto md:max-w-[45rem]">
+    <Window size="w-auto md:max-w-[45rem]">
         <template #big-title>briq picker</template>
         <div class="flex justify-between gap-2" ref="toto">
             <div class="flex-auto flex justify-stretch items-center flex-col font-medium pt-8">
@@ -48,16 +48,6 @@ const getBadPickReason = computed(() => {
                         :style="{ backgroundColor: color }"/>
                     <input class="text-center" type="text" maxlength="7" size="7" v-model="color">
                 </p>
-            </div>
-            <div class="w-1 bg-grad-light flex"/>
-            <div class="flex-auto flex justify-center items-center">
-                <div class="flex flex-col gap-2 w-[6rem]">
-                    <Btn
-                        v-for="material in CONF.briqMaterials" :class="curMat === material ? 'bg-primary' : ''"
-                        @click="curMat = material">
-                        {{ getNameFromMaterial(material) }}
-                    </Btn>
-                </div>
             </div>
         </div>
         <div class="flex justify-center my-2">
