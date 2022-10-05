@@ -86,7 +86,7 @@ export function watchSignerChanges(walletStore: any) {
         const network = selectedNetwork.value || getCurrentNetwork();
         const addr = network && ADDRESSES?.[network];
         const impl = network && IMPL?.[network];
-        logDebug('SWITCHING TO NETWORK', network);
+        logDebug('SWITCHING TO NETWORK ', network);
         for (const contr in impl)
             if (contr in addr)
                 contractStore[contr] = new impl[contr](addr[contr], signer.value ? signer.value : provider);

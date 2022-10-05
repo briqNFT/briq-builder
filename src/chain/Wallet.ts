@@ -65,13 +65,6 @@ export class WalletStore {
             this.enableWallet(cwo);
     }
 
-    async setSignerFromGSW() {
-        if (this.starknetObject?.isConnected) {
-            this.setSigner({ signer: markRaw(this.starknetObject.account), addr: this.starknetObject.account.address });
-            this.setProviderFromSigner();
-        }
-    }
-
     async enableWallet(starknetObj: IStarknetWindowObject) {
         this.starknetObject = starknetObj;
         await this.starknetObject.enable();
@@ -79,9 +72,12 @@ export class WalletStore {
         this.starknetObject.on('accountsChanged', () => this.setSignerFromGSW());
     }
 
-    setSigner(data: { signer: AccountInterface; addr: string }) {
-        this.signer = data.signer;
-        this.userWalletAddress = data.addr;
+    async setSignerFromGSW() {
+        if (this.starknetObject?.isConnected) {
+            this.signer = markRaw(this.starknetObject.account);
+            this.userWalletAddress = this.starknetObject.account.address;
+            this.setProviderFromSigner();
+        }
     }
 
     disconnect() {
@@ -101,11 +97,11 @@ export class WalletStore {
     setProviderFromSigner() {
         if (!this.signer)
             chooseDefaultNetwork();
-        else if (this.signer.gatewayUrl.indexOf('alpha-mainnet.starknet') !== -1)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha-mainnet.starknet') !== -1)
             setNetwork('starknet-mainnet');
-        else if (this.signer.gatewayUrl.indexOf('alpha4.starknet') !== -1)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha4.starknet') !== -1)
             setNetwork('starknet-testnet');
-        else if (this.signer.gatewayUrl.indexOf('mock_chain') !== -1)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('mock_chain') !== -1)
             setNetwork('mock');
         else
             setNetwork('localhost');
