@@ -1,15 +1,11 @@
 import { Briq } from './Briq';
-import { reactive, toRef, watchEffect } from 'vue';
-import type { Ref } from 'vue';
-import { ticketing, isOutdated } from '../Async';
+import { toRef } from 'vue';
 import { logDebug, pushMessage } from '../Messages';
 import { reportError } from '../Monitoring';
 
-import { CONF } from '@/Conf';
 import { backendManager } from '@/Backend';
-import { getCurrentNetwork } from '@/chain/Network';
 import { perUserStorable, perUserStore } from './PerUserStore';
-import { blockchainProvider } from '@/chain/BlockchainProvider';
+import { maybeStore } from '@/chain/WalletLoading';
 
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number; nft_ids: string[] };
@@ -67,6 +63,10 @@ export class ChainBriqs implements perUserStorable {
         this.metadata = data.metadata;
     }
 
+    _onStorageChange(data: any) {
+        this._deserialize(data);
+    }
+
     reset() {
         this.status = 'NOT_LOADED';
         this.byMaterial = {};
@@ -89,8 +89,6 @@ export class ChainBriqs implements perUserStorable {
             this.status = 'OK';
             logDebug('CHAIN BRIQS - LOADED ');
         } catch (err) {
-            if (isOutdated(err))
-                return;
             if (err?.message === 'Network Error')
                 pushMessage('Error fetching briqs - the connection to starknet timed out');
             else {
@@ -119,7 +117,7 @@ export class ChainBriqs implements perUserStorable {
                     continue;
                 }
                 if (!update.block) {
-                    const _block = blockchainProvider.value?.getTransactionBlock(update.tx_hash);
+                    const _block = maybeStore.value?.getProvider()?.getTransactionBlock(update.tx_hash);
                     const status = (await _block)?.status;
                     const block = (await _block)?.block_number;
                     if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {

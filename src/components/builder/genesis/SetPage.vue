@@ -8,7 +8,6 @@ import { useUnboxHelpers } from '@/builder/Unbox';
 import { useSetHelpers } from '../SetComposable';
 import { userSetStore } from '@/builder/UserSets';
 import { router } from '@/Routes';
-import { Notification, notificationPopups } from '@/Notifications';
 import ProgressBar from '@/components/generic/ProgressBar.vue';
 import { useBooklet } from '../BookletComposable';
 import { backendManager } from '@/Backend';

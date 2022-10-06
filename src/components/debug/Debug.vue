@@ -90,15 +90,14 @@ p {
 </style>
 
 <script lang="ts">
-import type { Provider } from '@/starknet_wrapper';
+import type { Provider } from 'starknet';
 
-import { transactionsManager } from '../../builder/Transactions';
 import contractStore from '@/chain/Contracts';
 
 import { ticketing, ignoreOutdated, OutdatedPromiseError } from '../../Async';
 
-import { toBN } from '@/starknet_wrapper';
-import { getSelectorFromName } from '@/starknet_wrapper';
+import { toBN } from 'starknet/utils/number';
+import { getSelectorFromName } from 'starknet/utils/hash';
 
 import { getProvider } from '@/chain/Provider';
 import { getCurrentNetwork } from '@/chain/Network';
@@ -193,10 +192,6 @@ export default defineComponent({
         watchEffect(() => {
             this.checkBalance();
             this.checkBalanceSets();
-        });
-        watchEffect(() => {
-            for (let tx of transactionsManager.transactions)
-                this.addTx(tx.hash);
         });
     },
     methods: {

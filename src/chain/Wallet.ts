@@ -1,20 +1,21 @@
 import { watchEffect, markRaw } from 'vue';
 
-import type { AccountInterface } from '@/starknet_wrapper';
+import type { AccountInterface } from 'starknet';
 
 import { logDebug, logDebugDelay } from '../Messages';
 
-import { watchSignerChanges } from '@/chain/Contracts';
+import { watchSignerChanges } from '@/chain/ContractsLoader';
 
 import { setWalletInitComplete } from './WalletLoading';
 
 import { reactive } from 'vue';
 import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
-import { connect, disconnect, IStarknetWindowObject } from '@/starknet_wrapper';
+import { connect, disconnect, IStarknetWindowObject } from 'get-starknet';
 
 import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
+import { blockchainProvider } from './BlockchainProvider';
 
 export type UserID = string;
 
@@ -99,6 +100,11 @@ export class WalletStore {
     // TODO: might want to split the signer network from the provider network?
     getNetwork() {
         return getCurrentNetwork();
+    }
+
+    // Return the provider for the current network, even if we aren't signed.
+    getProvider() {
+        return blockchainProvider.value;
     }
 
     setProviderFromSigner() {

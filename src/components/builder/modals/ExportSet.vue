@@ -172,7 +172,6 @@ const startMinting = async () => {
 
         exportStep.value = 'DONE';
         setTimeout(() => router.push({ name: 'Profile' }), 0);
-        emit('close');
     } catch (err: any) {
         if (err?.message === 'User abort') {
             pushPopup('error', 'Mint error', 'Export aborted.');

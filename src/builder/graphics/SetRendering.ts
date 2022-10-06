@@ -1,4 +1,4 @@
-import { THREE, threeSetupComplete } from '@/three';
+import { THREE, threeSetupComplete, GLTFLoader } from '@/three';
 
 import VoxelWorld from './VoxelWorld';
 
@@ -11,8 +11,6 @@ function generateRealms() {
     const loader = new THREE.TextureLoader();
     return loader.load(RealmsPic);
 }
-
-import { GLTFLoader } from '@/three';
 
 import Keystone from '@/assets/keystone-square-uv.glb?url';
 import { getRenderMaterial } from './MaterialsRendering';

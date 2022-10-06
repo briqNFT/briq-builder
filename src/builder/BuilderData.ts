@@ -15,11 +15,14 @@ import { ChainBriqs } from './ChainBriqs';
 
 import { store } from '@/store/Store';
 
-import { THREE } from '@/three';
+import { threeSetupComplete } from '@/threeLoading';
 import { builderInputFsm } from './inputs/BuilderInput';
 import { computed, ref } from 'vue';
 
 const initSet = new SetData(hexUuid());
+
+let THREE;
+threeSetupComplete.then(x => THREE = x);
 
 // this is clunky AF, see BuilderStore
 export const currentSet = ref(null as unknown as SetData);

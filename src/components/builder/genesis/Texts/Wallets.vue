@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { walletStore } from '@/chain/Wallet';
+import { maybeStore } from '@/chain/WalletLoading';
+import { computed } from 'vue';
 
 const props = defineProps<{
     active: boolean,
 }>();
 
+const walletStore = computed(() => maybeStore.value!);
 </script>
 
 <template>

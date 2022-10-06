@@ -1,10 +1,10 @@
 import type { SetData } from '@/builder/SetData';
-import { reactive, ref, toRef, watchEffect, watch, computed, Ref, onUnmounted } from 'vue';
+import { reactive, toRef, watchEffect, watch, computed, Ref, onUnmounted } from 'vue';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
 import { CONF } from '@/Conf';
 import { useBuilder } from '@/components/builder/BuilderComposable';
-import { bookletId, getStepImgSrc, BookletData, getBookletDataSync } from '@/builder/BookletData';
+import { bookletId, getStepImgSrc, getBookletDataSync } from '@/builder/BookletData';
 
 export const bookletStore = reactive({
     minimized: false,

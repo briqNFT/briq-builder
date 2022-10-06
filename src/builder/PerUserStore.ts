@@ -12,6 +12,7 @@ export interface perUserStorable {
 
     _deserialize?(data: Record<string, any>): void;
     _serialize?(): Record<string, any>;
+    _onStorageChange?(data: Record<string, any>): void;
 }
 
 const PER_USER_STORE_VERSION = 1;
@@ -59,6 +60,13 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
                 if (APP_ENV === 'dev')
                     console.error(err)
             }
+
+            window.addEventListener('storage', (event: StorageEvent) => {
+                if (event.key !== classType.name)
+                    return;
+                for (const wallet in this._perWallet)
+                    this._perWallet[wallet]._onStorageChange?.(JSON.parse(event.newValue!));
+            });
 
             _walletInitComplete.then(() => {
                 watchEffect(() => {

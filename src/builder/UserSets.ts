@@ -1,14 +1,13 @@
 import { backendManager } from '@/Backend';
-import { blockchainProvider } from '@/chain/BlockchainProvider';
 import contractStore from '@/chain/Contracts';
 import { Notification } from '@/Notifications';
-import { markRaw } from 'vue';
 import { getBookletData } from './BookletData';
 import { chainBriqs } from './ChainBriqs';
 import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { SetData } from './SetData';
 import { userBookletsStore } from './UserBooklets';
+import { maybeStore } from '@/chain/WalletLoading';
 
 
 class UserSetStore implements perUserStorable {
@@ -35,6 +34,7 @@ class UserSetStore implements perUserStorable {
                     data: this._setData[setId].data.serialize(),
                     booklet: this._setData[setId].booklet,
                 }
+        // TODO: find a way to serialise set data maybe.
         return {
             sets: this._sets,
             metadata: JSON.parse(JSON.stringify(this.metadata)),
@@ -44,6 +44,10 @@ class UserSetStore implements perUserStorable {
     _deserialize(data: any) {
         this._sets = data.sets;
         this.metadata = data.metadata;
+    }
+
+    _onStorageChange(data: any) {
+        this._deserialize(data);
     }
 
     _init() {
@@ -122,8 +126,8 @@ class UserSetStore implements perUserStorable {
     }
 
     async _mintSet(TX: any, data: any, image: string | undefined, booklet?: string) {
-        // Send a hint to the backend.
-        backendManager.storeSet({
+        // Send a hint to the backend
+        const backendHint = backendManager.storeSet({
             chain_id: this.user_id.split('/')[0],
             owner: this.user_id.split('/')[1],
             token_id: data.id,
@@ -151,6 +155,8 @@ class UserSetStore implements perUserStorable {
             status: 'TENTATIVE',
             tx_hash: TX.transaction_hash,
         }
+        // Wait on the backend to be done before returning.
+        await backendHint;
         return TX;
     }
 
@@ -208,7 +214,7 @@ class UserSetStore implements perUserStorable {
         }
         for (const setId in this.metadata) {
             const item = this.metadata[setId];
-            const status = await blockchainProvider.value?.getTransactionStatus(item.tx_hash);
+            const status = await maybeStore.value?.getProvider()?.getTransactionStatus(item.tx_hash);
             if (status === 'REJECTED') {
                 if (item.status === 'TENTATIVE')
                     this.notifyMintingRejected(item);

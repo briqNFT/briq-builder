@@ -1,5 +1,5 @@
-import type { Provider } from '@/starknet_wrapper';
-import type { AccountInterface, FunctionAbi } from 'starknet';
+import type { Provider } from 'starknet';
+import type { FunctionAbi } from 'starknet';
 import { Contract } from 'starknet';
 import { uint256ToBN } from 'starknet/utils/uint256';
 import { maybeStore } from '../WalletLoading';

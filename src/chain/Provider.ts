@@ -1,4 +1,4 @@
-import { Provider } from '@/starknet_wrapper';
+import { Provider } from 'starknet';
 import getBaseUrl from '@/url';
 
 import { CHAIN_NETWORKS, getCurrentNetwork } from './Network';

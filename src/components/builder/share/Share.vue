@@ -3,7 +3,7 @@ import WebGLCanvas from './../WebGLCanvas.vue';
 import Modals from '../../Modals.vue';
 import SplashScreen from './../SplashScreen.vue';
 import AlphaBanner from '../../AlphaBanner.vue';
-import { toBN } from '@/starknet_wrapper';
+import { toBN } from 'starknet/utils/number';
 import { backendManager } from '@/Backend';
 </script>
 
@@ -101,7 +101,8 @@ import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 import { SetData } from '@/builder/SetData';
 import { reportError } from '@/Monitoring';
 import { ticketing } from '@/Async';
-import contractStore, { forceNetwork } from '@/chain/Contracts';
+import contractStore from '@/chain/Contracts';
+import { forceNetwork } from '@/chain/ContractsLoader';
 import builderSettings from '@/builder/graphics/Settings';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { featureFlags } from '@/FeatureFlags';

@@ -1,4 +1,3 @@
-import builderSettings from '../../graphics/Settings';
 import { getIntersectionPos } from '../../graphics/SetRendering';
 import type { BuilderInputFSM } from '../BuilderInput';
 

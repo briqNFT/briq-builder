@@ -1,4 +1,4 @@
-import { getKeyPair, getStarkKey } from 'starknet/dist/utils/ellipticCurve';
+import { getKeyPair, getStarkKey } from 'starknet/utils/ellipticCurve';
 import { getProviderForNetwork } from './Provider';
 
 import { Account } from 'starknet';

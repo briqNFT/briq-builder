@@ -1,6 +1,5 @@
-import type { Provider } from '@/starknet_wrapper';
+import type { Provider } from 'starknet';
 import { Contract, FunctionAbi } from 'starknet';
-import { toHex } from '@/starknet_wrapper';
 
 import BriqABI from './starknet-testnet/briq.json';
 import { maybeStore } from '../WalletLoading';

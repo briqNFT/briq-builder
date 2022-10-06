@@ -3,7 +3,7 @@ import { computed, h, Ref, ref, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
 import { Bid, userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
-import { toBN } from 'starknet/utils/number.js';
+import { toBN } from 'starknet/utils/number';
 import { useBids } from '@/components/BidComposable.js';
 import { fromETH, readableNumber } from '@/BigNumberForHumans';
 import { HashVue, pushPopup } from '@/Notifications';

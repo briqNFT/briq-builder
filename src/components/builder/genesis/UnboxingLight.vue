@@ -17,7 +17,6 @@ import contractStore from '@/chain/Contracts';
 
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { hexUuid } from '@/Uuid';
-import { Quaternion } from 'three';
 
 
 //////////////////////////////
@@ -134,7 +133,7 @@ const unboxingState = new class implements FsmState {
     }
 
     frame(delta: number) {
-        const tg = new Quaternion(0, 1, 0, -0.12);
+        const tg = new THREE.Quaternion(0, 1, 0, -0.12);
         const qt = sceneBox.quaternion.slerpQuaternions(this.rt, tg, this.step);
         sceneBox.quaternion.set(qt.x, qt.y, qt.z, qt.w);
         this.step += delta * 0.1;

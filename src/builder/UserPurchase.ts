@@ -34,6 +34,10 @@ class UserPurchases implements perUserStorable {
         this.purchases = data;
     }
 
+    _onStorageChange(data: any) {
+        this._deserialize(data);
+    }
+
     async makePurchase(box_id: string, price: string) {
         const genesisStore = useGenesisStore();
         const itemData = await genesisStore.metadata[box_id]._fetch;

@@ -1,7 +1,7 @@
-import type { Provider } from '@/starknet_wrapper';
+import type { Provider } from 'starknet';
 import type { AccountInterface, FunctionAbi } from 'starknet';
 import { Contract } from 'starknet';
-import { toBN } from '@/starknet_wrapper';
+import { toBN } from 'starknet/utils/number';
 import { bnToUint256 } from 'starknet/utils/uint256';
 
 import ABI from './starknet-testnet/auction.json';

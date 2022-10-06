@@ -1,9 +1,8 @@
-import type { Provider, Signer } from '@/starknet_wrapper';
+import type { Provider, Signer } from 'starknet';
 import type { SetData } from '../../builder/SetData';
-import { toHex } from '@/starknet_wrapper';
 import { Contract, FunctionAbi } from 'starknet';
 
-import { computeHashOnElements } from '@/starknet_wrapper';
+import { computeHashOnElements } from 'starknet/utils/hash';
 
 import SetABI from './starknet-testnet/set_nft.json';
 import { toBN } from 'starknet/utils/number';

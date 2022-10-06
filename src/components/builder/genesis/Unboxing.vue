@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import {
-    THREE,
-} from '@/three';
-
 import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, shallowRef, WatchStopHandle, onUnmounted } from 'vue';
 
 import { useBuilder } from '@/components/builder/BuilderComposable';
@@ -22,6 +18,11 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import contractStore from '@/chain/Contracts';
 
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
+
+import { threeSetupComplete } from '@/threeLoading';
+import type { THREE as THREE_T } from '@/three';
+let THREE: typeof THREE_T;
+threeSetupComplete.then(x => THREE = x);
 
 
 //////////////////////////////

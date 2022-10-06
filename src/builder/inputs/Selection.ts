@@ -1,7 +1,10 @@
 import type { SetData } from '../SetData';
 import type { Briq } from '../Briq';
 
-import { THREE } from '@/three';
+import { threeSetupComplete } from '@/threeLoading';
+import type { THREE as THREE_T } from '@/three';
+let THREE: typeof THREE_T;
+threeSetupComplete.then(x => THREE = x);
 
 class SelectionRender {
     scene: THREE.Scene | undefined;

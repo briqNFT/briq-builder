@@ -57,6 +57,6 @@ async function setup() {
 
     logDebug('Successfully dynamically loaded three.js');
 
-    setThreeLoadingComplete();
+    setThreeLoadingComplete(THREE);
 }
 setup();

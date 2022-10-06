@@ -8,7 +8,7 @@ import contractStore from '@/chain/Contracts';
 import { BigNumberish, toFelt } from 'starknet/utils/number';
 import { getCurrentNetwork } from '@/chain/Network';
 import { reactive } from 'vue';
-import { blockchainProvider } from '@/chain/BlockchainProvider';
+import { maybeStore } from '@/chain/WalletLoading';
 
 export interface Bid {
     bid_id: string,
@@ -47,6 +47,10 @@ class UserBidStore implements perUserStorable {
         this.lastConfirmedBlock = data.lastConfirmedBlock;
         this.bids = data.bids;
         this.meta = data.meta;
+    }
+
+    _onStorageChange(data: any) {
+        this._deserialize(data);
     }
 
     matchBid(to_match: Bid, bids: { [key: string]: Bid }) {
@@ -123,7 +127,7 @@ class UserBidStore implements perUserStorable {
         for (const bid of this.bids) {
             if (bid.status !== 'TENTATIVE')
                 continue;
-            const status = await blockchainProvider.value?.getTransactionStatus(bid.tx_hash);
+            const status = await maybeStore.value?.getProvider()?.getTransactionStatus(bid.tx_hash);
             if (status === 'PENDING' || status === 'ACCEPTED_ON_L2' || status === 'ACCEPTED_ON_L1') {
                 bid.status = 'PENDING';
                 this.notifyPending(bid);

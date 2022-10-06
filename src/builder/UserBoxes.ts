@@ -1,7 +1,6 @@
 import { backendManager } from '@/Backend';
-import { blockchainProvider } from '@/chain/BlockchainProvider';
 import { perUserStorable, perUserStore } from './PerUserStore';
-
+import { maybeStore } from '@/chain/WalletLoading';
 
 class UserBoxesStore implements perUserStorable {
     user_id!: string;
@@ -36,6 +35,10 @@ class UserBoxesStore implements perUserStorable {
         this.metadata = data.metadata;
     }
 
+    _onStorageChange(data: any) {
+        this._deserialize(data);
+    }
+
 
     async fetchData() {
         try {
@@ -58,7 +61,7 @@ class UserBoxesStore implements perUserStorable {
                     continue;
                 }
                 if (!update.block) {
-                    const _block = blockchainProvider.value?.getTransactionBlock(update.tx_hash);
+                    const _block = maybeStore.value?.getProvider()?.getTransactionBlock(update.tx_hash);
                     const status = (await _block)?.status;
                     const block = (await _block)?.block_number;
                     if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {

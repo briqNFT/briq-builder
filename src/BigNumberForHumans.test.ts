@@ -1,4 +1,3 @@
-import { toBN } from 'starknet/utils/number';
 import { readableNumber, readableUnit, fromETH } from './BigNumberForHumans';
 
 describe('Test human readable representations of wei values', () => {

@@ -5,7 +5,7 @@ import { computed, ref, watch, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
 import { userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
-import { toBN } from 'starknet/utils/number.js';
+import { toBN } from 'starknet/utils/number';
 import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { Purchase, userPurchaseStore } from '@/builder/UserPurchase';
 import { HashVue, pushPopup } from '@/Notifications';

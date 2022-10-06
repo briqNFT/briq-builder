@@ -1,7 +1,5 @@
-import type { Provider } from '@/starknet_wrapper';
+import type { Provider } from 'starknet';
 import { Contract, FunctionAbi } from 'starknet';
-
-import { backendManager } from '@/Backend';
 
 import ABI from './starknet-testnet/box_nft.json';
 import { maybeStore } from '../WalletLoading';

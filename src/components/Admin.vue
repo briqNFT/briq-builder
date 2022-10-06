@@ -146,9 +146,9 @@ h2 {
 <script lang="ts">
 import contractStore, { ADDRESSES } from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages';
-import type { AccountInterface, Provider, Signer } from '@/starknet_wrapper';
-import { getSelectorFromName } from '@/starknet_wrapper';
-import { toBN } from '@/starknet_wrapper';
+import type { AccountInterface, Provider, Signer } from 'starknet';
+import { getSelectorFromName } from 'starknet/utils/hash';
+import { toBN } from 'starknet/utils/number';
 
 import { getProvider } from '@/chain/Provider';
 import { walletStore } from '@/chain/Wallet';

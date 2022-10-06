@@ -6,7 +6,6 @@ import { CHAIN_NETWORKS, getCurrentNetwork } from '@/chain/Network';
 import { APP_ENV } from '@/Meta';
 
 import { userBalance } from './UserBalance';
-import { number } from 'starknet';
 
 userBalance.setup();
 

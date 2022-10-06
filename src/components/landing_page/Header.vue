@@ -4,15 +4,12 @@ import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBidsStore } from '@/builder/BidStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { onMounted, computed } from 'vue';
-import NotificationsList from '../NotificationsList.vue';
-
-import { useBuilder } from '@/components/builder/BuilderComposable';
 
 import SmallProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
-import { notificationsManager } from '@/Notifications';
 import NotificationsMenu from '../NotificationsMenu.vue';
 import { userPurchaseStore } from '@/builder/UserPurchase';
+import { chainBriqs } from '@/builder/ChainBriqs';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -31,7 +28,6 @@ onMounted(() => {
     userPurchaseStore.setup();
 });
 
-const { chainBriqs } = useBuilder();
 
 </script>
 

@@ -4,6 +4,7 @@ import { logDebug } from './Messages';
 
 import { hexUuid } from '@/Uuid';
 import { ExplorerTxUrl } from './chain/Explorer';
+import { APP_ENV } from './Meta';
 
 export type NotificationLevel = 'info' | 'warning' | 'success' | 'error';
 
@@ -106,7 +107,8 @@ class NotificationManager {
                 this.push(new Notification(notifData), true);
         } catch(_) {
             // otherwise ignored
-            console.error(_);
+            if (APP_ENV === 'dev')
+                console.error(_);
         }
         logDebug('NOTIF MGR - SETUP');
         watchEffect(() => {
