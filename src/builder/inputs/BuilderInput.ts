@@ -1,5 +1,5 @@
 import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import type { BuilderInputState, MouseInputState } from './input_states/BuilderInputState';
+import type { BuilderInputState } from './input_states/BuilderInputState';
 
 import { inputMap } from '../../builder/inputs/InputMap';
 
@@ -44,12 +44,7 @@ export class BuilderInputFSM {
             this.state._onExit();
         const oldState = this.state;
         this.state = new inputMap[state](this, this.canvas);
-        if (this.state instanceof MouseInputState && oldState instanceof MouseInputState) {
-            this.state.curX = oldState.curX;
-            this.state.curY = oldState.curY;
-            this.state.lastX = oldState.lastX;
-            this.state.lastY = oldState.lastY;
-        }
+        this.state._copyOver(oldState);
         this.state._onEnter(data);
         this.store.currentInput = state;
     }

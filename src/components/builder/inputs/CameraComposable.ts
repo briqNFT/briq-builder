@@ -85,8 +85,10 @@ export function usePresetHelpers() {
         }
     });
     const updateCameraSettings = () => {
-        ++_cameraSettingsCtr.value;
-        fov.value = camera.fov;
+        if (camera) {
+            ++_cameraSettingsCtr.value;
+            fov.value = camera.fov;
+        }
         requestAnimationFrame(updateCameraSettings);
     }
     requestAnimationFrame(updateCameraSettings);

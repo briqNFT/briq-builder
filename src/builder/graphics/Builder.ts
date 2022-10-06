@@ -80,16 +80,21 @@ function _createTakeScreenshot(renderer, composer) {
     return function () {
         const old = getPreviewCube().visible;
         const old2 = selectionRender.parent?.visible;
+        const oldBg = scene.background;
         overlayObjects.visible = false;
         underlayObjects.visible = false;
         getPreviewCube().visible = false;
         selectionRender.hide();
+        grid.grid.visible = false;
+        scene.background = null;
         composer.render();
         getPreviewCube().visible = old;
         if (old2)
             selectionRender.show();
         else
             selectionRender.hide();
+        scene.background = oldBg;
+        grid.grid.visible = true;
         overlayObjects.visible = true;
         underlayObjects.visible = true;
         return renderer.domElement.toDataURL('image/png');
@@ -242,7 +247,9 @@ function setupScene() {
 
     if (!grid.grid)
         grid.generate();
-    scene.add(grid.grid);
+
+    if (!builderSettings.transparentBackground)
+        scene.add(grid.grid);
 
     scene.add(getSetObject());
 

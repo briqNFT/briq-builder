@@ -203,12 +203,12 @@ const startMinting = async () => {
     <template v-else-if="!exportStep && !booklet">
         <Window size="w-[40rem]">
             <template #title>Export set</template>
-            <div class="relative">
+            <div class="relative flex justify-center items-center">
                 <div class="absolute top-2 right-2 flex gap-2">
                     <Btn secondary @click="cropScreenshot"><i class="fa-solid fa-crop-simple"/></Btn>
                     <Btn secondary @click="retakeScreenshot"><i class="fa-solid fa-camera"/></Btn>
                 </div>
-                <img :src="previewImage">
+                <img class="max-h-[30rem]" :src="previewImage">
             </div>
             <div class="my-2">
                 <h3>Name</h3>

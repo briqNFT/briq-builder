@@ -35,14 +35,17 @@ export function useScreenshotHelpers(screenshot?: string, ogImage?: string) {
 
         // Prevent images from being too tall by adding transparent sides.
         const whRatio = img.width / img.height;
-        let imgBlitStart = 0;
+        const blit = [0, 0];
         if (whRatio < 0.75) {
-            imgBlitStart = (c.height * 0.75 - c.width) / 2.0 / ratio;
+            blit[0] = (c.height * 0.75 - c.width) / 2.0 / ratio;
             c.width = c.height * 0.75;
+        } else if (whRatio > 0.75) {
+            blit[1] = (c.width / 0.75 - c.height) / 2.0 / ratio;
+            c.height = c.width / 0.75;
         }
 
         ctx.scale(ratio, ratio);
-        ctx.drawImage(img, imgBlitStart, 0);
+        ctx.drawImage(img, ...blit);
         return (await fetch(c.toDataURL('image/png'))).url;
     };
 

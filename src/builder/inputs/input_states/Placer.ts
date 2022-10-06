@@ -20,6 +20,7 @@ export class PlacerInput extends MouseInputState {
 
         this.grid = new ShaderGrid();
         this.grid.generate();
+        this.grid.grid.visible = false;
         underlayObjects.add(this.grid.grid);
     }
 
@@ -37,8 +38,11 @@ export class PlacerInput extends MouseInputState {
         if (this.isWithinBounds(...pos)) {
             getPreviewCube().visible = true;
             (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
-        } else
+            this.grid.grid.visible = true;
+        } else {
             getPreviewCube().visible = false;
+            this.grid.grid.visible = false;
+        }
     }
 
     async onPointerDown(event: PointerEvent) {

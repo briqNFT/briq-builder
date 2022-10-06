@@ -23,12 +23,15 @@ export abstract class BuilderInputState {
     // Derived classes don't have to care.
     onEnter(data?: object) {}
     onExit() {}
+
     _onEnter(data?: object) {
         this.onEnter(data);
     }
     _onExit() {
         this.onExit();
     }
+
+    _copyOver(oldState: unknown) {}
 
     async onFrame() {}
     async onPointerMove(event: PointerEvent) {}
@@ -56,6 +59,16 @@ export class MouseInputState extends BuilderInputState {
 
     lastClickX = 0;
     lastClickY = 0;
+
+    _copyOver(oldState: unknown) {
+        if (!(oldState instanceof MouseInputState))
+            return;
+        super._copyOver(oldState);
+        this.curX = oldState.curX;
+        this.curY = oldState.curY;
+        this.lastX = oldState.lastX;
+        this.lastY = oldState.lastY;
+    }
 
     getCanvasRelativePosition(x: number, y: number): [number, number] {
         const rect = this.canvas.getBoundingClientRect();
