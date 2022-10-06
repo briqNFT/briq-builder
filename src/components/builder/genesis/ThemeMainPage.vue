@@ -108,7 +108,7 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                 </div>
             </div>
             <template v-if="isLive">
-                <div>
+                <div class="mb-8">
                     <template v-if="themeStatus === 'LOADED'">
                         <div class="container m-auto mt-8">
                             <template v-if="status == 'LOADED'">
@@ -117,7 +117,7 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                                     <BoxListing :boxes="auctionBoxes" :mode="saleStartsInSeconds < 0 ? 'AUTO' : 'PRESALE' "/>
                                 </template>
                                 <template v-if="dutchBoxes.length">
-                                    <h3>Instant Purchase ({{ dutchBoxes.length }})</h3>
+                                    <h3 class="mt-8">Instant Purchase ({{ dutchBoxes.length }})</h3>
                                     <BoxListing :boxes="dutchBoxes" :mode="saleStartsInSeconds < 0 ? 'AUTO' : 'PRESALE' "/>
                                 </template>
                             </template>
