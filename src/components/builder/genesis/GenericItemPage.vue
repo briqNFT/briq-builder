@@ -50,7 +50,7 @@ p, :slotted(p) {
                 </p>
                 <div class="grid grid-cols-[8fr_4fr] gap-6 mb-8">
                     <div class="flex flex-col gap-6">
-                        <div class="flex justify-center items-center min-h-[34rem] bg-grad-lightest rounded-lg border-grad-light border">
+                        <div class="flex justify-center items-center min-h-[34rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
                             <template v-if="status === 'LOADED'">
                                 <slot name="image"/>
                             </template>
