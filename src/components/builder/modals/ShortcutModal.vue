@@ -8,11 +8,11 @@ h3 {
 }
 
 p {
-    @apply text-sm flex justify-between border-t border-grad-light py-2;
+    @apply tracking-tight text-sm flex justify-between border-t border-grad-light py-2 gap-4;
 }
 
 p :last-child {
-    @apply tracking-tighter whitespace-nowrap;
+    @apply whitespace-nowrap;
 }
 </style>
 <template>
