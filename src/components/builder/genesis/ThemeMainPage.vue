@@ -84,9 +84,9 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                     <div class="absolute w-full h-full theme-bg">
                         <img :src="isLive ? StarknetPlanetTheme : StarknetPlanetWaitingTheme" alt="logo" class="absolute max-w-none maw-h-none top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]">
                     </div>
-                    <div class="min-h-[500px] container py-16 m-auto px-2 md:px-8 lg:px-16 relative z-1">
+                    <div class="min-h-[500px] container py-[3.375rem] m-auto px-2 md:px-8 lg:px-[3.375rem] relative z-1">
                         <!--<h1 class="text-left font-black uppercase my-16">{{ themeData.name || route.params.theme }}</h1>-->
-                        <h1><img class="pl-[5rem] min-h-[7rem]" :src="starknet_planet_logo" :alt="themeData?.name || route.params.theme"></h1>
+                        <h1><img class="min-h-[7rem]" :src="starknet_planet_logo" :alt="themeData?.name || route.params.theme"></h1>
                         <div class="my-16">
                             <h3>{{ themeData?.tagline ?? "Loading theme name " }}</h3>
                             <p>{{ themeData?.description ?? 'Loading description' }}</p>
