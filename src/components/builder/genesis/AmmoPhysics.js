@@ -1,13 +1,20 @@
 async function AmmoPhysics() {
 
+    console.log('totoro 1');
+    const ammoScript = document.createElement('script');
+    ammoScript.src = '/ammo.js';
+    await new Promise((resolve, _) => {
+        ammoScript.onload = () => resolve(null);
+        document.body.appendChild(ammoScript);
+    })
+
     if ( 'Ammo' in window === false ) {
 
         console.error( 'AmmoPhysics: Couldn\'t find Ammo.js' );
         return;
 
     }
-
-    const AmmoLib = Ammo;//await Ammo(); // eslint-disable-line no-undef
+    const AmmoLib = await Ammo(); // eslint-disable-line no-undef
 
     const frameRate = 60;
 

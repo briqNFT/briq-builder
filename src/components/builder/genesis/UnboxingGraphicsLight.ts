@@ -14,7 +14,6 @@ import {
 
 import { GLTFLoader } from '@/three';
 
-//import { Ammo } from 'three/addons/physics/AmmoPhysics.js';
 
 import HomeScene from '@/assets/genesis/briqs_box_xmas.glb?url';
 import BriqBox from '@/assets/genesis/briqs_box.glb?url';
@@ -269,17 +268,7 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     }
 }
 
-/*
-import * as Ammo2 from 'ammo.js';
-globalThis.Ammo = Ammo2;
-globalThis.Ammo();
-*/
-//globalThis.Ammo3 = globalThis.Ammo;
-//globalThis.Ammo = async () => globalThis.Ammo3;
-//globalThis.Ammo();
-
 import { AmmoPhysics } from './AmmoPhysics.js';
-
 
 let physicsWorld: AmmoPhysics;
 
