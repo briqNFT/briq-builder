@@ -58,6 +58,7 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
 </script>
 
 <style scoped>
+    /*
 .theme-bg::after {
     content: "";
     @apply absolute top-0 left-[50%] translate-x-[-50%] w-full h-full max-w-[1440px] min-w-[1280px];
@@ -68,6 +69,14 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
         linear-gradient(-90deg, rgba(0, 0, 0, 0) 85%, rgba(0, 0, 0, 1) 100%),
         linear-gradient(120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%),
         linear-gradient(-120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%)
+}
+*/
+
+.theme-bg::after {
+    content: "";
+    @apply absolute top-0 left-[50%] translate-x-[-50%] w-full h-full;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 90%, rgba(0, 0, 0, 1) 100%),
+        linear-gradient(-90deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.1) 60%, rgba(0, 0, 0, 0.3) 80%);
 }
 
 .faq p {
@@ -85,20 +94,20 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
         <div>
             <div class="bg-black text-white">
                 <div class="h-[585px] relative">
-                    <div class="absolute w-full h-full theme-bg">
-                        <img :src="themeCoverUrl(themeName)" alt="logo" class="absolute max-w-none maw-h-none top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]">
+                    <div class="absolute w-full h-full theme-bg overflow-hidden">
+                        <img :src="themeCoverUrl(themeName)" alt="logo" class="absolute h-full 2xl:h-auto 2xl:w-full max-w-none max-h-none top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]">
                     </div>
                     <div class="min-h-[500px] container py-[3.375rem] m-auto px-2 md:px-8 lg:px-[3.375rem] relative z-1">
                         <!--<h1 class="text-left font-black uppercase my-16">{{ themeData.name || route.params.theme }}</h1>-->
                         <h1><img class="min-h-[7rem]" :srcset="themeLogoSrcSet(themeName)" :alt="themeData?.name || (route.params.theme as string)"></h1>
-                        <div class="my-16">
-                            <h3>{{ themeData?.tagline ?? "Loading theme name " }}</h3>
+                        <div class="mt-12 mb-10">
+                            <h3 class="mb-3">{{ themeData?.tagline ?? "Loading theme name " }}</h3>
                             <p>{{ themeData?.description ?? 'Loading description' }}</p>
                         </div>
                         <template v-if="!isLive">
-                            <div class="w-[340px] my-8 px-4 pt-2 pb-4 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
-                                <p class="my-2 text-sm">Sale starting soon</p>
-                                <div class="grid grid-cols-4 auction-countdown gap-2">
+                            <div class="w-[340px] my-8 px-2 py-2 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
+                                <p class="text-sm">Sale starting soon</p>
+                                <div class="mt-2 grid grid-cols-4 gap-2 auction-countdown">
                                     <div
                                         v-for="i in saleStartsIn" :key="i[0]"
                                         class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
