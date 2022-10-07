@@ -80,8 +80,8 @@ h3 {
 h4 {
     @apply mb-4 text-md text-primary font-medium;
 }
-.explanations > div {
-    @apply rounded-lg bg-grad-lightest p-8 border border-grad-light;
+.explanations p {
+    @apply leading-tight mb-2;
 }
 .block-grid p {
     @apply text-base box-content h-6 w-6 border-2 border-grad-lightest shadow-sm rounded-sm p-0 m-0;
@@ -143,14 +143,15 @@ h4 {
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
         </p>
     </div>
-    <div>
-        <div class="container m-auto py-10 md:px-8 lg:px-[4rem] xl:px-[8rem]">
+    <div class="bg-grad-lightest">
+        <div class="container m-auto py-6 md:px-8 lg:px-[4rem] xl:px-[10rem] explanations">
             <div class="flex flex-row flex-wrap-reverse items-center gap-[0rem] my-0">
                 <div class="flex-1 md:px-[2rem] xl: px-[8rem] mb-10">
                     <h3>Collect</h3>
-                    <p>briqs are construction blocks stored on the blockchain.<br><br></p>
-                    <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.<br><br></p>
+                    <p>briqs are construction blocks stored on the blockchain.</p>
+                    <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.</p>
                     <p>Your briqs are yours, forever.</p>
+                    <p class="my-4"><RouterLink to="/themes" class="text-primary">Check out our official sets <i class="fa-solid fa-arrow-right"/></RouterLink></p>
                 </div>
                 <div class="flex-1 min-w-[300px]">
                     <img :src="CollectImage" class="max-w-none max-h-none w-full h-auto">
@@ -165,6 +166,7 @@ h4 {
                     <p>briq can be assembled to create NFTs. These NFT are called sets.</p>
                     <p>Transfer, sell, lend, break your NFTs any way you want.</p>
                     <p>Disassemble your set to get your briqs back and build something new.</p>
+                    <p class="my-4"><RouterLink to="/builder" class="text-primary">Start Building <i class="fa-solid fa-arrow-right"/></RouterLink></p>
                 </div>
             </div>
             <div class="flex flex-row flex-wrap-reverse items-center gap-[4rem] my-16">
@@ -172,6 +174,7 @@ h4 {
                     <h3>Play</h3>
                     <p>briqs sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
                     <p>Integrate briq in any way you want. Seize the briqs of creation.</p>
+                    <p class="my-4"><RouterLink to="/builder" class="text-primary">Discover our Altzone integration <i class="fa-solid fa-arrow-right"/></RouterLink></p>
                 </div>
                 <div class="flex-1 min-w-[300px]">
                     <img :src="PlayImage" class="drop-shadow-2xl max-w-none max-h-none w-full h-auto">
@@ -180,7 +183,7 @@ h4 {
         </div>
     </div>
     <div class="container mx-auto mb-4 md:mb-20 px-4 md:px-20">
-        <div class="text-center mb-8">
+        <div class="text-center mt-20 mb-10">
             <h1>Discover our Genesis Sale</h1>
         </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
