@@ -34,7 +34,7 @@ onMounted(() => {
 <template>
     <div>
         <div
-            class="header container m-auto py-3 px-8 flex justify-between items-center text-center alternate-buttons">
+            class="header container m-auto py-3 flex justify-between items-center text-center alternate-buttons">
             <div class="flex">
                 <routerLink to="/genesis"><h2 class="briq-logo text-[32px]">briq</h2></routerLink>
             </div>

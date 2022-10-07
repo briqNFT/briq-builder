@@ -55,8 +55,8 @@ module.exports = {
                 DEFAULT: '1rem',
                 sm: '0.5rem',
                 lg: '1rem',
-                xl: '2rem',
-                '2xl': '3rem',
+                xl: '1.5rem',
+                '2xl': '2rem',
             },
         },
         fontSize: {

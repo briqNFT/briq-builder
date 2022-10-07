@@ -67,7 +67,7 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
 }
 
 .faq p {
-    @apply mb-4 text-justify text-sm;
+    @apply mb-4 text-justify text-sm text-grad-dark;
 }
 .faq p a {
     @apply text-primary;
@@ -113,11 +113,11 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                         <div class="container m-auto mt-8">
                             <template v-if="status == 'LOADED'">
                                 <template v-if="auctionBoxes.length">
-                                    <h3>Auctions for unique NFTs ({{ auctionBoxes.length }})</h3>
+                                    <h4>Auctions for unique NFTs ({{ auctionBoxes.length }})</h4>
                                     <BoxListing :boxes="auctionBoxes" :mode="saleStartsInSeconds < 0 ? 'AUTO' : 'PRESALE' "/>
                                 </template>
                                 <template v-if="dutchBoxes.length">
-                                    <h3 class="mt-8">Instant Purchase ({{ dutchBoxes.length }})</h3>
+                                    <h4 class="mt-10">Instant Purchase ({{ dutchBoxes.length }})</h4>
                                     <BoxListing :boxes="dutchBoxes" :mode="saleStartsInSeconds < 0 ? 'AUTO' : 'PRESALE' "/>
                                 </template>
                             </template>
@@ -137,9 +137,9 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                     </template>
                 </div>
             </template>
-            <div class="bg-black text-white">
-                <div class="container max-w-[36rem] m-auto py-8">
-                    <h2 class="text-center mb-8">FAQ</h2>
+            <div class="bg-black text-white pb-8">
+                <div class="container max-w-[42rem] m-auto py-8">
+                    <h3 class="text-center mb-6">FAQ</h3>
                     <div class="faq flex flex-col gap-4">
                         <ToggleParagraph>
                             <template #title>What is Starknet Planet?</template>

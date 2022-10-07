@@ -38,7 +38,7 @@ const highestBid = computed(() => {
 
 <style scoped>
 .item-card > div {
-    @apply flex flex-col relative top-0 transition-all;
+    @apply flex flex-col relative top-0 transition-all duration-300;
 }
 .item-card:hover > div {
     @apply top-[-0.25rem];
@@ -53,27 +53,29 @@ const highestBid = computed(() => {
 
 <template>
     <div :class="'item-card relative ' + itemQuery._status">
-        <div class="bg-white rounded-md gap-1 shadow-sm">
+        <div class="bg-white rounded-md gap-2 shadow-sm">
             <template v-if="itemQuery._status === 'LOADED'">
-                <p class="flex-1 min-h-0 min-w-0 flex justify-center items-center">
-                    <img class="min-h-0 min-w-0 h-[12rem]" :src="genesisStore.coverBoxRoute(tokenName)">
+                <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
+                <p class="min-h-0 min-w-0 flex justify-center items-center mx-4 mt-6 mb-4 h-[12rem]">
+                    <img class="min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverBoxRoute(tokenName)">
                 </p>
-                <h3 class="font-medium text-md px-4">{{ item.name }} </h3>
+                <h3 class="font-semibold text-md px-4 break-all">{{ item.name }} </h3>
                 <template v-if="actualMode === 'PRESALE' && saleQuery._status === 'LOADED'">
-                    <div class="px-4 flex justify-between">
-                        <p v-if="saledata?.total_quantity === 1" class="text-sm">Unique</p>
-                        <p v-else class="text-sm">{{ saledata?.total_quantity }} for sale</p>
+                    <div class="px-4 flex justify-between text-sm leading-none py-[1px]">
+                        <p v-if="saledata?.total_quantity === 1">Unique</p>
+                        <p v-else>{{ saledata?.total_quantity }} for sale</p>
                     </div>
                 </template>
                 <template v-else-if="actualMode === 'SALE'">
-                    <div v-if="saleQuery._status === 'LOADED'" class="px-4 flex justify-between">
-                        <p v-if="saledata?.total_quantity === 1" class="text-sm">Unique</p>
-                        <p v-else class="text-sm">{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }} left</p>
+                    <div v-if="saleQuery._status === 'LOADED'" class="px-4 flex justify-between text-sm leading-none py-[1px]">
+                        <p v-if="saledata?.total_quantity === 1">Unique</p>
+                        <p v-else>{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }} left</p>
                     </div>
                 </template>
                 <template v-if="actualMode === 'PRESALE'">
                     <hr class="my-2">
                     <div class="p-4 pt-0 flex flex-col gap-2">
+                        <p class="flex justify-between"><span class="text-grad-dark">Initial price</span><span class="font-semibold">0.01 ETH</span></p>
                         <p class="flex justify-between">
                             <span class="text-grad-dark">Sales begins in</span>
                             <span v-if="!saledata?.startIn()">...</span>
@@ -82,7 +84,6 @@ const highestBid = computed(() => {
                             <span v-else-if="saledata.startIn() > 60">{{ Math.floor(saledata.startIn()/60) }} minute(s)</span>
                             <span v-else>{{ Math.floor(saledata.startIn()) }} seconds</span>
                         </p>
-                        <p class="flex justify-between"><span class="text-grad-dark">Initial price</span><span>0.01 ETH</span></p>
                     </div>
                 </template>
                 <template v-else-if="actualMode === 'INVENTORY'">
@@ -90,7 +91,7 @@ const highestBid = computed(() => {
                     <div class="p-4 pt-0 flex flex-col gap-2">
                         <p class="flex justify-between">
                             <span class="text-grad-dark">Bought at</span>
-                            <span>{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                            <span class="font-semibold">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
                         </p>
                         <p class="flex justify-between">
                             <span class="text-grad-dark">On</span>
@@ -101,10 +102,18 @@ const highestBid = computed(() => {
                 <template v-else>
                     <hr class="my-2">
                     <div class="p-4 pt-0 flex flex-col gap-2">
-                        <p v-if="actualMode === 'SALE' && saledata?.total_quantity === 1" class="flex justify-between"><span class="text-grad-dark">Last Bid</span><span>{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span></p>
-                        <p v-else-if="actualMode === 'SALE'" class="flex justify-between"><span class="text-grad-dark">Current Price</span><span>{{ readableNumber(saledata.price) }} {{ readableUnit(saledata.price) }}</span></p>
-                        <p v-else-if="hasHighestBid" class="flex justify-between"><span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span>{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span></p>
-                        <p v-else class="flex justify-between"><span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span>{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span></p>
+                        <p v-if="actualMode === 'SALE' && saledata?.total_quantity === 1" class="flex justify-between">
+                            <span class="text-grad-dark">Last Bid</span><span class="font-semibold">{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span>
+                        </p>
+                        <p v-else-if="actualMode === 'SALE'" class="flex justify-between">
+                            <span class="text-grad-dark">Current Price</span><span class="font-semibold">{{ readableNumber(saledata.price) }} {{ readableUnit(saledata.price) }}</span>
+                        </p>
+                        <p v-else-if="hasHighestBid" class="flex justify-between">
+                            <span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span class="font-semibold">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                        </p>
+                        <p v-else class="flex justify-between">
+                            <span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span class="font-semibold">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                        </p>
                         <p class="flex justify-between">
                             <span class="text-grad-dark">Sales End</span>
                             <span v-if="!durationLeft">...</span>
