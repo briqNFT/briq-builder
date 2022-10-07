@@ -39,5 +39,5 @@ export default defineConfig(({ mode }) => ({
         environment: 'jsdom',
     },
     // Uncomment to see details on what's going with rollup
-    plugins: [vue(), svgLoader(), injectNpmVersion(), analyze({ showExports: true }), visualizer({ template: 'treemap', sourcemap: true })],
+    plugins: [vue(), svgLoader(), injectNpmVersion()],//, analyze({ showExports: true }), visualizer({ template: 'treemap', sourcemap: true })],
 }));
