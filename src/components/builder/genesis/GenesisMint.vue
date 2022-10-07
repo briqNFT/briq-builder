@@ -16,9 +16,7 @@ import { nextTick } from 'vue';
 
 import { h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
-// TODO: link to backend
-import StarknetPlanetWaitingTheme from '@/assets/genesis/starknet_planet_waiting_theme.png?url';
-import starknet_planet_logo from '@/assets/genesis/starknet_planet_logo.png?url';
+import { useThemeURLs } from './ThemeUrlComposable';
 
 const modelViewerLoading = ref(true);
 const modelViewerLoadingPromise = import('@google/model-viewer');
@@ -37,6 +35,12 @@ onBeforeUnmount(() => {
     //    document.body.style.backgroundColor = '';
     window.removeEventListener('scroll', onScroll);
 });
+
+
+const {
+    themeCoverUrl,
+    themeLogoSrcSet,
+} = useThemeURLs();
 
 const modelViewer = h('model-viewer', {
     alt: 'A set made of briqs',
@@ -185,9 +189,9 @@ h4 {
         </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
             <div class="h-[400px] bg-black text-white rounded-lg relative overflow-hidden">
-                <img :src="StarknetPlanetWaitingTheme" class="absolute max-w-none h-full xl:h-auto xl:w-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
+                <img :src="themeCoverUrl('starknet_city')" class="absolute max-w-none h-full xl:h-auto xl:w-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
                 <div class="z-1 p-8 relative h-full flex flex-col justify-between items-center xl:items-start w-full">
-                    <img :src="starknet_planet_logo" class="w-auto h-auto m-8">
+                    <img :srcset="themeLogoSrcSet('starknet_city')" class="w-auto h-auto m-8">
                     <p>Discover the new theme <i class="fa-solid fa-arrow-right"/></p>
                 </div>
             </div>
