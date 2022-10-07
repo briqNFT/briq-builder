@@ -10,6 +10,12 @@ import FabricIcon from '@/assets/landing/fabric.png';
 import FirstIcon from '@/assets/landing/frst.svg';
 import StarkwareIcon from '@/assets/landing/starkware.svg';
 
+import CollectImage from '@/assets/landing/landing_box_cover.png';
+import PlayImage from '@/assets/landing/landing_full_speeder.png';
+import BuildImage from '@/assets/landing/landing_speeder_eclate.png';
+
+import StarknetCity from '@/assets/landing/starknet_city_upcoming.jpg';
+
 import InlinedRocketCover from './InlinedRocketCover';
 import RocketGlb from '@/assets/landing/rocket.glb?url';
 import { nextTick } from 'vue';
@@ -29,16 +35,16 @@ const onScroll = (_event: Event) => {
 }
 
 onBeforeMount(() => {
+    //document.body.style.backgroundColor = '#ffffff';
     window.addEventListener('scroll', onScroll);
 });
 onBeforeUnmount(() => {
-    //    document.body.style.backgroundColor = '';
+    //document.body.style.backgroundColor = '';
     window.removeEventListener('scroll', onScroll);
 });
 
 
 const {
-    themeCoverUrl,
     themeLogoSrcSet,
 } = useThemeURLs();
 
@@ -138,58 +144,48 @@ h4 {
         </p>
     </div>
     <div>
-        <div class="container m-auto py-10 md:p-20">
-            <div class="text-center mb-8">
-                <h4 class="text-primary">Principle</h4>
-                <h1>A highly modular material</h1>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 explanations">
-                <div>
-                    <div class="flex items-center">
-                        <div class="grid grid-cols-3 block-grid">
-                            <p class="bg-primary"/><p class="bg-primary"/><p class="bg-grad-lightest shadow-none"/>
-                            <p class="bg-primary"/><p class="bg-grad-lightest shadow-none"/><p class="bg-primary translate-x-[-0.5rem]"/>
-                        </div>
-                    </div>
+        <div class="container m-auto py-10 md:px-8 lg:px-[4rem] xl:px-[8rem]">
+            <div class="flex flex-row flex-wrap-reverse items-center gap-[0rem] my-0">
+                <div class="flex-1 md:px-[2rem] xl: px-[8rem] mb-10">
                     <h3>Collect</h3>
                     <p>briqs are construction blocks stored on the blockchain.<br><br></p>
                     <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.<br><br></p>
                     <p>Your briqs are yours, forever.</p>
                 </div>
-                <div>
-                    <div class="flex items-center">
-                        <div class="grid grid-cols-2 block-grid">
-                            <p class="bg-primary"/><p class="bg-primary"/>
-                            <p class="bg-primary"/><p class="bg-primary"/>
-                        </div>
-                    </div>
+                <div class="flex-1 min-w-[300px]">
+                    <img :src="CollectImage" class="max-w-none max-h-none w-full h-auto">
+                </div>
+            </div>
+            <div class="flex flex-row flex-wrap items-center gap-[4rem] mb-16">
+                <div class="flex-1 min-w-[300px]">
+                    <img :src="BuildImage" class="drop-shadow-xl max-w-none max-h-none w-full h-auto">
+                </div>
+                <div class="flex-1 md:px-[2rem] xl: px-[8rem]">
                     <h3>Build</h3>
                     <p>briq can be assembled to create NFTs. These NFT are called sets.</p>
                     <p>Transfer, sell, lend, break your NFTs any way you want.</p>
                     <p>Disassemble your set to get your briqs back and build something new.</p>
                 </div>
-                <div>
-                    <div class="flex items-center">
-                        <div class="grid grid-cols-3 block-grid">
-                            <p class="bg-grad-lightest shadow-none"/><p class="bg-primary"/><p class="bg-grad-lightest shadow-none"/>
-                            <p class="bg-primary"/><p class="bg-primary"/><p class="bg-primary"/>
-                        </div>
-                    </div>
+            </div>
+            <div class="flex flex-row flex-wrap-reverse items-center gap-[4rem] my-16">
+                <div class="flex-1 md:px-[2rem] xl: px-[8rem]">
                     <h3>Play</h3>
                     <p>briqs sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
                     <p>Integrate briq in any way you want. Seize the briqs of creation.</p>
+                </div>
+                <div class="flex-1 min-w-[300px]">
+                    <img :src="PlayImage" class="drop-shadow-2xl max-w-none max-h-none w-full h-auto">
                 </div>
             </div>
         </div>
     </div>
     <div class="container mx-auto mb-4 md:mb-20 px-4 md:px-20">
         <div class="text-center mb-8">
-            <h4>Genesis Sale</h4>
-            <h1>Starknet Planet</h1>
+            <h1>Discover our Genesis Sale</h1>
         </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
             <div class="h-[400px] bg-black text-white rounded-lg relative overflow-hidden">
-                <img :src="themeCoverUrl('starknet_city')" class="absolute max-w-none h-full xl:h-auto xl:w-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
+                <img :src="StarknetCity" class="absolute max-w-none w-auto h-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
                 <div class="z-1 p-8 relative h-full flex flex-col justify-between items-center xl:items-start w-full">
                     <img :srcset="themeLogoSrcSet('starknet_city')" class="w-auto h-auto m-8">
                     <p>Discover the new theme <i class="fa-solid fa-arrow-right"/></p>

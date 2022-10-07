@@ -80,7 +80,7 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
 }
 
 .faq p {
-    @apply mb-4 text-justify text-sm text-grad-dark;
+    @apply mb-4 text-justify text-sm text-grad-dark leading-snug;
 }
 .faq p a {
     @apply text-primary;
