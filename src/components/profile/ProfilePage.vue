@@ -165,7 +165,7 @@ const {
                     <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 my-8 z-50">
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
                     <div v-for="booklet of userBookletsStore.current?.booklets">
                         <RouterLink :to="`user/booklet/${booklet}`">
                             <BookletCard :box-id="booklet"/>
@@ -182,7 +182,7 @@ const {
                         <Btn secondary>Browse the themes</Btn>
                     </div>
                 </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 my-8 z-50">
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
                     <GenericCard
                         v-for="creation in officialCreations" :key="creation.id"
                         @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
@@ -214,7 +214,7 @@ const {
                     <p>Get some briqs and start building!</p>
                     <Btn secondary class="mt-2">Browse the themes</Btn>
                 </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 my-8 z-50">
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
                     <GenericCard
                         v-for="creation in creations" :key="creation.id"
                         @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
@@ -250,7 +250,7 @@ const {
                         <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
                     </div>
                 </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 my-8 z-50">
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
                     <!-- @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})" -->
                     <GenericCard
                         v-for="creation in creationsWIP" :key="creation.id"
