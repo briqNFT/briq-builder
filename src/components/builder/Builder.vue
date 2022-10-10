@@ -2,36 +2,34 @@
 import WebGLCanvas from './WebGLCanvas.vue';
 import MenuBar from './MenuBar.vue';
 import SideBar from './SideBar.vue';
-import Modals from '../Modals.vue';
-import Messages from '../Messages.vue';
 import Booklet from './Booklet.vue';
-
-import CursorTooltip from '../generic/CursorTooltip.vue';
 
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
-import { onMounted, provide } from 'vue';
+import { onBeforeMount, provide, ref } from 'vue';
 import { featureFlags } from '@/FeatureFlags';
 import { logDebug, pushMessage, setTooltip } from '../../Messages';
 import { useBuilder } from '@/components/builder/BuilderComposable';
-import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { inputInitComplete } from '@/builder/inputs/InputLoading';
 
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { userSetStore } from '@/builder/UserSets';
 import { SetData } from '@/builder/SetData';
 import { backendManager } from '@/Backend';
 import { getCurrentNetwork } from '@/chain/Network';
 
 import { useBooklet } from './BookletComposable';
-import { CONF } from '@/Conf';
 import { packPaletteChoice, palettesMgr, unpackPaletteChoice } from '@/builder/Palette';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { getBookletData } from '@/builder/BookletData';
 import { threeSetupComplete } from '@/threeLoading';
+import { checkForInitialGMSet } from '@/builder/SetsManager';
+import { useStore } from 'vuex';
+import { APP_ENV } from '@/Meta';
+import { setupInputMap } from '@/builder/inputs/InputMapPopulate';
+import { walletInitComplete } from '@/chain/WalletLoading';
 
-
-const { setsManager, chainBriqs, currentSet, selectSet } = useBuilder();
+const { setsManager, chainBriqs, currentSet, selectSet, resetBuilderState } = useBuilder();
 
 provide('chainBriqs', chainBriqs);
 provide('messages', {
@@ -41,12 +39,10 @@ provide('messages', {
 provide('featureFlags', featureFlags);
 
 const route = useRoute();
-const router = useRouter();
 
 const { booklet, bookletData } = useBooklet();
-///
-onMounted(async () => {
-    await inputInitComplete;
+
+async function initializeStartSet() {
     if (route.query['set'])
         try {
             const setId = route.query['set'] as string;
@@ -60,12 +56,31 @@ onMounted(async () => {
                 await selectSet(data);
             }
         } catch(_) {
-            console.error(_) /* ignore */
+            if (APP_ENV === 'dev')
+                console.error(_)
         }
 
-    dispatchBuilderAction('select_set', currentSet.value);
+    if (!currentSet.value) {
+        console.log(('BUILDER - INITIALIZING GM SET'));
+        const set = checkForInitialGMSet();
+        if (set)
+            await selectSet(set);
+    }
 
-    // Change default palette & update colors.
+    // Must have a local set.
+    if (!currentSet.value) {
+        let set = setsManager.getLocalSet();
+        if (!set)
+            set = setsManager.createLocalSet();
+        await selectSet(set);
+    }
+
+    logDebug('BUILDER - START SET INITIALIZED');
+}
+
+const store = useStore();
+
+const initializePalette = async () => {
     if (booklet.value) {
         await getBookletData(booklet.value);
 
@@ -101,16 +116,43 @@ onMounted(async () => {
         palette.shouldSerialize = true;
         logDebug('PALETTE - SWITCHING TO DEFAULT')
     }
+}
+
+const ready = ref(false);
+onBeforeMount(async () => {
+    setupInputMap();
+
+    resetBuilderState();
+
+    console.log('TOTORO HERE', inputInitComplete.value);
+    await inputInitComplete.value;
+    console.log('TOTORO HERE2');
+
+    await initializeStartSet();
+
+    dispatchBuilderAction('select_set', currentSet.value);
+
+    // Change default palette & update colors.
+    await initializePalette();
 
     dispatchBuilderAction('put_all_in_view');
+
+    // Reset history so we start fresh, because at this point other operations have polluted it.
+    await store.dispatch('reset_history');
+
+    await walletInitComplete;
+
+    ready.value = true;
 });
 </script>
 
 <template>
     <div class="fixed w-screen h-screen">
         <WebGLCanvas class="z-[-1]"/>
-        <MenuBar/>
-        <Booklet/>
-        <SideBar/>
+        <template v-if="ready">
+            <MenuBar/>
+            <Booklet/>
+            <SideBar/>
+        </template>
     </div>
 </template>

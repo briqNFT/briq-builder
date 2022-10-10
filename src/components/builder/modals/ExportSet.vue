@@ -170,6 +170,7 @@ const startMinting = async () => {
         setTimeout(() => {
             router.push({ name: 'Profile' })
             setsManager.deleteLocalSet(setData.value.id);
+            emit('close');
         }, 0);
     } catch (err: any) {
         if (err?.message === 'User abort') {

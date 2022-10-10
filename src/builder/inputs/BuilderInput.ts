@@ -28,8 +28,8 @@ export class BuilderInputFSM {
         this.orbitControls = oc;
         this.store = store;
         this.hotkeyMgr = hotkeyMgr;
-        setInputInitComplete();
         logDebug('FSM - initialised');
+        setInputInitComplete.value();
         if (this._preinitState)
             this.switchTo(...this._preinitState);
     }
@@ -50,7 +50,7 @@ export class BuilderInputFSM {
     }
 
     waitForInit() {
-        return inputInitComplete;
+        return inputInitComplete.value;
     }
 
     //

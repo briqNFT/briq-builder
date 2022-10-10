@@ -42,7 +42,7 @@ export default defineComponent({
         // The purpose of the splash screen is to wait until we've loaded stuff.
         await threeSetupComplete; // Wait until we've loaded Three JS
         await walletInitComplete; // Wait until we've completed wallet init (or failed)
-        await inputInitComplete; // Wait until the FSM has been setup.
+        await inputInitComplete.value; // Wait until the FSM has been setup.
         this.$emit('done');
         this.hidden = 'shouldHide';
         setTimeout(() => {

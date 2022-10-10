@@ -10,6 +10,7 @@ import { inputStore } from '@/builder/inputs/InputStore';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { dispatchBuilderAction } from './graphics/Dispatch';
 import { currentSet as ___currentSet } from './BuilderData';
+import { logDebug } from '@/Messages';
 
 /**
  * A lot of components in a number of places need to access the 'current set' loaded in the builder.
@@ -24,15 +25,22 @@ export const builderStore = (() => {
     const currentSet = shallowReadonly(_currentSet);
 
     const selectSet = async (set: SetData) => {
+        logDebug('BUILDER - SWITCHING TO SET ', set.id, new Error().stack);
         _currentSet.value = set;
         inputStore.selectionMgr.selectSet(currentSet.value);
         ___currentSet.value = set;
 
         const isLocal = sm.getInfo(currentSet.value?.id);
+        console.log('BUILDER', isLocal ? 'place' : 'camera');
         builderInputFsm.switchTo(isLocal ? 'place' : 'camera');
 
         dispatchBuilderAction('select_set', currentSet.value);
     }
+
+    const resetBuilderState = () => {
+        _currentSet.value = undefined;
+    }
+
     return {
         currentSetInfo,
         currentSet,
@@ -40,5 +48,6 @@ export const builderStore = (() => {
         store,
         contractStore,
         setsManager: sm,
+        resetBuilderState,
     };
 })();

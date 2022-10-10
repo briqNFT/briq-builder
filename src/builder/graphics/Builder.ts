@@ -341,3 +341,8 @@ export async function main(canvas) {
 
     _sceneSetup();
 }
+
+export async function unmount() {
+    scene.clear();
+    renderer?.dispose();
+}

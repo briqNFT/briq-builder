@@ -17,13 +17,13 @@
 </template>
 
 <script lang="ts">
-import { main, orbitControls, render } from '../../builder/graphics/Builder';
+import { main, orbitControls, render, unmount } from '../../builder/graphics/Builder';
 
 import { builderInputFsm } from '../../builder/inputs/BuilderInput';
 import { inputStore } from '../../builder/inputs/InputStore';
 
-import { defineComponent, toRef } from 'vue';
-import { logDebug } from '../../Messages';
+import { defineComponent } from 'vue';
+import { resetInputComplete } from '@/builder/inputs/InputLoading';
 export default defineComponent({
     inject: ['hotkeyMgr'],
     data() {
@@ -42,6 +42,11 @@ export default defineComponent({
         this.setup = true;
         this.frame();
     },
+    async beforeUnmount() {
+        await unmount();
+        resetInputComplete();
+        this.setup = false;
+    },
     computed: {
         fsmGrabsFocus() {
             return inputStore.grabFocus;
@@ -49,6 +54,8 @@ export default defineComponent({
     },
     methods: {
         frame() {
+            if (!this.setup)
+                return;
             render();
             builderInputFsm.onFrame();
             requestAnimationFrame(() => this.frame());

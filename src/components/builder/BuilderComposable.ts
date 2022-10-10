@@ -6,6 +6,7 @@ export function useBuilder() {
         currentSetInfo,
         selectSet,
         setsManager,
+        resetBuilderState,
     } = builderStore;
     return {
         currentSet,
@@ -13,6 +14,7 @@ export function useBuilder() {
         selectSet,
         chainBriqs,
         setsManager,
+        resetBuilderState,
     }
 }
 
