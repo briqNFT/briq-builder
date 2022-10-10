@@ -25,7 +25,7 @@ const unproject = (n: { x: number, y: number, z: number }) => {
 </script>
 
 <template>
-    <div class="mx-4 mt-1 w-max" id="sidebar">
+    <div class="mx-1 sm:mx-4 mt-1 w-max absolute bottom-4 sm:static" id="sidebar">
         <QuickPicker v-if="activeInputButton !== 'camera' && activeInputButton !== 'erase'"/>
         <CameraFlyout v-if="activeInputButton === 'camera'"/>
         <Flyout

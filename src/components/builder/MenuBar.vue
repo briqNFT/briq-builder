@@ -102,8 +102,8 @@ const hideCameraFlyout = () => {
 </style>
 
 <template>
-    <div class="mx-4 mt-4 flex justify" v-if="!inputStore.hideInput">
-        <div class="flex-1 basis-1 min-w-max flex">
+    <div class="mx-1 mt-1 sm:mx-4 sm:mt-4 flex flex-wrap" v-if="!inputStore.hideInput">
+        <div class="flex-1 basis-1 min-w-max flex justify-stretch lg:justify-start">
             <div class="flex flex-none items-center px-2 py-1 gap-2 border border-grad-light bg-grad-lightest rounded-md">
                 <router-link :to="{ name: 'Profile' }"><Btn no-background><i class="fa-solid fa-arrow-left"/></Btn></router-link>
                 <Btn no-background @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
@@ -119,7 +119,7 @@ const hideCameraFlyout = () => {
                 <Hotkey name="help" :data="{ key: '?', shift: true }" :handler="() => pushModal(ShortcutModal)"/>
             </div>
         </div>
-        <div class="flex-1 basis-1 flex justify-center">
+        <div class="flex-1 basis-1 flex lg:justify-center">
             <div class="border bg-grad-lightest rounded-md flex gap-1 px-2 py-1">
                 <Btn no-background @click="switchToState('inspect')" :force-active="activeInputButton === 'select'"><i class="fas fa-mouse-pointer"/></Btn>
                 <Btn no-background @click="switchToState('place')" :force-active="activeInputButton === 'place'"><i class="fas fa-cube"/></Btn>
@@ -139,7 +139,7 @@ const hideCameraFlyout = () => {
                 <Hotkey name="group-5" :data="{ code: 'Digit5', onDown: true }" :handler="() => switchToState('camera')"/>
             </div>
         </div>
-        <div class="flex-1 basis-1 flex justify-end">
+        <div class="flex-1 basis-1 flex lg:justify-end">
             <div v-if="booklet" class="rounded-md bg-grad-lightest border mr-1 flex justify-center items-center p-1">
                 <Btn no-background :force-active="!minimized" @click="minimized = !minimized"><i class="fa-solid fa-book-open"/></Btn>
             </div>
