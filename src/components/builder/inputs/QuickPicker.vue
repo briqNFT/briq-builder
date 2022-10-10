@@ -109,7 +109,7 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
                         <div>
                             <Btn
                                 no-style
-                                :class="`rounded-sm w-4 h-4 p-0 flex justify-center items-center mat-${material} hover:ring-2 ring-grad-darkest`"
+                                :class="`rounded-sm w-5 h-5 p-0 flex justify-center items-center mat-${material} hover:ring-2 ring-grad-darkest`"
                                 :style="addMaterialCSS(material, color)"
                                 :tooltip="'Select color ' + name"
                                 @click="pickBriq(key)"
@@ -119,7 +119,7 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
                             <div class="relative" :data-target="key"/>
                         </div>
                     </template>
-                    <Btn no-background @click="addCurrentChoice" class="p-0 w-4 h-4 flex justify-center items-center">+</Btn>
+                    <Btn no-background @click="addCurrentChoice" class="p-0 w-5 h-5 flex justify-center items-center">+</Btn>
                 </div>
                 <Teleport v-if="contextMenuTarget" :to="contextMenuTarget">
                     <Flyout class="!absolute z-[50] top-[0] left-0" @pointerenter="dropClose" @pointerleave="contextMenuTarget = null">

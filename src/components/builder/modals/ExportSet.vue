@@ -131,7 +131,7 @@ const startMinting = async () => {
         return;
     try {
         if (!exportSet.value)
-            throw new Error('The set could not be exported');
+            throw new Error('The set could not be minted');
 
         if (exportSet.value.name.length > 200)
             throw new Error('Set name too long, max length is 200 characters.');
@@ -165,7 +165,6 @@ const startMinting = async () => {
             read: true,
         }).push(false);
         pushPopup('info', 'Minting set', h('div', [h('p', `Transaction to mint set '${data.name}' was successfully sent.`), HashVue(TX.transaction_hash)]));
-        logDebug('Set exported ' + data.id);
 
         setsManager.deleteLocalSet(setData.value.id);
         selectSet(exportSet.value);
@@ -174,13 +173,13 @@ const startMinting = async () => {
         setTimeout(() => router.push({ name: 'Profile' }), 0);
     } catch (err: any) {
         if (err?.message === 'User abort') {
-            pushPopup('error', 'Mint error', 'Export aborted.');
+            pushPopup('error', 'Mint error', 'Minting transaction aborted.');
             mintingError.value = 'Aborted by user';
         } else if (err === 'Timeout') {
-            pushPopup('error', 'Mint error', 'Error while exporting set - wallet timeout.');
+            pushPopup('error', 'Mint error', 'Error while minting set - wallet timeout.');
             mintingError.value = 'Wallet timeout';
         } else {
-            pushPopup('error', 'Mint error', 'Error while exporting set\ncheck browser console for details');
+            pushPopup('error', 'Mint error', 'Error while minting set\ncheck browser console for details');
             mintingError.value = err;
             console.error(err);
             //this.reportError(err);
@@ -248,7 +247,7 @@ const startMinting = async () => {
     </template>
     <template v-else>
         <Window>
-            <template #title>{{ mintingError ? 'Error while exporting' : 'Exporting set' }}</template>
+            <template #title>{{ mintingError ? 'Error while minting' : 'Minting set' }}</template>
             <div v-if="mintingError">
                 <p>Unfortunately we encountered an error while minting the set.</p>
                 <p>{{ mintingError }}</p>
@@ -261,7 +260,7 @@ const startMinting = async () => {
                 </div>
             </div>
             <template v-else>
-                <p>Your set is being exported.</p>
+                <p>Your set is being minted.</p>
             </template>
         </Window>
     </template>
