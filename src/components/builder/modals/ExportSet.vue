@@ -211,7 +211,7 @@ const startMinting = async () => {
             </div>
             <div class="my-2">
                 <h3>Name</h3>
-                <p><input type="text" v-model="setName" size="61"></p>
+                <p><input type="text" v-model="setName" size="61" autocomplete="off" data-lpignore="true" data-form-type="other"></p>
             </div>
             <div class="my-2">
                 <h3>Description</h3>
