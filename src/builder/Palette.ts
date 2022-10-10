@@ -25,10 +25,13 @@ class Palette {
     choices: string[] = [];
     names: { [key: string]: string } = {};
 
+    shouldSerialize = true;
+
     init() {
         this.deserialize();
         watchEffect(() => {
-            this.serialize();
+            if (this.shouldSerialize)
+                this.serialize();
         });
     }
 
@@ -103,8 +106,7 @@ class Palette {
             this.choices.splice(idx, 1);
     }
 
-    swapChoice(old_choice: { material: string, color: string } | { key: string }, new_choice: { material: string, color: string } | { key: string })
-    {
+    swapChoice(old_choice: { material: string, color: string } | { key: string }, new_choice: { material: string, color: string } | { key: string }) {
         const old_key = this.getKey(old_choice);
         const new_key = this.getKey(new_choice);
         const idx = this.choices.indexOf(old_key);

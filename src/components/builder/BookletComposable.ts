@@ -1,8 +1,5 @@
 import type { SetData } from '@/builder/SetData';
-import { reactive, toRef, watchEffect, watch, computed, Ref, onUnmounted } from 'vue';
-import { inputStore } from '@/builder/inputs/InputStore';
-import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
-import { CONF } from '@/Conf';
+import { reactive, toRef, watchEffect, computed, Ref, onUnmounted } from 'vue';
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { bookletId, getStepImgSrc, getBookletDataSync } from '@/builder/BookletData';
 
@@ -14,34 +11,11 @@ export const bookletStore = reactive({
     shapeValidityCalculated: {} as { [booklet: bookletId]: boolean },
 });
 
-const OgPalette = Object.assign({}, CONF.defaultPalette);
-
-
 export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) {
     const { currentSet, currentSetInfo } = useBuilder();
 
     const booklet = computed(() => forceBooklet?.value || currentSetInfo.value?.booklet as string);
     const bookletRef = computed(() => booklet.value ? getBookletDataSync(booklet.value).value : undefined);
-
-    // Change default palette & update colors.
-    watch([bookletRef], () => {
-        if (bookletRef.value) {
-            for (const key in CONF.defaultPalette)
-                delete CONF.defaultPalette[key];
-            for (const briq of bookletRef.value.briqs)
-                CONF.defaultPalette[packPaletteChoice(briq.data.material, briq.data.color)] = briq.data.color;
-
-            const palette = palettesMgr.getCurrent();
-            palette.reset(true);
-            const choice = palette.getFirstChoice();
-            inputStore.currentColor = choice.color;
-            inputStore.currentMaterial = choice.material;
-        } else {
-            for (const key in CONF.defaultPalette)
-                delete CONF.defaultPalette[key];
-            Object.assign(CONF.defaultPalette, OgPalette);
-        }
-    });
 
     // Compute the progress
     // Do nothing if the calculator already exists.
