@@ -166,11 +166,11 @@ const startMinting = async () => {
         }).push(false);
         pushPopup('info', 'Minting set', h('div', [h('p', `Transaction to mint set '${data.name}' was successfully sent.`), HashVue(TX.transaction_hash)]));
 
-        setsManager.deleteLocalSet(setData.value.id);
-        selectSet(exportSet.value);
-
         exportStep.value = 'DONE';
-        setTimeout(() => router.push({ name: 'Profile' }), 0);
+        setTimeout(() => {
+            router.push({ name: 'Profile' })
+            setsManager.deleteLocalSet(setData.value.id);
+        }, 0);
     } catch (err: any) {
         if (err?.message === 'User abort') {
             pushPopup('error', 'Mint error', 'Minting transaction aborted.');

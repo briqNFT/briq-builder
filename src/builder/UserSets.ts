@@ -8,6 +8,7 @@ import { perUserStorable, perUserStore } from './PerUserStore';
 import { SetData } from './SetData';
 import { userBookletsStore } from './UserBooklets';
 import { maybeStore } from '@/chain/WalletLoading';
+import { APP_ENV } from '@/Meta';
 
 
 class UserSetStore implements perUserStorable {
@@ -29,7 +30,8 @@ class UserSetStore implements perUserStorable {
     _serialize() {
         const setData = {} as UserSetStore['setData'];
         for (const setId in this._setData)
-            if (setId in this.metadata || this._sets.indexOf(setId) !== -1)
+            // For now only save data for temp sets, otherwise it's too heavy
+            if (setId in this.metadata) // || this._sets.indexOf(setId) !== -1)
                 setData[setId] = {
                     data: this._setData[setId].data.serialize(),
                     booklet: this._setData[setId].booklet,
@@ -38,12 +40,19 @@ class UserSetStore implements perUserStorable {
         return {
             sets: this._sets,
             metadata: JSON.parse(JSON.stringify(this.metadata)),
+            setData: setData,
         }
     }
 
     _deserialize(data: any) {
         this._sets = data.sets;
         this.metadata = data.metadata;
+        this._setData = {};
+        for (const setId in data.setData)
+            this._setData[setId] = {
+                data: new SetData(setId).deserialize(data.setData[setId].data),
+                booklet: data.setData[setId].booklet,
+            }
     }
 
     _onStorageChange(data: any) {
@@ -77,7 +86,8 @@ class UserSetStore implements perUserStorable {
             console.error(ex);
         }
         const network = this.user_id.split('/')[0];
-        for (const setId of this._sets)
+        // Attempt to reload all active sets
+        for (const setId of this.sets)
             if (!this._setData[setId])
                 try {
                     const data = await backendManager.fetch(`v1/metadata/${network}/${setId}.json`);
@@ -85,7 +95,10 @@ class UserSetStore implements perUserStorable {
                         data: new SetData(setId).deserialize(data),
                         booklet: data.booklet_id,
                     }
-                } catch(_) { /* ignored */}
+                } catch(_) {
+                    if (APP_ENV === 'dev')
+                        console.error(_);
+                }
     }
 
     onEnter() {
