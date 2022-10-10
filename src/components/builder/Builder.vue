@@ -25,9 +25,11 @@ import { getCurrentNetwork } from '@/chain/Network';
 
 import { useBooklet } from './BookletComposable';
 import { CONF } from '@/Conf';
-import { packPaletteChoice, palettesMgr } from '@/builder/Palette';
+import { packPaletteChoice, palettesMgr, unpackPaletteChoice } from '@/builder/Palette';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { getBookletData } from '@/builder/BookletData';
+import { threeSetupComplete } from '@/threeLoading';
+
 
 const { setsManager, chainBriqs, currentSet, selectSet } = useBuilder();
 
@@ -66,15 +68,30 @@ onMounted(async () => {
     // Change default palette & update colors.
     if (booklet.value) {
         await getBookletData(booklet.value);
-        for (const key in CONF.defaultPalette)
-            delete CONF.defaultPalette[key];
-        for (const briq of bookletData.value.briqs)
-            CONF.defaultPalette[packPaletteChoice(briq.data.material, briq.data.color)] = briq.data.color;
 
+        const colors = [];
+        let starter = undefined;
+        for (const briq of bookletData.value.briqs) {
+            colors.push([packPaletteChoice(briq.data.material, briq.data.color), briq.data.color]);
+            if (briq.pos[1] === 0)
+                starter = packPaletteChoice(briq.data.material, briq.data.color);
+        }
+        const THREE = (await threeSetupComplete);
+        colors.sort((a, b) => {
+            const ca = new THREE.Color(a[1]);
+            const cb = new THREE.Color(b[1]);
+            if (ca.r != cb.r)
+                return ca.r - cb.r;
+            if (ca.g != cb.g)
+                return ca.g - cb.g;
+            return ca.b - cb.b;
+        });
         const palette = palettesMgr.getCurrent();
         palette.shouldSerialize = false;
-        palette.reset(true);
-        const choice = palette.getFirstChoice();
+        palette.reset(false);
+        for (const key of colors)
+            palette.addChoice({ key: key[0] }, key[1]);
+        const choice = starter ? unpackPaletteChoice(starter) : palette.getFirstChoice();
         inputStore.currentColor = choice.color;
         inputStore.currentMaterial = choice.material;
         logDebug('PALETTE - SWITCHING TO BOOKLET')
