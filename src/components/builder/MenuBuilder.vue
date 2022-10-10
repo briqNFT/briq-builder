@@ -96,6 +96,11 @@ const selectAllbriqs = (event: Event) => {
     inputStore.selectionMgr.selectAll();
 }
 
+const unselectAllBriqs = (event: Event) => {
+    event.preventDefault();
+    inputStore.selectionMgr.clear();
+}
+
 const onCloseMenu = () => {
     setTimeout(() => {
         emit('close');
@@ -149,5 +154,6 @@ const onCloseMenu = () => {
         <Hotkey v-if="activeInputButton === 'select'" name="delete-1" :data="{ onDown: true, code: 'Delete' }" :handler="() => deleteBriqs()"/>
         <Hotkey v-if="activeInputButton === 'select'" name="delete-2" :data="{ onDown: true, code: 'Backspace' }" :handler="() => deleteBriqs()"/>
         <Hotkey name="select-all" :data="{ key: 'a', ctrl: true, onDown: true }" :handler="selectAllbriqs"/>
+        <Hotkey name="escape" :handler="unselectAllBriqs"/>
     </div>
 </template>
