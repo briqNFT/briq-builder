@@ -1,6 +1,5 @@
 async function AmmoPhysics() {
 
-    console.log('totoro 1');
     const ammoScript = document.createElement('script');
     ammoScript.src = '/ammo.js';
     await new Promise((resolve, _) => {

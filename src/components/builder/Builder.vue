@@ -124,9 +124,7 @@ onBeforeMount(async () => {
 
     resetBuilderState();
 
-    console.log('TOTORO HERE', inputInitComplete.value);
     await inputInitComplete.value;
-    console.log('TOTORO HERE2');
 
     await initializeStartSet();
 
