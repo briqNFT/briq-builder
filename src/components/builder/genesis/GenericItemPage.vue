@@ -15,7 +15,7 @@ defineProps<{
 
 <style scoped>
 h2, :slotted(h2) {
-    @apply text-lg font-medium my-2;
+    @apply text-lg font-semibold my-2;
 }
 
 p, :slotted(p) {
@@ -30,7 +30,7 @@ p, :slotted(p) {
     @apply text-md font-medium;
 }
 .attribute p {
-    @apply text-lg;
+    @apply text-md text-grad-dark break-all;
 }
 </style>
 
@@ -39,16 +39,7 @@ p, :slotted(p) {
         <Header/>
         <div>
             <div class="container m-auto">
-                <p class="my-6">
-                    <a
-                        @click="router.go(-1)"
-                        class="text-primary">
-                        <Btn secondary no-background>
-                            <i class="fa-solid fa-chevron-left"/> Go back
-                        </Btn>
-                    </a>
-                </p>
-                <div class="grid grid-cols-[8fr_4fr] gap-6 mb-8">
+                <div class="grid grid-cols-[7fr_5fr] gap-6 my-6">
                     <div class="flex flex-col gap-6">
                         <div class="flex justify-center items-center min-h-[34rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
                             <template v-if="status === 'LOADED'">
@@ -60,12 +51,6 @@ p, :slotted(p) {
                             <div v-else><p>Error while loading data</p></div>
                         </div>
                         <div>
-                            <h2>Description</h2>
-                            <p class="my-4">
-                                {{ description ?? 'Loading' }}
-                            </p>
-                        </div>
-                        <div>
                             <h2>Attributes</h2>
                             <div class="grid grid-cols-4 gap-6">
                                 <div v-for="attrib of attributes" :key="attrib.name" class="attribute">
@@ -75,7 +60,14 @@ p, :slotted(p) {
                             </div>
                         </div>
                     </div>
-                    <div class="flex flex-col gap-6">
+                    <div class="flex flex-col gap-4">
+                        <p class="mt-1">
+                            <a
+                                @click="router.go(-1)"
+                                class="hover:text-primary cursor-pointer !text-sm">
+                                <i class="fa-solid fa-chevron-left mr-2"/> Go back
+                            </a>
+                        </p>
                         <slot/>
                     </div>
                 </div>

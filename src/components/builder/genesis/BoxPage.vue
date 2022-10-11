@@ -80,7 +80,7 @@ const { unbox } = useUnboxHelpers();
 
 <style scoped>
 h2 {
-    @apply text-lg font-medium my-2;
+    @apply text-lg font-semibold my-2;
 }
 p {
     @apply text-copy;
@@ -106,7 +106,7 @@ p {
     @apply text-md font-medium;
 }
 .attribute p {
-    @apply text-lg;
+    @apply text-md text-grad-dark break-all;
 }
 </style>
 
@@ -115,29 +115,11 @@ p {
         <Header/>
         <div>
             <div class="container m-auto">
-                <p class="my-6">
-                    <a
-                        @click="router.go(-1)"
-                        class="text-primary">
-                        <Btn secondary no-background>
-                            <i class="fa-solid fa-chevron-left"/> Go back
-                        </Btn>
-                    </a>
-                </p>
-                <div class="grid grid-cols-[8fr_4fr] gap-6">
+                <div class="grid grid-cols-[7fr_5fr] gap-6 my-6">
                     <div class="flex flex-col gap-6">
                         <div class="flex justify-center items-center min-h-[34rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
                             <img v-if="itemQuery._status !== 'ERROR'" :src="genesisStore.coverBoxRoute(token_id)">
                             <div v-else><p>Error while loading box data</p></div>
-                        </div>
-                        <div>
-                            <h2>Description</h2>
-                            <p class="my-4">
-                                {{ item?.description ?? 'Loading' }}
-                                Association of briqs are named sets.<br><br>
-                                Sets can be disassembled to get the briqs back and create something new.<br><br>
-                                They can be combined to create even more complex structures.
-                            </p>
                         </div>
                         <div>
                             <h2>Attributes</h2>
@@ -165,8 +147,16 @@ p {
                             </div>
                         </div>
                     </div>
-                    <div class="flex flex-col gap-6">
-                        <h1 class="text-lg font-semibold">{{ boxName }}</h1>
+                    <div class="flex flex-col gap-4">
+                        <p class="mt-1">
+                            <a
+                                @click="router.go(-1)"
+                                class="hover:text-primary cursor-pointer !text-sm">
+                                <i class="fa-solid fa-chevron-left mr-2"/> Go back
+                            </a>
+                        </p>
+                        <h1>{{ boxName }}</h1>
+                        <p class="my-2">{{ item?.description ?? 'Loading' }}</p>
                         <template v-if="mode === 'INVENTORY'">
                             <div>
                                 <h2>Unopened box</h2>
@@ -184,34 +174,37 @@ p {
                             </div>
                         </template>
                         <template v-else-if="saledata?.isLive() && saledata?.total_quantity === 1">
-                            <div>
-                                <h2>Sale ends on</h2>
-                                <p class="my-4">July 1, 2022 at 11:32 AM GMT+1</p>
-                                <div class="grid grid-cols-4 auction-countdown">
-                                    <div
-                                        v-for="i in [['Days', 2], ['Hours', 1], ['Minutes', 24], ['Seconds', 43]]" :key="i[0]"
-                                        class="inline-flex flex-col justify-around items-center">
-                                        <p class="text-xl font-medium">{{ ('' + i[1]).padStart(2, '0') }}</p>
-                                        <p class="text-copy font-medium">{{ i[0] }}</p>
+                            <h4>Auction</h4>
+                            <div class="rounded border border-grad-light overflow-hidden">
+                                <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
+                                    <div>
+                                        <h5 class="font-normal text-grad-dark">Winning bid</h5>
+                                        <p v-if="hasBids" class="text-xl font-semibold pt-1">{{ currentBidString }}</p>
+                                        <p v-else class="text-xl font-semibold pt-1">-</p>
+                                        <p v-if="hasHighestBid" class="text-sm text-grad-dark">You currently have the highest bid.</p>
+                                    </div>
+                                    <Btn
+                                        :secondary="hasHighestBid"
+                                        :disabled="!canBid"
+                                        @click="placeBid"
+                                        class="h-full">
+                                        Place bid
+                                    </Btn>
+                                </div>
+                                <div class="p-6 py-4 flex flex-col gap-4">
+                                    <div class="w-full flex justify-between items-baseline">
+                                        <p><span class="font-medium">Sale starts on: </span> (TODO) July 1, 2022 at 11:32 AM GMT+1</p>
+                                        <p>
+                                            <template v-for="i in [['d', 2], ['h', 1], ['m', 24], ['s', 43]]" :key="i[0]">
+                                                <span class="pl-1">{{ i[1] }}{{ i[0] }}</span>
+                                            </template>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-                            <div>
-                                <h2>Winning Bid</h2>
-                                <p v-if="hasBids" class="text-xl font-medium my-4">{{ currentBidString }}</p>
-                                <p v-else class="my-4">There are no bids on this item.</p>
-                                <p v-if="hasHighestBid" class="my-4">You currently have the highest bid.</p>
-                                <Btn
-                                    :secondary="hasHighestBid"
-                                    :disabled="!canBid"
-                                    @click="placeBid">
-                                    Place a bid
-                                </Btn>
-                            </div>
-                            <h2>Previous bids</h2>
-                            <div class="flex flex-col bg-grad-lightest rounded border border-grad-light">
-                                <template v-if="productBidsStore.status === 'OK'">
-                                    <p v-if="!hasBids">There are no bids on this item.</p>
+                            <template v-if="productBidsStore.status === 'OK' && hasBids">
+                                <h2>Previous bids</h2>
+                                <div class="flex flex-col bg-grad-lightest rounded border border-grad-light">
                                     <a
                                         v-for="i in previousBids.slice(0, 10)" :key="i.bid_id"
                                         :href="ExplorerTxUrl(i.tx_hash)" target="_blank"
@@ -222,56 +215,37 @@ p {
                                         </div>
                                     </a>
                                     <p v-if="previousBids.length > 10" class="px-4 py-3 text-sm italic text-center">...Older bids are hidden...</p>
-                                </template>
-                            </div>
+                                </div>
+                            </template>
                         </template>
                         <template v-else-if="saledata?.isLive()">
-                            <div>
-                                <h2>Availability</h2>
-                                <p>{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }} left</p>
-                            </div>
-                            <div>
-                                <h2>Current Price</h2>
-                                <p class="text-xl font-medium">{{ readableNumber(saledata?.price) }} {{ readableUnit(saledata?.price) }}</p>
-                            </div>
-                            <div>
-                                <h2>Next price drop in</h2>
-                                <p class="text-xl font-medium">7min 30 seconds</p>
-                            </div>
-                            <div>
-                                <Btn :disabled="!canBuy" @click="buy">Buy now</Btn>
-                            </div>
-                        </template>
-                        <template v-else>
-                            <div>
-                                <h2>{{ saledata?.total_quantity === 1 ? 'Auction' : 'Sale' }} starts on</h2>
-                                <p class="my-4">
-                                    (TODO) July 1, 2022 at 11:32 AM GMT+1
-                                </p>
-                                <div class="grid grid-cols-4 auction-countdown">
-                                    <div
-                                        v-for="i in [['Days', 2], ['Hours', 1], ['Minutes', 24], ['Seconds', 43]]" :key="i[0]"
-                                        class="inline-flex flex-col justify-around items-center">
-                                        <p class="text-xl font-medium">{{ ('' + i[1]).padStart(2, '0') }}</p>
-                                        <p class="text-copy font-medium">{{ i[0] }}</p>
-                                    </div>
-                                </div>
-                                <template v-if="saledata?.total_quantity > 1">
+                            <h4>Instant Purchase</h4>
+                            <div class="rounded border border-grad-light overflow-hidden">
+                                <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                                     <div>
-                                        <h2>Starting price</h2>
-                                        <p class="text-xl font-medium">{{ readableNumber(saledata?.price) }} {{ readableUnit(saledata?.price) }}</p>
+                                        <h5 class="font-normal text-grad-dark">Starting price</h5>
+                                        <p class="text-xl font-semibold pt-1">{{ readableNumber(saledata?.price) }} {{ readableUnit(saledata?.price) }}</p>
                                     </div>
-                                </template>
-                            </div>
-                        </template>
-                        <template v-if="mode === 'SALE' && saledata?.total_quantity > 1">
-                            <div>
-                                <h2>How a Dutch auction works</h2>
-                                <div>
-                                    <p>Price drops by 0.28 <i class="fa-brands fa-ethereum"/> until sold out.</p>
-                                    <p>Price drops every hour.</p>
-                                    <p>Sale ends 24h after the start.</p>
+                                    <Btn :disabled="!canBuy" class="h-full" @click="buy">Buy now</Btn>
                                 </div>
+                                <div class="p-6 py-4 flex flex-col gap-4">
+                                    <div class="w-full flex justify-between items-baseline">
+                                        <p><span class="font-medium">Sale starts on: </span> (TODO) July 1, 2022 at 11:32 AM GMT+1</p>
+                                        <p>
+                                            <template v-for="i in [['d', 2], ['h', 1], ['m', 24], ['s', 43]]" :key="i[0]">
+                                                <span class="pl-1">{{ i[1] }}{{ i[0] }}</span>
+                                            </template>
+                                        </p>
+                                    </div>
+                                    <p><span class="font-medium">Availability: </span>{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <ul class="list-inside ml-4 text-sm list-disc">
+                                    <li>Price drops by 0.28 <i class="fa-brands fa-ethereum"/> until sold out.</li>
+                                    <li>Price drops every hour.</li>
+                                    <li>Sale ends 24h after the start.</li>
+                                </ul>
                             </div>
                         </template>
                     </div>
