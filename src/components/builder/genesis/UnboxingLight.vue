@@ -82,26 +82,6 @@ const loadingState = new class implements FsmState {
             texture: genesisStore.boxTexture('starknet_city/spaceman'),
         };
         sceneBox = setBox(boxData);
-
-        /*
-        const loader = new THREE.TextureLoader();
-        boxesData.forEach(data => {
-            loader.loadAsync(genesisStore.boxTexture(data.box_name)).then(x => {
-                if (!boxTexture[data.box_name])
-                    boxTexture[data.box_name] = {
-                        texture: x,
-                        users: [],
-                    }
-                boxTexture[data.box_name].texture = x;
-                boxTexture[data.box_name].texture.encoding = THREE.sRGBEncoding;
-                boxTexture[data.box_name].texture.flipY = false;
-                boxTexture[data.box_name].users.forEach(box => {
-                    box.children[1].children[0].material.map = x;
-                })
-            });
-        });
-        */
-
         await this.hasEnoughFrames;
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.

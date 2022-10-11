@@ -267,7 +267,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     light.position.set(1, 2, -0.5);
     light.shadow.mapSize = new THREE.Vector2(1024, 1024);
     light.shadow.radius = 20;
-    light.shadow.blurSamples = 20;
+    light.shadow.blurSamples = 10;
     light.shadow.camera.far = 5.0;
     light.shadow.bias = -0.004;
     //light.shadow.normalBias = 0.08;
@@ -331,7 +331,7 @@ export function setBox(boxData: any) {
         }
         if (mesh.material?.name === 'briq_box.001') {
             texturedMat = mesh.material;
-            texturedMat.map.anisotropy = 16;
+            texturedMat.map.anisotropy = 8;
             mesh.castShadow = true;
         }
     })
@@ -480,7 +480,7 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
 export function generateBooklet() {
     const booklet = bookletMesh.clone();
     booklet.material.fog = false;
-    booklet.material.map.anisotropy = 16;
+    booklet.material.map.anisotropy = 8;
     booklet.castShadow = true;
     booklet.receiveShadow = true;
     const vec = new THREE.Vector3(0, 0, 0);
