@@ -35,15 +35,15 @@ onMounted(() => {
     <div>
         <div
             class="header container m-auto py-3 flex justify-between items-center text-center alternate-buttons">
-            <div class="flex">
+            <div class="flex items-center gap-4 md:gap-12">
                 <routerLink to="/genesis"><h2 class="briq-logo text-[32px]">briq</h2></routerLink>
+                <routerLink to="/themes">
+                    <p class="hover:text-primary text-sm md:text-md font-medium relative top-[0.2em]">Themes</p>
+                </routerLink>
+                <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank">
+                    <p class="hover:text-primary text-sm md:text-md font-medium relative top-[0.2em]">Resources</p></a>
             </div>
             <div class="flex items-stretch gap-2">
-                <div class="flex gap-1 md:gap-6 mx-2 md:mr-4 flex-wrap justify-center items-center md:justify-end text-sm md:text-md font-medium">
-                    <routerLink to="/"><p class="hover:text-primary">Home</p></routerLink>
-                    <routerLink to="/themes"><p class="hover:text-primary">Themes</p></routerLink>
-                    <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank"><p class="hover:text-primary">Resources</p></a>
-                </div>
                 <router-link v-if="userBoxesStore.current?.availableBoxes?.length" to="/unboxing">
                     <Btn secondary class="before:border-grad-darker">
                         <i class="fa-solid fa-box-open"/> {{ userBoxesStore.current?.availableBoxes?.length || 0 }}

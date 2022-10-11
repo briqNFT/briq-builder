@@ -86,6 +86,14 @@ h4 {
 .block-grid p {
     @apply text-base box-content h-6 w-6 border-2 border-grad-lightest shadow-sm rounded-sm p-0 m-0;
 }
+
+.genesis-tab > img {
+    @apply transition-all duration-100;
+}
+
+.genesis-tab:hover > img {
+    @apply scale-105;
+}
 </style>
 
 <template>
@@ -97,7 +105,7 @@ h4 {
             <div class="flex flex-wrap justify-around items-center">
                 <div class="relative md:p-10 lg:p-20">
                     <div>
-                        <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-tighter my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
+                        <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-[5rem] my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
                         <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
                     </div>
                 </div>
@@ -128,7 +136,7 @@ h4 {
     </div>
     <div
         class="bg-[#F6C844] w-full overflow-hidden z-[-100] border-t-2 border-b-2 border-black">
-        <p class="py-4 flex items-center text-black text-2xl font-semibold w-max">
+        <p class="py-2 flex items-center text-black text-2xl font-semibold w-max h-[70px]">
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
             <span class="w-max animate-text-loop whitespace-pre">briq is NFT matter • </span>
@@ -151,7 +159,7 @@ h4 {
                     <p>briqs are construction blocks stored on the blockchain.</p>
                     <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.</p>
                     <p>Your briqs are yours, forever.</p>
-                    <p class="my-4"><RouterLink to="/themes" class="text-primary">Check out our official sets <i class="fa-solid fa-arrow-right"/></RouterLink></p>
+                    <p class="my-4"><RouterLink to="/themes" class="text-primary">Check out our official sets <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
                 </div>
                 <div class="flex-1 min-w-[300px]">
                     <img :src="CollectImage" class="max-w-none max-h-none w-full h-auto">
@@ -159,14 +167,14 @@ h4 {
             </div>
             <div class="flex flex-row flex-wrap items-center gap-[4rem] mb-16">
                 <div class="flex-1 min-w-[300px]">
-                    <img :src="BuildImage" class="drop-shadow-xl max-w-none max-h-none w-full h-auto">
+                    <img :src="BuildImage" class="drop-shadow-sm max-w-none max-h-none w-full h-auto">
                 </div>
                 <div class="flex-1 md:px-[2rem] xl: px-[8rem]">
                     <h3>Build</h3>
                     <p>briq can be assembled to create NFTs. These NFT are called sets.</p>
                     <p>Transfer, sell, lend, break your NFTs any way you want.</p>
                     <p>Disassemble your set to get your briqs back and build something new.</p>
-                    <p class="my-4"><RouterLink to="/builder" class="text-primary">Start Building <i class="fa-solid fa-arrow-right"/></RouterLink></p>
+                    <p class="my-4"><RouterLink to="/builder" class="text-primary">Start Building <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
                 </div>
             </div>
             <div class="flex flex-row flex-wrap-reverse items-center gap-[4rem] my-16">
@@ -174,7 +182,7 @@ h4 {
                     <h3>Play</h3>
                     <p>briqs sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
                     <p>Integrate briq in any way you want. Seize the briqs of creation.</p>
-                    <p class="my-4"><RouterLink to="/builder" class="text-primary">Discover our Altzone integration <i class="fa-solid fa-arrow-right"/></RouterLink></p>
+                    <p class="my-4"><RouterLink to="/builder" class="text-primary">Discover our Altzone integration <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
                 </div>
                 <div class="flex-1 min-w-[300px]">
                     <img :src="PlayImage" class="drop-shadow-2xl max-w-none max-h-none w-full h-auto">
@@ -187,11 +195,11 @@ h4 {
             <h1>Discover our Genesis Sale</h1>
         </div>
         <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_city' } }">
-            <div class="h-[400px] bg-black text-white rounded-lg relative overflow-hidden">
+            <div class="h-[400px] bg-black text-white rounded-lg relative overflow-hidden genesis-tab">
                 <img :src="StarknetCity" class="absolute max-w-none w-auto h-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
                 <div class="z-1 p-8 relative h-full flex flex-col justify-between items-center xl:items-start w-full">
                     <img :srcset="themeLogoSrcSet('starknet_city')" class="w-auto h-auto m-8">
-                    <p>Discover the new theme <i class="fa-solid fa-arrow-right"/></p>
+                    <p>Discover the new theme <i class="fa-solid fa-arrow-right relative top-[1px]"/></p>
                 </div>
             </div>
         </routerlink>
@@ -199,12 +207,12 @@ h4 {
     <div class="bg-grad-darkest py-20">
         <h1 class="text-center text-grad-lightest">A prolific community of builders</h1>
         <div class="flex justify-center gap-6 mt-14">
-            <a href=""><Btn secondary>TODO Aspect</Btn></a>
-            <a href=""><Btn secondary>TODO Mintsquare</Btn></a>
-            <a href=""><Btn secondary>TODO Discord</Btn></a>
+            <a href=""><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all">TODO Aspect</Btn></a>
+            <a href=""><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all">TODO Mintsquare</Btn></a>
+            <a href=""><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all">TODO Discord</Btn></a>
         </div>
     </div>
-    <div class="bg-info-warning w-full border-t border-b border-black">
+    <div class="bg-info-warning w-full border-t-2 border-b-2 border-black">
         <div class="container m-auto px-4 md:px-20 my-4 md:my-20">
             <p class="text-max font-medium my-10">Trusted by</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
