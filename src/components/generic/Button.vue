@@ -126,6 +126,9 @@ button {
                     @apply bg-grad-lighter;
                 }
             }
+            &:disabled {
+                --tw-text-opacity: 0.5;
+            }
             &:disabled::before {
                 @apply bg-grad-lightest;
             }
