@@ -14,6 +14,8 @@ import {
 
 import { GLTFLoader } from '@/three';
 
+import { AmmoPhysics, AmmoDebugDrawer } from './AmmoPhysics.js';
+import { APP_ENV } from '@/Meta';
 
 import BookletModel from '@/assets/genesis/booklet.glb?url';
 import BriqBox from '@/assets/genesis/briqs_box.glb?url';
@@ -201,9 +203,11 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     /* Debug */
-    const orbitControls = new OrbitControls(camera, canvas);
-    orbitControls.enableDamping = true;
-    orbitControls.target = new THREE.Vector3(0, 0, 0);
+    if (APP_ENV === 'dev') {
+        const orbitControls = new OrbitControls(camera, canvas);
+        orbitControls.enableDamping = true;
+        orbitControls.target = new THREE.Vector3(0, 0, 0);
+    }
 
     boxGlb = await boxPromise;
     bookletMesh = await bookletPromise;
@@ -214,9 +218,6 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
         render,
     }
 }
-
-import { AmmoPhysics, AmmoDebugDrawer } from './AmmoPhysics.js';
-
 
 const ammoPromise = threeSetupComplete.then(() => AmmoPhysics(THREE));
 
@@ -261,7 +262,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     light.shadow.mapSize = new THREE.Vector2(1024, 1024);
     light.shadow.radius = 20;
     light.shadow.camera.far = 5.0;
-    //light.shadow.bias = -0.001;
+    light.shadow.bias = -0.001;
     //light.shadow.normalBias = 0.08;
 
     light.castShadow = true;
@@ -481,9 +482,9 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
         for (let z = 0; z < zcount; ++z)
             for (let y = 0; y < ycount; ++y) {
                 const vec = new THREE.Vector3(
-                    x * 0.0105 - xcount * 0.0105 / 2,
-                    y * 0.0105 - 0.135,
-                    -z * 0.0105 + 0.20,
+                    x * 0.011 - xcount * 0.0105 / 2,
+                    y * 0.011 - 0.135,
+                    -z * 0.011 + 0.20,
                 );
                 vec.applyQuaternion(sceneBox.quaternion);
                 vec.add(sceneBox.position)
@@ -491,7 +492,6 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
                 briqCubes.setColorAt(i, new THREE.Color(colors[Math.floor((Math.random()* colors.length))]).convertSRGBToLinear())
                 ++i;
             }
-
     scene.add(briqCubes);
     physicsWorld.addMesh(briqCubes, 0.1);
 }

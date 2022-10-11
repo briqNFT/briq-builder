@@ -201,7 +201,7 @@ const unboxingOpenState = new class implements FsmState {
         } else if (this.briqStep >= 4)
             fsm.switchTo('UNBOXED');
         else if (this.briqStep >= 1) {
-            if (!this.genCubes) {
+            if (!this.genCubes && this.briqStep >= 1.0) {
                 const colors = {};
                 const briqs = getBookletDataSync('starknet_city_ongoing/spaceman').value.briqs;
                 for (const briq of briqs)
@@ -209,7 +209,7 @@ const unboxingOpenState = new class implements FsmState {
                 generateCubes(Object.keys(colors));
                 this.genCubes = true;
             }
-            if (!this.genBooklet && this.briqStep >= 2.0) {
+            if (!this.genBooklet && this.briqStep >= 1.6) {
                 generateBooklet();
                 this.genBooklet = true;
             }
