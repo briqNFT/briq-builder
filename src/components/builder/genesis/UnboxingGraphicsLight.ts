@@ -261,6 +261,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     light.position.set(1, 2, -0.5);
     light.shadow.mapSize = new THREE.Vector2(1024, 1024);
     light.shadow.radius = 20;
+    light.shadow.blurSamples = 20;
     light.shadow.camera.far = 5.0;
     light.shadow.bias = -0.004;
     //light.shadow.normalBias = 0.08;
