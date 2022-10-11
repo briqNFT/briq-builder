@@ -196,13 +196,21 @@ h4 {
             </div>
         </routerlink>
     </div>
+    <div class="bg-grad-darkest py-20">
+        <h1 class="text-center text-grad-lightest">A prolific community of builders</h1>
+        <div class="flex justify-center gap-6 mt-14">
+            <a href=""><Btn secondary>TODO Aspect</Btn></a>
+            <a href=""><Btn secondary>TODO Mintsquare</Btn></a>
+            <a href=""><Btn secondary>TODO Discord</Btn></a>
+        </div>
+    </div>
     <div class="bg-info-warning w-full border-t border-b border-black">
         <div class="container m-auto px-4 md:px-20 my-4 md:my-20">
             <p class="text-max font-medium my-10">Trusted by</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div
                     v-for="icon of [[FabricIcon, '#000000'], [FirstIcon, '#15132A'], [StarkwareIcon, '#28286E']]" :key="icon[0]"
-                    class="h-[10rem] w-full rounded flex justify-center items-center px-12 py-6" :style="{ backgroundColor: icon[1] }">
+                    class="h-[10rem] w-full rounded-md flex justify-center items-center px-12 py-6" :style="{ backgroundColor: icon[1] }">
                     <p v-if="typeof icon[0] === 'string'" class="flex-initial flex max-h-full py-4"><img class="object-contain shrink min-h-0 min-w-0" :src="icon[0]"></p>
                     <component v-else :is="icon[0]" fill="#fafafa" width="360px" class="shrink w-full h-full min-h-0 min-w-0"/>
                 </div>
