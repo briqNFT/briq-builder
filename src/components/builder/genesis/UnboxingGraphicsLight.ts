@@ -266,6 +266,14 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     light.shadow.bias = -0.004;
     //light.shadow.normalBias = 0.08;
 
+    const map = new THREE.WebGLRenderTarget(1024, 1024, {
+        format: THREE.RGBAFormat,
+        type: THREE.FloatType,
+
+    });
+    map.texture.name = light.name + '.shadowMap';
+    light.shadow.map = map;
+
     light.castShadow = true;
     scene.add(light);
 
