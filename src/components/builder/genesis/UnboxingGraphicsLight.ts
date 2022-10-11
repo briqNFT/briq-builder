@@ -15,7 +15,7 @@ import {
 import { GLTFLoader } from '@/three';
 
 
-import HomeScene from '@/assets/genesis/briqs_box_xmas.glb?url';
+import BookletModel from '@/assets/genesis/booklet.glb?url';
 import BriqBox from '@/assets/genesis/briqs_box.glb?url';
 
 import DefaultBox from '@/assets/genesis/default_box.png';
@@ -26,11 +26,8 @@ let camera: THREE.Camera;
 let renderer: THREE.WebGLRenderer;
 let composer: EffectComposer;
 
-let fireMaterial: THREE.ShaderMaterial;
-let chimneyLight: THREE.PointLight;
-
-let roomSceneGlb: THREE.Object3D[];
 let boxGlb: { anim: THREE.AnimationClip, box: THREE.Object3D };
+let bookletMesh: THREE.Object3D;
 
 let canvas: HTMLCanvasElement;
 
@@ -39,6 +36,8 @@ let defaultBoxTexture: THREE.Texture;
 let sceneBox: THREE.Mesh | undefined;
 
 let briqCubes;
+
+const DEBUG_PHYSICS = false;
 
 export enum SceneQuality {
     LOW,
@@ -88,23 +87,6 @@ function recreateRenderer(quality: SceneQuality) {
         renderer.getSize(size);
 
         const aoPass = new SSAOPass(scene, camera, size.x, size.y);
-
-        // Overwrite the visibility pass so that the fire material is ignored, or SSAO writes depth.
-        /*
-        aoPass.overrideVisibility = function() {
-            const scene = aoPass.scene;
-            const cache = aoPass._visibilityCache;
-            scene.traverse(function (object: any) {
-                cache.set( object, object.visible );
-                if (object.name === 'fire')
-                    object.visible = false;
-                if(object.parent?.name === 'wooden_logs')
-                    object.visible = false;
-                if (object.isPoints || object.isLine)
-                    object.visible = false;
-            });
-        }*/
-
         aoPass.output = SSAOPass.OUTPUT.Default;
         aoPass.kernelRadius = 0.02;
         aoPass.minDistance = 0.001;
@@ -175,12 +157,6 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
             render,
         };
 
-    briqCubes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.01, 0.01, 0.01, 2, 2, 2), new THREE.MeshStandardMaterial(), 300);
-    for (let i = 0; i < 300; ++i) {
-        briqCubes.setMatrixAt(i, new THREE.Matrix4().setPosition(Math.random() * 0.1, Math.random() * 0.1, Math.random() * 0.1));
-        briqCubes.setColorAt(i, new THREE.Color().setRGB(Math.random(), Math.random(), Math.random()))
-    }
-
     const defaultLoader = new THREE.TextureLoader();
     defaultBoxTexture = defaultLoader.load(DefaultBox, (tex) => {
         tex.encoding = THREE.sRGBEncoding;
@@ -192,36 +168,6 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
         loader.load(
             BriqBox,
             (gltf: any) => {
-                /*
-                boxMaterials.default = [
-                    gltf.scene.children.slice()[0].children[1].children[0].material.clone(),
-                    gltf.scene.children.slice()[0].children[1].children[1].material.clone(),
-                ];
-                boxMaterials.hovered = [
-                    gltf.scene.children.slice()[0].children[1].children[0].material.clone(),
-                    gltf.scene.children.slice()[0].children[1].children[1].material.clone(),
-                ];
-                boxMaterials.hidden = [
-                    gltf.scene.children.slice()[0].children[1].children[0].material.clone(),
-                    gltf.scene.children.slice()[0].children[1].children[1].material.clone(),
-                ];
-
-                boxMaterials.hidden[0].transparent = true;
-                boxMaterials.hidden[1].transparent = true;
-                boxMaterials.hidden[0].opacity = 0.1;
-                boxMaterials.hidden[1].opacity = 0.1;
-
-                boxMaterials.default[0].map = defaultBoxTexture;
-                boxMaterials.default[0].map.encoding = THREE.sRGBEncoding;
-                boxMaterials.default[0].normalMap!.encoding = THREE.sRGBEncoding;
-                boxMaterials.default[0].normalMap!.needsUpdate = true;
-
-                boxMaterials.hovered[0].emissive = new THREE.Color(0xffffff);
-                boxMaterials.hovered[0].emissiveMap = defaultBoxTexture;
-                boxMaterials.hovered[0].emissiveMap.encoding = THREE.sRGBEncoding;
-                boxMaterials.hovered[0].emissiveIntensity = 0.1;
-                boxMaterials.hovered[0].needsUpdate = true;
-                */
                 resolve({
                     anim: gltf.animations[0],
                     box: gltf.scene.children.slice()[0],
@@ -231,17 +177,18 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
             (error: any) => reject(error),
         );
     });
-    const roomPromise = new Promise((resolve: (_: THREE.Mesh[]) => void, reject) => {
+
+    const bookletPromise = new Promise<THREE.Object3D>((resolve, reject) => {
         const loader = new GLTFLoader();
         loader.load(
-            HomeScene,
+            BookletModel,
             (gltf: any) => {
-                resolve(gltf.scene.children.slice(1));
+                resolve(gltf.scene.children.slice()[0]);
             },
             () => {},
             (error: any) => reject(error),
         );
-    })
+    });
 
     // Now create scene items.
     scene = new THREE.Scene();
@@ -254,12 +201,12 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     /* Debug */
-    const controls = new OrbitControls(camera, canvas);
-    controls.enableDamping = true;
-    controls.target = new THREE.Vector3(0, 0, 0);
+    const orbitControls = new OrbitControls(camera, canvas);
+    orbitControls.enableDamping = true;
+    orbitControls.target = new THREE.Vector3(0, 0, 0);
 
     boxGlb = await boxPromise;
-    roomSceneGlb = await roomPromise;
+    bookletMesh = await bookletPromise;
 
     return {
         camera,
@@ -268,22 +215,29 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     }
 }
 
-import { AmmoPhysics } from './AmmoPhysics.js';
+import { AmmoPhysics, AmmoDebugDrawer } from './AmmoPhysics.js';
+
+
+const ammoPromise = threeSetupComplete.then(() => AmmoPhysics(THREE));
 
 let physicsWorld: AmmoPhysics;
+
+let debugGeometry;
+let debugDrawer;
 
 let boxObject;
 export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     scene.clear();
 
-    physicsWorld = await AmmoPhysics();
+    physicsWorld = await ammoPromise;
+
 
     recreateRenderer(quality);
 
     if (quality <= SceneQuality.LOW)
         renderer.shadowMap.type = THREE.BasicShadowMap;
     else
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.shadowMap.type = THREE.VSMShadowMap;
 
     // SSAO is costly, enable on ultra.
     composer.passes[1].enabled = quality >= SceneQuality.ULTRA;
@@ -297,23 +251,46 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     scene.add(camera);
 
+    scene.fog = new THREE.Fog(new THREE.Color('#ffffff').convertSRGBToLinear(), 2.0, 5.0);
     scene.background = new THREE.Color('#FFFFFF').convertSRGBToLinear();
 
     scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF').convertSRGBToLinear(), 0.1))
-    let light: THREE.Light;
-    light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 1.5, 10.0);
-    light.position.set(2, 3, -1);
-    light.shadow.radius = 12;
-    light.shadow.mapSize = new THREE.Vector2(512, 512);
-
-    light.shadow.bias = -0.001;
-    light.shadow.normalBias = 0.08;
-    light.shadow.camera.near = 0.03;
-    light.shadow.camera.far = 40;
+    let light: THREE.SpotLight;
+    light = new THREE.SpotLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 1.5, 50.0, Math.PI/6, 0.0, 1.0);
+    light.position.set(1, 2, -0.5);
+    light.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    light.shadow.radius = 20;
+    light.shadow.camera.far = 5.0;
+    //light.shadow.bias = -0.001;
+    //light.shadow.normalBias = 0.08;
 
     light.castShadow = true;
     scene.add(light);
 
+    //scene.add(new THREE.SpotLightHelper(light, new THREE.Color(0xff0000)))
+
+    function initDebug() {
+        const DefaultBufferSize = 3 * 1000000;
+        const debugVertices = new Float32Array(DefaultBufferSize);
+        const debugColors = new Float32Array(DefaultBufferSize);
+        debugGeometry = new THREE.BufferGeometry();
+        debugGeometry.setAttribute('position', new THREE.BufferAttribute(debugVertices, 3));//.setDynamic(true));
+        debugGeometry.setAttribute('color', new THREE.BufferAttribute(debugColors, 3));//.setDynamic(true));
+        const debugMaterial = new THREE.LineBasicMaterial({ vertexColors: true });//{ vertexColors: THREE.VertexColors });
+        debugMaterial.color = new THREE.Color(0xff0000);
+        const debugMesh = new THREE.LineSegments(debugGeometry, debugMaterial);
+        debugMesh.frustumCulled = false;
+        scene.add(debugMesh);
+        debugDrawer = new AmmoDebugDrawer(null, debugVertices, debugColors, physicsWorld.world);
+        if (DEBUG_PHYSICS)
+            debugDrawer.enable();
+
+        /*setInterval(() => {
+            const mode = (debugDrawer.getDebugMode() + 1) % 3;
+            debugDrawer.setDebugMode(mode);
+        }, 1000);*/
+    }
+    initDebug();
 
     const floor = new THREE.Mesh(
         new THREE.BoxGeometry( 3, 1, 3 ),
@@ -323,7 +300,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     floor.position.y = -1;
     scene.add( floor );
 
-    physicsWorld.addMesh(floor);
+    physicsWorld.addMesh(floor, 0.0, 1.5);
 
     /*
     physicsWorld = new AmmoPhysics(scene);
@@ -347,9 +324,14 @@ export function setBox(boxData: any) {
 
     let texturedMat;
     box.traverse(mesh => {
+        if (mesh.material) {
+            mesh.material.fog = false;
+            mesh.receiveShadow = true;
+        }
         if (mesh.material?.name === 'briq_box.001') {
-            mesh.material.map.anisotropy = 16;
             texturedMat = mesh.material;
+            texturedMat.map.anisotropy = 16;
+            mesh.castShadow = true;
         }
     })
     const mixer = new THREE.AnimationMixer(box);
@@ -411,13 +393,16 @@ export function setBox(boxData: any) {
     sceneBox = box;
     // We need to add it because we're not re-creating the full scene.
     scene.add(sceneBox);
-    scene.add(briqCubes);
 
-    test = new THREE.Mesh(
-        new THREE.BoxGeometry(0.15, 0.35, 0.45),
-        new THREE.MeshBasicMaterial( { color: 0x441111 } ),
-    );
-    sceneBox.add(test);
+    if (DEBUG_PHYSICS)
+        box.traverse(mesh => {
+            if (mesh.material?.name) {
+                mesh.material.opacity = DEBUG_PHYSICS ? 0.35 : 1.0;
+                mesh.material.transparent = true;
+            }
+        });
+
+    test = sceneBox;
 
     {
         const transform = new Ammo.btTransform();
@@ -429,11 +414,50 @@ export function setBox(boxData: any) {
         test.getWorldQuaternion(quat);
         transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
         const motionState = new physicsWorld.AmmoLib.btDefaultMotionState(transform);
+        const compoundShape = new physicsWorld.AmmoLib.btCompoundShape();
+        const box = new Ammo.btBoxShape(new physicsWorld.AmmoLib.btVector3(0.075, 0.175, 0.225));
+        {
+            const tt = new Ammo.btTransform();
+            tt.setIdentity();
+            tt.setOrigin(new Ammo.btVector3(-0.140, 0.0, 0.0))
+            compoundShape.addChildShape(
+                tt,
+                box,
+            );
+        }
+        {
+            const tt = new Ammo.btTransform();
+            tt.setIdentity();
+            tt.setOrigin(new Ammo.btVector3(0.140, 0.0, 0.0))
+            compoundShape.addChildShape(
+                tt,
+                box,
+            );
+        }
+        {
+            const tt = new Ammo.btTransform();
+            tt.setIdentity();
+            tt.setOrigin(new Ammo.btVector3(0, -0.32, 0.0))
+            compoundShape.addChildShape(
+                tt,
+                box,
+            );
+        }
+        {
+            const tt = new Ammo.btTransform();
+            tt.setIdentity();
+            tt.setOrigin(new Ammo.btVector3(0, 0.0, 0.44))
+            compoundShape.addChildShape(
+                tt,
+                box,
+            );
+        }
         const rbInfo = new physicsWorld.AmmoLib.btRigidBodyConstructionInfo(
             0,
             motionState,
-            new physicsWorld.AmmoLib.btBoxShape(new physicsWorld.AmmoLib.btVector3(0.075, 0.175, 0.225)),
+            compoundShape,
         );
+
         const body = new physicsWorld.AmmoLib.btRigidBody(rbInfo);
         body.setActivationState(4); // 4: disable deactivation
         body.setCollisionFlags(2); // 2 is kinematic
@@ -441,16 +465,73 @@ export function setBox(boxData: any) {
         test.userData.physicsBody = body;
     }
 
-    physicsWorld.addMesh(briqCubes, 1);
-
-
     return sceneBox;
 }
 
+export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
+    const xcount = DEBUG_PHYSICS ? 3 : 6;
+    const ycount = DEBUG_PHYSICS ? 3 : 5;
+    const zcount = DEBUG_PHYSICS ? 3 : 6;
+    briqCubes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.01, 0.01, 0.01, 2, 2, 2), new THREE.MeshStandardMaterial(), xcount*ycount*zcount);
+    briqCubes.castShadow = true;
+    briqCubes.receiveShadow = true;
+    briqCubes.material.fog = false;
+    let i = 0;
+    for (let x = 0; x < xcount; ++x)
+        for (let z = 0; z < zcount; ++z)
+            for (let y = 0; y < ycount; ++y) {
+                const vec = new THREE.Vector3(
+                    x * 0.0105 - xcount * 0.0105 / 2,
+                    y * 0.0105 - 0.135,
+                    -z * 0.0105 + 0.20,
+                );
+                vec.applyQuaternion(sceneBox.quaternion);
+                vec.add(sceneBox.position)
+                briqCubes.setMatrixAt(i, new THREE.Matrix4().setPosition(vec));
+                briqCubes.setColorAt(i, new THREE.Color(colors[Math.floor((Math.random()* colors.length))]).convertSRGBToLinear())
+                ++i;
+            }
+
+    scene.add(briqCubes);
+    physicsWorld.addMesh(briqCubes, 0.1);
+}
+
+export function generateBooklet() {
+    const booklet = bookletMesh.clone();
+    booklet.material.fog = false;
+    booklet.material.map.anisotropy = 16;
+    booklet.castShadow = true;
+    booklet.receiveShadow = true;
+    const vec = new THREE.Vector3(0, 0, 0);
+    vec.applyQuaternion(sceneBox.quaternion);
+    vec.add(sceneBox.position)
+    booklet.position.set(vec.x, vec.y, vec.z);
+    booklet.quaternion.set(sceneBox.quaternion.x, sceneBox.quaternion.y, sceneBox.quaternion.z, sceneBox.quaternion.w);
+    booklet.rotateY(Math.PI * 1.04);
+    booklet.rotateZ(-Math.PI/2.5);
+    scene.add(booklet);
+    physicsWorld.addMesh(booklet, 10.0, 0.3);
+}
+
+let runPhysics = true;
+export function StopPhysics() {
+    runPhysics = false;
+}
 
 export function graphicsFrame(delta: number) {
-    if (physicsWorld) {
-        physicsWorld.step(delta * 0.2);
+    if (debugDrawer) {
+        if (debugDrawer.index !== 0) {
+            debugGeometry.attributes.position.needsUpdate = true;
+            debugGeometry.attributes.color.needsUpdate = true;
+        }
+
+        debugGeometry.setDrawRange(0, debugDrawer.index);
+    }
+
+    debugDrawer.update()
+
+    if (physicsWorld && runPhysics) {
+        physicsWorld.step(delta);
 
         const ms = test.userData.physicsBody.getMotionState();
         if ( ms ) {
@@ -491,8 +572,4 @@ export function getBoxAt(event: PointerEvent) {
 export function resetGraphics() {
     scene.clear();
     renderer.dispose();
-    while (boxes.length)
-        boxes.pop();
-    //renderer = null;
-    //scene = null;
 }

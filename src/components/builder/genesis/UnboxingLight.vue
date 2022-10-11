@@ -3,12 +3,12 @@ import {
     THREE,
 } from '@/three';
 
-import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, onUnmounted } from 'vue';
+import { shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, onUnmounted } from 'vue';
 
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, graphicsFrame, resetGraphics, SceneQuality, setBox } from './UnboxingGraphicsLight';
+import { setupScene, useRenderer, graphicsFrame, resetGraphics, SceneQuality, setBox, generateCubes, generateBooklet, StopPhysics } from './UnboxingGraphicsLight';
 import { APP_ENV } from '@/Meta';
 
 import { userBoxesStore } from '@/builder/UserBoxes';
@@ -17,6 +17,7 @@ import contractStore from '@/chain/Contracts';
 
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { hexUuid } from '@/Uuid';
+import { getBookletData, getBookletDataSync } from '@/builder/BookletData';
 
 
 //////////////////////////////
@@ -143,22 +144,84 @@ const unboxingState = new class implements FsmState {
 }
 
 const unboxingOpenState = new class implements FsmState {
+    time = 0;
     briqStep = 0;
-    async onEnter() {}
-    frame(delta: number) {
-        if (sceneBox.userData.mixer.time < 4)
-            sceneBox.userData.mixer.update(delta);
-        else if (this.briqStep < 2) {
-            this.briqStep += delta;
-            sceneBox.children[sceneBox.children.length - 1].translateZ(delta * -0.3);
-        } else
-            fsm.switchTo('UNBOXED');
+    rt: any;
+    genCubes = false;
+    genBooklet = false;
+    initialPos!: THREE.Vector3;
+    async onEnter() {
+        getBookletData('starknet_city_ongoing/spaceman');
+        this.rt = sceneBox.quaternion.clone();
+        this.initialPos = sceneBox.position.clone();
 
+        this.camPos = camera.position.clone();
+        this.camQuat = camera.quaternion.clone();
+    }
+
+    frame(delta: number) {
+        //delta *= 10;
+        sceneBox.userData.mixer.update(delta);
+        this.time += delta;
+
+        {
+            const ease = 1.0;
+            const curve = new THREE.CubicBezierCurve(
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(ease, 0),
+                new THREE.Vector2(1 - ease, 1),
+                new THREE.Vector2(1, 1),
+            );
+            const easedTime = curve.getPoint(Math.min(1.0, this.time / 4)).y;
+            const pos = camera.position.lerpVectors(this.camPos, new THREE.Vector3(2.75, 2.25, 0.15), Math.min(1, easedTime));
+            camera.position.set(pos.x, pos.y, pos.z);
+            const quat = camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), Math.min(1, easedTime));
+            camera.quaternion.set(quat.x, quat.y, quat.z, quat.w);
+
+            scene.fog.near = 1.3 + easedTime * 1.7;
+            scene.fog.far = 4.5 + easedTime * 0.5;
+        }
+
+        if (sceneBox.userData.mixer.time > 2.5 && this.briqStep < 1) {
+            this.briqStep += delta / 2;
+
+            const ease = 0.8;
+            const curve = new THREE.CubicBezierCurve(
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(ease, 0),
+                new THREE.Vector2(1 - ease, 1),
+                new THREE.Vector2(1, 1),
+            );
+            const easedTime = curve.getPoint(this.briqStep).y;
+            const tg = this.rt.clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 3));
+            const qt = sceneBox.quaternion.slerpQuaternions(this.rt, tg, easedTime);
+            sceneBox.quaternion.set(qt.x, qt.y, qt.z, qt.w);
+            const tt = sceneBox.position.lerpVectors(this.initialPos, new THREE.Vector3(0, 0.7, -0.2), easedTime);
+            sceneBox.position.set(tt.x, tt.y, tt.z);
+        } else if (this.briqStep >= 4)
+            fsm.switchTo('UNBOXED');
+        else if (this.briqStep >= 1) {
+            if (!this.genCubes) {
+                const colors = {};
+                const briqs = getBookletDataSync('starknet_city_ongoing/spaceman').value.briqs;
+                for (const briq of briqs)
+                    colors[briq.data.color] = 1;
+                generateCubes(Object.keys(colors));
+                this.genCubes = true;
+            }
+            if (!this.genBooklet && this.briqStep >= 2.0) {
+                generateBooklet();
+                this.genBooklet = true;
+            }
+            this.briqStep += delta / 2;
+        }
     }
 }
 
 const unboxedState = new class implements FsmState {
-    async onEnter() {}
+    async onEnter() {
+        StopPhysics();
+    }
     frame(delta: number) {}
 }
 
@@ -261,6 +324,7 @@ onUnmounted(() => {
 
 
 import { useRouter } from 'vue-router';
+import { camera } from '@/builder/graphics/Builder';
 const router = useRouter()
 
 const goToBuilder = () => {
