@@ -61,7 +61,6 @@ const doDisassembly = async () => {
 <template>
     <GenericItemPage
         :status="bookletQuery?._status || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
-        :description="set?.description || bookletData?.description"
         :attributes="attribs">
         <template #image>
             <img v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
@@ -70,33 +69,35 @@ const doDisassembly = async () => {
         <template #default>
             <h1>{{ set?.name || bookletData?.name }}</h1>
             <template v-if="mode === 'BOOKLET'">
+                <h5 class="mt-2">
+                    <template v-if="mode === 'BOOKLET'">Booklet</template>
+                </h5>
+                <p class="mt-6 mb-8">{{ set?.description || bookletData?.description }}</p>
                 <template v-if="!set">
-                    <h4>Booklet</h4>
                     <h2>Unstarted booklet</h2>
-                    <p>Click on the button below to open the briq builder and mint your BOOKLET set.</p>
+                    <p class="mb-4">Click on the button below to open the briq builder and create your official Genesis set.</p>
                     <Btn class="w-fit" @click="createSet()">Start building</Btn>
                 </template>
                 <template v-else>
-                    <h4>Booklet set</h4>
                     <h2>Building progress</h2>
-                    <p>
+                    <p class="mb-4">
                         {{ Math.floor(bookletMetadata?.shapeValidity.value * 100) || 0 }}%
                         <ProgressBar class="border-grad-darker border h-4" :percentage="bookletMetadata?.shapeValidity.value * 100 || 0"/>
                     </p>
-                    <p>Your BOOKLET set is unfinished. Make sure that it has all the pieces positioned at the right place to have it completed.</p>
+                    <p>Your booklet set is unfinished. Make sure that it has all the pieces positioned at the right place to have it completed.</p>
                     <Btn class="w-fit" @click="openSetInBuilder(set!.id)">Open in builder</Btn>
                 </template>
-                <h2>Want to list your booklet?</h2>
-                <div class="flex gap-2">
+                <h2 class="mt-8">Want to list your booklet?</h2>
+                <p>Seeling your booklet means you will no longer be able to mint the authenticated officiel set.</p>
+                <div class="flex gap-2 my-4">
                     <Btn secondary>See on Aspect</Btn>
                     <Btn secondary>See on mintsquare</Btn>
                 </div>
                 <div>
-                    <h3>Item activity go bbrrr</h3>
+                    <h2 class="mt-8">Item activity go bbrrr</h2>
                 </div>
             </template>
             <template v-else>
-                <h4>{{ booklet_id ? 'Official Set' : 'Custom creation' }}</h4>
                 <div v-if="!minted">
                     <h2>Want to sell your set?</h2>
                     <div class="flex gap-2"><Btn secondary>See on Aspect</Btn><Btn secondary>See on Mintsquare</Btn></div>

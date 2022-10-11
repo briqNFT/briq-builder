@@ -7,7 +7,6 @@ const router = useRouter();
 
 defineProps<{
     status: 'FETCHING' | 'ERROR' | 'LOADED',
-    description: string | undefined,
     attributes: { name: string, value: string }[]
 }>();
 
@@ -60,8 +59,8 @@ p, :slotted(p) {
                             </div>
                         </div>
                     </div>
-                    <div class="flex flex-col gap-4">
-                        <p class="mt-1">
+                    <div class="flex flex-col">
+                        <p class="mt-1 mb-4">
                             <a
                                 @click="router.go(-1)"
                                 class="hover:text-primary cursor-pointer !text-sm">
