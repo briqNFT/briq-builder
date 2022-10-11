@@ -251,6 +251,7 @@ async function AmmoPhysics(THREE) {
         AmmoLib,
         world,
         step: step,
+        meshMap,
         // addCompoundMesh
     };
 

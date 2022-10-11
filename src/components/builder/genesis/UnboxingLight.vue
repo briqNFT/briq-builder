@@ -8,7 +8,7 @@ import { shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef,
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, graphicsFrame, resetGraphics, SceneQuality, setBox, generateCubes, generateBooklet, StopPhysics } from './UnboxingGraphicsLight';
+import { setupScene, useRenderer, graphicsFrame, resetGraphics, SceneQuality, setBox, generateCubes, generateBooklet, StopPhysics, sceneData, triggerBoom } from './UnboxingGraphicsLight';
 import { APP_ENV } from '@/Meta';
 
 import { userBoxesStore } from '@/builder/UserBoxes';
@@ -150,6 +150,8 @@ const unboxingOpenState = new class implements FsmState {
     genCubes = false;
     genBooklet = false;
     initialPos!: THREE.Vector3;
+    deltaV = [];
+
     async onEnter() {
         getBookletData('starknet_city_ongoing/spaceman');
         this.rt = sceneBox.quaternion.clone();
@@ -209,9 +211,16 @@ const unboxingOpenState = new class implements FsmState {
                 generateCubes(Object.keys(colors));
                 this.genCubes = true;
             }
+            if (this.genBooklet && this.briqStep >= 1.8) {
+                this.deltaV[0] = this.deltaV[1];
+                this.deltaV[1] = sceneData.booklet.position.y;
+                if (this.deltaV[1] - this.deltaV[0] > -0.001)
+                    triggerBoom();
+            }
             if (!this.genBooklet && this.briqStep >= 1.6) {
                 generateBooklet();
                 this.genBooklet = true;
+                this.deltaV = [sceneData.booklet.position.y, sceneData.booklet.position.y];
             }
             this.briqStep += delta / 2;
         }
