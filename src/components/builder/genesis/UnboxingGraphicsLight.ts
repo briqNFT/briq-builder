@@ -463,9 +463,9 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
         for (let z = 0; z < zcount; ++z)
             for (let y = 0; y < ycount; ++y) {
                 const vec = new THREE.Vector3(
-                    x * 0.011 - xcount * 0.0105 / 2,
-                    y * 0.011 - 0.135,
-                    -z * 0.011 + 0.20,
+                    x * 0.013 - xcount * 0.0105 / 2,
+                    y * 0.013 - 0.135,
+                    -z * 0.013 + 0.20,
                 );
                 vec.applyQuaternion(sceneBox.quaternion);
                 vec.add(sceneBox.position)
@@ -523,9 +523,8 @@ export function graphicsFrame(delta: number) {
         }
 
         debugGeometry.setDrawRange(0, debugDrawer.index);
+        debugDrawer.update()
     }
-
-    debugDrawer.update()
 
     if (physicsWorld && runPhysics) {
         physicsWorld.step(delta);

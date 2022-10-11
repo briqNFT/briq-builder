@@ -42,7 +42,7 @@ async function AmmoPhysics(THREE) {
             const sz = parameters.depth !== undefined ? parameters.depth / 2 : 0.5;
 
             const shape = new AmmoLib.btBoxShape( new AmmoLib.btVector3( sx, sy, sz ) );
-            shape.setMargin( 0.05 );
+            shape.setMargin( 0.001 );
 
             return shape;
 
@@ -51,7 +51,7 @@ async function AmmoPhysics(THREE) {
             const radius = parameters.radius !== undefined ? parameters.radius : 1;
 
             const shape = new AmmoLib.btSphereShape( radius );
-            shape.setMargin( 0.05 );
+            shape.setMargin( 0.001 );
 
             return shape;
 
@@ -64,7 +64,7 @@ async function AmmoPhysics(THREE) {
             const sz = (box.max.z - box.min.z)/2;
 
             const shape = new AmmoLib.btBoxShape( new AmmoLib.btVector3( sx, sy, sz ) );
-            shape.setMargin( 0.05 );
+            shape.setMargin( 0.001 );
 
             return shape;
 
