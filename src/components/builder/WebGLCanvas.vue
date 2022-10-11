@@ -7,12 +7,6 @@
             @pointermove="onPointerMove"
             @pointerdown="onPointerDown"
             @pointerup="onPointerUp"/>
-        <div
-            :class="'fixed top-0 left-0 h-screen w-screen' + (fsmGrabsFocus ? '' : ' hidden')"
-            style="z-index: 10000"
-            @pointermove="onPointerMove"
-            @pointerdown="onPointerDown"
-            @pointerup="onPointerUp"/>
     </div>
 </template>
 
@@ -65,8 +59,12 @@ export default defineComponent({
         },
         onPointerDown: async function (event) {
             await builderInputFsm.onPointerDown(event);
+            if (this.fsmGrabsFocus)
+                this.$refs.canvas.setPointerCapture(event.pointerId)
         },
         onPointerUp: async function (event) {
+            if (this.fsmGrabsFocus)
+                this.$refs.canvas.releasePointerCapture(event.pointerId)
             await builderInputFsm.onPointerUp(event);
         },
     },
