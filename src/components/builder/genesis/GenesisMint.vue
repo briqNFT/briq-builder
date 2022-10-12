@@ -88,7 +88,7 @@ h4 {
 }
 
 .genesis-tab > img {
-    @apply transition-all duration-100;
+    @apply transition-all duration-300;
 }
 
 .genesis-tab:hover > img {
@@ -214,7 +214,7 @@ h4 {
     </div>
     <div class="bg-info-warning w-full border-t-2 border-b-2 border-black">
         <div class="container m-auto px-4 md:px-20 my-4 md:my-20">
-            <p class="text-max font-medium my-10">Trusted by</p>
+            <p class="text-max font-medium text-center my-10">Trusted by</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div
                     v-for="icon of [[FabricIcon, '#000000'], [FirstIcon, '#15132A'], [StarkwareIcon, '#28286E']]" :key="icon[0]"
