@@ -368,8 +368,8 @@ const useMockWallet = () => {
         <Btn class="pointer-events-auto" @click="startUnboxing">Start Unboxing</Btn>
     </div>
     <div v-if="step === 'UNBOXED'" class="flex justify-center items-center w-full absolute left-0 top-[70%] h-[30%] pointer-events-none gap-8">
-        <Btn class="pointer-events-auto" @click="openBuilder">Start Building</Btn>
         <Btn secondary class="pointer-events-auto" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
+        <Btn class="pointer-events-auto" @click="openBuilder">Start Building</Btn>
     </div>
 </template>
 
