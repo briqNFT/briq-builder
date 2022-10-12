@@ -187,7 +187,7 @@ p {
                                         :secondary="hasHighestBid"
                                         :disabled="!canBid"
                                         @click="placeBid"
-                                        class="h-full">
+                                        class="h-full text-md px-6">
                                         Place bid
                                     </Btn>
                                 </div>
@@ -226,7 +226,7 @@ p {
                                         <h5 class="font-normal text-grad-dark">Starting price</h5>
                                         <p class="text-xl font-semibold pt-1">{{ readableNumber(saledata?.price) }} {{ readableUnit(saledata?.price) }}</p>
                                     </div>
-                                    <Btn :disabled="!canBuy" class="h-full" @click="buy">Buy now</Btn>
+                                    <Btn :disabled="!canBuy" class="h-full text-md px-6" @click="buy">Buy now</Btn>
                                 </div>
                                 <div class="p-6 py-4 flex flex-col gap-4">
                                     <div class="w-full flex justify-between items-baseline">

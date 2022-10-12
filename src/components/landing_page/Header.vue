@@ -64,9 +64,9 @@ onMounted(() => {
                     <NotificationsMenu/>
                 </template>
                 <template v-else>
-                    <Btn class="flex-none" secondary @click="connectWallet"><span class="px-2">Connect</span></Btn>
+                    <Btn class="flex-none text-md" secondary @click="connectWallet">Connect</Btn>
                 </template>
-                <routerLink to="/builder"><Btn>Create</Btn></routerLink>
+                <routerLink to="/builder"><Btn class="text-md">Create</Btn></routerLink>
             </div>
         </div>
     </div>

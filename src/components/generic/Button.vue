@@ -41,7 +41,7 @@ button {
     z-index: 0;
     @apply inline-flex justify-center items-center;
     @apply px-2 md:px-3 py-2 md:py-3;
-    @apply text-sm md:text-md font-normal leading-none;
+    @apply text-sm font-normal leading-none;
     @apply select-none;
     @apply relative;
 
@@ -81,7 +81,7 @@ button {
     &.btn {
         @apply text-text-on-primary;
         @apply h-[2rem] md:h-[2.5rem];
-        @apply px-1 md:px-3 py-2 md:py-4;
+        @apply px-3 md:px-4 py-2 md:py-4;
 
         /* Primary design */
         /* Use a pseudo-element to avoid the layout changing when the size changes */
