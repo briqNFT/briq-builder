@@ -8,7 +8,7 @@ import { shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef,
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, graphicsFrame, resetGraphics, SceneQuality, setBox, generateCubes, generateBooklet, StopPhysics, sceneData, triggerBoom } from './UnboxingGraphicsLight';
+import { setupScene, useRenderer, graphicsFrame, resetGraphics, setBox, generateCubes, generateBooklet, StopPhysics, sceneData, triggerBoom } from './UnboxingGraphicsLight';
 import { APP_ENV } from '@/Meta';
 
 import { userBoxesStore } from '@/builder/UserBoxes';
@@ -18,6 +18,10 @@ import contractStore from '@/chain/Contracts';
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { hexUuid } from '@/Uuid';
 import { getBookletData, getBookletDataSync } from '@/builder/BookletData';
+import { useRoute, useRouter } from 'vue-router';
+import { useUnboxHelpers } from '@/builder/Unbox';
+import { setsManager } from '@/builder/SetsManager';
+import { useSetHelpers } from '../SetComposable';
 
 
 //////////////////////////////
@@ -34,10 +38,16 @@ const sceneReady = new Promise((resolve) => {
     setSceneReady = resolve;
 })
 
-const quality = ref(SceneQuality.HIGH);
-
-
 let sceneBox: THREE.Object3D;
+
+const route = useRoute();
+const router = useRouter();
+
+const boxId = computed(() => `${route.params.theme}/${route.params.box}`);
+
+const boxMetadata = genesisStore.metadata[boxId.value];
+
+const { unbox } = useUnboxHelpers();
 
 //////////////////////////////
 //////////////////////////////
@@ -70,18 +80,7 @@ const loadingState = new class implements FsmState {
     }
 
     async onEnter() {
-        const userData = userBoxesStore.current?.fetchData();
         await sceneReady;
-        await userData;
-
-        const boxData = {
-            uid: hexUuid(),
-            box_token_id: '0x12345',
-            box_name: 'starknet_city/spaceman',
-            position: [0, 0, 0],
-            texture: genesisStore.boxTexture('starknet_city/spaceman'),
-        };
-        sceneBox = setBox(boxData);
         await this.hasEnoughFrames;
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
@@ -270,6 +269,18 @@ onMounted(async () => {
 
     await setupScene();
 
+    await boxMetadata._fetch;
+
+    const boxData = {
+        uid: hexUuid(),
+        box_token_id: boxMetadata._data!.token_id,
+        box_name: boxId.value,
+        position: [0, 0, 0],
+        texture: genesisStore.boxTexture(boxId.value),
+        bookletTexture: genesisStore.bookletTexture(boxId.value),
+    };
+    sceneBox = await setBox(boxData);
+
     setSceneReady();
 
     const frame = (time: number) => {
@@ -311,49 +322,27 @@ onUnmounted(() => {
 })
 
 
-
-import { useRouter } from 'vue-router';
-import { camera } from '@/builder/graphics/Builder';
-const router = useRouter()
-
-const goToBuilder = () => {
-    router.push({ name: 'Builder' });
-}
-
-const start_unbox = () => {
+const startUnboxing = async () => {
+    await unbox(boxId.value);
     fsm.switchTo('UNBOXING');
 }
 
-const unbox = async () => {
-    await contractStore.box?.unbox(walletStore.userWalletAddress, selectedObject.value?.userData.box_token_id);
+const { openSetInBuilder } = useSetHelpers();
+const { createBookletSet } = useUnboxHelpers();
 
-    if (true) {
-        // Create a new local set with the proper booklet.
-        const { setsManager, store } = useBuilder();
-        const maybeExisting = setsManager.setList.filter(sid => {
-            setsManager.getInfo(sid).local?.getNbBriqs() === 0 && setsManager.getInfo(sid).booklet === 'spaceman'
-        });
-        if (maybeExisting.length !== 0) {
-            store.dispatch('builderData/select_set', maybeExisting[0].id);
-            return;
-        }
-
-        const set = setsManager.createLocalSet();
-        set.name = 'Spaceman';
-        const info = setsManager.getInfo(set.id);
-        info.booklet = 'spaceman';
-        store.dispatch('builderData/select_set', set.id);
-
-        // Play the box open animation.
-        fsm.switchTo('UNBOXED');
-    }
+const openBuilder = async () => {
+    let set = setsManager.getBookletSet(boxId.value);
+    if (!set)
+        openSetInBuilder(createBookletSet(boxMetadata._data!.name, boxId.value));
+    else
+        openSetInBuilder(set.id);
 }
 
 const useMockWallet = () => {
     window.useDebugProvider();
 }
 
-    </script>
+</script>
 
 <template>
     <canvas
@@ -376,10 +365,10 @@ const useMockWallet = () => {
         </div>
     </Transition>
     <div v-if="step === 'SAPIN'" class="flex justify-center items-center w-full absolute left-0 top-[70%] h-[30%] pointer-events-none gap-8">
-        <Btn class="pointer-events-auto" @click="fsm.switchTo('UNBOXING')">Start Unboxing</Btn>
+        <Btn class="pointer-events-auto" @click="startUnboxing">Start Unboxing</Btn>
     </div>
     <div v-if="step === 'UNBOXED'" class="flex justify-center items-center w-full absolute left-0 top-[70%] h-[30%] pointer-events-none gap-8">
-        <Btn class="pointer-events-auto" @click="router.push({ name: 'Builder' });">Start Building</Btn>
+        <Btn class="pointer-events-auto" @click="openBuilder">Start Building</Btn>
         <Btn secondary class="pointer-events-auto" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
     </div>
 </template>

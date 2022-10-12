@@ -51,6 +51,7 @@ const DEBUG_PHYSICS = false;
 
 export const sceneData = {
     booklet: undefined as THREE.Mesh | undefined,
+    bookletTexture: undefined as undefined | THREE.Texture,
 };
 
 let briqCubes: THREE.InstancedMesh;
@@ -320,7 +321,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     composer.render(scene, camera);
 }
 
-export function setBox(boxData: any) {
+export async function setBox(boxData: any) {
     const box = SkeletonUtils.clone(boxGlb.box) as THREE.Object3D;
 
     let texturedMat;
@@ -331,10 +332,31 @@ export function setBox(boxData: any) {
         }
         if (mesh.material?.name === 'briq_box.001') {
             texturedMat = mesh.material;
-            texturedMat.map.anisotropy = 8;
             mesh.castShadow = true;
         }
     })
+
+    // Load the texture and update it
+    const defaultLoader = new THREE.TextureLoader();
+    const texturePromise = new Promise((resolve) =>
+        defaultLoader.load(boxData.texture, (tex) => {
+            tex.encoding = THREE.sRGBEncoding;
+            tex.flipY = false;
+            texturedMat.map = tex;
+            texturedMat.map.anisotropy = 4;
+            resolve(tex);
+        }),
+    );
+
+    const bookletTexturePromise = new Promise((resolve) =>
+        defaultLoader.load(boxData.bookletTexture, (tex: THREE.Texture) => {
+            tex.encoding = THREE.sRGBEncoding;
+            tex.flipY = false;
+            tex.anisotropy = 4;
+            resolve(tex);
+        }),
+    );
+
     const mixer = new THREE.AnimationMixer(box);
     const anim = mixer.clipAction(boxGlb.anim)
     anim.timeScale = -2;
@@ -350,23 +372,6 @@ export function setBox(boxData: any) {
     box.userData.uid = boxData.uid;
     box.userData.box_token_id = boxData.box_token_id;
     box.userData.box_name = boxData.box_name;
-
-    if (!boxTexture[boxData.box_name])
-        boxTexture[boxData.box_name] = {
-            texture: defaultBoxTexture,
-            users: [box],
-        }
-    else
-        boxTexture[boxData.box_name].users.push(box);
-
-
-
-    const defaultLoader = new THREE.TextureLoader();
-    defaultLoader.load(boxData.texture, (tex) => {
-        tex.encoding = THREE.sRGBEncoding;
-        tex.flipY = false;
-        texturedMat.map = tex;
-    });
 
     const min = new THREE.Vector3(0.05, -0.07, -0.26)
     const max = new THREE.Vector3(0.55, 0.09, 0.25)
@@ -447,6 +452,9 @@ export function setBox(boxData: any) {
         sceneBox.userData.physicsBody = body;
     }
 
+    await texturePromise;
+    sceneData.bookletTexture = await bookletTexturePromise;
+
     return sceneBox;
 }
 
@@ -480,6 +488,7 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
 export function generateBooklet() {
     const booklet = bookletMesh.clone();
     booklet.material.fog = false;
+    booklet.material.map = sceneData.bookletTexture;
     booklet.material.map.anisotropy = 8;
     booklet.castShadow = true;
     booklet.receiveShadow = true;
@@ -544,24 +553,6 @@ export function graphicsFrame(delta: number) {
             ms.setWorldTransform(transform);
         }
     }
-}
-
-export function getBoxAt(event: PointerEvent) {
-    const rc = new THREE.Raycaster();
-    const cv = canvas;
-    rc.setFromCamera({ x: event.clientX / cv.clientWidth * 2 - 1.0, y: event.clientY / cv.clientHeight * - 2 + 1.0 }, camera);
-    const closest = new THREE.Vector3();
-    let bestDistance = undefined;
-    let closestBox = undefined;
-    for (const box of boxes)
-        if (rc.ray.intersectBox(box.userData.bb, closest)) {
-            const distance = rc.ray.origin.distanceToSquared(closest);
-            if (bestDistance === undefined || distance < bestDistance) {
-                bestDistance = distance;
-                closestBox = box;
-            }
-        }
-    return closestBox;
 }
 
 export function resetGraphics() {

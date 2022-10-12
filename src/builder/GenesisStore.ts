@@ -144,6 +144,11 @@ let initialCall = () => {
                     return backendManager.getRoute(`box/texture/${this.network}/${token_id}.png`)
                 }).value;
             },
+            bookletTexture() {
+                return (token_id: string) => computed(() => {
+                    return backendManager.getRoute(`booklet/texture/${this.network}/${token_id}.png`)
+                }).value;
+            },
         },
         actions: {
             setNetwork(network: CHAIN_NETWORKS) {

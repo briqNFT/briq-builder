@@ -3,6 +3,7 @@ import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { useSetHelpers } from '@/components/builder/SetComposable';
 import { useGenesisStore } from './GenesisStore';
 import { setsManager } from './SetsManager';
+import { userBookletsStore } from './UserBooklets';
 import { userBoxesStore } from './UserBoxes';
 
 export function useUnboxHelpers() {
@@ -13,8 +14,8 @@ export function useUnboxHelpers() {
 
         const data = await genesisStore.metadata[box_id]._fetch;
         const TX = await contractStore.box?.unbox(maybeStore.value!.userWalletAddress, data.token_id);
-        userBoxesStore.current?.hideOne(box_id, TX.transaction_hash);
-        openSetInBuilder(createBookletSet(data!.name, box_id));
+        userBoxesStore.current!.hideOne(box_id, TX.transaction_hash);
+        userBookletsStore.current!.showOne(box_id, TX.transaction_hash);
     }
 
     const createBookletSet = (set_name: string, booklet_id: string) => {

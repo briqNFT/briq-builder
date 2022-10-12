@@ -118,7 +118,7 @@ export const routes = [
         component: ImageLoaderVue,
     },
     {
-        path: '/unboxing',
+        path: '/unboxing/:theme/:box',
         name: 'Unboxing',
         component: async () => {
             await loadExtraPages();

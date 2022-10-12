@@ -14,7 +14,6 @@ import { productBidsStore, userBidsStore } from '@/builder/BidStore';
 import { useBids } from '@/components/BidComposable';
 
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
-import { useUnboxHelpers } from '@/builder/Unbox';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 
 const route = useRoute();
@@ -73,8 +72,6 @@ const buy = () => {
         item: token_id.value,
     });
 }
-
-const { unbox } = useUnboxHelpers();
 
 </script>
 
@@ -161,7 +158,7 @@ p {
                             <div>
                                 <h2>Unopened box</h2>
                                 <p>Your box is still under blister, open it to see what’s inside or keep it closed. Note that once it’s done you can’t go back.</p>
-                                <Btn primary class="p-4 my-4" @click="unbox(token_id)">Unbox</Btn>
+                                <RouterLink :to="{ name: 'Unboxing', params: { theme: route.params.theme, box: route.params.box } }"><Btn primary class="p-4 my-4">Unbox</Btn></RouterLink>
                             </div>
                             <div>
                                 <h2>Bought at</h2>
