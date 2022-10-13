@@ -7,7 +7,6 @@ import contractStore from '@/chain/Contracts';
 import { maybeStore } from '@/chain/WalletLoading';
 import Window from '@/components/generic/Window.vue';
 import { HashVue, Notification, pushPopup } from '@/Notifications';
-import { logDebug } from '@/Messages';
 import { downloadJSON } from '@/url';
 import { computed, h, ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
@@ -15,8 +14,9 @@ import { useScreenshotHelpers } from '../ScreenshotComposable';
 import { userSetStore } from '@/builder/UserSets';
 import { useBooklet } from '../BookletComposable';
 import { router } from '@/Routes';
+import { useGenesisStore } from '@/builder/GenesisStore';
 
-const { chainBriqs, selectSet } = useBuilder();
+const { chainBriqs } = useBuilder();
 
 const emit = defineEmits(['close']);
 
@@ -29,11 +29,12 @@ const props = defineProps<{
 
 
 const {
-    shapeValidity,
     booklet,
     bookletData,
-    getStepImgSrc,
 } = useBooklet();
+
+
+const genesisStore = useGenesisStore();
 
 // Reload the briqs on-chain in case there was an update.
 chainBriqs.value?.loadFromChain();
@@ -230,8 +231,8 @@ const startMinting = async () => {
     <template v-else-if="!exportStep && booklet">
         <Window size="w-[40rem]">
             <template #title>Mint an official set</template>
-            <div class="relative">
-                <img :src="getStepImgSrc(booklet, 1)">
+            <div class="relative flex justify-center items-center">
+                <img class="max-h-[30rem]" :src="genesisStore.coverItemRoute(booklet)">
             </div>
             <div class="my-2">
                 <h3>{{ bookletData!.name }}</h3>
