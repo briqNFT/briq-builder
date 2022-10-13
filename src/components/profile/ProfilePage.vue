@@ -152,7 +152,7 @@ const {
                 <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have any boxes.</p>
                     <p>Browse the available items in our Genesis collections!</p>
-                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                 </div>
                 <div v-else>
                     <BoxListing mode="INVENTORY" :boxes="userBoxesStore.current!.availableBoxes"/>
@@ -179,7 +179,7 @@ const {
                     <p class="font-semibold">You don't have any official Genesis sets.</p>
                     <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
                     <div class="mt-2 flex gap-2">
-                        <Btn secondary>Browse the themes</Btn>
+                        <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
                 </div>
                 <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
@@ -212,7 +212,7 @@ const {
                 <div v-if="!creations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You don't have personal creations.</p>
                     <p>Get some briqs and start building!</p>
-                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                 </div>
                 <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
                     <GenericCard
@@ -246,7 +246,7 @@ const {
                     <p class="font-semibold">You don't have work-in-progress sets.</p>
                     <p>Get some briqs and start building!</p>
                     <div class="flex gap-2 mt-2">
-                        <Btn secondary>Browse the themes</Btn>
+                        <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                         <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
                     </div>
                 </div>
@@ -294,7 +294,7 @@ const {
                 <div v-if="!winningBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You have no winning bids on ongoing auctions.</p>
                     <p>Browse the available items in our Genesis collections!</p>
-                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                 </div>
                 <div v-else>
                     <BoxListing :boxes="winningBids" :mode="'BID'"/>
@@ -305,7 +305,7 @@ const {
                 <div v-if="!losingBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">No losing bids to report.</p>
                     <p>Browse the available items in our Genesis collections!</p>
-                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                 </div>
                 <div v-else>
                     <BoxListing :boxes="losingBids" :mode="'BID'"/>
@@ -316,7 +316,7 @@ const {
                 <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
                     <p class="font-semibold">You have not yet bought any item</p>
                     <p>Browse the available items in our Genesis collections!</p>
-                    <Btn secondary class="mt-2">Browse the themes</Btn>
+                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                 </div>
             </div>
         </div>
