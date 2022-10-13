@@ -22,7 +22,7 @@ async function AmmoPhysics(THREE) {
     const broadphase = new AmmoLib.btDbvtBroadphase();
     const solver = new AmmoLib.btSequentialImpulseConstraintSolver();
     const world = new AmmoLib.btDiscreteDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration );
-    world.setGravity( new AmmoLib.btVector3( 0, - 0.98, 0 ) );
+    world.setGravity( new AmmoLib.btVector3( 0, -0.5, 0 ) );
 
     const worldTransform = new AmmoLib.btTransform();
 
@@ -30,7 +30,17 @@ async function AmmoPhysics(THREE) {
 
     function getShape( mesh ) {
 
-        const geometry = mesh.geometry;
+        const geometry = (() => {
+            if (!mesh.geometry) {
+                let r;
+                mesh.traverse(obj => {
+                    if (obj.geometry?.boundingBox)
+                        r = obj;
+                })
+                return r.geometry;
+            }
+            return mesh.geometry;
+        })();
         const parameters = geometry.parameters;
 
         // TODO change type to is*
@@ -56,7 +66,7 @@ async function AmmoPhysics(THREE) {
             return shape;
 
         } else {
-            const box = mesh.geometry.boundingBox;/* new THREE.Box3();
+            const box = geometry.boundingBox;/* new THREE.Box3();
             box.setFromObject(mesh, false);*/
 
             const sx = (box.max.x - box.min.x)/2;
@@ -87,7 +97,7 @@ async function AmmoPhysics(THREE) {
 
                 handleInstancedMesh( mesh, mass, shape );
 
-			 else if ( mesh.isMesh )
+			 else
 
                 handleMesh( mesh, mass, shape, friction );
 
@@ -98,7 +108,6 @@ async function AmmoPhysics(THREE) {
     }
 
     function handleMesh( mesh, mass, shape, friction ) {
-
         const position = mesh.position;
         const quaternion = mesh.quaternion;
 
@@ -181,7 +190,7 @@ async function AmmoPhysics(THREE) {
             worldTransform.setOrigin( new AmmoLib.btVector3( position.x, position.y, position.z ) );
             body.setWorldTransform( worldTransform );
 
-        } else if ( mesh.isMesh ) {
+        } else {
 
             const body = meshMap.get( mesh );
 
@@ -227,7 +236,7 @@ async function AmmoPhysics(THREE) {
 
                 mesh.instanceMatrix.needsUpdate = true;
 
-            } else if ( mesh.isMesh ) {
+            } else {
 
                 const body = meshMap.get( mesh );
 

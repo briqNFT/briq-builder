@@ -1,6 +1,7 @@
 import contractStore from '@/chain/Contracts';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { useSetHelpers } from '@/components/builder/SetComposable';
+import { chainBriqs } from './ChainBriqs';
 import { useGenesisStore } from './GenesisStore';
 import { setsManager } from './SetsManager';
 import { userBookletsStore } from './UserBooklets';
@@ -16,6 +17,18 @@ export function useUnboxHelpers() {
         const TX = await contractStore.box?.unbox(maybeStore.value!.userWalletAddress, data.token_id);
         userBoxesStore.current!.hideOne(box_id, TX.transaction_hash);
         userBookletsStore.current!.showOne(box_id, TX.transaction_hash);
+        chainBriqs.value!.show('0x1', data.briqs.length, TX.transaction_hash);
+    }
+
+    // For testing.
+    const fakeUnbox = async function(box_id: string) {
+        await walletInitComplete;
+
+        const data = await genesisStore.metadata[box_id]._fetch;
+        const TX = { transaction_hash: '0xcafe' }//await contractStore.box?.unbox(maybeStore.value!.userWalletAddress, data.token_id);
+        userBoxesStore.current!.hideOne(box_id, TX.transaction_hash);
+        userBookletsStore.current!.showOne(box_id, TX.transaction_hash);
+        chainBriqs.value!.show('0x1', data.briqs.length, TX.transaction_hash);
     }
 
     const createBookletSet = (set_name: string, booklet_id: string) => {
@@ -29,6 +42,7 @@ export function useUnboxHelpers() {
     }
     return {
         unbox,
+        fakeUnbox,
         createBookletSet,
     }
 }

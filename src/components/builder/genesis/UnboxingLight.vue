@@ -5,23 +5,22 @@ import {
 
 import { shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, onUnmounted } from 'vue';
 
-import { useBuilder } from '@/components/builder/BuilderComposable';
 import { walletStore } from '@/chain/Wallet';
 
 import { setupScene, useRenderer, graphicsFrame, resetGraphics, setBox, generateCubes, generateBooklet, StopPhysics, sceneData, triggerBoom } from './UnboxingGraphicsLight';
 import { APP_ENV } from '@/Meta';
 
-import { userBoxesStore } from '@/builder/UserBoxes';
 import { useGenesisStore } from '@/builder/GenesisStore';
-import contractStore from '@/chain/Contracts';
 
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { hexUuid } from '@/Uuid';
 import { getBookletData, getBookletDataSync } from '@/builder/BookletData';
 import { useRoute, useRouter } from 'vue-router';
-import { useUnboxHelpers } from '@/builder/Unbox';
 import { setsManager } from '@/builder/SetsManager';
 import { useSetHelpers } from '../SetComposable';
+import { pushModal } from '@/components/Modals.vue';
+import UnboxModalVue from './UnboxModal.vue';
+import { useUnboxHelpers } from '@/builder/Unbox';
 
 
 //////////////////////////////
@@ -47,12 +46,14 @@ const boxId = computed(() => `${route.params.theme}/${route.params.box}`);
 
 const boxMetadata = genesisStore.metadata[boxId.value];
 
-const { unbox } = useUnboxHelpers();
+const { openSetInBuilder } = useSetHelpers();
+const { createBookletSet } = useUnboxHelpers();
+
 
 //////////////////////////////
 //////////////////////////////
 
-type steps = 'CHECK_WALLET' | 'LOADING' | 'SAPIN' | 'UNBOXING' | 'UNBOXING_OPEN' | 'UNBOXED';
+type steps = 'CHECK_WALLET' | 'LOADING' | 'SAPIN' | 'UNBOXING' | 'UNBOXING_OPEN' | 'UNBOXED' | 'OPEN_BUILDER';
 
 interface FsmState {
     onEnter(): Promise<any>;
@@ -125,6 +126,8 @@ const unboxingState = new class implements FsmState {
 const unboxingOpenState = new class implements FsmState {
     time = 0;
     briqStep = 0;
+    boxMoveStep = 0;
+    c2 = 0;
     rt: any;
     genCubes = false;
     genBooklet = false;
@@ -145,7 +148,8 @@ const unboxingOpenState = new class implements FsmState {
         sceneBox.userData.mixer.update(delta);
         this.time += delta;
 
-        {
+        // Camera movement - step 1
+        if (!this.genCubes) {
             const ease = 1.0;
             const curve = new THREE.CubicBezierCurve(
                 new THREE.Vector2(0, 0),
@@ -154,17 +158,33 @@ const unboxingOpenState = new class implements FsmState {
                 new THREE.Vector2(1, 1),
             );
             const easedTime = curve.getPoint(Math.min(1.0, this.time / 4)).y;
-            const pos = camera.position.lerpVectors(this.camPos, new THREE.Vector3(2.75, 2.25, 0.15), Math.min(1, easedTime));
-            camera.position.set(pos.x, pos.y, pos.z);
-            const quat = camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), Math.min(1, easedTime));
-            camera.quaternion.set(quat.x, quat.y, quat.z, quat.w);
+            camera.position.lerpVectors(this.camPos, new THREE.Vector3(2.75, 2.25, 0.15), Math.min(1, easedTime));
+            camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), Math.min(1, easedTime));
 
             scene.fog.near = 1.3 + easedTime * 1.7;
             scene.fog.far = 4.5 + easedTime * 0.5;
         }
 
-        if (sceneBox.userData.mixer.time > 2.5 && this.briqStep < 1) {
-            this.briqStep += delta / 2;
+        // Camera movement - step 2
+        if (this.genCubes) {
+            const ease = 1.0;
+            const curve = new THREE.CubicBezierCurve(
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(1.0, 0),
+                new THREE.Vector2(0.5, 1),
+                new THREE.Vector2(1, 1),
+            );
+            const easedTime = curve.getPoint(Math.min(1.0, this.c2 / 8)).y;
+            camera.position.lerpVectors(new THREE.Vector3(2.75, 2.25, 0.15), new THREE.Vector3(1.6, 1.6, 0.3), Math.min(1, easedTime));
+            camera.quaternion.slerpQuaternions(new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), new THREE.Quaternion(-0.36, 0.584, 0.326, 0.65), Math.min(1, easedTime));
+            //scene.fog.near = 1.3 + easedTime * 1.7;
+            //scene.fog.far = 4.5 + easedTime * 0.5;
+            this.c2 += delta;
+        }
+
+        // Box movement
+        if (sceneBox.userData.mixer.time > 2.5 && this.boxMoveStep < 1) {
+            this.boxMoveStep += delta / 2;
 
             const ease = 0.8;
             const curve = new THREE.CubicBezierCurve(
@@ -173,16 +193,17 @@ const unboxingOpenState = new class implements FsmState {
                 new THREE.Vector2(1 - ease, 1),
                 new THREE.Vector2(1, 1),
             );
-            const easedTime = curve.getPoint(this.briqStep).y;
+            const easedTime = curve.getPoint(this.boxMoveStep).y;
             const tg = this.rt.clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 3));
-            const qt = sceneBox.quaternion.slerpQuaternions(this.rt, tg, easedTime);
-            sceneBox.quaternion.set(qt.x, qt.y, qt.z, qt.w);
-            const tt = sceneBox.position.lerpVectors(this.initialPos, new THREE.Vector3(0, 0.7, -0.2), easedTime);
-            sceneBox.position.set(tt.x, tt.y, tt.z);
-        } else if (this.briqStep >= 4)
-            fsm.switchTo('UNBOXED');
-        else if (this.briqStep >= 1) {
-            if (!this.genCubes && this.briqStep >= 1.0) {
+            tg.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -0.2));
+            tg.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0.2));
+            sceneBox.quaternion.slerpQuaternions(this.rt, tg, easedTime);
+            sceneBox.position.lerpVectors(this.initialPos, new THREE.Vector3(0, 0.7, -0.2), easedTime);
+        }
+
+        if (this.boxMoveStep >= 1.0) {
+            // Spawn cubes early
+            if (!this.genCubes && this.briqStep >= 0) {
                 const colors = {};
                 const briqs = getBookletDataSync('starknet_city_ongoing/spaceman').value.briqs;
                 for (const briq of briqs)
@@ -190,19 +211,25 @@ const unboxingOpenState = new class implements FsmState {
                 generateCubes(Object.keys(colors));
                 this.genCubes = true;
             }
-            if (this.genBooklet && this.briqStep >= 1.8) {
+
+            // Trigger 'boom' effect when booklet hits the ground
+            if (this.genBooklet && this.briqStep >= 1.0) {
                 this.deltaV[0] = this.deltaV[1];
                 this.deltaV[1] = sceneData.booklet.position.y;
                 if (this.deltaV[1] - this.deltaV[0] > -0.001)
                     triggerBoom();
             }
-            if (!this.genBooklet && this.briqStep >= 1.6) {
+            // Spawn booklet a little while after briqs
+            if (!this.genBooklet && this.briqStep >= 0.8) {
                 generateBooklet();
                 this.genBooklet = true;
                 this.deltaV = [sceneData.booklet.position.y, sceneData.booklet.position.y];
             }
             this.briqStep += delta / 2;
         }
+
+        if (this.time >= 13.5)
+            fsm.switchTo('UNBOXED');
     }
 }
 
@@ -211,6 +238,45 @@ const unboxedState = new class implements FsmState {
         StopPhysics();
     }
     frame(delta: number) {}
+}
+
+
+const openBuilderState = new class implements FsmState {
+    time = 0;
+    easedTime = ref(0);
+    async onEnter() {
+        this.camPos = camera.position.clone();
+        this.camQuat = camera.quaternion.clone();
+
+        this.tpos = sceneData.booklet.position.clone();
+    }
+
+    frame(delta: number) {
+        // Camera movement - step 1
+        if (this.time < 1) {
+            const curve = new THREE.CubicBezierCurve(
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(1.0, 0),
+                new THREE.Vector2(1.0, 0.5),
+                new THREE.Vector2(1, 1),
+            );
+            const easedTime = curve.getPoint(Math.min(1.0, this.time)).y;
+            this.easedTime.value = easedTime;
+            camera.position.lerpVectors(this.camPos, this.tpos, Math.min(1, easedTime));
+            camera.near = Math.max(0.0001, 0.3 - curve.getPoint(Math.min(1.0, this.time)).y * 0.3);
+            camera.far = 100 - curve.getPoint(Math.min(1.0, this.time)).y * 99.9;
+        }
+
+        if (this.time >= 1) {
+            let set = setsManager.getBookletSet(boxId.value);
+            if (!set)
+                openSetInBuilder(createBookletSet(boxMetadata._data!.name, boxId.value));
+            else
+                openSetInBuilder(set.id);
+        }
+
+        this.time += delta / 2;
+    }
 }
 
 
@@ -227,6 +293,7 @@ const fsm = shallowReactive(new class FSM {
             'UNBOXING': unboxingState,
             'UNBOXING_OPEN': unboxingOpenState,
             'UNBOXED': unboxedState,
+            'OPEN_BUILDER': openBuilderState,
         }[state];
         this.stateName = state;
         await this.state.onEnter();
@@ -237,9 +304,6 @@ const step = computed(() => fsm.stateName);
 
 //////////////////////////////
 //////////////////////////////
-
-
-import Stats from 'stats.js';
 
 let lastTime: number;
 let mounted = false;
@@ -299,20 +363,23 @@ onMounted(async () => {
     }
     requestAnimationFrame(frame);
 
-    /** FPS counter */
-    var stats = new Stats();
-    stats.showPanel(0)
-    document.body.appendChild(stats.dom);
-    function animate() {
-        if (!mounted)
-            return;
-        stats.end();
+    if (APP_ENV !== 'prod') {
+        /** FPS counter */
+        const Stats = (await import('stats.js')).default;
+        var stats = new Stats();
+        stats.showPanel(0)
+        document.body.appendChild(stats.dom);
+        const animate = () => {
+            if (!mounted)
+                return;
+            stats.end();
+            stats.begin();
+            requestAnimationFrame(animate);
+        }
+
         stats.begin();
         requestAnimationFrame(animate);
     }
-
-    stats.begin();
-    requestAnimationFrame(animate);
 });
 
 onUnmounted(() => {
@@ -323,19 +390,12 @@ onUnmounted(() => {
 
 
 const startUnboxing = async () => {
-    await unbox(boxId.value);
-    fsm.switchTo('UNBOXING');
+    if (await pushModal(UnboxModalVue, { boxId: boxId.value }))
+        fsm.switchTo('UNBOXING');
 }
 
-const { openSetInBuilder } = useSetHelpers();
-const { createBookletSet } = useUnboxHelpers();
-
 const openBuilder = async () => {
-    let set = setsManager.getBookletSet(boxId.value);
-    if (!set)
-        openSetInBuilder(createBookletSet(boxMetadata._data!.name, boxId.value));
-    else
-        openSetInBuilder(set.id);
+    fsm.switchTo('OPEN_BUILDER')
 }
 
 const useMockWallet = () => {
@@ -371,6 +431,7 @@ const useMockWallet = () => {
         <Btn secondary class="pointer-events-auto" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
         <Btn class="pointer-events-auto" @click="openBuilder">Start Building</Btn>
     </div>
+    <div v-if="step === 'OPEN_BUILDER'" class="absolute h-screen w-screen bg-grad-lightest" :style="`opacity: ${Math.min(1, fsm.state.easedTime.value ?? 0 * fsm.state.easedTime.value ?? 0)};`"/>
 </template>
 
 

@@ -2,6 +2,7 @@ import { backendManager } from '@/Backend';
 import { Notification } from '@/Notifications';
 import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
+import { userBoxesStore } from './UserBoxes';
 
 
 export interface Purchase {
@@ -48,6 +49,7 @@ class UserPurchases implements perUserStorable {
             box_id: box_id,
             status: 'TENTATIVE',
         }
+        userBoxesStore.current!.showOne(box_id, tx_response!.transaction_hash);
         return this.purchases[tx_response!.transaction_hash];
     }
 

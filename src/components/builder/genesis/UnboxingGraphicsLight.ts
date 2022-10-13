@@ -214,7 +214,7 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     const fov = 35;
     const aspect = 2;
     const near = 0.1;
-    const far = 10;
+    const far = 100;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     /* Debug */
@@ -259,12 +259,12 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     scene.add(camera);
 
-    scene.fog = new THREE.Fog(new THREE.Color('#ffffff').convertSRGBToLinear(), 2.0, 5.0);
+    scene.fog = new THREE.Fog(new THREE.Color('#ffffff').convertSRGBToLinear(), 1.3, 4.5);
     scene.background = new THREE.Color('#FFFFFF').convertSRGBToLinear();
 
     scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF').convertSRGBToLinear(), 0.1))
     let light: THREE.SpotLight;
-    light = new THREE.SpotLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 1.5, 50.0, Math.PI/6, 0.0, 1.0);
+    light = new THREE.SpotLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 1.5, 50.0, Math.PI/6, 0.5, 1.0);
     light.position.set(1, 2, -0.5);
     light.shadow.mapSize = new THREE.Vector2(1024, 1024);
     light.shadow.radius = 20;
@@ -459,10 +459,10 @@ export async function setBox(boxData: any) {
 }
 
 export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
-    const xcount = DEBUG_PHYSICS ? 3 : 6;
-    const ycount = DEBUG_PHYSICS ? 3 : 5;
-    const zcount = DEBUG_PHYSICS ? 3 : 6;
-    briqCubes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.01, 0.01, 0.01, 2, 2, 2), new THREE.MeshStandardMaterial(), xcount*ycount*zcount);
+    const xcount = DEBUG_PHYSICS ? 3 : 4;
+    const ycount = DEBUG_PHYSICS ? 3 : 6;
+    const zcount = DEBUG_PHYSICS ? 3 : 5;
+    briqCubes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.015, 0.015, 0.015, 1, 1, 1), new THREE.MeshStandardMaterial(), xcount*ycount*zcount);
     briqCubes.castShadow = true;
     briqCubes.receiveShadow = true;
     briqCubes.material.fog = false;
@@ -471,9 +471,9 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
         for (let z = 0; z < zcount; ++z)
             for (let y = 0; y < ycount; ++y) {
                 const vec = new THREE.Vector3(
-                    x * 0.013 - xcount * 0.0105 / 2,
-                    y * 0.013 - 0.135,
-                    -z * 0.013 + 0.20,
+                    x * 0.016 - xcount * 0.0105 / 2,
+                    y * 0.025 - 0.135,
+                    -z * 0.018 + 0.10,
                 );
                 vec.applyQuaternion(sceneBox.quaternion);
                 vec.add(sceneBox.position)
@@ -483,6 +483,13 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
             }
     scene.add(briqCubes);
     physicsWorld.addMesh(briqCubes, 0.1);
+    const bodies = physicsWorld.meshMap.get(briqCubes)
+    for (const body of bodies) {
+        const vec = new THREE.Vector3(0, -0.03, -0.03);
+        vec.applyQuaternion(sceneBox.quaternion);
+        body.applyCentralImpulse(new Ammo.btVector3(vec.x, vec.y, vec.z));
+        body.applyTorqueImpulse(new Ammo.btVector3(Math.random() / 10000.0, Math.random() / 10000.0, Math.random() / 10000.0));
+    }
 }
 
 export function generateBooklet() {
@@ -492,26 +499,42 @@ export function generateBooklet() {
     booklet.material.map.anisotropy = 8;
     booklet.castShadow = true;
     booklet.receiveShadow = true;
-    const vec = new THREE.Vector3(0, 0, 0);
+    let vec = new THREE.Vector3(0.03, 0, 0.1);
     vec.applyQuaternion(sceneBox.quaternion);
     vec.add(sceneBox.position)
     booklet.position.set(vec.x, vec.y, vec.z);
     booklet.quaternion.set(sceneBox.quaternion.x, sceneBox.quaternion.y, sceneBox.quaternion.z, sceneBox.quaternion.w);
-    booklet.rotateY(Math.PI * 1.04);
-    booklet.rotateZ(-Math.PI/2.5);
+    booklet.rotateY(Math.PI * 1);
+    booklet.rotateZ(-Math.PI/2);
     scene.add(booklet);
-    physicsWorld.addMesh(booklet, 10.0, 0.3);
     sceneData.booklet = booklet;
+
+    physicsWorld.addMesh(booklet, 10.0, 0.3);
+    const body = physicsWorld.meshMap.get(booklet);
+    vec = new THREE.Vector3(0, 0.0, -1.5);
+    vec.applyQuaternion(sceneBox.quaternion);
+    body.applyCentralImpulse(new Ammo.btVector3(vec.x, vec.y, vec.z));
+    //runPhysics = false;
 }
 
 export function StopPhysics() {
-    runPhysics = false;
+    physicsWorld.world.removeCollisionObject(physicsWorld.meshMap.get(sceneData.booklet));
+    const bodies = physicsWorld.meshMap.get(briqCubes)
+    for (const body of bodies)
+        physicsWorld.world.removeCollisionObject(body)
+
+    //runPhysics = false;
 }
 
 export function triggerBoom() {
     if (boomTriggered)
         return;
     boomTriggered = true;
+
+    // Push the booklet to fall right-side up.
+    const bookletBody = physicsWorld.meshMap.get(sceneData.booklet);
+    bookletBody.applyImpulse(new Ammo.btVector3(-0.1, 0.0, 0.0), new Ammo.btVector3(0.0, 1.0, 0.0));
+
     const bodies = physicsWorld.meshMap.get(briqCubes)
     for (const body of bodies) {
         const pos = body.getWorldTransform().getOrigin();
@@ -522,6 +545,13 @@ export function triggerBoom() {
         impulse = impulse.op_mul(force * force / 3);
         body.applyCentralImpulse(impulse);
     }
+
+    // Delete the kinetic objects or things will fail
+    physicsWorld.world.removeCollisionObject(sceneBox.userData.physicsBody);
+    physicsWorld.addMesh(sceneBox, 1.0);
+    const body = physicsWorld.meshMap.get(sceneBox);
+    body.applyCentralImpulse(new Ammo.btVector3(-1.0, 0.2, -1.0));
+    body.applyTorqueImpulse(new Ammo.btVector3(-0.2, -0.05, 0.1));
 }
 
 export function graphicsFrame(delta: number) {
