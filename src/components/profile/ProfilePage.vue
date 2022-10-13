@@ -156,7 +156,7 @@ watchEffect(() => {
                         <RouterLink class="w-full" to="#purchased"><Btn no-background class="w-full justify-start font-medium">Purchased Items</Btn></RouterLink>
                     </template>
                 </div>
-                <RouterLink v-if="activeTab === 'CREATION'" class="w-full" :to="{ name: 'Builder' }"><Btn primary class="w-full">New Creation</Btn></RouterLink>
+                <RouterLink v-if="activeTab === 'CREATION'" class="w-full" :to="{ name: 'Builder' }"><Btn primary class="w-full text-sm">New Creation</Btn></RouterLink>
             </div>
         </div>
         <div>
