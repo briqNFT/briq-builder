@@ -6,7 +6,7 @@ import ProfileIcon from '@/assets/profile/profile.svg?skipsvgo';
 
 import { maybeStore } from '@/chain/WalletLoading';
 
-import { computed, ref } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBookletsStore } from '@/builder/UserBooklets';
 import { userSetStore } from '@/builder/UserSets';
@@ -85,11 +85,12 @@ const officialCreations = computed(() => {
 
 const userAddress = computed(() => maybeStore.value?.userWalletAddress);
 
-const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
-
 const activeTab = ref('CREATION' as 'CREATION' | 'GENESIS' | 'ACTIVITY');
 
-const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
+watchEffect(() => {
+    if (!userAddress.value)
+        activeTab.value = 'CREATION';
+})
 
 </script>
 
@@ -120,25 +121,25 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
                     <h5 class="font-normal text-grad-dark">Account</h5>
                     <p class="block lg:hidden font-medium">{{ userAddress ? `${userAddress.slice(0, 5)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
                     <p class="hidden lg:block font-medium">{{ userAddress ? `${userAddress.slice(0, 9)}...${userAddress.slice(-7)}` : 'No wallet selected' }}</p>
+                    <p v-if="!userAddress" class="my-4">Connect your wallet to access more functionality.</p>
                 </div>
             </div>
             <!--
-        <div class="p-4 rounded-md border border-grad-light">
-            <h4 class="font-medium">My briqs</h4>
-            <p class="my-4"><span class="font-medium">Available briqs:</span> {{ chainBriqs?.getNbBriqs() || 0 }}</p>
-        </div>
-        -->
-            <div class="flex gap-8" v-if="userAddress">
-                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark'}`" @click="activeTab = 'CREATION'">My creations</p>
-                <p :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark'}`" @click="activeTab = 'GENESIS'">Genesis collection</p>
-                <p :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark'}`" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
+            <div class="p-4 rounded-md border border-grad-light">
+                <h4 class="font-medium">My briqs</h4>
+                <p class="my-4"><span class="font-medium">Available briqs:</span> {{ chainBriqs?.getNbBriqs() || 0 }}</p>
             </div>
-            <div v-else class="mb-8"><p>Connect your wallet to access more functionality.</p></div>
+            -->
+            <div class="flex gap-8">
+                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'CREATION'">My creations</p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'GENESIS'">Genesis collection</p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
+            </div>
         </div>
     </div>
     <div class="container m-auto my-8 grid grid-cols-[3fr_9fr] gap-8">
         <div>
-            <div class="bg-grad-lightest rounded flex flex-col p-2 gap-2 sticky top-[80px]">
+            <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 sticky top-[80px] mb-4">
                 <template v-if="activeTab === 'CREATION'">
                     <RouterLink class="w-full" to="#wip"><Btn no-background class="w-full justify-start font-medium">Work in Progress</Btn></RouterLink>
                     <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start font-medium">Minted</Btn></RouterLink>
@@ -154,7 +155,7 @@ const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
                     <RouterLink class="w-full" to="#purchased"><Btn no-background class="w-full justify-start font-medium">Purchased Items</Btn></RouterLink>
                 </template>
             </div>
-            <RouterLink v-if="activeTab === 'CREATION'" class="w-full" :to="{ name: 'Builder' }"><Btn primary class="w-full my-4">New Creation</Btn></RouterLink>
+            <RouterLink v-if="activeTab === 'CREATION'" class="w-full" :to="{ name: 'Builder' }"><Btn primary class="w-full">New Creation</Btn></RouterLink>
         </div>
         <div>
             <div v-if="activeTab === 'CREATION'">
