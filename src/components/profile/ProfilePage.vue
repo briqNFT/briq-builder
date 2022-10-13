@@ -2,10 +2,6 @@
 import Header from '../landing_page/Header.vue';
 import Footer from '../landing_page/Footer.vue';
 
-import BriqsOverlayB from '@/assets/landing/briqs-bottom.svg';
-import BriqsOverlayT from '@/assets/landing/briqs-top.svg';
-import BriqsOverlayR from '@/assets/landing/briqs-right.svg';
-
 import ProfileIcon from '@/assets/profile/profile.svg';
 
 import { maybeStore } from '@/chain/WalletLoading';
@@ -20,17 +16,16 @@ import { setsManager } from '@/builder/SetsManager';
 import MenuDropdown from '../generic/MenuDropdown.vue';
 import { useSetHelpers } from '../builder/SetComposable';
 import { router } from '@/Routes';
-import { chainBriqs } from '@/builder/ChainBriqs';
 import BookletCard from '../builder/genesis/BookletCard.vue';
 import GenericCard from '../builder/genesis/GenericCard.vue';
 import { backendManager } from '@/Backend';
-import { getCurrentNetwork } from '@/chain/Network';
 
-const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
-
-const activeTab = ref('INVENTORY' as 'INVENTORY' | 'ACTIVITY');
-
-const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
+const {
+    openSetInBuilder,
+    duplicateSet,
+    deleteLocalSet,
+    disassembleSet,
+} = useSetHelpers();
 
 const bids = computed(() => {
     const bids = {} as { [key: string]: Bid }
@@ -71,6 +66,10 @@ const creations = computed(() => {
     }).filter(x => !!x) || [];
 })
 
+const creationsWIP = computed(() => {
+    return Object.values(setsManager.setsInfo).filter(x => !x.booklet).map(x => x.getSet());
+})
+
 const officialCreations = computed(() => {
     return userSetStore.current?.sets.map(setId => {
         if (!userSetStore.current?.setData[setId]?.booklet)
@@ -86,16 +85,12 @@ const officialCreations = computed(() => {
 
 const userAddress = computed(() => maybeStore.value?.userWalletAddress);
 
-const creationsWIP = computed(() => {
-    return Object.values(setsManager.setsInfo).filter(x => !x.booklet).map(x => x.getSet());
-})
+const sections = ['Sealed boxes', 'Booklets', 'Genesis Sets', 'Personal creations'];
 
-const {
-    openSetInBuilder,
-    duplicateSet,
-    deleteLocalSet,
-    disassembleSet,
-} = useSetHelpers();
+const activeTab = ref('CREATION' as 'CREATION' | 'GENESIS' | 'ACTIVITY');
+
+const shoppingSections = ['Ongoing Auction Bids', 'Purchased Items']
+
 </script>
 
 <style scoped>
@@ -116,243 +111,228 @@ const {
 </style>
 
 <template>
-    <Header/>
-    <div class="bg-[#FFD215] relative w-full h-[9rem] tall-lg:h-[12rem] overflow-hidden">
-        <div class="container m-auto relative">
-            <div class="absolute left-[-100px] bottom-[-250px]"><BriqsOverlayB/></div>
-            <div class="absolute top-0 left-[800px]"><BriqsOverlayT/></div>
-            <div class="absolute top-0 right-[-100px]"><BriqsOverlayR/></div>
+    <Header class="bg-grad-lightest mb-0"/>
+    <div class="bg-grad-lightest border-b border-grad-light">
+        <div class="container m-auto pt-6 flex-col justify-between">
+            <div class="flex gap-4 pb-8">
+                <div class="bg-grad-lighter rounded border border-grad-light w-[7.75rem] h-[7.75rem]"><ProfileIcon width="100%" height="100%"/></div>
+                <div>
+                    <h5 class="font-normal text-grad-dark">Account</h5>
+                    <p class="block lg:hidden font-medium">{{ userAddress ? `${userAddress.slice(0, 5)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
+                    <p class="hidden lg:block font-medium">{{ userAddress ? `${userAddress.slice(0, 9)}...${userAddress.slice(-7)}` : 'No wallet selected' }}</p>
+                </div>
+            </div>
+            <!--
+        <div class="p-4 rounded-md border border-grad-light">
+            <h4 class="font-medium">My briqs</h4>
+            <p class="my-4"><span class="font-medium">Available briqs:</span> {{ chainBriqs?.getNbBriqs() || 0 }}</p>
+        </div>
+        -->
+            <div class="flex gap-8" v-if="userAddress">
+                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark'}`" @click="activeTab = 'CREATION'">My creations</p>
+                <p :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark'}`" @click="activeTab = 'GENESIS'">Genesis collection</p>
+                <p :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark'}`" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
+            </div>
+            <div v-else class="mb-8"><p>Connect your wallet to access more functionality.</p></div>
         </div>
     </div>
-    <div class="bg-grad-lightest p-8 pb-0 flex flex-col items-center border-b border-grad-light">
-        <div class="relative bottom-[6rem] right-[4rem] pb-[4rem]">
-            <div class="absolute z-10 h-[8rem] w-[8rem] bg-grad-lighter border-4 border-grad-lightest rounded-md shadow-md flex justify-center items-center">
-                <ProfileIcon width="100%" height="100%"/>
-            </div>
-        </div>
-        <h2 class="hidden xl:block">{{ userAddress || 'No wallet selected' }}</h2>
-        <h2 class="block xl:hidden">{{ userAddress ? `${userAddress.slice(0, 8)}...${userAddress.slice(-8)}` : 'No wallet selected' }}</h2>
-        <p class="my-4"><span class="font-medium">Available briqs:</span> {{ chainBriqs?.getNbBriqs() || 0 }}</p>
-        <div class="flex gap-12 mt-8" v-if="userAddress">
-            <p :class="activeTab === 'INVENTORY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer'" @click="activeTab = 'INVENTORY'">Inventory</p>
-            <p :class="activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer'" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
-        </div>
-        <div v-else class="mb-8"><p>Connect your wallet to access more functionality.</p></div>
-    </div>
-    <div v-if="activeTab === 'INVENTORY' && userAddress" class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
+    <div class="container m-auto my-8 grid grid-cols-[3fr_9fr] gap-8">
         <div>
-            <h2 class="pl-3">Inventory</h2>
-            <div class="mt-4 flex flex-col gap-2">
-                <Btn no-background class="justify-start" v-for="section of sections">{{ section }}</Btn>
+            <div class="bg-grad-lightest rounded flex flex-col p-2 gap-2 sticky top-[80px]">
+                <template v-if="activeTab === 'CREATION'">
+                    <RouterLink class="w-full" to="#wip"><Btn no-background class="w-full justify-start font-medium">Work in Progress</Btn></RouterLink>
+                    <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start font-medium">Minted</Btn></RouterLink>
+                </template>
+                <template v-else-if="activeTab === 'GENESIS'">
+                    <RouterLink class="w-full" to="#box"><Btn no-background class="w-full justify-start font-medium">Sealed Boxes</Btn></RouterLink>
+                    <RouterLink class="w-full" to="#booklet"><Btn no-background class="w-full justify-start font-medium">Unbuilt Booklets</Btn></RouterLink>
+                    <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start font-medium">Official Sets</Btn></RouterLink>
+                </template>
+                <template v-else-if="activeTab === 'ACTIVITY'">
+                    <RouterLink class="w-full" to="#winning"><Btn no-background class="w-full justify-start font-medium">Winning Bids</Btn></RouterLink>
+                    <RouterLink class="w-full" to="#losing"><Btn no-background class="w-full justify-start font-medium">Losing Bids</Btn></RouterLink>
+                    <RouterLink class="w-full" to="#purchased"><Btn no-background class="w-full justify-start font-medium">Purchased Items</Btn></RouterLink>
+                </template>
             </div>
+            <RouterLink v-if="activeTab === 'CREATION'" class="w-full" :to="{ name: 'Builder' }"><Btn primary class="w-full my-4">New Creation</Btn></RouterLink>
         </div>
         <div>
-            <div>
-                <h3>Sealed boxes</h3>
-                <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">You don't have any boxes.</p>
-                    <p>Browse the available items in our Genesis collections!</p>
-                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                </div>
-                <div v-else>
-                    <BoxListing mode="INVENTORY" :boxes="userBoxesStore.current!.availableBoxes"/>
-                </div>
-            </div>
-            <div>
-                <h3>Unbuilt Booklets</h3>
-                <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">You don't have any booklets.</p>
-                    <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
-                    <Btn secondary class="mt-2">Browse the themes</Btn>
-                </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
-                    <div v-for="booklet of userBookletsStore.current?.booklets">
-                        <RouterLink :to="`user/booklet/${booklet}`">
-                            <BookletCard :box-id="booklet"/>
-                        </RouterLink>
+            <div v-if="activeTab === 'CREATION'">
+                <div>
+                    <a id="wip" class="relative bottom-[80px]"/>
+                    <h3>Work in progress</h3>
+                    <p>WIP sets are stored on this computer only and shared across wallets.</p>
+                    <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have work-in-progress sets.</p>
+                        <p>Get some briqs and start building!</p>
+                        <div class="flex gap-2 mt-2">
+                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
+                            <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
+                        </div>
+                    </div>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
+                        <!-- @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})" -->
+                        <GenericCard
+                            v-for="creation in creationsWIP" :key="creation.id"
+                            :status="creation?.id ? 'LOADED' : 'FETCHING'"
+                            :title="creation.name"
+                            :image-src="undefined">
+                            <template #subtitle>
+                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
+                                    {{ creation.id }}
+                                    <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                        <template #button><i class="fas fa-ellipsis-h"/></template>
+                                        <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
+                                        <Btn no-background>(todo) Mint on chain</Btn>
+                                        <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
+                                        <Btn no-background>(TODO) Download</Btn>
+                                        <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                                    </MenuDropdown>
+                                </p>
+                            </template>
+                            <template #content>
+                                <p class="flex justify-between text-sm">
+                                    <span class="text-grad-dark">briqs used</span>
+                                    <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
+                                </p>
+                            </template>
+                        </GenericCard>
                     </div>
                 </div>
-            </div>
-            <div>
-                <h3>Official Sets</h3>
-                <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">You don't have any official Genesis sets.</p>
-                    <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
-                    <div class="mt-2 flex gap-2">
+                <template v-if="userAddress">
+                    <a id="minted" class="relative bottom-[80px]"/>
+                    <h3>Minted</h3>
+                    <div v-if="!creations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have personal creations.</p>
+                        <p>Get some briqs and start building!</p>
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
-                </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
-                    <GenericCard
-                        v-for="creation in officialCreations" :key="creation.id"
-                        @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
-                        :status="creation?.id ? 'LOADED' : 'FETCHING'"
-                        :title="creation.name"
-                        :image-src="backendManager.getPreviewUrl(creation.id)">
-                        <template #subtitle>
-                            <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
-                                {{ creation.id }}
-                                <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
-                                    <template #button><i class="fas fa-ellipsis-h"/></template>
-                                    <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
-                                </MenuDropdown>
-                            </p>
-                        </template>
-                        <template #content>
-                            <p class="flex justify-between text-sm">
-                                <span class="text-grad-dark">briqs used</span>
-                                <span class="font-semibold">{{ creation.nb_briqs }}</span>
-                            </p>
-                        </template>
-                    </GenericCard>
-                </div>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
+                        <GenericCard
+                            v-for="creation in creations" :key="creation.id"
+                            @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
+                            :status="creation?.id ? 'LOADED' : 'FETCHING'"
+                            :title="creation.name"
+                            :image-src="backendManager.getPreviewUrl(creation.id)">
+                            <template #subtitle>
+                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
+                                    {{ creation.id }}
+                                    <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                        <template #button><i class="fas fa-ellipsis-h"/></template>
+                                        <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
+                                    </MenuDropdown>
+                                </p>
+                            </template>
+                            <template #content>
+                                <p class="flex justify-between text-sm">
+                                    <span class="text-grad-dark">briqs used</span>
+                                    <span class="font-semibold">{{ creation.nb_briqs }}</span>
+                                </p>
+                            </template>
+                        </GenericCard>
+                    </div>
+                </template>
             </div>
-            <div>
-                <h3>Personal creations</h3>
-                <div v-if="!creations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">You don't have personal creations.</p>
-                    <p>Get some briqs and start building!</p>
-                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
-                    <GenericCard
-                        v-for="creation in creations" :key="creation.id"
-                        @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
-                        :status="creation?.id ? 'LOADED' : 'FETCHING'"
-                        :title="creation.name"
-                        :image-src="backendManager.getPreviewUrl(creation.id)">
-                        <template #subtitle>
-                            <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
-                                {{ creation.id }}
-                                <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
-                                    <template #button><i class="fas fa-ellipsis-h"/></template>
-                                    <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
-                                </MenuDropdown>
-                            </p>
-                        </template>
-                        <template #content>
-                            <p class="flex justify-between text-sm">
-                                <span class="text-grad-dark">briqs used</span>
-                                <span class="font-semibold">{{ creation.nb_briqs }}</span>
-                            </p>
-                        </template>
-                    </GenericCard>
-                </div>
-            </div>
-            <div>
-                <h3>Work in progress</h3>
-                <p>WIP sets are stored on this computer only and shared across wallets.</p>
-                <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">You don't have work-in-progress sets.</p>
-                    <p>Get some briqs and start building!</p>
-                    <div class="flex gap-2 mt-2">
+            <div v-else-if="activeTab === 'GENESIS' && userAddress">
+                <div>
+                    <a id="box" class="relative bottom-[80px]"/>
+                    <h3>Sealed boxes</h3>
+                    <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have any boxes.</p>
+                        <p>Browse the available items in our Genesis collections!</p>
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                        <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
+                    </div>
+                    <div v-else>
+                        <BoxListing mode="CREATION" :boxes="userBoxesStore.current!.availableBoxes"/>
                     </div>
                 </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
-                    <!-- @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})" -->
-                    <GenericCard
-                        v-for="creation in creationsWIP" :key="creation.id"
-                        :status="creation?.id ? 'LOADED' : 'FETCHING'"
-                        :title="creation.name"
-                        :image-src="undefined">
-                        <template #subtitle>
-                            <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
-                                {{ creation.id }}
-                                <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
-                                    <template #button><i class="fas fa-ellipsis-h"/></template>
-                                    <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
-                                    <Btn no-background>(todo) Mint on chain</Btn>
-                                    <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
-                                    <Btn no-background>(TODO) Download</Btn>
-                                    <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
-                                </MenuDropdown>
-                            </p>
-                        </template>
-                        <template #content>
-                            <p class="flex justify-between text-sm">
-                                <span class="text-grad-dark">briqs used</span>
-                                <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
-                            </p>
-                        </template>
-                    </GenericCard>
+                <div>
+                    <a id="booklet" class="relative bottom-[80px]"/>
+                    <h3>Unbuilt Booklets</h3>
+                    <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have any booklets.</p>
+                        <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
+                        <Btn secondary class="mt-2">Browse the themes</Btn>
+                    </div>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
+                        <div v-for="booklet of userBookletsStore.current?.booklets">
+                            <RouterLink :to="`user/booklet/${booklet}`">
+                                <BookletCard :box-id="booklet"/>
+                            </RouterLink>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <a id="minted" class="relative bottom-[80px]"/>
+                    <h3>Official Sets</h3>
+                    <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have any official Genesis sets.</p>
+                        <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
+                        <div class="mt-2 flex gap-2">
+                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
+                        </div>
+                    </div>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
+                        <GenericCard
+                            v-for="creation in officialCreations" :key="creation.id"
+                            @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})"
+                            :status="creation?.id ? 'LOADED' : 'FETCHING'"
+                            :title="creation.name"
+                            :image-src="backendManager.getPreviewUrl(creation.id)">
+                            <template #subtitle>
+                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
+                                    {{ creation.id }}
+                                    <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                        <template #button><i class="fas fa-ellipsis-h"/></template>
+                                        <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
+                                    </MenuDropdown>
+                                </p>
+                            </template>
+                            <template #content>
+                                <p class="flex justify-between text-sm">
+                                    <span class="text-grad-dark">briqs used</span>
+                                    <span class="font-semibold">{{ creation.nb_briqs }}</span>
+                                </p>
+                            </template>
+                        </GenericCard>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div v-else-if="userAddress" class="container m-auto my-8 grid grid-cols-[3fr_9fr]">
-        <div>
-            <h2>Shopping Activity</h2>
-            <div class="mt-4 flex flex-col gap-2">
-                <Btn no-background class="justify-start" v-for="section of shoppingSections">{{ section }}</Btn>
-            </div>
-        </div>
-        <div>
-            <div>
-                <h3>Winning bids on ongoing auctions</h3>
-                <div v-if="!winningBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">You have no winning bids on ongoing auctions.</p>
-                    <p>Browse the available items in our Genesis collections!</p>
-                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                </div>
-                <div v-else>
-                    <BoxListing :boxes="winningBids" :mode="'BID'"/>
-                </div>
-            </div>
-            <div>
-                <h3>Losing bids on ongoing auctions</h3>
-                <div v-if="!losingBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">No losing bids to report.</p>
-                    <p>Browse the available items in our Genesis collections!</p>
-                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                </div>
-                <div v-else>
-                    <BoxListing :boxes="losingBids" :mode="'BID'"/>
-                </div>
-            </div>
-            <div>
-                <h3>Purchased items</h3>
-                <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                    <p class="font-semibold">You have not yet bought any item</p>
-                    <p>Browse the available items in our Genesis collections!</p>
-                    <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div v-else class="container m-auto my-8">
-        <div>
-            <h3>Work in progress</h3>
-            <p>WIP sets are stored on this computer only and shared across wallets.</p>
-            <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
-                <p class="font-semibold">You don't have work-in-progress sets.</p>
-                <p>Get some briqs and start building!</p>
-                <div class="flex gap-2 mt-2">
-                    <Btn secondary>Browse the themes</Btn>
-                    <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
-                </div>
-            </div>
-            <div v-else class="my-4 grid grid-cols-4 gap-6">
-                <div class="card bg-grad-lightest shadow hover:shadow-lg rounded p-4" v-for="creation in creationsWIP" :key="creation.id">
-                    <div class="bg-grad-light rounded flex justify-center items-center min-h-[4rem] mb-2">Here be preview</div>
-                    <h4 class="font-semibold">{{ creation.name }}</h4>
-                    <p class="text-xs break-all text-grad-dark flex justify-between">
-                        {{ creation.id }}
-                        <MenuDropdown no-background no-marke class="cardContextualMenu w-min p-1 text-sm text-grad-light">
-                            <template #button><i class="fas fa-ellipsis-h"/></template>
-                            <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
-                            <Btn no-background>(todo) Mint on chain</Btn>
-                            <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
-                            <Btn no-background>(TODO) Download</Btn>
-                            <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
-                        </MenuDropdown>
-                    </p>
-                    <hr class="my-4">
-                    <p class="flex justify-between text-sm">
-                        <span class="text-grad-dark">briqs used</span>
-                        <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
-                    </p>
+            <div v-else-if="activeTab === 'ACTIVITY' && userAddress">
+                <div>
+                    <div>
+                        <a id="winning" class="relative bottom-[80px]"/>
+                        <h3>Winning bids on ongoing auctions</h3>
+                        <div v-if="!winningBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                            <p class="font-semibold">You have no winning bids on ongoing auctions.</p>
+                            <p>Browse the available items in our Genesis collections!</p>
+                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
+                        </div>
+                        <div v-else>
+                            <BoxListing :boxes="winningBids" :mode="'BID'"/>
+                        </div>
+                    </div>
+                    <div>
+                        <a id="losing" class="relative bottom-[80px]"/>
+                        <h3>Losing bids on ongoing auctions</h3>
+                        <div v-if="!losingBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                            <p class="font-semibold">No losing bids to report.</p>
+                            <p>Browse the available items in our Genesis collections!</p>
+                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
+                        </div>
+                        <div v-else>
+                            <BoxListing :boxes="losingBids" :mode="'BID'"/>
+                        </div>
+                    </div>
+                    <div>
+                        <a id="purchased" class="relative bottom-[80px]"/>
+                        <h3>Purchased items</h3>
+                        <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                            <p class="font-semibold">You have not yet bought any item</p>
+                            <p>Browse the available items in our Genesis collections!</p>
+                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -43,7 +43,7 @@ onMounted(() => {
 
 <style scoped>
 #app .isSticky {
-    @apply shadow-md;
+    box-shadow: 0 3px 6px 0 rgba(var(--color-grad-darker) /  0.05);
 }
 </style>
 
