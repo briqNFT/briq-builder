@@ -3,11 +3,13 @@ import { Notification } from '@/Notifications';
 import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { userBoxesStore } from './UserBoxes';
+import { maybeStore } from '@/chain/WalletLoading';
 
 
 export interface Purchase {
     box_id: string,
     tx_hash: string,
+    date: number,
     status: 'TENTATIVE' | 'REJECTED' | 'CONFIRMED';
 }
 
@@ -46,6 +48,7 @@ class UserPurchases implements perUserStorable {
         const tx_response = await contractStore.auction?.approveAndBid(contractStore.eth_bridge_contract, itemData.token_id, itemData.auction_id, price)
         this.purchases[tx_response!.transaction_hash] = {
             tx_hash: tx_response!.transaction_hash,
+            date: Date.now(),
             box_id: box_id,
             status: 'TENTATIVE',
         }
@@ -64,6 +67,13 @@ class UserPurchases implements perUserStorable {
             if (transferData && transferData.to === wallet_id) {
                 item.status = 'CONFIRMED';
                 this.notifyConfirmed(item);
+            } else {
+                const _block = maybeStore.value?.getProvider()?.getTransactionBlock(item.tx_hash);
+                const status = (await _block)?.status;
+                if (status === 'REJECTED' || ((Date.now() - item.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
+                    item.status = 'REJECTED';
+                    this.notifyRejected(item);
+                }
             }
         }
         setTimeout(() => this.poll(), 5000)
@@ -74,6 +84,19 @@ class UserPurchases implements perUserStorable {
             type: 'confirmed_purchase',
             title: 'Box purchased',
             level: 'success',
+            data: {
+                tx_hash: item.tx_hash,
+                box_id: item.box_id,
+            },
+            read: false,
+        }).push(true);
+    }
+
+    notifyRejected(item: Purchase) {
+        new Notification({
+            type: 'rejected_purchase',
+            title: 'Box purchase rejected',
+            level: 'error',
             data: {
                 tx_hash: item.tx_hash,
                 box_id: item.box_id,

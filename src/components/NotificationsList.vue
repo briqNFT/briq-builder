@@ -36,6 +36,8 @@ const border = (i: number) => {
                     <template v-else-if="notif.type === 'minting_set'">
                         <p>Set '{{ notif.data.name }}' is being minted.</p>
                     </template>
+                    <template v-else-if="notif.type === 'confirmed_purchase'"/>
+                    <template v-else-if="notif.type === 'rejected_purchase'"/>
                     <template v-else-if="notif.type === 'tentative_bid'"/>
                     <template v-else-if="notif.type === 'confirmed_bid'"/>
                     <template v-else-if="notif.type === 'pending_bid'"/>
