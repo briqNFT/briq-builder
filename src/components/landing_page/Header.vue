@@ -3,7 +3,7 @@ import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBidsStore } from '@/builder/BidStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 
 import SmallProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
@@ -23,18 +23,34 @@ const connectWallet = () => {
 }
 const connectDebugWallet = () => window.useDebugProvider();
 
+const header = ref(null);
+
 onMounted(() => {
     userBidsStore.setup();
     userPurchaseStore.setup();
+    const observer = new IntersectionObserver(
+        ([e]) => {
+            console.log(e);
+            e.target.classList.toggle('isSticky', e.intersectionRatio < 1)
+        },
+        { threshold: [1] },
+    );
+    console.log(header.value);
+    observer.observe(header.value);
 });
-
 
 </script>
 
+<style scoped>
+#app .isSticky {
+    @apply shadow-md;
+}
+</style>
+
 <template>
-    <div>
+    <div class="sticky top-[-1px] bg-background z-[50000] shadow-none transition-all duration-500" ref="header">
         <div
-            class="header container m-auto py-3 flex justify-between items-center text-center alternate-buttons">
+            class="relative top-[1px] header container m-auto py-3 flex justify-between items-center text-center alternate-buttons">
             <div class="flex items-center gap-4 md:gap-12">
                 <routerLink to="/genesis"><h2 class="briq-logo text-[32px]">briq</h2></routerLink>
                 <routerLink to="/themes">
