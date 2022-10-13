@@ -1,5 +1,5 @@
 import type { SetData } from '@/builder/SetData';
-import { reactive, toRef, watchEffect, computed, Ref, onUnmounted } from 'vue';
+import { reactive, toRef, watchEffect, computed, Ref, onUnmounted, onBeforeUnmount } from 'vue';
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { bookletId, getStepImgSrc, getBookletDataSync } from '@/builder/BookletData';
 
@@ -21,7 +21,7 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
     // Do nothing if the calculator already exists.
     if (!bookletStore.shapeValidityCalculated?.[booklet.value]) {
         // Clean up when we get deleted.
-        onUnmounted(() => {
+        onBeforeUnmount(() => {
             delete bookletStore.shapeValidityCalculated[booklet.value];
         })
         bookletStore.shapeValidityCalculated[booklet.value] = true;
