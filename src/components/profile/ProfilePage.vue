@@ -139,23 +139,25 @@ watchEffect(() => {
     </div>
     <div class="container m-auto my-8 grid grid-cols-[3fr_9fr] gap-8">
         <div>
-            <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 sticky top-[80px] mb-4">
-                <template v-if="activeTab === 'CREATION'">
-                    <RouterLink class="w-full" to="#wip"><Btn no-background class="w-full justify-start font-medium">Work in Progress</Btn></RouterLink>
-                    <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start font-medium">Minted</Btn></RouterLink>
-                </template>
-                <template v-else-if="activeTab === 'GENESIS'">
-                    <RouterLink class="w-full" to="#box"><Btn no-background class="w-full justify-start font-medium">Sealed Boxes</Btn></RouterLink>
-                    <RouterLink class="w-full" to="#booklet"><Btn no-background class="w-full justify-start font-medium">Unbuilt Booklets</Btn></RouterLink>
-                    <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start font-medium">Official Sets</Btn></RouterLink>
-                </template>
-                <template v-else-if="activeTab === 'ACTIVITY'">
-                    <RouterLink class="w-full" to="#winning"><Btn no-background class="w-full justify-start font-medium">Winning Bids</Btn></RouterLink>
-                    <RouterLink class="w-full" to="#losing"><Btn no-background class="w-full justify-start font-medium">Losing Bids</Btn></RouterLink>
-                    <RouterLink class="w-full" to="#purchased"><Btn no-background class="w-full justify-start font-medium">Purchased Items</Btn></RouterLink>
-                </template>
+            <div class="sticky top-[80px]">
+                <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 mb-4">
+                    <template v-if="activeTab === 'CREATION'">
+                        <RouterLink class="w-full" to="#wip"><Btn no-background class="w-full justify-start font-medium">Work in Progress</Btn></RouterLink>
+                        <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start font-medium">Minted</Btn></RouterLink>
+                    </template>
+                    <template v-else-if="activeTab === 'GENESIS'">
+                        <RouterLink class="w-full" to="#box"><Btn no-background class="w-full justify-start font-medium">Sealed Boxes</Btn></RouterLink>
+                        <RouterLink class="w-full" to="#booklet"><Btn no-background class="w-full justify-start font-medium">Unbuilt Booklets</Btn></RouterLink>
+                        <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start font-medium">Official Sets</Btn></RouterLink>
+                    </template>
+                    <template v-else-if="activeTab === 'ACTIVITY'">
+                        <RouterLink class="w-full" to="#winning"><Btn no-background class="w-full justify-start font-medium">Winning Bids</Btn></RouterLink>
+                        <RouterLink class="w-full" to="#losing"><Btn no-background class="w-full justify-start font-medium">Losing Bids</Btn></RouterLink>
+                        <RouterLink class="w-full" to="#purchased"><Btn no-background class="w-full justify-start font-medium">Purchased Items</Btn></RouterLink>
+                    </template>
+                </div>
+                <RouterLink v-if="activeTab === 'CREATION'" class="w-full" :to="{ name: 'Builder' }"><Btn primary class="w-full">New Creation</Btn></RouterLink>
             </div>
-            <RouterLink v-if="activeTab === 'CREATION'" class="w-full" :to="{ name: 'Builder' }"><Btn primary class="w-full">New Creation</Btn></RouterLink>
         </div>
         <div>
             <div v-if="activeTab === 'CREATION'">
