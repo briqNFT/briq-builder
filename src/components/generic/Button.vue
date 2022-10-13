@@ -74,7 +74,7 @@ button {
         }
 
         &:disabled {
-            @apply text-grad-dark;
+            --tw-text-opacity: 0.5;
         }
     }
 
