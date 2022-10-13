@@ -2,7 +2,7 @@
 import Header from '../landing_page/Header.vue';
 import Footer from '../landing_page/Footer.vue';
 
-import ProfileIcon from '@/assets/profile/profile.svg';
+import ProfileIcon from '@/assets/profile/profile.svg?skipsvgo';
 
 import { maybeStore } from '@/chain/WalletLoading';
 
