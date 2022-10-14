@@ -269,7 +269,7 @@ watch([activeTab], () => {
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
                     <div v-else>
-                        <BoxListing mode="CREATION" :boxes="userBoxesStore.current!.availableBoxes"/>
+                        <BoxListing mode="INVENTORY" :boxes="userBoxesStore.current!.availableBoxes"/>
                     </div>
                 </div>
                 <div>
