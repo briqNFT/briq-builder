@@ -29,13 +29,7 @@ const getNbBriqs = computed(() => {
     let used = 0;
     for (let mat in currentSet.value.usedByMaterial)
         used += currentSet.value.usedByMaterial[mat];
-
-    let selected = '';
-    if (['inspect', 'inspect_va', 'inspect_box', 'drag', 'rotate', 'copy_paste'].indexOf(
-        inputStore.currentInput,
-    ) !== -1 && inputStore.selectionMgr.selectedBriqs.length > 0)
-        selected = ` (${inputStore.selectionMgr.selectedBriqs.length} selected)`;
-    return `${used} briqs${selected}`;
+    return used;
 });
 
 
@@ -110,7 +104,6 @@ const hideCameraFlyout = () => {
                 <div class="divider"/>
                 <div class="flex flex-none px-2 gap-2 items-baseline">
                     <p class="font-semibold">{{ currentSet.name }}</p>
-                    <p class="text-grad-dark">{{ getNbBriqs }}</p>
                 </div>
                 <div class="divider"/>
                 <UndoRedo no-background secondary class="flex-none px-1"/>
@@ -142,7 +135,8 @@ const hideCameraFlyout = () => {
             <div class="flex items-stretch gap-1 px-2 py-1 border bg-grad-lightest rounded-md">
                 <template v-if="maybeStore?.userWalletAddress">
                     <div class="flex items-center justify-center font-medium gap-2 px-2">
-                        <briqIcon class="inline-block"/> {{ chainBriqs?.getNbBriqs() }}
+                        <briqIcon class="inline-block"/>
+                        {{ getNbBriqs }}/{{ chainBriqs?.getNbBriqs() }}
                     </div>
                     <div>
                         <MenuDropdown no-background icon class="text-xs">

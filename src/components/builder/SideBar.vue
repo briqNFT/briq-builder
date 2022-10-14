@@ -37,6 +37,7 @@ const unproject = (n: { x: number, y: number, z: number }) => {
             <div class="p-2 flex flex-col">
                 <p class="px-2 py-2 flex justify-between items-center gap-2">Movement gizmo <Toggle class="w-9" v-model="inputStore.showMoveGizmo"/></p>
                 <p class="px-2 py-2 flex justify-between items-center gap-2">Rotation gizmo <Toggle class="w-9" v-model="inputStore.showRotateGizmo"/></p>
+                <p class="px-2 py-2 flex justify-between items-center gap-2">{{ inputStore.selectionMgr.selectedBriqs.length === 1 ? '1 briq selected' : `${inputStore.selectionMgr.selectedBriqs.length} briqs selected` }}</p>
                 <Btn no-background :disabled="!canCenterCamera" @click="centerCamera" class="p-2 justify-start !text-sm">Center on selection</Btn>
             </div>
         </Flyout>
