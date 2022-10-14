@@ -10,7 +10,7 @@ const props = defineProps<{
 const localSet = setsManager.getInfo(props.setId)?.getSet();
 
 const downloadBriq = async () => {
-    if (!chainSet)
+    if (localSet)
         return downloadJSON(localSet.serialize(), `${localSet.getName()}.json`)
     return downloadJSON(await backendManager.fetch(`${getBaseUrl()}/v1/metadata/starknet-testnet-legacy/${props.setId}.json`), `${props.setId}.json`);
 };
@@ -26,7 +26,7 @@ const downloadVox = () => doDownload(`${getBaseUrl()}/get_model/${props.setId}.v
                 <Btn @click="downloadBriq">Download as .json</Btn>
                 <p class="text-sm">This format is specific to briq and can be used to import the set.</p>
             </div>
-            <template v-if="chainSet">
+            <template v-if="!localSet">
                 <div class="text-center">
                     <Btn @click="downloadGLB">Download as .glb</Btn>
                     <p class="text-center text-sm">
