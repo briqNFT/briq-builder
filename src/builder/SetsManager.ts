@@ -108,7 +108,6 @@ export class SetsManager {
      * @returns a local set, or undefined if none exist.
      */
     getLocalSet() {
-        console.log(this.setsInfo);
         for (const sid in this.setsInfo)
             if (!this.setsInfo[sid].booklet)
                 return this.setsInfo[sid].setData;

@@ -61,7 +61,7 @@ async function initializeStartSet() {
         }
 
     if (!currentSet.value) {
-        console.log(('BUILDER - INITIALIZING GM SET'));
+        logDebug(('BUILDER - INITIALIZING GM SET'));
         const set = checkForInitialGMSet();
         if (set)
             await selectSet(set);

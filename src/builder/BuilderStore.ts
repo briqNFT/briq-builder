@@ -31,7 +31,6 @@ export const builderStore = (() => {
         ___currentSet.value = set;
 
         const isLocal = sm.getInfo(currentSet.value?.id);
-        console.log('BUILDER', isLocal ? 'place' : 'camera');
         builderInputFsm.switchTo(isLocal ? 'place' : 'camera');
 
         dispatchBuilderAction('select_set', currentSet.value);

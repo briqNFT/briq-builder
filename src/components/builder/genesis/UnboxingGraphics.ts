@@ -359,7 +359,6 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
     }
 
     const meshes = roomSceneGlb.map(x => x.clone(true));
-    //console.log(meshes);
 
     const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv', 'gamecube_controller', 'car_rug'];
     for(const mesh_ of meshes) {

@@ -97,13 +97,13 @@ export class CopyPasteInput extends MouseInputState {
             this.selectionCenter.z - this.boundingBoxCenter[2],
         ];
         /*
-        console.log("Intersection pos", intersection.position);
-        console.log("Correction: ", corr)
-        console.log("Initial pos", pos);
-        console.log("Corrected", [pos[0] + corr[0] - this.selectionCenter.x,
+        logDebug("Intersection pos", intersection.position);
+        logDebug("Correction: ", corr)
+        logDebug("Initial pos", pos);
+        logDebug("Corrected", [pos[0] + corr[0] - this.selectionCenter.x,
             pos[1] + corr[1] - this.selectionCenter.y,
             pos[2] + corr[2] - this.selectionCenter.z]);
-        console.log(this.min, this.max, this.selectionCenter)
+        logDebug(this.min, this.max, this.selectionCenter)
         */
 
         pos = this._specialClamp(pos);

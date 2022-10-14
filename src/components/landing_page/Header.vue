@@ -30,12 +30,10 @@ onMounted(() => {
     userPurchaseStore.setup();
     const observer = new IntersectionObserver(
         ([e]) => {
-            console.log(e);
             e.target.classList.toggle('isSticky', e.intersectionRatio < 1)
         },
         { threshold: [1] },
     );
-    console.log(header.value);
     observer.observe(header.value);
 });
 
