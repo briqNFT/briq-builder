@@ -6,7 +6,7 @@ import ProfileIcon from '@/assets/profile/profile.svg?skipsvgo';
 
 import { maybeStore } from '@/chain/WalletLoading';
 
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBookletsStore } from '@/builder/UserBooklets';
 import { userSetStore } from '@/builder/UserSets';
@@ -19,8 +19,13 @@ import { router } from '@/Routes';
 import BookletCard from '../builder/genesis/BookletCard.vue';
 import GenericCard from '../builder/genesis/GenericCard.vue';
 import { backendManager } from '@/Backend';
+import { useRoute } from 'vue-router';
+import { pushModal } from '../Modals.vue';
+import NewSetModalVue from '../builder/modals/NewSetModal.vue';
+import DownloadSetVue from '../builder/modals/DownloadSet.vue';
 
 const {
+    createNewSet,
     openSetInBuilder,
     duplicateSet,
     deleteLocalSet,
@@ -90,12 +95,23 @@ const officialCreations = computed(() => {
 
 const userAddress = computed(() => maybeStore.value?.userWalletAddress);
 
+const route = useRoute();
+
 const activeTab = ref('CREATION' as 'CREATION' | 'GENESIS' | 'ACTIVITY');
 
 watchEffect(() => {
-    if (!userAddress.value)
+    if (route.query['tab'])
+        activeTab.value = route.query['tab'];
+})
+
+watchEffect(() => {
+    if (maybeStore.value && !userAddress.value && activeTab.value !== 'CREATION')
         activeTab.value = 'CREATION';
 })
+
+watch([activeTab], () => {
+    router.replace({ query: { tab: activeTab.value } })
+});
 
 </script>
 
@@ -161,7 +177,7 @@ watchEffect(() => {
                         <RouterLink class="w-full" to="#purchased"><Btn no-background class="w-full justify-start font-medium">Purchased Items</Btn></RouterLink>
                     </template>
                 </div>
-                <RouterLink v-if="activeTab === 'CREATION'" class="w-full" :to="{ name: 'Builder' }"><Btn primary class="w-full text-sm">New Creation</Btn></RouterLink>
+                <Btn primary class="w-full text-sm" @click="pushModal(NewSetModalVue)">New Creation</Btn>
             </div>
         </div>
         <div>
@@ -227,6 +243,7 @@ watchEffect(() => {
                                     <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                         <template #button><i class="fas fa-ellipsis-h"/></template>
                                         <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
+                                        <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
                                     </MenuDropdown>
                                 </p>
                             </template>
@@ -292,6 +309,7 @@ watchEffect(() => {
                                     <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                         <template #button><i class="fas fa-ellipsis-h"/></template>
                                         <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
+                                        <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
                                     </MenuDropdown>
                                 </p>
                             </template>

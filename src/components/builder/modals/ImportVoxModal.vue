@@ -6,6 +6,7 @@ import { onBeforeMount, ref } from 'vue';
 import builderSettings from '@/builder/graphics/Settings';
 import { useSetHelpers } from '../SetComposable';
 import { pushPopup } from '@/Notifications';
+import { setsManager } from '@/builder/SetsManager';
 
 const { saveSetAndOpen } = useSetHelpers();
 
@@ -26,6 +27,7 @@ onBeforeMount(async () => {
         loader.value = new VoxLoader(await props.data);
         set.value = loader.value.set;
         set.value.name = props.file.name.replace('.vox', '');
+        console.log(set.value.serialize());
     } catch (err) {
         console.error(err);
         error.value = err;
@@ -35,12 +37,7 @@ onBeforeMount(async () => {
 const importSet = () => {
     if (!set.value)
         return;
-    // Things are placed centered
-    let maxV = 0;
-    set.value!.forEach((_, pos) => {
-        maxV = Math.max(maxV, pos[0], pos[2]);
-    });
-    builderSettings.canvasSize = Math.ceil(maxV / 5) * 5;
+    setsManager.registerLocalSet(set.value);
     saveSetAndOpen(set.value);
     emit('close');
 }

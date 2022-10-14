@@ -169,7 +169,7 @@ const startMinting = async () => {
 
         exportStep.value = 'DONE';
         setTimeout(() => {
-            router.push({ name: 'Profile' })
+            router.push({ name: 'Profile', query: { tab: booklet.value ? 'GENESIS' : 'CREATION' } })
             setsManager.deleteLocalSet(setData.value.id);
             emit('close');
         }, 0);
