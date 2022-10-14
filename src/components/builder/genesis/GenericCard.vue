@@ -1,9 +1,10 @@
 <script setup lang="ts">
 defineProps<{
-    imageSrc: string | undefined,
     title: string | undefined,
     subtitle?: string,
     status: 'LOADED' | 'ERROR' | 'FETCHING',
+    imageSrc: string | undefined,
+    imageBg?: string
 }>();
 
 </script>
@@ -32,7 +33,7 @@ defineProps<{
         <div class="bg-white rounded-md gap-2 shadow-sm h-full">
             <template v-if="status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
-                <p class="min-h-0 min-w-0 flex justify-center items-center mx-4 mt-6 mb-4 h-[12rem]">
+                <p :class="`rounded-md overflow-hidden min-h-0 min-w-0 flex justify-center items-center mx-4 mt-6 mb-4 h-[12rem] ${imageBg ?? ''}`">
                     <img class="min-h-0 min-w-0 max-h-full max-w-full" :src="imageSrc">
                 </p>
                 <h3 class="font-semibold text-md px-4 break-all">{{ title }} </h3>

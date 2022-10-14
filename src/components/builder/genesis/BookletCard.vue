@@ -15,7 +15,7 @@ const genesisStore = useGenesisStore();
 </script>
 
 <template>
-    <GenericCardVue :title="bookletData?.name" subtitle="Booklet" :status="!!bookletData ? 'LOADED' : 'ERROR'" :image-src="genesisStore.coverBookletRoute(boxId)">
+    <GenericCardVue :title="bookletData?.name ?? boxId" subtitle="Booklet" :status="!!bookletData ? 'LOADED' : 'ERROR'" :image-src="genesisStore.coverBookletRoute(boxId)">
         <template #content>
             <p class="flex justify-between">
                 <span class="attribute">briqs needed</span><span class="font-semibold">{{ bookletData?.briqs?.length ?? '?' }}</span>
