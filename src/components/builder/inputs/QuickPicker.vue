@@ -111,7 +111,7 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
                                 no-style
                                 :class="`rounded-sm w-5 h-5 p-0 flex justify-center items-center mat-${material} hover:ring-2 ring-grad-darkest`"
                                 :style="addMaterialCSS(material, color)"
-                                :tooltip="'Select color ' + name"
+                                :tooltip="`Select color ${name}, right-click to remove`"
                                 @click="pickBriq(key)"
                                 @dblclick="pickBriq(key); changeColor()"
                                 @contextmenu.prevent.stop="onOpenContextMenu"/>

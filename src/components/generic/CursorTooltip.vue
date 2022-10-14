@@ -12,7 +12,7 @@ const vMounted = {
 <template>
     <div
         v-if="show"
-        class="fixed bg-primary rounded pointer-events-none px-2 py-1 shadow font-medium text-sm w-max"
+        class="fixed bg-background rounded pointer-events-none px-2 py-1 shadow font-normal text-sm w-max"
         :style="getPositionCSS"
         ref="tooltipDiv"
         v-mounted>
@@ -24,7 +24,7 @@ const vMounted = {
 import { defineComponent, nextTick } from 'vue';
 import { messagesStore } from '../../Messages';
 
-const INITIAL_DELAY = 300;
+const INITIAL_DELAY = 500;
 const RESET_DELAY = 50;
 const MIN_DURATION = 500;
 

@@ -121,15 +121,11 @@ const hideCameraFlyout = () => {
         </div>
         <div class="flex-1 basis-1 flex lg:justify-center">
             <div class="border bg-grad-lightest rounded-md flex gap-1 px-2 py-1">
-                <Btn no-background @click="switchToState('inspect')" :force-active="activeInputButton === 'select'"><i class="fas fa-mouse-pointer"/></Btn>
-                <Btn no-background @click="switchToState('place')" :force-active="activeInputButton === 'place'"><i class="fas fa-cube"/></Btn>
-                <Btn no-background @click="switchToState('paint')" :force-active="activeInputButton === 'paint'"><i class="fas fa-paint-roller"/></Btn>
-                <Btn no-background @click="switchToState('erase')" :force-active="activeInputButton === 'erase'"><i class="fas fa-eraser"/></Btn>
-                <Btn
-                    ref="cameraButton"
-                    no-background
-                    @click="switchToState('camera')"
-                    :force-active="activeInputButton === 'camera'">
+                <Btn no-background @click="switchToState('inspect')" tooltip="Select tool - click to select, right-click to deselect, shift-click selects many." :force-active="activeInputButton === 'select'"><i class="fas fa-mouse-pointer"/></Btn>
+                <Btn no-background @click="switchToState('place')" tooltip="Place tool - click to place briq, right-click to remove, shift-click to place many" :force-active="activeInputButton === 'place'"><i class="fas fa-cube"/></Btn>
+                <Btn no-background @click="switchToState('paint')" tooltip="Paint tool - click to paint, right-click to sample, shift-click to paint many" :force-active="activeInputButton === 'paint'"><i class="fas fa-paint-roller"/></Btn>
+                <Btn no-background @click="switchToState('erase')" tooltip="Erase tool - click to erase, shift-click to erase many" :force-active="activeInputButton === 'erase'"><i class="fas fa-eraser"/></Btn>
+                <Btn no-background @click="switchToState('camera')" tooltip="Camera tool" :force-active="activeInputButton === 'camera'" ref="cameraButton">
                     <i class="fas fa-video"/>
                 </Btn>
                 <Hotkey name="group-1" :data="{ code: 'Digit1', onDown: true }" :handler="() => switchToState('inspect')"/>
