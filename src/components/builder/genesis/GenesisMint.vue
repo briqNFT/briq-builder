@@ -16,6 +16,7 @@ import BuildImage from '@/assets/landing/landing_speeder_eclate.png';
 
 import StarknetCity from '@/assets/landing/starknet_city_upcoming.jpg';
 
+//import InlinedRocketCover from '@/assets/landing/rocket.jpg';
 import InlinedRocketCover from './InlinedRocketCover';
 import RocketGlb from '@/assets/landing/rocket.glb?url';
 import { nextTick } from 'vue';
@@ -23,6 +24,7 @@ import { nextTick } from 'vue';
 import { h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
+import { doDownload } from '@/url';
 
 const modelViewerLoading = ref(true);
 const modelViewerLoadingPromise = import('@google/model-viewer');
@@ -62,8 +64,16 @@ onMounted(async () => {
         modelViewer.addEventListener('load', () => {
             modelViewer.orientation = '0deg 0deg 200deg';
             //modelViewer.scale = '0.5 0.5 0.5';
-            modelViewer.dismissPoster();
+            setTimeout(() => modelViewer.dismissPoster(), 0);
         });
+        /*
+        modelViewer.addEventListener('poster-dismissed', async () => {
+            const blob = await modelViewer.toBlob({ idealAspect: true });
+            const url = URL.createObjectURL(blob);
+            doDownload(url, 'image');
+            URL.revokeObjectURL(url);
+        })
+        */
     });
 });
 
@@ -103,20 +113,23 @@ h4 {
         <div class="container m-auto relative h-screen lg:p-[6rem] flex flex-col overflow-hidden">
             <div class="grow-[3]"/>
             <div class="flex flex-wrap justify-around items-center">
-                <div class="relative md:p-10 lg:p-20">
+                <div class="relative md:p-10 lg:p-20 xl:mb-20">
                     <div>
                         <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-[5rem] my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
                         <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
                     </div>
                 </div>
-                <component
-                    v-if="!modelViewerLoading"
-                    :is="modelViewer" class="flex-1 min-w-[10rem] h-full w-full z-0"
-                    reveal="manual" loading="eager" shadow-intensity="0.5" shadow-softness="1" disable-zoom camera-controls auto-rotate="true"
-                    field-of-view="40deg" camera-target="2m 23m 2m"
-                    style="background-color: unset; --poster-color: transparent"/>
-                <!-- Manually inlined rocket cover, around 20KB -->
-                <div v-else class="flex-1 min-w-[10rem] flex justify-center"><img :src="InlinedRocketCover"></div>
+                <div class="min-h-[32rem] min-w-[10rem] flex-1 w-full h-full">
+                    <component
+                        v-if="!modelViewerLoading"
+                        :is="modelViewer" class="flex-1 h-full w-full z-0"
+                        reveal="manual" loading="eager" shadow-intensity="0.5" shadow-softness="1" disable-zoom disable-pan camera-controls auto-rotate="true"
+                        environment-image="legacy"
+                        min-camera-orbit="-Infinity 22.5deg 150m" camera-orbit="0deg 75deg 160m" max-camera-orbit="Infinity 157.5deg 160m"
+                        field-of-view="40deg" camera-target="2m 23m 2m"/>
+                    <!-- Manually inlined rocket cover, around 20KB -->
+                    <div v-else class="flex-1 w-full z-0 flex justify-center"><img :src="InlinedRocketCover"></div>
+                </div>
             </div>
             <div class="grow-[6]"/>
         </div>
@@ -230,7 +243,7 @@ h4 {
 
 <style>
 /* Hide the progress bar, I'm styling manually */
-model-viewer::part(default-progress-bar), model-viewer::part(default-progress-mask) {
+model-viewer::part(default-progress-bar) {
     display: none;
 }
 </style>
