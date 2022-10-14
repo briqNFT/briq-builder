@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { readableNumber, readableUnit } from '@/BigNumberForHumans';
+import { useGenesisStore } from '@/builder/GenesisStore';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 import { notificationsManager } from '@/Notifications';
 import { computed } from 'vue';
@@ -20,7 +22,16 @@ const border = (i: number) => {
     else
         return 'border border-grad-light border-b-0'
 }
+
+const genesisStore = useGenesisStore();
+
 </script>
+
+<style scoped>
+p {
+    @apply text-sm leading-snug;
+}
+</style>
 
 <template>
     <div v-if="notifs.length" class="text-sm flex flex-col-reverse">
@@ -38,10 +49,10 @@ const border = (i: number) => {
                     </template>
                     <template v-else-if="notif.type === 'confirmed_purchase'"/>
                     <template v-else-if="notif.type === 'rejected_purchase'"/>
-                    <template v-else-if="notif.type === 'tentative_bid'"/>
-                    <template v-else-if="notif.type === 'confirmed_bid'"/>
-                    <template v-else-if="notif.type === 'pending_bid'"/>
-                    <template v-else-if="notif.type === 'rejected_bid'"/>
+                    <template v-else-if="['tentative_bid', 'confirmed_bid', 'pending_bid', 'rejected_bid'].indexOf(notif.type) !== -1">
+                        <p>Bid: <span class="font-medium">{{ readableNumber(notif.data.amount) }} {{ readableUnit(notif.data.amount) }}</span></p>
+                        <p>Item: <RouterLink class="text-primary" :to="`/sale/${notif.data.box_id}`">{{ genesisStore.metadata[notif.data.box_id]?._data?.name ?? notif.data.box_id }}</RouterLink></p>
+                    </template>
                     <p class="text-xs text-grad-dark mt-2 flex justify-between">
                         <span>{{ new Date(notif.timestamp).toLocaleString("en-uk", { dateStyle: "long", timeStyle: "short" }) }}</span>
                         <span v-if="notif.data.tx_hash"><a :href="ExplorerTxUrl(notif.data.tx_hash)" target="_blank" class="text-primary">TX</a></span>
