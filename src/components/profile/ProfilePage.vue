@@ -25,6 +25,7 @@ const {
     duplicateSet,
     deleteLocalSet,
     disassembleSet,
+    downloadSet,
 } = useSetHelpers();
 
 const bids = computed(() => {
@@ -174,21 +175,21 @@ watchEffect(() => {
                         </div>
                     </div>
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
-                        <!-- @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})" -->
                         <GenericCard
                             v-for="creation in creationsWIP" :key="creation.id"
                             :status="creation?.id ? 'LOADED' : 'FETCHING'"
                             :title="creation.name"
-                            :image-src="undefined">
+                            :image-src="undefined"
+                            class="cursor-pointer"
+                            @click="openSetInBuilder(creation.id)">
                             <template #subtitle>
                                 <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
                                     {{ creation.id }}
                                     <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                         <template #button><i class="fas fa-ellipsis-h"/></template>
-                                        <Btn @click="openSetInBuilder(creation.id)" no-background>Load in builder</Btn>
                                         <Btn no-background>(todo) Mint on chain</Btn>
                                         <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
-                                        <Btn no-background>(TODO) Download</Btn>
+                                        <Btn @click="downloadSet(creation)" no-background>Download</Btn>
                                         <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
                                     </MenuDropdown>
                                 </p>

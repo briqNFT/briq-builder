@@ -48,11 +48,7 @@ const renameSet = () => {
 
 const store = useStore();
 
-const { saveSetAndOpen } = useSetHelpers();
-
-const downloadSetLocally = () => {
-    pushModal(DownloadSetVue, { setId: currentSet.value.id });
-}
+const { downloadSet } = useSetHelpers();
 
 const importSetFromFile = async () => {
     let fileHandles = await showOpenFilePickerPolyfill();
@@ -131,7 +127,7 @@ const onCloseMenu = () => {
                     <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
                     <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
                     <Btn @click="pushModal(NewSetModalVue, { title: 'Duplicate set', name: `Copy of ${currentSet.name}`, initialSet: currentSet })" no-background>Duplicate creation</Btn>
-                    <Btn @click="downloadSetLocally" no-background>Save to computer</Btn>
+                    <Btn @click="downloadSet(currentSet)" no-background>Save to computer</Btn>
                     <hr>
                     <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>
                     <Btn @click="store.dispatch('redo_history')" no-background>Redo <span>Ctrl&ThinSpace;+&ThinSpace;Shift&ThinSpace;+&ThinSpace;U</span></Btn>

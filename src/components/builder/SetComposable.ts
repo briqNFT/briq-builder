@@ -8,13 +8,15 @@ import { Notification, pushPopup } from '@/Notifications';
 import { router } from '@/Routes';
 import { userSetStore } from '@/builder/UserSets';
 import DisassembleVue from './modals/Disassemble.vue';
+import { downloadJSON } from '@/url';
 
 export function useSetHelpers() {
+    const getSetRoute = (setId: string) => router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`;
     const openSetInBuilder = (setId: string, openInNewWindow?: boolean) => {
         if (openInNewWindow)
-            window.open(router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`, '_blank');
+            window.open(getSetRoute(setId), '_blank');
         else
-            router.push(router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`);
+            router.push(getSetRoute(setId));
     }
 
     const createNewSet = () => setsManager.createLocalSet();
@@ -47,13 +49,17 @@ export function useSetHelpers() {
         return await pushModal(DisassembleVue, { setId: setId });
     }
 
-
+    const downloadSet = (set: SetData) => {
+        downloadJSON(set.serialize(), `${set.getName()}.json`)
+    }
     return {
         createNewSet,
+        getSetRoute,
         openSetInBuilder,
         saveSetAndOpen,
         duplicateSet,
         deleteLocalSet,
         disassembleSet,
+        downloadSet,
     }
 }
