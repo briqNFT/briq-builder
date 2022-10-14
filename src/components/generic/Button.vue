@@ -41,7 +41,7 @@ button {
     z-index: 0;
     @apply inline-flex justify-center items-center;
     @apply px-2 md:px-3 py-2 md:py-3;
-    @apply text-sm md:text-md font-normal leading-none;
+    @apply text-sm md:text-md font-medium leading-none;
     @apply select-none;
     @apply relative;
 
