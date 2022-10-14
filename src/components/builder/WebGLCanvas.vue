@@ -16,7 +16,7 @@ const { currentSet } = useBuilder();
 const hotkeyMgr = inject<HotkeyManager>('hotkeyMgr')!;
 
 const setup = ref(false);
-const lastScreen = ref(Date.now() - 4500);
+const lastScreen = ref(Date.now() - 2300);
 
 const canvas = ref(null as unknown as HTMLCanvasElement);
 
@@ -42,7 +42,8 @@ const frame = () => {
     if (!setup.value)
         return;
     render();
-    if (Date.now() - lastScreen.value > 5000) {
+    if (Date.now() - lastScreen.value > 2500) {
+        console.log('screenshotting');
         window.localStorage.setItem('set_preview_' + currentSet.value.id, canvas.value.toDataURL('image/jpeg'));
         lastScreen.value = Date.now();
     }

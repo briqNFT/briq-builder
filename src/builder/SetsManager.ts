@@ -150,6 +150,7 @@ export class SetsManager {
 
     duplicateLocally(set: SetData) {
         const copy = setsManager.createLocalSet();
+        window.localStorage.setItem(`set_preview_${copy.id}`, window.localStorage.getItem(`set_preview_${set.id}`) || '');
         const data = set.serialize();
         delete data.id;
         copy.deserialize(data);
