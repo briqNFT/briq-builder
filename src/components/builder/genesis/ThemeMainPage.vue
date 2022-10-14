@@ -40,7 +40,7 @@ const dutchBoxes = computed(() => themeBoxes.value?._data?.filter((x: string) =>
 
 const now = ref(Date.now() / 1000);
 setInterval(() => now.value = Date.now() / 1000, 1000);
-const saleStartsInSeconds = computed(() => themeData.value?.sale_start - now.value?? 0);
+const saleStartsInSeconds = computed(() => themeData.value?.sale_start - now.value || 0);
 const saleStartsIn = computed(() => {
     let tl = saleStartsInSeconds.value;
     const days = Math.floor(tl / 24 / 3600);
@@ -53,25 +53,11 @@ const saleStartsIn = computed(() => {
     return [['Days', days], ['Hours', hours], ['Minutes', minutes], ['Seconds', seconds]];
 });
 
-const isLive = computed(() => saleStartsInSeconds.value <= 0 );
-
+const hasDate = computed(() => !!themeData.value?.sale_start);
+const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
 </script>
 
 <style scoped>
-    /*
-.theme-bg::after {
-    content: "";
-    @apply absolute top-0 left-[50%] translate-x-[-50%] w-full h-full max-w-[1440px] min-w-[1280px];
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 90%, rgba(0, 0, 0, 1) 100%),
-        linear-gradient(90deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.2) 100%),
-        linear-gradient(-90deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.2) 100%),
-        linear-gradient(90deg, rgba(0, 0, 0, 0) 85%, rgba(0, 0, 0, 1) 100%),
-        linear-gradient(-90deg, rgba(0, 0, 0, 0) 85%, rgba(0, 0, 0, 1) 100%),
-        linear-gradient(120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%),
-        linear-gradient(-120deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.6) 100%)
-}
-*/
-
 .theme-bg::after {
     content: "";
     @apply absolute top-0 left-[50%] translate-x-[-50%] w-full h-full;
@@ -80,7 +66,7 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
 }
 
 .faq p {
-    @apply mb-4 text-justify text-sm text-grad-dark leading-snug;
+    @apply mb-4 text-justify text-sm text-[#aaaaaa] leading-snug;
 }
 .faq p a {
     @apply text-primary;
@@ -106,15 +92,20 @@ const isLive = computed(() => saleStartsInSeconds.value <= 0 );
                         </div>
                         <template v-if="!isLive">
                             <div class="w-[340px] my-8 px-2 py-2 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
-                                <p class="text-sm">Sale starting soon</p>
-                                <div class="mt-2 grid grid-cols-4 gap-2 auction-countdown">
-                                    <div
-                                        v-for="i in saleStartsIn" :key="i[0]"
-                                        class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
-                                        <p class="text-xl">{{ i[1] || '??' }}</p>
-                                        <p class="text-xs capitalize">{{ i[0] }}</p>
+                                <template v-if="hasDate">
+                                    <p class="text-sm">Sale starting soon</p>
+                                    <div class="mt-2 grid grid-cols-4 gap-2 auction-countdown">
+                                        <div
+                                            v-for="i in saleStartsIn" :key="i[0]"
+                                            class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
+                                            <p class="text-xl">{{ i[1] || '??' }}</p>
+                                            <p class="text-xs capitalize">{{ i[0] }}</p>
+                                        </div>
                                     </div>
-                                </div>
+                                </template>
+                                <template v-else>
+                                    <p class="text-sm font-medium">Sale starting soon !<br>Come back in November</p>
+                                </template>
                             </div>
                         </template>
                     </div>

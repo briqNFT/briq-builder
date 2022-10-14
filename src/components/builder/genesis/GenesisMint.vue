@@ -120,7 +120,7 @@ h4 {
                 <div class="relative p-4 md:p-10 lg:p-20 xl:mb-20">
                     <div>
                         <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-[5rem] my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
-                        <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
+                        <p class="text-lg font-normal">Collect, build and play with briqs,<br>the building blocks of the metaverse.</p>
                     </div>
                 </div>
                 <div class="h-[14rem] md:h-[20rem] xl:h-[32rem] min-w-[10rem] flex-1 w-full flex items-center">
