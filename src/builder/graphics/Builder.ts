@@ -230,6 +230,7 @@ function addLight(scene: THREE.Scene, x: number, y: number, z: number) {
 let scene: THREE.Scene;
 
 import { selectionRender } from '../inputs/Selection';
+import { doDownload } from '@/url';
 export var overlayObjects: THREE.Object3D;
 export var underlayObjects: THREE.Object3D;
 

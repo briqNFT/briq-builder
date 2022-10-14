@@ -89,6 +89,7 @@ export class SetsManager {
             } catch (e) {
                 console.info('Could not parse stored set', sid, 'error:', e);
                 window.localStorage.removeItem(sid);
+                window.localStorage.removeItem(sid.replace('briq_set_', 'set_preview_'));
             }
         }
     }
@@ -144,6 +145,7 @@ export class SetsManager {
         delete this.setsInfo[sid];
         // Delete localstorage after for it may have been reloaded otherwise.
         window.localStorage.removeItem('briq_set_' + sid);
+        window.localStorage.removeItem('set_preview_' + sid);
     }
 
     duplicateLocally(set: SetData) {
@@ -184,6 +186,7 @@ export function synchronizeSetsLocally() {
                 if (window.localStorage.getItem('briq_set_' + sid)) {
                     logDebug('SET STORAGE HANDLER - deleted local set', sid);
                     window.localStorage.removeItem('briq_set_' + sid);
+                    window.localStorage.removeItem('set_preview_' + sid);
                 }
                 if (!info) {
                     logDebug('SET STORAGE HANDLER - unwatching ', sid);

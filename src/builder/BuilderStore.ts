@@ -25,7 +25,7 @@ export const builderStore = (() => {
     const currentSet = shallowReadonly(_currentSet);
 
     const selectSet = async (set: SetData) => {
-        logDebug('BUILDER - SWITCHING TO SET ', set.id, new Error().stack);
+        logDebug('BUILDER - SWITCHING TO SET ', set.id);
         _currentSet.value = set;
         inputStore.selectionMgr.selectSet(currentSet.value);
         ___currentSet.value = set;

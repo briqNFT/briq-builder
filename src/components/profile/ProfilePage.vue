@@ -28,6 +28,10 @@ const {
     downloadSet,
 } = useSetHelpers();
 
+const getPreview = (id: string) => {
+    return window.localStorage.getItem('set_preview_' + id);
+}
+
 const bids = computed(() => {
     const bids = {} as { [key: string]: Bid }
     for (const bid of userBidsStore.current?.bids ?? [])
@@ -179,7 +183,7 @@ watchEffect(() => {
                             v-for="creation in creationsWIP" :key="creation.id"
                             :status="creation?.id ? 'LOADED' : 'FETCHING'"
                             :title="creation.name"
-                            :image-src="undefined"
+                            :image-src="getPreview(creation.id)"
                             class="cursor-pointer"
                             @click="openSetInBuilder(creation.id)">
                             <template #subtitle>

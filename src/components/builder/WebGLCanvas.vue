@@ -1,3 +1,70 @@
+<script setup lang="ts">
+import { main, orbitControls, render, unmount } from '../../builder/graphics/Builder';
+
+import { builderInputFsm } from '../../builder/inputs/BuilderInput';
+import { inputStore } from '../../builder/inputs/InputStore';
+
+import { defineComponent, onBeforeUnmount } from 'vue';
+import { resetInputComplete } from '@/builder/inputs/InputLoading';
+
+import type { HotkeyManager, HotkeyData, HotkeyHandle } from '@/Hotkeys';
+import { inject, onMounted, onUnmounted, ref } from 'vue';
+import { useBuilder } from './BuilderComposable';
+
+const { currentSet } = useBuilder();
+
+const hotkeyMgr = inject<HotkeyManager>('hotkeyMgr')!;
+
+const setup = ref(false);
+const lastScreen = ref(Date.now() - 4500);
+
+const canvas = ref(null as unknown as HTMLCanvasElement);
+
+onMounted(async () => {
+    await main(canvas.value);
+    builderInputFsm.initialize(
+        canvas.value ,
+        orbitControls.controls,
+        inputStore,
+        hotkeyMgr,
+    );
+    setup.value = true;
+    frame();
+});
+
+onBeforeUnmount(async () => {
+    await unmount();
+    resetInputComplete();
+    setup.value = false;
+});
+
+const frame = () => {
+    if (!setup.value)
+        return;
+    render();
+    if (Date.now() - lastScreen.value > 5000) {
+        window.localStorage.setItem('set_preview_' + currentSet.value.id, canvas.value.toDataURL('image/jpeg'));
+        lastScreen.value = Date.now();
+    }
+    builderInputFsm.onFrame();
+    requestAnimationFrame(() => frame());
+};
+const onPointerMove = async (event: PointerEvent) => {
+    await builderInputFsm.onPointerMove(event);
+};
+const onPointerDown = async (event: PointerEvent) => {
+    await builderInputFsm.onPointerDown(event);
+    if (inputStore.grabFocus)
+        canvas.value.setPointerCapture(event.pointerId)
+};
+const onPointerUp = async (event: PointerEvent) => {
+    if (inputStore.grabFocus)
+        canvas.value.releasePointerCapture(event.pointerId)
+    await builderInputFsm.onPointerUp(event);
+};
+
+</script>
+
 <template>
     <div class="absolute w-full h-screen block p-0 m-0">
         <canvas
@@ -9,64 +76,3 @@
             @pointerup="onPointerUp"/>
     </div>
 </template>
-
-<script lang="ts">
-import { main, orbitControls, render, unmount } from '../../builder/graphics/Builder';
-
-import { builderInputFsm } from '../../builder/inputs/BuilderInput';
-import { inputStore } from '../../builder/inputs/InputStore';
-
-import { defineComponent } from 'vue';
-import { resetInputComplete } from '@/builder/inputs/InputLoading';
-export default defineComponent({
-    inject: ['hotkeyMgr'],
-    data() {
-        return {
-            setup: false,
-        };
-    },
-    async mounted() {
-        await main(this.$refs.canvas);
-        builderInputFsm.initialize(
-            this.$refs.canvas as HTMLCanvasElement,
-            orbitControls.controls,
-            inputStore,
-            this.hotkeyMgr,
-        );
-        this.setup = true;
-        this.frame();
-    },
-    async beforeUnmount() {
-        await unmount();
-        resetInputComplete();
-        this.setup = false;
-    },
-    computed: {
-        fsmGrabsFocus() {
-            return inputStore.grabFocus;
-        },
-    },
-    methods: {
-        frame() {
-            if (!this.setup)
-                return;
-            render();
-            builderInputFsm.onFrame();
-            requestAnimationFrame(() => this.frame());
-        },
-        onPointerMove: async function (event) {
-            await builderInputFsm.onPointerMove(event);
-        },
-        onPointerDown: async function (event) {
-            await builderInputFsm.onPointerDown(event);
-            if (this.fsmGrabsFocus)
-                this.$refs.canvas.setPointerCapture(event.pointerId)
-        },
-        onPointerUp: async function (event) {
-            if (this.fsmGrabsFocus)
-                this.$refs.canvas.releasePointerCapture(event.pointerId)
-            await builderInputFsm.onPointerUp(event);
-        },
-    },
-});
-</script>
