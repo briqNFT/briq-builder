@@ -191,7 +191,6 @@ watchEffect(() => {
                                     {{ creation.id }}
                                     <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
                                         <template #button><i class="fas fa-ellipsis-h"/></template>
-                                        <Btn no-background>(todo) Mint on chain</Btn>
                                         <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
                                         <Btn @click="downloadSet(creation)" no-background>Download</Btn>
                                         <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
