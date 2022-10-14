@@ -195,7 +195,7 @@ watchEffect(() => {
                             </template>
                             <template #content>
                                 <p class="flex justify-between text-sm">
-                                    <span class="text-grad-dark">briqs used</span>
+                                    <span class="text-grad-dark">briqs needed</span>
                                     <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
                                 </p>
                             </template>

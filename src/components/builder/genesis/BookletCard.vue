@@ -18,10 +18,10 @@ const genesisStore = useGenesisStore();
     <GenericCardVue :title="bookletData?.name" subtitle="Booklet" :status="!!bookletData ? 'LOADED' : 'ERROR'" :image-src="genesisStore.coverBookletRoute(boxId)">
         <template #content>
             <p class="flex justify-between">
-                <span class="attribute">Briqs Needed</span><span class="font-semibold">504</span>
+                <span class="attribute">briqs needed</span><span class="font-semibold">{{ bookletData?.briqs?.length ?? '?' }}</span>
             </p>
             <p class="flex justify-between">
-                <span class="attribute">Steps</span><span>32</span>
+                <span class="attribute">Steps</span><span>{{ bookletData?.nb_pages ?? '?' }}</span>
             </p>
         </template>
     </GenericCardVue>
