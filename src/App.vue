@@ -53,6 +53,7 @@ onMounted(() => {
 body {
     @apply bg-background min-h-screen;
     @apply text-text-on-background font-sans font-normal leading-tight;
+    @apply antialiased;
 }
 
 h1 {
