@@ -20,8 +20,13 @@ class UserPurchases implements perUserStorable {
     user_id!: string;
     purchases = {} as { [tx_hash: string]: Purchase }
 
-    _init() {
-        setTimeout(() => this.poll(), 5000)
+    polling!: number;
+    onEnter() {
+        this.polling = setTimeout(() => this.poll(), 5000)
+    }
+    onLeave() {
+        if (this.polling)
+            clearTimeout(this.polling);
     }
 
     _serialize() {

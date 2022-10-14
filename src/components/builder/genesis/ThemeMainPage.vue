@@ -20,7 +20,7 @@ const themeStatus = computed(() => genesisStore.themedata[themeName.value]?._sta
 const themeData = computed(() => genesisStore.themedata[themeName.value]?._data );
 
 const themeBoxes = computed(() => genesisStore.boxes[themeName.value]);
-watchEffect(() => themeBoxes.value?._data?.map((x: string) => genesisStore.saledata[x]._data));
+watchEffect(() => themeBoxes.value?._data?.map((x: string) => genesisStore.saledata[x]._data ));
 
 const status = computed(() => themeBoxes.value._status);
 

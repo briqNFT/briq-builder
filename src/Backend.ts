@@ -4,6 +4,11 @@ import { getCurrentNetwork } from './chain/Network';
 class BackendManager {
     url: string;
 
+    last_requests = {} as { [url: string]: {
+        timestamp: number,
+        request: Promise<any>,
+    }};
+
     constructor(url: string) {
         this.url = url;
     }
@@ -36,6 +41,11 @@ class BackendManager {
     }
 
     async fetch(endpoint: string): Promise<any> {
+        const url = `${this.url}/${endpoint}`;
+        // Automatically grab the latest query if it's been sent recently enough.
+        if (this.last_requests[url] && Date.now() - this.last_requests[url].timestamp < 1000)
+            return await this.last_requests[url].request;
+
         const headers = new Headers();
         headers.append('Content-Type', 'application/json');
         const dat: RequestInit = {
@@ -44,10 +54,16 @@ class BackendManager {
             mode: 'cors',
         };
 
-        const req = await fetch(`${this.url}/${endpoint}`, dat);
-        if (!req.ok)
-            throw new Error('HTTP error: ' + (await req.json())?.detail ?? 'unknown error');
-        return req.json();
+        this.last_requests[url] = {
+            timestamp: Date.now(),
+            request: (async () => {
+                const req = await fetch(url, dat);
+                if (!req.ok)
+                    throw new Error('HTTP error: ' + (await req.json())?.detail ?? 'unknown error');
+                return req.json();
+            })(),
+        }
+        return await this.last_requests[url].request;
     }
 
     async post(endpoint: string, body?: object): Promise<any> {

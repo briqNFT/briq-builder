@@ -40,7 +40,7 @@ class UserBookletsStore implements perUserStorable {
 
     async fetchData() {
         try {
-            this._lastDataFetch = await backendManager.fetch(`v1/user/booklets/${this.user_id}`);
+            this._lastDataFetch = await backendManager.fetch(`v1/user/data/${this.user_id}`);
             await this._updateData(this._lastDataFetch);
         } catch(ex) {
             console.error(ex);

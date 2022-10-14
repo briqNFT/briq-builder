@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
-import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBidsStore } from '@/builder/BidStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import SmallProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
@@ -21,7 +20,6 @@ const connectWallet = () => {
         walletInitComplete.then(() => walletStore.value!.openWalletSelector());
     }
 }
-const connectDebugWallet = () => window.useDebugProvider();
 
 const header = ref(null);
 
@@ -58,11 +56,6 @@ onMounted(() => {
                     <p class="hover:text-primary text-sm md:text-md font-medium relative top-[0.2em]">Resources</p></a>
             </div>
             <div class="flex items-stretch gap-2">
-                <router-link v-if="userBoxesStore.current?.availableBoxes?.length" to="/unboxing">
-                    <Btn secondary class="before:border-grad-darker">
-                        <i class="fa-solid fa-box-open"/> {{ userBoxesStore.current?.availableBoxes?.length || 0 }}
-                    </Btn>
-                </router-link>
                 <template v-if="walletStore?.userWalletAddress">
                     <div class="border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
                         <briqIcon class="inline-block"/> {{ chainBriqs?.getNbBriqs() }}

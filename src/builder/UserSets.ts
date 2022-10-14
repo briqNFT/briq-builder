@@ -27,6 +27,18 @@ class UserSetStore implements perUserStorable {
         }
     };
 
+    polling!: number;
+
+    onEnter() {
+        this.fetchData();
+        this.polling = setTimeout(() => this.poll(), 5000);
+    }
+
+    onLeave() {
+        if (this.polling)
+            clearTimeout(this.polling);
+    }
+
     _serialize() {
         const setData = {} as UserSetStore['setData'];
         for (const setId in this._setData)
@@ -59,11 +71,6 @@ class UserSetStore implements perUserStorable {
         this._deserialize(data);
     }
 
-    _init() {
-        setTimeout(() => {
-            this.poll();
-        }, 500);
-    }
 
     get sets() {
         const ret = this._sets.filter((setId: string) => this.metadata[setId]?.status !== 'TENTATIVE_DELETED');
@@ -81,7 +88,7 @@ class UserSetStore implements perUserStorable {
 
     async fetchData() {
         try {
-            this._sets = (await backendManager.fetch(`v1/user/sets/${this.user_id}`)).sets;
+            this._sets = (await backendManager.fetch(`v1/user/data/${this.user_id}`)).sets;
         } catch(ex) {
             console.error(ex);
         }
@@ -99,10 +106,6 @@ class UserSetStore implements perUserStorable {
                     if (APP_ENV === 'dev')
                         console.error(_);
                 }
-    }
-
-    onEnter() {
-        this.fetchData();
     }
 
     async mintSet(token_hint: string, data: any, image: string | undefined) {

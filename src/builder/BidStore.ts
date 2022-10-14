@@ -31,8 +31,15 @@ class UserBidStore implements perUserStorable {
         status: 'UNKNOWN' | 'TENTATIVE' | 'PENDING' | 'REJECTED' | 'CONFIRMED',
     }}
 
-    _init() {
-        setTimeout(() => this.poll(), 500);
+    polling!: number;
+    async onEnter() {
+        await this.syncBids();
+        this.polling = setTimeout(() => this.poll(), 5000);
+    }
+
+    onLeave() {
+        if (this.polling)
+            clearTimeout(this.polling);
     }
 
     _serialize() {
@@ -61,10 +68,6 @@ class UserBidStore implements perUserStorable {
             if (bids[bid_id].box_id === to_match.box_id && bids[bid_id].tx_hash == to_match.tx_hash)
                 return bids[bid_id]
         return undefined;
-    }
-
-    async onEnter() {
-        await this.syncBids();
     }
 
     async syncBids() {

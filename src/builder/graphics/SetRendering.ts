@@ -15,8 +15,8 @@ function generateRealms() {
 import Keystone from '@/assets/keystone-square-uv.glb?url';
 import { getRenderMaterial } from './MaterialsRendering';
 
-const loadKeystoneMesh = (() => {
-    const promise = new Promise(async (resolve, reject) => {
+const loadKeystoneMesh = () => {
+    return new Promise(async (resolve, reject) => {
         await threeSetupComplete;
         const loader = new GLTFLoader();
         loader.load(
@@ -29,11 +29,8 @@ const loadKeystoneMesh = (() => {
             () => {},
             (error: any) => reject(error),
         );
-    }) as Promise<THREE.Mesh>;
-    return function () {
-        return promise;
-    };
-})();
+    })
+};
 
 let currentSet = '';
 
