@@ -72,7 +72,7 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
                             const b = currentBriqs[i];
                             for (const a of targetBriqs)
                                 if (a.pos[0] === b.position[0] + xx && a.pos[1] === b.position[1] && a.pos[2] === b.position[2] + zz) {
-                                    if (a.data.color === b.color && a.data.material === b.material)
+                                    if (a.data.color.toLowerCase() === b.color.toLowerCase() && a.data.material === b.material)
                                         best = 1;
                                     else
                                         best = Math.max(best, 0.5);
