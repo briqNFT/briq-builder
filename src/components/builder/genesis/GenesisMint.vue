@@ -113,13 +113,13 @@ h4 {
         <div class="container m-auto relative h-screen lg:p-[6rem] flex flex-col overflow-hidden">
             <div class="grow-[3]"/>
             <div class="flex flex-wrap justify-around items-center">
-                <div class="relative md:p-10 lg:p-20 xl:mb-20">
+                <div class="relative p-4 md:p-10 lg:p-20 xl:mb-20">
                     <div>
                         <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-[5rem] my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
                         <p class="text-lg font-normal">briq is a powerful Web3 toy which aims at<br>developping imagination and creativity</p>
                     </div>
                 </div>
-                <div class="min-h-[32rem] min-w-[10rem] flex-1 w-full h-full">
+                <div class="h-[14rem] md:h-[20rem] xl:h-[32rem] min-w-[10rem] flex-1 w-full flex items-center">
                     <component
                         v-if="!modelViewerLoading"
                         :is="modelViewer" class="flex-1 h-full w-full z-0"
