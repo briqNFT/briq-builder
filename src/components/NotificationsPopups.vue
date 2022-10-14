@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import {  ref  } from 'vue';
 import NotificationPopup from './NotificationPopup.vue';
 import { notificationPopups } from '@/Notifications';
-
-const computeTopPos = () => Math.max(0, parseFloat(getComputedStyle(document.documentElement).fontSize) * 4 - window.scrollY);
-const topPos = ref(computeTopPos());
-window.addEventListener('scroll', () => topPos.value = computeTopPos());
 
 const closePopup = (i: number) => notificationPopups.splice(i, 1);
 </script>
 
 <template>
-    <div class="z-[1000] fixed m-4 right-0 flex flex-col items-end gap-4" :style="{ top: `${topPos}px` }">
+    <div class="z-[1000] m-4 fixed top-[4rem] right-0 flex flex-col items-end gap-4">
         <TransitionGroup name="popupfade">
             <NotificationPopup v-for="popup, i of notificationPopups" :key="popup._uid" :level="popup.level" @close="closePopup(i)">
                 <template #title>
