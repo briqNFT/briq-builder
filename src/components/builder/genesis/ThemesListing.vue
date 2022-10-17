@@ -42,7 +42,7 @@ const { themeSplashSrcSet } = useThemeURLs();
 
 <template>
     <Header/>
-    <div class="container m-auto min-h-[40rem]">
+    <div class="container m-auto min-h-screen">
         <h3 class="mt-10 mb-4">Themes</h3>
         <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
             <RouterLink class="popOver" v-for="theme of themeList" :key="theme" :to="{ name: 'Theme', params: { theme: theme } }">
