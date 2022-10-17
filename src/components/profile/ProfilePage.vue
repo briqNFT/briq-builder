@@ -24,6 +24,7 @@ import { pushModal } from '../Modals.vue';
 import NewSetModalVue from '../builder/modals/NewSetModal.vue';
 import DownloadSetVue from '../builder/modals/DownloadSet.vue';
 import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
+import Tooltip from '../generic/Tooltip.vue';
 
 const {
     openSetInBuilder,
@@ -162,7 +163,9 @@ button .pastille {
     <div class="bg-grad-lightest border-b border-grad-light">
         <div class="container m-auto pt-6 flex-col justify-between">
             <div class="flex gap-4 pb-8">
-                <div class="bg-grad-lighter rounded border border-grad-light w-[7.75rem] h-[7.75rem]"><ProfileIcon width="100%" height="100%"/></div>
+                <Tooltip tooltip="Sorry, you can't (yet) change your profile picture...">
+                    <div class="bg-grad-lighter rounded border border-grad-light w-[7.75rem] h-[7.75rem]"><ProfileIcon width="100%" height="100%"/></div>
+                </Tooltip>
                 <div>
                     <h5 class="font-normal text-grad-dark">Account</h5>
                     <template v-if="userAddress">
