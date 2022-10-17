@@ -42,8 +42,7 @@ const frame = () => {
     if (!setup.value)
         return;
     render();
-    if (Date.now() - lastScreen.value > 2500) {
-        console.log('screenshotting');
+    if (Date.now() - lastScreen.value > 2500 && currentSet.value) {
         window.localStorage.setItem('set_preview_' + currentSet.value.id, canvas.value.toDataURL('image/jpeg'));
         lastScreen.value = Date.now();
     }
