@@ -5,6 +5,7 @@ import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { onMounted, ref } from 'vue';
 
 import SmallProfileIcon from '@/assets/profile/profile_small.svg';
+import briqLogo from '@/assets/briq.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import NotificationsMenu from '../NotificationsMenu.vue';
 import { userPurchaseStore } from '@/builder/UserPurchase';
@@ -48,12 +49,12 @@ onMounted(() => {
         <div
             class="relative top-[1px] header container m-auto py-3 flex justify-between items-center text-center alternate-buttons">
             <div class="flex items-center gap-4 md:gap-12">
-                <routerLink to="/genesis"><h2 class="briq-logo text-[32px]">briq</h2></routerLink>
+                <routerLink to="/genesis"><briqLogo height="1.5rem"/></routerLink>
                 <routerLink to="/themes">
-                    <p class="hover:text-primary text-sm md:text-md font-medium relative top-[0.2em]">Themes</p>
+                    <p class="hover:text-primary text-sm md:text-md font-medium">Themes</p>
                 </routerLink>
                 <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank">
-                    <p class="hover:text-primary text-sm md:text-md font-medium relative top-[0.2em]">Resources</p></a>
+                    <p class="hover:text-primary text-sm md:text-md font-medium">Resources</p></a>
             </div>
             <div class="flex items-stretch gap-2">
                 <template v-if="walletStore?.userWalletAddress">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RealmsLogo } from '@/conf/realms';
+import briqLogo from '@/assets/briq.svg';
 </script>
 
 <template>
@@ -8,7 +9,7 @@ import { RealmsLogo } from '@/conf/realms';
             briq x
             <RealmsLogo class="inline-block relative bottom-[3%]" height="7rem" style="fill: rgba(var(--color-text))"/>
         </h1>
-        <h1 v-else="" class="font-bold p-8 briq-logo">briq</h1>
+        <p v-else><briqLogo class="m-auto mb-8" height="4rem"/></p>
         <h2>Seize the briqs of creation</h2>
         <!--
     <PickMaterial/>
@@ -43,11 +44,12 @@ export default defineComponent({
         await threeSetupComplete; // Wait until we've loaded Three JS
         await walletInitComplete; // Wait until we've completed wallet init (or failed)
         await inputInitComplete.value; // Wait until the FSM has been setup.
-        this.$emit('done');
+        /*this.$emit('done');
         this.hidden = 'shouldHide';
         setTimeout(() => {
             this.hidden = 'noDisplay';
         }, 1000);
+        */
     },
 });
 </script>
