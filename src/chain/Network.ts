@@ -23,6 +23,8 @@ export function getNetworkName(network: CHAIN_NETWORKS) {
 }
 
 export function getCurrentNetwork() {
+    if (APP_ENV === 'prod')
+        return 'starknet-mainnet';
     return network.network;
 }
 
