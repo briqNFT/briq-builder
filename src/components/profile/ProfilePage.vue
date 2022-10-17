@@ -159,7 +159,7 @@ button .pastille {
 </style>
 
 <template>
-    <Header class="bg-grad-lightest mb-0"/>
+    <Header class="!bg-grad-lightest !mb-0"/>
     <div class="bg-grad-lightest border-b border-grad-light">
         <div class="container m-auto pt-6 flex-col justify-between">
             <div class="flex gap-4 pb-8">
