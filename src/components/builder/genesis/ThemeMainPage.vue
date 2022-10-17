@@ -88,7 +88,7 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                         <h1><img class="min-h-[7rem]" :srcset="themeLogoSrcSet(themeName)" :alt="themeData?.name || (route.params.theme as string)"></h1>
                         <div class="mt-12 mb-10">
                             <h3 class="mb-3">{{ themeData?.tagline ?? "Loading theme name " }}</h3>
-                            <p>{{ themeData?.description ?? 'Loading description' }}</p>
+                            <p class="whitespace-pre">{{ themeData?.description ?? 'Loading description' }}</p>
                         </div>
                         <template v-if="!isLive">
                             <div class="w-[340px] my-8 px-2 py-2 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
