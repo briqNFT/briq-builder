@@ -69,6 +69,14 @@ data:
   security.conf: |
     auth_basic "admin protection";
     auth_basic_user_file /etc/nginx/secrets/password;
+
+    # Relay for the API to hide the testnet API if you're no authenticated.
+    location /api_relay/ {
+        proxy_set_header   X-Forwarded-For $remote_addr;
+        proxy_set_header   Host $http_host;
+        proxy_pass         http://dev-briq-protocol.default.svc.cluster.local/;
+    }
+
 #@ else:
   security.conf: |
     auth_basic off;
