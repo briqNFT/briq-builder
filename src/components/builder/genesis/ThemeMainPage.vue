@@ -90,23 +90,36 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                             <h3 class="mb-3">{{ themeData?.tagline ?? "Loading theme name " }}</h3>
                             <p class="whitespace-pre">{{ themeData?.description ?? 'Loading description' }}</p>
                         </div>
-                        <template v-if="!isLive">
+                        <template v-if="!isLive && hasDate">
                             <div class="w-[340px] my-8 px-2 py-2 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
-                                <template v-if="hasDate">
-                                    <p class="text-sm">Sale starting soon</p>
-                                    <div class="mt-2 grid grid-cols-4 gap-2 auction-countdown">
-                                        <div
-                                            v-for="i in saleStartsIn" :key="i[0]"
-                                            class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
-                                            <p class="text-xl">{{ i[1] || '??' }}</p>
-                                            <p class="text-xs capitalize">{{ i[0] }}</p>
-                                        </div>
+                                <p class="text-sm">Sale starting soon</p>
+                                <div class="mt-2 grid grid-cols-4 gap-2 auction-countdown">
+                                    <div
+                                        v-for="i in saleStartsIn" :key="i[0]"
+                                        class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
+                                        <p class="text-xl">{{ i[1] || '??' }}</p>
+                                        <p class="text-xs capitalize">{{ i[0] }}</p>
                                     </div>
-                                </template>
-                                <template v-else>
-                                    <p class="text-sm font-medium">Sale starting soon !<br>Come back in November</p>
-                                </template>
+                                </div>
                             </div>
+                        </template>
+                        <template v-else-if="!isLive">
+                            <svg viewBox="0 0 600 150" height="150px" xmlns="http://www.w3.org/2000/svg">
+                                <mask id="myMask">
+                                    <text x="0" y="64" font-size="4rem" stroke-width="3px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke">
+                                        SALES DATE
+                                    </text>
+                                    <text x="0" y="140" font-size="4rem" stroke-width="3px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke">
+                                        DROPPING SOON
+                                    </text>
+                                </mask>
+                                <text x="0" y="64" mask="url(#myMask)" stroke-width="3px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke">
+                                    SALES DATE
+                                </text>
+                                <text x="0" y="140" mask="url(#myMask)" stroke-width="3px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke">
+                                    DROPPING SOON
+                                </text>
+                            </svg>
                         </template>
                     </div>
                 </div>
