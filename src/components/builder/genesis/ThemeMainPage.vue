@@ -88,7 +88,7 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                         <h1><img class="min-h-[7rem]" :srcset="themeLogoSrcSet(themeName)" :alt="themeData?.name || (route.params.theme as string)"></h1>
                         <div class="mt-12 mb-8">
                             <h3 class="mb-3">{{ themeData?.tagline ?? "Loading theme name " }}</h3>
-                            <p class="whitespace-pre">{{ themeData?.description ?? 'Loading description' }}</p>
+                            <p class="whitespace-pre-line">{{ themeData?.description ?? 'Loading description' }}</p>
                         </div>
                         <template v-if="!isLive && hasDate">
                             <div class="w-[340px] my-8 px-2 py-2 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
@@ -104,22 +104,24 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                             </div>
                         </template>
                         <template v-else-if="!isLive">
-                            <svg viewBox="0 0 600 150" height="150px" xmlns="http://www.w3.org/2000/svg">
-                                <mask id="myMask">
-                                    <text x="0" y="64" font-size="4rem" stroke-width="2.5px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
+                            <div class="text-[55%] sm:text-sm md:text-md">
+                                <svg viewBox="0 0 600 150" height="9.375em" xmlns="http://www.w3.org/2000/svg">
+                                    <mask id="myMask">
+                                        <text x="0" y="64" font-size="4rem" stroke-width="2.5px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
+                                            LAUNCH DATE
+                                        </text>
+                                        <text x="0" y="140" font-size="4rem" stroke-width="2.5px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
+                                            DROPPING SOON
+                                        </text>
+                                    </mask>
+                                    <text x="0" y="64" mask="url(#myMask)" stroke-width="2.5px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
                                         LAUNCH DATE
                                     </text>
-                                    <text x="0" y="140" font-size="4rem" stroke-width="2.5px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
+                                    <text x="0" y="140" mask="url(#myMask)" stroke-width="2.5px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
                                         DROPPING SOON
                                     </text>
-                                </mask>
-                                <text x="0" y="64" mask="url(#myMask)" stroke-width="2.5px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                    LAUNCH DATE
-                                </text>
-                                <text x="0" y="140" mask="url(#myMask)" stroke-width="2.5px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                    DROPPING SOON
-                                </text>
-                            </svg>
+                                </svg>
+                            </div>
                         </template>
                     </div>
                 </div>

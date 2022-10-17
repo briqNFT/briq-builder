@@ -38,6 +38,7 @@ const briqParallax = ref(0);
 
 const onScroll = (_event: Event) => {
     briqParallax.value = window.scrollY / 6;
+    console.log(window.scrollY);
 }
 
 onBeforeMount(() => {
@@ -137,9 +138,12 @@ h4 {
             </div>
             <div class="grow-[6]"/>
         </div>
-        <div class="pointer-events-none user-select-none container m-auto absolute top-0 left-0 right-0 overflow-hidden">
+        <div class="pointer-events-none user-select-none container m-auto absolute top-0 left-0 right-0 w-screen overflow-hidden">
             <div class="relative w-full h-screen">
-                <div class="absolute z-10 left-0" :style="{ top: `${150 - briqParallax}px` }">
+                <div class="absolute z-10 left-0 hidden sm:block" :style="{ top: `${150 - briqParallax}px` }">
+                    <BriqsOverlayT/>
+                </div>
+                <div class="absolute z-10 left-0 block sm:hidden" :style="{ top: `${80 - briqParallax}px` }">
                     <BriqsOverlayT/>
                 </div>
                 <div class="absolute z-10 left-0" :style="{ bottom: `${-120 + briqParallax}px` }">
@@ -171,7 +175,7 @@ h4 {
     <div class="bg-grad-lightest">
         <div class="container m-auto py-6 md:px-8 lg:px-[4rem] xl:px-[10rem] explanations">
             <div class="flex flex-row flex-wrap-reverse items-center gap-[0rem] my-0">
-                <div class="flex-1 md:px-[2rem] xl: px-[8rem] mb-10">
+                <div class="flex-1 md:px-[2rem] xl:px-[8rem] mb-10">
                     <h3>Collect</h3>
                     <p>briqs are construction blocks stored on the blockchain. You can use them to build anything you want.</p>
                     <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.</p>
@@ -186,7 +190,7 @@ h4 {
                 <div class="flex-1 min-w-[300px]">
                     <img :src="BuildImage" class="drop-shadow-sm max-w-none max-h-none w-full h-auto">
                 </div>
-                <div class="flex-1 md:px-[2rem] xl: px-[8rem]">
+                <div class="flex-1 md:px-[2rem] xl:px-[8rem]">
                     <h3>Build</h3>
                     <p>Assemble your briqs to create NFTs. These NFT are called sets..</p>
                     <p>Transfer, sell, lend, break your NFTs any way you want.</p>
@@ -195,7 +199,7 @@ h4 {
                 </div>
             </div>
             <div class="flex flex-row flex-wrap-reverse items-center gap-[4rem] my-16">
-                <div class="flex-1 md:px-[2rem] xl: px-[8rem]">
+                <div class="flex-1 md:px-[2rem] xl:px-[8rem]">
                     <h3>Play</h3>
                     <p>Sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
                     <p>Build a spaceship and fly around with it. Disassemble it to build a house.</p>
@@ -222,9 +226,9 @@ h4 {
             </div>
         </routerlink>
     </div>
-    <div class="bg-grad-darkest py-20">
+    <div class="bg-grad-darkest py-20 px-1">
         <h1 class="text-center text-grad-lightest">A prolific community of builders</h1>
-        <div class="flex justify-center gap-6 mt-14">
+        <div class="flex flex-wrap justify-center gap-6 mt-14">
             <a href="https://testnet.aspect.co/" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><img class="w-6 mr-3" :src="AspectLogo"> Aspect</Btn></a>
             <a href="https://mintsquare.io/starknet" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><img class="w-6 mr-3" :src="MintsquareLogo"> Mintsquare</Btn></a>
             <a href="https://discord.gg/kpvbDCw5pr" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><i class="fab fa-discord text-xl mr-3"/> Discord</Btn></a>

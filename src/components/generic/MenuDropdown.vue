@@ -50,8 +50,8 @@ div[data-name='menu'] > :not(hr) {
 </style>
 
 <template>
-    <div class="relative" ref="dropdownButton" @pointerenter="dropClose" @pointerleave="willClose">
-        <Btn secondary class="h-full w-full" v-bind="$attrs" @[onHover&&`pointerenter`].stop="opened = true" @click.stop="opened = !opened">
+    <div class="relative" ref="dropdownButton" @mouseenter="dropClose" @mouseleave="willClose">
+        <Btn secondary class="h-full w-full" v-bind="$attrs" @[onHover&&`mouseenter`].stop="opened = true" @click.stop="opened = !opened">
             <slot name="button"/>
             <span v-if="!noMarker" :class="opened ? 'text-primary' : ''"><slot name="icon">
                 <i v-if="opened" class="fa-solid fa-chevron-up"/>

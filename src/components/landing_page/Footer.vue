@@ -8,7 +8,7 @@
             <a href="https://discord.gg/kpvbDCw5pr" rel="noopener" target="_blank"><p><i class="fab fa-discord"/></p></a>
             <a href="https://github.com/briqNFT/" rel="noopener" target="_blank"><p><i class="fab fa-github"/></p></a>
         </div>
-        <p>
+        <p class="text-center">
             Copyright © 2022 S&L Technologies. All rights reserved.
             <router-link class="font-medium" to="/legal">Legal terms</router-link>
         </p>

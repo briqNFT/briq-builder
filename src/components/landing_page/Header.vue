@@ -53,8 +53,9 @@ onMounted(() => {
                 <routerLink to="/themes">
                     <p class="hover:text-primary text-sm md:text-md font-medium">Themes</p>
                 </routerLink>
-                <a href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank">
-                    <p class="hover:text-primary text-sm md:text-md font-medium">Resources</p></a>
+                <a class="hidden sm:block" href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank">
+                    <p class="hover:text-primary text-sm md:text-md font-medium">Resources</p>
+                </a>
             </div>
             <div class="flex items-stretch gap-2">
                 <template v-if="walletStore?.userWalletAddress">
@@ -69,7 +70,7 @@ onMounted(() => {
                             <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                         </MenuDropdown>
                     </div>
-                    <NotificationsMenu/>
+                    <NotificationsMenu class="hidden sm:block"/>
                 </template>
                 <template v-else>
                     <Btn class="flex-none text-md" secondary @click="connectWallet">Connect</Btn>

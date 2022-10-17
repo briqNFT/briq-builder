@@ -183,13 +183,13 @@ button .pastille {
             </div>
             -->
             <div class="flex gap-8">
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Genesis collection <span class="pastille">{{ officialCreations.length + userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length }}</span></p>
-                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">My creations <span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Genesis collection&nbsp;<span class="pastille">{{ officialCreations.length + userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length }}</span></p>
+                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">My creations&nbsp;<span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
                 <p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>
             </div>
         </div>
     </div>
-    <div class="container m-auto my-8 grid grid-cols-[3fr_9fr] gap-8 min-h-[70vh]">
+    <div class="container m-auto my-8 sm:grid sm:grid-cols-[3fr_9fr] gap-8 min-h-[70vh]">
         <div>
             <div class="sticky top-[80px]">
                 <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 mb-4">
@@ -211,7 +211,7 @@ button .pastille {
                         <Btn @click="setSection('PURCHASED')" :force-active="filter === 'PURCHASED'" no-background class="w-full justify-start items-baseline font-medium">Purchased items <span class="pastille">{{ 0 }}</span></Btn>
                     </template>
                 </div>
-                <Btn primary class="w-full text-sm" @click="pushModal(NewSetModalVue)">New Creation</Btn>
+                <Btn primary class="w-full text-sm mb-4" @click="pushModal(NewSetModalVue)">New Creation</Btn>
             </div>
         </div>
         <div>
