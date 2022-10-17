@@ -23,6 +23,7 @@ import { useRoute } from 'vue-router';
 import { pushModal } from '../Modals.vue';
 import NewSetModalVue from '../builder/modals/NewSetModal.vue';
 import DownloadSetVue from '../builder/modals/DownloadSet.vue';
+import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 
 const {
     createNewSet,
@@ -140,9 +141,12 @@ watch([activeTab], () => {
                 <div class="bg-grad-lighter rounded border border-grad-light w-[7.75rem] h-[7.75rem]"><ProfileIcon width="100%" height="100%"/></div>
                 <div>
                     <h5 class="font-normal text-grad-dark">Account</h5>
-                    <p class="block lg:hidden font-medium">{{ userAddress ? `${userAddress.slice(0, 5)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
-                    <p class="hidden lg:block font-medium">{{ userAddress ? `${userAddress.slice(0, 9)}...${userAddress.slice(-7)}` : 'No wallet selected' }}</p>
-                    <p v-if="!userAddress" class="my-4">Connect your wallet to access more functionality.</p>
+                    <template v-if="userAddress">
+                        <p class="block lg:hidden font-medium">{{ userAddress ? `${userAddress.slice(0, 5)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
+                        <p class="hidden lg:block font-medium">{{ userAddress ? `${userAddress.slice(0, 9)}...${userAddress.slice(-7)}` : 'No wallet selected' }}</p>
+                        <p class="">{{ getNetworkName(getCurrentNetwork()) }}</p>
+                    </template>
+                    <p v-else class="my-4">Connect your wallet to access more functionality.</p>
                 </div>
             </div>
             <!--
@@ -190,7 +194,7 @@ watch([activeTab], () => {
                         <p class="font-semibold">You don't have work-in-progress sets.</p>
                         <p>Get some briqs and start building!</p>
                         <div class="flex gap-2 mt-2">
-                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
+                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary>Browse the themes</Btn></router-link>
                             <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
                         </div>
                     </div>

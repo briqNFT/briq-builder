@@ -18,6 +18,7 @@ import { useBuilderInput } from './InputComposable';
 import { vCloseOutside } from '@/components/CloseOnClickOutsideComposable';
 import { useRecording } from './Recording';
 import NewSetModalVue from './modals/NewSetModal.vue';
+import { DEV } from '@/Meta';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
@@ -138,7 +139,7 @@ const onCloseMenu = () => {
                     <Btn no-background @click="selectAllbriqs">Select all briqs <span>Ctrl&ThinSpace;+&ThinSpace;A</span></Btn>
                     <Btn no-background @click="deleteBriqs" :disabled="!inputStore.selectionMgr.selectedBriqs.length">Delete selected briqs <span class="text-sm">⌦</span></Btn>
                     <hr>
-                    <Btn no-background @click="!isRecording ? startRecording() : stopRecording()">{{ !isRecording ? 'Start Recording' : 'Stop Recording' }}</Btn>
+                    <Btn v-if="DEV" no-background @click="!isRecording ? startRecording() : stopRecording()">{{ !isRecording ? 'Start Recording' : 'Stop Recording' }}</Btn>
                     <Btn @click="mode = 'SETTINGS'" no-background>Settings</Btn>
                     <a href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f" target="_blank"><Btn no-background>Help</Btn></a>
                 </template>

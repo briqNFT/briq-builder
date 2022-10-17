@@ -1,7 +1,5 @@
 import './default.css';
 
-import { APP_ENV } from '@/Meta';
-
 export const MATERIAL_GENESIS = '0x1';
 
 export const CONF = {

@@ -39,12 +39,12 @@ export const routes = [
         path: '/legal/:doc',
         name: 'Legal Doc',
         component: () => import('@/components/legal/Doc.vue'),
-    },
+    },/*
     {
         path: '/team',
         name: 'Team',
         component: Team,
-    },
+    },*/
     {
         path: '/admin',
         name: 'Admin',
@@ -117,15 +117,17 @@ export const routes = [
         name: 'Image loader',
         component: ImageLoaderVue,
     },
-    {
+];
+
+if (import.meta.env.mode !== 'production')
+    routes.push({
         path: '/unboxing/:theme/:box',
         name: 'Unboxing',
         component: async () => {
             await loadExtraPages();
             return loader.UnboxingVue;
         },
-    },
-];
+    })
 
 if (CONF.theme === 'realms') {
     routes.push({
@@ -154,6 +156,7 @@ if (CONF.theme === 'realms') {
 }
 
 import { createWebHistory, createRouter } from 'vue-router';
+import { APP_ENV } from './Meta';
 export const router = createRouter({
     history: createWebHistory(),
     routes,

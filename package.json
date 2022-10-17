@@ -5,12 +5,11 @@
   "homepage": "https://github.com/briqNFT/briq-builder/",
   "scripts": {
     "dev": "vite",
+    "stage": "vite build --ssr server/main.ts --outDir dist_server/ -m staging && vite build --outDir dist/ -m staging",
     "build": "vite build --ssr server/main.ts --outDir dist_server/ && vite build --outDir dist/",
     "serve": "vite preview",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "dev-server": "vite build --ssr server/main.ts --outDir dist/server -w -m development",
-    "build-server": "vite build --ssr server/main.ts --outDir dist/server",
     "server": "node dist_server/main.mjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue",
     "lint-fix": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"

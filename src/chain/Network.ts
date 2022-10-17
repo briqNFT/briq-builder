@@ -16,9 +16,9 @@ export function getNetworkName(network: CHAIN_NETWORKS) {
     return {
         'mock': 'Mock',
         'localhost': 'Localhost',
-        'starknet-testnet': 'Testnet',
+        'starknet-testnet': 'Starknet Testnet',
         'starknet-testnet-legacy': 'Legacy testnet',
-        'starknet-mainnet': 'Mainnet',
+        'starknet-mainnet': 'Starknet Mainnet',
     }[network];
 }
 

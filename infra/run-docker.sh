@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-npx vite build --outDir infra/dist/www/
-npx vite build --outDir infra/dist/server/ --ssr server/main.ts
+MODE=$([ "${K8S_ENV}" = "test" ] && echo "staging" || echo "production")
+
+npx vite build --outDir infra/dist/www/ -m $MODE
+npx vite build --outDir infra/dist/server/ --ssr server/main.ts -m $MODE
 
 NAME="briq-builder"
 TAG=${TAG:=$(git rev-parse HEAD)}

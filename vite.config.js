@@ -31,7 +31,7 @@ const htmlPlugin = () => {
             const preloadScripts = ctx.chunk.dynamicImports.filter(x => x.indexOf('Dispatch') !== -1 || x.indexOf('three') !== -1)
             return html.replace(
                 '</script>',
-                '</script>\n    ' + preloadScripts.map(x => `<link rel="prefetch" as="script" crossorigin href="${x}">`).join('\n    '),
+                '</script>\n    ' + preloadScripts.map(x => `<link rel="prefetch" as="script" crossorigin href="/${x}">`).join('\n    '),
             )
         },
     }
