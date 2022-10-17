@@ -26,7 +26,6 @@ import DownloadSetVue from '../builder/modals/DownloadSet.vue';
 import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 
 const {
-    createNewSet,
     openSetInBuilder,
     duplicateSet,
     deleteLocalSet,
@@ -98,7 +97,7 @@ const userAddress = computed(() => maybeStore.value?.userWalletAddress);
 
 const route = useRoute();
 
-const activeTab = ref('CREATION' as 'CREATION' | 'GENESIS' | 'ACTIVITY');
+const activeTab = ref('GENESIS' as 'CREATION' | 'GENESIS' | 'ACTIVITY');
 
 watchEffect(() => {
     if (route.query['tab'])
@@ -131,6 +130,13 @@ watch([activeTab], () => {
 .card:hover ::v-deep(.cardContextualMenu) {
     @apply !text-grad-darker;
 }
+
+.pastille {
+    @apply font-medium text-xs;
+}
+button .pastille {
+    @apply ml-1 text-grad-dark;
+}
 </style>
 
 <template>
@@ -156,8 +162,8 @@ watch([activeTab], () => {
             </div>
             -->
             <div class="flex gap-8">
-                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'CREATION'">My creations</p>
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'GENESIS'">Genesis collection</p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'GENESIS'">Genesis collection <span class="pastille">{{ officialCreations.length + userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length }}</span></p>
+                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'CREATION'">My creations <span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
                 <p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
             </div>
         </div>
@@ -167,18 +173,18 @@ watch([activeTab], () => {
             <div class="sticky top-[80px]">
                 <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 mb-4">
                     <template v-if="activeTab === 'CREATION'">
-                        <RouterLink class="w-full" to="#wip"><Btn no-background class="w-full justify-start font-medium">Work in Progress</Btn></RouterLink>
-                        <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start font-medium">Minted</Btn></RouterLink>
+                        <RouterLink class="w-full" to="#wip"><Btn no-background class="w-full justify-start items-baseline font-medium">Work in Progress <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
+                        <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start items-baseline font-medium">Minted <span class="pastille">{{ creations.length }}</span></Btn></RouterLink>
                     </template>
                     <template v-else-if="activeTab === 'GENESIS'">
-                        <RouterLink class="w-full" to="#box"><Btn no-background class="w-full justify-start font-medium">Sealed Boxes</Btn></RouterLink>
-                        <RouterLink class="w-full" to="#booklet"><Btn no-background class="w-full justify-start font-medium">Unbuilt Booklets</Btn></RouterLink>
-                        <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start font-medium">Official Sets</Btn></RouterLink>
+                        <RouterLink class="w-full" to="#box"><Btn no-background class="w-full justify-start items-baseline font-medium">Sealed Boxes  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
+                        <RouterLink class="w-full" to="#booklet"><Btn no-background class="w-full justify-start items-baseline font-medium">Unbuilt Booklets  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
+                        <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start items-baseline font-medium">Official Sets  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
                     </template>
                     <template v-else-if="activeTab === 'ACTIVITY'">
-                        <RouterLink class="w-full" to="#winning"><Btn no-background class="w-full justify-start font-medium">Winning Bids</Btn></RouterLink>
-                        <RouterLink class="w-full" to="#losing"><Btn no-background class="w-full justify-start font-medium">Losing Bids</Btn></RouterLink>
-                        <RouterLink class="w-full" to="#purchased"><Btn no-background class="w-full justify-start font-medium">Purchased Items</Btn></RouterLink>
+                        <RouterLink class="w-full" to="#winning"><Btn no-background class="w-full justify-start items-baseline font-medium">Winning Bids  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
+                        <RouterLink class="w-full" to="#losing"><Btn no-background class="w-full justify-start items-baseline font-medium">Losing Bids  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
+                        <RouterLink class="w-full" to="#purchased"><Btn no-background class="w-full justify-start items-baseline font-medium">Purchased Items  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
                     </template>
                 </div>
                 <Btn primary class="w-full text-sm" @click="pushModal(NewSetModalVue)">New Creation</Btn>

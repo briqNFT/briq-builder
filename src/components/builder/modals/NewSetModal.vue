@@ -31,7 +31,7 @@ const onClick = () => {
 
 <template>
     <Window class="!w-auto xl:max-w-[49%] lg:max-w-[80%] max-w-full">
-        <template #title>{{ title }}</template>
+        <template #title>{{ title ?? 'Create new set' }}</template>
         <p class="md:block hidden">
             Name your new creation: <input v-model="name" :placeholder="placeholder" type="text" maxlength="200" minlength="1" size="60">
         </p>
