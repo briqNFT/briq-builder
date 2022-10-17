@@ -86,7 +86,7 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                     <div class="min-h-[500px] container py-[3.375rem] m-auto px-2 md:px-8 lg:px-[3.375rem] relative z-1">
                         <!--<h1 class="text-left font-black uppercase my-16">{{ themeData.name || route.params.theme }}</h1>-->
                         <h1><img class="min-h-[7rem]" :srcset="themeLogoSrcSet(themeName)" :alt="themeData?.name || (route.params.theme as string)"></h1>
-                        <div class="mt-12 mb-10">
+                        <div class="mt-12 mb-8">
                             <h3 class="mb-3">{{ themeData?.tagline ?? "Loading theme name " }}</h3>
                             <p class="whitespace-pre">{{ themeData?.description ?? 'Loading description' }}</p>
                         </div>
@@ -106,17 +106,17 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                         <template v-else-if="!isLive">
                             <svg viewBox="0 0 600 150" height="150px" xmlns="http://www.w3.org/2000/svg">
                                 <mask id="myMask">
-                                    <text x="0" y="64" font-size="4rem" stroke-width="3px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke">
-                                        SALES DATE
+                                    <text x="0" y="64" font-size="4rem" stroke-width="2.5px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
+                                        LAUNCH DATE
                                     </text>
-                                    <text x="0" y="140" font-size="4rem" stroke-width="3px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke">
+                                    <text x="0" y="140" font-size="4rem" stroke-width="2.5px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
                                         DROPPING SOON
                                     </text>
                                 </mask>
-                                <text x="0" y="64" mask="url(#myMask)" stroke-width="3px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke">
-                                    SALES DATE
+                                <text x="0" y="64" mask="url(#myMask)" stroke-width="2.5px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
+                                    LAUNCH DATE
                                 </text>
-                                <text x="0" y="140" mask="url(#myMask)" stroke-width="3px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke">
+                                <text x="0" y="140" mask="url(#myMask)" stroke-width="2.5px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
                                     DROPPING SOON
                                 </text>
                             </svg>
