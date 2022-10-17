@@ -20,8 +20,11 @@ import ExportSetVue from './modals/ExportSet.vue';
 import { pushModal } from '../Modals.vue';
 import { useBooklet } from './BookletComposable';
 import Hotkey from '../generic/Hotkey.vue';
+import { useRouter } from 'vue-router';
 
 const { currentSet } = useBuilder();
+
+const router = useRouter();
 
 const getNbBriqs = computed(() => {
     // Vue reactiveness, this is opt-in for performance.
@@ -86,7 +89,6 @@ const hideCameraFlyout = () => {
             _showCameraFlyout.value = false;
     }, 250) as unknown as number;
 };
-
 </script>
 
 <style scoped>
@@ -99,7 +101,10 @@ const hideCameraFlyout = () => {
     <div class="mx-1 mt-1 sm:mx-4 sm:mt-4 flex flex-wrap" v-if="!inputStore.hideInput">
         <div class="flex-1 basis-1 min-w-max flex justify-stretch lg:justify-start">
             <div class="flex flex-none items-center px-2 py-1 gap-2 border border-grad-light bg-grad-lightest rounded-md">
-                <router-link :to="{ name: 'Profile' }"><Btn no-background><i class="fa-solid fa-arrow-left"/></Btn></router-link>
+                <a
+                    :href="router.options.history.state.back || '/profile?tab=CREATION'"
+                    @click.prevent.stop="router.options.history.state.back ? router.back() : router.push('/profile?tab=CREATION')">
+                    <Btn no-background><i class="fa-solid fa-arrow-left"/></Btn></a>
                 <Btn no-background @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
                 <div class="flex flex-none px-2 gap-2 items-baseline">

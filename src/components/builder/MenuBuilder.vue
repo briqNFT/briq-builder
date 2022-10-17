@@ -13,7 +13,6 @@ import ImportVoxModalVue from './modals/ImportVoxModal.vue';
 import RenameSetVue from './modals/RenameSet.vue';
 import Settings from './Settings.vue';
 import { useSetHelpers } from './SetComposable';
-import DownloadSetVue from './modals/DownloadSet.vue';
 import { useBuilderInput } from './InputComposable';
 import { vCloseOutside } from '@/components/CloseOnClickOutsideComposable';
 import { useRecording } from './Recording';
@@ -123,7 +122,7 @@ const onCloseMenu = () => {
             <Flyout id="menuFlyout" class="mx-4 mt-1 py-2 flex flex-col rounded-md text-sm font-normal max-h-[80vh] tall-md:max-h-[90vh] overflow-y-auto overflow-x-hidden">
                 <template v-if="mode === 'MENU'">
                     <Btn @click="renameSet" no-background>Rename set</Btn>
-                    <RouterLink :to="{ name: 'Profile' }"><Btn class="w-full" no-background>Manage my sets</Btn></RouterLink>
+                    <RouterLink :to="{ name: 'Profile', query: { tab: 'CREATION' } }"><Btn class="w-full" no-background>Manage my sets</Btn></RouterLink>
                     <hr>
                     <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
                     <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
