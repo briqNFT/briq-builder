@@ -34,6 +34,7 @@ const IMPL = {
     'starknet-mainnet': {
         briq: BriqContract,
         set: SetContract,
+        eth_bridge_contract: ERC20Contract,
     },
 };
 
