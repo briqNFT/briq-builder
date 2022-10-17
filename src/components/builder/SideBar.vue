@@ -25,7 +25,7 @@ const unproject = (n: { x: number, y: number, z: number }) => {
 </script>
 
 <template>
-    <div class="mx-1 sm:mx-4 mt-1 w-max absolute bottom-4 sm:static" id="sidebar">
+    <div class="mx-1 sm:mx-2 mt-1 sm:mt-2 w-max absolute bottom-2 sm:static" id="sidebar">
         <QuickPicker v-if="activeInputButton !== 'camera' && activeInputButton !== 'erase'"/>
         <CameraFlyout v-if="activeInputButton === 'camera'"/>
         <Flyout
@@ -35,10 +35,10 @@ const unproject = (n: { x: number, y: number, z: number }) => {
                 <h4 class="font-medium">Selection mode</h4>
             </div>
             <div class="p-2 flex flex-col">
+                <p class="px-2 py-2 flex justify-between items-center gap-2">briqs selected<span class="font-medium">{{ inputStore.selectionMgr.selectedBriqs.length }}</span></p>
                 <p class="px-2 py-2 flex justify-between items-center gap-2">Movement gizmo <Toggle class="w-9" v-model="inputStore.showMoveGizmo"/></p>
                 <p class="px-2 py-2 flex justify-between items-center gap-2">Rotation gizmo <Toggle class="w-9" v-model="inputStore.showRotateGizmo"/></p>
-                <p class="px-2 py-2 flex justify-between items-center gap-2">{{ inputStore.selectionMgr.selectedBriqs.length === 1 ? '1 briq selected' : `${inputStore.selectionMgr.selectedBriqs.length} briqs selected` }}</p>
-                <Btn no-background :disabled="!canCenterCamera" @click="centerCamera" class="p-2 justify-start !text-sm">Center on selection</Btn>
+                <Btn no-background :disabled="!canCenterCamera" @click="centerCamera" class="p-2 py-3 justify-start !text-sm">Center on selection</Btn>
             </div>
         </Flyout>
     </div>

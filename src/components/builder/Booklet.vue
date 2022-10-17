@@ -23,14 +23,14 @@ const {
 </script>
 
 <template>
-    <div v-if="booklet && !minimized" class="mx-4 mt-1 w-fit min-w-[16rem] float-right border border-grad-light !shadow-none !text-sm rounded-md bg-grad-lightest">
+    <div v-if="booklet && !minimized" class="mx-1 sm:mx-2 sm:mt-2 w-fit min-w-[16rem] float-right border border-grad-light !shadow-none !text-sm rounded-md bg-grad-lightest">
         <h6 class="font-medium text-sm bg-grad-lighter bg-opacity-50 rounded-t-md px-4 py-3">Booklet</h6>
         <div>
             <template v-if="!!bookletData">
                 <div class="flex px-4 py-1 text-sm font-regular justify-between items-center border-b border-grad-light">
-                    <Btn no-background @click="currentPage = Math.max(currentPage - 1, 1)"><i class="fas fa-chevron-left"/></Btn>
+                    <Btn no-background class="w-10" @click="currentPage = Math.max(currentPage - 1, 1)"><i class="fas fa-chevron-left"/></Btn>
                     <span>{{ currentPage }}/{{ +bookletData.nb_pages || 1 }}</span>
-                    <Btn no-background @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)"><i class="fas fa-chevron-right"/></Btn>
+                    <Btn no-background class="w-10" @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)"><i class="fas fa-chevron-right"/></Btn>
                 </div>
                 <div class="w-full px-4 py-3 flex justify-center items-center"><img :src="getStepImgSrc(booklet, currentPage)"></div>
                 <div class="border-t border-grad-light px-4 py-3">

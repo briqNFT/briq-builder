@@ -49,6 +49,9 @@ module.exports = {
                 'tall-md': { 'raw': '(min-height: 768px)' },
                 'tall-lg': { 'raw': '(min-height: 900px)' },
             },
+            lineHeight: {
+                'figma': '1.15',
+            },
         },
         container: {
             padding: {

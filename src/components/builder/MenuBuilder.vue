@@ -119,10 +119,10 @@ const onCloseMenu = () => {
 <template>
     <div class="relative">
         <div v-if="open" class="absolute z-50" v-close-outside="onCloseMenu">
-            <Flyout id="menuFlyout" class="mx-4 mt-1 py-2 flex flex-col rounded-md text-sm font-normal max-h-[80vh] tall-md:max-h-[90vh] overflow-y-auto overflow-x-hidden">
+            <Flyout id="menuFlyout" class="mx-1 sm:mx-2 mt-1 sm:mt-2 py-2 flex flex-col rounded-md text-sm font-normal max-h-[80vh] tall-md:max-h-[90vh] overflow-auto">
                 <template v-if="mode === 'MENU'">
                     <Btn @click="renameSet" no-background>Rename set</Btn>
-                    <RouterLink :to="{ name: 'Profile', query: { tab: 'CREATION' } }"><Btn class="w-full" no-background>Manage my sets</Btn></RouterLink>
+                    <RouterLink class="block mx-2" :to="{ name: 'Profile', query: { tab: 'CREATION' } }"><Btn class="w-full !mx-0" no-background>Manage my sets</Btn></RouterLink>
                     <hr>
                     <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
                     <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
@@ -140,7 +140,7 @@ const onCloseMenu = () => {
                     <hr>
                     <Btn v-if="DEV" no-background @click="!isRecording ? startRecording() : stopRecording()">{{ !isRecording ? 'Start Recording' : 'Stop Recording' }}</Btn>
                     <Btn @click="mode = 'SETTINGS'" no-background>Settings</Btn>
-                    <a href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f" target="_blank"><Btn no-background>Help</Btn></a>
+                    <a class="block mx-2" href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f" target="_blank"><Btn class="w-full !mx-0" no-background>Help</Btn></a>
                 </template>
                 <template v-else>
                     <Settings/>

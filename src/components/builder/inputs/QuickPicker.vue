@@ -94,15 +94,15 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
 
 <template>
     <div class="flex flex-col">
-        <div class="rounded-md border border-grad-light bg-grad-lightest max-w-[12rem] !text-sm">
-            <div class="bg-grad-lighter p-4 bg-opacity-50 rounded-t-md">
-                <h4 class="font-medium text-md">Palette</h4>
+        <div class="rounded border border-grad-light bg-grad-lightest max-w-[18rem] !text-sm">
+            <div class="bg-background p-4 bg-opacity-50 rounded-t">
+                <h4 class="font-medium text-sm leading-figma">Color palette</h4>
             </div>
-            <div class="p-4">
+            <div class="p-4 pt-3">
                 <div class="flex items-center gap-1 relative">
-                    <div class="inline-block w-4 h-4 rounded-sm absolute left-2 pointer-events-none" :style="{ backgroundColor: inputStore.currentColor }"/>
-                    <input type="text" v-model="inputStore.currentColor" class="py-0 h-8 pl-8 grow" size="8">
-                    <Btn no-background @click="pickerOpen = !pickerOpen" class="p-0"><img :src="ColorWheel"></Btn>
+                    <div class="inline-block w-4 h-4 rounded-sm absolute left-3 pointer-events-none" :style="{ backgroundColor: inputStore.currentColor }"/>
+                    <input type="text" v-model="inputStore.currentColor" class="py-0 h-10 pl-9 grow" size="8">
+                    <Btn no-background @click="pickerOpen = !pickerOpen" class="p-2 flex justify-center items-center"><img class="w-6 h-6" :src="ColorWheel"></Btn>
                 </div>
                 <div class="flex flex-wrap gap-1 mt-4">
                     <template v-for="[key, material, color, name] in choices" :key="key">
@@ -123,7 +123,7 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
                 </div>
                 <Teleport v-if="contextMenuTarget" :to="contextMenuTarget">
                     <Flyout class="!absolute z-[50] top-[0] left-0" @pointerenter="dropClose" @pointerleave="contextMenuTarget = null">
-                        <Btn no-background @click="deleteTargetChoice">Remove</Btn>
+                        <Btn class="font-normal m-1" no-background @click="deleteTargetChoice">Remove</Btn>
                     </Flyout>
                 </Teleport>
             </div>

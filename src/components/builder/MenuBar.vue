@@ -21,6 +21,7 @@ import { pushModal } from '../Modals.vue';
 import { useBooklet } from './BookletComposable';
 import Hotkey from '../generic/Hotkey.vue';
 import { useRouter } from 'vue-router';
+import Tooltip from '../generic/Tooltip.vue';
 
 const { currentSet } = useBuilder();
 
@@ -95,35 +96,38 @@ const hideCameraFlyout = () => {
 .divider {
     @apply w-[1px] bg-grad-light h-[24px];
 }
+.btn::before {
+    @apply rounded-[0.375rem];
+}
 </style>
 
 <template>
-    <div class="mx-1 mt-1 sm:mx-4 sm:mt-4 flex flex-wrap" v-if="!inputStore.hideInput">
+    <div class="mx-1 mt-1 sm:mx-2 sm:mt-2 flex flex-wrap" v-if="!inputStore.hideInput">
         <div class="flex-1 basis-1 min-w-max flex justify-stretch lg:justify-start">
-            <div class="flex flex-none items-center px-2 py-1 gap-2 border border-grad-light bg-grad-lightest rounded-md">
+            <div class="flex flex-none items-center p-1 gap-1 border border-grad-light bg-grad-lightest rounded">
                 <a
                     :href="router.options.history.state.back || '/profile?tab=CREATION'"
                     @click.prevent.stop="router.options.history.state.back ? router.back() : router.push('/profile?tab=CREATION')">
-                    <Btn no-background><i class="fa-solid fa-arrow-left"/></Btn></a>
-                <Btn no-background @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
+                    <Btn no-background class="w-10"><i class="fa-solid fa-arrow-left"/></Btn></a>
+                <Btn no-background class="w-10" @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
                 <div class="flex flex-none px-2 gap-2 items-baseline">
-                    <p class="font-semibold">{{ currentSet.name }}</p>
+                    <p class="font-medium">{{ currentSet.name }}</p>
                 </div>
                 <div class="divider"/>
                 <UndoRedo no-background secondary class="flex-none px-1"/>
                 <div class="divider"/>
-                <Btn no-background @click="pushModal(ShortcutModal)"><i class="far fa-keyboard"/></Btn>
+                <Btn no-background class="w-10" @click="pushModal(ShortcutModal)"><i class="far fa-keyboard"/></Btn>
                 <Hotkey name="help" :data="{ key: '?', shift: true }" :handler="() => pushModal(ShortcutModal)"/>
             </div>
         </div>
         <div class="flex-1 basis-1 flex lg:justify-center">
-            <div class="border bg-grad-lightest rounded-md flex gap-1 px-2 py-1">
-                <Btn no-background @click="switchToState('inspect')" tooltip="Select tool - click to select, right-click to deselect, shift-click selects many." :force-active="activeInputButton === 'select'"><i class="fas fa-mouse-pointer"/></Btn>
-                <Btn no-background @click="switchToState('place')" tooltip="Place tool - click to place briq, right-click to remove, shift-click to place many" :force-active="activeInputButton === 'place'"><i class="fas fa-cube"/></Btn>
-                <Btn no-background @click="switchToState('paint')" tooltip="Paint tool - click to paint, right-click to sample, shift-click to paint many" :force-active="activeInputButton === 'paint'"><i class="fas fa-paint-roller"/></Btn>
-                <Btn no-background @click="switchToState('erase')" tooltip="Erase tool - click to erase, shift-click to erase many" :force-active="activeInputButton === 'erase'"><i class="fas fa-eraser"/></Btn>
-                <Btn no-background @click="switchToState('camera')" tooltip="Camera tool" :force-active="activeInputButton === 'camera'" ref="cameraButton">
+            <div class="border bg-grad-lightest rounded flex gap-1 p-1">
+                <Btn no-background class="w-10" @click="switchToState('inspect')" tooltip="Select tool" :force-active="activeInputButton === 'select'"><i class="fas fa-mouse-pointer"/></Btn>
+                <Btn no-background class="w-10" @click="switchToState('place')" tooltip="Place tool" :force-active="activeInputButton === 'place'"><i class="fas fa-cube"/></Btn>
+                <Btn no-background class="w-10" @click="switchToState('paint')" tooltip="Paint tool" :force-active="activeInputButton === 'paint'"><i class="fas fa-paint-roller"/></Btn>
+                <Btn no-background class="w-10" @click="switchToState('erase')" tooltip="Erase tool" :force-active="activeInputButton === 'erase'"><i class="fas fa-eraser"/></Btn>
+                <Btn no-background class="w-10" @click="switchToState('camera')" tooltip="Camera tool" :force-active="activeInputButton === 'camera'" ref="cameraButton">
                     <i class="fas fa-video"/>
                 </Btn>
                 <Hotkey name="group-1" :data="{ code: 'Digit1', onDown: true }" :handler="() => switchToState('inspect')"/>
@@ -134,15 +138,17 @@ const hideCameraFlyout = () => {
             </div>
         </div>
         <div class="flex-1 basis-1 flex lg:justify-end">
-            <div v-if="booklet" class="rounded-md bg-grad-lightest border mr-1 flex justify-center items-center p-1">
+            <div v-if="booklet" class="rounded bg-grad-lightest border mr-2 flex justify-center items-center p-1">
                 <Btn no-background :force-active="!minimized" @click="minimized = !minimized"><i class="fa-solid fa-book-open"/></Btn>
             </div>
-            <div class="flex items-stretch gap-1 px-2 py-1 border bg-grad-lightest rounded-md">
+            <div class="flex items-stretch gap-1 p-1 border bg-grad-lightest rounded">
                 <template v-if="maybeStore?.userWalletAddress">
-                    <div class="flex items-center justify-center font-medium gap-2 px-2">
-                        <briqIcon class="inline-block"/>
-                        {{ getNbBriqs }}/{{ chainBriqs?.getNbBriqs() }}
-                    </div>
+                    <Tooltip :tooltip="`${ getNbBriqs } briqs used out of ${ chainBriqs?.getNbBriqs() } in wallet`">
+                        <div class="flex items-center justify-center font-medium gap-2 px-2 cursor-help">
+                            <briqIcon class="inline-block"/>
+                            {{ getNbBriqs }}/{{ chainBriqs?.getNbBriqs() }}
+                        </div>
+                    </Tooltip>
                     <div>
                         <MenuDropdown no-background icon class="text-xs">
                             <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
@@ -156,7 +162,7 @@ const hideCameraFlyout = () => {
                 </template>
                 <template v-else>
                     <Btn class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <Btn disabled="true">Mint</Btn>
+                    <Btn disabled="true" id="mintbutton">Mint</Btn>
                 </template>
             </div>
         </div>
