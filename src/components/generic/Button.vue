@@ -89,7 +89,7 @@ button {
             content: '';
             z-index: -1;
             @apply w-full h-full absolute top-0 left-0;
-            @apply bg-primary border border-grad-darker rounded;
+            @apply bg-primary rounded;
         }
 
         &:not(:disabled) {
@@ -115,7 +115,7 @@ button {
         &.secondary {
             @apply text-text-on-background;
             &::before {
-                @apply bg-grad-lightest border-grad-light;
+                @apply bg-grad-lightest border border-grad-light;
             }
 
             &:not(:disabled) {

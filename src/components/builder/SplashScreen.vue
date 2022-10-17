@@ -44,12 +44,11 @@ export default defineComponent({
         await threeSetupComplete; // Wait until we've loaded Three JS
         await walletInitComplete; // Wait until we've completed wallet init (or failed)
         await inputInitComplete.value; // Wait until the FSM has been setup.
-        /*this.$emit('done');
+        this.$emit('done');
         this.hidden = 'shouldHide';
         setTimeout(() => {
             this.hidden = 'noDisplay';
         }, 1000);
-        */
     },
 });
 </script>
