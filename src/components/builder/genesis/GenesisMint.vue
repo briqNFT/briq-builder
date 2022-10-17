@@ -11,8 +11,7 @@ import FirstIcon from '@/assets/landing/frst.svg';
 import StarkwareIcon from '@/assets/landing/starkware.svg';
 
 import AspectLogo from '@/assets/landing/aspect.png';
-import MintsquareLogo from '@/assets/landing/mintsquare.png';
-
+import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
 
 import CollectImage from '@/assets/landing/landing_box_cover.png';
 import PlayImage from '@/assets/landing/landing_full_speeder.png';
@@ -230,7 +229,7 @@ h4 {
         <h1 class="text-center text-grad-lightest">A prolific community of builders</h1>
         <div class="flex flex-wrap justify-center gap-6 mt-14">
             <a href="https://testnet.aspect.co/" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><img class="w-6 mr-3" :src="AspectLogo"> Aspect</Btn></a>
-            <a href="https://mintsquare.io/starknet" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><img class="w-6 mr-3" :src="MintsquareLogo"> Mintsquare</Btn></a>
+            <a href="https://mintsquare.io/starknet" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><MintsquareLogo class="mr-3" height="1.5rem" width="1.5rem"/> Mintsquare</Btn></a>
             <a href="https://discord.gg/kpvbDCw5pr" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><i class="fab fa-discord text-xl mr-3"/> Discord</Btn></a>
         </div>
     </div>
