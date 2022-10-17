@@ -173,10 +173,10 @@ h4 {
             <div class="flex flex-row flex-wrap-reverse items-center gap-[0rem] my-0">
                 <div class="flex-1 md:px-[2rem] xl: px-[8rem] mb-10">
                     <h3>Collect</h3>
-                    <p>briqs are construction blocks stored on the blockchain.</p>
+                    <p>briqs are construction blocks stored on the blockchain. You can use them to build anything you want.</p>
                     <p>Technically, they’re ERC-1155 tokens stored on Starknet, an Ethereum layer two solution allowing cheap transaction costs.</p>
                     <p>Your briqs are yours, forever.</p>
-                    <p class="my-4"><RouterLink to="/themes" class="text-primary">Check out our official sets <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
+                    <p class="my-4"><RouterLink to="/themes" class="text-primary">Check out our briq boxes <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
                 </div>
                 <div class="flex-1 min-w-[300px]">
                     <img :src="CollectImage" class="max-w-none max-h-none w-full h-auto">
@@ -188,16 +188,17 @@ h4 {
                 </div>
                 <div class="flex-1 md:px-[2rem] xl: px-[8rem]">
                     <h3>Build</h3>
-                    <p>briq can be assembled to create NFTs. These NFT are called sets.</p>
+                    <p>Assemble your briqs to create NFTs. These NFT are called sets..</p>
                     <p>Transfer, sell, lend, break your NFTs any way you want.</p>
                     <p>Disassemble your set to get your briqs back and build something new.</p>
-                    <p class="my-4"><RouterLink to="/builder" class="text-primary">Start Building <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
+                    <p class="my-4"><RouterLink to="/builder" class="text-primary">Start building <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
                 </div>
             </div>
             <div class="flex flex-row flex-wrap-reverse items-center gap-[4rem] my-16">
                 <div class="flex-1 md:px-[2rem] xl: px-[8rem]">
                     <h3>Play</h3>
-                    <p>briqs sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
+                    <p>Sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
+                    <p>Build a spaceship and fly around with it. Disassemble it to build a house.</p>
                     <p>Integrate briq in any way you want. Seize the briqs of creation.</p>
                     <p class="my-4"><RouterLink to="/builder" class="text-primary">Discover our Altzone integration <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
                 </div>
