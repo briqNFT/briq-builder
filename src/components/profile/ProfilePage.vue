@@ -99,6 +99,24 @@ const route = useRoute();
 
 const activeTab = ref('GENESIS' as 'CREATION' | 'GENESIS' | 'ACTIVITY');
 
+const filter = ref('ALL');
+const showSection = (section: string) => {
+    return filter.value === 'ALL' || filter.value === section;
+}
+
+const sectiontop = ref(null as unknown as HTMLElement);
+
+const setSection = (section: string) => {
+    filter.value = section;
+    if (sectiontop.value.getBoundingClientRect().y < 0)
+        sectiontop.value.scrollIntoView(true);
+}
+
+const setTab = (tab: string) => {
+    setSection('ALL');
+    activeTab.value = tab;
+}
+
 watchEffect(() => {
     if (route.query['tab'])
         activeTab.value = route.query['tab'];
@@ -162,37 +180,41 @@ button .pastille {
             </div>
             -->
             <div class="flex gap-8">
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'GENESIS'">Genesis collection <span class="pastille">{{ officialCreations.length + userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length }}</span></p>
-                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'CREATION'">My creations <span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="activeTab = 'ACTIVITY'">Shopping Activity</p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Genesis collection <span class="pastille">{{ officialCreations.length + userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length }}</span></p>
+                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">My creations <span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>
             </div>
         </div>
     </div>
-    <div class="container m-auto my-8 grid grid-cols-[3fr_9fr] gap-8">
+    <div class="container m-auto my-8 grid grid-cols-[3fr_9fr] gap-8 min-h-[70vh]">
         <div>
             <div class="sticky top-[80px]">
                 <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 mb-4">
                     <template v-if="activeTab === 'CREATION'">
-                        <RouterLink class="w-full" to="#wip"><Btn no-background class="w-full justify-start items-baseline font-medium">Work in Progress <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
-                        <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start items-baseline font-medium">Minted <span class="pastille">{{ creations.length }}</span></Btn></RouterLink>
+                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ creations.length + creationsWIP.length }}</span></Btn>
+                        <Btn @click="setSection('WIP')" :force-active="filter === 'WIP'" no-background class="w-full justify-start items-baseline font-medium">Work in progress <span class="pastille">{{ creationsWIP.length }}</span></Btn>
+                        <Btn @click="setSection('MINTED')" :force-active="filter === 'MINTED'" no-background class="w-full justify-start items-baseline font-medium">Minted <span class="pastille">{{ creations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'GENESIS'">
-                        <RouterLink class="w-full" to="#box"><Btn no-background class="w-full justify-start items-baseline font-medium">Sealed Boxes  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
-                        <RouterLink class="w-full" to="#booklet"><Btn no-background class="w-full justify-start items-baseline font-medium">Unbuilt Booklets  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
-                        <RouterLink class="w-full" to="#minted"><Btn no-background class="w-full justify-start items-baseline font-medium">Official Sets  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
+                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length + officialCreations.length }}</span></Btn>
+                        <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Sealed boxes <span class="pastille">{{ userBoxesStore.current!.availableBoxes.length }}</span></Btn>
+                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start items-baseline font-medium">Unbuilt booklets <span class="pastille">{{ userBookletsStore.current!.booklets.length }}</span></Btn>
+                        <Btn @click="setSection('MINTED')" :force-active="filter === 'MINTED'" no-background class="w-full justify-start items-baseline font-medium">Official sets <span class="pastille">{{ officialCreations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'ACTIVITY'">
-                        <RouterLink class="w-full" to="#winning"><Btn no-background class="w-full justify-start items-baseline font-medium">Winning Bids  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
-                        <RouterLink class="w-full" to="#losing"><Btn no-background class="w-full justify-start items-baseline font-medium">Losing Bids  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
-                        <RouterLink class="w-full" to="#purchased"><Btn no-background class="w-full justify-start items-baseline font-medium">Purchased Items  <span class="pastille">{{ creationsWIP.length }}</span></Btn></RouterLink>
+                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ winningBids.length + losingBids.length }}</span></Btn>
+                        <Btn @click="setSection('WINNING')" :force-active="filter === 'WINNING'" no-background class="w-full justify-start items-baseline font-medium">Winning bids <span class="pastille">{{ winningBids.length }}</span></Btn>
+                        <Btn @click="setSection('LOSING')" :force-active="filter === 'LOSING'" no-background class="w-full justify-start items-baseline font-medium">Losing bids <span class="pastille">{{ losingBids.length }}</span></Btn>
+                        <Btn @click="setSection('PURCHASED')" :force-active="filter === 'PURCHASED'" no-background class="w-full justify-start items-baseline font-medium">Purchased items <span class="pastille">{{ 0 }}</span></Btn>
                     </template>
                 </div>
                 <Btn primary class="w-full text-sm" @click="pushModal(NewSetModalVue)">New Creation</Btn>
             </div>
         </div>
         <div>
+            <a ref="sectiontop" class="relative top-[-5rem]"/>
             <div v-if="activeTab === 'CREATION'">
-                <div>
+                <div v-show="showSection('WIP')">
                     <a id="wip" class="relative bottom-[80px]"/>
                     <h3>Work in progress</h3>
                     <p>WIP sets are stored on this computer only and shared across wallets.</p>
@@ -233,7 +255,7 @@ button .pastille {
                         </GenericCard>
                     </div>
                 </div>
-                <template v-if="userAddress">
+                <div v-if="userAddress" v-show="showSection('MINTED')">
                     <a id="minted" class="relative bottom-[80px]"/>
                     <h3>Minted</h3>
                     <div v-if="!creations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
@@ -267,10 +289,10 @@ button .pastille {
                             </template>
                         </GenericCard>
                     </div>
-                </template>
+                </div>
             </div>
             <div v-else-if="activeTab === 'GENESIS' && userAddress">
-                <div>
+                <div v-show="showSection('BOX')">
                     <a id="box" class="relative bottom-[80px]"/>
                     <h3>Sealed boxes</h3>
                     <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
@@ -282,7 +304,7 @@ button .pastille {
                         <BoxListing mode="INVENTORY" :boxes="userBoxesStore.current!.availableBoxes"/>
                     </div>
                 </div>
-                <div>
+                <div v-show="showSection('BOOKLET')">
                     <a id="booklet" class="relative bottom-[80px]"/>
                     <h3>Unbuilt Booklets</h3>
                     <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
@@ -298,7 +320,7 @@ button .pastille {
                         </div>
                     </div>
                 </div>
-                <div>
+                <div v-show="showSection('MINTED')">
                     <a id="minted" class="relative bottom-[80px]"/>
                     <h3>Official Sets</h3>
                     <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
@@ -338,7 +360,7 @@ button .pastille {
             </div>
             <div v-else-if="activeTab === 'ACTIVITY' && userAddress">
                 <div>
-                    <div>
+                    <div v-show="showSection('WINNING')">
                         <a id="winning" class="relative bottom-[80px]"/>
                         <h3>Winning bids on ongoing auctions</h3>
                         <div v-if="!winningBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
@@ -350,7 +372,7 @@ button .pastille {
                             <BoxListing :boxes="winningBids" :mode="'BID'"/>
                         </div>
                     </div>
-                    <div>
+                    <div v-show="showSection('LOSING')">
                         <a id="losing" class="relative bottom-[80px]"/>
                         <h3>Losing bids on ongoing auctions</h3>
                         <div v-if="!losingBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
@@ -362,7 +384,7 @@ button .pastille {
                             <BoxListing :boxes="losingBids" :mode="'BID'"/>
                         </div>
                     </div>
-                    <div>
+                    <div v-show="showSection('PURCHASED')">
                         <a id="purchased" class="relative bottom-[80px]"/>
                         <h3>Purchased items</h3>
                         <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
