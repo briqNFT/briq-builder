@@ -7,7 +7,7 @@ const props = defineProps<{
 
 const window = ref(null as unknown as HTMLDivElement);
 
-const _size = computed(() => props?.size || 'md:w-2/5 w-auto');
+const _size = computed(() => props?.size || 'md:w-4/5 lg:w-3/5 max-w-[46rem] w-auto');
 
 // This doesn't use Vue's system to allow bubbling up.
 const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbles: true }));
@@ -16,20 +16,20 @@ const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbl
 
 <template>
     <div ref="window" :class="'container p-0 rounded-lg bg-grad-lightest alternate-buttons m-2 sm:m-4 md:m-8 shadow-xl relative ' + _size">
-        <div class="relative h-full p2 sm:px-4 sm:py-4">
-            <div class="flex justify-between items-center px-4 py-2">
+        <div class="relative h-full p2 sm:p-4 md:p-6">
+            <div class="flex justify-between items-center pb-6">
                 <h3 class="font-semibold w-full" v-if="!!$slots.title"><slot name="title"/></h3>
                 <h2 class="font-semibold w-full" v-if="!!$slots['big-title']"><slot name="big-title"/></h2>
 
                 <button
                     @click="close"
-                    class="text-lg inline-flex justify-center items-center">
+                    class="text-xl inline-flex justify-center items-center h-6 w-6 p-0">
                     <i class="fas fa-times"/>
                 </button>
             </div>
 
             <slot name="content">
-                <div class="px-4 relative pb-4">
+                <div class="relative">
                     <slot/>
                 </div>
             </slot>

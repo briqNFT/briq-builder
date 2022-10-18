@@ -15,6 +15,7 @@ import { userSetStore } from '@/builder/UserSets';
 import { useBooklet } from '../BookletComposable';
 import { router } from '@/Routes';
 import { useGenesisStore } from '@/builder/GenesisStore';
+import { useThemeURLs } from '../genesis/ThemeUrlComposable';
 
 const { chainBriqs } = useBuilder();
 
@@ -115,7 +116,7 @@ const validationError = computed(() => {
     if (!hasEnoughBriqs.value)
         return {
             code: 'NOT_ENOUGH_BRIQS',
-            title: 'Not enough briqs',
+            title: 'Cannot mint: You don\'t own enough briqs',
             message: 'You don’t have enough briqs to mint your set. Disassemble some of your other sets or buy new ones on the first (see our themes) or secondary markets (see on Aspect).',
         }
     return undefined;
@@ -190,14 +191,31 @@ const startMinting = async () => {
     }
 }
 
+const { themeSplashSrcSet } = useThemeURLs();
+
 </script>
+
+<style scoped>
+button:not(.btn):not(.nostyle)::before {
+    @apply rounded;
+}</style>
 
 <template>
     <template v-if="validationError">
         <Window>
             <template #title>{{ validationError.title }}</template>
-            <div>
+            <div v-if="validationError.code !== 'NOT_ENOUGH_BRIQS'" class="whitespace-pre-line">
                 {{ validationError.message }}
+            </div>
+            <div v-else class="leading-snug">
+                <p class="mb-1">Unfortunately, briq is not launched in mainnet just yet, so you cannot mint this set.</p>
+                <p>Our initial sale is <span class="font-medium">coming soon</span>, so check back on our Starknet Planet page for the latest</p>
+                <RouterLink :to="{ name: 'Theme', params: { theme: 'starknet_planet' } }" @click="emit('close')">
+                    <div class="flex flex-col items-center justify-center relative my-4">
+                        <img class="rounded-md h-[10rem] w-auto" :srcset="themeSplashSrcSet('starknet_planet')" :alt="`Theme splash for Starknet Planet`">
+                        <p class="absolute bottom-2 text-white italic text-sm font-medium">Coming Soon</p>
+                    </div>
+                </RouterLink>
             </div>
         </Window>
     </template>
@@ -209,21 +227,21 @@ const startMinting = async () => {
                     <Btn secondary @click="cropScreenshot"><i class="fa-solid fa-crop-simple"/></Btn>
                     <Btn secondary @click="retakeScreenshot"><i class="fa-solid fa-camera"/></Btn>
                 </div>
-                <img class="max-h-[30rem]" :src="previewImage">
+                <img class="max-h-[24rem]" :src="previewImage">
             </div>
-            <div class="my-2">
-                <h3>Name</h3>
+            <div class="my-4">
+                <p class="mb-2">Name</p>
                 <p><input type="text" v-model="setName" size="61" autocomplete="off" data-lpignore="true" data-form-type="other"></p>
             </div>
-            <div class="my-2">
-                <h3>Description</h3>
+            <div class="my-4">
+                <p class="mb-2">Description</p>
                 <p>
                     <textarea v-model="setDescription" cols="60"/>
                 </p>
             </div>
-            <div class="flex justify-between gap-2">
-                <Btn secondary @click="$emit('close')">Cancel</Btn>
-                <div class="inline-flex grow justify-end"><Btn no-background class="self-end" @click="downloadSet">Save file locally</Btn></div>
+            <div class="flex justify-between gap-2 mt-6">
+                <Btn secondary class="!font-normal" @click="$emit('close')">Cancel</Btn>
+                <div class="inline-flex grow justify-end"><Btn no-background class="!font-normal self-end" @click="downloadSet">Save file locally</Btn></div>
                 <Btn primary class="self-end" @click="startMinting">Mint</Btn>
             </div>
         </Window>
@@ -232,7 +250,7 @@ const startMinting = async () => {
         <Window size="w-[40rem]">
             <template #title>Mint an official set</template>
             <div class="relative flex justify-center items-center">
-                <img class="max-h-[30rem]" :src="genesisStore.coverItemRoute(booklet)">
+                <img class="max-h-[28rem]" :src="genesisStore.coverItemRoute(booklet)">
             </div>
             <div class="my-2">
                 <h3>{{ bookletData!.name }}</h3>
@@ -240,9 +258,9 @@ const startMinting = async () => {
             <div class="my-2">
                 <p>{{ bookletData!.description }}</p>
             </div>
-            <div class="flex justify-between gap-2">
-                <Btn secondary @click="$emit('close')">Cancel</Btn>
-                <div class="inline-flex grow justify-end"><Btn no-background class="self-end" @click="downloadSet">Save file locally</Btn></div>
+            <div class="flex justify-between gap-2 mt-6">
+                <Btn secondary class="!font-normal" @click="$emit('close')">Cancel</Btn>
+                <div class="inline-flex grow justify-end"><Btn no-background class="!font-normal self-end" @click="downloadSet">Save file locally</Btn></div>
                 <Btn primary class="self-end" @click="startMinting">Mint</Btn>
             </div>
         </Window>
