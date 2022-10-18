@@ -95,21 +95,21 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
 <template>
     <div class="flex flex-col">
         <div class="rounded border border-grad-light bg-grad-lightest max-w-[14.5rem] !text-sm">
-            <div class="bg-background p-4 bg-opacity-50 rounded-t">
-                <h4 class="font-medium text-sm leading-figma">Color palette</h4>
+            <div class="bg-background p-4 py-3 rounded-t">
+                <h4 class="font-semibold text-sm leading-figma">Color palette</h4>
             </div>
-            <div class="p-4 pt-3">
-                <div class="flex items-center gap-1 relative">
+            <div class="pl-4 pr-2 pb-4 pt-3">
+                <div class="flex items-center gap-2 relative">
                     <div class="inline-block w-4 h-4 rounded-sm absolute left-3 pointer-events-none" :style="{ backgroundColor: inputStore.currentColor }"/>
                     <input type="text" v-model="inputStore.currentColor" class="py-0 h-10 pl-9 grow" size="8">
-                    <Btn no-background @click="pickerOpen = !pickerOpen" class="p-2 flex justify-center items-center"><img class="w-6 h-6" :src="ColorWheel"></Btn>
+                    <p @click="pickerOpen = !pickerOpen" class="p-2 flex justify-center items-center cursor-pointer select-none"><img class="w-6 h-6" :src="ColorWheel"></p>
                 </div>
                 <div class="flex flex-wrap gap-1 mt-4">
                     <template v-for="[key, material, color, name] in choices" :key="key">
                         <div>
                             <Btn
                                 no-style
-                                :class="`rounded-sm w-5 h-5 p-0 flex justify-center items-center mat-${material} hover:ring-2 ring-grad-darkest`"
+                                :class="`rounded-sm w-5 h-5 p-0 flex justify-center items-center mat-${material} hover:ring-2 ring-grad-light`"
                                 :style="addMaterialCSS(material, color)"
                                 :tooltip="`Select color ${name}, right-click to remove`"
                                 @click="pickBriq(key)"
@@ -128,7 +128,7 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
                 </Teleport>
             </div>
         </div>
-        <div v-if="pickerOpen" class="flex flex-col bg-grad-lightest shadow-md rounded mt-1 p-2">
+        <div v-if="pickerOpen" class="flex flex-col bg-grad-lightest shadow-md rounded mt-2 p-2">
             <ColorPicker :color="inputStore.currentColor" @color-change="col => inputStore.currentColor = col"/>
         </div>
     </div>

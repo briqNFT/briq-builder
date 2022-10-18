@@ -35,10 +35,13 @@ const resetToLast = () => {
     -ms-user-select: none;
     user-select: none;
 }
-.root > *:not(hr) {
+.root > div > *:not(hr) {
     @apply px-4;
 }
-.settings > div > div {
+hr {
+    @apply my-2;
+}
+.settings > div {
     @apply flex flex-col gap-1;
 }
 
@@ -50,45 +53,43 @@ const resetToLast = () => {
 
 <template>
     <div class="root">
-        <h3 class="mt-4">Settings</h3>
-        <p class="text-grad-dark text-xs italic">Some settings may need reloading to apply properly.</p>
-        <div class="mt-4 mb-2 settings">
-            <div class="flex flex-col gap-2">
-                <div>
-                    <h4>Anti-aliasing</h4>
-                    <p>
-                        <select v-model="builderSettings.aaLevel">
-                            <option value="0">Off</option>
-                            <option value="FXAA">FXAA (fast)</option>
-                            <option value="SMAA">SMAA</option>
-                            <option value="2">4x SSAA</option>
-                            <option value="3">8x SSAA</option>
-                            <option value="4">16x SSAA</option>
-                        </select>
-                    </p>
-                </div>
-                <hr>
-                <div>
-                    <p>
-                        <label class="w-full inline-flex justify-between items-center gap-1">Use Screen-space Ambient Occlusion <Toggle class="w-10" v-model="builderSettings.useSAO"/></label>
-                    </p>
-                    <p>
-                        <label class="w-full inline-flex justify-between items-center gap-1">Show briq borders <Toggle class="w-10" v-model="builderSettings.showBorders"/></label>
-                    </p>
-                </div>
-                <hr>
+        <h4 class="mt-4 px-4">Settings</h4>
+        <div class="mt-4 mb-2 settings flex flex-col gap-2">
+            <div>
+                <p>Anti-aliasing</p>
                 <p>
-                    <select v-model="darkModeStore.forcedMode">
-                        <option value="">OS Default</option>
-                        <option value="dark">Dark Mode</option>
-                        <option value="light">Light Mode</option>
+                    <select v-model="builderSettings.aaLevel">
+                        <option value="0">Off</option>
+                        <option value="FXAA">FXAA (fast)</option>
+                        <option value="SMAA">SMAA</option>
+                        <option value="2">4x SSAA</option>
+                        <option value="3">8x SSAA</option>
+                        <option value="4">16x SSAA</option>
                     </select>
                 </p>
-                <hr>
-                <div>
-                    <Btn no-background class="text-sm py-2" @click="resetToDefault">Reset to defaults</Btn>
-                    <Btn no-background class="text-sm py-2" @click="resetToLast" :disabled="!mayUndo">Undo changes</Btn>
-                </div>
+            </div>
+            <hr>
+            <div>
+                <p>
+                    <label class="w-full inline-flex justify-between items-center gap-1">Show briq borders <Toggle class="w-10" v-model="builderSettings.showBorders"/></label>
+                </p>
+                <p class="mt-3">
+                    <label class="w-full inline-flex justify-between items-center gap-1">Screen-space Ambient Occlusion <Toggle class="w-10" v-model="builderSettings.useSAO"/></label>
+                </p>
+            </div>
+            <hr>
+            <p>Dark mode</p>
+            <p>
+                <select v-model="darkModeStore.forcedMode">
+                    <option value="">OS Default</option>
+                    <option value="dark">Dark Mode</option>
+                    <option value="light">Light Mode</option>
+                </select>
+            </p>
+            <hr>
+            <div class="!px-2">
+                <Btn no-background class="font-normal text-sm py-2" @click="resetToDefault">Reset to defaults</Btn>
+                <Btn no-background class="font-normal text-sm py-2" @click="resetToLast" :disabled="!mayUndo">Undo changes</Btn>
             </div>
         </div>
     </div>

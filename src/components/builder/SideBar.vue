@@ -30,12 +30,12 @@ const unproject = (n: { x: number, y: number, z: number }) => {
         <CameraFlyout v-if="activeInputButton === 'camera'"/>
         <Flyout
             v-if="activeInputButton === 'select'"
-            class="border border-grad-light !shadow-none !text-sm">
-            <div class="bg-grad-lighter p-4 rounded-t">
-                <h4 class="font-medium">Selection mode</h4>
+            class="border border-grad-light !shadow-none !text-sm mt-2">
+            <div class="bg-background px-4 py-3 rounded-t">
+                <h4 class="font-semibold text-sm leading-figma">Selection tool</h4>
             </div>
-            <div class="p-2 flex flex-col">
-                <p class="px-2 py-2 flex justify-between items-center gap-2">briqs selected<span class="font-medium">{{ inputStore.selectionMgr.selectedBriqs.length }}</span></p>
+            <div class="p-2 flex flex-col select-none">
+                <p class="px-2 py-2 flex justify-between items-center gap-2">briqs selected<span class="font-medium select-text flex-1 text-right">{{ inputStore.selectionMgr.selectedBriqs.length }}</span></p>
                 <p class="px-2 py-2 flex justify-between items-center gap-2">Movement gizmo <Toggle class="w-9" v-model="inputStore.showMoveGizmo"/></p>
                 <p class="px-2 py-2 flex justify-between items-center gap-2">Rotation gizmo <Toggle class="w-9" v-model="inputStore.showRotateGizmo"/></p>
                 <Btn no-background :disabled="!canCenterCamera" @click="centerCamera" class="p-2 py-3 justify-start !text-sm">Center on selection</Btn>

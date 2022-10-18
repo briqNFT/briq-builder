@@ -1,13 +1,13 @@
 <template>
     <span
-        :class="'custom-toggle inline-flex items-center p-[0.125em] ' + (active ? 'enabled' : '')"
-        @click="
+        :class="'custom-toggle select-none inline-flex items-center p-[0.125em] ' + (active ? 'enabled' : '')"
+        @mousedown.prevent @click="
             $emit('enable', !active);
             $emit('update:modelValue', !active);
         ">
         <span class="indicator flex justify-center items-center"><span class="text-[0.875em]"><slot>
-            <i
-                :class="'fas fa-check transition-opacity duration-300 ' + (active ? 'opacity-1' : 'opacity-0')"/> </slot></span></span>
+            <i v-show="showIcon" :class="'fas fa-check transition-opacity duration-300 ' + (active ? 'opacity-1' : 'opacity-0')"/>
+        </slot></span></span>
     </span>
 </template>
 
@@ -57,6 +57,6 @@ export default defineComponent({
         },
     },
     emits: ['enable', 'update:modelValue'],
-    props: ['enabled', 'modelValue'],
+    props: ['enabled', 'modelValue', 'showIcon'],
 });
 </script>
