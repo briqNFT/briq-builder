@@ -45,7 +45,7 @@ onMounted(() => {
 </style>
 
 <template>
-    <div class="sticky top-[-1px] bg-background z-[50000] shadow-none transition-all duration-500" ref="header">
+    <div class="sticky top-[-1px] bg-background z-[1000] shadow-none transition-all duration-500" ref="header">
         <div
             class="relative top-[1px] header container m-auto py-3 flex justify-between items-center text-center alternate-buttons">
             <div class="flex items-center gap-4 md:gap-12">

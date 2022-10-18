@@ -16,7 +16,7 @@ const icon = computed(() => ({
 }[props.level]));
 
 onMounted(() => {
-    setTimeout(() => emit('close'), 5000)
+    setTimeout(() => emit('close'), 8000)
 });
 
 </script>

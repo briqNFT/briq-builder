@@ -6,16 +6,18 @@ const props = withDefaults(defineProps<{
     noMarker?: boolean,
     menuPosition?: string,
     mustClick?: boolean,
+    modalBackground?: boolean,
 }>(), {
     closeOnClick: true,
     noMarker: false,
     menuPosition: undefined,
     mustClick: false,
+    modalBackground: false,
 });
 
 const opened = ref(false);
 
-const CLOSE_AFTER_FOCUS_LOSS_DELAY = 350;
+const CLOSE_AFTER_FOCUS_LOSS_DELAY = 500;
 let closeTimer: any;
 const willClose = () => closeTimer = setTimeout(() => opened.value = false, CLOSE_AFTER_FOCUS_LOSS_DELAY);
 const dropClose = () => closeTimer && clearTimeout(closeTimer);
@@ -60,10 +62,13 @@ div[data-name='menu'] > :not(hr) {
             </span>
         </Btn>
         <!-- Close on click so that clicking on button works as expected. -->
-        <div
-            v-if="opened" data-name="menu" @click.stop="closeOnClick ? opened = false : ''"
-            :class="`after:absolute max-h-[90vh] overflow-auto after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-grad-lightest shadow rounded-md py-2 w-max z-50`">
-            <slot/>
+        <div v-if="opened" @click.stop="closeOnClick ? opened = false : ''">
+            <div v-if="modalBackground" @click="opened = false" class="fixed top-0 left-0 h-full w-full bg-black bg-opacity-30 !m-0 z-[1500]"/>
+            <div
+                data-name="menu"
+                :class="`after:absolute max-h-[90vh] overflow-auto after:top-[-1rem] after:h-4 after:w-full ${dropdownPositionCSS} my-2 flex flex-col gap-1 bg-grad-lightest shadow rounded-md py-2 w-max z-[2000]`">
+                <slot/>
+            </div>
         </div>
     </div>
 </template>
