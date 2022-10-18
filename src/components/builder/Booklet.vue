@@ -27,7 +27,7 @@ const {
         <h6 class="font-medium text-sm bg-grad-lighter bg-opacity-50 rounded-t-md px-4 py-3">Booklet</h6>
         <div>
             <template v-if="!!bookletData">
-                <div class="flex px-4 py-1 text-sm font-regular justify-between items-center border-b border-grad-light">
+                <div class="flex px-4 py-1 text-sm font-normal justify-between items-center border-b border-grad-light">
                     <Btn no-background class="w-10" @click="currentPage = Math.max(currentPage - 1, 1)"><i class="fas fa-chevron-left"/></Btn>
                     <span>{{ currentPage }}/{{ +bookletData.nb_pages || 1 }}</span>
                     <Btn no-background class="w-10" @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)"><i class="fas fa-chevron-right"/></Btn>

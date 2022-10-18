@@ -132,12 +132,6 @@ hr {
                 </DropDown>
             </div>
             <hr>
-            <Tooltip tooltip="How wide the angle of view is.">
-                <div class="mb-2">
-                    <p class="mb-2">Field Of View</p>
-                    <p><Slider :min="5" :max="150" v-model="fov"/></p>
-                </div>
-            </Tooltip>
             <div class="mb-2">
                 <p class="mb-2">Position</p>
                 <p class="flex gap-2 numberInput">
@@ -154,10 +148,12 @@ hr {
                     <span><span>Z</span><input type="number" min="-300" max="300" v-model="_target[2]"></span>
                 </p>
             </div>
-            <div class="mb-2">
-                <p class="mb-2">Field of view</p>
-                <p><input type="number" min="5" max="150" v-model="_fov"></p>
-            </div>
+            <Tooltip tooltip="How wide the angle of view is.">
+                <div class="mb-2">
+                    <p class="mb-2">Field of view</p>
+                    <p class="flex"><Slider :show-value="false" :min="5" :max="150" v-model="fov"/><input type="number" min="5" max="150" v-model="_fov"></p>
+                </div>
+            </Tooltip>
             <div>
                 <p class="mb-2">Name</p>
                 <p class="flex justify-between">

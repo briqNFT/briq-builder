@@ -73,7 +73,7 @@ const dropdownPositionCSS = computed(() => {
                 <hr v-if="option === ''" class="my-2">
                 <template v-else>
                     <Btn
-                        no-background class="justify-between"
+                        no-background class="justify-between text-sm font-normal"
                         @click.prevent.stop="_onClick(option)"
                         @contextmenu.prevent.stop="(e: PointerEvent) => _onOpenContextMenu(e, option)">
                         {{ option }}<span v-if="selectedOption === option"><i class="ml-2 fas fa-check"/></span>
