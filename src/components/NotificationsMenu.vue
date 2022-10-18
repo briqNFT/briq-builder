@@ -8,7 +8,7 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
 </script>
 
 <template>
-    <MenuDropdown no-background :close-on-click="false" :on-hover="false" class="min-w-[2.5rem]">
+    <MenuDropdown no-background :close-on-click="false" :must-click="true" class="min-w-[2.5rem]">
         <template #icon>
             <i class="fa-regular fa-bell"/>
             <span class="text-primary absolute top-2 right-2 text-lg" v-if="hasUnreadNotifications">•</span>

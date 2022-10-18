@@ -22,7 +22,7 @@ export function useSetHelpers() {
     const createNewSet = () => setsManager.createLocalSet();
     const saveSetAndOpen = (set: SetData) => {
         // Have to force the dump to disk or the new window won't be able to find the set.
-        synchronizeSetsLocally();
+        synchronizeSetsLocally(true);
         openSetInBuilder(set.id, true);
     }
 

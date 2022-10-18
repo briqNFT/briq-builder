@@ -1,4 +1,4 @@
-import { reactive, WatchStopHandle } from 'vue';
+import { reactive, toRef, watch, WatchStopHandle } from 'vue';
 import { SetData } from './SetData';
 import { Briq } from './Briq';
 
@@ -19,9 +19,11 @@ export class SetInfo {
     id: string;
     setData!: SetData;
     booklet: string | undefined;
+    lastUpdate: number;
 
     constructor(sid: string, setData?: SetData) {
         this.id = sid;
+        this.lastUpdate = Date.now();
         if (setData)
             this.setData = setData;
     }
@@ -35,12 +37,14 @@ export class SetInfo {
             id: this.id,
             booklet: this.booklet,
             setData: data,
+            lastUpdate: this.lastUpdate,
         };
     }
 
     deserialize(data: any) {
         this.id = data.id;
         this.booklet = data?.booklet;
+        this.lastUpdate = data?.lastUpdate || Date.now();
 
         try {
             const raw = fflate.strFromU8(fflate.unzlibSync(fflate.strToU8(data.setData, true)));
@@ -175,11 +179,11 @@ export class SetsManager {
 }
 
 const storageHandlers: { [sid: string]: WatchStopHandle } = {};
-export function synchronizeSetsLocally() {
+export function synchronizeSetsLocally(force = false) {
     for (const sid in setsManager.setsInfo) {
         if (storageHandlers[sid])
             continue;
-        storageHandlers[sid] = watchEffect(() => {
+        storageHandlers[sid] = watch([toRef(setsManager.setsInfo[sid], 'booklet'), toRef(setsManager.setsInfo[sid], 'setData')], () => {
             const info = setsManager.setsInfo[sid];
             logDebug('SET STORAGE HANDLER - Serializing set ', sid);
             if (!info) {
@@ -196,14 +200,19 @@ export function synchronizeSetsLocally() {
                 }
                 return;
             }
+            info.lastUpdate = Date.now();
             window.localStorage.setItem('briq_set_' + sid, JSON.stringify(info.serialize()));
+        }, {
+            deep: true,
+            immediate: force,
         });
     }
 }
 
 export const setsManager = reactive(new SetsManager());
-setsManager.loadFromStorage();
-watchEffect(() => synchronizeSetsLocally());
+setsManager.loadFromStorage().then(_ => {
+    watchEffect(() => synchronizeSetsLocally());
+});
 
 
 import { defaultModel } from '@/conf/realms';

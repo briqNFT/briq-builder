@@ -193,26 +193,26 @@ button .pastille {
             </div>
         </div>
     </div>
-    <div class="container m-auto my-6 sm:grid sm:grid-cols-[3fr_9fr] gap-8 min-h-[70vh]">
+    <div class="container m-auto my-6 md:grid md:grid-cols-[3fr_9fr] gap-8 min-h-[70vh]">
         <div>
             <div class="sticky top-[80px]">
                 <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 mb-4">
                     <template v-if="activeTab === 'CREATION'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ creations.length + creationsWIP.length }}</span></Btn>
-                        <Btn @click="setSection('WIP')" :force-active="filter === 'WIP'" no-background class="w-full justify-start items-baseline font-medium">Work in progress <span class="pastille">{{ creationsWIP.length }}</span></Btn>
+                        <Btn @click="setSection('WIP')" :force-active="filter === 'WIP'" no-background class="w-full justify-start text-left items-baseline font-medium">Work in progress <span class="pastille">{{ creationsWIP.length }}</span></Btn>
                         <Btn @click="setSection('MINTED')" :force-active="filter === 'MINTED'" no-background class="w-full justify-start items-baseline font-medium">Minted <span class="pastille">{{ creations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'GENESIS'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length + officialCreations.length }}</span></Btn>
                         <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Sealed boxes <span class="pastille">{{ userBoxesStore.current!.availableBoxes.length }}</span></Btn>
-                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start items-baseline font-medium">Unbuilt booklets <span class="pastille">{{ userBookletsStore.current!.booklets.length }}</span></Btn>
+                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Unbuilt booklets <span class="pastille">{{ userBookletsStore.current!.booklets.length }}</span></Btn>
                         <Btn @click="setSection('MINTED')" :force-active="filter === 'MINTED'" no-background class="w-full justify-start items-baseline font-medium">Official sets <span class="pastille">{{ officialCreations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'ACTIVITY'">
-                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ winningBids.length + losingBids.length }}</span></Btn>
-                        <Btn @click="setSection('WINNING')" :force-active="filter === 'WINNING'" no-background class="w-full justify-start items-baseline font-medium">Winning bids <span class="pastille">{{ winningBids.length }}</span></Btn>
-                        <Btn @click="setSection('LOSING')" :force-active="filter === 'LOSING'" no-background class="w-full justify-start items-baseline font-medium">Losing bids <span class="pastille">{{ losingBids.length }}</span></Btn>
-                        <Btn @click="setSection('PURCHASED')" :force-active="filter === 'PURCHASED'" no-background class="w-full justify-start items-baseline font-medium">Purchased items <span class="pastille">{{ 0 }}</span></Btn>
+                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start text-left items-baseline font-medium">All items <span class="pastille">{{ winningBids.length + losingBids.length }}</span></Btn>
+                        <Btn @click="setSection('WINNING')" :force-active="filter === 'WINNING'" no-background class="w-full justify-start text-left items-baseline font-medium">Winning bids <span class="pastille">{{ winningBids.length }}</span></Btn>
+                        <Btn @click="setSection('LOSING')" :force-active="filter === 'LOSING'" no-background class="w-full justify-start text-left items-baseline font-medium">Losing bids <span class="pastille">{{ losingBids.length }}</span></Btn>
+                        <Btn @click="setSection('PURCHASED')" :force-active="filter === 'PURCHASED'" no-background class="w-full justify-start text-left items-baseline font-medium">Purchased items <span class="pastille">{{ 0 }}</span></Btn>
                     </template>
                 </div>
                 <Btn primary class="w-full text-sm mb-4" @click="pushModal(NewSetModalVue)">New Creation</Btn>
@@ -257,6 +257,10 @@ button .pastille {
                                 <p class="flex justify-between text-sm">
                                     <span class="text-grad-dark">briqs needed</span>
                                     <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
+                                </p>
+                                <p class="flex justify-between text-sm">
+                                    <span class="text-grad-dark">Last updated on</span>
+                                    <span class="">{{ new Date(setsManager.getInfo(creation.id)!.lastUpdate).toLocaleString("en-uk", { dateStyle: "medium" }) }}</span>
                                 </p>
                             </template>
                         </GenericCard>
