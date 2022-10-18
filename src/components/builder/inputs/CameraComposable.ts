@@ -84,10 +84,17 @@ export function usePresetHelpers() {
             fov: camera.fov,
         }
     });
+    let lastCamP;
+    let lastCamR;
+    let lastFov;
     const updateCameraSettings = () => {
-        if (camera) {
+        if (camera && (!lastCamP?.equals(camera.position) || !lastCamR?.equals(camera.quaternion) || camera.fov != lastFov)) {
+            console.log('here');
             ++_cameraSettingsCtr.value;
             fov.value = camera.fov;
+            lastCamP = camera.position.clone();
+            lastCamR = camera.quaternion.clone();
+            lastFov = camera.fov;
         }
         requestAnimationFrame(updateCameraSettings);
     }

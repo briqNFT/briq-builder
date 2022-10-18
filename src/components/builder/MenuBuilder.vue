@@ -18,6 +18,7 @@ import { vCloseOutside } from '@/components/CloseOnClickOutsideComposable';
 import { useRecording } from './Recording';
 import NewSetModalVue from './modals/NewSetModal.vue';
 import { DEV } from '@/Meta';
+import CameraTools from './CameraTool.vue';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
@@ -27,7 +28,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits(['close']);
 
-const mode = ref('MENU' as 'MENU' | 'SETTINGS');
+const mode = ref('MENU' as 'MENU' | 'SETTINGS' | 'CAMERA_SETTINGS');
 
 // Reset the menu mode when reopening it.
 watch(toRef(props, 'open'), (o, n) => {
@@ -98,6 +99,8 @@ const unselectAllBriqs = (event: Event) => {
 }
 
 const onCloseMenu = () => {
+    if (mode.value === 'CAMERA_SETTINGS')
+        return;
     setTimeout(() => {
         emit('close');
     });
@@ -119,28 +122,34 @@ const onCloseMenu = () => {
 <template>
     <div class="relative">
         <div v-if="open" class="absolute z-50" v-close-outside="onCloseMenu">
-            <Flyout id="menuFlyout" class="mx-1 sm:mx-2 mt-1 sm:mt-2 py-2 flex flex-col rounded-md text-sm font-normal max-h-[80vh] tall-md:max-h-[90vh] overflow-auto">
+            <Flyout id="menuFlyout" class="mx-1 sm:mx-2 mt-1 sm:mt-2 py-2 rounded text-sm font-normal">
                 <template v-if="mode === 'MENU'">
-                    <Btn @click="renameSet" no-background>Rename set</Btn>
-                    <RouterLink class="block mx-2" :to="{ name: 'Profile', query: { tab: 'CREATION' } }"><Btn class="w-full !mx-0" no-background>Manage my sets</Btn></RouterLink>
-                    <hr>
-                    <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
-                    <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
-                    <Btn @click="pushModal(NewSetModalVue, { title: 'Duplicate set', name: `Copy of ${currentSet.name}`, initialSet: currentSet })" no-background>Duplicate creation</Btn>
-                    <Btn @click="downloadSet(currentSet)" no-background>Save to computer</Btn>
-                    <hr>
-                    <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>
-                    <Btn @click="store.dispatch('redo_history')" no-background>Redo <span>Ctrl&ThinSpace;+&ThinSpace;Shift&ThinSpace;+&ThinSpace;U</span></Btn>
-                    <hr>
-                    <Btn no-background @click="selectCopy">Copy <span>Ctrl&ThinSpace;+&ThinSpace;C</span></Btn>
-                    <Btn no-background :disabled="currentInput !== 'copy_paste'">Paste <span>Ctrl&ThinSpace;+&ThinSpace;V</span></Btn>
-                    <hr>
-                    <Btn no-background @click="selectAllbriqs">Select all briqs <span>Ctrl&ThinSpace;+&ThinSpace;A</span></Btn>
-                    <Btn no-background @click="deleteBriqs" :disabled="!inputStore.selectionMgr.selectedBriqs.length">Delete selected briqs <span class="text-sm">⌦</span></Btn>
-                    <hr>
-                    <Btn v-if="DEV" no-background @click="!isRecording ? startRecording() : stopRecording()">{{ !isRecording ? 'Start Recording' : 'Stop Recording' }}</Btn>
-                    <Btn @click="mode = 'SETTINGS'" no-background>Settings</Btn>
-                    <a class="block mx-2" href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f" target="_blank"><Btn class="w-full !mx-0" no-background>Help</Btn></a>
+                    <div class="max-h-[80vh] tall-md:max-h-[90vh] overflow-auto flex flex-col">
+                        <Btn @click="renameSet" no-background>Rename set</Btn>
+                        <RouterLink class="block mx-2" :to="{ name: 'Profile', query: { tab: 'CREATION' } }"><Btn class="w-full !mx-0" no-background>Manage my sets</Btn></RouterLink>
+                        <hr>
+                        <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
+                        <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
+                        <Btn @click="pushModal(NewSetModalVue, { title: 'Duplicate set', name: `Copy of ${currentSet.name}`, initialSet: currentSet })" no-background>Duplicate creation</Btn>
+                        <Btn @click="downloadSet(currentSet)" no-background>Save to computer</Btn>
+                        <hr>
+                        <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>
+                        <Btn @click="store.dispatch('redo_history')" no-background>Redo <span>Ctrl&ThinSpace;+&ThinSpace;Shift&ThinSpace;+&ThinSpace;U</span></Btn>
+                        <hr>
+                        <Btn no-background @click="selectCopy">Copy <span>Ctrl&ThinSpace;+&ThinSpace;C</span></Btn>
+                        <Btn no-background :disabled="currentInput !== 'copy_paste'">Paste <span>Ctrl&ThinSpace;+&ThinSpace;V</span></Btn>
+                        <hr>
+                        <Btn no-background @click="selectAllbriqs">Select all briqs <span>Ctrl&ThinSpace;+&ThinSpace;A</span></Btn>
+                        <Btn no-background @click="deleteBriqs" :disabled="!inputStore.selectionMgr.selectedBriqs.length">Delete selected briqs <span class="text-sm">⌦</span></Btn>
+                        <hr>
+                        <Btn v-if="DEV" no-background @click="!isRecording ? startRecording() : stopRecording()">{{ !isRecording ? 'Start Recording' : 'Stop Recording' }}</Btn>
+                        <Btn @click="mode = 'CAMERA_SETTINGS'" no-background>Camera settings</Btn>
+                        <Btn @click="mode = 'SETTINGS'" no-background>Settings</Btn>
+                        <a class="block mx-2" href="https://briqnft.notion.site/Help-center-4a4958337970483dbfc2c1184290b42f" target="_blank"><Btn class="w-full !mx-0" no-background>Help</Btn></a>
+                    </div>
+                </template>
+                <template v-else-if="mode === 'CAMERA_SETTINGS'">
+                    <CameraTools/>
                 </template>
                 <template v-else>
                     <Settings/>

@@ -53,7 +53,9 @@ hr {
 
 <template>
     <div class="root">
-        <h4 class="mt-4 px-4">Settings</h4>
+        <h4 class="mt-2 px-4">
+            Settings
+        </h4>
         <div class="mt-4 mb-2 settings flex flex-col gap-2">
             <div>
                 <p>Anti-aliasing</p>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useBuilderInput } from './InputComposable';
 import QuickPicker from './inputs/QuickPicker.vue';
-import CameraFlyout from './CameraFlyout.vue';
 import Flyout from '../generic/Flyout.vue';
 import { usePresetHelpers } from './inputs/CameraComposable';
 import Toggle from '../generic/Toggle.vue';
@@ -27,7 +26,6 @@ const unproject = (n: { x: number, y: number, z: number }) => {
 <template>
     <div class="mx-1 sm:mx-2 mt-1 sm:mt-2 w-max absolute bottom-2 sm:static" id="sidebar">
         <QuickPicker v-if="activeInputButton !== 'camera' && activeInputButton !== 'erase'"/>
-        <CameraFlyout v-if="activeInputButton === 'camera'"/>
         <Flyout
             v-if="activeInputButton === 'select'"
             class="border border-grad-light !shadow-none !text-sm mt-2">

@@ -14,7 +14,6 @@ import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import MenuBuilder from './MenuBuilder.vue';
 import { useBuilderInput } from './InputComposable';
-import CameraFlyout from './CameraFlyout.vue';
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import ExportSetVue from './modals/ExportSet.vue';
 import { pushModal } from '../Modals.vue';
@@ -62,34 +61,7 @@ const { chainBriqs } = useBuilder();
 
 const { activeInputButton, switchToState } = useBuilderInput();
 
-const cameraButton = ref(null as unknown as { button: HTMLButtonElement });
-const cameraFlyout = ref(null as unknown as HTMLElement);
-const vPositionToCamera = {
-    mounted: (el: HTMLElement) => {
-        cameraFlyout.value = el;
-        const pos = cameraButton.value.button.getBoundingClientRect();
-        el.style.top = `${pos.bottom}px`;
-        el.style.left = `${pos.left}px`;
-    },
-}
-
 const menuOpen = ref(false);
-
-let willCloseCameraFlyout = undefined as undefined | number;
-const _showCameraFlyout = ref(false);
-const showCameraFlyout = () => {
-    _showCameraFlyout.value = true;
-    if (willCloseCameraFlyout)
-        clearTimeout(willCloseCameraFlyout);
-    willCloseCameraFlyout = undefined;
-}
-
-const hideCameraFlyout = () => {
-    willCloseCameraFlyout = setTimeout(() => {
-        if (willCloseCameraFlyout)
-            _showCameraFlyout.value = false;
-    }, 250) as unknown as number;
-};
 </script>
 
 <style scoped>
@@ -127,14 +99,10 @@ const hideCameraFlyout = () => {
                 <Btn no-background class="w-10" @click="switchToState('place')" tooltip="Place tool" :force-active="activeInputButton === 'place'"><i class="fas fa-cube"/></Btn>
                 <Btn no-background class="w-10" @click="switchToState('paint')" tooltip="Paint tool" :force-active="activeInputButton === 'paint'"><i class="fas fa-paint-roller"/></Btn>
                 <Btn no-background class="w-10" @click="switchToState('erase')" tooltip="Erase tool" :force-active="activeInputButton === 'erase'"><i class="fas fa-eraser"/></Btn>
-                <Btn no-background class="w-10" @click="switchToState('camera')" tooltip="Camera presets" :force-active="activeInputButton === 'camera'" ref="cameraButton">
-                    <i class="fas fa-video"/>
-                </Btn>
                 <Hotkey name="group-1" :data="{ code: 'Digit1', onDown: true }" :handler="() => switchToState('inspect')"/>
                 <Hotkey name="group-2" :data="{ code: 'Digit2', onDown: true }" :handler="() => switchToState('place')"/>
                 <Hotkey name="group-3" :data="{ code: 'Digit3', onDown: true }" :handler="() => switchToState('paint')"/>
                 <Hotkey name="group-4" :data="{ code: 'Digit4', onDown: true }" :handler="() => switchToState('erase')"/>
-                <Hotkey name="group-5" :data="{ code: 'Digit5', onDown: true }" :handler="() => switchToState('camera')"/>
             </div>
         </div>
         <div class="flex-1 basis-1 flex lg:justify-end">
@@ -168,11 +136,4 @@ const hideCameraFlyout = () => {
         </div>
     </div>
     <MenuBuilder :open="menuOpen" @close="menuOpen = false"/>
-    <CameraFlyout
-        v-if="_showCameraFlyout"
-        v-position-to-camera
-        ref="cameraFlyout"
-        class="!absolute top-0 w-max mt-2"
-        @pointerenter="showCameraFlyout"
-        @pointerleave="hideCameraFlyout"/>
 </template>

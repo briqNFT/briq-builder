@@ -25,7 +25,6 @@ p :last-child {
                 <p><span>Place</span><span>2</span></p>
                 <p><span>Paint</span><span>3</span></p>
                 <p><span>Erase</span><span>4</span></p>
-                <p><span>Camera</span><span>5</span></p>
 
                 <h3>Global shortcuts</h3>
                 <p><span>Move Camera</span><span>Left click + Drag</span></p>

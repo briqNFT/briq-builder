@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { defineComponent, ref, computed, Ref, watch } from 'vue';
+import { defineComponent, ref, computed, Ref, watch, toRef } from 'vue';
 import Flyout from './Flyout.vue';
 
 const props = withDefaults(defineProps<{
@@ -18,8 +18,12 @@ const props = withDefaults(defineProps<{
     closeOnClick: true,
 });
 
-
-const selectedOption = ref(props.defaultOption || undefined);
+const selectedOption = ref(undefined as string | undefined);
+watch(toRef(props, 'defaultOption'), () => {
+    selectedOption.value = props.defaultOption;
+}, {
+    immediate: true,
+})
 
 const opened = ref(false);
 
