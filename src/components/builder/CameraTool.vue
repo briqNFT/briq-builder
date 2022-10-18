@@ -118,7 +118,7 @@ hr {
                 <p class="mb-2">Preset</p>
                 <DropDown
                     :options="['Default', 'Pseudo-isometric', ...presets.map(x => x.name)]"
-                    :default-option="isPreset ? _name : 'Custom'"
+                    :default-option="isPreset ? _name : 'No preset'"
                     :on-click="onClick"
                     :on-open-context-menu="onOpenContextMenu">
                     <template #input="{ open, isOpen, selectedOption }">
