@@ -12,6 +12,7 @@ import { CONF } from './Conf';
 import NotificationsPopups from './components/NotificationsPopups.vue';
 import Modals from './components/Modals.vue';
 import CursorTooltip from './components/generic/CursorTooltip.vue';
+import Mainnet from './components/Mainnet.vue';
 
 let mgr = new HotkeyManager();
 // Some basic hotkeys available everywhere
@@ -47,6 +48,7 @@ onMounted(() => {
     <NotificationsPopups/>
     <Modals/>
     <CursorTooltip/>
+    <Mainnet/>
 </template>
 
 <style>
