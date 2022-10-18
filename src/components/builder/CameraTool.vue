@@ -7,7 +7,7 @@ import { nextTick, ref, Ref, toRaw, watchEffect } from 'vue';
 import { camera, orbitControls } from '@/builder/graphics/Builder';
 import Flyout from '../generic/Flyout.vue';
 
-defineEmits(['close']);
+const emit = defineEmits(['close']);
 
 const {
     presets,
@@ -111,8 +111,11 @@ hr {
 </style>
 
 <template>
-    <div class="p-4 min-w-[15rem]">
-        <h4 class="mb-4">Camera Settings</h4>
+    <div class="p-4 pt-2 min-w-[15rem]">
+        <h4 class="mb-4 flex justify-between">
+            Camera Settings
+            <Btn no-background @click="emit('close')" class="w-6 h-6 p-0 text-lg inline-flex justify-center items-center"><i class="fas fa-times"/></Btn>
+        </h4>
         <div class="flex flex-col gap-2 mt-2">
             <div>
                 <p class="mb-2">Preset</p>

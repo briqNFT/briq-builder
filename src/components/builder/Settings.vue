@@ -1,18 +1,13 @@
 <script setup lang="ts">
-import Slider from '@/components/generic/Slider.vue'
-import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { nextTick } from 'vue';
-
-import { featureFlags } from '@/FeatureFlags';
 
 import builderSettings from '@/builder/graphics/Settings';
 import { darkModeStore } from '@/DarkMode';
 
-import { CONF } from '@/Conf';
-import { useStore } from 'vuex';
-import InputColor from '../generic/InputColor.vue';
+const emit = defineEmits(['close']);
 
-const store = useStore();
+
 let initState: typeof builderSettings;
 
 const mayUndo = ref(false);
@@ -45,7 +40,7 @@ hr {
     @apply flex flex-col gap-1;
 }
 
-#app button {
+.settings button {
     @apply justify-start;
 }
 </style>
@@ -53,8 +48,9 @@ hr {
 
 <template>
     <div class="root">
-        <h4 class="mt-2 px-4">
+        <h4 class="mt-2 px-4 flex justify-between">
             Settings
+            <Btn no-background @click="emit('close')" class="w-6 h-6 p-0 text-lg inline-flex justify-center items-center"><i class="fas fa-times"/></Btn>
         </h4>
         <div class="mt-4 mb-2 settings flex flex-col gap-2">
             <div>

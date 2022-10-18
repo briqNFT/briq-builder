@@ -149,10 +149,10 @@ const onCloseMenu = () => {
                     </div>
                 </template>
                 <template v-else-if="mode === 'CAMERA_SETTINGS'">
-                    <CameraTools/>
+                    <CameraTools @close="$emit('close')"/>
                 </template>
                 <template v-else>
-                    <Settings/>
+                    <Settings @close="$emit('close')"/>
                 </template>
             </Flyout>
         </div>
