@@ -243,14 +243,16 @@ button .pastille {
                             class="cursor-pointer"
                             @click="openSetInBuilder(creation.id)">
                             <template #subtitle>
-                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between items-center">
-                                    {{ creation.id }}
-                                    <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
-                                        <template #button><i class="fas fa-ellipsis-h"/></template>
-                                        <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
-                                        <Btn @click="downloadSet(creation)" no-background>Download</Btn>
-                                        <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
-                                    </MenuDropdown>
+                                <p class="mx-4 text-grad-dark relative">
+                                    Draft creation
+                                    <span class="absolute bottom-0 right-0">
+                                        <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
+                                            <template #button><i class="fas fa-ellipsis-h"/></template>
+                                            <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
+                                            <Btn @click="downloadSet(creation)" no-background>Download</Btn>
+                                            <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
+                                        </MenuDropdown>
+                                    </span>
                                 </p>
                             </template>
                             <template #content>
