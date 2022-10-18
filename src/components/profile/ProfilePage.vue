@@ -187,7 +187,7 @@ button .pastille {
             </div>
             -->
             <div class="flex gap-8">
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Genesis collection&nbsp;<span class="pastille">{{ officialCreations.length + userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length }}</span></p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Genesis collection&nbsp;<span class="pastille">{{ officialCreations.length + userBoxesStore.current?.availableBoxes?.length ?? 0 + userBookletsStore.current?.booklets?.length ?? 0 }}</span></p>
                 <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">My creations&nbsp;<span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
                 <p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>
             </div>
@@ -203,9 +203,9 @@ button .pastille {
                         <Btn @click="setSection('MINTED')" :force-active="filter === 'MINTED'" no-background class="w-full justify-start items-baseline font-medium">Minted <span class="pastille">{{ creations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'GENESIS'">
-                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length + officialCreations.length }}</span></Btn>
-                        <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Sealed boxes <span class="pastille">{{ userBoxesStore.current!.availableBoxes.length }}</span></Btn>
-                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Unbuilt booklets <span class="pastille">{{ userBookletsStore.current!.booklets.length }}</span></Btn>
+                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ userBoxesStore.current?.availableBoxes?.length ?? 0 + userBookletsStore.current?.booklets?.length ?? 0 + officialCreations.length }}</span></Btn>
+                        <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Sealed boxes <span class="pastille">{{ userBoxesStore.current?.availableBoxes?.length ?? 0 }}</span></Btn>
+                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Unbuilt booklets <span class="pastille">{{ userBookletsStore.current?.booklets?.length ?? 0 }}</span></Btn>
                         <Btn @click="setSection('MINTED')" :force-active="filter === 'MINTED'" no-background class="w-full justify-start items-baseline font-medium">Official sets <span class="pastille">{{ officialCreations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'ACTIVITY'">

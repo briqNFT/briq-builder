@@ -45,6 +45,8 @@ export class WalletStore {
         // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
         setWalletInitComplete(this);
 
+        logDebug('WALLET INIT COMPLETE');
+
         watchSignerChanges(this);
 
         watchEffect(() => {
