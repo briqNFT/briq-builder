@@ -56,7 +56,7 @@ const highestBid = computed(() => {
         <div class="bg-white rounded-md gap-2 shadow-sm">
             <template v-if="itemQuery._status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
-                <p class="min-h-0 min-w-0 flex justify-center items-center mx-4 mt-6 mb-4 h-[12rem]">
+                <p class="min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-[13rem]">
                     <img class="min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverBoxRoute(tokenName)">
                 </p>
                 <h3 class="font-semibold text-md px-4 break-all">{{ item.name }} </h3>

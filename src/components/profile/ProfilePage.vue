@@ -146,8 +146,12 @@ watch([activeTab], () => {
     );
 }
 
-.card:hover ::v-deep(.cardContextualMenu) {
-    @apply !text-grad-darker;
+.item-card ::v-deep(.cardContextualMenu) {
+    @apply invisible;
+}
+
+.item-card:hover ::v-deep(.cardContextualMenu) {
+    @apply visible;
 }
 
 .pastille {
@@ -239,9 +243,9 @@ button .pastille {
                             class="cursor-pointer"
                             @click="openSetInBuilder(creation.id)">
                             <template #subtitle>
-                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
+                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between items-center">
                                     {{ creation.id }}
-                                    <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                    <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
                                         <template #button><i class="fas fa-ellipsis-h"/></template>
                                         <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
                                         <Btn @click="downloadSet(creation)" no-background>Download</Btn>

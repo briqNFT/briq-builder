@@ -94,7 +94,7 @@ const hideCameraFlyout = () => {
 
 <style scoped>
 .divider {
-    @apply w-[1px] bg-grad-light h-[24px];
+    @apply w-[1px] bg-grad-light h-[2.125rem];
 }
 .btn::before {
     @apply rounded-[0.375rem];
@@ -127,7 +127,7 @@ const hideCameraFlyout = () => {
                 <Btn no-background class="w-10" @click="switchToState('place')" tooltip="Place tool" :force-active="activeInputButton === 'place'"><i class="fas fa-cube"/></Btn>
                 <Btn no-background class="w-10" @click="switchToState('paint')" tooltip="Paint tool" :force-active="activeInputButton === 'paint'"><i class="fas fa-paint-roller"/></Btn>
                 <Btn no-background class="w-10" @click="switchToState('erase')" tooltip="Erase tool" :force-active="activeInputButton === 'erase'"><i class="fas fa-eraser"/></Btn>
-                <Btn no-background class="w-10" @click="switchToState('camera')" tooltip="Camera tool" :force-active="activeInputButton === 'camera'" ref="cameraButton">
+                <Btn no-background class="w-10" @click="switchToState('camera')" tooltip="Camera presets" :force-active="activeInputButton === 'camera'" ref="cameraButton">
                     <i class="fas fa-video"/>
                 </Btn>
                 <Hotkey name="group-1" :data="{ code: 'Digit1', onDown: true }" :handler="() => switchToState('inspect')"/>
