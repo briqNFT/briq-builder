@@ -94,7 +94,7 @@ watch([setData, toRef(chainBriqs.value, 'byMaterial')], () => {
 maybeStore.value?.ensureEnabled();
 
 const hasSigner = computed(() => !!(maybeStore.value?.signer));
-const hasLoadedBriqs = computed(() => chainBriqs.value?.status === 'OK');
+const hasLoadedBriqs = computed(() => chainBriqs.value?.status !== 'NOT_LOADED');
 // If there is no exportSet, then we have an error in swapping for real briqs.
 const hasEnoughBriqs = computed(() => hasLoadedBriqs.value && exportSet.value);
 
@@ -212,7 +212,7 @@ button:not(.btn):not(.nostyle)::before {
                 <p>Our initial sale is <span class="font-medium">coming soon</span>, so check back on our Starknet Planet page for the latest</p>
                 <RouterLink :to="{ name: 'Theme', params: { theme: 'starknet_planet' } }" @click="emit('close')">
                     <div class="flex flex-col items-center justify-center relative my-4">
-                        <img class="rounded-md h-[10rem] w-auto" :srcset="themeSplashSrcSet('starknet_planet')" :alt="`Theme splash for Starknet Planet`">
+                        <img class="rounded-md h-[10rem] w-auto" :srcset="themeSplashSrcSet('starknet_planet', 'starknet-mainnet')" :alt="`Theme splash for Starknet Planet`">
                         <p class="absolute bottom-2 text-white italic text-sm font-medium">Coming Soon</p>
                     </div>
                 </RouterLink>
