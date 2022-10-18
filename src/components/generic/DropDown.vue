@@ -68,6 +68,10 @@ const dropdownPositionCSS = computed(() => {
 <template>
     <div class="relative" ref="dropdownDiv">
         <slot :selected-option="selectedOption" :is-open="opened" :open="() => opened = !opened" name="input"/>
+        <div class="absolute top-0 right-3 h-full flex items-center pointer-events-none">
+            <i v-if="opened" class="text-primary fa-solid fa-chevron-up"/>
+            <i v-else class="fa-solid fa-chevron-down"/>
+        </div>
         <Flyout v-show="opened" v-bind="$attrs" class="menu w-max my-1 z-50 flex flex-col !absolute py-2" :style="dropdownPositionCSS">
             <template v-for="option, i in options" :key="i">
                 <hr v-if="option === ''" class="my-2">
