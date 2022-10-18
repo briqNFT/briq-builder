@@ -137,7 +137,7 @@ h4 {
             </div>
             <div class="grow-[6]"/>
         </div>
-        <div class="pointer-events-none select-none container m-auto absolute top-0 left-0 right-0 w-screen overflow-hidden">
+        <div class="pointer-events-none select-none container m-auto absolute top-0 left-0 right-0 w-screen overflow-hidden invisible lg:visible tall-md:visible">
             <div class="relative w-full h-screen">
                 <div class="absolute z-10 left-0 hidden sm:block" :style="{ top: `${150 - briqParallax}px` }">
                     <BriqsOverlayT/>

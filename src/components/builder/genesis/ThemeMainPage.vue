@@ -178,7 +178,7 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                         </ToggleParagraph>
                         <ToggleParagraph>
                             <template #title>What happens when I’ve finished building my official set?</template>
-                            <p>Once you have built the correct shape in the briq builder, the system will tell you that you can now mint it. Minting an official set will consume some briqs and the instruction booklet.</p>
+                            <p>Once you have built the correct shape in the briq builder, the system will tell you that you can now mint it. Minting an official set will transfer the required briqs and the booklet to the newly minted set. They don’t disappear, they’re just part of the set. You can get them back by disassembling your set.</p>
                         </ToggleParagraph>
                         <ToggleParagraph>
                             <template #title>What happens if I disassemble an official set?</template>
@@ -196,7 +196,7 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                         </ToggleParagraph>
                         <ToggleParagraph>
                             <template #title>Something doesn’t work, what should I do?</template>
-                            <p><a href="https://t.co/qlTufO3FDt" target="_blank">Reach out to us on Discord</a>, the team will help you out!</p>
+                            <p><a href="https://discord.gg/kpvbDCw5pr" target="_blank">Reach out to us on Discord</a>, the team will help you out!</p>
                         </ToggleParagraph>
                     </div>
                 </div>

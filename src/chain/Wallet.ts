@@ -52,6 +52,15 @@ export class WalletStore {
             logDebug('Writing address ', this.user_id);
             window.localStorage.setItem('user_address', this.user_id || '');
         });
+
+        connect({ showList: false }).then(cwo => {
+            if (!cwo)
+                return;
+            cwo.isPreauthorized().then(yes => {
+                if (yes)
+                    this.enableWallet(cwo);
+            });
+        });
         return this;
     }
 
