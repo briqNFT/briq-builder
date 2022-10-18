@@ -208,8 +208,8 @@ button:not(.btn):not(.nostyle)::before {
                 {{ validationError.message }}
             </div>
             <div v-else class="leading-snug">
-                <p class="mb-1">Unfortunately, briq is not launched in mainnet just yet, so you cannot mint this set.</p>
-                <p>Our initial sale is <span class="font-medium">coming soon</span>, so check back on our Starknet Planet page for the latest</p>
+                <p class="mb-1">Sorry, briq is not launched on mainnet just yet, so you can't mint this set.</p>
+                <p>Our initial sale is <span class="font-medium">coming soon</span>, stay tuned for more!</p>
                 <RouterLink :to="{ name: 'Theme', params: { theme: 'starknet_planet' } }" @click="emit('close')">
                     <div class="flex flex-col items-center justify-center relative my-4">
                         <img class="rounded-md h-[10rem] w-auto" :srcset="themeSplashSrcSet('starknet_planet', 'starknet-mainnet')" :alt="`Theme splash for Starknet Planet`">
