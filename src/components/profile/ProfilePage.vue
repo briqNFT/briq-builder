@@ -162,11 +162,11 @@ button .pastille {
     <Header class="!bg-grad-lightest !mb-0"/>
     <div class="bg-grad-lightest border-b border-grad-light">
         <div class="container m-auto pt-6 flex-col justify-between">
-            <div class="flex gap-4 pb-8">
+            <div class="flex gap-0 pb-8">
                 <Tooltip tooltip="Sorry, you can't (yet) change your profile picture...">
                     <div class="bg-grad-lighter rounded border border-grad-light w-[7.75rem] h-[7.75rem]"><ProfileIcon width="100%" height="100%"/></div>
                 </Tooltip>
-                <div>
+                <div class="p-4 flex flex-col gap-2">
                     <h5 class="font-normal text-grad-dark">Account</h5>
                     <template v-if="userAddress">
                         <p class="block lg:hidden font-medium">{{ userAddress ? `${userAddress.slice(0, 5)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
@@ -183,13 +183,13 @@ button .pastille {
             </div>
             -->
             <div class="flex gap-8">
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Genesis collection&nbsp;<span class="pastille">{{ officialCreations.length + userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length }}</span></p>
-                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">My creations&nbsp;<span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-4 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Genesis collection&nbsp;<span class="pastille">{{ officialCreations.length + userBoxesStore.current!.availableBoxes.length + userBookletsStore.current!.booklets.length }}</span></p>
+                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">My creations&nbsp;<span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>
             </div>
         </div>
     </div>
-    <div class="container m-auto my-8 sm:grid sm:grid-cols-[3fr_9fr] gap-8 min-h-[70vh]">
+    <div class="container m-auto my-6 sm:grid sm:grid-cols-[3fr_9fr] gap-8 min-h-[70vh]">
         <div>
             <div class="sticky top-[80px]">
                 <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 mb-4">
@@ -221,7 +221,7 @@ button .pastille {
                     <a id="wip" class="relative bottom-[80px]"/>
                     <h3>Work in progress</h3>
                     <p>WIP sets are stored on this computer only and shared across wallets.</p>
-                    <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have work-in-progress sets.</p>
                         <p>Get some briqs and start building!</p>
                         <div class="flex gap-2 mt-2">
@@ -229,7 +229,7 @@ button .pastille {
                             <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
                         </div>
                     </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
                         <GenericCard
                             v-for="creation in creationsWIP" :key="creation.id"
                             :status="creation?.id ? 'LOADED' : 'FETCHING'"
@@ -261,12 +261,12 @@ button .pastille {
                 <div v-if="userAddress" v-show="showSection('MINTED')">
                     <a id="minted" class="relative bottom-[80px]"/>
                     <h3>Minted</h3>
-                    <div v-if="!creations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <div v-if="!creations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have personal creations.</p>
                         <p>Get some briqs and start building!</p>
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
                         <GenericCard
                             v-for="creation in creations" :key="creation.id"
                             :status="creation?.id ? 'LOADED' : 'FETCHING'"
@@ -298,24 +298,24 @@ button .pastille {
                 <div v-show="showSection('BOX')">
                     <a id="box" class="relative bottom-[80px]"/>
                     <h3>Sealed boxes</h3>
-                    <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any boxes.</p>
                         <p>Browse the available items in our Genesis collections!</p>
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
-                    <div v-else>
+                    <div v-else class="mt-4 mb-10">
                         <BoxListing mode="INVENTORY" :boxes="userBoxesStore.current!.availableBoxes"/>
                     </div>
                 </div>
                 <div v-show="showSection('BOOKLET')">
                     <a id="booklet" class="relative bottom-[80px]"/>
                     <h3>Unbuilt Booklets</h3>
-                    <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any booklets.</p>
                         <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
                         <Btn secondary class="mt-2">Browse the themes</Btn>
                     </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
                         <div v-for="booklet of userBookletsStore.current?.booklets">
                             <RouterLink :to="`user/booklet/${booklet}`">
                                 <BookletCard :box-id="booklet"/>
@@ -326,14 +326,14 @@ button .pastille {
                 <div v-show="showSection('MINTED')">
                     <a id="minted" class="relative bottom-[80px]"/>
                     <h3>Official Sets</h3>
-                    <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                    <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any official Genesis sets.</p>
                         <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
                         <div class="mt-2 flex gap-2">
                             <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                         </div>
                     </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8 z-50">
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
                         <GenericCard
                             v-for="creation in officialCreations" :key="creation.id"
                             :status="creation?.id ? 'LOADED' : 'FETCHING'"
@@ -366,7 +366,7 @@ button .pastille {
                     <div v-show="showSection('WINNING')">
                         <a id="winning" class="relative bottom-[80px]"/>
                         <h3>Winning bids on ongoing auctions</h3>
-                        <div v-if="!winningBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                        <div v-if="!winningBids.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                             <p class="font-semibold">You have no winning bids on ongoing auctions.</p>
                             <p>Browse the available items in our Genesis collections!</p>
                             <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
@@ -378,7 +378,7 @@ button .pastille {
                     <div v-show="showSection('LOSING')">
                         <a id="losing" class="relative bottom-[80px]"/>
                         <h3>Losing bids on ongoing auctions</h3>
-                        <div v-if="!losingBids.length" class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                        <div v-if="!losingBids.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                             <p class="font-semibold">No losing bids to report.</p>
                             <p>Browse the available items in our Genesis collections!</p>
                             <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
@@ -390,7 +390,7 @@ button .pastille {
                     <div v-show="showSection('PURCHASED')">
                         <a id="purchased" class="relative bottom-[80px]"/>
                         <h3>Purchased items</h3>
-                        <div class="bg-grad-lightest rounded-md my-4 p-8 flex flex-col justify-center items-center gap-2">
+                        <div class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                             <p class="font-semibold">You have not yet bought any item</p>
                             <p>Browse the available items in our Genesis collections!</p>
                             <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>

@@ -203,7 +203,7 @@ h4 {
                     <p>Sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
                     <p>Build a spaceship and fly around with it. Disassemble it to build a house.</p>
                     <p>Integrate briq in any way you want. Seize the briqs of creation.</p>
-                    <p class="my-4"><RouterLink to="/builder" class="text-primary">Discover our Altzone integration <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
+                    <!--<p class="my-4"><RouterLink to="/builder" class="text-primary">Discover our Altzone integration <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>-->
                 </div>
                 <div class="flex-1 min-w-[300px]">
                     <img :src="PlayImage" class="drop-shadow-2xl max-w-none max-h-none w-full h-auto">
