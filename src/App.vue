@@ -48,7 +48,6 @@ onMounted(() => {
     <NotificationsPopups/>
     <Modals/>
     <CursorTooltip/>
-    <Mainnet/>
 </template>
 
 <style>

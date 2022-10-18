@@ -28,8 +28,8 @@ p {
             <template #title>Briq is switching to Starknet Mainnet</template>
             <div class="my-8">
                 <p>
-                    Briq will launch on mainnet soon! <br>
-                    If you want to play with briq on testnet, go to <a class="text-primary" href="old.briq.construction" target="_blank">old.briq.construction</a>
+                    Briq will launch on Starknet mainnet soon! <br>
+                    If you want to play with briq on Starknet testnet, go to <a class="text-primary" href="https://old.briq.construction" target="_blank">old.briq.construction</a>
                 </p>
                 <p>Otherwise, please connect a mainnet wallet !</p>
             </div>
