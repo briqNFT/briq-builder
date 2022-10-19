@@ -9,7 +9,7 @@ npx vite build --outDir infra/dist/server/ --ssr server/main.ts -m $MODE
 NAME="briq-builder"
 TAG=${TAG:=$(git rev-parse HEAD)}
 echo "Building docker image, tagging $TAG"
-IMAGE_NAME="europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/$NAME:$TAG"
+IMAGE_NAME="europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/$NAME:$TAG-$K8S_ENV"
 
 docker build --platform linux/amd64 infra/ -f infra/Dockerfile_nginx -t "$IMAGE_NAME"
 docker push "$IMAGE_NAME"
@@ -22,7 +22,7 @@ docker image rm "$IMAGE_NAME"
 NAME="briq-builder-node"
 TAG=${TAG:=$(git rev-parse HEAD)}
 echo "Building docker image, tagging $TAG"
-IMAGE_NAME="europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/$NAME:$TAG"
+IMAGE_NAME="europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/$NAME:$TAG-$K8S_ENV"
 
 docker build --platform linux/amd64 . -f infra/Dockerfile_node  -t "$IMAGE_NAME"
 docker push "$IMAGE_NAME"
