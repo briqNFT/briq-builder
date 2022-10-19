@@ -2,6 +2,7 @@ import { markRaw, reactive, Ref, toRaw, watchEffect } from 'vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import type { UserID, WalletStore } from '@/chain/Wallet';
 import { APP_ENV } from '@/Meta';
+import { logDebug } from '@/Messages';
 
 export interface perUserStorable {
     user_id: string;
@@ -52,6 +53,7 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
                             this._perWallet[wallet] = new classType();
                             this._perWallet[wallet].user_id = wallet;
                             this._perWallet[wallet]?._init?.();
+                            logDebug(storeName, 'INIT COMPLETE');
                         }
                         this._perWallet[wallet]._deserialize(serializedData.data[wallet])
                     }
@@ -76,6 +78,7 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
                         this._perWallet[this.currentWallet] = new classType();
                         this._perWallet[this.currentWallet].user_id = this.currentWallet;
                         this._perWallet[this.currentWallet]?._init?.();
+                        logDebug(storeName, 'INIT COMPLETE');
                     }
                     if (old)
                         this._perWallet[old].onLeave?.(old, this.currentWallet);

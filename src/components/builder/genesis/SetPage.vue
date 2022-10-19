@@ -43,7 +43,7 @@ const booklet_id = computed(() => mode === 'BOOKLET' ? `${route.params.theme}/${
 const set = computed(() => {
     if (mode === 'BOOKLET')
         return setsManager.getBookletSet(booklet_id.value);
-    return userSetStore.current?.setData[route.params.set_id as string].data;
+    return userSetStore.current?.setData[route.params.set_id as string]?.data;
 });
 
 const bookletQuery = computed(() => booklet_id.value ? genesisStore.metadata[booklet_id.value] : undefined);
@@ -69,8 +69,8 @@ const attribs = [
         :status="bookletQuery?._status || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
         :attributes="attribs">
         <template #image>
-            <img class="h-full" v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
-            <img class="h-full" v-else :src="backendManager.getPreviewUrl(set!.id)">
+            <img class="max-h-full" v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
+            <img class="max-h-full" v-else :src="backendManager.getPreviewUrl(set!.id)">
         </template>
         <template #default>
             <h1>{{ set?.name || bookletData?.name }}</h1>
