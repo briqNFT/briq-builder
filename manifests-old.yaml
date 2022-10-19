@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: old-briq-builder
+  labels:
+    appname: old-briq-builder
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      appname: old-briq-builder
+      env: prod
+  template:
+    metadata:
+      labels:
+        appname: old-briq-builder
+        env: prod
+    spec:
+      containers:
+      - name: old-briq-builder
+        image: europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/briq-builder:adb3d5d22e95ac7b4671e9b3f7a1c2f701cd7945
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 2
+      - name: old-briq-builder-node
+        image: europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/briq-builder-node:adb3d5d22e95ac7b4671e9b3f7a1c2f701cd7945
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 2
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: old-briq-builder
+  labels:
+    appname: old-briq-builder
+    env: prod
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: lb-old-briq-builder-1
+    networking.gke.io/v1beta1.FrontendConfig: old-briq-builder
+    networking.gke.io/managed-certificates: old-briq-builder-managed-cert
+spec:
+  rules:
+  - host: old.briq.construction
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: old-briq-builder
+            port:
+              number: 80
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: old-briq-builder
+  labels:
+    appname: old-briq-builder
+    env: prod
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: PERMANENT_REDIRECT
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: old-briq-builder-managed-cert
+spec:
+  domains:
+  - old.briq.construction
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: old-briq-builder
+  labels:
+    appname: old-briq-builder
+    env: prod
+  annotations:
+    cloud.google.com/backend-config: '{"default": "old-briq-builder"}'
+spec:
+  selector:
+    appname: old-briq-builder
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: old-briq-builder
+  labels:
+    appname: old-briq-builder
+    env: prod
+spec:
+  timeoutSec: 10
+  healthCheck:
+    checkIntervalSec: 100
+    timeoutSec: 10
+    port: 8080
+    type: HTTP
+    requestPath: /health
