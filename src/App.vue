@@ -95,7 +95,7 @@ html button, a {
 
 
 input:not([type='color']), textarea, select {
-    @apply rounded px-4 py-2 border border-grad-light;
+    @apply bg-grad-lightest rounded px-4 py-2 border border-grad-light;
     @apply text-grad-dark focus:text-grad-darker disabled:text-grad-light;
     &:not(:disabled):hover, &:focus, &:focus-visible {
         @apply border-primary outline-0;

@@ -22,7 +22,7 @@ html, ::before, ::after {
     --color-text-on-primary: var(--color-grad-lightest);
 }
 
-html.dark, .dark::before, .dark::after {
+html.dark, .dark *::before, .dark *::after {
     --color-background: 23 23 23;
     --color-primary: 243 88 0;
     --color-primary-darker: 225 81 0;
