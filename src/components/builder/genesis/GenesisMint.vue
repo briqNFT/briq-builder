@@ -13,9 +13,9 @@ import StarkwareIcon from '@/assets/landing/starkware.svg';
 import AspectLogo from '@/assets/landing/aspect.png';
 import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
 
-import CollectImage from '@/assets/landing/landing_box_cover.png';
-import PlayImage from '@/assets/landing/landing_full_speeder.png';
-import BuildImage from '@/assets/landing/landing_speeder_eclate.png';
+import CollectImage from '@/assets/landing/landing_box_cover.jpg';
+import PlayImage from '@/assets/landing/landing_full_speeder.jpg';
+import BuildImage from '@/assets/landing/landing_speeder_eclate.jpg';
 
 import StarknetCity from '@/assets/landing/starknet_city_upcoming.jpg';
 
@@ -187,7 +187,8 @@ h4 {
             </div>
             <div class="flex flex-row flex-wrap items-center gap-[4rem] mb-16">
                 <div class="flex-1 min-w-[300px]">
-                    <img :src="BuildImage" class="drop-shadow-sm max-w-none max-h-none w-full h-auto">
+                    <!-- No drop shadow for the production JPGs -->
+                    <img :src="BuildImage" class="max-w-none max-h-none w-full h-auto">
                 </div>
                 <div class="flex-1 md:px-[2rem] xl:px-[8rem]">
                     <h3>Build</h3>
@@ -206,7 +207,8 @@ h4 {
                     <!--<p class="my-4"><RouterLink to="/builder" class="text-primary">Discover our Altzone integration <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>-->
                 </div>
                 <div class="flex-1 min-w-[300px]">
-                    <img :src="PlayImage" class="drop-shadow-2xl max-w-none max-h-none w-full h-auto">
+                    <!-- No drop shadow for the production JPGs -->
+                    <img :src="PlayImage" class="max-w-none max-h-none w-full h-auto">
                 </div>
             </div>
         </div>
