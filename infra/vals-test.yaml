@@ -3,7 +3,7 @@
 name: dev-briq-builder
 env: test
 static_ip: lb-sltech-company-ipv4-4
-sites: ["test.sltech.company", "test-realms.briq.construction"]
+sites: ["test.sltech.company"]
 #@schema/type any=True
 defaultLabels:
   appname: dev-briq-builder
