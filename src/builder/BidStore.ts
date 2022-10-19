@@ -72,7 +72,12 @@ class UserBidStore implements perUserStorable {
 
     async syncBids() {
         logDebug('USER BID STORE - SYNCING')
-        const bidDatas = await backendManager.fetch(`v1/bids/user/${this.user_id}`)
+        let bidDatas;
+        try {
+            bidDatas = await backendManager.fetch(`v1/bids/user/${this.user_id}`)
+        } catch(err) {
+            console.error(err);
+        }
 
         const bidData = {
             block: 0,

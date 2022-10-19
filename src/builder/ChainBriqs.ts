@@ -89,12 +89,6 @@ export class ChainBriqs implements perUserStorable {
             this.status = 'OK';
             logDebug('CHAIN BRIQS - LOADED ');
         } catch (err) {
-            if (err?.message === 'Network Error')
-                pushMessage('Error fetching briqs - the connection to starknet timed out');
-            else {
-                pushMessage('Error fetching briqs - see console for details');
-                reportError(err as Error);
-            }
             console.error(err);
             this.status = 'ERROR';
         }
