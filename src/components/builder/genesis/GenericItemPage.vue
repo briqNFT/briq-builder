@@ -38,9 +38,9 @@ p, :slotted(p) {
         <Header/>
         <div>
             <div class="container m-auto">
-                <div class="grid grid-cols-[7fr_5fr] gap-6 my-6">
+                <div class="flex flex-col-reverse md:grid md:grid-cols-[7fr_5fr] gap-6 my-6">
                     <div class="flex flex-col gap-6">
-                        <div class="flex justify-center items-center min-h-[34rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
+                        <div class="flex justify-center items-center h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
                             <template v-if="status === 'LOADED'">
                                 <slot name="image"/>
                             </template>

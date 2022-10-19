@@ -2,6 +2,7 @@ import type { SetData } from '@/builder/SetData';
 import { reactive, toRef, watchEffect, computed, Ref, onUnmounted, onBeforeUnmount } from 'vue';
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { bookletId, getStepImgSrc, getBookletDataSync } from '@/builder/BookletData';
+import { setsManager } from '@/builder/SetsManager';
 
 export const bookletStore = reactive({
     minimized: false,
@@ -14,7 +15,7 @@ export const bookletStore = reactive({
 export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) {
     const { currentSet, currentSetInfo } = useBuilder();
 
-    const booklet = computed(() => forceBooklet?.value || currentSetInfo.value?.booklet as string);
+    const booklet = computed(() => forceBooklet?.value || (forceSet?.value && setsManager.getInfo(forceSet.value.id).booklet) || currentSetInfo.value?.booklet as string);
     const bookletRef = computed(() => booklet.value ? getBookletDataSync(booklet.value).value : undefined);
 
     // Compute the progress

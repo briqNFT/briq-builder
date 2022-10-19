@@ -29,14 +29,17 @@ const props = defineProps<{
     originalImage?: string,
 }>();
 
+const genesisStore = useGenesisStore();
+
+const setData = ref(setsManager.getInfo(props.setId).getSet()!);
+watch(toRef(props, 'setId'), () => {
+    setData.value = setsManager.getInfo(props.setId).getSet()!;
+})
 
 const {
     booklet,
     bookletData,
-} = useBooklet();
-
-
-const genesisStore = useGenesisStore();
+} = useBooklet(setData);
 
 // Reload the briqs on-chain in case there was an update.
 chainBriqs.value?.loadFromChain();
@@ -45,13 +48,8 @@ const store = useStore();
 
 const { previewImage, imageProcessing, takeScreenshot, updateImage, retakeScreenshot, cropScreenshot } = useScreenshotHelpers(props.screenshot, props.originalImage);
 
-if (!previewImage.value)
+if (!previewImage.value && !booklet.value)
     takeScreenshot().then(img => updateImage(img, true))
-
-const setData = ref(setsManager.getInfo(props.setId).getSet()!);
-watch(toRef(props, 'setId'), () => {
-    setData.value = setsManager.getInfo(props.setId).getSet()!;
-})
 
 const setName = computed({
     get() {
