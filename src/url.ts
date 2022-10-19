@@ -1,11 +1,5 @@
 import { DEV, APP_ENV } from './Meta';
 
-function getCanonicalDomain() {
-    if (window.location.hostname.indexOf('sltech') !== -1)
-        return 'sltech.company';
-    return 'briq.construction';
-}
-
 export default function getBaseUrl() {
     // Hack for dev when I want chain-connectivity.
     if (DEV && true)
@@ -14,7 +8,7 @@ export default function getBaseUrl() {
     return {
         dev: 'http://localhost:5050',
         test: 'https://api.test.sltech.company',
-        prod: `https://api.${getCanonicalDomain()}`,
+        prod: `https://api.old.briq.construction`,
     }[APP_ENV];
 }
 
