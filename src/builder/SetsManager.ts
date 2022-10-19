@@ -46,12 +46,13 @@ export class SetInfo {
         this.booklet = data?.booklet;
         this.lastUpdate = data?.lastUpdate || Date.now();
 
+        const setData = data.version === 1 ? data.local : data.setData;
         try {
-            const raw = fflate.strFromU8(fflate.unzlibSync(fflate.strToU8(data.setData, true)));
+            const raw = fflate.strFromU8(fflate.unzlibSync(fflate.strToU8(setData, true)));
             this.setData = new SetData(data.id).deserialize(JSON.parse(raw));
         } catch(_) {
             // used for tests
-            this.setData = new SetData(data.id).deserialize(data.setData);
+            this.setData = new SetData(data.id).deserialize(setData);
         }
 
         // TODO: check coherence.
