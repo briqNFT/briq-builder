@@ -69,8 +69,8 @@ const attribs = [
         :status="bookletQuery?._status || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
         :attributes="attribs">
         <template #image>
-            <img class="max-h-full" v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
-            <img class="max-h-full" v-else :src="backendManager.getPreviewUrl(set!.id)">
+            <img class="max-h-full p-8" v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
+            <img class="max-h-full p-8" v-else :src="backendManager.getPreviewUrl(set!.id)">
         </template>
         <template #default>
             <h1>{{ set?.name || bookletData?.name }}</h1>
