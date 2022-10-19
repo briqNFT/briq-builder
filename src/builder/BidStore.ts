@@ -77,6 +77,7 @@ class UserBidStore implements perUserStorable {
             bidDatas = await backendManager.fetch(`v1/bids/user/${this.user_id}`)
         } catch(err) {
             console.error(err);
+            return;
         }
 
         const bidData = {
