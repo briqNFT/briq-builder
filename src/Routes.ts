@@ -64,12 +64,11 @@ export const routes = [
     {
         path: '/share',
         name: 'Share',
-        component: async () => {
-            await loadExtraPages();
-            return loader.Share;
-        },
-        props(route: any) {
-            return route.query || {};
+        redirect: (to: unknown) => {
+            if (APP_ENV === 'prod')
+                window.location.replace(`https://old.briq.construction${to.fullPath}`);
+            else
+                return '/';
         },
     },
     {
