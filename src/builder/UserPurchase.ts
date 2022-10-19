@@ -111,4 +111,4 @@ class UserPurchases implements perUserStorable {
     }
 }
 
-export const userPurchaseStore = perUserStore(UserPurchases);
+export const userPurchaseStore = perUserStore('UserPurchases', UserPurchases);

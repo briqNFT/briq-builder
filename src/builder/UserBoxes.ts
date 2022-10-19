@@ -118,5 +118,5 @@ class UserBoxesStore implements perUserStorable {
     }
 }
 
-export const userBoxesStore = perUserStore(UserBoxesStore);
+export const userBoxesStore = perUserStore('UserBoxesStore', UserBoxesStore);
 userBoxesStore.setup();

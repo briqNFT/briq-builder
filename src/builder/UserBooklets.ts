@@ -128,5 +128,5 @@ class UserBookletsStore implements perUserStorable {
     }
 }
 
-export const userBookletsStore = perUserStore(UserBookletsStore);
+export const userBookletsStore = perUserStore('UserBookletsStore', UserBookletsStore);
 userBookletsStore.setup();

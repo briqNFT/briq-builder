@@ -207,6 +207,6 @@ export class ChainBriqs implements perUserStorable {
     }
 }
 
-const _chainBriqs = perUserStore(ChainBriqs);
+const _chainBriqs = perUserStore('ChainBriqs', ChainBriqs);
 _chainBriqs.setup();
 export const chainBriqs = toRef(_chainBriqs, 'current');

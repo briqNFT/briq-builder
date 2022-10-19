@@ -218,7 +218,7 @@ class UserBidStore implements perUserStorable {
     }
 }
 
-export const userBidsStore = perUserStore(UserBidStore);
+export const userBidsStore = perUserStore('UserBidStore', UserBidStore);
 
 export interface ProductBid {
     bidder: string,

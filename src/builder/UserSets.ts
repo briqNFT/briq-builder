@@ -295,5 +295,5 @@ class UserSetStore implements perUserStorable {
     }
 }
 
-export const userSetStore = perUserStore(UserSetStore);
+export const userSetStore = perUserStore('UserSetStore', UserSetStore);
 userSetStore.setup();

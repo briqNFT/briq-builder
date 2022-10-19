@@ -18,6 +18,6 @@ class UserBalance implements perUserStorable {
     }
 }
 
-export const userBalance = perUserStore(UserBalance);
+export const userBalance = perUserStore('UserBalance', UserBalance);
 userBalance.setup();
 

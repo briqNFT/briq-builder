@@ -20,7 +20,7 @@ function fakeWalletStore(user_id: string) {
 
 describe('Test PerUserStore', () => {
     test('should initialise to nothing', async () => {
-        const store = perUserStore(TestStore);
+        const store = perUserStore('TestStore', TestStore);
         const [prom, wallet, resolver] = fakeWalletStore('fakeWallet');
         store.setup(prom, wallet);
         expect(store.currentWallet).toStrictEqual(undefined);

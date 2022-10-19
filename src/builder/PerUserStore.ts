@@ -20,10 +20,10 @@ const PER_USER_STORE_VERSION = 1;
 // Lazy hack
 const stores = {};
 
-export const perUserStore = <T extends perUserStorable>(classType: new () => T) => {
-    if (classType.name in stores)
+export const perUserStore = <T extends perUserStorable>(storeName: string, classType: new () => T) => {
+    if (storeName in stores)
         throw new Error('Same class is used in perUserStore which will fail to serialize, change things');
-    stores[classType.name] = true;
+    stores[storeName] = true;
 
     return reactive(new class {
         _perWallet = {} as { [wallet: UserID]: T };
@@ -42,11 +42,11 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
                 return;
             this._setup = true;
             try {
-                const storedData = window.localStorage.getItem(classType.name);
+                const storedData = window.localStorage.getItem(storeName);
                 if (storedData) {
                     const serializedData = JSON.parse(storedData);
                     if (serializedData.version !== PER_USER_STORE_VERSION)
-                        window.localStorage.removeItem(classType.name);
+                        window.localStorage.removeItem(storeName);
                     for (const wallet in serializedData.data) {
                         if (!this._perWallet[wallet]) {
                             this._perWallet[wallet] = new classType();
@@ -62,7 +62,7 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
             }
 
             window.addEventListener('storage', (event: StorageEvent) => {
-                if (event.key !== classType.name)
+                if (event.key !== storeName)
                     return;
                 for (const wallet in this._perWallet)
                     this._perWallet[wallet]._onStorageChange?.(JSON.parse(event.newValue!));
@@ -89,7 +89,7 @@ export const perUserStore = <T extends perUserStorable>(classType: new () => T) 
                 for (const wallet in this._perWallet)
                     if (classType.prototype._serialize)
                         data[wallet] = this._perWallet[wallet]._serialize();
-                window.localStorage.setItem(classType.name, JSON.stringify({
+                window.localStorage.setItem(storeName, JSON.stringify({
                     version: PER_USER_STORE_VERSION,
                     data,
                 }))
