@@ -25,6 +25,7 @@ import NewSetModalVue from '../builder/modals/NewSetModal.vue';
 import DownloadSetVue from '../builder/modals/DownloadSet.vue';
 import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 import Tooltip from '../generic/Tooltip.vue';
+import { pushPopup } from '@/Notifications';
 
 const {
     openSetInBuilder,
@@ -98,6 +99,14 @@ const userAddress = computed(() => maybeStore.value?.userWalletAddress);
 
 const route = useRoute();
 
+let lastCopy = 0;
+const copy = (id: string) => {
+    navigator.clipboard.writeText(id);
+    if (Date.now() - lastCopy > 500) {
+        pushPopup('info', 'Set ID copied')
+        lastCopy = Date.now();
+    }
+}
 const activeTab = ref('GENESIS' as 'CREATION' | 'GENESIS' | 'ACTIVITY');
 
 const filter = ref('ALL');
@@ -288,13 +297,16 @@ div[data-name='menu'] button {
                             class="cursor-pointer"
                             @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})">
                             <template #subtitle>
-                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
-                                    {{ creation.id }}
-                                    <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
-                                        <template #button><i class="fas fa-ellipsis-h"/></template>
-                                        <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
-                                        <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
-                                    </MenuDropdown>
+                                <p class="mx-4 text-grad-dark relative">
+                                    ID: {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-2) }}
+                                    <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
+                                    <span class="absolute bottom-0 right-0">
+                                        <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
+                                            <template #button><i class="fas fa-ellipsis-h"/></template>
+                                            <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
+                                            <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
+                                        </MenuDropdown>
+                                    </span>
                                 </p>
                             </template>
                             <template #content>
