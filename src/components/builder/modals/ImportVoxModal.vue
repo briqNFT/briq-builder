@@ -27,7 +27,6 @@ onBeforeMount(async () => {
         loader.value = new VoxLoader(await props.data);
         set.value = loader.value.set;
         set.value.name = props.file.name.replace('.vox', '');
-        console.log(set.value.serialize());
     } catch (err) {
         console.error(err);
         error.value = err;

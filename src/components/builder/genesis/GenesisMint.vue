@@ -37,7 +37,6 @@ const briqParallax = ref(0);
 
 const onScroll = (_event: Event) => {
     briqParallax.value = window.scrollY / 6;
-    console.log(window.scrollY);
 }
 
 onBeforeMount(() => {

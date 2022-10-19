@@ -13,7 +13,6 @@ import { downloadJSON } from '@/url';
 export function useSetHelpers() {
     const getSetRoute = (setId: string) => router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`;
     const openSetInBuilder = (setId: string, replacePath?: boolean) => {
-        console.log('TOTORO open ', getSetRoute(setId), replacePath)
         if (replacePath && router.currentRoute.value.name === 'Builder')
             router.replace(getSetRoute(setId));
         else

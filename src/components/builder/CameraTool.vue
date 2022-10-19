@@ -36,7 +36,6 @@ watchEffect(() => {
     _target.value = cameraSettings.value.target.map(x => Math.round(x*1000)/1000);
     _fov.value = cameraSettings.value.fov;
     isPreset.value = false;
-    console.log('EReset pres')
 })
 
 watchEffect(() => {
