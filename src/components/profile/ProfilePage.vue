@@ -298,7 +298,7 @@ div[data-name='menu'] button {
                             @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})">
                             <template #subtitle>
                                 <p class="mx-4 text-grad-dark relative">
-                                    ID: {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-2) }}
+                                    {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-2) }}
                                     <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
                                     <span class="absolute bottom-0 right-0">
                                         <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
