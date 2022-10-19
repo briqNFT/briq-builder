@@ -32,7 +32,7 @@ onMounted(() => {
 @keyframes fillbar { from { width: 0%; } to { width:100%; }  }
 
 .progressBar {
-    animation: fillbar 5s 1 ease-out;
+    animation: fillbar 8s 1 ease-out;
 }
 </style>
 

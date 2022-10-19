@@ -160,6 +160,9 @@ watch([activeTab], () => {
 button .pastille {
     @apply ml-1 text-grad-dark;
 }
+div[data-name='menu'] button {
+    @apply text-sm font-normal justify-start;
+}
 </style>
 
 <template>
@@ -224,7 +227,7 @@ button .pastille {
                 <div v-show="showSection('WIP')">
                     <a id="wip" class="relative bottom-[80px]"/>
                     <h3>Work in progress</h3>
-                    <p>WIP sets are stored on this computer only and shared across wallets.</p>
+                    <p class="text-sm mt-1">WIP sets are stored on this computer only and shared across wallets.</p>
                     <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have work-in-progress sets.</p>
                         <p>Get some briqs and start building!</p>
@@ -244,7 +247,7 @@ button .pastille {
                             @click="openSetInBuilder(creation.id)">
                             <template #subtitle>
                                 <p class="mx-4 text-grad-dark relative">
-                                    Draft creation
+                                    WIP
                                     <span class="absolute bottom-0 right-0">
                                         <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
                                             <template #button><i class="fas fa-ellipsis-h"/></template>

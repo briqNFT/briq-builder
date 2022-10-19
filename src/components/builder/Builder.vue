@@ -6,7 +6,7 @@ import Booklet from './Booklet.vue';
 
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
-import { onBeforeMount, provide, ref } from 'vue';
+import { onBeforeMount, provide, ref, toRef, watch } from 'vue';
 import { featureFlags } from '@/FeatureFlags';
 import { logDebug, pushMessage, setTooltip } from '../../Messages';
 import { useBuilder } from '@/components/builder/BuilderComposable';
@@ -142,6 +142,25 @@ onBeforeMount(async () => {
 
     ready.value = true;
 });
+
+watch([toRef(route, 'query'), toRef(route.query, 'set')], async () => {
+    if (!route.query.set)
+        return;
+    let set = setsManager.getInfo(route.query.set as string);
+    await selectSet(set.getSet());
+
+    dispatchBuilderAction('select_set', currentSet.value);
+
+    // Change default palette & update colors.
+    await initializePalette();
+
+    dispatchBuilderAction('put_all_in_view');
+
+    // Reset history so we start fresh, because at this point other operations have polluted it.
+    await store.dispatch('reset_history');
+}, {
+    deep: true,
+})
 </script>
 
 <template>

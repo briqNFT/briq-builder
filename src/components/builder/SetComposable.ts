@@ -12,9 +12,10 @@ import { downloadJSON } from '@/url';
 
 export function useSetHelpers() {
     const getSetRoute = (setId: string) => router.resolve({ name: 'Builder' }).fullPath + `?set=${setId}`;
-    const openSetInBuilder = (setId: string, openInNewWindow?: boolean) => {
-        if (openInNewWindow)
-            window.open(getSetRoute(setId), '_blank');
+    const openSetInBuilder = (setId: string, replacePath?: boolean) => {
+        console.log('TOTORO open ', getSetRoute(setId), replacePath)
+        if (replacePath && router.currentRoute.value.name === 'Builder')
+            router.replace(getSetRoute(setId));
         else
             router.push(getSetRoute(setId));
     }
@@ -22,7 +23,7 @@ export function useSetHelpers() {
     const createNewSet = () => setsManager.createLocalSet();
     const saveSetAndOpen = (set: SetData) => {
         // Have to force the dump to disk or the new window won't be able to find the set.
-        synchronizeSetsLocally(true);
+        //synchronizeSetsLocally(true);
         openSetInBuilder(set.id, true);
     }
 
@@ -33,12 +34,12 @@ export function useSetHelpers() {
     const deleteLocalSet = (setId: string, force = false) => {
         const setInfo = setsManager.getInfo(setId);
         // Ask for confirmation on non-empty sets.
-        if (!force && setInfo.status === 'LOCAL' && (setInfo?.local?.getNbBriqs() ?? 0) > 0)
+        if (!force && (setInfo.getSet().getNbBriqs() ?? 0) > 0)
             pushModal(TextModalVue, {
                 title: 'Confirm delete?',
                 text: 'This set will be deleted. This cannot be undone. Are you sure?',
-                buttons: [{ text: 'Yes' }, { text: 'No' }],
-            }).then(btn => btn === 0 ? deleteLocalSet(setId, true) : null)
+                buttons: [{ text: 'No' }, { text: 'Yes', primary: true }],
+            }).then(btn => btn === 1 ? deleteLocalSet(setId, true) : null)
         else {
             setsManager.deleteLocalSet(setId);
             pushPopup('success', 'Set deleted', 'Set successfully deleted');

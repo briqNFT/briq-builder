@@ -38,6 +38,6 @@ const onClick = () => {
         <p class="md:hidden block">
             Name your new creation: <input v-model="name" :placeholder="placeholder" type="text" maxlength="200" minlength="1" size="30">
         </p>
-        <button class="btn float-right my-4" :disabled="invalidName" @click="onClick">Create</button>
+        <button class="btn float-right my-4" @click="onClick">Create</button>
     </Window>
 </template>
