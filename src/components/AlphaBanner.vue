@@ -2,11 +2,12 @@
     <div v-if="!close" class="fixed top-0 left-0 right-0 mx-auto container text-center font-medium">
         <div class="bg-accent rounded-bl-lg rounded-br-lg inline-block relative">
             <p class="inline-block px-8 py-1 shadow-lg">
-                You are visiting the old briq website, for retro-compatibility with older Starknet testnet NFTs.<br>
-                Visit <a
+                You are visiting the old briq website, for retro-compatibility with older Starknet testnet NFTs.
+                <br>
+                Click <a
                     target="blank_"
                     class="underline"
-                    href="https://briq.construction">for the Starknet mainnet website!</a>
+                    href="https://briq.construction">Here</a> for the Starknet mainnet website!
             </p>
             <button class="absolute top-1 right-1" @click="closePopup">X</button>
         </div>

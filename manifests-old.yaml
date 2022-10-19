@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: old-briq-builder
-        image: europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/briq-builder:8c0c63c89054acf6c065099496c8d7ea0d10ef8a
+        image: europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/briq-builder:db3dd67a00c6365e89feb4434d775bc51c74d0f3
         ports:
         - containerPort: 80
         resources:
@@ -34,7 +34,7 @@ spec:
           periodSeconds: 10
           failureThreshold: 2
       - name: old-briq-builder-node
-        image: europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/briq-builder-node:8c0c63c89054acf6c065099496c8d7ea0d10ef8a
+        image: europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/briq-builder-node:db3dd67a00c6365e89feb4434d775bc51c74d0f3
         ports:
         - containerPort: 5000
         resources:
