@@ -32,8 +32,10 @@ export class PainterInput extends MouseInputState {
         const pos = this.getIntersectionPos(this.curX, this.curY, true);
         if (!pos || pos[1] < 0) {
             getPreviewCube().visible = false;
+            document.body.style.cursor = 'auto';
             return;
         }
+        document.body.style.cursor = `url(${SprayCan}), cell`;
         if (!getPreviewCube().visible)
             getPreviewCube().visible = true;
 
@@ -87,7 +89,6 @@ export class PainterSprayInput extends MouseInputState {
         getPreviewCube().scale.set(1.1, 1.1, 1.1);
         getPreviewCube().visible = true;
         document.body.style.cursor = `url(${SprayCan}), cell`;
-
     }
 
     onExit() {
@@ -101,6 +102,10 @@ export class PainterSprayInput extends MouseInputState {
     async onPointerMove(event: PointerEvent) {
         const pos = this.getIntersectionPos(this.curX, this.curY, true);
         if (!pos || pos[1] < 0)
+            return;
+
+        const target = (currentSet.value as SetData).getAt(...pos);
+        if (target?.color === inputStore.currentColor && target?.material === inputStore.currentMaterial)
             return;
 
         await store.dispatch('builderData/set_briq_color', [{
