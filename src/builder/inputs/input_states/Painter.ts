@@ -13,10 +13,14 @@ import { builderStore } from '@/builder/BuilderStore';
 
 const { currentSet } = builderStore;
 
+import SprayCan from '@/assets/spray-can-solid.svg?url';
+
 export class PainterInput extends MouseInputState {
     onEnter() {
         getPreviewCube().scale.set(1.1, 1.1, 1.1);
         getPreviewCube().visible = false;
+        // update preview cuve pos
+        this.onPointerMove();
     }
 
     onExit() {
@@ -38,8 +42,13 @@ export class PainterInput extends MouseInputState {
     }
 
     onPointerDown(event: PointerEvent) {
+        if (event.button === 2)
+            return;
         if (event.shiftKey)
             this.fsm.switchTo('paint_multi', { x: event.clientX, y: event.clientY });
+        // If we are targeting a briq
+        else if (getPreviewCube().visible)
+            this.fsm.switchTo('paint_spray', { x: event.clientX, y: event.clientY });
     }
 
     async onPointerUp(event: PointerEvent) {
@@ -66,6 +75,45 @@ export class PainterInput extends MouseInputState {
             }]);
         // Update preview cube.
         await this.onPointerMove(event);
+    }
+}
+
+export class PainterSprayInput extends MouseInputState {
+    onEnter() {
+        this.fsm.orbitControls.enabled = false;
+        this.fsm.store.grabFocus = true;
+
+        this.onPointerMove();
+        getPreviewCube().scale.set(1.1, 1.1, 1.1);
+        getPreviewCube().visible = true;
+        document.body.style.cursor = `url(${SprayCan}), cell`;
+
+    }
+
+    onExit() {
+        this.fsm.orbitControls.enabled = true;
+        this.fsm.store.grabFocus = false;
+        document.body.style.cursor = 'auto';
+        getPreviewCube().scale.set(1, 1, 1);
+        getPreviewCube().visible = false;
+    }
+
+    async onPointerMove(event: PointerEvent) {
+        const pos = this.getIntersectionPos(this.curX, this.curY, true);
+        if (!pos || pos[1] < 0)
+            return;
+
+        await store.dispatch('builderData/set_briq_color', [{
+            pos: pos,
+            color: inputStore.currentColor,
+            material: inputStore.currentMaterial,
+        }]);
+        getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
+        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
+    }
+
+    async onPointerUp(_: unknown) {
+        this.fsm.switchTo('paint');
     }
 }
 
