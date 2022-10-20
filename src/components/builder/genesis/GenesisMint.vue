@@ -107,36 +107,42 @@ h4 {
 .genesis-tab:hover > img {
     @apply scale-105;
 }
+
+@media (max-width: 767px) {
+    .briqoverlay {
+        @apply !invisible;
+    }
+}
 </style>
 
 <template>
     <!-- Make it absolute so h-screen works below -->
     <Header class="absolute left-0 right-0 z-50"/>
     <div>
-        <div class="container m-auto relative h-screen lg:p-[6rem] flex flex-col overflow-hidden">
+        <div class="container m-auto relative h-screen xl:p-[6rem] flex flex-col overflow-hidden">
             <div class="grow-[3]"/>
-            <div class="flex flex-wrap justify-around items-center">
-                <div class="relative p-4 md:p-10 lg:p-20 xl:mb-20">
+            <div class="grow-[5] md:grow-[3] flex flex-wrap justify-around items-center">
+                <div class="relative p-4 md:p-10 lg:p-20 xl:mb-20 flex-initial self-start h-min">
                     <div>
-                        <h1 class="text-[3rem] md:text-[4.5rem] font-bold leading-[5rem] my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
+                        <h1 class="text-[3rem] sm:text-[4.5rem] font-bold leading-[5rem] my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
                         <p class="text-lg font-normal">Collect, build and play with briqs,<br>the building blocks of the metaverse.</p>
                     </div>
                 </div>
-                <div class="h-[14rem] md:h-[20rem] xl:h-[32rem] min-w-[10rem] flex-1 w-full flex items-center">
+                <div class="max-w-[24rem] lg:max-w-[1000rem] min-w-[14rem] self-stretch flex-1 w-full flex flex-col items-center justify-center relative">
                     <component
                         v-if="!modelViewerLoading"
-                        :is="modelViewer" class="flex-1 h-full w-full z-0"
+                        :is="modelViewer" class="w-full h-full absolute"
                         reveal="manual" loading="eager" shadow-intensity="0.5" shadow-softness="1" disable-zoom disable-pan camera-controls auto-rotate="true"
                         environment-image="legacy"
                         min-camera-orbit="-Infinity 22.5deg 150m" camera-orbit="0deg 75deg 160m" max-camera-orbit="Infinity 157.5deg 160m"
                         field-of-view="40deg" camera-target="2m 23m 2m"/>
                     <!-- Manually inlined rocket cover, around 20KB -->
-                    <div v-else class="flex-1 w-full z-0 flex justify-center"><img :src="InlinedRocketCover"></div>
+                    <div :class="`w-full ${modelViewerLoading ? 'visible' : 'invisible'}`"><img class="max-w-none w-full" :src="InlinedRocketCover"></div>
                 </div>
             </div>
             <div class="grow-[6]"/>
         </div>
-        <div class="pointer-events-none select-none container m-auto absolute top-0 left-0 right-0 w-screen overflow-hidden invisible lg:visible tall-md:visible">
+        <div class="pointer-events-none select-none container m-auto absolute top-0 left-0 right-0 w-screen overflow-hidden briqoverlay invisible lg:visible tall-md:visible">
             <div class="relative w-full h-screen">
                 <div class="absolute z-10 left-0 hidden sm:block" :style="{ top: `${150 - briqParallax}px` }">
                     <BriqsOverlayT/>
