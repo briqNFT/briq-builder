@@ -2,6 +2,7 @@ import { reactive, watchEffect } from 'vue';
 import { logDebug } from './Messages';
 
 export const featureFlags = reactive({
+    adminOnly: false,
     multiMaterials: false,
     bigBuilder: false,
 });
@@ -12,7 +13,7 @@ const admins = [
     '0x6043ed114a9a1987fe65b100d0da46fe71b2470e7e5ff8bf91be5346f5e5e3',
     '0x4a9ad47f5086e917bf67077954bd62685d8746c7504026bf43bbecb1fa6dde0',
     '0x583397ff26e17af2562a7e035ee0fbda8f8cbbd1aef5c25b11ea9d8782b1179',
-    '0xcafebabe',
+    '0x3ef5b02bcc5d30f3f0d35d55f365e6388fe9501eca216cb1596940bf41083e2',
 ];
 
 const Stefan = '0x051761d49c74a0790F4412973ceF39015F0aeC0ddf3619094E2c59e5682646c5';
@@ -37,7 +38,7 @@ async function checkOnStore() {
     watchEffect(() => {
         if (admins.indexOf(wallet.walletStore.userWalletAddress) !== -1)
             // Admin-only.
-            featureFlags.multiMaterials = true;
+            featureFlags.adminOnly = true;
         else if (starBuilders.indexOf(wallet.walletStore.userWalletAddress) !== -1)
             featureFlags.multiMaterials = false;
         else

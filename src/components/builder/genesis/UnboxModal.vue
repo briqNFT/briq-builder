@@ -4,6 +4,7 @@ import { useUnboxHelpers } from '@/builder/Unbox';
 import { APP_ENV } from '@/Meta';
 import { computed, ref } from 'vue';
 import Window from '@/components/generic/Window.vue';
+import { featureFlags } from '@/FeatureFlags';
 
 const emit = defineEmits(['close'])
 
@@ -52,7 +53,7 @@ const doFakeUnbox = async () => {
             <li>{{ boxData?.briqs?.length ?? '...' }} extra briqs to make whatever your heart desires</li>
         </ul>
         <div class="mt-8 flex justify-end gap-4">
-            <Btn :disabled="disableButtons" v-if="APP_ENV !== 'prod'" no-background @click="doFakeUnbox">Fake Unbox</Btn>
+            <Btn :disabled="disableButtons" v-if="featureFlags.adminOnly" no-background @click="doFakeUnbox">Fake Unbox</Btn>
             <Btn :disabled="disableButtons" secondary @click="$emit('close')">Cancel</Btn>
             <Btn :disabled="disableButtons" @click="doUnbox">Unbox</Btn>
         </div>
