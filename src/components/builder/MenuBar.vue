@@ -21,6 +21,7 @@ import { useBooklet } from './BookletComposable';
 import Hotkey from '../generic/Hotkey.vue';
 import { useRouter } from 'vue-router';
 import Tooltip from '../generic/Tooltip.vue';
+import RenameSetVue from './modals/RenameSet.vue';
 
 const { currentSet } = useBuilder();
 
@@ -84,7 +85,7 @@ const menuOpen = ref(false);
                 <Btn no-background class="w-10" @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
                 <div class="flex flex-none px-2 gap-2 items-baseline">
-                    <p class="font-medium">{{ currentSet.name }}</p>
+                    <p class="font-medium" @dblclick="pushModal(RenameSetVue, { set: currentSet.id })">{{ currentSet.name }}</p>
                 </div>
                 <div class="divider"/>
                 <UndoRedo no-background secondary class="flex-none px-1"/>
