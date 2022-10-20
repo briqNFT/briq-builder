@@ -69,11 +69,12 @@ const creations = computed(() => {
     return userSetStore.current?.sets.map(setId => {
         if (userSetStore.current?.setData[setId]?.booklet)
             return undefined;
-        const data = userSetStore.current?.setData[setId]?.data;
+        const data = userSetStore.current?.setData[setId];
         return {
             id: setId,
-            name: data?.name || setId,
-            nb_briqs: data?.getNbBriqs?.() || 0,
+            name: data?.data?.name || setId,
+            nb_briqs: data?.data?.getNbBriqs?.() || 0,
+            created_at: data?.created_at || Date.now(),
         }
     }).filter(x => !!x) || [];
 })
@@ -86,11 +87,12 @@ const officialCreations = computed(() => {
     return userSetStore.current?.sets.map(setId => {
         if (!userSetStore.current?.setData[setId]?.booklet)
             return undefined;
-        const data = userSetStore.current?.setData[setId]?.data;
+        const data = userSetStore.current?.setData[setId];
         return {
             id: setId,
-            name: data?.name || setId,
-            nb_briqs: data?.getNbBriqs?.() || 0,
+            name: data?.data?.name || setId,
+            nb_briqs: data?.data?.getNbBriqs?.() || 0,
+            created_at: data?.created_at || Date.now(),
         }
     }).filter(x => !!x) || [];
 })
@@ -314,6 +316,10 @@ div[data-name='menu'] button {
                                     <span class="text-grad-dark">briqs used</span>
                                     <span class="font-semibold">{{ creation.nb_briqs }}</span>
                                 </p>
+                                <p class="flex justify-between text-sm">
+                                    <span class="text-grad-dark">Minted on</span>
+                                    <span class="font-normal">{{ new Date(creation.created_at).toLocaleString("en-uk", { dateStyle: "medium" }) }}</span>
+                                </p>
                             </template>
                         </GenericCard>
                     </div>
@@ -380,6 +386,10 @@ div[data-name='menu'] button {
                                 <p class="flex justify-between text-sm">
                                     <span class="text-grad-dark">briqs used</span>
                                     <span class="font-semibold">{{ creation.nb_briqs }}</span>
+                                </p>
+                                <p class="flex justify-between text-sm">
+                                    <span class="text-grad-dark">Minted on</span>
+                                    <span class="font-normal">{{ new Date(creation.created_at).toLocaleString("en-uk", { dateStyle: "medium" }) }}</span>
                                 </p>
                             </template>
                         </GenericCard>

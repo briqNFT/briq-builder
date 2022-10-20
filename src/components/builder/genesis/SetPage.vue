@@ -132,7 +132,7 @@ const nbItems = computed(() => {
                         <Btn secondary @click="doDisassembly" class="h-full text-md px-6">Disassemble</Btn>
                     </div>
                     <div class="p-6 py-4 flex flex-col gap-4">
-                        <p><span class="font-medium">Created on: </span> J'AI PAS LA DATE SAMÈRE</p>
+                        <p><span class="font-medium">Created on: </span> {{ new Date(userSetStore.current?.setData?.[route.params.set_id as string]?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
                     </div>
                 </div>
                 <div>

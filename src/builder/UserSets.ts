@@ -24,6 +24,7 @@ class UserSetStore implements perUserStorable {
     _setData = {} as { [setId: string]: {
             data: SetData,
             booklet: string | undefined,
+            created_at: number,
         }
     };
 
@@ -47,6 +48,7 @@ class UserSetStore implements perUserStorable {
                 setData[setId] = {
                     data: this._setData[setId].data.serialize(),
                     booklet: this._setData[setId].booklet,
+                    created_at: this._setData[setId].created_at,
                 }
         // TODO: find a way to serialise set data maybe.
         return {
@@ -64,6 +66,7 @@ class UserSetStore implements perUserStorable {
             this._setData[setId] = {
                 data: new SetData(setId).deserialize(data.setData[setId].data),
                 booklet: data.setData[setId].booklet,
+                created_at: data._setData[setId].created_at,
             }
     }
 
@@ -101,6 +104,7 @@ class UserSetStore implements perUserStorable {
                     this._setData[setId] = {
                         data: new SetData(setId).deserialize(data),
                         booklet: data.booklet_id,
+                        created_at: data.created_at * 1000, // JS timestamps are milliseconds
                     }
                 } catch(_) {
                     if (APP_ENV === 'dev')
@@ -165,6 +169,7 @@ class UserSetStore implements perUserStorable {
         this._setData[data.id] = {
             data: new SetData(data.id).deserialize(data),
             booklet: booklet,
+            created_at: Date.now(),
         }
         this.metadata[data.id] = {
             set_id: data.id,
