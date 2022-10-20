@@ -104,17 +104,17 @@ export class PainterSprayInput extends MouseInputState {
         if (!pos || pos[1] < 0)
             return;
 
+        getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
+        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
+
         const target = (currentSet.value as SetData).getAt(...pos);
         if (target?.color === inputStore.currentColor && target?.material === inputStore.currentMaterial)
             return;
-
         await store.dispatch('builderData/set_briq_color', [{
             pos: pos,
             color: inputStore.currentColor,
             material: inputStore.currentMaterial,
         }]);
-        getPreviewCube().position.set(Math.floor(pos[0]) + 0.5, Math.floor(pos[1]) + 0.5, Math.floor(pos[2]) + 0.5);
-        (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
     }
 
     async onPointerUp(_: unknown) {
