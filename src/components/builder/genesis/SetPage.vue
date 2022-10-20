@@ -18,6 +18,7 @@ import AspectLogo from '@/assets/landing/aspect.png';
 import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
 import { pushModal } from '@/components/Modals.vue';
 import ExportSetVue from '../modals/ExportSet.vue';
+import { userBookletsStore } from '@/builder/UserBooklets';
 
 
 const route = useRoute();
@@ -62,6 +63,11 @@ const attribs = [
     },
 ]
 
+const nbItems = computed(() => {
+    if (mode === 'BOOKLET')
+        return userBookletsStore.current?.booklets?.filter(x => x === booklet_id.value).length ?? '...';
+    return 1;
+});
 </script>
 
 <template>
@@ -75,9 +81,7 @@ const attribs = [
         <template #default>
             <h1>{{ set?.name || bookletData?.name }}</h1>
             <template v-if="mode === 'BOOKLET'">
-                <h5 class="mt-2">
-                    <template v-if="mode === 'BOOKLET'">Booklet</template>
-                </h5>
+                <h5 class="mt-2">Booklet<span class="font-normal"> - {{ nbItems }} in inventory</span></h5>
                 <p class="mt-6 mb-8">{{ set?.description || bookletData?.description }}</p>
                 <template v-if="!set">
                     <h2>Unstarted booklet</h2>

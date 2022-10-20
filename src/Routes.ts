@@ -11,6 +11,7 @@ import ProfilePageVue from '@/components/profile/ProfilePage.vue';
 
 import ThemesListingVue from './components/builder/genesis/ThemesListing.vue';
 import ThemeMainPageVue from './components/builder/genesis/ThemeMainPage.vue';
+import BoxSalePageVue from './components/builder/genesis/BoxSalePage.vue';
 import BoxPageVue from './components/builder/genesis/BoxPage.vue';
 
 import ImageLoaderVue from '@/components/ImageLoader.vue';
@@ -94,7 +95,7 @@ export const routes = [
     {
         path: '/sale/:theme/:box',
         name: 'BoxSale',
-        component: BoxPageVue,
+        component: BoxSalePageVue,
     },
     {
         path: '/user/box/:theme/:box',
