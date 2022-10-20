@@ -85,7 +85,9 @@ const menuOpen = ref(false);
                 <Btn no-background class="w-10" @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
                 <div class="flex flex-none px-2 gap-2 items-baseline">
-                    <p class="font-medium" @dblclick="pushModal(RenameSetVue, { set: currentSet.id })">{{ currentSet.name }}</p>
+                    <Btn no-style class="font-medium hover:text-primary active:text-primary" @click="pushModal(RenameSetVue, { set: currentSet.id })">
+                        {{ currentSet.name }}
+                    </btn>
                 </div>
                 <div class="divider"/>
                 <UndoRedo no-background secondary class="flex-none px-1"/>
