@@ -296,7 +296,7 @@ export class InspectInput extends MouseInputState {
             return;
         }
         // If we're over a briq
-        if (this.gui.briq)
+        if (this.gui.briq && event.button === 0)
             this.fsm.switchTo('inspect_spray', { x: event.clientX, y: event.clientY });
     }
 
@@ -345,6 +345,7 @@ export class InspectSprayInput extends MouseInputState {
         this.fsm.store.grabFocus = true;
         document.body.style.cursor = 'cell';
         selectionRender.show();
+        this.onPointerMove();
     }
 
     onExit() {
