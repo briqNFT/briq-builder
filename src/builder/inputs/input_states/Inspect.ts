@@ -224,6 +224,30 @@ export class InspectInput extends MouseInputState {
             this.gui.briq = undefined;
         else
             this.gui.briq = (currentSet.value as SetData).getAt(...pos);
+
+        if (this._canMove() || this._canRotate()) {
+            const rc = new THREE.Raycaster();
+            rc.setFromCamera(
+                {
+                    x: (event.clientX / window.innerWidth - 0.5) * 2,
+                    y: -(event.clientY / window.innerHeight - 0.5) * 2,
+                },
+                camera,
+            );
+            const avgPos = this.fsm.store.selectionMgr.getCenterPos();
+            let objects = rc.intersectObject(this.mesh, true);
+            if (objects.length && this.mesh.visible)
+                document.body.style.cursor = 'grab';
+            else {
+                objects = rc.intersectObject(this.otherMesh, true);
+                if (objects.length && this.otherMesh.visible)
+                    document.body.style.cursor = 'grab';
+                else
+                    document.body.style.cursor = 'auto';
+            }
+        } else
+            document.body.style.cursor = 'auto';
+
     }
 
     async onPointerDown(event: PointerEvent) {
@@ -271,6 +295,9 @@ export class InspectInput extends MouseInputState {
             this.fsm.switchTo(mode, { switchBackTo: 'inspect', x: event.clientX, y: event.clientY });
             return;
         }
+        // If we're over a briq
+        if (this.gui.briq)
+            this.fsm.switchTo('inspect_spray', { x: event.clientX, y: event.clientY });
     }
 
     async onPointerUp(event: PointerEvent) {
@@ -310,6 +337,36 @@ export class InspectOnlyInput extends InspectInput {
         return false;
     }
 }
+
+
+export class InspectSprayInput extends MouseInputState {
+    onEnter() {
+        this.fsm.orbitControls.enabled = false;
+        this.fsm.store.grabFocus = true;
+        document.body.style.cursor = 'cell';
+        selectionRender.show();
+    }
+
+    onExit() {
+        this.fsm.orbitControls.enabled = true;
+        this.fsm.store.grabFocus = false;
+        document.body.style.cursor = 'auto';
+        selectionRender.hide();
+    }
+
+    async onPointerMove(event: PointerEvent) {
+        const pos = this.getIntersectionPos(this.curX, this.curY, true);
+        if (!pos || pos[1] < 0)
+            return;
+
+        this.fsm.store.selectionMgr.add(...pos);
+    }
+
+    async onPointerUp(_: unknown) {
+        this.fsm.switchTo('inspect');
+    }
+}
+
 
 export class BoxSelect extends BoxSelection {
     onEnter(data: any) {
