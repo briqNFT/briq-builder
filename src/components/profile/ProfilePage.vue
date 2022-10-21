@@ -26,6 +26,7 @@ import DownloadSetVue from '../builder/modals/DownloadSet.vue';
 import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 import Tooltip from '../generic/Tooltip.vue';
 import { pushPopup } from '@/Notifications';
+import BoxCard from '../builder/genesis/BoxCard.vue';
 
 const {
     openSetInBuilder,
@@ -334,8 +335,10 @@ div[data-name='menu'] button {
                         <p>Browse the available items in our Genesis collections!</p>
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
-                    <div v-else class="mt-4 mb-10">
-                        <BoxListing mode="INVENTORY" :boxes="userBoxesStore.current!.availableBoxes"/>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
+                        <RouterLink :to="`user/box/${token_id}`" v-for="token_id, i of userBoxesStore.current!.availableBoxes" :key="token_id + i">
+                            <BoxCard mode="INVENTORY" :token-name="token_id"/>
+                        </routerlink>
                     </div>
                 </div>
                 <div v-show="showSection('BOOKLET')">

@@ -86,7 +86,10 @@ const attributes = computed(() => {
             { name: '# of briqs', value: bookletMetadata!.bookletData!.value.briqs.length },
         ]
     } else
-        return [];
+        return [
+            { name: 'Year', value: new Date(userSetStore.current?.setData?.[route.params.set_id as string]?.created_at ?? Date.now()).getFullYear() },
+            { name: '# of briqs', value: set.value?.getNbBriqs() },
+        ]
 });
 
 const nbItems = computed(() => {
