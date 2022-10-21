@@ -32,6 +32,8 @@ const loadKeystoneMesh = () => {
     })
 };
 
+const RAYCASTING_LAYER = 2;
+
 let currentSet = '';
 
 let setObject: THREE.Object3D;
@@ -58,6 +60,7 @@ class briqNFT {
         this.mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 10, 10, 10), material);
         this.mesh.geometry.translate(0.5, 0.5, 0.5);
         loadKeystoneMesh().then((mesh) => (this.mesh.geometry = mesh.geometry));
+        this.mesh.layers.set(RAYCASTING_LAYER);
         this.mesh.userData.nft = this.id;
     }
 
@@ -93,6 +96,7 @@ export function getIntersectionPos(xScreen: number, yScreen: number) {
     end.set(x, y, 1).unproject(camera);
 
     const rc = new THREE.Raycaster();
+    rc.layers.set(RAYCASTING_LAYER);
     rc.setFromCamera({ x, y }, camera);
     const obj = rc.intersectObject(getSetObject(), true);
     if (obj?.[0]?.object?.userData?.nft)
@@ -140,6 +144,7 @@ function reset() {
 function getVoxelWorld(material: string) {
     if (!voxels[material]) {
         voxels[material] = new VoxelWorld({ cellSize: 10, material: getRenderMaterial(material) });
+        voxels[material].object.layers.set(RAYCASTING_LAYER);
         setObject.add(voxels[material].object);
     }
     return voxels[material];

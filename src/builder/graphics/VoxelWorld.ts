@@ -275,7 +275,7 @@ export default class VoxelWorld {
         // main loop along raycast vector
         while (t <= len) {
             const voxel = this.getVoxel(ix, iy, iz);
-            if (voxel || iy < 0)
+            if (voxel || (start.y >= 0 && iy < 0))
                 return {
                     position: [start.x + t * dx, start.y + t * dy, start.z + t * dz],
                     normal: [
