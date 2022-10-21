@@ -24,6 +24,7 @@ export class PainterInput extends MouseInputState {
     }
 
     onExit() {
+        document.body.style.cursor = 'auto';
         getPreviewCube().visible = false;
         getPreviewCube().scale.set(1, 1, 1);
     }
