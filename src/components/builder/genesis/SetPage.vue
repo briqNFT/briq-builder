@@ -133,7 +133,7 @@ const nbItems = computed(() => {
                     </template>
                     <p class="flex gap-2">
                         <Btn class="w-fit mt-4" @click="openSetInBuilder(set!.id)">Open in builder</Btn>
-                        <Btn class="mt-4" secondary @click="pushModal(ExportSetVue, { setId: set!.id })">Mint</Btn>
+                        <Btn v-if="bookletMetadata?.shapeValidity?.value === 1" class="mt-4" secondary @click="pushModal(ExportSetVue, { setId: set!.id })">Mint</Btn>
                     </p>
                 </template>
                 <h2 class="mt-10">Want to list your booklet?</h2>
