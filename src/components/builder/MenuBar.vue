@@ -78,7 +78,7 @@ const menuOpen = ref(false);
     <div class="mx-1 mt-1 sm:mx-2 sm:mt-2 flex flex-wrap" v-if="!inputStore.hideInput">
         <div class="flex-1 basis-1 min-w-max flex justify-stretch lg:justify-start">
             <div class="flex flex-none items-center p-1 gap-1 border border-grad-light bg-grad-lightest rounded">
-                <router-link to="/profile?tab=CREATION"><Btn no-background class="w-10"><i class="fa-solid fa-arrow-left"/></Btn></router-link>
+                <router-link :to="`/profile?tab=${ booklet ? 'GENESIS' : 'CREATION'}`"><Btn no-background class="w-10"><i class="fa-solid fa-arrow-left"/></Btn></router-link>
                 <Btn no-background class="w-10" @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
                 <div class="flex flex-none px-2 gap-2 items-baseline">

@@ -57,7 +57,7 @@ onMounted(() => {
                 <a class="hidden sm:block" href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank">
                     <p class="hover:text-primary text-sm md:text-md font-medium">Resources</p>
                 </a>
-                <div v-if="APP_ENV !== 'prod'" class="text-primary font-semibold px-2 py-1">STAGING ENV - FOR TESTING ONLY</div>
+                <div v-if="APP_ENV !== 'prod'" class="hidden lg:block text-primary font-semibold px-2 py-1">STAGING ENV - FOR TESTING ONLY</div>
             </div>
             <div class="flex items-stretch gap-2">
                 <template v-if="walletStore?.userWalletAddress">

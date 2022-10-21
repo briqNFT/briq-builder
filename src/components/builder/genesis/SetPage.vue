@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { setsManager } from '@/builder/SetsManager';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import GenericItemPage from './GenericItemPage.vue';
 import { useUnboxHelpers } from '@/builder/Unbox';
@@ -53,8 +53,11 @@ const bookletData = computed(() => bookletQuery.value?._data);
 const setKind = computed(() => booklet_id.value ? 'OFFICIAL' : 'PERSONAL');
 
 let bookletMetadata = undefined;
-if (booklet_id.value)
-    bookletMetadata = useBooklet(set, booklet_id);
+watch([booklet_id, set], () => {
+    if (!bookletMetadata && booklet_id.value)
+        bookletMetadata = useBooklet(mode === 'BOOKLET' ? set : undefined, booklet_id);
+
+}, { immediate: true })
 
 
 const attributes = computed(() => {
@@ -71,12 +74,13 @@ const attributes = computed(() => {
             { name: '# of briqs', value: bookletMetadata!.bookletData!.value.briqs.length },
         ]
     } else if (setKind.value === 'OFFICIAL') {
-        if (!bookletMetadata?.bookletData?.value)
+        const setmetadata = bookletMetadata?.bookletData?.value;
+        if (!setmetadata)
             return [];
-        const props = bookletMetadata?.bookletData?.value?.properties;
+        const props = setmetadata.properties;
         return [
-            { name: 'Serial Number', value: `#${bookletMetadata?.bookletData?.value.serial_number}` },
-            { name: 'Theme', value: genesisStore.themedata[route.params.theme]._data?.name },
+            { name: 'Serial Number', value: `#${setmetadata.serial_number}` },
+            { name: 'Theme', value: genesisStore.themedata[setmetadata.booklet_id.split('/')[0]]._data?.name },
             { name: 'Booklet Creator', value: props.creator.value },
             { name: 'Year', value: new Date(props.date.value).getFullYear() },
             { name: '# of briqs', value: bookletMetadata!.bookletData!.value.briqs.length },

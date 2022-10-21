@@ -21,21 +21,25 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
     // Compute the progress
     // Do nothing if the calculator already exists.
     if (!bookletStore.shapeValidityCalculated?.[booklet.value]) {
+        // Make a copy so this is is closure-like.
+        const booklet_value = booklet.value;
         // Clean up when we get deleted.
         onBeforeUnmount(() => {
-            delete bookletStore.shapeValidityCalculated[booklet.value];
+            if (bookletStore.shapeValidityCalculated[booklet_value]) {
+                bookletStore.shapeValidityCalculated[booklet_value]();
+                delete bookletStore.shapeValidityCalculated[booklet_value];
+            }
         })
-        bookletStore.shapeValidityCalculated[booklet.value] = true;
-        watchEffect(() => {
-            if (!booklet.value)
+        bookletStore.shapeValidityCalculated[booklet_value] = watchEffect(() => {
+            if (!booklet_value)
                 return;
             if (!bookletRef.value) {
-                bookletStore.shapeValidity[booklet.value] = 0;
+                bookletStore.shapeValidity[booklet_value] = 0;
                 return;
             }
             const set = forceSet?.value || currentSet.value as SetData;
             if (!set) {
-                bookletStore.shapeValidity[booklet.value] = 0;
+                bookletStore.shapeValidity[booklet_value] = 0;
                 return;
             }
             set.briqs_;
@@ -88,7 +92,7 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
                         if (cmatch > match)
                             match = cmatch;
                     }
-            bookletStore.shapeValidity[booklet.value] = Math.min(1, Math.max(0, match / targetBriqs.length));
+            bookletStore.shapeValidity[booklet_value] = Math.min(1, Math.max(0, match / targetBriqs.length));
         })
     }
 
