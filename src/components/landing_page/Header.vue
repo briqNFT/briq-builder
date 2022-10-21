@@ -10,6 +10,7 @@ import briqIcon from '@/assets/landing/briq-icon.svg';
 import NotificationsMenu from '../NotificationsMenu.vue';
 import { userPurchaseStore } from '@/builder/UserPurchase';
 import { chainBriqs } from '@/builder/ChainBriqs';
+import { APP_ENV } from '@/Meta';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -56,6 +57,7 @@ onMounted(() => {
                 <a class="hidden sm:block" href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank">
                     <p class="hover:text-primary text-sm md:text-md font-medium">Resources</p>
                 </a>
+                <div v-if="APP_ENV !== 'prod'" class="rounded bg-primary text-text-on-primary font-semibold px-2 py-1">STAGING ENV - FOR TESTING ONLY</div>
             </div>
             <div class="flex items-stretch gap-2">
                 <template v-if="walletStore?.userWalletAddress">
