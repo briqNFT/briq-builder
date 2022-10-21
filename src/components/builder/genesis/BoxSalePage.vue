@@ -34,6 +34,19 @@ const {
 const themeName = computed(() => route.params.theme);
 const boxName = computed(() => item.value?.name ?? route.params.box);
 
+const attributes = computed(() => {
+    if (!item.value)
+        return [];
+    const props = item.value.properties;
+    return [
+        { name: 'Serial Number', value: `#${item.value.token_id}` },
+        { name: 'Theme', value: genesisStore.themedata[route.params.theme]._data.name },
+        { name: 'Creator', value: props.creator.value },
+        { name: 'Year', value: new Date(props.date.value).getFullYear() },
+        { name: '# of briqs', value: props.nb_briqs.value },
+    ]
+});
+
 productBidsStore.fetch(token_id.value);
 
 const previousBids = computed(() => Object.values(productBidsStore.bids(token_id.value).bids).sort((a, b) => b.timestamp - a.timestamp));
@@ -101,7 +114,7 @@ p {
     @apply text-md font-medium;
 }
 .attribute p {
-    @apply text-md text-grad-dark break-all;
+    @apply text-md text-grad-dark break-words;
 }
 </style>
 
@@ -118,26 +131,10 @@ p {
                         </div>
                         <div>
                             <h2>Attributes</h2>
-                            <div class="grid grid-cols-4 gap-6">
-                                <div class="attribute">
-                                    <h3>Serial Number</h3>
-                                    <p>#55</p>
-                                </div>
-                                <div class="attribute">
-                                    <h3>Pieces</h3>
-                                    <p>{{ item?.briqs?.length }}</p>
-                                </div>
-                                <div class="attribute">
-                                    <h3>Theme</h3>
-                                    <p>{{ themeName }}</p>
-                                </div>
-                                <div class="attribute">
-                                    <h3>Year</h3>
-                                    <p>2022</p>
-                                </div>
-                                <div class="attribute">
-                                    <h3>Condition</h3>
-                                    <p>Unopened</p>
+                            <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                <div class="attribute" v-for="attrib of attributes" :key="attrib.name">
+                                    <h3>{{ attrib.name }}</h3>
+                                    <p>{{ attrib.value }}</p>
                                 </div>
                             </div>
                         </div>

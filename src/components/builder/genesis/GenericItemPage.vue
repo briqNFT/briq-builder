@@ -51,7 +51,7 @@ p, :slotted(p) {
                         </div>
                         <div>
                             <h2>Attributes</h2>
-                            <div class="grid grid-cols-4 gap-6">
+                            <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                                 <div v-for="attrib of attributes" :key="attrib.name" class="attribute">
                                     <h3>{{ attrib.name }}</h3>
                                     <p>{{ attrib.value }}</p>

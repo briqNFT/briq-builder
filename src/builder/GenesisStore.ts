@@ -94,8 +94,8 @@ export interface BoxMetadata {
     description: string;
     auction_id: number;
     token_id: number;
-    briqs: any[];
-    nb_pages: number;
+    nb_briqs: number;
+    properties: Record<string, any>;
     version: number;
 }
 

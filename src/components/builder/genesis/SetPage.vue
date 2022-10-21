@@ -56,12 +56,34 @@ let bookletMetadata = undefined;
 if (booklet_id.value)
     bookletMetadata = useBooklet(set, booklet_id);
 
-const attribs = [
-    {
-        name: 'Pieces',
-        value: set.value?.getNbBriqs() || bookletData.value?.briqs?.length || 0,
-    },
-]
+
+const attributes = computed(() => {
+    if (mode === 'BOOKLET') {
+        if (!bookletMetadata?.bookletData?.value)
+            return [];
+        const props = bookletMetadata?.bookletData?.value?.properties;
+        return [
+            { name: 'Serial Number', value: `#${bookletMetadata?.bookletData?.value.serial_number}` },
+            { name: 'Theme', value: genesisStore.themedata[route.params.theme]._data?.name },
+            { name: 'Creator', value: props.creator.value },
+            { name: 'Year', value: new Date(props.date.value).getFullYear() },
+            { name: '# of steps', value: props.nb_steps.value },
+            { name: '# of briqs', value: bookletMetadata!.bookletData!.value.briqs.length },
+        ]
+    } else if (setKind.value === 'OFFICIAL') {
+        if (!bookletMetadata?.bookletData?.value)
+            return [];
+        const props = bookletMetadata?.bookletData?.value?.properties;
+        return [
+            { name: 'Serial Number', value: `#${bookletMetadata?.bookletData?.value.serial_number}` },
+            { name: 'Theme', value: genesisStore.themedata[route.params.theme]._data?.name },
+            { name: 'Booklet Creator', value: props.creator.value },
+            { name: 'Year', value: new Date(props.date.value).getFullYear() },
+            { name: '# of briqs', value: bookletMetadata!.bookletData!.value.briqs.length },
+        ]
+    } else
+        return [];
+});
 
 const nbItems = computed(() => {
     if (mode === 'BOOKLET')
@@ -73,7 +95,7 @@ const nbItems = computed(() => {
 <template>
     <GenericItemPage
         :status="bookletQuery?._status || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
-        :attributes="attribs">
+        :attributes="attributes">
         <template #image>
             <img class="max-h-full p-8" v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
             <img class="max-h-full p-8" v-else :src="backendManager.getPreviewUrl(set!.id)">
