@@ -27,12 +27,18 @@ const {
 } = useBoxData(box_id.value);
 
 
-const attribs = [
-    {
-        name: 'Pieces',
-        value: 34234,
-    },
-]
+const attributes = computed(() => {
+    if (!item.value)
+        return [];
+    const props = item.value.properties;
+    return [
+        { name: 'Serial Number', value: `#${item.value.token_id}` },
+        { name: 'Theme', value: genesisStore.themedata[route.params.theme as string]?._data?.name },
+        { name: 'Creator', value: props.creator.value },
+        { name: 'Year', value: new Date(props.date.value).getFullYear() },
+        { name: '# of briqs', value: props.nb_briqs.value },
+    ]
+});
 
 const nbItems = computed(() => {
     return userBoxesStore.current?.availableBoxes?.filter(x => x === box_id.value).length ?? '...';
@@ -42,7 +48,7 @@ const nbItems = computed(() => {
 <template>
     <GenericItemPage
         :status="itemQuery?._status"
-        :attributes="attribs">
+        :attributes="attributes">
         <template #image>
             <img class="max-h-full p-8" :src="genesisStore.coverBoxRoute(box_id)">
         </template>

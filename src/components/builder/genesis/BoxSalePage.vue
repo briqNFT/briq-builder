@@ -40,7 +40,7 @@ const attributes = computed(() => {
     const props = item.value.properties;
     return [
         { name: 'Serial Number', value: `#${item.value.token_id}` },
-        { name: 'Theme', value: genesisStore.themedata[route.params.theme]._data.name },
+        { name: 'Theme', value: genesisStore.themedata[route.params.theme as string]?._data?.name },
         { name: 'Creator', value: props.creator.value },
         { name: 'Year', value: new Date(props.date.value).getFullYear() },
         { name: '# of briqs', value: props.nb_briqs.value },
