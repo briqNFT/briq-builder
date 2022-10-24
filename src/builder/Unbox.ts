@@ -17,7 +17,7 @@ export function useUnboxHelpers() {
         const TX = await contractStore.box?.unbox(maybeStore.value!.userWalletAddress, data.token_id);
         userBoxesStore.current!.hideOne(box_id, TX.transaction_hash);
         userBookletsStore.current!.showOne(box_id, TX.transaction_hash);
-        chainBriqs.value!.show('0x1', data.briqs.length, TX.transaction_hash);
+        chainBriqs.value!.show('0x1', data.nb_briqs, TX.transaction_hash);
     }
 
     // For testing.
@@ -28,7 +28,7 @@ export function useUnboxHelpers() {
         const TX = { transaction_hash: '0xcafe' }//await contractStore.box?.unbox(maybeStore.value!.userWalletAddress, data.token_id);
         userBoxesStore.current!.hideOne(box_id, TX.transaction_hash);
         userBookletsStore.current!.showOne(box_id, TX.transaction_hash);
-        chainBriqs.value!.show('0x1', data.briqs.length, TX.transaction_hash);
+        chainBriqs.value!.show('0x1', data.nb_briqs, TX.transaction_hash);
     }
 
     const createBookletSet = (set_name: string, booklet_id: string) => {
