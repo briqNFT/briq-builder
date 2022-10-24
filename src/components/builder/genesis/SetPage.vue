@@ -19,8 +19,8 @@ import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
 import { pushModal } from '@/components/Modals.vue';
 import ExportSetVue from '../modals/ExportSet.vue';
 import { userBookletsStore } from '@/builder/UserBooklets';
-import { getCurrentNetwork } from '@/chain/Network';
 import { SetData } from '@/builder/SetData';
+import { getCurrentNetwork } from '@/chain/Network';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -93,7 +93,7 @@ watchEffect(() => {
     if (externalSetData.value)
         return;
     // At this point, we assume the set is external and we must load its data explicitly.
-    backendManager.fetch(`v1/metadata/${getCurrentNetwork()}/${route.params.set_id as string}.json`).then(data => {
+    backendManager.fetch(`v1/metadata/${route.params.network}/${route.params.set_id as string}.json`).then(data => {
         // in case it runs several times.
         if (!externalSetData.value)
             externalSetData.value = {
@@ -149,7 +149,7 @@ const nbItems = computed(() => {
         :attributes="attributes">
         <template #image>
             <img class="max-h-full p-8" v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
-            <img class="max-h-full p-8" v-else :src="backendManager.getPreviewUrl(set!.id)">
+            <img class="max-h-full p-8" v-else :src="backendManager.getPreviewUrl(set!.id, (route.params.network as string) || getCurrentNetwork())">
         </template>
         <template #default>
             <h1>{{ set?.name || bookletData?.name }}</h1>

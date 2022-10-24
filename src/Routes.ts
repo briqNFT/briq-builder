@@ -88,27 +88,27 @@ export const routes = [
         component: ThemesListingVue,
     },
     {
-        path: '/sale/:theme',
+        path: '/product/:theme',
         name: 'Theme',
         component: ThemeMainPageVue,
     },
     {
-        path: '/sale/:theme/:box',
+        path: '/product/:theme/:box',
         name: 'BoxSale',
         component: BoxSalePageVue,
     },
     {
-        path: '/user/box/:theme/:box',
+        path: '/box/:theme/:box',
         name: 'UserBox',
         component: BoxPageVue,
     },
     {
-        path: '/user/booklet/:theme/:booklet',
+        path: '/booklet/:theme/:booklet',
         name: 'UserBooklet',
         component: SetPageVue,
     },
     {
-        path: '/user/set/:set_id',
+        path: '/set/:network/:set_id',
         name: 'UserCreation',
         component: SetPageVue,
     },

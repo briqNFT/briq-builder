@@ -298,7 +298,7 @@ div[data-name='menu'] button {
                             :title="creation.name"
                             :image-src="backendManager.getPreviewUrl(creation.id)"
                             class="cursor-pointer"
-                            @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})">
+                            @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
                             <template #subtitle>
                                 <p class="mx-4 text-grad-dark relative">
                                     {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-2) }}
@@ -336,7 +336,7 @@ div[data-name='menu'] button {
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <RouterLink :to="`user/box/${token_id}`" v-for="token_id, i of userBoxesStore.current!.availableBoxes" :key="token_id + i">
+                        <RouterLink :to="`box/${token_id}`" v-for="token_id, i of userBoxesStore.current!.availableBoxes" :key="token_id + i">
                             <BoxCard mode="INVENTORY" :token-name="token_id"/>
                         </routerlink>
                     </div>
@@ -351,7 +351,7 @@ div[data-name='menu'] button {
                     </div>
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
                         <div v-for="booklet of userBookletsStore.current?.booklets">
-                            <RouterLink :to="`user/booklet/${booklet}`">
+                            <RouterLink :to="`booklet/${booklet}`">
                                 <BookletCard :box-id="booklet"/>
                             </RouterLink>
                         </div>
@@ -374,7 +374,7 @@ div[data-name='menu'] button {
                             :title="creation.name"
                             :image-src="backendManager.getPreviewUrl(creation.id)"
                             class="cursor-pointer"
-                            @click="router.push({ name: 'UserCreation', params: { set_id: creation.id }})">
+                            @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
                             <template #subtitle>
                                 <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
                                     {{ creation.id }}
