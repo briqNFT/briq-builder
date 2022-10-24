@@ -21,6 +21,8 @@ class UserSetStore implements perUserStorable {
         tx_hash: string,
     }};
 
+    _status = 'FETCHING' as 'FETCHING' | 'LOADED' | 'ERROR';
+
     _setData = {} as { [setId: string]: {
             data: SetData,
             booklet: string | undefined,
@@ -29,6 +31,10 @@ class UserSetStore implements perUserStorable {
     };
 
     polling!: number;
+
+    get status() {
+        return this._status;
+    }
 
     onEnter() {
         this.fetchData();
@@ -92,8 +98,12 @@ class UserSetStore implements perUserStorable {
     async fetchData() {
         try {
             this._sets = (await backendManager.fetch(`v1/user/data/${this.user_id}`)).sets;
+            this._status = 'LOADED';
         } catch(ex) {
             console.error(ex);
+            // If we were loading, we've already loaded once, so keep on trucking.
+            if (this._status === 'FETCHING')
+                this._status = 'ERROR';
         }
         const network = this.user_id.split('/')[0];
         // Attempt to reload all active sets

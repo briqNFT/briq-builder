@@ -36,12 +36,15 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
             return this._perWallet[this.currentWallet];
         }
 
+        get state() {
+            return this._setup;
+        }
+
+        _setup = 'NOT_SETUP' as 'NOT_SETUP' | 'SETUP' | 'WALLET_LOADED';
         /* Exists solely for the purpose of being called somewhere, so that the import is used & things happen. */
-        _setup = false;
         setup(_walletInitComplete: typeof walletInitComplete = walletInitComplete, _maybeStore: typeof maybeStore = maybeStore) {
-            if (this._setup)
+            if (this._setup !== 'NOT_SETUP')
                 return;
-            this._setup = true;
             try {
                 const storedData = window.localStorage.getItem(storeName);
                 if (storedData) {
@@ -62,6 +65,8 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
                 if (APP_ENV === 'dev')
                     console.error(err)
             }
+            // At this point (sync function so safe), we are setup.
+            this._setup = 'SETUP';
 
             window.addEventListener('storage', (event: StorageEvent) => {
                 if (event.key !== storeName)
@@ -84,7 +89,8 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
                         this._perWallet[old].onLeave?.(old, this.currentWallet);
                     if (this.currentWallet)
                         this.current!.onEnter?.(old, this.currentWallet);
-                })
+                });
+                this._setup = 'WALLET_LOADED';
             })
 
             watchEffect(() => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { setsManager } from '@/builder/SetsManager';
-import { computed, watch } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import GenericItemPage from './GenericItemPage.vue';
 import { useUnboxHelpers } from '@/builder/Unbox';
@@ -19,7 +19,8 @@ import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
 import { pushModal } from '@/components/Modals.vue';
 import ExportSetVue from '../modals/ExportSet.vue';
 import { userBookletsStore } from '@/builder/UserBooklets';
-
+import { getCurrentNetwork } from '@/chain/Network';
+import { SetData } from '@/builder/SetData';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -32,6 +33,7 @@ const createSet = () => {
         return;
     openSetInBuilder(createBookletSet(bookletData.value?.name, booklet_id.value!));
 }
+
 const doDisassembly = async () => {
     if (await disassembleSet(set.value!.id))
         router.push({ name: 'Profile' });
@@ -39,12 +41,14 @@ const doDisassembly = async () => {
 
 const mode = route.name === 'UserBooklet' ? 'BOOKLET' : 'CREATION';
 
-const booklet_id = computed(() => mode === 'BOOKLET' ? `${route.params.theme}/${route.params.booklet}` : userSetStore.current?.setData[route.params.set_id as string]?.booklet);
+const externalSetData = ref();
 
-const set = computed(() => {
+const booklet_id = computed(() => {
     if (mode === 'BOOKLET')
-        return setsManager.getBookletSet(booklet_id.value);
-    return userSetStore.current?.setData[route.params.set_id as string]?.data;
+        return `${route.params.theme}/${route.params.booklet}`;
+    if (externalSetData.value)
+        return externalSetData.value.booklet;
+    return userSetStore.current?.setData[route.params.set_id as string]?.booklet;
 });
 
 const bookletQuery = computed(() => booklet_id.value ? genesisStore.metadata[booklet_id.value] : undefined);
@@ -52,13 +56,53 @@ const bookletData = computed(() => bookletQuery.value?._data);
 
 const setKind = computed(() => booklet_id.value ? 'OFFICIAL' : 'PERSONAL');
 
-let bookletMetadata = undefined;
+const setData = computed(() => {
+    if (mode === 'BOOKLET')
+        return undefined;
+    if (externalSetData.value)
+        return externalSetData.value;
+    return userSetStore.current?.setData[route.params.set_id as string];
+});
+
+
+const set = computed(() => {
+    if (mode === 'BOOKLET')
+        return setsManager.getBookletSet(booklet_id.value);
+    if (externalSetData.value)
+        return externalSetData.value.data;
+    return userSetStore.current?.setData[route.params.set_id as string]?.data;
+});
+
+let bookletMetadata = undefined as undefined | ReturnType<typeof useBooklet>;
 watch([booklet_id, set], () => {
     if (!bookletMetadata && booklet_id.value)
         bookletMetadata = useBooklet(mode === 'BOOKLET' ? set : undefined, booklet_id);
-
 }, { immediate: true })
 
+
+// Fallback case for sharing sets.
+watchEffect(() => {
+    if (userSetStore.state !== 'WALLET_LOADED')
+        return;
+    if (userSetStore.currentWallet) {
+        if (userSetStore.current?.status === 'FETCHING')
+            return;
+        if (userSetStore.current?.sets.indexOf(route.params.set_id as string) !== -1)
+            return;
+    }
+    if (externalSetData.value)
+        return;
+    // At this point, we assume the set is external and we must load its data explicitly.
+    backendManager.fetch(`v1/metadata/${getCurrentNetwork()}/${route.params.set_id as string}.json`).then(data => {
+        // in case it runs several times.
+        if (!externalSetData.value)
+            externalSetData.value = {
+                data: new SetData(route.params.set_id as string).deserialize(data),
+                booklet: data.booklet_id,
+                created_at: data.created_at * 1000, // JS timestamps are milliseconds
+            }
+    })
+})
 
 const attributes = computed(() => {
     if (mode === 'BOOKLET') {
@@ -155,13 +199,13 @@ const nbItems = computed(() => {
                         <div>
                             <h5 class="font-normal text-grad-dark">briqs used</h5>
                             <p class="text-xl font-semibold pt-1">
-                                <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon/></span> 560
+                                <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon/></span> {{ set?.getNbBriqs?.() }}
                             </p>
                         </div>
                         <Btn secondary @click="doDisassembly" class="h-full text-md px-6">Disassemble</Btn>
                     </div>
                     <div class="p-6 py-4 flex flex-col gap-4">
-                        <p><span class="font-medium">Created on: </span> {{ new Date(userSetStore.current?.setData?.[route.params.set_id as string]?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
+                        <p><span class="font-medium">Created on: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
                     </div>
                 </div>
                 <div>
