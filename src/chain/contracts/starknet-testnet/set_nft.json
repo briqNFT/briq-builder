@@ -401,6 +401,22 @@
                 "type": "felt"
             },
             {
+                "name": "name_len",
+                "type": "felt"
+            },
+            {
+                "name": "name",
+                "type": "felt*"
+            },
+            {
+                "name": "description_len",
+                "type": "felt"
+            },
+            {
+                "name": "description",
+                "type": "felt*"
+            },
+            {
                 "name": "fts_len",
                 "type": "felt"
             },

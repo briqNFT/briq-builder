@@ -34,7 +34,7 @@ describe('Test SetData', () => {
 describe('Test SetData replacing briqs', () => {
     it('should should find real briqs correctly. ', () => {
         const chain = new ChainBriqs();
-        chain.parseChainData({ '0x1': { ft_balance: 15, nft_ids: ['0xcafe', '0xfade'] } });
+        chain._parseChainData({ 'last_block': 2400, '0x1': { ft_balance: 15, nft_ids: ['0xcafe', '0xfade'] } });
 
         {
             const swaps = chain.findRealBriqs({
@@ -75,7 +75,7 @@ describe('Test SetData replacing briqs', () => {
 
     it('should replace briqs correctly', () => {
         const chain = new ChainBriqs();
-        chain.parseChainData({ '0x1': { ft_balance: 1, nft_ids: ['0xcafe', '0xfade'] } });
+        chain._parseChainData({ '0x1': { ft_balance: 1, nft_ids: ['0xcafe', '0xfade'] } });
 
         const data = new SetData('');
         data.placeBriq(0, 0, 0, new Briq('0x1'));
