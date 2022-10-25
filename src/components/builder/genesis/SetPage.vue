@@ -205,6 +205,7 @@ const nbItems = computed(() => {
                 <h5 class="mt-2">
                     {{ setKind === 'OFFICIAL' ? 'Official set' : 'Personal creation' }}<span class="font-normal"> - minted</span>
                 </h5>
+                <p class="mt-6 mb-8">{{ set?.description }}</p>
                 <div class="rounded border border-grad-light overflow-hidden mt-6 mb-10">
                     <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                         <div>
