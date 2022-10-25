@@ -13,7 +13,7 @@ defineProps<{
 </style>
 
 <template>
-    <div class="my-2 h-2 w-full relative bg-grad-lighter rounded">
-        <div class="progress-bar absolute left-0 top-0 h-full bg-info-warning rounded" :style="{ width: `${percentage}%`}"/>
+    <div class="inline-block my-2 h-2 w-full relative bg-grad-lighter rounded">
+        <div class="inline-block progress-bar absolute left-0 top-0 h-full bg-info-warning rounded" :style="{ width: `${percentage}%`}"/>
     </div>
 </template>

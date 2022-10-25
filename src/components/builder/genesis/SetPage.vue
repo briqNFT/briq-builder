@@ -154,33 +154,44 @@ const nbItems = computed(() => {
         <template #default>
             <h1>{{ set?.name || bookletData?.name }}</h1>
             <template v-if="mode === 'BOOKLET'">
-                <h5 class="mt-2">Booklet<span class="font-normal"> - {{ nbItems }} in inventory</span></h5>
-                <p class="mt-6 mb-8">{{ set?.description || bookletData?.description }}</p>
+                <h5 class="mt-2">Booklet<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme]._data?.name }}</span></h5>
+                <p class="mt-6 mb-8">{{ bookletData?.description }}</p>
                 <template v-if="!set">
                     <h2>Unstarted booklet</h2>
-                    <p class="mb-4">Click on the button below to open the briq builder and create your official Genesis set.</p>
-                    <Btn class="w-fit" @click="createSet()">Start building</Btn>
+                    <p>Click on the button below to open the briq builder and create your official Genesis set.</p>
+                </template>
+                <template v-else-if="bookletMetadata?.shapeValidity.value !== 1">
+                    <h2>Work in progress</h2>
+                    <p>Your booklet set is unfinished. Make sure that it has all the pieces positioned at the right place to be able to mint it.</p>
                 </template>
                 <template v-else>
-                    <h2>Building progress</h2>
-                    <p class="mb-4">
-                        {{ Math.floor(bookletMetadata?.shapeValidity.value * 100) || 0 }}%
-                        <ProgressBar class="h-4" :percentage="bookletMetadata?.shapeValidity.value * 100 || 0"/>
-                    </p>
-                    <template v-if="bookletMetadata?.shapeValidity.value < 100">
-                        <p class="font-semibold mb-2">Unfinished</p>
-                        <p>Your booklet set is unfinished. Make sure that it has all the pieces positioned at the right place to have it completed.</p>
-                    </template>
-                    <template v-else>
-                        <p class="font-semibold mb-2">Congratulations!</p>
-                        <p>Your set is now 100% completed. You can now mint the Official Genesis Set.</p>
-                    </template>
-                    <p class="flex gap-2">
-                        <Btn class="w-fit mt-4" @click="openSetInBuilder(set!.id)">Open in builder</Btn>
-                        <Btn v-if="bookletMetadata?.shapeValidity?.value === 1" class="mt-4" secondary @click="pushModal(ExportSetVue, { setId: set!.id })">Mint</Btn>
-                    </p>
+                    <h2>Ready to mint</h2>
+                    <p>Your set is now 100% completed. You can now mint the Official Genesis Set.</p>
                 </template>
-                <h2 class="mt-10">Want to list your booklet?</h2>
+                <div class="rounded border border-grad-light overflow-hidden mt-4 mb-10">
+                    <div class="p-6 flex justify-between items-stretch bg-grad-lightest gap-4">
+                        <div class="flex-1">
+                            <h5 class="font-normal text-grad-dark">Progress</h5>
+                            <p class="text-lg font-semibold pt-1 flex justify-center items-center gap-3">
+                                {{ Math.floor(bookletMetadata?.shapeValidity.value * 100) || 0 }}%<ProgressBar class="h-3" :percentage="bookletMetadata?.shapeValidity.value * 100 || 0"/>
+                            </p>
+                        </div>
+                        <template v-if="!set">
+                            <Btn class="!h-auto text-md px-6 w-fit" @click="createSet()">Start building</Btn>
+                        </template>
+                        <template v-else-if="bookletMetadata?.shapeValidity.value !== 1">
+                            <Btn class="!h-auto text-md px-6 w-fit" @click="openSetInBuilder(set!.id)">Keep building</Btn>
+                        </template>
+                        <template v-else>
+                            <Btn v-if="bookletMetadata?.shapeValidity?.value === 1" class="!h-auto text-md px-6 " secondary @click="pushModal(ExportSetVue, { setId: set!.id })">Mint</Btn>
+                            <Btn class="!h-auto text-md px-6 w-max" @click="openSetInBuilder(set!.id)">Open builder</Btn>
+                        </template>
+                    </div>
+                    <div class="p-6 py-4 flex flex-col gap-4">
+                        <p class="text-grad-dark">Currently owned: <span class="text-grad-darkest">{{ nbItems }}</span></p>
+                    </div>
+                </div>
+                <h2>Want to list your booklet?</h2>
                 <p>Seeling your booklet means you will no longer be able to mint the authenticated officiel set.</p>
                 <div class="flex gap-2 my-4">
                     <a href="https://testnet.aspect.co/" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>

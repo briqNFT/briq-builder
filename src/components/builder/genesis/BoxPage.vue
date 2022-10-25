@@ -54,20 +54,20 @@ const nbItems = computed(() => {
         </template>
         <template #default>
             <h1>{{ item?.name }}</h1>
-            <h5 class="mt-2">Box</h5>
+            <h5 class="mt-2">Sealed Box<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme as string]?._data?.name }}</span></h5>
             <p class="mt-6 mb-8">{{ item?.description }}</p>
             <h2>Unopened box</h2>
             <p class="mb-4">Your set is still under blister, Unbox it to see what’s inside or keep it closed. Note that once it’s done you can’t go back.</p>
             <div class="rounded border border-grad-light overflow-hidden mt-6 mb-10">
                 <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                     <div>
-                        <h5 class="font-normal text-grad-dark">Bought at</h5>
-                        <p class="text-xl font-semibold pt-1">1.35 ETH</p>
+                        <h5 class="font-normal text-grad-dark">Each contains</h5>
+                        <p class="text-lg font-semibold pt-1">{{ item?.nb_briqs }} briqs & 1 booklet</p>
                     </div>
                     <RouterLink :to="{ name: 'Unboxing', params: { theme: route.params.theme, box: route.params.box } }"><Btn class="h-full text-md px-6">Unbox</Btn></RouterLink>
                 </div>
                 <div class="p-6 py-4 flex flex-col gap-4">
-                    <p class="font-semibold">{{ nbItems }}<span class="font-medium"> in inventory</span></p>
+                    <p class="text-grad-dark">Currently owned: <span class="text-grad-darkest">{{ nbItems }}</span></p>
                 </div>
             </div>
             <div>
