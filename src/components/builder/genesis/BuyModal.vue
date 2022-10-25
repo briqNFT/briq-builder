@@ -34,7 +34,7 @@ const props = defineProps<{
 
 const balance = computed(() => userBalance.current?.asEth());
 
-const weiPrice = computed(() => toBN(Math.floor(saledata.value?.price || 0).toString()))
+const weiPrice = computed(() => toBN(Math.floor(saledata.value?.price || 100).toString()))
 
 const canMakeBid = computed(() => {
     return balance.value && toBN(userBalance.current?.balance._data).cmp(weiPrice) >= 0;

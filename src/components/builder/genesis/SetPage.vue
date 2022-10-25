@@ -12,6 +12,8 @@ import ProgressBar from '@/components/generic/ProgressBar.vue';
 import { useBooklet } from '../BookletComposable';
 import { backendManager } from '@/Backend';
 
+import ItemActivity from './ItemActivity.vue';
+
 import briqIcon from '@/assets/landing/briq-icon.svg';
 
 import AspectLogo from '@/assets/landing/aspect.png';
@@ -21,6 +23,7 @@ import ExportSetVue from '../modals/ExportSet.vue';
 import { userBookletsStore } from '@/builder/UserBooklets';
 import { SetData } from '@/builder/SetData';
 import { getCurrentNetwork } from '@/chain/Network';
+import { maybeStore } from '@/chain/WalletLoading';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -197,8 +200,11 @@ const nbItems = computed(() => {
                     <a href="https://testnet.aspect.co/" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
                     <a href="https://mintsquare.io/starknet" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
                 </div>
-                <div>
-                    <h2 class="mt-8">Item activity go bbrrr</h2>
+                <div v-if="booklet_id">
+                    <h2 class="mt-8">Item activity</h2>
+                    <Suspense>
+                        <ItemActivity type="booklet" :user="maybeStore?.user_id" :network="(route.params.network as string) || getCurrentNetwork()" :item="booklet_id"/>
+                    </Suspense>
                 </div>
             </template>
             <template v-else>
@@ -227,8 +233,11 @@ const nbItems = computed(() => {
                         <a href="https://mintsquare.io/starknet" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
                     </p>
                 </div>
-                <div>
-                    <h2 class="mt-8">Item activity go bbrrr</h2>
+                <div v-if="set?.id">
+                    <h2 class="mt-8">Item activity</h2>
+                    <Suspense>
+                        <ItemActivity type="set" :network="(route.params.network as string) || getCurrentNetwork()" :item="set.id"/>
+                    </Suspense>
                 </div>
             </template>
         </template>

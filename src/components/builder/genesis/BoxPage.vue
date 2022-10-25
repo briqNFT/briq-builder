@@ -11,6 +11,9 @@ import { pushModal } from '@/components/Modals.vue';
 import ExportSetVue from '../modals/ExportSet.vue';
 import { useBoxData } from '@/builder/BoxData';
 import { userBoxesStore } from '@/builder/UserBoxes';
+import { getCurrentNetwork } from '@/chain/Network';
+import ItemActivity from './ItemActivity.vue';
+import { maybeStore } from '@/chain/WalletLoading';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -76,6 +79,12 @@ const nbItems = computed(() => {
                     <a href="https://testnet.aspect.co/" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
                     <a href="https://mintsquare.io/starknet" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
                 </p>
+            </div>
+            <div v-if="box_id">
+                <h2 class="mt-8">Item activity</h2>
+                <Suspense>
+                    <ItemActivity type="box" :user="maybeStore?.user_id" :network="(route.params.network as string) || getCurrentNetwork()" :item="box_id"/>
+                </Suspense>
             </div>
         </template>
     </GenericItemPage>
