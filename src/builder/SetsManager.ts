@@ -212,7 +212,12 @@ export function synchronizeSetsLocally(force = false) {
 
 export const setsManager = reactive(new SetsManager());
 setsManager.loadFromStorage().then(_ => {
-    watchEffect(() => synchronizeSetsLocally());
+    let firstTime = true;
+    watchEffect(() => {
+        synchronizeSetsLocally(!firstTime);
+        firstTime = false;
+    });
+    logDebug('SET STORAGE setup')
 });
 
 

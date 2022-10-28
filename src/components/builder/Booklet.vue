@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Tooltip from '@/components/generic/Tooltip.vue';
 import Slider from '../generic/Slider.vue';
 import { useBooklet } from './BookletComposable';
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import ProgressBar from '../generic/ProgressBar.vue';
+import BookletStepRenderer from './genesis/BookletStepRenderer.vue';
+import { camera } from '@/builder/graphics/Builder';
 
 const currentPage = ref(1)
 
@@ -20,6 +22,17 @@ const {
     bookletData,
     minimized,
 } = useBooklet();
+
+
+const cpos = ref(undefined);
+const crot = ref(undefined);
+onMounted(() => {
+    setInterval(() => {
+        cpos.value = camera.position.clone();
+        crot.value = camera.quaternion.clone();
+    }, 250,
+    )
+});
 </script>
 
 <template>
@@ -32,7 +45,9 @@ const {
                     <span>{{ currentPage }}/{{ +bookletData.nb_pages || 1 }}</span>
                     <Btn no-background class="w-10" @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)"><i class="fas fa-chevron-right"/></Btn>
                 </div>
-                <div class="w-full px-4 py-3 flex justify-center items-center"><img class="max-w-[25vw]" :src="getStepImgSrc(booklet, currentPage)"></div>
+                <div class="relative px-4 py-3 flex justify-center items-center pointer-events-auto w-[400px] h-[300px]" style="transform:scale(0.5)">
+                    <BookletStepRenderer :glb_name="booklet.replace('starknet_city_ongoing/','')" :i="currentPage - 1"/>
+                </div>
                 <div class="border-t border-grad-light px-4 py-3">
                     <p class="flex justify-between"><span>Progress</span><span class="text-right">{{ Math.floor(shapeValidity*100) }}%</span></p>
                     <ProgressBar :percentage="shapeValidity*100"/>
