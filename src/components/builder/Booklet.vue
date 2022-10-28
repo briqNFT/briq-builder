@@ -46,7 +46,7 @@ onMounted(() => {
                     <Btn no-background class="w-10" @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)"><i class="fas fa-chevron-right"/></Btn>
                 </div>
                 <div class="relative px-4 py-3 flex justify-center items-center pointer-events-auto w-[400px] h-[300px]" style="transform:scale(0.5)">
-                    <BookletStepRenderer :glb_name="booklet.replace('starknet_city_ongoing/','')" :i="currentPage - 1"/>
+                    <BookletStepRenderer :glb_name="booklet" :i="currentPage - 1"/>
                 </div>
                 <div class="border-t border-grad-light px-4 py-3">
                     <p class="flex justify-between"><span>Progress</span><span class="text-right">{{ Math.floor(shapeValidity*100) }}%</span></p>

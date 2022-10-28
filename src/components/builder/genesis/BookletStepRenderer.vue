@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { backendManager } from '@/Backend';
+import { getCurrentNetwork } from '@/chain/Network';
 import {
     threeSetupComplete,
     THREE,
@@ -15,6 +17,7 @@ import { GLTFLoader } from '@/three';
 
 import { onMounted, ref, toRef, watch } from 'vue';
 
+const userSet = ref(false);
 
 let scene: THREE.Scene;
 let camera: THREE.Camera;
@@ -159,18 +162,19 @@ async function useRenderer(canvas: HTMLCanvasElement) {
     const near = 0.5;
     const far = 100;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    camera.position.set(10, 10, 10);
+    camera.position.set(20, 20, -20);
 
     orbitControls = new OrbitControls(camera, canvas);
     orbitControls.enableDamping = true;
     orbitControls.target = new THREE.Vector3(0, 0, 0);
 
+    orbitControls.addEventListener('start', () => userSet.value = true)
     orbitControls.enabled = true;
 }
 
 async function loadGlbItems(glb_name: string, i: number) {
-    const previousLink = `/box/${glb_name}_${i - 1}.glb`;
-    const link = `/box/${glb_name}_level_${i}.glb`;
+    const previousLink = backendManager.getRoute(`box/step_glb/${getCurrentNetwork()}/${glb_name}/${i - 1}.glb`);
+    const link = backendManager.getRoute(`box/step_glb_level/${getCurrentNetwork()}/${glb_name}/${i}.glb`);
 
     const itemPromise = new Promise<THREE.Group>((resolve, reject) => {
         const loader = new GLTFLoader();
@@ -198,15 +202,24 @@ async function loadGlbItems(glb_name: string, i: number) {
             );
         });
 
-
-
     glbItem = await itemPromise;
     const borders = glbItem.clone();
     for (const item of borders.children)
         item.material = material
     glbItem.add(borders);
 
-    if (i > 0) {
+    if (!userSet.value) {
+        const bb = new THREE.Box3();
+        for (const item of glbItem.children)
+            if (item.geometry)
+                bb.union(item.geometry.boundingBox);
+        const center = [0, 1, 2].map(i => (bb.max.getComponent(i) + bb.min.getComponent(i))/2.0);
+        orbitControls.target.set(...center);
+        const radius = Math.max(4, bb.getBoundingSphere(new THREE.Sphere()).radius);
+        camera.position.set(...center.map((x, i) => x + (new THREE.Vector3(1, 1, -1)).multiplyScalar(3 * radius).getComponent(i)));
+    }
+
+    if (i > 0) {
         const previousItem = await previousItemPromise;
         const previousBorders = previousItem.clone();
         for (const item of previousBorders.children)
