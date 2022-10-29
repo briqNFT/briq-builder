@@ -21,6 +21,7 @@
     "@sentry/vue": "^6.16",
     "@vitest/coverage-c8": "^0.23.2",
     "ammo.js": "github:kripken/ammo.js",
+    "canvas-confetti": "^1.6.0",
     "chart.js": "^3.8.0",
     "connect": "^3.7",
     "fflate": "^0.7.3",
