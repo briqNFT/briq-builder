@@ -23,6 +23,7 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
     if (!bookletStore.shapeValidityCalculated?.[booklet.value]) {
         // Make a copy so this is is closure-like.
         const booklet_value = booklet.value;
+        const currentSetStick = currentSet.value as SetData;
         // Clean up when we get deleted.
         onBeforeUnmount(() => {
             if (bookletStore.shapeValidityCalculated[booklet_value]) {
@@ -37,7 +38,7 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
                 bookletStore.shapeValidity[booklet_value] = 0;
                 return;
             }
-            const set = forceSet?.value || currentSet.value as SetData;
+            const set = forceSet?.value || (forceBooklet?.value ? setsManager.getBookletSet(forceBooklet?.value) : undefined) || currentSetStick;
             if (!set) {
                 bookletStore.shapeValidity[booklet_value] = 0;
                 return;

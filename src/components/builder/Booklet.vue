@@ -1,19 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import Tooltip from '@/components/generic/Tooltip.vue';
-import Slider from '../generic/Slider.vue';
+import { onMounted, ref } from 'vue';
 import { useBooklet } from './BookletComposable';
-import { useBuilder } from '@/components/builder/BuilderComposable';
 import ProgressBar from '../generic/ProgressBar.vue';
 import BookletStepRenderer from './genesis/BookletStepRenderer.vue';
 import { camera } from '@/builder/graphics/Builder';
 
 const currentPage = ref(1)
-
-const {
-    currentSet,
-    currentSetInfo,
-} = useBuilder();
 
 const {
     getStepImgSrc,
@@ -22,17 +14,6 @@ const {
     bookletData,
     minimized,
 } = useBooklet();
-
-
-const cpos = ref(undefined);
-const crot = ref(undefined);
-onMounted(() => {
-    setInterval(() => {
-        cpos.value = camera.position.clone();
-        crot.value = camera.quaternion.clone();
-    }, 250,
-    )
-});
 </script>
 
 <template>

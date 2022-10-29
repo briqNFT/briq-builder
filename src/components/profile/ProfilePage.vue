@@ -27,6 +27,7 @@ import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 import Tooltip from '../generic/Tooltip.vue';
 import { pushPopup } from '@/Notifications';
 import BoxCard from '../builder/genesis/BoxCard.vue';
+import DraftCard from './DraftCard.vue';
 
 const {
     openSetInBuilder,
@@ -82,6 +83,14 @@ const creations = computed(() => {
 
 const creationsWIP = computed(() => {
     return Object.values(setsManager.setsInfo).filter(x => !x.booklet).map(x => x.getSet());
+})
+
+const draftBooklets = computed(() => {
+    return Object.values(setsManager.setsInfo).filter(x => x.booklet).map(y => {
+        const ret = y.getSet();
+        ret.booklet = y.booklet;
+        return ret;
+    });
 })
 
 const officialCreations = computed(() => {
@@ -220,7 +229,8 @@ div[data-name='menu'] button {
                     <template v-else-if="activeTab === 'GENESIS'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ (userBoxesStore.current?.availableBoxes?.length ?? 0) + (userBookletsStore.current?.booklets?.length ?? 0) + officialCreations.length }}</span></Btn>
                         <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Sealed boxes <span class="pastille">{{ userBoxesStore.current?.availableBoxes?.length ?? 0 }}</span></Btn>
-                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Unbuilt booklets <span class="pastille">{{ userBookletsStore.current?.booklets?.length ?? 0 }}</span></Btn>
+                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Booklets <span class="pastille">{{ userBookletsStore.current?.booklets?.length ?? 0 }}</span></Btn>
+                        <Btn @click="setSection('DRAFTS')" :force-active="filter === 'DRAFTS'" no-background class="w-full justify-start text-left items-baseline font-medium">Draft booklets <span class="pastille">{{ userBookletsStore.current?.booklets?.length ?? 0 }}</span></Btn>
                         <Btn @click="setSection('MINTED')" :force-active="filter === 'MINTED'" no-background class="w-full justify-start items-baseline font-medium">Official sets <span class="pastille">{{ officialCreations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'ACTIVITY'">
@@ -343,7 +353,7 @@ div[data-name='menu'] button {
                 </div>
                 <div v-show="showSection('BOOKLET')">
                     <a id="booklet" class="relative bottom-[80px]"/>
-                    <h3>Unbuilt Booklets</h3>
+                    <h3>Booklets</h3>
                     <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any booklets.</p>
                         <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
@@ -355,6 +365,19 @@ div[data-name='menu'] button {
                                 <BookletCard :box-id="booklet"/>
                             </RouterLink>
                         </div>
+                    </div>
+                </div>
+                <div v-show="showSection('DRAFTS')">
+                    <a id="booklet" class="relative bottom-[80px]"/>
+                    <h3>Draft booklets</h3>
+                    <p class="text-sm mt-1">You can only have one draft per kind of booklet.</p>
+                    <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have any booklets.</p>
+                        <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
+                        <Btn secondary class="mt-2">Browse the themes</Btn>
+                    </div>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
+                        <DraftCard :creation="creation" v-for="creation of draftBooklets" :key="creation.id"/>
                     </div>
                 </div>
                 <div v-show="showSection('MINTED')">

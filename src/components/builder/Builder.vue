@@ -46,7 +46,6 @@ async function initializeStartSet() {
     if (route.query['set'])
         try {
             const setId = route.query['set'] as string;
-            console.log('totoro', setId, setsManager.getInfo(setId), setsManager.setList.slice())
             if (setsManager.getInfo(setId))
                 await selectSet(setsManager.getInfo(setId).getSet());
             else if (userSetStore.current?.setData[setId])

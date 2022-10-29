@@ -261,8 +261,8 @@ async function setupScene() {
 
 const frame = () => {
     render();
-    requestAnimationFrame(frame);
     orbitControls.update();
+    requestAnimationFrame(frame);
 }
 
 const canvasRef = ref(null as unknown as HTMLCanvasElement);
