@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue';
 import { useBooklet } from './BookletComposable';
 import ProgressBar from '../generic/ProgressBar.vue';
 import BookletStepRenderer from './genesis/BookletStepRenderer.vue';
-import { camera } from '@/builder/graphics/Builder';
 
 const currentPage = ref(1)
 
