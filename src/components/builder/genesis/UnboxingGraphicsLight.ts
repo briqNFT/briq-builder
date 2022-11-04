@@ -219,7 +219,7 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     scene = new THREE.Scene();
 
     /* Create the camera early, because it's needed for the post-processor. */
-    const fov = 35;
+    const fov = 40;
     const aspect = 2;
     const near = 0.1;
     const far = 100;

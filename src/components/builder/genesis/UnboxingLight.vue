@@ -12,6 +12,7 @@ import { APP_ENV } from '@/Meta';
 
 import { useGenesisStore } from '@/builder/GenesisStore';
 
+import BriqsImg from '@/assets/genesis/briqs.png';
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { hexUuid } from '@/Uuid';
 import { getBookletData, getBookletDataSync } from '@/builder/BookletData';
@@ -21,6 +22,8 @@ import { useSetHelpers } from '../SetComposable';
 import { pushModal } from '@/components/Modals.vue';
 import UnboxModalVue from './UnboxModal.vue';
 import { useUnboxHelpers } from '@/builder/Unbox';
+import Toggle from '@/components/generic/Toggle.vue';
+import { featureFlags } from '@/FeatureFlags';
 
 
 //////////////////////////////
@@ -390,9 +393,23 @@ onUnmounted(() => {
 })
 
 
-const startUnboxing = async () => {
-    if (await pushModal(UnboxModalVue, { boxId: boxId.value }))
+const termsSale = ref(false);
+const termsBriq = ref(false);
+
+const { unbox, fakeUnbox } = useUnboxHelpers();
+const disableButtons = ref(false);
+
+const doUnbox = async () => {
+    disableButtons.value = true;
+    try {
+        await unbox(boxId.value);
         fsm.switchTo('UNBOXING');
+    } catch(_) { /**/ }
+    disableButtons.value = false;
+}
+const doFakeUnbox = async () => {
+    await fakeUnbox(boxId.value);
+    fsm.switchTo('UNBOXING');
 }
 
 const openBuilder = async () => {
@@ -425,22 +442,36 @@ const useMockWallet = () => {
             </template>
         </div>
     </Transition>
-    <div v-if="step === 'SAPIN'" class="flex justify-center items-center w-full absolute left-0 top-[70%] h-[30%] pointer-events-none gap-8">
-        <Btn class="pointer-events-auto" @click="startUnboxing">Start Unboxing</Btn>
+    <div v-if="step === 'SAPIN'">
+        <div class="fixed right-0 top-0 m-8 shadow bg-grad-lightest rounded-md p-6 max-w-[27rem]">
+            <h4 class="text-md mb-6">Unboxing</h4>
+            <p>Unboxing this <span class="font-medium">{{ boxMetadata._data?.name }}</span> box will burn it forever.<br>In exchange, its content will be available to you.</p>
+            <h5 class="mt-6 mb-3 font-medium">Terms and conditions</h5>
+            <div class="text-sm flex flex-col gap-4">
+                <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
+                <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
+            </div>
+            <div class="mt-8 flex justify-between">
+                <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm" :disabled="disableButtons">Back to inventory</Btn></RouterLink>
+                <Btn no-background v-if="featureFlags.adminOnly" class="pointer-events-auto !text-sm" @click="doFakeUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Fakeunbox</Btn>
+                <Btn class="pointer-events-auto !text-sm" @click="doUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Unbox</Btn>
+            </div>
+        </div>
     </div>
     <div v-if="step === 'UNBOXED'" class="flex flex-col justify-center items-center w-full absolute left-0 top-[10%] pointer-events-none gap-8">
         <p>Here's what's inside your box</p>
         <div class="grid grid-cols-2 gap-6">
             <div class="flex flex-col gap-6">
-                <div class="bg-grad-lightest shadow-md rounded-md w-[14rem] h-[14rem] p-6">
-                    <p class="text-center font-semibold">Booklet <span class="ml-2 font-normal">x 1</span></p>
-                    <div class="flex h-full items-center"><img :src="genesisStore.coverBookletRoute(boxId)"></div>
+                <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
+                    <p class="text-center font-semibold">Booklet <span class="font-normal">x 1</span></p>
+                    <div class="flex h-full justify-center items-center"><img :src="genesisStore.coverBookletRoute(boxId)"></div>
                 </div>
                 <Btn secondary class="pointer-events-auto h-14" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
             </div>
             <div class="flex flex-col gap-6">
-                <div class="bg-grad-lightest shadow-md rounded-md w-[14rem] h-[14rem] p-6">
-                    <p class="text-center font-semibold">Briqs <span class="ml-2 font-normal">x 1</span></p>
+                <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
+                    <p class="text-center font-semibold">Briqs <span class="font-normal">x 1</span></p>
+                    <div class="flex h-full justify-center items-center"><img class="max-w-[5rem]" :src="BriqsImg"></div>
                 </div>
                 <Btn class="pointer-events-auto h-14" @click="openBuilder">Start Building</Btn>
             </div>

@@ -89,7 +89,7 @@ const menuOpen = ref(false);
                 <div class="divider"/>
                 <UndoRedo no-background secondary class="flex-none px-1"/>
                 <div class="divider"/>
-                <Btn no-background class="w-10" @click="pushModal(ShortcutModal)"><i class="far fa-keyboard"/></Btn>
+                <Btn no-background class="w-10 p-0 h-10" @click="pushModal(ShortcutModal)"><i class="text-lg far fa-circle-question"/></Btn>
                 <Hotkey name="help" :data="{ key: '?', shift: true }" :handler="() => pushModal(ShortcutModal)"/>
             </div>
         </div>

@@ -18,7 +18,7 @@ class Settings {
     reset() {
         this.aaLevel = 'FXAA';
         this.useSAO = false;
-        this.showBorders = false;
+        this.showBorders = true;
         this.transparentBackground = false;
     }
 
