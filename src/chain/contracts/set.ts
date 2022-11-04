@@ -8,6 +8,8 @@ import SetABI from './starknet-testnet/set_nft.json';
 import { toBN } from 'starknet/utils/number';
 import { maybeStore } from '../WalletLoading';
 
+const SHAPE_HASH_COLLECTION = 2;
+
 export default class SetContract {
     contract!: Contract;
     constructor(address: string, provider: Provider) {
@@ -83,7 +85,7 @@ export default class SetContract {
         const setName = this._string_to_felt_string(data.name);
         const setDescription = this._string_to_felt_string(data.description);
         await maybeStore.value!.ensureEnabled();
-        return await this.contract.assemble_(owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet] : []);
+        return await this.contract.assemble_(owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet, SHAPE_HASH_COLLECTION] : [SHAPE_HASH_COLLECTION]);
     }
 
     async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
