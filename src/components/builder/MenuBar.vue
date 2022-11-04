@@ -112,7 +112,7 @@ const menuOpen = ref(false);
             <div class="flex items-stretch gap-1 p-1 border bg-grad-lightest rounded">
                 <template v-if="maybeStore?.userWalletAddress">
                     <Tooltip :tooltip="`${ getNbBriqs } briqs used out of ${ chainBriqs?.getNbBriqs() } in wallet`">
-                        <div class="flex items-center justify-left font-medium gap-2 px-4 cursor-help min-w-[7rem]">
+                        <div class="flex items-center justify-left font-medium gap-2 pl-3 pr-4 cursor-help" :style="{ minWidth: `${getNbBriqs.toString().length * 0.6 + 5.7}rem`}">
                             <briqIcon class="inline-block"/>
                             {{ getNbBriqs }}/{{ chainBriqs?.getNbBriqs() }}
                         </div>

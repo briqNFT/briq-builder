@@ -119,6 +119,14 @@ watch([shapeValidity], (nv, ov) => {
         badFetti();
 })
 
+const lowerPage = () => {
+    if (--currentPage.value < 1)
+        currentPage.value = +bookletData.value.nb_pages || 1;
+}
+const higherPage = () => {
+    if (++currentPage.value > (+bookletData.value.nb_pages || 1))
+        currentPage.value = 1;
+}
 </script>
 
 <template>
@@ -126,17 +134,17 @@ watch([shapeValidity], (nv, ov) => {
         <h6 class="font-medium text-sm bg-grad-lighter bg-opacity-50 rounded-t-md px-4 py-3">Booklet</h6>
         <div class="flex-col">
             <template v-if="!!bookletData">
-                <div class="flex px-4 py-1 text-sm font-normal justify-between items-center border-b border-grad-light">
-                    <Btn no-background class="w-10" @click="currentPage = Math.max(currentPage - 1, 1)"><i class="fas fa-chevron-left"/></Btn>
+                <div class="flex px-1 py-1 text-sm font-medium justify-between items-center border-b border-grad-light">
+                    <Btn no-background class="w-10" @click="lowerPage"><i class="fas fa-chevron-left"/></Btn>
                     <span>{{ currentPage }}/{{ +bookletData.nb_pages || 1 }}</span>
-                    <Btn no-background class="w-10" @click="currentPage = Math.min(currentPage + 1, +bookletData.nb_pages || 1)"><i class="fas fa-chevron-right"/></Btn>
+                    <Btn no-background class="w-10" @click="higherPage"><i class="fas fa-chevron-right"/></Btn>
                 </div>
-                <div class="relative px-4 py-3 flex justify-center items-center pointer-events-auto cursor-move w-[400px] h-[400px]">
+                <div class="relative flex justify-center items-center pointer-events-auto cursor-move w-[400px] h-[400px]">
                     <BookletStepRenderer :glb_name="booklet" :i="currentPage - 1"/>
                 </div>
-                <div class="border-t relative border-grad-light px-4 py-3">
-                    <p class="flex justify-between"><span>Progress</span><span class="text-right">{{ Math.floor(shapeValidity*100) }}%</span></p>
-                    <ProgressBar :percentage="shapeValidity*100"/>
+                <div class="border-t relative border-grad-light px-4 py-4">
+                    <p class="flex justify-between mb-2"><span>Progress</span><span class="text-right font-medium">{{ Math.floor(shapeValidity*100) }}%</span></p>
+                    <ProgressBar class="!block h-3 my-0" :percentage="shapeValidity*100"/>
                     <canvas ref="microCanvas" class="absolute w-[200px] h-[200px] top-8 -translate-x-1/2 -translate-y-1/2 pointer-events-none" :style="{ left: `${shapeValidity*100}%` }"/>
                 </div>
             </template>

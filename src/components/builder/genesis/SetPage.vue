@@ -24,6 +24,7 @@ import { userBookletsStore } from '@/builder/UserBooklets';
 import { SetData } from '@/builder/SetData';
 import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
+import { pushPopup } from '@/Notifications';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -58,6 +59,8 @@ const bookletQuery = computed(() => booklet_id.value ? genesisStore.metadata[boo
 const bookletData = computed(() => bookletQuery.value?._data);
 
 const setKind = computed(() => booklet_id.value ? 'OFFICIAL' : 'PERSONAL');
+
+const isOwned = computed(() => !!userSetStore.current?.setData[route.params.set_id as string]);
 
 const setData = computed(() => {
     if (mode === 'BOOKLET')
@@ -144,6 +147,12 @@ const nbItems = computed(() => {
         return userBookletsStore.current?.booklets?.filter(x => x === booklet_id.value).length ?? '...';
     return 1;
 });
+
+const copySetId = () => {
+    navigator.clipboard.writeText(route.params.set_id);
+    pushPopup('info', 'Set ID copied');
+}
+
 </script>
 
 <template>
@@ -211,8 +220,11 @@ const nbItems = computed(() => {
                 <h5 class="mt-2">
                     {{ setKind === 'OFFICIAL' ? 'Official set' : 'Personal creation' }}<span class="font-normal"> - minted</span>
                 </h5>
-                <p class="mt-6 mb-8">{{ set?.description }}</p>
-                <div class="rounded border border-grad-light overflow-hidden mt-6 mb-10">
+                <p class="mt-6">{{ set?.description }}</p>
+                <p class="my-6 font-semibold cursor-pointer select-none w-fit" @click="copySetId">
+                    ID: <span class="font-normal">{{ `${route.params.set_id.slice(0, 6)}...${route.params.set_id.slice(-4)}` }} <i class="far fa-copy"/></span>
+                </p>
+                <div class="rounded border border-grad-light overflow-hidden mb-10">
                     <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                         <div>
                             <h5 class="font-normal text-grad-dark">briqs used</h5>
@@ -220,7 +232,7 @@ const nbItems = computed(() => {
                                 <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon/></span> {{ set?.getNbBriqs?.() }}
                             </p>
                         </div>
-                        <Btn secondary @click="doDisassembly" class="h-full text-md px-6">Disassemble</Btn>
+                        <Btn v-if="isOwned" secondary @click="doDisassembly" class="h-full text-md px-6">Disassemble</Btn>
                     </div>
                     <div class="p-6 py-4 flex flex-col gap-4">
                         <p><span class="font-medium">Created on: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>

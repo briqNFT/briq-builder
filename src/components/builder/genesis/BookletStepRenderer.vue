@@ -116,8 +116,10 @@ function recreateRenderer() {
 
 function resizeRendererToDisplaySize() {
     const canvas = renderer.domElement;
-    const width = canvas.parentElement.clientWidth;
-    const height = canvas.parentElement.clientHeight;
+    const resolution = 2;
+
+    const width = canvas.parentElement.clientWidth * resolution;
+    const height = canvas.parentElement.clientHeight * resolution;
     const needResize = canvas.width !== width || canvas.height !== height;
     if (needResize) {
         renderer.setSize(width, height, false);
@@ -289,5 +291,5 @@ watch([toRef(props, 'i'), toRef(props, 'glb_name')], async () => {
 
 
 <template>
-    <canvas width="800" height="800" class=" w-full h-full" ref="canvasRef"/>
+    <canvas class=" w-full h-full" ref="canvasRef"/>
 </template>
