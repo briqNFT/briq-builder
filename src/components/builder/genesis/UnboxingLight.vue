@@ -175,13 +175,14 @@ const unboxingOpenState = new class implements FsmState {
                 new THREE.Vector2(1, 1),
             );
             const easedTime = curve.getPoint(Math.min(1.0, this.c2 / 8)).y;
-            camera.position.lerpVectors(new THREE.Vector3(2.75, 2.25, 0.15), new THREE.Vector3(1.6, 1.6, 0.3), Math.min(1, easedTime));
-            camera.quaternion.slerpQuaternions(new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), new THREE.Quaternion(-0.36, 0.584, 0.326, 0.65), Math.min(1, easedTime));
+            //camera.position.lerpVectors(new THREE.Vector3(2.75, 2.25, 0.15), new THREE.Vector3(1.6, 1.6, 0.3), Math.min(1, easedTime));
+            //camera.quaternion.slerpQuaternions(new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), new THREE.Quaternion(-0.36, 0.584, 0.326, 0.65), Math.min(1, easedTime));
+            camera.position.lerpVectors(new THREE.Vector3(2.75, 2.25, 0.15), new THREE.Vector3(2.42, 0.105, 0.43), Math.min(1, easedTime));
+            camera.quaternion.slerpQuaternions(new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), new THREE.Quaternion(-0.06, 0.62, 0.047, 0.78), Math.min(1, easedTime));
             //scene.fog.near = 1.3 + easedTime * 1.7;
             //scene.fog.far = 4.5 + easedTime * 0.5;
             this.c2 += delta;
         }
-
         // Box movement
         if (sceneBox.userData.mixer.time > 2.5 && this.boxMoveStep < 1) {
             this.boxMoveStep += delta / 2;
@@ -427,9 +428,23 @@ const useMockWallet = () => {
     <div v-if="step === 'SAPIN'" class="flex justify-center items-center w-full absolute left-0 top-[70%] h-[30%] pointer-events-none gap-8">
         <Btn class="pointer-events-auto" @click="startUnboxing">Start Unboxing</Btn>
     </div>
-    <div v-if="step === 'UNBOXED'" class="flex justify-center items-center w-full absolute left-0 top-[70%] h-[30%] pointer-events-none gap-8">
-        <Btn secondary class="pointer-events-auto" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
-        <Btn class="pointer-events-auto" @click="openBuilder">Start Building</Btn>
+    <div v-if="step === 'UNBOXED'" class="flex flex-col justify-center items-center w-full absolute left-0 top-[10%] pointer-events-none gap-8">
+        <p>Here's what's inside your box</p>
+        <div class="grid grid-cols-2 gap-6">
+            <div class="flex flex-col gap-6">
+                <div class="bg-grad-lightest shadow-md rounded-md w-[14rem] h-[14rem] p-6">
+                    <p class="text-center font-semibold">Booklet <span class="ml-2 font-normal">x 1</span></p>
+                    <div class="flex h-full items-center"><img :src="genesisStore.coverBookletRoute(boxId)"></div>
+                </div>
+                <Btn secondary class="pointer-events-auto h-14" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
+            </div>
+            <div class="flex flex-col gap-6">
+                <div class="bg-grad-lightest shadow-md rounded-md w-[14rem] h-[14rem] p-6">
+                    <p class="text-center font-semibold">Briqs <span class="ml-2 font-normal">x 1</span></p>
+                </div>
+                <Btn class="pointer-events-auto h-14" @click="openBuilder">Start Building</Btn>
+            </div>
+        </div>
     </div>
     <div v-if="step === 'OPEN_BUILDER'" class="absolute h-screen w-screen bg-grad-lightest" :style="`opacity: ${Math.min(1, fsm.state.easedTime.value ?? 0 * fsm.state.easedTime.value ?? 0)};`"/>
 </template>

@@ -19,8 +19,8 @@ import { APP_ENV } from '@/Meta';
 
 import BookletModel from '@/assets/genesis/booklet.glb?url';
 import BriqBox from '@/assets/genesis/briqs_box.glb?url';
-
-import DefaultBox from '@/assets/genesis/default_box.png';
+import EnvMapImg from '@/assets/genesis/WhiteRoom.png';
+import BoxNormImg from '@/assets/genesis/box_tex_norm.png';
 
 export enum SceneQuality {
     LOW,
@@ -43,7 +43,8 @@ let bookletMesh: THREE.Object3D;
 
 let canvas: HTMLCanvasElement;
 
-let defaultBoxTexture: THREE.Texture;
+let envMapTexture: THREE.Texture;
+let boxNormTexture: THREE.Texture;
 
 let sceneBox: THREE.Mesh | undefined;
 
@@ -175,9 +176,16 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
         };
 
     const defaultLoader = new THREE.TextureLoader();
-    defaultBoxTexture = defaultLoader.load(DefaultBox, (tex) => {
+    boxNormTexture = defaultLoader.load(BoxNormImg, (tex) => {
         tex.encoding = THREE.sRGBEncoding;
         tex.flipY = false;
+    });
+
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+
+    defaultLoader.load(EnvMapImg, (tex) => {
+        envMapTexture = pmremGenerator.fromEquirectangular(tex).texture;
     });
 
     const boxPromise = new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
@@ -260,34 +268,39 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     scene.add(camera);
 
     scene.fog = new THREE.Fog(new THREE.Color('#ffffff').convertSRGBToLinear(), 1.3, 4.5);
-    scene.background = new THREE.Color('#FFFFFF').convertSRGBToLinear();
+    // scene.background = new THREE.Color('#FF0000').convertSRGBToLinear();
 
-    scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF').convertSRGBToLinear(), 0.1))
-    let light: THREE.SpotLight;
-    light = new THREE.SpotLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 1.5, 50.0, Math.PI/6, 0.5, 1.0);
-    light.position.set(1, 2, -0.5);
-    light.shadow.mapSize = new THREE.Vector2(1024, 1024);
-    light.shadow.radius = 20;
-    light.shadow.blurSamples = 10;
-    light.shadow.camera.far = 5.0;
-    light.shadow.bias = -0.004;
-    //light.shadow.normalBias = 0.08;
+    scene.environment = envMapTexture;
+    scene.background = envMapTexture;
 
-    const map = new THREE.WebGLRenderTarget(1024, 1024, {
-        format: THREE.RGBAFormat,
-        type: THREE.FloatType,
+    //scene.add(new THREE.AmbientLight(new THREE.Color('#FFFFFF').convertSRGBToLinear(), 0.1))
+    {
+        let light: THREE.SpotLight;
+        light = new THREE.SpotLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 1.0, 50.0, Math.PI/6, 0.5, 1.0);
+        light.position.set(1, 2, -0.5);
+        light.shadow.mapSize = new THREE.Vector2(1024, 1024);
+        light.shadow.radius = 20;
+        light.shadow.blurSamples = 10;
+        light.shadow.camera.far = 5.0;
+        light.shadow.bias = -0.004;
+        //light.shadow.normalBias = 0.08;
 
-    });
-    map.texture.name = light.name + '.shadowMap';
-    light.shadow.map = map;
+        const map = new THREE.WebGLRenderTarget(1024, 1024, {
+            format: THREE.RGBAFormat,
+            type: THREE.FloatType,
 
-    light.castShadow = true;
-    scene.add(light);
+        });
+        map.texture.name = light.name + '.shadowMap';
+        light.shadow.map = map;
+
+        light.castShadow = true;
+        scene.add(light);
     //scene.add(new THREE.SpotLightHelper(light, new THREE.Color(0xff0000)))
+    }
 
     const floor = new THREE.Mesh(
         new THREE.BoxGeometry( 3, 1, 3 ),
-        new THREE.ShadowMaterial( { color: 0x111111 } ),
+        new THREE.ShadowMaterial( { color: 0x222222 } ),
     );
     floor.receiveShadow = true;
     floor.position.y = -1;
@@ -324,15 +337,17 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
 export async function setBox(boxData: any) {
     const box = SkeletonUtils.clone(boxGlb.box) as THREE.Object3D;
 
-    let texturedMat;
+    let texturedMat: THREE.MeshPhysicalMaterial;
     box.traverse(mesh => {
         if (mesh.material) {
             mesh.material.fog = false;
             mesh.receiveShadow = true;
         }
         if (mesh.material?.name === 'briq_box.001') {
-            texturedMat = mesh.material;
             mesh.castShadow = true;
+            texturedMat = new THREE.MeshPhysicalMaterial();
+            texturedMat.fog = false;
+            mesh.material = texturedMat;
         }
     })
 
@@ -344,6 +359,14 @@ export async function setBox(boxData: any) {
             tex.flipY = false;
             texturedMat.map = tex;
             texturedMat.map.anisotropy = 4;
+            texturedMat.normalMap = boxNormTexture;
+            texturedMat.normalMap.anisotropy = 8;
+            texturedMat.normalMap.encoding = THREE.LinearEncoding;
+            texturedMat.envMap = envMapTexture;
+            texturedMat.envMapIntensity = 0.6;
+            texturedMat.metalness = 0.0;
+            texturedMat.roughness = 0.24;
+            texturedMat.specularIntensity = 0.15;
             resolve(tex);
         }),
     );
@@ -465,7 +488,13 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
     briqCubes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.015, 0.015, 0.015, 1, 1, 1), new THREE.MeshStandardMaterial(), xcount*ycount*zcount);
     briqCubes.castShadow = true;
     briqCubes.receiveShadow = true;
-    briqCubes.material.fog = false;
+    const material = briqCubes.material as THREE.MeshStandardMaterial;
+    material.fog = false;
+    material.metalness = 0.1;
+    material.roughness = 0.02;
+    material.envMap = envMapTexture;
+    material.envMapIntensity = 0.6;
+
     let i = 0;
     for (let x = 0; x < xcount; ++x)
         for (let z = 0; z < zcount; ++z)
@@ -497,6 +526,11 @@ export function generateBooklet() {
     booklet.material.fog = false;
     booklet.material.map = sceneData.bookletTexture;
     booklet.material.map.anisotropy = 8;
+    booklet.material.metalness = 0.02;
+    booklet.material.roughness = 0.3;
+    booklet.material.envMap = envMapTexture;
+    booklet.material.envMapIntensity = 0.6;
+
     booklet.castShadow = true;
     booklet.receiveShadow = true;
     let vec = new THREE.Vector3(0.03, 0, 0.1);
@@ -564,7 +598,6 @@ export function graphicsFrame(delta: number) {
         debugGeometry.setDrawRange(0, debugDrawer.index);
         debugDrawer.update()
     }
-
     if (physicsWorld && runPhysics) {
         physicsWorld.step(delta);
 
