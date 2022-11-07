@@ -231,12 +231,12 @@ button:not(.btn):not(.nostyle)::before {
             </div>
             <div class="my-4">
                 <p class="mb-2">Name</p>
-                <p><input type="text" v-model="setName" size="61" autocomplete="off" data-lpignore="true" data-form-type="other"></p>
+                <p><input class="max-w-full" type="text" v-model="setName" size="61" autocomplete="off" data-lpignore="true" data-form-type="other"></p>
             </div>
             <div class="my-4">
                 <p class="mb-2">Description</p>
                 <p>
-                    <textarea v-model="setDescription" cols="60"/>
+                    <textarea class="max-w-full" v-model="setDescription" cols="60"/>
                 </p>
             </div>
             <div class="flex justify-between gap-2 mt-6">
