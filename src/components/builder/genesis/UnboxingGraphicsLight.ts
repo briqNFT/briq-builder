@@ -43,6 +43,7 @@ let bookletMesh: THREE.Object3D;
 
 let canvas: HTMLCanvasElement;
 
+let envMapRawTexture: THREE.Texture;
 let envMapTexture: THREE.Texture;
 let boxNormTexture: THREE.Texture;
 
@@ -167,25 +168,30 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
     // Have to recreate renderer, to update the canvas.
     renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
 
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+
     // We only need the rest once.
-    if (boxGlb)
+    if (boxGlb) {
+        // Recreate envmap, raw texture has already been loaded before.
+        envMapTexture = pmremGenerator.fromEquirectangular(envMapRawTexture).texture;
         return {
             camera,
             scene,
             render,
         };
+    }
 
     const defaultLoader = new THREE.TextureLoader();
+
+    const envMapPromise = new Promise<THREE.Texture>(resolve => defaultLoader.load(EnvMapImg, (tex) => {
+        envMapRawTexture = tex;
+        resolve(envMapRawTexture);
+    }));
+
     boxNormTexture = defaultLoader.load(BoxNormImg, (tex) => {
         tex.encoding = THREE.sRGBEncoding;
         tex.flipY = false;
-    });
-
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    pmremGenerator.compileEquirectangularShader();
-
-    defaultLoader.load(EnvMapImg, (tex) => {
-        envMapTexture = pmremGenerator.fromEquirectangular(tex).texture;
     });
 
     const boxPromise = new Promise<{ anim: THREE.AnimationClip, box: THREE.Object3D }>((resolve, reject) => {
@@ -234,6 +240,7 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
 
     boxGlb = await boxPromise;
     bookletMesh = await bookletPromise;
+    envMapTexture = pmremGenerator.fromEquirectangular(await envMapPromise).texture;
 
     return {
         camera,
