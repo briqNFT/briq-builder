@@ -16,20 +16,21 @@ const icon = computed(() => ({
 }[props.level]));
 
 let timeout: any;
-let timeoutTime: number;
+let timeoutTime = 0;
+let lastPauseTime: number;
 onMounted(() => {
     timeout = setTimeout(() => emit('close'), 8000);
-    timeoutTime = Date.now();
+    lastPauseTime = Date.now();
 });
 
 const pauseTimer = () => {
     if (timeout)
         clearTimeout(timeout);
-    timeoutTime = Date.now() - timeoutTime;
+    timeoutTime += Date.now() - lastPauseTime;
 };
 const resumeTimer = () => {
     timeout = setTimeout(() => emit('close'), 8000 - timeoutTime);
-    timeoutTime = Date.now();
+    lastPauseTime = Date.now();
 };
 </script>
 
