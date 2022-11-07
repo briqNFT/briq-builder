@@ -43,7 +43,14 @@ const frame = () => {
         return;
     render();
     if (Date.now() - lastScreen.value > 2500 && currentSet.value) {
-        window.localStorage.setItem('set_preview_' + currentSet.value.id, canvas.value.toDataURL('image/jpeg'));
+
+        let resizedCanvas = document.createElement('canvas');
+        let resizedContext = resizedCanvas.getContext('2d');
+
+        resizedCanvas.height = 400;
+        resizedCanvas.width = canvas.value.width * (400 / canvas.value.height);
+        resizedContext!.drawImage(canvas.value, 0, 0, resizedCanvas.width, resizedCanvas.height);
+        window.localStorage.setItem('set_preview_' + currentSet.value.id, resizedCanvas.toDataURL('image/jpeg', 0.6));
         lastScreen.value = Date.now();
     }
     builderInputFsm.onFrame();
