@@ -9,6 +9,7 @@ export const featureFlags = reactive({
 
 // No leading zeros
 const admins = [
+    '0x59df66af2e0e350842b11ea6b5a903b94640c4ff0418b04ccedcc320f531a08',
     '0x3e46c8abcd73a10cb59c249592a30c489eeab55f76b3496fd9e0250825afe03',
     '0x6043ed114a9a1987fe65b100d0da46fe71b2470e7e5ff8bf91be5346f5e5e3',
     '0x4a9ad47f5086e917bf67077954bd62685d8746c7504026bf43bbecb1fa6dde0',
