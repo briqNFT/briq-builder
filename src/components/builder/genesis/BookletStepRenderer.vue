@@ -76,6 +76,52 @@ borderLightMaterial.transparent = true;
 borderLightMaterial.depthTest = true;
 borderLightMaterial.depthWrite = false;
 
+const iridescentMaterialGen = (alpha: string) => new THREE.ShaderMaterial( {
+    uniforms: { time: { value: 0 } },
+    vertexShader: `
+        varying vec3 norm;
+        varying vec3 pos;
+        void main() {
+            norm = abs(normal) * 5.0;
+            norm = (viewMatrix * vec4(pos, 1.0)).xyz;
+            pos = position;
+            vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_Position = projectionMatrix * modelViewPosition; 
+        }
+        `,
+    fragmentShader:
+        `varying vec3 norm;
+        varying vec3 pos;
+        uniform float time;
+        void main() {
+            float xb = mod(pos.x + time, 2.0) * 0.5 + 0.2;
+            float yb = mod(pos.y + time, 2.0) * 0.5 + 0.2;
+            float zb = mod(pos.z + time, 2.0) * 0.5 + 0.2;
+            gl_FragColor = vec4(xb, yb, zb, 1.0);
+            vec3 iri = vec3(xb, yb, zb);
+
+            xb = abs(0.5f - mod(pos.x - 0.5, 1.0f));
+            yb = abs(0.5f - mod(pos.y - 0.5, 1.0f));
+            zb = abs(0.5f - mod(pos.z - 0.5, 1.0f));
+            float threshold = 0.40;
+            if (xb > threshold && yb > threshold)
+                gl_FragColor = vec4(vec3(${alpha}, ${alpha}, ${alpha}) * iri, 1.0f);
+            else if (zb > threshold && yb > threshold)
+                gl_FragColor = vec4(vec3(${alpha}, ${alpha}, ${alpha}) * iri, 1.0f);
+            else if (zb > threshold && xb > threshold)
+                gl_FragColor = vec4(vec3(${alpha}, ${alpha}, ${alpha}) * iri, 1.0f);
+            else
+                gl_FragColor = vec4(vec3(0, 0, 0), 0.f);
+        }
+        `,
+});
+
+const iridescentMaterial = iridescentMaterialGen('0.3');
+iridescentMaterial.transparent = true;
+
+const iridescentMaterialLight = iridescentMaterialGen('0.6');
+iridescentMaterialLight.transparent = true;
+
 function recreateRenderer() {
     renderer.shadowMap.needsUpdate = true;
     renderer.shadowMap.enabled = true;
@@ -139,9 +185,13 @@ function resizeRendererToDisplaySize() {
     return needResize;
 }
 
-function render() {
+function render(t: number) {
     if (!composer)
         return;
+    if (iridescentMaterial) {
+        iridescentMaterial.uniforms.time.value = (t / 1000.0);
+        iridescentMaterialLight.uniforms.time.value = (t / 1000.0);
+    }
     resizeRendererToDisplaySize();
     composer.render();
     //renderer.info.reset();
@@ -195,16 +245,29 @@ async function loadGlbItems(glb_name: string, i: number) {
     if (!glbItemPerNamePerStep?.[glb_name]?.[i]) {
         const item = await loadGlbItem(glb_name, i, 'step_glb_level');
         const borders = item.clone(true);
-        for (const item of borders.children)
-            item.material = borderMaterial;
+        for (const it of borders.children)
+            it.material = borderMaterial;
+        for (const it of item.children)
+            if (it.material.name === '0x1_#29296E') {
+                iridescentMaterial.name = '_Any color you like';
+                it.material = iridescentMaterial;
+                it.geometry.computeVertexNormals();
+            }
+
         item.add(borders);
 
         if (i > 0) {
             const previousItem = await loadGlbItem(glb_name, i - 1, 'step_glb');
-            for (const item of previousItem.children) {
-                item.material.fog = true;
-                item.material.color = (item.material.color as THREE.Color).lerp(new THREE.Color(0xffffff), 0.6);
-            }
+            for (const item of previousItem.children)
+                if (item.material.name === '0x1_#29296E') {
+                    iridescentMaterialLight.name = '_Any color you like';
+                    item.material = iridescentMaterialLight;
+                    item.geometry.computeVertexNormals();
+                } else {
+                    item.material.fog = true;
+                    item.material.color = (item.material.color as THREE.Color).lerp(new THREE.Color(0xffffff), 0.6);
+                }
+
             const previousBorders = previousItem.clone(true);
             for (const item of previousBorders.children)
                 item.material = borderLightMaterial;
@@ -247,8 +310,8 @@ async function setupScene() {
     scene.add(light);
 }
 
-const frame = () => {
-    render();
+const frame = (t: number) => {
+    render(t);
     orbitControls.update();
     requestAnimationFrame(frame);
 }
