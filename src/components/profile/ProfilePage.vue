@@ -213,7 +213,7 @@ div[data-name='menu'] button {
             <div class="flex gap-8">
                 <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Genesis collection&nbsp;<span class="pastille">{{ officialCreations.length + (userBoxesStore.current?.availableBoxes?.length ?? 0) + (userBookletsStore.current?.booklets?.length ?? 0) }}</span></p>
                 <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">My creations&nbsp;<span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>
+                <!--<p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>-->
             </div>
         </div>
     </div>
