@@ -345,5 +345,6 @@ export async function main(canvas) {
 
 export async function unmount() {
     scene.clear();
+    console.log('totoro 0', renderer);
     renderer?.dispose();
 }

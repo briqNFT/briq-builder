@@ -159,8 +159,8 @@ async function useRenderer(canvas: HTMLCanvasElement) {
     /* Create the camera early, because it's needed for the post-processor. */
     const fov = 20;
     const aspect = 2;
-    const near = 0.5;
-    const far = 100;
+    const near = 1.0;
+    const far = 750;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     camera.position.set(20, 20, -20);
 

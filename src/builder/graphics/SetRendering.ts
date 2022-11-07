@@ -229,7 +229,16 @@ export function handleActions(dispatchedActions: Array<{ action: string; payload
             grid.place(Math.min(bounds.min[0] - 2, -5), 0, Math.min(bounds.min[2] - 2, -5),
                 Math.max(10, bounds.max[0] - bounds.min[0] + 5), Math.max(10, bounds.max[2] - bounds.min[2] + 5))
         else
-            grid.place(-5, 0, -5, 10, 10)
+            grid.place(-5, 0, -5, 10, 10);
+
+        const getCanvasSize = () => {
+            if (!bounds.min)
+                return 5;
+            return Math.max(5, ...[0, 1, 2].map(i => bounds.max[i] - bounds.min[i]));
+        }
+        camera.near = 0.5;
+        camera.far = Math.max(4000, getCanvasSize() * 100);
+        camera.updateProjectionMatrix();
     }
 }
 
