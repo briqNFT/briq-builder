@@ -321,5 +321,5 @@ watch([toRef(props, 'i'), toRef(props, 'glb_name')], async () => {
     <div class="flex justify-center items-center cursor-move w-full h-full">
         <canvas class="w-full h-full" ref="canvasRef" @mousemove="sampleColor" @mousedown="startSelectHoveredColor" @mouseup="selectHoveredColor"/>
     </div>
-    <p class="absolute bottom-0 left-0 ml-4 mb-2 flex items-center gap-1"><span class="w-4 h-4 rounded-sm" :style="{ backgroundColor: hoverColor }"/>{{ hoverColor }}</p>
+    <p class="absolute pointer-events-none bottom-0 left-0 ml-4 mb-2 flex items-center gap-1"><span class="w-4 h-4 rounded-sm" :style="{ backgroundColor: hoverColor }"/>{{ hoverColor }}</p>
 </template>
