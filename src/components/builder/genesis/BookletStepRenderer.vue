@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { backendManager } from '@/Backend';
+import { inputStore } from '@/builder/inputs/InputStore';
 import { getCurrentNetwork } from '@/chain/Network';
 import {
     threeSetupComplete,
@@ -252,7 +253,6 @@ const frame = () => {
     requestAnimationFrame(frame);
 }
 
-
 const resetCamera = () => {
     const bb = new THREE.Box3();
     for (const item of glbItem.children)
@@ -264,6 +264,34 @@ const resetCamera = () => {
     camera.position.set(...center.map((x, i) => x + (new THREE.Vector3(1, 1, -1)).multiplyScalar(3 * radius).getComponent(i)));
     userSet.value = false;
 };
+
+const hoverColor = ref('');
+
+const sampleColor = (event: MouseEvent) => {
+    const x = event.offsetX / canvasRef.value.clientWidth * 2 - 1;
+    const y = -((event.offsetY / canvasRef.value.clientHeight) * 2 - 1);
+    const rc = new THREE.Raycaster();
+    rc.setFromCamera({ x, y }, camera);
+    const obj = rc.intersectObject(scene.children[0], true);
+    if (obj?.[0]?.object?.material)
+        hoverColor.value = obj?.[0]?.object?.material.name.split('_')[1]
+    else
+        hoverColor.value = '';
+}
+
+let mx: number, my: number;
+const startSelectHoveredColor = (event: MouseEvent) => {
+    mx = event.clientX;
+    my = event.clientY;
+}
+
+const selectHoveredColor = (event: MouseEvent) => {
+    if (!hoverColor.value)
+        return;
+    if (Math.abs(event.clientX - mx) > 3 || Math.abs(event.clientY - my) > 3)
+        return;
+    inputStore.currentColor = hoverColor.value;
+}
 
 const canvasRef = ref(null as unknown as HTMLCanvasElement);
 
@@ -291,6 +319,7 @@ watch([toRef(props, 'i'), toRef(props, 'glb_name')], async () => {
 <template>
     <Btn @click="resetCamera" :disabled="!userSet" class="w-10 h-10 absolute m-1 top-0 right-0" secondary><i class="text-lg fas fa-expand"/></Btn>
     <div class="flex justify-center items-center cursor-move w-full h-full">
-        <canvas class="w-full h-full" ref="canvasRef"/>
+        <canvas class="w-full h-full" ref="canvasRef" @mousemove="sampleColor" @mousedown="startSelectHoveredColor" @mouseup="selectHoveredColor"/>
     </div>
+    <p class="absolute bottom-0 left-0 ml-4 mb-2 flex items-center gap-1"><span class="w-4 h-4 rounded-sm" :style="{ backgroundColor: hoverColor }"/>{{ hoverColor }}</p>
 </template>
