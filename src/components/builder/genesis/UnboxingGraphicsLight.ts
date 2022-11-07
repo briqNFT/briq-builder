@@ -295,15 +295,26 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
 
         light.castShadow = true;
         scene.add(light);
-    //scene.add(new THREE.SpotLightHelper(light, new THREE.Color(0xff0000)))
+        //scene.add(new THREE.SpotLightHelper(light, new THREE.Color(0xff0000)))
     }
 
     const floor = new THREE.Mesh(
-        new THREE.BoxGeometry( 3, 1, 3 ),
-        new THREE.ShadowMaterial( { color: 0x222222 } ),
+        new THREE.BoxGeometry( 4, 1, 4),
     );
     floor.receiveShadow = true;
     floor.position.y = -1;
+    const material = new THREE.ShadowMaterial( { color: 0xaaaaaa } );
+    material.fog = false;
+    material.blending = THREE.MultiplyBlending;
+    // Make sure that everything blends correctly, and also that the shadows vanish in the distance.
+    material.onBeforeCompile = shader => {
+        shader.vertexShader = 'varying vec3 _pos;' + '\n' + shader.vertexShader.replace('#include <worldpos_vertex>', `#include <worldpos_vertex>
+_pos = worldPosition.xyz;`)
+        shader.fragmentShader = 'varying vec3 _pos;' + '\n' + shader.fragmentShader.replace('gl_FragColor = vec4( color, opacity * ( 1.0 - getShadowMask() ) );',
+            'gl_FragColor = vec4(clamp(vec3(mix(0.0, 1.0, getShadowMask() * 0.4 + 0.6 + length(_pos.xz) / 5.0)), 0.0, 1.0), 1.0);')
+        return shader;
+    }
+    floor.material = material;
     scene.add( floor );
     physicsWorld.addMesh(floor, 0.0, 1.5);
 
