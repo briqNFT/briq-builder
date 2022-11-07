@@ -89,7 +89,7 @@ button {
             content: '';
             z-index: -1;
             @apply w-full h-full absolute top-0 left-0;
-            @apply bg-primary rounded;
+            @apply bg-primary rounded border border-grad-darkest;
         }
 
         &:not(:disabled) {
