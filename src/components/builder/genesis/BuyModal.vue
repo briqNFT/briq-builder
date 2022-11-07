@@ -88,7 +88,7 @@ const makeBid = async () => {
         <h4 class="m-0 mb-2 p-0 text-sm font-semibold">Item</h4>
         <hr class="mb-4">
         <div class="flex gap-4 justify-between">
-            <p><img class="p-8 rounded border border-grad-light max-h-[120px]" :src="genesisStore.coverItemRoute(props.metadata.item)"></p>
+            <p><img class="p-0 rounded border border-grad-light max-h-[120px]" :src="genesisStore.coverBoxRoute(props.metadata.item)"></p>
             <div class="flex-1">
                 <router-link :to="{ name: 'Theme', params: { theme: themeID } }"><h5 class="text-primary text-xs">{{ themeData?.name }}</h5></router-link>
                 <h4 class="test-sm font-semibold mt-2">{{ item?.name }}</h4>
