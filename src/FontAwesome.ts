@@ -2,6 +2,7 @@
 
 import('@/assets/fontawesome6/css/fontawesome.css');
 import('@/assets/fontawesome6/css/brands.css');
+import('@/assets/fontawesome6/css/duotone.css');
 import('@/assets/fontawesome6/css/solid.css');
 import('@/assets/fontawesome6/css/regular.css');
 

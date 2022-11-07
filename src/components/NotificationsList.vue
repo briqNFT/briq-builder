@@ -8,15 +8,15 @@ import { computed } from 'vue';
 const notifs = computed(() => notificationsManager.notifications.filter(x => x.shouldShow()));
 
 const icons = {
-    'info': 'fa-solid fa-clock',
-    'warning': 'fa-solid fa-circle-exclamation',
-    'success': 'fa-solid fa-circle-check',
-    'error': 'fa-solid fa-circle-xmark',
+    'info': 'far fa-clock',
+    'warning': 'far fa-circle-exclamation',
+    'success': 'far fa-circle-check',
+    'error': 'far fa-circle-xmark',
 };
 
 const border = (i: number) => {
     if (i === 0)
-        return 'border border-grad-light border-b-0 rounded-b'
+        return 'border border-grad-light rounded-b'
     else if (i === notifs.value.length - 1)
         return 'border border-grad-light border-b-0 rounded-t'
     else
@@ -38,8 +38,8 @@ p {
         <div v-for="notif, i of notifs" :key="i" class="w-full">
             <div :class="['w-full text-left relative flex justify-between p-3 select-none', border(i), notif.read ? 'text-grad-darker' : 'hover:bg-grad-light'].join(' ')" @click="notif.read = true">
                 <div class="grow">
-                    <h5 class="font-medium py-2">
-                        <i :style="{ color: `rgb(var(--color-info-${notif.level}))` }" :class="icons[notif.level]"/> {{ notif.title }}
+                    <h5 class="font-medium py-2 flex items-center gap-2">
+                        <i :style="{ color: `rgb(var(--color-info-${notif.level}))` }" :class="`text-md ${icons[notif.level]}`"/> {{ notif.title }}
                     </h5>
                     <template v-if="notif.type === 'text'">
                         <p>{{ notif.data }}</p>

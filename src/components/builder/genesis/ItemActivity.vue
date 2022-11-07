@@ -85,7 +85,7 @@ const icons = {
         <div
             v-for="(item, i) of actualData" :key="i"
             class="border-b border-grad-light last:border-b-0 px-6 flex gap-6 items-center py-4">
-            <p class="w-6 h-6 flex justify-center items-center text-xl"><i :class="`fas ${icons[item.kind]}`"/></p>
+            <p class="w-6 h-6 flex justify-center items-center text-xl"><i :class="`fa-duotone ${icons[item.kind]}`"/></p>
             <div class="flex-1">
                 <p class="font-medium mb-2">
                     <template v-if="item.kind === 'minted'">Minted by <span class="text-primary">{{ item.by }}</span></template>

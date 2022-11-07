@@ -50,7 +50,7 @@ hr {
     <div class="root">
         <h4 class="mt-2 px-4 flex justify-between">
             Settings
-            <Btn no-background @click="emit('close')" class="w-6 h-6 p-0 text-lg inline-flex justify-center items-center"><i class="fas fa-times"/></Btn>
+            <Btn no-background @click="emit('close')" class="w-6 h-6 p-0 text-lg inline-flex justify-center items-center"><i class="fas fa-xmark"/></Btn>
         </h4>
         <div class="mt-4 mb-2 settings flex flex-col gap-2">
             <div>

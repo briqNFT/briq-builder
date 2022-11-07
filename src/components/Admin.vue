@@ -114,7 +114,7 @@ const masterInit = async () => {
                     <p>Function: <input type="text" v-model="selector"></p>
                     <p>Calldata (csv): <input type="text" v-model="calldata"></p>
                     <p>
-                        <Btn :disabled="cc_pending" @click="customCall">Call</Btn><i v-if="cc_pending" class="fas fa-spinner animate-spin"/>
+                        <Btn :disabled="cc_pending" @click="customCall">Call</Btn><i v-if="cc_pending" class="far fa-spinner animate-spin"/>
                     </p>
                     <p v-if="customResult">Result: {{ JSON.stringify(customResult) }}</p>
                 </div>

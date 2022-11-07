@@ -9,16 +9,28 @@ const props = defineProps<{
 }>();
 
 const icon = computed(() => ({
-    'info': 'fa-solid fa-clock',
-    'warning': 'fa-solid fa-circle-exclamation',
-    'success': 'fa-solid fa-circle-check',
-    'error': 'fa-solid fa-circle-xmark',
+    'info': 'far fa-clock',
+    'warning': 'far fa-circle-exclamation',
+    'success': 'far fa-circle-check',
+    'error': 'far fa-circle-xmark',
 }[props.level]));
 
+let timeout: any;
+let timeoutTime: number;
 onMounted(() => {
-    setTimeout(() => emit('close'), 8000)
+    timeout = setTimeout(() => emit('close'), 8000);
+    timeoutTime = Date.now();
 });
 
+const pauseTimer = () => {
+    if (timeout)
+        clearTimeout(timeout);
+    timeoutTime = Date.now() - timeoutTime;
+};
+const resumeTimer = () => {
+    timeout = setTimeout(() => emit('close'), 8000 - timeoutTime);
+    timeoutTime = Date.now();
+};
 </script>
 
 <style scoped>
@@ -34,17 +46,20 @@ onMounted(() => {
 .progressBar {
     animation: fillbar 8s 1 ease-out;
 }
+.flyout:hover .progressBar {
+    animation-play-state: paused;
+}
 </style>
 
 <template>
-    <Flyout class="p-4 flyout text-sm overflow-hidden">
+    <Flyout class="p-4 flyout text-sm overflow-hidden min-w-[11rem]" @pointerenter="pauseTimer" @pointerleave="resumeTimer">
         <div>
             <div class="flex justify-between items-center pb-1">
-                <h5 class="font-medium py-1"><i :style="{ color: `rgb(var(--color-info-${level}))` }" :class="icon"/> <slot name="title"/></h5>
+                <h5 class="font-medium py-1 flex items-center gap-2"><i :style="{ color: `rgb(var(--color-info-${level}))` }" :class="`text-md ${icon}`"/> <slot name="title"/></h5>
                 <button
                     @click="$emit('close')"
-                    class="p-1 ml-1 text-xs showOnHover inline-flex justify-center items-center">
-                    <i class="fas fa-times"/>
+                    class="p-1 ml-2 w-4 h-4 text-sm showOnHover inline-flex justify-center items-center">
+                    <i class="far fa-xmark"/>
                 </button>
             </div>
 

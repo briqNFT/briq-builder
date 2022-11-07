@@ -14,7 +14,7 @@
                 Starknet Gateway: {{ gateway }}<br>
                 Gateway is reachable:
                 <span v-if="reachabilityTest === undefined"><i class="fas fa-spinner animate-spin-slow"/></span>
-                <span v-if="reachabilityTest === false"><i class="fas fa-times text-red-900"/><br>Error:
+                <span v-if="reachabilityTest === false"><i class="fas fa-xmark text-red-900"/><br>Error:
                     <span class="font-mono">{{ reachabilityTestData }}</span></span>
                 <span v-if="reachabilityTest === true"><i class="fas fa-check text-green-900"/><br></span>
             </p>
@@ -22,14 +22,14 @@
             <p>
                 Wallet is deployed:
                 <span v-if="walletTest === undefined"><i class="fas fa-spinner animate-spin-slow"/></span>
-                <span v-if="walletTest === false"><i class="fas fa-times text-red-900"/><br>Error:
+                <span v-if="walletTest === false"><i class="fas fa-xmark text-red-900"/><br>Error:
                     <span class="font-mono">{{ walletTestData }}</span></span>
                 <span v-if="walletTest === true"><i class="fas fa-check text-green-900"/><br></span>
             </p>
             <p>
                 Minting status:
                 <span v-if="mintTest === undefined"><i class="fas fa-spinner animate-spin-slow"/></span>
-                <span v-else-if="mintTest === false"><i class="fas fa-times text-red-900"/><br>Error:
+                <span v-else-if="mintTest === false"><i class="fas fa-xmark text-red-900"/><br>Error:
                     <span class="font-mono">{{ mintTestData }}</span></span>
                 <span v-else-if="mintTest === true && +mintTestData > 0"><i class="fas fa-check text-green-900"/> minted</span>
                 <span v-else-if="mintTest === true"><i class="far fa-circle text-blue-900"/> not minted yet</span>
@@ -37,14 +37,14 @@
             <p>
                 briq balance:
                 <span v-if="briqsTest === undefined"><i class="fas fa-spinner animate-spin-slow"/></span>
-                <span v-if="briqsTest === false"><i class="fas fa-times text-red-900"/><br>Error:
+                <span v-if="briqsTest === false"><i class="fas fa-xmark text-red-900"/><br>Error:
                     <span class="font-mono">{{ briqsTestData }}</span></span>
                 <span v-if="briqsTest === true"><i class="fas fa-check text-green-900"/> {{ briqsTestData }} briqs</span>
             </p>
             <p>
                 Set balance:
                 <span v-if="setsTest === undefined"><i class="fas fa-spinner animate-spin-slow"/></span>
-                <span v-if="setsTest === false"><i class="fas fa-times text-red-900"/><br>Error:
+                <span v-if="setsTest === false"><i class="fas fa-xmark text-red-900"/><br>Error:
                     <span class="font-mono">{{ setsTestData }}</span></span>
                 <span v-if="setsTest === true"><i class="fas fa-check text-green-900"/> {{ setsTestData }} set(s)</span>
             </p>
