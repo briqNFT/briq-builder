@@ -425,7 +425,6 @@ const useMockWallet = () => {
 <template>
     <canvas
         class="absolute top-0 left-0 w-screen h-screen"
-        id="unboxGl"
         ref="canvas"
         @click="(event) => fsm.state?.onClick?.(event)"
         @pointermove="(event) => fsm.state?.onPointerMove?.(event)"/>
@@ -442,42 +441,44 @@ const useMockWallet = () => {
             </template>
         </div>
     </Transition>
-    <div v-if="step === 'SAPIN'">
-        <div class="fixed right-0 top-0 m-8 shadow bg-grad-lightest rounded-md p-6 max-w-[27rem]">
-            <h4 class="text-md mb-6">Unboxing</h4>
-            <p>Unboxing this <span class="font-medium">{{ boxMetadata._data?.name }}</span> box will burn it forever.<br>In exchange, its content will be available to you.</p>
-            <h5 class="mt-6 mb-3 font-medium">Terms and conditions</h5>
-            <div class="text-sm flex flex-col gap-4">
-                <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
-                <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
-            </div>
-            <div class="mt-8 flex justify-between">
-                <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm" :disabled="disableButtons">Back to inventory</Btn></RouterLink>
-                <Btn no-background v-if="featureFlags.adminOnly" class="pointer-events-auto !text-sm" @click="doFakeUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Fakeunbox</Btn>
-                <Btn class="pointer-events-auto !text-sm" @click="doUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Unbox</Btn>
+    <Transition appear name="fade">
+        <div v-if="step === 'SAPIN'">
+            <div class="fixed right-0 top-0 m-8 shadow bg-grad-lightest rounded-md p-6 max-w-[27rem]">
+                <h4 class="text-md mb-6">Unboxing</h4>
+                <p>Unboxing this <span class="font-medium">{{ boxMetadata._data?.name }}</span> box will burn it forever.<br>In exchange, its content will be available to you.</p>
+                <h5 class="mt-6 mb-3 font-medium">Terms and conditions</h5>
+                <div class="text-sm flex flex-col gap-4">
+                    <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
+                    <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
+                </div>
+                <div class="mt-8 flex justify-between">
+                    <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm" :disabled="disableButtons">Back to inventory</Btn></RouterLink>
+                    <Btn no-background v-if="featureFlags.adminOnly" class="pointer-events-auto !text-sm" @click="doFakeUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Fakeunbox</Btn>
+                    <Btn class="pointer-events-auto !text-sm" @click="doUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Unbox</Btn>
+                </div>
             </div>
         </div>
-    </div>
-    <div v-if="step === 'UNBOXED'" class="flex flex-col justify-center items-center w-full absolute left-0 top-[10%] pointer-events-none gap-8">
-        <p>Here's what's inside your box</p>
-        <div class="grid grid-cols-2 gap-6">
-            <div class="flex flex-col gap-6">
-                <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
-                    <p class="text-center font-semibold">Booklet <span class="font-normal">x 1</span></p>
-                    <div class="flex h-full justify-center items-center"><img :src="genesisStore.coverBookletRoute(boxId)"></div>
+        <div v-else-if="step === 'UNBOXED'" class="flex flex-col justify-center items-center w-full absolute left-0 top-[10%] pointer-events-none gap-8">
+            <p>Here's what's inside your box</p>
+            <div class="grid grid-cols-2 gap-6">
+                <div class="flex flex-col gap-6">
+                    <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
+                        <p class="text-center font-semibold">Booklet <span class="font-normal">x 1</span></p>
+                        <div class="flex h-full justify-center items-center"><img :src="genesisStore.coverBookletRoute(boxId)"></div>
+                    </div>
+                    <Btn secondary class="pointer-events-auto h-14" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
                 </div>
-                <Btn secondary class="pointer-events-auto h-14" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
-            </div>
-            <div class="flex flex-col gap-6">
-                <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
-                    <p class="text-center font-semibold">Briqs <span class="font-normal">x 1</span></p>
-                    <div class="flex h-full justify-center items-center"><img class="max-w-[5rem]" :src="BriqsImg"></div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
+                        <p class="text-center font-semibold">Briqs <span class="font-normal">x 1</span></p>
+                        <div class="flex h-full justify-center items-center"><img class="max-w-[5rem]" :src="BriqsImg"></div>
+                    </div>
+                    <Btn class="pointer-events-auto h-14" @click="openBuilder">Start Building</Btn>
                 </div>
-                <Btn class="pointer-events-auto h-14" @click="openBuilder">Start Building</Btn>
             </div>
         </div>
-    </div>
-    <div v-if="step === 'OPEN_BUILDER'" class="absolute h-screen w-screen bg-grad-lightest" :style="`opacity: ${Math.min(1, fsm.state.easedTime.value ?? 0 * fsm.state.easedTime.value ?? 0)};`"/>
+        <div v-else-if="step === 'OPEN_BUILDER'" class="absolute h-screen w-screen bg-grad-lightest" :style="`opacity: ${Math.min(1, (fsm.state.easedTime?.value ?? 0) * (fsm.state.easedTime?.value ?? 0))};`"/>
+    </Transition>
 </template>
 
 
@@ -513,13 +514,13 @@ const useMockWallet = () => {
     transition: clip-path 1.5s ease;
 }
 
-.fade-leave-from {
+.fade-enter-to, .fade-leave-from {
     opacity: 100%;
 }
-.fade-leave-to {
+.fade-enter-from, .fade-leave-to {
     opacity: 0%;
 }
-.fade-leave-active {
+.fade-enter-active, .fade-leave-active {
     transition: all 0.5s ease !important;
 }
 </style>

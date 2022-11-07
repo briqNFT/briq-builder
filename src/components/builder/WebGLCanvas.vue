@@ -33,9 +33,9 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(async () => {
+    setup.value = false;
     await unmount();
     resetInputComplete();
-    setup.value = false;
 });
 
 const frame = () => {

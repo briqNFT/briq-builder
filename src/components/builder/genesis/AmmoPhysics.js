@@ -1,3 +1,4 @@
+let AmmoLib;
 async function AmmoPhysics(THREE) {
 
     const ammoScript = document.createElement('script');
@@ -13,10 +14,12 @@ async function AmmoPhysics(THREE) {
         return;
 
     }
-    const AmmoLib = await Ammo(); // eslint-disable-line no-undef
+    AmmoLib = await Ammo(); // eslint-disable-line no-undef
 
-    const frameRate = 60;
+    return createPhysicsWorld;
+}
 
+function createPhysicsWorld() {
     const collisionConfiguration = new AmmoLib.btDefaultCollisionConfiguration();
     const dispatcher = new AmmoLib.btCollisionDispatcher( collisionConfiguration );
     const broadphase = new AmmoLib.btDbvtBroadphase();

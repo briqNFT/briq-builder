@@ -47,7 +47,7 @@ let envMapRawTexture: THREE.Texture;
 let envMapTexture: THREE.Texture;
 let boxNormTexture: THREE.Texture;
 
-let sceneBox: THREE.Mesh | undefined;
+let sceneBox: THREE.Mesh;
 
 const DEBUG_PHYSICS = false;
 
@@ -161,29 +161,16 @@ export function render() {
 
 export async function useRenderer(_canvas: HTMLCanvasElement) {
     await threeSetupComplete;
-    physicsWorld = await ammoPromise;
+    physicsWorld = (await ammoPromise)();
 
     canvas = _canvas;
 
     // Have to recreate renderer, to update the canvas.
     renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
 
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    pmremGenerator.compileEquirectangularShader();
-
-    // We only need the rest once.
-    if (boxGlb) {
-        // Recreate envmap, raw texture has already been loaded before.
-        envMapTexture = pmremGenerator.fromEquirectangular(envMapRawTexture).texture;
-        return {
-            camera,
-            scene,
-            render,
-        };
-    }
-
+    // Conceptually, we don't really need to reload what's below, but it leads to a blank scene.
+    // I guess the GLB loader keeps a reference to the renderer somehow.
     const defaultLoader = new THREE.TextureLoader();
-
     const envMapPromise = new Promise<THREE.Texture>(resolve => defaultLoader.load(EnvMapImg, (tex) => {
         envMapRawTexture = tex;
         resolve(envMapRawTexture);
@@ -240,6 +227,9 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
 
     boxGlb = await boxPromise;
     bookletMesh = await bookletPromise;
+
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
     envMapTexture = pmremGenerator.fromEquirectangular(await envMapPromise).texture;
 
     return {
