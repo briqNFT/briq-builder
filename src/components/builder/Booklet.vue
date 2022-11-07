@@ -67,7 +67,23 @@ const goodFetti = () => {
         spread: 460,
         gravity: 0.3,
         ticks: 30,
-        colors: ['#00ff00'],
+        colors: ['#00ea00'],
+        origin: {
+            x: 0.5,
+            y: 0.5,
+        },
+    });
+}
+
+
+const middleFetti = () => {
+    microConfetti({
+        particleCount: 20,
+        startVelocity: 5,
+        spread: 460,
+        gravity: 0.3,
+        ticks: 30,
+        colors: ['#ffbb00'],
         origin: {
             x: 0.5,
             y: 0.5,
@@ -113,8 +129,10 @@ watch([shapeValidity], async () => {
 })
 
 watch([shapeValidity], (nv, ov) => {
-    if (nv > ov)
+    if (nv - ov >= 0.5 / bookletData.value?.briqs?.length)
         goodFetti();
+    else if (nv > ov || ov - nv <= 0.5 / bookletData.value?.briqs?.length)
+        middleFetti();
     else
         badFetti();
 })

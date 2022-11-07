@@ -3,6 +3,7 @@ import { reactive, toRef, watchEffect, computed, Ref, onUnmounted, onBeforeUnmou
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { bookletId, getStepImgSrc, getBookletDataSync } from '@/builder/BookletData';
 import { setsManager } from '@/builder/SetsManager';
+import { copyFile } from 'fs';
 
 export const bookletStore = reactive({
     minimized: false,
@@ -47,53 +48,78 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
             const currentBriqs = set.getAllBriqs();
             const targetBriqs = bookletRef.value.briqs.slice();
 
-            const
-                targetBounds = [[Infinity, Infinity, Infinity], [-Infinity, -Infinity, -Infinity]],
-                selfBounds = [[Infinity, Infinity, Infinity], [-Infinity, -Infinity, -Infinity]];
+            const rotatePos = (vec: any, index = 0) => {
+                if (index === 0)
+                    return vec;
+                if (index === 1)
+                    return [-vec[2], vec[1], vec[0]];
+                if (index === 2)
+                    return [-vec[0], vec[1], -vec[2]];
+                if (index === 3)
+                    return [vec[2], vec[1], -vec[0]];
+            }
 
-            for (const briq of currentBriqs) {
-                selfBounds[0][0] = Math.min(selfBounds[0][0], briq.position![0]);
-                selfBounds[0][1] = Math.min(selfBounds[0][1], briq.position![1]);
-                selfBounds[0][2] = Math.min(selfBounds[0][2], briq.position![2]);
-                selfBounds[1][0] = Math.max(selfBounds[1][0], briq.position![0]);
-                selfBounds[1][1] = Math.max(selfBounds[1][1], briq.position![1]);
-                selfBounds[1][2] = Math.max(selfBounds[1][2], briq.position![2]);
-            }
+            const targetBounds = [[Infinity, Infinity, Infinity], [-Infinity, -Infinity, -Infinity]];
+
             for (const briq of targetBriqs) {
-                targetBounds[0][0] = Math.min(targetBounds[0][0], briq.pos![0]);
-                targetBounds[0][1] = Math.min(targetBounds[0][1], briq.pos![1]);
-                targetBounds[0][2] = Math.min(targetBounds[0][2], briq.pos![2]);
-                targetBounds[1][0] = Math.max(targetBounds[1][0], briq.pos![0]);
-                targetBounds[1][1] = Math.max(targetBounds[1][1], briq.pos![1]);
-                targetBounds[1][2] = Math.max(targetBounds[1][2], briq.pos![2]);
+                const bp = briq.pos;
+                targetBounds[0][0] = Math.min(targetBounds[0][0], bp[0]);
+                targetBounds[0][1] = Math.min(targetBounds[0][1], bp[1]);
+                targetBounds[0][2] = Math.min(targetBounds[0][2], bp[2]);
+                targetBounds[1][0] = Math.max(targetBounds[1][0], bp[0]);
+                targetBounds[1][1] = Math.max(targetBounds[1][1], bp[1]);
+                targetBounds[1][2] = Math.max(targetBounds[1][2], bp[2]);
             }
-            let match = 0;
-            if (currentBriqs.length !== 0)
-                for (let xx = targetBounds[0][0] - selfBounds[0][0]; xx <= targetBounds[1][0] - selfBounds[1][0]; ++xx)
-                    for (let zz = targetBounds[0][2] - selfBounds[0][2]; zz <= targetBounds[1][2] - selfBounds[1][2]; ++zz) {
-                        let cmatch = 0;
-                        let fails = 0;
-                        for (let i = 0; i < currentBriqs.length; ++i) {
-                            let best = 0;
-                            const b = currentBriqs[i];
-                            for (const a of targetBriqs)
-                                if (a.pos[0] === b.position[0] + xx && a.pos[1] === b.position[1] && a.pos[2] === b.position[2] + zz) {
-                                    if (a.data.color.toLowerCase() === b.color.toLowerCase() && a.data.material === b.material)
-                                        best = 1;
-                                    else
-                                        best = Math.max(best, 0.5);
-                                    if (best === 1)
-                                        break;
+
+            let bestMatch = 0;
+            for (let rotation = 0; rotation < 4; ++rotation) {
+                const selfBounds = [[Infinity, Infinity, Infinity], [-Infinity, -Infinity, -Infinity]];
+
+                for (const briq of currentBriqs) {
+                    const bp = rotatePos(briq.position!, rotation);
+                    selfBounds[0][0] = Math.min(selfBounds[0][0], bp[0]);
+                    selfBounds[0][1] = Math.min(selfBounds[0][1], bp[1]);
+                    selfBounds[0][2] = Math.min(selfBounds[0][2], bp[2]);
+                    selfBounds[1][0] = Math.max(selfBounds[1][0], bp[0]);
+                    selfBounds[1][1] = Math.max(selfBounds[1][1], bp[1]);
+                    selfBounds[1][2] = Math.max(selfBounds[1][2], bp[2]);
+                }
+                let match = 0;
+                if (currentBriqs.length !== 0)
+                    for (let xx = targetBounds[0][0] - selfBounds[0][0]; xx <= targetBounds[1][0] - selfBounds[1][0]; ++xx)
+                        for (let zz = targetBounds[0][2] - selfBounds[0][2]; zz <= targetBounds[1][2] - selfBounds[1][2]; ++zz) {
+                            let cmatch = 0;
+                            let fails = 0;
+                            for (let i = 0; i < currentBriqs.length; ++i) {
+                                let best = 0;
+                                const b = currentBriqs[i];
+                                let bPos = b.position!.slice();
+                                bPos = rotatePos(bPos, rotation);
+                                bPos[0] += xx;
+                                bPos[2] += zz;
+                                for (const a of targetBriqs) {
+                                    const aPos = a.pos;
+                                    if (aPos[0] === bPos[0] && aPos[1] === bPos[1] && aPos[2] === bPos[2]) {
+                                        if (a.data.color.toLowerCase() === b.color.toLowerCase() && a.data.material === b.material)
+                                            best = 1;
+                                        else
+                                            best = Math.max(best, 0.33);
+                                        if (best === 1)
+                                            break;
+                                    }
                                 }
-                            cmatch += best;
-                            if (best === 0)
-                                fails++;
+                                cmatch += best;
+                                if (best === 0)
+                                    fails++;
+                            }
+                            cmatch -= fails * 0.9;
+                            if (cmatch > match)
+                                match = cmatch;
                         }
-                        cmatch -= fails * 0.9;
-                        if (cmatch > match)
-                            match = cmatch;
-                    }
-            bookletStore.shapeValidity[booklet_value] = Math.min(1, Math.max(0, match / targetBriqs.length));
+                if (match > bestMatch)
+                    bestMatch = match;
+            }
+            bookletStore.shapeValidity[booklet_value] = Math.min(1, Math.max(0, bestMatch / targetBriqs.length));
         })
     }
 
