@@ -139,7 +139,7 @@ const higherPage = () => {
                     <span>{{ currentPage }}/{{ +bookletData.nb_pages || 1 }}</span>
                     <Btn no-background class="w-10" @click="higherPage"><i class="fas fa-chevron-right"/></Btn>
                 </div>
-                <div class="relative flex justify-center items-center pointer-events-auto cursor-move w-[400px] h-[400px]">
+                <div class="relative w-[400px] h-[400px]">
                     <BookletStepRenderer :glb_name="booklet" :i="currentPage - 1"/>
                 </div>
                 <div class="border-t relative border-grad-light px-4 py-4">

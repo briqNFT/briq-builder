@@ -19,16 +19,18 @@ import { onMounted, ref, toRef, watch } from 'vue';
 
 const userSet = ref(false);
 
+const resolution = 1.0;
+
 let scene: THREE.Scene;
 let camera: THREE.Camera;
 
 let renderer: THREE.WebGLRenderer;
 let composer: EffectComposer;
-let orbitControls;
 
-let glbItem;
-let previousItem;
+let orbitControls: unknown;
+let glbItem: THREE.Group;
 
+let glbItemPerNamePerStep = {} as Record<string, Record<number, THREE.Group>>;
 const genMaterial = (alpha: string) => new THREE.ShaderMaterial( {
     vertexShader: `
         varying vec3 pos;
@@ -61,17 +63,17 @@ const genMaterial = (alpha: string) => new THREE.ShaderMaterial( {
         }
         `,
 });
-const material = genMaterial('1.0');
-material.vertexColors = true;
-material.transparent = true;
-material.depthTest = true;
-material.depthWrite = false;
+const borderMaterial = genMaterial('1.0');
+borderMaterial.vertexColors = true;
+borderMaterial.transparent = true;
+borderMaterial.depthTest = true;
+borderMaterial.depthWrite = false;
 
-const otherMaterial = genMaterial('0.3');
-otherMaterial.vertexColors = true;
-otherMaterial.transparent = true;
-otherMaterial.depthTest = true;
-otherMaterial.depthWrite = false;
+const borderLightMaterial = genMaterial('0.3');
+borderLightMaterial.vertexColors = true;
+borderLightMaterial.transparent = true;
+borderLightMaterial.depthTest = true;
+borderLightMaterial.depthWrite = false;
 
 function recreateRenderer() {
     renderer.shadowMap.needsUpdate = true;
@@ -116,8 +118,6 @@ function recreateRenderer() {
 
 function resizeRendererToDisplaySize() {
     const canvas = renderer.domElement;
-    const resolution = 2;
-
     const width = canvas.parentElement.clientWidth * resolution;
     const height = canvas.parentElement.clientHeight * resolution;
     const needResize = canvas.width !== width || canvas.height !== height;
@@ -153,10 +153,8 @@ async function useRenderer(canvas: HTMLCanvasElement) {
     renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: 'high-performance' });
 
     // We only need the rest once.
-    if (glbItem)
+    if (camera)
         return;
-
-    const defaultLoader = new THREE.TextureLoader();
 
     /* Create the camera early, because it's needed for the post-processor. */
     const fov = 20;
@@ -174,11 +172,9 @@ async function useRenderer(canvas: HTMLCanvasElement) {
     orbitControls.enabled = true;
 }
 
-async function loadGlbItems(glb_name: string, i: number) {
-    const previousLink = backendManager.getRoute(`box/step_glb/${getCurrentNetwork()}/${glb_name}/${i - 1}.glb`);
-    const link = backendManager.getRoute(`box/step_glb_level/${getCurrentNetwork()}/${glb_name}/${i}.glb`);
-
-    const itemPromise = new Promise<THREE.Group>((resolve, reject) => {
+async function loadGlbItem(glb_name: string, i: number, path: string) {
+    const link = backendManager.getRoute(`box/${path}/${getCurrentNetwork()}/${glb_name}/${i}.glb`);
+    return new Promise<THREE.Group>((resolve, reject) => {
         const loader = new GLTFLoader();
         loader.load(
             link,
@@ -189,51 +185,40 @@ async function loadGlbItems(glb_name: string, i: number) {
             (error: any) => reject(error),
         );
     });
+}
 
-    let previousItemPromise;
-    if (i > 0)
-        previousItemPromise = new Promise<THREE.Group>((resolve, reject) => {
-            const loader = new GLTFLoader();
-            loader.load(
-                previousLink,
-                (gltf: any) => {
-                    resolve(gltf.scene.children.slice()[0]);
-                },
-                () => {},
-                (error: any) => reject(error),
-            );
-        });
+async function loadGlbItems(glb_name: string, i: number) {
+    if (scene && glbItem)
+        scene.remove(glbItem);
 
-    glbItem = await itemPromise;
-    const borders = glbItem.clone();
-    for (const item of borders.children)
-        item.material = material
-    glbItem.add(borders);
+    if (!glbItemPerNamePerStep?.[glb_name]?.[i]) {
+        const item = await loadGlbItem(glb_name, i, 'step_glb_level');
+        const borders = item.clone(true);
+        for (const item of borders.children)
+            item.material = borderMaterial;
+        item.add(borders);
 
-    if (!userSet.value) {
-        const bb = new THREE.Box3();
-        for (const item of glbItem.children)
-            if (item.geometry)
-                bb.union(item.geometry.boundingBox);
-        const center = [0, 1, 2].map(i => (bb.max.getComponent(i) + bb.min.getComponent(i))/2.0);
-        orbitControls.target.set(...center);
-        const radius = Math.max(4, bb.getBoundingSphere(new THREE.Sphere()).radius);
-        camera.position.set(...center.map((x, i) => x + (new THREE.Vector3(1, 1, -1)).multiplyScalar(3 * radius).getComponent(i)));
-    }
-
-    if (i > 0) {
-        const previousItem = await previousItemPromise;
-        const previousBorders = previousItem.clone();
-        for (const item of previousBorders.children)
-            item.material = otherMaterial;
-        for (const item of previousItem.children) {
-            item.material.fog = true;
-            item.material.color = (item.material.color as THREE.Color).lerp(new THREE.Color(0xffffff), 0.6);
+        if (i > 0) {
+            const previousItem = await loadGlbItem(glb_name, i - 1, 'step_glb');
+            for (const item of previousItem.children) {
+                item.material.fog = true;
+                item.material.color = (item.material.color as THREE.Color).lerp(new THREE.Color(0xffffff), 0.6);
+            }
+            const previousBorders = previousItem.clone(true);
+            for (const item of previousBorders.children)
+                item.material = borderLightMaterial;
+            previousItem.add(previousBorders);
+            item.add(previousItem);
         }
-
-        previousItem.add(previousBorders);
-        glbItem.add(previousItem);
+        if (!glbItemPerNamePerStep[glb_name])
+            glbItemPerNamePerStep[glb_name] = {};
+        glbItemPerNamePerStep[glb_name][i] = item;
     }
+
+    glbItem = glbItemPerNamePerStep[glb_name][i];
+
+    if (!userSet.value)
+        resetCamera();
 }
 
 async function setupScene() {
@@ -267,6 +252,19 @@ const frame = () => {
     requestAnimationFrame(frame);
 }
 
+
+const resetCamera = () => {
+    const bb = new THREE.Box3();
+    for (const item of glbItem.children)
+        if (item.geometry)
+            bb.union(item.geometry.boundingBox);
+    const center = [0, 1, 2].map(i => (bb.max.getComponent(i) + bb.min.getComponent(i))/2.0);
+    orbitControls.target.set(...center);
+    const radius = Math.max(4, bb.getBoundingSphere(new THREE.Sphere()).radius);
+    camera.position.set(...center.map((x, i) => x + (new THREE.Vector3(1, 1, -1)).multiplyScalar(3 * radius).getComponent(i)));
+    userSet.value = false;
+};
+
 const canvasRef = ref(null as unknown as HTMLCanvasElement);
 
 onMounted(() => {
@@ -291,5 +289,8 @@ watch([toRef(props, 'i'), toRef(props, 'glb_name')], async () => {
 
 
 <template>
-    <canvas class=" w-full h-full" ref="canvasRef"/>
+    <Btn @click="resetCamera" :disabled="!userSet" class="w-10 h-10 absolute m-1 top-0 right-0" secondary><i class="text-lg fas fa-expand"/></Btn>
+    <div class="flex justify-center items-center cursor-move w-full h-full">
+        <canvas class="w-full h-full" ref="canvasRef"/>
+    </div>
 </template>
