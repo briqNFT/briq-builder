@@ -32,18 +32,14 @@ const props = defineProps<{
     },
 }>();
 
-const balance = computed(() => userBalance.current?.asEth());
-
 const weiPrice = computed(() => toBN(Math.floor(saledata.value?.price || 100).toString()))
 
 const canMakeBid = computed(() => {
-    return balance.value && toBN(userBalance.current?.balance._data).cmp(weiPrice) >= 0;
+    return userBalance.current?.balance?._status !== 'LOADED' || toBN(userBalance.current?.balance._data).cmp(weiPrice) >= 0;
 })
 
 const canMakeBidReason = computed(() => {
-    if (!balance.value)
-        return undefined;
-    if (toBN(userBalance.current?.balance._data).cmp(weiPrice) < 0)
+    if (userBalance.current?.balance?._status == 'LOADED' && toBN(userBalance.current?.balance?._data).cmp(weiPrice) < 0)
         return 'Insufficient balance';
     return undefined;
 })
@@ -92,6 +88,7 @@ const makeBid = async () => {
             <div class="flex-1">
                 <router-link :to="{ name: 'Theme', params: { theme: themeID } }"><h5 class="text-primary text-xs">{{ themeData?.name }}</h5></router-link>
                 <h4 class="test-sm font-semibold mt-2">{{ item?.name }}</h4>
+                <p class="text-sm mt-2">{{ item?.description }}</p>
             </div>
             <p>
                 {{ readableNumber(weiPrice) }} {{ readableUnit(weiPrice) }}
@@ -106,14 +103,11 @@ const makeBid = async () => {
     <WindowVue v-else-if="step === 'PROCESSING'" :size="'md:w-[40rem]'">
         <template #title>Transaction processing</template>
         <div class="flex flex-col gap-8">
-            <p>
-                Your transaction has been sent and should be confirmed shortly.
-                You can check the status of your transaction from the profile dropdown.
-            </p>
+            <p>Your transaction has been broadcasted and should be confirmed shortly.</p>
 
             <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)" target="_blank">Starkscan</a></p>
 
-            <p>You can now close this pop-up.</p>
+            <p>Click <RouterLink class="text-primary" :to="`/box/${props.metadata.item}`">here</RouterLink> to see your box and unbox it to start building!</p>
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'BID_COMPLETE'" :size="'md:w-[40rem]'">
@@ -123,11 +117,11 @@ const makeBid = async () => {
 
             <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)" target="_blank">Starkscan</a></p>
 
-            <p>You can now close this pop-up.</p>
+            <p>Click <RouterLink class="text-primary" :to="`/box/${props.metadata.item}`">here</RouterLink> to see your box and unbox it to start building!</p>
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'ERROR'" :size="'md:w-[40rem]'">
-        <template #big-title>Error <i class="fas fa-circle-exclamation text-info-error"/></template>
+        <template #big-title>Error <i class="ml-2 far fa-circle-exclamation text-info-error"/></template>
         <div class="flex flex-col gap-8">
             <p>Unfortunately, there was an error while processing your purchase.</p>
             <p><Btn primary @click="step = 'MAKE_BID'">Go back</Btn></p>
