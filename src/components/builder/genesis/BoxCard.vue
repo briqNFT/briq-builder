@@ -144,7 +144,7 @@ const shallDisplay = ref(false);
             <template v-else>
                 <p class="w-full h-full flex flex-col gap-4 justify-center items-center"><i class="fas fa-spinner animate-spin"/><span>Loading</span></p>
                 <!-- prefetch -->
-                <img class="hidden" :src="genesisStore.coverItemRoute(tokenName)">
+                <img class="hidden" :src="genesisStore.coverBoxRoute(tokenName, true)">
             </template>
         </div>
     </div>
