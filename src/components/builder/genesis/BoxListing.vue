@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 my-4 z-50">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4 z-50">
         <component
             v-for="token_id, i in props.boxes" :key="token_id + i"
             :is="genesisStore.metadata[token_id]._status === 'ERROR' ? 'div' : 'router-link'"

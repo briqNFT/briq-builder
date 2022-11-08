@@ -37,8 +37,8 @@ const attributes = computed(() => {
     return [
         { name: 'Serial Number', value: `#${item.value.token_id}` },
         { name: 'Theme', value: genesisStore.themedata[route.params.theme as string]?._data?.name },
-        { name: 'Creator', value: props.creator.value },
-        { name: 'Year', value: new Date(props.date.value).getFullYear() },
+        { name: 'Artist', value: props.artist.value },
+        { name: 'Year', value: new Date(props.date.value).toLocaleDateString('en-uk', { year: 'numeric', month: 'short' }) },
         { name: '# of briqs', value: props.nb_briqs.value },
     ]
 });
@@ -58,7 +58,7 @@ const nbItems = computed(() => {
         <template #default>
             <h1>{{ item?.name }}</h1>
             <h5 class="mt-2">Sealed Box<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme as string]?._data?.name }}</span></h5>
-            <p class="mt-6 mb-8">{{ item?.description }}</p>
+            <p class="mt-6 mb-8 whitespace-pre-line">{{ item?.description }}</p>
             <h2>Unopened box</h2>
             <p class="mb-4">Your set is still under blister, Unbox it to see what’s inside or keep it closed. Note that once it’s done you can’t go back.</p>
             <div class="rounded border border-grad-light overflow-hidden mt-6 mb-10">

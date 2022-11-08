@@ -2,6 +2,7 @@
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import { useRouter } from 'vue-router';
+import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 
 const router = useRouter();
 
@@ -60,12 +61,18 @@ p, :slotted(p) {
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <p class="mt-1 mb-4">
+                        <p class="mt-1 mb-4 flex justify-between items-center">
                             <a
                                 @click="router.go(-1)"
                                 class="hover:text-primary cursor-pointer !text-sm">
                                 <i class="fa-solid fa-chevron-left mr-2"/> Go back
                             </a>
+                            <MenuDropdown v-if="$slots.dropdown" no-background :must-click="true" class="h-10 w-10">
+                                <template #icon>
+                                    <i class="fa-regular fa-ellipsis text-lg"/>
+                                </template>
+                                <slot name="dropdown"/>
+                            </MenuDropdown>
                         </p>
                         <slot/>
                     </div>

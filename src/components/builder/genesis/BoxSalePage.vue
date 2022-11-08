@@ -41,7 +41,7 @@ const attributes = computed(() => {
     return [
         { name: 'Serial Number', value: `#${item.value.token_id}` },
         { name: 'Theme', value: genesisStore.themedata[route.params.theme as string]?._data?.name },
-        { name: 'Creator', value: props.creator.value },
+        { name: 'Artist', value: props.artist.value },
         { name: 'Year', value: new Date(props.date.value).getFullYear() },
         { name: '# of briqs', value: props.nb_briqs.value },
     ]
@@ -148,7 +148,7 @@ p {
                             </a>
                         </p>
                         <h1>{{ boxName }}</h1>
-                        <p class="my-2">{{ item?.description ?? 'Loading' }}</p>
+                        <p class="my-2 whitespace-pre-line">{{ item?.description ?? 'Loading' }}</p>
                         <template v-if="saledata?.isLive() && saledata?.total_quantity === 1">
                             <h4>Auction</h4>
                             <div class="rounded border border-grad-light overflow-hidden">

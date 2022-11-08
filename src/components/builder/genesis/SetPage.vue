@@ -25,6 +25,7 @@ import { SetData } from '@/builder/SetData';
 import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
 import { pushPopup } from '@/Notifications';
+import DownloadSet from '../modals/DownloadSet.vue';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -118,7 +119,7 @@ const attributes = computed(() => {
         return [
             { name: 'Serial Number', value: `#${bookletMetadata?.bookletData?.value.serial_number}` },
             { name: 'Theme', value: genesisStore.themedata[route.params.theme]._data?.name },
-            { name: 'Creator', value: props.creator.value },
+            { name: 'Artist', value: props.artist.value },
             { name: 'Year', value: new Date(props.date.value).getFullYear() },
             { name: '# of steps', value: props.nb_steps.value },
             { name: '# of briqs', value: bookletMetadata!.bookletData!.value.briqs.length },
@@ -131,7 +132,7 @@ const attributes = computed(() => {
         return [
             { name: 'Serial Number', value: `#${setmetadata.serial_number}` },
             { name: 'Theme', value: genesisStore.themedata[setmetadata.booklet_id.split('/')[0]]._data?.name },
-            { name: 'Booklet Creator', value: props.creator.value },
+            { name: 'Artist', value: props.artist.value },
             { name: 'Year', value: new Date(props.date.value).getFullYear() },
             { name: '# of briqs', value: bookletMetadata!.bookletData!.value.briqs.length },
         ]
@@ -163,11 +164,14 @@ const copySetId = () => {
             <img class="max-h-full p-8" v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
             <img class="max-h-full p-8" v-else :src="backendManager.getPreviewUrl(set!.id, (route.params.network as string) || getCurrentNetwork())">
         </template>
+        <template v-if="mode === 'CREATION'" #dropdown>
+            <Btn no-background class="text-sm font-normal" @click="pushModal(DownloadSet, { setId: set?.id })">Download</Btn>
+        </template>
         <template #default>
             <h1>{{ set?.name || bookletData?.name }}</h1>
             <template v-if="mode === 'BOOKLET'">
                 <h5 class="mt-2">Booklet<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme]._data?.name }}</span></h5>
-                <p class="mt-6 mb-8">{{ bookletData?.description }}</p>
+                <p class="mt-6 mb-8 whitespace-pre-line">{{ bookletData?.description }}</p>
                 <template v-if="!set">
                     <h2>Unstarted booklet</h2>
                     <p>Click on the button below to open the briq builder and create your official Genesis set.</p>

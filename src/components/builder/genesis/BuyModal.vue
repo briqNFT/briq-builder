@@ -107,7 +107,7 @@ const makeBid = async () => {
 
             <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)" target="_blank">Starkscan</a></p>
 
-            <p>Click <RouterLink class="text-primary" :to="`/box/${props.metadata.item}`">here</RouterLink> to see your box and unbox it to start building!</p>
+            <p>Click <RouterLink @click="$emit('close')" class="text-primary" :to="`/box/${props.metadata.item}`">here</RouterLink> to see your box and unbox it to start building!</p>
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'BID_COMPLETE'" :size="'md:w-[40rem]'">
@@ -117,7 +117,7 @@ const makeBid = async () => {
 
             <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)" target="_blank">Starkscan</a></p>
 
-            <p>Click <RouterLink class="text-primary" :to="`/box/${props.metadata.item}`">here</RouterLink> to see your box and unbox it to start building!</p>
+            <p>Click <RouterLink @click="$emit('close')" class="text-primary" :to="`/box/${props.metadata.item}`">here</RouterLink> to see your box and unbox it to start building!</p>
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'ERROR'" :size="'md:w-[40rem]'">

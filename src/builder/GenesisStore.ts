@@ -6,6 +6,7 @@ import { CHAIN_NETWORKS, getCurrentNetwork } from '@/chain/Network';
 import { APP_ENV } from '@/Meta';
 
 import { userBalance } from './UserBalance';
+import { toBN } from 'starknet/utils/number';
 
 userBalance.setup();
 
@@ -72,8 +73,7 @@ export class SaleData {
 
     get price() {
         const timePercent = this.durationLeft() / this.auction_duration;
-        // TODO: this has to be BN
-        return this.initial_price * timePercent;
+        return toBN(this.initial_price).imul(toBN(timePercent));
     }
 }
 

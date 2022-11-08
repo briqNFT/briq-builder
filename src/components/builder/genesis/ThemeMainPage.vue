@@ -9,6 +9,7 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
+import BoxCard from './BoxCard.vue';
 
 const route = useRoute();
 
@@ -137,7 +138,13 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                                 </template>
                                 <template v-if="dutchBoxes.length">
                                     <h4 class="mt-10">Instant Purchase ({{ dutchBoxes.length }})</h4>
-                                    <BoxListing :boxes="dutchBoxes" :mode="saleStartsInSeconds < 0 ? 'AUTO' : 'PRESALE' "/>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
+                                        <router-link
+                                            v-for="token_id, i in dutchBoxes" :key="token_id + i"
+                                            :to="{ name: 'BoxSale', 'params': { 'theme': token_id.split('/')[0], 'box': token_id.split('/')[1] } }">
+                                            <BoxCard :mode="saleStartsInSeconds < 0 ? 'SALE' : 'PRESALE'" :token-name="token_id"/>
+                                        </router-link>
+                                    </div>
                                 </template>
                             </template>
                             <template v-else>

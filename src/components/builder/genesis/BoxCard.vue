@@ -49,6 +49,15 @@ const highestBid = computed(() => {
 .item-card p {
     @apply text-copy;
 }
+.item-card:not(.ERROR):hover .box-display {
+    clip-path: polygon(200% 0%, 400% 0%, 300% 100%, 100% 100%);
+    transition: clip-path 1.0s ease;
+}
+.item-card:not(.ERROR) .box-display {
+    clip-path: polygon(0% 0%, 200% 0%, 100% 100%, -100% 100%);
+    transition: clip-path 1.0s ease;
+}
+
 </style>
 
 <template>
@@ -56,8 +65,9 @@ const highestBid = computed(() => {
         <div class="bg-white rounded-md gap-2 shadow-sm">
             <template v-if="itemQuery._status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
-                <p class="min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-[13rem]">
-                    <img class="min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverBoxRoute(tokenName)">
+                <p class="min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 min-h-[13rem] relative ">
+                    <img class="absolute p-8 item-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverItemRoute(tokenName)">
+                    <img class="box-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverBoxRoute(tokenName)">
                 </p>
                 <h3 class="font-semibold text-md px-4 break-all">{{ item.name }} </h3>
                 <template v-if="actualMode === 'PRESALE' && saleQuery._status === 'LOADED'">
