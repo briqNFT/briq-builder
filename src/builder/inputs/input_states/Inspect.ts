@@ -209,7 +209,8 @@ export class InspectInput extends MouseInputState {
     }
 
     override async onFrame() {
-        const distance = camera.position.distanceTo(this.mesh.position);
+        let distance = camera.position.distanceTo(this.mesh.position);
+        distance *= camera.fov / 45;
         this.mesh.scale.setScalar(Math.max(1, distance / 30.0));
         this.otherMesh.scale.setScalar(Math.max(1, distance / 30.0));
     }
