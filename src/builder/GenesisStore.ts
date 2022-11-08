@@ -125,18 +125,18 @@ let initialCall = () => {
                 return autoFetchable(state._saledata, async (prop) => new SaleData(await backendManager.fetch(`v1/${state.network}/${prop}/saledata`)));
             },
             coverItemRoute() {
-                return (token_id: string) => computed(() => {
-                    return backendManager.getRoute(`box/cover_item/${this.network}/${token_id}.png`)
+                return (token_id: string, lowQuality = false) => computed(() => {
+                    return backendManager.getRoute(`box/cover_item/${this.network}/${token_id}.${lowQuality ? 'jpg' : 'png'}`)
                 }).value;
             },
             coverBoxRoute() {
-                return (token_id: string) => computed(() => {
-                    return backendManager.getRoute(`box/cover_box/${this.network}/${token_id}.png`)
+                return (token_id: string, lowQuality = false) => computed(() => {
+                    return backendManager.getRoute(`box/cover_box/${this.network}/${token_id}.${lowQuality ? 'jpg' : 'png'}`)
                 }).value;
             },
             coverBookletRoute() {
-                return (token_id: string) => computed(() => {
-                    return backendManager.getRoute(`box/cover_booklet/${this.network}/${token_id}.png`)
+                return (token_id: string, lowQuality = false) => computed(() => {
+                    return backendManager.getRoute(`box/cover_booklet/${this.network}/${token_id}.${lowQuality ? 'jpg' : 'png'}`)
                 }).value;
             },
             boxTexture() {
