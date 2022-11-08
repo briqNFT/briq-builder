@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBoxData, CARD_MODES } from '@/builder/BoxData';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { userBidsStore, productBidsStore } from '@/builder/BidStore';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 
@@ -33,6 +33,9 @@ const highestBid = computed(() => {
         return '0';
     return productBidsStore.bids(props.tokenName).bids[productBidsStore.bids(props.tokenName).highest_bid!].bid_amount;
 })
+
+// Avoid showing the item before the first hover.
+const shallDisplay = ref(false);
 </script>
 
 
@@ -65,8 +68,8 @@ const highestBid = computed(() => {
         <div class="bg-white rounded-md gap-2 shadow-sm">
             <template v-if="itemQuery._status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
-                <p class="min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 min-h-[13rem] relative ">
-                    <img class="absolute p-8 item-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverItemRoute(tokenName)">
+                <p class="min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 min-h-[13rem] relative" @pointerenter="shallDisplay = true">
+                    <img v-show="shallDisplay" class="absolute p-8 item-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverItemRoute(tokenName)">
                     <img class="box-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverBoxRoute(tokenName)">
                 </p>
                 <h3 class="font-semibold text-md px-4 break-all">{{ item.name }} </h3>
