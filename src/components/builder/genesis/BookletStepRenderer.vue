@@ -82,7 +82,7 @@ const iridescentMaterialGen = (alpha: string) => new THREE.ShaderMaterial( {
         varying vec3 norm;
         varying vec3 pos;
         void main() {
-            norm = abs(normal) * 5.0;
+            norm = abs(normal) * 3.0;
             norm = (viewMatrix * vec4(pos, 1.0)).xyz;
             pos = position;
             vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
@@ -94,9 +94,9 @@ const iridescentMaterialGen = (alpha: string) => new THREE.ShaderMaterial( {
         varying vec3 pos;
         uniform float time;
         void main() {
-            float xb = mod(pos.x + time, 2.0) * 0.5 + 0.2;
-            float yb = mod(pos.y + time, 2.0) * 0.5 + 0.2;
-            float zb = mod(pos.z + time, 2.0) * 0.5 + 0.2;
+            float xb = mod(pos.x + time, 2.0) * 0.7 + 0.1;
+            float yb = mod(pos.y + time, 2.0) * 0.7 + 0.1;
+            float zb = mod(pos.z + time, 2.0) * 0.7 + 0.1;
             gl_FragColor = vec4(xb, yb, zb, 1.0);
             vec3 iri = vec3(xb, yb, zb);
 
@@ -105,21 +105,21 @@ const iridescentMaterialGen = (alpha: string) => new THREE.ShaderMaterial( {
             zb = abs(0.5f - mod(pos.z - 0.5, 1.0f));
             float threshold = 0.40;
             if (xb > threshold && yb > threshold)
-                gl_FragColor = vec4(vec3(${alpha}, ${alpha}, ${alpha}) * iri, 1.0f);
+                gl_FragColor = vec4(mix(vec3(1.0), iri, ${alpha}), 1.0f);
             else if (zb > threshold && yb > threshold)
-                gl_FragColor = vec4(vec3(${alpha}, ${alpha}, ${alpha}) * iri, 1.0f);
+                gl_FragColor = vec4(mix(vec3(1.0), iri, ${alpha}), 1.0f);
             else if (zb > threshold && xb > threshold)
-                gl_FragColor = vec4(vec3(${alpha}, ${alpha}, ${alpha}) * iri, 1.0f);
+                gl_FragColor = vec4(mix(vec3(1.0), iri, ${alpha}), 1.0f);
             else
                 gl_FragColor = vec4(vec3(0, 0, 0), 0.f);
         }
         `,
 });
 
-const iridescentMaterial = iridescentMaterialGen('0.3');
+const iridescentMaterial = iridescentMaterialGen('1.0');
 iridescentMaterial.transparent = true;
 
-const iridescentMaterialLight = iridescentMaterialGen('0.6');
+const iridescentMaterialLight = iridescentMaterialGen('0.3');
 iridescentMaterialLight.transparent = true;
 
 function recreateRenderer() {
@@ -188,10 +188,12 @@ function resizeRendererToDisplaySize() {
 function render(t: number) {
     if (!composer)
         return;
+    /*
     if (iridescentMaterial) {
         iridescentMaterial.uniforms.time.value = (t / 1000.0);
         iridescentMaterialLight.uniforms.time.value = (t / 1000.0);
     }
+    */
     resizeRendererToDisplaySize();
     composer.render();
     //renderer.info.reset();
@@ -249,7 +251,7 @@ async function loadGlbItems(glb_name: string, i: number) {
             it.material = borderMaterial;
         for (const it of item.children)
             if (it.material.name === '0x1_#29296E') {
-                iridescentMaterial.name = '_Any color you like';
+                iridescentMaterial.name = 'any_color_any_material';
                 it.material = iridescentMaterial;
                 it.geometry.computeVertexNormals();
             }
@@ -260,7 +262,7 @@ async function loadGlbItems(glb_name: string, i: number) {
             const previousItem = await loadGlbItem(glb_name, i - 1, 'step_glb');
             for (const item of previousItem.children)
                 if (item.material.name === '0x1_#29296E') {
-                    iridescentMaterialLight.name = '_Any color you like';
+                    iridescentMaterialLight.name = 'any_color_any_material';
                     item.material = iridescentMaterialLight;
                     item.geometry.computeVertexNormals();
                 } else {
@@ -337,7 +339,10 @@ const sampleColor = (event: MouseEvent) => {
     rc.setFromCamera({ x, y }, camera);
     const obj = rc.intersectObject(scene.children[0], true);
     if (obj?.[0]?.object?.material)
-        hoverColor.value = obj?.[0]?.object?.material.name.split('_')[1]
+        if (obj[0].object.material.name === 'any_color_any_material')
+            hoverColor.value = 'any_color_any_material';
+        else
+            hoverColor.value = obj?.[0]?.object?.material.name.split('_')[1]
     else
         hoverColor.value = '';
 }
@@ -377,12 +382,36 @@ watch([toRef(props, 'i'), toRef(props, 'glb_name')], async () => {
     immediate: true,
 });
 </script>
-
+<style scoped>
+.rainbow {
+    background: linear-gradient(
+        140deg,
+        rgba(255, 0, 0, 1) 0%,
+        rgba(255, 154, 0, 1) 10%,
+        rgba(208, 222, 33, 1) 20%,
+        rgba(79, 220, 74, 1) 30%,
+        rgba(63, 218, 216, 1) 40%,
+        rgba(47, 201, 226, 1) 50%,
+        rgba(28, 127, 238, 1) 60%,
+        rgba(95, 21, 242, 1) 70%,
+        rgba(186, 12, 248, 1) 80%,
+        rgba(251, 7, 217, 1) 90%,
+        rgba(255, 0, 0, 1) 100%
+    );
+}
+</style>
 
 <template>
     <Btn @click="resetCamera" :disabled="!userSet" class="w-10 h-10 absolute m-1 top-0 right-0" secondary><i class="text-lg fas fa-expand"/></Btn>
     <div class="flex justify-center items-center cursor-move w-full h-full">
         <canvas class="w-full h-full" ref="canvasRef" @mousemove="sampleColor" @mousedown="startSelectHoveredColor" @mouseup="selectHoveredColor"/>
     </div>
-    <p class="absolute pointer-events-none bottom-0 left-0 ml-4 mb-2 flex items-center gap-1"><span class="w-4 h-4 rounded-sm" :style="{ backgroundColor: hoverColor }"/>{{ hoverColor }}</p>
+    <p class="absolute pointer-events-none bottom-0 left-0 ml-4 mb-2 flex items-center gap-1">
+        <template v-if="hoverColor === 'any_color_any_material'">
+            <span class="w-4 h-4 rounded-sm rainbow" :style="{ backgroundColor: hoverColor }"/> Any color you like
+        </template>
+        <template v-else>
+            <span class="w-4 h-4 rounded-sm" :style="{ backgroundColor: hoverColor }"/>{{ hoverColor }}
+        </template>
+    </p>
 </template>
