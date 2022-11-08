@@ -23,7 +23,7 @@ const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbl
 
                 <button
                     @click="close"
-                    class="text-xl inline-flex justify-center items-center h-6 w-6 p-0">
+                    class="text-xl inline-flex justify-center items-center h-10 w-10 p-0">
                     <i class="fas fa-xmark"/>
                 </button>
             </div>
