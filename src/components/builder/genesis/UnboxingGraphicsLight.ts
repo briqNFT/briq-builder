@@ -590,10 +590,16 @@ export function triggerBoom() {
 
     // Change the collision of the box so that it falls correctly.
     physicsWorld.world.removeCollisionObject(sceneBox.userData.physicsBody);
-    physicsWorld.addMesh(sceneBox, 5.0, 0.7);
+    physicsWorld.addMesh(sceneBox, 2.0, 0.7);
     const body = physicsWorld.meshMap.get(sceneBox);
-    body.applyCentralImpulse(new Ammo.btVector3(-4.0, 0.8, -4.0));
+    body.applyCentralImpulse(new Ammo.btVector3(-4.0, 4.0, -4.0));
     body.applyTorqueImpulse(new Ammo.btVector3(-0.8, -0.2, 0.4));
+
+    // Make it disappear while offscreen.
+    setTimeout(() => {
+        physicsWorld.world.removeCollisionObject(physicsWorld.meshMap.get(sceneBox));
+        sceneBox.visible = false;
+    }, 1000);
 }
 
 export function graphicsFrame(delta: number) {

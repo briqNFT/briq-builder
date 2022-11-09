@@ -173,8 +173,8 @@ const unboxingOpenState = new class implements FsmState {
             const ease = 1.0;
             const curve = new THREE.CubicBezierCurve(
                 new THREE.Vector2(0, 0),
-                new THREE.Vector2(1.0, 0),
-                new THREE.Vector2(0.5, 1),
+                new THREE.Vector2(1.3, 0),
+                new THREE.Vector2(0.7, 1),
                 new THREE.Vector2(1, 1),
             );
             const easedTime = curve.getPoint(Math.min(1.0, this.c2 / 8)).y;
