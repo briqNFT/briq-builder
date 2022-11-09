@@ -32,7 +32,7 @@ let orbitControls: unknown;
 let glbItem: THREE.Group;
 
 let glbItemPerNamePerStep = {} as Record<string, Record<number, THREE.Group>>;
-const genMaterial = (alpha: string) => new THREE.ShaderMaterial( {
+const genMaterial = (darkness: string) => new THREE.ShaderMaterial( {
     vertexShader: `
         varying vec3 pos;
         varying vec3 vColor;
@@ -53,18 +53,18 @@ const genMaterial = (alpha: string) => new THREE.ShaderMaterial( {
             float zb = abs(0.5f - mod(pos.z - 0.5, 1.0f));
             float threshold = 0.48;
             if (xb > threshold && yb > threshold)
-                gl_FragColor = vec4(vec3(0, 0, 0), ${alpha}f);
+                gl_FragColor = vec4(vec3(${darkness}), 1.0f);
             else if (zb > threshold && yb > threshold)
-                gl_FragColor = vec4(vec3(0, 0, 0), ${alpha}f);
+                gl_FragColor = vec4(vec3(${darkness}), 1.0f);
             else if (zb > threshold && xb > threshold)
-                gl_FragColor = vec4(vec3(0, 0, 0), ${alpha}f);
+                gl_FragColor = vec4(vec3(${darkness}), 1.0f);
             else
                 gl_FragColor = vec4(vec3(0, 0, 0), 0.f);
             //gl_FragColor = vec4(1.0, 0.0, 0.0, xb + yb + zb);
         }
         `,
 });
-const borderMaterial = genMaterial('1.0');
+const borderMaterial = genMaterial('0.0');
 borderMaterial.vertexColors = true;
 borderMaterial.transparent = true;
 borderMaterial.depthTest = true;
@@ -247,32 +247,42 @@ async function loadGlbItems(glb_name: string, i: number) {
     if (!glbItemPerNamePerStep?.[glb_name]?.[i]) {
         const item = await loadGlbItem(glb_name, i, 'step_glb_level');
         const borders = item.clone(true);
-        for (const it of borders.children)
-            it.material = borderMaterial;
-        for (const it of item.children)
+        borders.traverse(it => {
+            if (!it.material)
+                return;
+            if (it?.material?.name === '0x1_#1e1e1e')
+                it.material = borderLightMaterial;
+            else
+                it.material = borderMaterial;
+        });
+        /* for (const it of item.children)
             if (it.material.name === '0x1_#29296E') {
                 iridescentMaterial.name = 'any_color_any_material';
                 it.material = iridescentMaterial;
                 it.geometry.computeVertexNormals();
-            }
+            }*/
 
         item.add(borders);
 
         if (i > 0) {
             const previousItem = await loadGlbItem(glb_name, i - 1, 'step_glb');
-            for (const item of previousItem.children)
-                if (item.material.name === '0x1_#29296E') {
+            previousItem.traverse(item => {
+                if (!item.material)
+                    return;
+                /*if (item.material.name === '0x1_#29296E') {
                     iridescentMaterialLight.name = 'any_color_any_material';
                     item.material = iridescentMaterialLight;
                     item.geometry.computeVertexNormals();
-                } else {
+                } else */{
                     item.material.fog = true;
-                    item.material.color = (item.material.color as THREE.Color).lerp(new THREE.Color(0xffffff), 0.6);
+                    item.material.color = (item.material.color as THREE.Color).lerp(new THREE.Color(0xffffff), 0.25);
                 }
+            });
 
             const previousBorders = previousItem.clone(true);
-            for (const item of previousBorders.children)
+            previousBorders.traverse(item => {
                 item.material = borderLightMaterial;
+            });
             previousItem.add(previousBorders);
             item.add(previousItem);
         }
