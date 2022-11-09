@@ -66,7 +66,7 @@ function generateSkybox(scene) {
 import getPreviewCube from './PreviewCube';
 
 function resetCamera() {
-    camera.position.set(getCanvasSize() * 0.3, getCanvasSize() * 0.8, -getCanvasSize() * 1.4);
+    camera.position.set(-getCanvasSize() * 0.3, getCanvasSize() * 0.8, getCanvasSize() * 1.4);
     orbitControls.controls.target.set(0, 1, 0);
     orbitControls.controls.update();
 }
@@ -127,6 +127,8 @@ function resizeRendererToDisplaySize(renderer, composer, camera) {
 
 function recreateRenderer(canvas, scene, camera) {
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.3;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = builderSettings.aaLevel !== '0' ? THREE.VSMShadowMap : THREE.BasicShadowMap; //THREE.VSMShadowMap; //THREE.PCFShadowMap;
     //renderer.outputEncoding = THREE.sRGBEncoding;

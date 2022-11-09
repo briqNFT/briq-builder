@@ -143,7 +143,7 @@ class UserSetStore implements perUserStorable {
         const TX = await contractStore.set!.assemble(
             this.user_id.split('/')[1],
             token_hint,
-            bookletData.value, // pass the booklet data to make sure we have the proper shape layout
+            data,
             bookletData.value.token_id,
         );
         const imageBlob = (await (await image).blob());

@@ -154,6 +154,13 @@ const copySetId = () => {
     pushPopup('info', 'Set ID copied');
 }
 
+const modelViewerLoading = ref(true);
+let modelViewerLoadingPromise: Promise<any>;
+
+if (mode === 'CREATION') {
+    modelViewerLoadingPromise = import('@google/model-viewer');
+    modelViewerLoadingPromise.then(() => modelViewerLoading.value = false);
+}
 </script>
 
 <template>
@@ -161,7 +168,12 @@ const copySetId = () => {
         :status="bookletQuery?._status || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
         :attributes="attributes">
         <template #image>
-            <img class="max-h-full p-8" v-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
+            <component
+                class="w-full h-full" :exposure="0.9"
+                v-if="!modelViewerLoading"
+                :is="'model-viewer'" shadow-intensity="0.5" shadow-softness="1" disable-pan camera-controls auto-rotate="true"
+                :src="backendManager.getRoute(`model/${getCurrentNetwork()}/${set.id}.glb`)"/>
+            <img class="max-h-full p-8" v-else-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
             <img class="max-h-full p-8" v-else :src="backendManager.getPreviewUrl(set!.id, (route.params.network as string) || getCurrentNetwork())">
         </template>
         <template v-if="mode === 'CREATION'" #dropdown>

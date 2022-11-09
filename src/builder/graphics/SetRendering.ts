@@ -217,7 +217,7 @@ export function handleActions(dispatchedActions: Array<{ action: string; payload
         else if (item.action === 'put_all_in_view') {
             const center = [0, 1, 2].map((i) => (bounds?.min?.[i] + bounds?.max?.[i]) / 2 || 0);
             const distance = Math.max(10, ...[0, 1, 2].map((i) => (bounds?.max?.[i] - bounds?.min?.[i]) || 0));
-            camera.position.set(center[0] + distance * 0.35, center[1] + distance * 1.0, center[2] - distance * 1.68);
+            camera.position.set(center[0] - distance * 0.35, center[1] + distance * 1.0, center[2] + distance * 1.68);
             orbitControls.controls.target.set(...center);
             orbitControls.controls.update();
         }

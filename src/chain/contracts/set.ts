@@ -47,7 +47,7 @@ export default class SetContract {
             toBN(briq.pos[1]).add(two.pow(toBN(63))).mul(two.pow(toBN(64)))).iadd(
             toBN(briq.pos[0]).add(two.pow(toBN(63))).mul(two.pow(toBN(128))),
         )
-        return ['0x' + color_nft_material.toString(16), '0x' + x_y_z.toString(16)]
+        return [color_nft_material.toString(10), x_y_z.toString(10)]
     }
 
     _string_to_felt_string(data: string) {

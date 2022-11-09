@@ -12,11 +12,13 @@ import { computed, h, ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useScreenshotHelpers } from '../ScreenshotComposable';
 import { userSetStore } from '@/builder/UserSets';
-import { useBooklet } from '../BookletComposable';
+import { bookletStore, useBooklet } from '../BookletComposable';
 import { router } from '@/Routes';
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { useThemeURLs } from '../genesis/ThemeUrlComposable';
 import { APP_ENV } from '@/Meta';
+import { getCurrentHub } from '@sentry/hub';
+import { getCurrentNetwork } from '@/chain/Network';
 
 const { chainBriqs } = useBuilder();
 
@@ -97,9 +99,9 @@ const hasLoadedBriqs = computed(() => chainBriqs.value?.status !== 'NOT_LOADED')
 // If there is no exportSet, then we have an error in swapping for real briqs.
 const hasEnoughBriqs = computed(() => hasLoadedBriqs.value && exportSet.value);
 
-// TODO: check if the set is being minted or is already minted (based on ID);
-const alreadyMinted = false;
 const validationError = computed(() => {
+    if (exportStep.value === 'DONE')
+        return undefined;
     if (!hasSigner.value)
         return {
             code: 'NO_SIGNER',
@@ -142,6 +144,24 @@ const startMinting = async () => {
 
         let data = exportSet.value.serialize();
 
+        // We need to adjust the position of briqs so that we mint the right stuff.
+        const rotatePos = (vec: any, index = 0) => {
+            if (index === 0)
+                return vec;
+            if (index === 1)
+                return [-vec[2], vec[1], vec[0]];
+            if (index === 2)
+                return [-vec[0], vec[1], -vec[2]];
+            if (index === 3)
+                return [vec[2], vec[1], -vec[0]];
+        }
+
+        for (const briq of data.briqs) {
+            briq.pos = rotatePos(briq.pos, bookletStore.shapeValidityOffset[booklet.value][0]);
+            briq.pos[0] += bookletStore.shapeValidityOffset[booklet.value][1];
+            briq.pos[2] += bookletStore.shapeValidityOffset[booklet.value][2];
+        }
+
         data.recommendedSettings = builderSettings.getSettingsForSetExport();
 
         exportStep.value = 'SENDING_TRANSACTION';
@@ -169,7 +189,7 @@ const startMinting = async () => {
 
         exportStep.value = 'DONE';
         setTimeout(() => {
-            router.push({ name: 'Profile', query: { tab: booklet.value ? 'GENESIS' : 'CREATION' } })
+            router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: data.id } })
             setsManager.deleteLocalSet(setData.value.id);
             emit('close');
         }, 0);

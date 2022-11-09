@@ -9,7 +9,10 @@ export const bookletStore = reactive({
     // For speed we compute this at most in one code path
     // Note that this relies on 'one set == one booklet'
     shapeValidity: {} as { [booklet: bookletId]: number },
+    // If this exists, we are currently computing the offset
     shapeValidityCalculated: {} as { [booklet: bookletId]: boolean },
+    // Just a cache for minting.
+    shapeValidityOffset: {} as { [booklet: bookletId]: number[] },
 });
 
 export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) {
@@ -83,7 +86,6 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
                     selfBounds[1][1] = Math.max(selfBounds[1][1], bp[1]);
                     selfBounds[1][2] = Math.max(selfBounds[1][2], bp[2]);
                 }
-                let match = 0;
                 if (currentBriqs.length !== 0)
                     for (let xx = targetBounds[0][0] - selfBounds[0][0]; xx <= targetBounds[1][0] - selfBounds[1][0]; ++xx)
                         for (let zz = targetBounds[0][2] - selfBounds[0][2]; zz <= targetBounds[1][2] - selfBounds[1][2]; ++zz) {
@@ -112,11 +114,11 @@ export function useBooklet(forceSet?: Ref<SetData>, forceBooklet?: Ref<string>) 
                                     fails++;
                             }
                             cmatch -= fails * 0.9;
-                            if (cmatch > match)
-                                match = cmatch;
+                            if (cmatch > bestMatch) {
+                                bestMatch = cmatch;
+                                bookletStore.shapeValidityOffset[booklet_value] = [rotation, xx, zz];
+                            }
                         }
-                if (match > bestMatch)
-                    bestMatch = match;
             }
             bookletStore.shapeValidity[booklet_value] = Math.min(1, Math.max(0, bestMatch / targetBriqs.length));
         })

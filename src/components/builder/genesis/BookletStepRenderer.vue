@@ -123,6 +123,8 @@ const iridescentMaterialLight = iridescentMaterialGen('0.3');
 iridescentMaterialLight.transparent = true;
 
 function recreateRenderer() {
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.3;
     renderer.shadowMap.needsUpdate = true;
     renderer.shadowMap.enabled = true;
     renderer.setClearColor(0xFF0000, 0);
@@ -215,7 +217,7 @@ async function useRenderer(canvas: HTMLCanvasElement) {
     const near = 1.0;
     const far = 750;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    camera.position.set(20, 20, -20);
+    camera.position.set(-20, 20, 20);
 
     orbitControls = new OrbitControls(camera, canvas);
     orbitControls.enableDamping = true;
@@ -339,7 +341,7 @@ const resetCamera = () => {
     const center = [0, 1, 2].map(i => (bb.max.getComponent(i) + bb.min.getComponent(i))/2.0);
     orbitControls.target.set(...center);
     const radius = Math.max(4, bb.getBoundingSphere(new THREE.Sphere()).radius);
-    camera.position.set(...center.map((x, i) => x + (new THREE.Vector3(1, 1, -1)).multiplyScalar(3 * radius).getComponent(i)));
+    camera.position.set(...center.map((x, i) => x + (new THREE.Vector3(-1, 1, 1)).multiplyScalar(3 * radius).getComponent(i)));
     userSet.value = false;
 };
 
