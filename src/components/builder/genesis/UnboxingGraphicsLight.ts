@@ -296,7 +296,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     }
 
     const floor = new THREE.Mesh(
-        new THREE.BoxGeometry( 4, 1, 4),
+        new THREE.BoxGeometry(20, 1, 20),
     );
     floor.receiveShadow = true;
     floor.position.y = -1;
@@ -588,12 +588,12 @@ export function triggerBoom() {
         body.applyCentralImpulse(impulse);
     }
 
-    // Delete the kinetic objects or things will fail
+    // Change the collision of the box so that it falls correctly.
     physicsWorld.world.removeCollisionObject(sceneBox.userData.physicsBody);
-    physicsWorld.addMesh(sceneBox, 1.0);
+    physicsWorld.addMesh(sceneBox, 5.0, 0.7);
     const body = physicsWorld.meshMap.get(sceneBox);
-    body.applyCentralImpulse(new Ammo.btVector3(-1.0, 0.2, -1.0));
-    body.applyTorqueImpulse(new Ammo.btVector3(-0.2, -0.05, 0.1));
+    body.applyCentralImpulse(new Ammo.btVector3(-4.0, 0.8, -4.0));
+    body.applyTorqueImpulse(new Ammo.btVector3(-0.8, -0.2, 0.4));
 }
 
 export function graphicsFrame(delta: number) {

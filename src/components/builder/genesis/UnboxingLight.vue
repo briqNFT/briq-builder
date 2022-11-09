@@ -234,6 +234,7 @@ const unboxingOpenState = new class implements FsmState {
 
         if (this.time >= 13.5)
             fsm.switchTo('UNBOXED');
+
     }
 }
 
@@ -248,30 +249,66 @@ const unboxedState = new class implements FsmState {
 const openBuilderState = new class implements FsmState {
     time = 0;
     easedTime = ref(0);
+
+    camPos!: THREE.Vector3;
+    tpos!: THREE.Vector3;
+    intermediatePos!: THREE.Vector3;
+
+    camRot!: THREE.Quaternion;
+    tRot!: THREE.Quaternion;
+    intermediateRot!: THREE.Quaternion;
+
+    step1curve!: THREE.CubicBezierCurve;
+    step2curve!: THREE.CubicBezierCurve;
+
+    step1time!: number;
+    step2time!: number;
     async onEnter() {
         this.camPos = camera.position.clone();
-        this.camQuat = camera.quaternion.clone();
+        this.camRot = camera.quaternion.clone();
 
-        this.tpos = sceneData.booklet.position.clone();
+        this.tpos = sceneData.booklet!.position.clone();
+        this.tRot = sceneData.booklet!.quaternion.clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2));
+
+        this.intermediatePos = this.tpos.clone().lerp(this.camPos, 0.05);
+        this.intermediatePos.add(new THREE.Vector3(0, 1, 0));
+        this.intermediateRot = this.camRot.clone().slerp(this.tRot, 0.9);
+
+        this.step1curve = new THREE.CubicBezierCurve(
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(1.0, 0),
+            new THREE.Vector2(0.0, 1),
+            new THREE.Vector2(1, 1),
+        );
+
+        this.step2curve = new THREE.CubicBezierCurve(
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(1.0, 0),
+            new THREE.Vector2(1.0, 0.5),
+            new THREE.Vector2(1, 1),
+        );
+
+        this.step1time = 1.7;
+        this.step2time = 0.8;
     }
 
     frame(delta: number) {
         // Camera movement - step 1
-        if (this.time < 1) {
-            const curve = new THREE.CubicBezierCurve(
-                new THREE.Vector2(0, 0),
-                new THREE.Vector2(1.0, 0),
-                new THREE.Vector2(1.0, 0.5),
-                new THREE.Vector2(1, 1),
-            );
-            const easedTime = curve.getPoint(Math.min(1.0, this.time)).y;
+
+        if (this.time < this.step1time) {
+            const easedTime = this.step1curve.getPoint(Math.min(1.0, this.time / this.step1time)).y;
+            camera.position.lerpVectors(this.camPos, this.intermediatePos, Math.min(1, easedTime));
+            camera.quaternion.slerpQuaternions(this.camRot, this.intermediateRot, Math.min(1, easedTime));
+        } else if (this.time < this.step1time + this.step2time) {
+            const easedTime = this.step2curve.getPoint(Math.min(1.0, (this.time - this.step1time) / (this.step2time))).y;
             this.easedTime.value = easedTime;
-            camera.position.lerpVectors(this.camPos, this.tpos, Math.min(1, easedTime));
-            camera.near = Math.max(0.0001, 0.3 - curve.getPoint(Math.min(1.0, this.time)).y * 0.3);
-            camera.far = 100 - curve.getPoint(Math.min(1.0, this.time)).y * 99.9;
+            camera.position.lerpVectors(this.intermediatePos, this.tpos, Math.min(1, easedTime));
+
+            camera.near = Math.max(0.0001, 0.3 - easedTime * 0.3);
+            camera.far = 100 - easedTime * 99.9;
         }
 
-        if (this.time >= 1) {
+        if (this.time >= this.step1time + this.step2time) {
             let set = setsManager.getBookletSet(boxId.value);
             if (!set)
                 openSetInBuilder(createBookletSet(boxMetadata._data!.name, boxId.value));
@@ -428,6 +465,8 @@ const useMockWallet = () => {
         ref="canvas"
         @click="(event) => fsm.state?.onClick?.(event)"
         @pointermove="(event) => fsm.state?.onPointerMove?.(event)"/>
+    <!-- preload -->
+    <div class="hidden absolute"><img :src="genesisStore.coverBookletRoute(boxId)"></div>
     <Transition name="fade">
         <div
             v-if="step === 'CHECK_WALLET' || step === 'LOADING'"
@@ -470,7 +509,7 @@ const useMockWallet = () => {
                 </div>
                 <div class="flex flex-col gap-6">
                     <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
-                        <p class="text-center font-semibold">Briqs <span class="font-normal">x 1</span></p>
+                        <p class="text-center font-semibold">Briqs <span class="font-normal">x {{ boxMetadata._data?.nb_briqs }}</span></p>
                         <div class="flex h-full justify-center items-center"><img class="max-w-[5rem]" :src="BriqsImg"></div>
                     </div>
                     <Btn class="pointer-events-auto h-14" @click="openBuilder">Start Building</Btn>
