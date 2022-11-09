@@ -354,7 +354,7 @@ const startSelectHoveredColor = (event: MouseEvent) => {
 }
 
 const selectHoveredColor = (event: MouseEvent) => {
-    if (!hoverColor.value)
+    if (!hoverColor.value || hoverColor.value === 'any_color_any_material')
         return;
     if (Math.abs(event.clientX - mx) > 3 || Math.abs(event.clientY - my) > 3)
         return;

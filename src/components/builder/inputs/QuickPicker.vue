@@ -24,6 +24,16 @@ const store = useStore();
 const palette = computed(() => palettesMgr.getCurrent());
 const choices = computed(() => palette.value.getChoices());
 
+const currentColor = computed({
+    get: () => {
+        return inputStore.currentColor.toLowerCase();
+    },
+    set: (v) => {
+        if (v.match(/^#[abcdef0-9]{6}$/i))
+            inputStore.currentColor = v.toLowerCase();
+    },
+})
+
 watch([toRef(inputStore, 'currentColor'), toRef(inputStore, 'currentMaterial')], () => {
     if (activeInputButton.value !== 'select')
         return;
@@ -101,7 +111,7 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
             <div class="pl-4 pr-2 pb-4 pt-3">
                 <div class="flex items-center gap-2 relative">
                     <div class="inline-block w-4 h-4 rounded-sm absolute left-3 pointer-events-none" :style="{ backgroundColor: inputStore.currentColor }"/>
-                    <input type="text" v-model="inputStore.currentColor" class="py-0 h-10 pl-9 grow" size="8">
+                    <input type="text" @keydown.stop v-model="currentColor" class="py-0 h-10 pl-9 grow" size="8">
                     <p @click="pickerOpen = !pickerOpen" class="p-2 flex justify-center items-center cursor-pointer select-none"><img class="w-6 h-6" :src="ColorWheel"></p>
                 </div>
                 <div class="flex flex-wrap gap-1 mt-4">
