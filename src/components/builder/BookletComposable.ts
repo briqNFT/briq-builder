@@ -3,7 +3,6 @@ import { reactive, toRef, watchEffect, computed, Ref, onUnmounted, onBeforeUnmou
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { bookletId, getStepImgSrc, getBookletDataSync } from '@/builder/BookletData';
 import { setsManager } from '@/builder/SetsManager';
-import { copyFile } from 'fs';
 
 export const bookletStore = reactive({
     minimized: false,

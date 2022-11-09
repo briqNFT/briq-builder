@@ -9,6 +9,7 @@ export interface BookletData {
     token_id: string,
     name: string,
     nb_pages: number,
+    steps_progress: number[],
     description: string,
     briqs: { data: { material: string, color: string }, pos: [number, number, number] }[];
 }
