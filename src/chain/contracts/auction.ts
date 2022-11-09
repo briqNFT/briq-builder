@@ -24,14 +24,17 @@ export default class AuctionContract {
 
     async approveAndBid(erc20_contract: ERC20Contract, box_token_id: number, index: number, amount: BigNumberish) {
         await maybeStore.value!.ensureEnabled();
+        const bidTx = this.contract.populateTransaction.make_bid({
+            bidder: this.contract.providerOrAccount.address,
+            auction_index: index,
+            box_token_id: box_token_id,
+            bid_amount: amount,
+        })
+        if (amount == 0)
+            return (this.contract.providerOrAccount as AccountInterface).execute([bidTx]);
         return (this.contract.providerOrAccount as AccountInterface).execute([
             erc20_contract.contract.populateTransaction['approve'](this.contract.address, bnToUint256(toBN(amount))),
-            this.contract.populateTransaction.make_bid({
-                bidder: this.contract.providerOrAccount.address,
-                auction_index: index,
-                box_token_id: box_token_id,
-                bid_amount: amount,
-            }),
+            bidTx,
         ]);
     }
 }
