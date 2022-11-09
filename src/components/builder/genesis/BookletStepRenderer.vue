@@ -255,12 +255,15 @@ async function loadGlbItems(glb_name: string, i: number) {
             else
                 it.material = borderMaterial;
         });
-        /* for (const it of item.children)
-            if (it.material.name === '0x1_#29296E') {
+        item.traverse(it => {
+            if (!it.material)
+                return;
+            if (it.material.name.search('any') !== -1) {
                 iridescentMaterial.name = 'any_color_any_material';
                 it.material = iridescentMaterial;
                 it.geometry.computeVertexNormals();
-            }*/
+            }
+        });
 
         item.add(borders);
 
@@ -269,11 +272,11 @@ async function loadGlbItems(glb_name: string, i: number) {
             previousItem.traverse(item => {
                 if (!item.material)
                     return;
-                /*if (item.material.name === '0x1_#29296E') {
+                if (item.material.name.search('any') !== -1) {
                     iridescentMaterialLight.name = 'any_color_any_material';
                     item.material = iridescentMaterialLight;
                     item.geometry.computeVertexNormals();
-                } else */{
+                } else {
                     item.material.fog = true;
                     item.material.color = (item.material.color as THREE.Color).lerp(new THREE.Color(0xffffff), 0.25);
                 }
