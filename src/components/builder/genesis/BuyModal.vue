@@ -32,9 +32,14 @@ const props = defineProps<{
     },
 }>();
 
+const termsSale = ref(false);
+const termsBriq = ref(false);
+
 const weiPrice = computed(() => toBN(Math.floor(saledata.value?.price || 100).toString()))
 
 const canMakeBid = computed(() => {
+    if (!termsBriq.value || !termsSale.value)
+        return false;
     return userBalance.current?.balance?._status !== 'LOADED' || toBN(userBalance.current?.balance._data).cmp(weiPrice) >= 0;
 })
 
@@ -93,6 +98,10 @@ const makeBid = async () => {
             <p>
                 {{ readableNumber(weiPrice) }} {{ readableUnit(weiPrice) }}
             </p>
+        </div>
+        <div class="text-sm flex flex-col gap-4 my-6">
+            <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
+            <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
         </div>
         <div class="flex justify-end items-center gap-4">
             <p v-if="canMakeBidReason" class="text-red-300 text-sm">{{ canMakeBidReason }}</p>

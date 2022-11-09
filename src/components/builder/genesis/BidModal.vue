@@ -5,7 +5,7 @@ import { Bid, userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
 import { toBN } from 'starknet/utils/number';
 import { useBids } from '@/components/BidComposable.js';
-import { fromETH, readableNumber } from '@/BigNumberForHumans';
+import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { HashVue, pushPopup } from '@/Notifications';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 defineEmits(['close']);
@@ -18,6 +18,9 @@ const props = defineProps<{
     },
 }>();
 
+const termsSale = ref(false);
+const termsBriq = ref(false);
+
 const { currentBid, currentBidString } = useBids(props.metadata.item);
 
 const bid = ref(readableNumber(currentBid.value) || undefined as undefined | string);
@@ -29,6 +32,8 @@ const weiBid = computed(() => {
 const balance = computed(() => userBalance.current?.asEth());
 
 const canMakeBid = computed(() => {
+    if (!termsBriq.value || !termsSale.value)
+        return false;
     return balance.value && bid.value !== undefined &&
         weiBid.value.cmp(toBN(userBalance.current?.balance._data)) <= 0 &&
         weiBid.value.cmp(currentBid.value) > 0;
@@ -94,7 +99,11 @@ const makeBid = async () => {
                     Make your bid<br>
                     <input :disabled="step === 'SIGNING'" class="w-full my-2" type="number" min="0" :max="balance" step="0.1" v-model="bid" :placeholder="`Bid Ξ ${1.35} or more`">
                 </p>
-                <p class="text-right text-sm text-grad-darker">Available: Ξ {{ balance }}</p>
+                <p class="text-right text-sm text-grad-darker">Available: {{ balance }} {{ readableUnit(userBalance.current?.balance._data) }}</p>
+            </div>
+            <div class="text-sm flex flex-col gap-4">
+                <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
+                <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
             </div>
             <div class="flex justify-end items-center gap-4">
                 <p v-if="canMakeBidReason" class="text-red-300 text-sm">{{ canMakeBidReason }}</p>
