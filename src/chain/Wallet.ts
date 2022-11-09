@@ -123,7 +123,7 @@ export class WalletStore {
             chooseDefaultNetwork();
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha-mainnet.starknet') !== -1)
             setNetwork('starknet-mainnet');
-        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha4.starknet') !== -1)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha4') !== -1)
             setNetwork('starknet-testnet');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('mock_chain') !== -1)
             setNetwork('mock');
