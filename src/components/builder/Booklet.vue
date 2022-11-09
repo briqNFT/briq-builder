@@ -163,10 +163,13 @@ const higherPage = () => {
                 <div class="border-t border-grad-light">
                     <div class="mx-4 my-4 relative">
                         <p class="flex justify-between mb-2"><span>Progress</span><span class="text-right font-medium">{{ Math.floor(shapeValidity*100) }}%</span></p>
-                        <ProgressBar class="!block !h-3 my-0" :percentage="shapeValidity*100"/>
+                        <ProgressBar
+                            class="!block !h-3 my-0"
+                            :percentage="shapeValidity*100"
+                            :color="shapeValidity > ((bookletData.steps_progress[currentPage - 1] - 0.2) / bookletData.briqs.length) ? 'rgb(var(--color-info-success))' : undefined"/>
                         <div
                             v-show="shapeValidity < 1" :style="{ left: `${(bookletData.steps_progress[currentPage - 1]) / bookletData.briqs.length*100}%` }"
-                            :class="`w-1 h-4 absolute -bottom-0.5 rounded-sm ${shapeValidity > ((bookletData.steps_progress[currentPage - 1] - 0.2) / bookletData.briqs.length) ? 'bg-info-success' : 'bg-grad-dark'}`"/>
+                            class="w-1 h-4 absolute -bottom-0.5 rounded-sm bg-grad-dark"/>
                         <canvas ref="microCanvas" class="absolute w-[200px] h-[200px] top-6 translate-x-[-50%] -translate-x-1/2 -translate-y-1/2 pointer-events-none" :style="{ left: `${shapeValidity*100}%` }"/>
                     </div>
                 </div>
