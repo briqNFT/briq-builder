@@ -176,14 +176,14 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <template v-if="status === 'LOADED'">
                     <div class="flex justify-center items-center h-full w-full select-none">
                         <component
-                            v-show="view === '3D'"
+                            v-show="view === '3D'" v-if="mode === 'CREATION'"
                             :poster="previewURL"
                             class="w-full h-full"
                             :exposure="0.9"
                             :is="'model-viewer'" shadow-intensity="0.5" shadow-softness="1" disable-pan camera-controls auto-rotate="true"
                             :src="backendManager.getRoute(`model/${getCurrentNetwork()}/${set.id}.glb`)"/>
-                        <img class="max-h-full p-0" v-show="view === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
-                        <img class="max-h-full p-8" v-show="view === 'PREVIEW'" :src="previewURL">
+                        <img v-if="booklet_id" v-show="view === 'BOOKLET'" class="max-h-full p-0 bg-contain bg-origin-content bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet_id!, true)})` }" :src="genesisStore.coverBookletRoute(booklet_id!)">
+                        <img v-if="mode === 'CREATION'" class="max-h-full p-8 bg-contain bg-origin-content bg-no-repeat" :style="{ backgroundImage: `url(${previewURL.replace('.png', '.jpg')})` }" v-show="view === 'PREVIEW'" :src="previewURL">
                     </div>
                     <div class="absolute top-4 left-4 flex flex-col gap-1" v-if="mode === 'CREATION'">
                         <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-1 w-10 h-10" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="previewURL"></Btn>
