@@ -13,6 +13,40 @@ import { ShaderGrid } from '@/builder/graphics/ShaderGrid';
 
 const { currentSet } = builderStore;
 
+function processIntersection(x: number, y: number, overlay: boolean): [number, number, number] | undefined {
+    const intersection = this._getIntersectionPos(x, y, overlay);
+    if (!intersection)
+        return undefined;
+    // This is the target without diagonal shenanigans.
+    const naturalTarget = intersection.position.map((v, ndx) => {
+        return Math.floor(v + intersection.normal[ndx] * (overlay ? -0.5 : +0.5));
+    });
+    // If we're in overlay mode or there not hovering a briq, return the natural path.
+    if (overlay || intersection.position[1] < 0.1)
+        return naturalTarget;
+    // Now in non-overlay mode (aka briq placement), we want to allow diagonals near edges.
+    const diagTarget = intersection.position.map((v, ndx) => {
+        const cubeCenter = Math.floor(v - intersection.normal[ndx] / 2) + 0.5;
+        if (ndx === 1)
+            return Math.max(0, Math.floor(cubeCenter + (v - cubeCenter) * 1.5));
+        return Math.floor(cubeCenter + (v - cubeCenter) * 1.5);
+    })
+    // Same cube, exit early.
+    if (diagTarget[0] === naturalTarget[0] && diagTarget[1] === naturalTarget[1] && diagTarget[2] === naturalTarget[2])
+        return naturalTarget;
+    // Check that there isn't a briq at the diagonal target, otherwise return natural.
+    if (currentSet.value.getAt(...diagTarget))
+        return naturalTarget;
+    // Different cube: compute the 'next natural briq', if there is one return natural,
+    // otherwise we're at an edge and allow diagonals.
+    const currentBriq = intersection.position.map((v, ndx) => {
+        return Math.floor(v - intersection.normal[ndx] / 2);
+    });
+    if (!currentSet.value.getAt(...[0, 1, 2].map(i => currentBriq[i] + diagTarget[i] - naturalTarget[i])))
+        return diagTarget;
+    return naturalTarget;
+}
+
 export class PlacerInput extends MouseInputState {
     onEnter() {
         getPreviewCube().visible = false;
@@ -31,35 +65,8 @@ export class PlacerInput extends MouseInputState {
 
     // Overloaded - we want diagonal placement.
     getIntersectionPos(x: number, y: number, overlay = false): [number, number, number] | undefined {
-        const intersection = this._getIntersectionPos(x, y, overlay);
-        if (!intersection)
-            return undefined;
-        // This is the target without diagonal shenanigans.
-        const naturalTarget = intersection.position.map((v, ndx) => {
-            return Math.floor(v + intersection.normal[ndx] * (overlay ? -0.5 : +0.5));
-        });
-        if (overlay)
-            return naturalTarget;
-        // Now in non-overlay mode (aka briq placement), we want to allow diagonals near edges.
-        const diagTarget = intersection.position.map((v, ndx) => {
-            const cubeCenter = Math.floor(v - intersection.normal[ndx] / 2) + 0.5;
-            if (ndx === 1)
-                return Math.max(0, Math.floor(cubeCenter + (v - cubeCenter) * 1.5));
-            return Math.floor(cubeCenter + (v - cubeCenter) * 1.5);
-        })
-        // Same cube, exit early.
-        if (diagTarget[0] === naturalTarget[0] && diagTarget[1] === naturalTarget[1] && diagTarget[2] === naturalTarget[2])
-            return naturalTarget;
-        // Different cube: compute the 'next natural briq', if there is one return natural,
-        // otherwise we're at an edge and allow diagonals.
-        const currentBriq = intersection.position.map((v, ndx) => {
-            return Math.floor(v - intersection.normal[ndx] / 2);
-        });
-        if (!currentSet.value.getAt(...[0, 1, 2].map(i => currentBriq[i] + diagTarget[i] - naturalTarget[i])))
-            return diagTarget;
-        return naturalTarget;
+        return processIntersection.call(this, x, y, overlay);
     }
-
 
     async onPointerMove(event: PointerEvent) {
         const pos = this.getIntersectionPos(this.curX, this.curY);
@@ -115,6 +122,11 @@ export class PlacerMultiInput extends VoxelAlignedSelection {
             (getPreviewCube().material as THREE.MeshPhongMaterial).color = new THREE.Color(inputStore.currentColor);
         });
     }
+
+    getIntersectionPos(x: number, y: number, overlay = false): [number, number, number] | undefined {
+        return processIntersection.call(this, x, y, overlay);
+    }
+
     async onPointerMove(event: PointerEvent) {
         super.onPointerMove(event);
     }
