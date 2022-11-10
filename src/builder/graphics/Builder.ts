@@ -172,7 +172,7 @@ function recreateRenderer(canvas, scene, camera) {
 
         // Create similar position lights but give them default lighting settings.
         const lightSpot = new THREE.DirectionalLight(new THREE.Color(0x888888), 1.0);
-        lightSpot.position.set(-1 * 5, 2 * 5, -3 * 5);
+        lightSpot.position.set(-1 * 5, 2 * 5, 3 * 5);
         lightSpot.castShadow = false;
         overlayScene.add(lightSpot);
         const ambientLight = new THREE.AmbientLight(0x888888, 1.5);
@@ -241,7 +241,7 @@ function setupScene() {
         scene = new THREE.Scene();
     scene.clear();
 
-    addLight(scene, -1 * getCanvasSize() / 2, 2 * getCanvasSize() / 2, -3 * getCanvasSize() / 2);
+    addLight(scene, 1 * getCanvasSize() / 2, 2 * getCanvasSize() / 2, 3 * getCanvasSize() / 2);
 
     if (!builderSettings.transparentBackground)
         scene.background = new THREE.Color(builderConf().backgroundColor).convertSRGBToLinear();

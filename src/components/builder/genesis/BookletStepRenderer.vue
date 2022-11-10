@@ -323,7 +323,7 @@ async function setupScene() {
     scene.add(ambient);
 
     const light = new THREE.DirectionalLight(new THREE.Color(0xFFFFFF), 0.6);
-    light.position.set(1, 1, 1);
+    light.position.set(-1, 1, -1);
     scene.add(light);
 }
 

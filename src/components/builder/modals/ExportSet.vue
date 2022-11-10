@@ -145,21 +145,23 @@ const startMinting = async () => {
         let data = exportSet.value.serialize();
 
         // We need to adjust the position of briqs so that we mint the right stuff.
-        const rotatePos = (vec: any, index = 0) => {
-            if (index === 0)
-                return vec;
-            if (index === 1)
-                return [-vec[2], vec[1], vec[0]];
-            if (index === 2)
-                return [-vec[0], vec[1], -vec[2]];
-            if (index === 3)
-                return [vec[2], vec[1], -vec[0]];
-        }
+        if (booklet.value) {
+            const rotatePos = (vec: any, index = 0) => {
+                if (index === 0)
+                    return vec;
+                if (index === 1)
+                    return [-vec[2], vec[1], vec[0]];
+                if (index === 2)
+                    return [-vec[0], vec[1], -vec[2]];
+                if (index === 3)
+                    return [vec[2], vec[1], -vec[0]];
+            }
 
-        for (const briq of data.briqs) {
-            briq.pos = rotatePos(briq.pos, bookletStore.shapeValidityOffset[booklet.value][0]);
-            briq.pos[0] += bookletStore.shapeValidityOffset[booklet.value][1];
-            briq.pos[2] += bookletStore.shapeValidityOffset[booklet.value][2];
+            for (const briq of data.briqs) {
+                briq.pos = rotatePos(briq.pos, bookletStore.shapeValidityOffset[booklet.value][0]);
+                briq.pos[0] += bookletStore.shapeValidityOffset[booklet.value][1];
+                briq.pos[2] += bookletStore.shapeValidityOffset[booklet.value][2];
+            }
         }
 
         data.recommendedSettings = builderSettings.getSettingsForSetExport();

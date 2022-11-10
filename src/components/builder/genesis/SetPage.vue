@@ -161,20 +161,41 @@ if (mode === 'CREATION') {
     modelViewerLoadingPromise = import('@google/model-viewer');
     modelViewerLoadingPromise.then(() => modelViewerLoading.value = false);
 }
+
+const previewURL = computed(() => backendManager.getPreviewUrl(set.value?.id, (route.params.network as string) || getCurrentNetwork()));
+
+const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D' | 'BOOKLET');
 </script>
 
 <template>
     <GenericItemPage
         :status="bookletQuery?._status || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
         :attributes="attributes">
-        <template #image>
-            <component
-                class="w-full h-full" :exposure="0.9"
-                v-if="!modelViewerLoading"
-                :is="'model-viewer'" shadow-intensity="0.5" shadow-softness="1" disable-pan camera-controls auto-rotate="true"
-                :src="backendManager.getRoute(`model/${getCurrentNetwork()}/${set.id}.glb`)"/>
-            <img class="max-h-full p-8" v-else-if="mode === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
-            <img class="max-h-full p-8" v-else :src="backendManager.getPreviewUrl(set!.id, (route.params.network as string) || getCurrentNetwork())">
+        <template #full-image="{ status }">
+            <div class="relative h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
+                <template v-if="status === 'LOADED'">
+                    <div class="flex justify-center items-center h-full w-full select-none">
+                        <component
+                            v-show="view === '3D'"
+                            :poster="previewURL"
+                            class="w-full h-full"
+                            :exposure="0.9"
+                            :is="'model-viewer'" shadow-intensity="0.5" shadow-softness="1" disable-pan camera-controls auto-rotate="true"
+                            :src="backendManager.getRoute(`model/${getCurrentNetwork()}/${set.id}.glb`)"/>
+                        <img class="max-h-full p-0" v-show="view === 'BOOKLET'" :src="genesisStore.coverBookletRoute(booklet_id!)">
+                        <img class="max-h-full p-8" v-show="view === 'PREVIEW'" :src="previewURL">
+                    </div>
+                    <div class="absolute top-4 left-4 flex flex-col gap-1" v-if="mode === 'CREATION'">
+                        <Btn no-style class="border border-bg-light rounded hover:border-2 p-1 w-10 h-10" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="previewURL"></Btn>
+                        <Btn no-style class="border border-bg-light rounded hover:border-2 p-0 w-10 h-10 !text-sm !font-semibold" @click="view='3D'">3D</Btn>
+                        <Btn no-style class="border border-bg-light rounded hover:border-2 p-0 w-10 h-10" v-if="bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
+                    </div>
+                </template>
+                <template v-else-if="status === 'FETCHING'">
+                    <p>Loading image</p>
+                </template>
+                <div v-else><p>Error while loading data</p></div>
+            </div>
         </template>
         <template v-if="mode === 'CREATION'" #dropdown>
             <Btn no-background class="text-sm font-normal" @click="pushModal(DownloadSet, { setId: set?.id })">Download</Btn>
