@@ -306,7 +306,7 @@ div[data-name='menu'] button {
                             v-for="creation in creations" :key="creation.id"
                             :status="creation?.id ? 'LOADED' : 'FETCHING'"
                             :title="creation.name"
-                            :image-src="backendManager.getPreviewUrl(creation.id)"
+                            :image-src="backendManager.getPreviewUrl(creation.id).replace('.png', '.jpg')"
                             class="cursor-pointer"
                             @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
                             <template #subtitle>
@@ -395,7 +395,7 @@ div[data-name='menu'] button {
                             v-for="creation in officialCreations" :key="creation.id"
                             :status="creation?.id ? 'LOADED' : 'FETCHING'"
                             :title="creation.name"
-                            :image-src="backendManager.getPreviewUrl(creation.id)"
+                            :image-src="backendManager.getPreviewUrl(creation.id).replace('.png', '.jpg')"
                             class="cursor-pointer"
                             @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
                             <template #subtitle>
