@@ -105,7 +105,7 @@ export default class SetContract {
             fts.push([ft, '' + fungibles[ft]]);
 
         await maybeStore.value!.ensureEnabled();
-        return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [booklet] : []);
+        return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [booklet, SHAPE_HASH_COLLECTION] : [SHAPE_HASH_COLLECTION]);
     }
 
     async transferOneNFT(sender: string, recipient: string, token_id: string) {
