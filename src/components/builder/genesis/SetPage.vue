@@ -186,9 +186,9 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         <img class="max-h-full p-8" v-show="view === 'PREVIEW'" :src="previewURL">
                     </div>
                     <div class="absolute top-4 left-4 flex flex-col gap-1" v-if="mode === 'CREATION'">
-                        <Btn no-style class="border border-bg-light rounded hover:border-2 p-1 w-10 h-10" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="previewURL"></Btn>
-                        <Btn no-style class="border border-bg-light rounded hover:border-2 p-0 w-10 h-10 !text-sm !font-semibold" @click="view='3D'">3D</Btn>
-                        <Btn no-style class="border border-bg-light rounded hover:border-2 p-0 w-10 h-10" v-if="bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
+                        <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-1 w-10 h-10" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="previewURL"></Btn>
+                        <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-0 w-10 h-10 !text-sm !font-semibold" @click="view='3D'">3D</Btn>
+                        <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-0 w-10 h-10" v-if="bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
                     </div>
                 </template>
                 <template v-else-if="status === 'FETCHING'">
