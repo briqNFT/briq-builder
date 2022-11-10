@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import { useBooklet } from './BookletComposable';
 import ProgressBar from '../generic/ProgressBar.vue';
 import BookletStepRenderer from './genesis/BookletStepRenderer.vue';
 import confetti from 'canvas-confetti';
 import { pushModal } from '../Modals.vue';
 import BookletComplete from './modals/BookletComplete.vue';
-
-const currentPage = ref(1)
+import { palettesMgr } from '@/builder/Palette';
 
 const {
     getStepImgSrc,
@@ -41,7 +40,7 @@ const fire = () => {
         gravity: 0.8,
         ticks: 350,
         zIndex: 10000,
-        colors: ['#a864fd', '#29cdff', '#78ff44', '#ff718d', '#fdff6a'],
+        colors: palettesMgr.getCurrent().choices.map(w => `#${w.split('#')[1]}`),
     }
     confettiGenerator(Object.assign({
         angle: -20,
@@ -137,6 +136,8 @@ watch([shapeValidity], (nv, ov) => {
         badFetti();
 })
 
+const currentPage = ref(1)
+
 const lowerPage = () => {
     if (--currentPage.value < 1)
         currentPage.value = +bookletData.value.nb_pages || 1;
@@ -145,6 +146,17 @@ const higherPage = () => {
     if (++currentPage.value > (+bookletData.value.nb_pages || 1))
         currentPage.value = 1;
 }
+
+let watcher: unknown;
+onMounted(() => {
+    if (window.sessionStorage.getItem(`booklet_${booklet.value}`))
+        currentPage.value = Math.max(1, +window.sessionStorage.getItem(`booklet_${booklet.value}`));
+    watcher = watchEffect(() => {
+        window.sessionStorage.setItem(`booklet_${booklet.value}`, `${currentPage.value}`)
+    })
+});
+onBeforeUnmount(() => watcher());
+
 </script>
 
 <template>
