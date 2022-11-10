@@ -126,7 +126,7 @@ p {
                 <div class="grid grid-cols-[7fr_5fr] gap-6 my-6">
                     <div class="flex flex-col gap-6">
                         <div class="flex justify-center items-center min-h-[34rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
-                            <img v-if="itemQuery._status !== 'ERROR'" :src="genesisStore.coverBoxRoute(token_id)">
+                            <div v-if="itemQuery._status !== 'ERROR'" class="w-full h-full p-0 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(token_id)}), url(${genesisStore.coverBoxRoute(token_id, true)})` }"/>
                             <div v-else><p>Error while loading box data</p></div>
                         </div>
                         <div>
