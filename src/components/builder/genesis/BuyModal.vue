@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useBoxData, CARD_MODES } from '@/builder/BoxData';
 
-import { computed, ref, watch, watchEffect } from 'vue';
+import { computed, onUnmounted, ref, watch, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
 import { userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
@@ -10,6 +10,7 @@ import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { Purchase, userPurchaseStore } from '@/builder/UserPurchase';
 import { HashVue, pushPopup } from '@/Notifications';
 import { ExplorerTxUrl } from '@/chain/Explorer';
+import { router } from '@/Routes';
 defineEmits(['close']);
 
 const {
@@ -49,7 +50,6 @@ const canMakeBidReason = computed(() => {
     return undefined;
 })
 
-
 const ongoingBidData = ref(undefined as undefined | string);
 const ongoingBid = computed(() => {
     if (ongoingBidData.value)
@@ -57,6 +57,7 @@ const ongoingBid = computed(() => {
     return undefined;
 });
 
+let redirectOnClose = false;
 
 const makeBid = async () => {
     step.value = 'SIGNING';
@@ -64,6 +65,7 @@ const makeBid = async () => {
         let purchase = await userPurchaseStore.current!.makePurchase(props.metadata.item, weiPrice.value.toString())
         ongoingBidData.value = purchase.tx_hash;
         step.value = 'PROCESSING';
+        redirectOnClose = true;
         pushPopup('info', 'Transaction sent', HashVue(purchase!.tx_hash));
         let watcher: any;
         watcher = watchEffect(() => {
@@ -81,6 +83,11 @@ const makeBid = async () => {
         pushPopup('error', 'Error sending TX', `An error happened while sending the transaction:\n${err}`);
     }
 }
+
+onUnmounted(() => {
+    if (redirectOnClose)
+        router.push(`/box/${props.metadata.item}`);
+})
 </script>
 
 <template>
@@ -89,7 +96,7 @@ const makeBid = async () => {
         <h4 class="m-0 mb-2 p-0 text-sm font-semibold">Item</h4>
         <hr class="mb-4">
         <div class="flex gap-4 justify-between">
-            <p><img class="p-0 rounded border border-grad-light max-h-[120px]" :src="genesisStore.coverBoxRoute(props.metadata.item)"></p>
+            <p><img class="p-0 rounded border border-grad-light max-h-[120px]" :src="genesisStore.coverBoxRoute(props.metadata.item, true)"></p>
             <div class="flex-1">
                 <router-link :to="{ name: 'Theme', params: { theme: themeID } }"><h5 class="text-primary text-xs">{{ themeData?.name }}</h5></router-link>
                 <h4 class="test-sm font-semibold mt-2">{{ item?.name }}</h4>
@@ -116,7 +123,7 @@ const makeBid = async () => {
 
             <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)" target="_blank">Starkscan</a></p>
 
-            <p>Click <RouterLink @click="$emit('close')" class="text-primary" :to="`/box/${props.metadata.item}`">here</RouterLink> to see your box and unbox it to start building!</p>
+            <p>Closing this modal will redirect you to the Box product page, where you can unbox it!</p>
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'BID_COMPLETE'" :size="'md:w-[40rem]'">
@@ -126,7 +133,7 @@ const makeBid = async () => {
 
             <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)" target="_blank">Starkscan</a></p>
 
-            <p>Click <RouterLink @click="$emit('close')" class="text-primary" :to="`/box/${props.metadata.item}`">here</RouterLink> to see your box and unbox it to start building!</p>
+            <p>Closing this modal will redirect you to the Box product page, where you can unbox it!</p>
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'ERROR'" :size="'md:w-[40rem]'">
