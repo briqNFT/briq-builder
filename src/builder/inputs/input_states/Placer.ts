@@ -29,6 +29,38 @@ export class PlacerInput extends MouseInputState {
         getPreviewCube().visible = false;
     }
 
+    // Overloaded - we want diagonal placement.
+    getIntersectionPos(x: number, y: number, overlay = false): [number, number, number] | undefined {
+        const intersection = this._getIntersectionPos(x, y, overlay);
+        if (!intersection)
+            return undefined;
+        // This is the target without diagonal shenanigans.
+        const naturalTarget = intersection.position.map((v, ndx) => {
+            return Math.floor(v + intersection.normal[ndx] * (overlay ? -0.5 : +0.5));
+        });
+        if (overlay)
+            return naturalTarget;
+        // Now in non-overlay mode (aka briq placement), we want to allow diagonals near edges.
+        const diagTarget = intersection.position.map((v, ndx) => {
+            const cubeCenter = Math.floor(v - intersection.normal[ndx] / 2) + 0.5;
+            if (ndx === 1)
+                return Math.max(0, Math.floor(cubeCenter + (v - cubeCenter) * 1.5));
+            return Math.floor(cubeCenter + (v - cubeCenter) * 1.5);
+        })
+        // Same cube, exit early.
+        if (diagTarget[0] === naturalTarget[0] && diagTarget[1] === naturalTarget[1] && diagTarget[2] === naturalTarget[2])
+            return naturalTarget;
+        // Different cube: compute the 'next natural briq', if there is one return natural,
+        // otherwise we're at an edge and allow diagonals.
+        const currentBriq = intersection.position.map((v, ndx) => {
+            return Math.floor(v - intersection.normal[ndx] / 2);
+        });
+        if (!currentSet.value.getAt(...[0, 1, 2].map(i => currentBriq[i] + diagTarget[i] - naturalTarget[i])))
+            return diagTarget;
+        return naturalTarget;
+    }
+
+
     async onPointerMove(event: PointerEvent) {
         const pos = this.getIntersectionPos(this.curX, this.curY);
         if (!pos)

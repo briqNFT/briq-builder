@@ -87,7 +87,7 @@ export function getSetObject() {
     return setObject;
 }
 
-export function getIntersectionPos(xScreen: number, yScreen: number) {
+export function getIntersectionPos(xScreen: number, yScreen: number): undefined | { position: [number, number, number], normal: [number, number, number] } {
     const x = xScreen * 2 - 1;
     const y = yScreen * -2 + 1; // note we flip Y
     const start = new THREE.Vector3();
@@ -102,7 +102,7 @@ export function getIntersectionPos(xScreen: number, yScreen: number) {
     if (obj?.[0]?.object?.userData?.nft)
         return {
             position: [obj[0].point.x, obj[0].point.y, obj[0].point.z],
-            normal: [obj[0].face?.normal.x, obj[0].face?.normal.y, obj[0].face?.normal.z],
+            normal: [obj[0].face!.normal.x, obj[0].face!.normal.y, obj[0].face!.normal.z],
         };
     let closest = undefined;
     let bestD = 0;
@@ -244,5 +244,6 @@ export function handleActions(dispatchedActions: Array<{ action: string; payload
 
 import { ShaderGrid } from './ShaderGrid';
 import { setsManager } from '../SetsManager';
+import { number } from 'starknet';
 
 export const grid = new ShaderGrid();
