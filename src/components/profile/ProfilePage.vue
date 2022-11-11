@@ -82,7 +82,7 @@ const creations = computed(() => {
 })
 
 const creationsWIP = computed(() => {
-    return Object.values(setsManager.setsInfo).filter(x => !x.booklet).map(x => x.getSet());
+    return Object.values(setsManager.setsInfo).filter(x => !x.booklet).map(x => x.getSet()) || [];
 })
 
 const draftBooklets = computed(() => {
@@ -90,7 +90,7 @@ const draftBooklets = computed(() => {
         const ret = y.getSet();
         ret.booklet = y.booklet;
         return ret;
-    });
+    }) || [];
 })
 
 const officialCreations = computed(() => {

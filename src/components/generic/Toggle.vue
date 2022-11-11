@@ -1,6 +1,6 @@
 <template>
     <span
-        :class="'custom-toggle select-none inline-flex items-center p-[0.125em] ' + (active ? 'enabled' : '')"
+        :class="'custom-toggle select-none inline-flex items-center cursor-pointer p-[0.125em] ' + (active ? 'enabled' : '')"
         @mousedown.prevent @click="
             $emit('enable', !active);
             $emit('update:modelValue', !active);

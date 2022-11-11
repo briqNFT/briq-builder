@@ -40,8 +40,9 @@ export default class SetContract {
     _compress_shape_item(briq: any) {
         const two = toBN(2);
         let colorHex = '0x';
-        for (let i = 0; i < briq.data.color.length; ++i)
-            colorHex += briq.data.color.charCodeAt(i).toString(16).padStart(2, '0');
+        const colorHexCode = briq.data.color.toLowerCase();
+        for (let i = 0; i < colorHexCode.length; ++i)
+            colorHex += colorHexCode.charCodeAt(i).toString(16).padStart(2, '0');
         const color_nft_material = toBN(briq.data.material).iadd(toBN(colorHex).imul(two.pow(toBN(136))))
         const x_y_z = (toBN(briq.pos[2]).add(two.pow(toBN(63)))).iadd(
             toBN(briq.pos[1]).add(two.pow(toBN(63))).mul(two.pow(toBN(64)))).iadd(
