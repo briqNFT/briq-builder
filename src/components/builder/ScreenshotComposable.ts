@@ -5,7 +5,6 @@ import { pushModal } from '../Modals.vue';
 import CropScreenshotVue from '@/components/builder/modals/CropScreenshot.vue';
 import ScreenshotVue from '@/components/builder/modals/Screenshot.vue';
 import { HighQualityScreenshot } from './genesis/HighQualityScreenshot';
-import { getSetObject } from '@/builder/graphics/SetRendering';
 
 
 export function useScreenshotHelpers(screenshot?: string, ogImage?: string) {
@@ -14,9 +13,9 @@ export function useScreenshotHelpers(screenshot?: string, ogImage?: string) {
 
     const imageProcessing = ref(undefined as undefined | Promise<typeof previewImage.value>);
 
-    const takeScreenshot = async(defaultCamera = false) => {
+    const takeScreenshot = async(object: any, defaultCamera = false) => {
         const img = new Image();
-        img.src = await (new HighQualityScreenshot(getSetObject(), 750*2, 1000*2)).takeScreenshot(!defaultCamera ? camera : undefined);
+        img.src = await (new HighQualityScreenshot(object, 750*2, 1000*2)).takeScreenshot(!defaultCamera ? camera : undefined);
         return img;
     }
 

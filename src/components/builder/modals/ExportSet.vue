@@ -19,6 +19,7 @@ import { useThemeURLs } from '../genesis/ThemeUrlComposable';
 import { APP_ENV } from '@/Meta';
 import { getCurrentHub } from '@sentry/hub';
 import { getCurrentNetwork } from '@/chain/Network';
+import { getSetObject } from '@/builder/graphics/SetRendering';
 
 const { chainBriqs } = useBuilder();
 
@@ -50,8 +51,21 @@ const store = useStore();
 
 const { previewImage, imageProcessing, takeScreenshot, updateImage, retakeScreenshot, cropScreenshot } = useScreenshotHelpers(props.screenshot, props.originalImage);
 
-if (!previewImage.value)
-    takeScreenshot(!!booklet.value).then(img => updateImage(img, true))
+if (!previewImage.value) {
+    let object = getSetObject();
+    if (booklet.value) {
+        const rot = bookletStore.shapeValidityOffset[booklet.value][0];
+        object = object.clone();
+        if (rot === 1)
+            object.rotateY(-Math.PI/2);
+        else if (rot === 2)
+            object.rotateY(-Math.PI);
+        else if (rot === 3)
+            object.rotateY(-3 * Math.PI/2);
+    }
+
+    takeScreenshot(object, !!booklet.value).then(img => updateImage(img, true))
+}
 
 const setName = computed({
     get() {
