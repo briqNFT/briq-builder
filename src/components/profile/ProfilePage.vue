@@ -119,7 +119,7 @@ const copy = (id: string) => {
         lastCopy = Date.now();
     }
 }
-const activeTab = ref('GENESIS' as 'CREATION' | 'GENESIS' | 'ACTIVITY');
+const activeTab = ref('GENESIS' as 'GENESIS' | 'WIP' | 'CREATION' | 'ACTIVITY');
 
 const filter = ref('ALL');
 const showSection = (section: string) => {
@@ -145,8 +145,8 @@ watchEffect(() => {
 })
 
 watchEffect(() => {
-    if (maybeStore.value && !userAddress.value && activeTab.value !== 'CREATION')
-        activeTab.value = 'CREATION';
+    if (maybeStore.value && !userAddress.value && activeTab.value === 'GENESIS')
+        activeTab.value = 'WIP';
 })
 
 watch([activeTab], () => {
@@ -211,8 +211,9 @@ div[data-name='menu'] button {
             </div>
             -->
             <div class="flex gap-8">
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Genesis collection&nbsp;<span class="pastille">{{ officialCreations.length + (userBoxesStore.current?.availableBoxes?.length ?? 0) + (userBookletsStore.current?.booklets?.length ?? 0) }}</span></p>
-                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">My creations&nbsp;<span class="pastille">{{ creationsWIP.length + creations.length }}</span></p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Boxes & Booklets&nbsp;<span class="pastille">{{ (userBoxesStore.current?.availableBoxes?.length ?? 0) + (userBookletsStore.current?.booklets?.length ?? 0) }}</span></p>
+                <p :class="`font-medium ${activeTab === 'WIP' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('WIP')">Work in Progress&nbsp;<span class="pastille">{{ creationsWIP.length + draftBooklets.length }}</span></p>
+                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">Minted Sets&nbsp;<span class="pastille">{{ officialCreations.length + creations.length }}</span></p>
                 <!--<p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>-->
             </div>
         </div>
@@ -221,17 +222,20 @@ div[data-name='menu'] button {
         <div>
             <div class="sticky top-[80px]">
                 <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 mb-4">
-                    <template v-if="activeTab === 'CREATION'">
-                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ creations.length + creationsWIP.length }}</span></Btn>
-                        <Btn @click="setSection('WIP')" :force-active="filter === 'WIP'" no-background class="w-full justify-start text-left items-baseline font-medium">Work in progress <span class="pastille">{{ creationsWIP.length }}</span></Btn>
-                        <Btn @click="setSection('MINTED')" :force-active="filter === 'MINTED'" no-background class="w-full justify-start items-baseline font-medium">Minted <span class="pastille">{{ creations.length }}</span></Btn>
-                    </template>
-                    <template v-else-if="activeTab === 'GENESIS'">
+                    <template v-if="activeTab === 'GENESIS'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ (userBoxesStore.current?.availableBoxes?.length ?? 0) + (userBookletsStore.current?.booklets?.length ?? 0) + officialCreations.length }}</span></Btn>
                         <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Sealed boxes <span class="pastille">{{ userBoxesStore.current?.availableBoxes?.length ?? 0 }}</span></Btn>
                         <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Booklets <span class="pastille">{{ userBookletsStore.current?.booklets?.length ?? 0 }}</span></Btn>
-                        <Btn @click="setSection('DRAFTS')" :force-active="filter === 'DRAFTS'" no-background class="w-full justify-start text-left items-baseline font-medium">Draft booklets <span class="pastille">{{ userBookletsStore.current?.booklets?.length ?? 0 }}</span></Btn>
-                        <Btn @click="setSection('MINTED')" :force-active="filter === 'MINTED'" no-background class="w-full justify-start items-baseline font-medium">Official sets <span class="pastille">{{ officialCreations.length }}</span></Btn>
+                    </template>
+                    <template v-else-if="activeTab === 'WIP'">
+                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ draftBooklets.length + creationsWIP.length }}</span></Btn>
+                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">Personal Creations<span class="pastille">{{ creationsWIP.length }}</span></Btn>
+                        <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ draftBooklets.length }}</span></Btn>
+                    </template>
+                    <template v-else-if="activeTab === 'CREATION'">
+                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ creations.length + officialCreations.length }}</span></Btn>
+                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">Personal Creations<span class="pastille">{{ creations.length }}</span></Btn>
+                        <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ officialCreations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'ACTIVITY'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start text-left items-baseline font-medium">All items <span class="pastille">{{ winningBids.length + losingBids.length }}</span></Btn>
@@ -245,10 +249,10 @@ div[data-name='menu'] button {
         </div>
         <div>
             <a ref="sectiontop" class="relative top-[-5rem]"/>
-            <div v-if="activeTab === 'CREATION'">
-                <div v-show="showSection('WIP')">
-                    <a id="wip" class="relative bottom-[80px]"/>
-                    <h3>Work in progress</h3>
+            <div v-if="activeTab === 'WIP'">
+                <div v-show="showSection('PERSONAL')">
+                    <a id="personal" class="relative bottom-[80px]"/>
+                    <h3>Personal Sets</h3>
                     <p class="text-sm mt-1">WIP sets are stored on this computer only and shared across wallets.</p>
                     <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have work-in-progress sets.</p>
@@ -293,9 +297,24 @@ div[data-name='menu'] button {
                         </GenericCard>
                     </div>
                 </div>
-                <div v-if="userAddress" v-show="showSection('MINTED')">
-                    <a id="minted" class="relative bottom-[80px]"/>
-                    <h3>Minted</h3>
+                <div v-show="showSection('OFFICIAL')">
+                    <a id="official" class="relative bottom-[80px]"/>
+                    <h3>Official Sets</h3>
+                    <p class="text-sm mt-1">WIP sets are stored on this computer only and shared across wallets. You can only have one work in progress per booklet type.</p>
+                    <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have any work-in-progress official sets.</p>
+                        <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
+                        <Btn secondary class="mt-2">Browse the themes</Btn>
+                    </div>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
+                        <DraftCard :creation="creation" v-for="creation of draftBooklets" :key="creation.id"/>
+                    </div>
+                </div>
+            </div>
+            <div v-else-if="activeTab === 'CREATION' && userAddress">
+                <div v-show="showSection('PERSONAL')">
+                    <a id="personal" class="relative bottom-[80px]"/>
+                    <h3>Personal Sets</h3>
                     <div v-if="!creations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have personal creations.</p>
                         <p>Get some briqs and start building!</p>
@@ -320,6 +339,47 @@ div[data-name='menu'] button {
                                             <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
                                         </MenuDropdown>
                                     </span>
+                                </p>
+                            </template>
+                            <template #content>
+                                <p class="flex justify-between text-sm">
+                                    <span class="text-grad-dark">briqs used</span>
+                                    <span class="font-semibold">{{ creation.nb_briqs }}</span>
+                                </p>
+                                <p class="flex justify-between text-sm">
+                                    <span class="text-grad-dark">Minted on</span>
+                                    <span class="font-normal">{{ new Date(creation.created_at).toLocaleString("en-uk", { dateStyle: "medium" }) }}</span>
+                                </p>
+                            </template>
+                        </GenericCard>
+                    </div>
+                </div>
+                <div v-show="showSection('OFFICIAL')">
+                    <a id="official" class="relative bottom-[80px]"/>
+                    <h3>Official Sets</h3>
+                    <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have any official Genesis sets.</p>
+                        <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
+                        <div class="mt-2 flex gap-2">
+                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
+                        </div>
+                    </div>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
+                        <GenericCard
+                            v-for="creation in officialCreations" :key="creation.id"
+                            :status="creation?.id ? 'LOADED' : 'FETCHING'"
+                            :title="creation.name"
+                            :image-src="backendManager.getPreviewUrl(creation.id).replace('.png', '.jpg')"
+                            class="cursor-pointer"
+                            @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
+                            <template #subtitle>
+                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
+                                    {{ creation.id }}
+                                    <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
+                                        <template #button><i class="fas fa-ellipsis-h"/></template>
+                                        <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
+                                        <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
+                                    </MenuDropdown>
                                 </p>
                             </template>
                             <template #content>
@@ -365,60 +425,6 @@ div[data-name='menu'] button {
                                 <BookletCard :box-id="booklet"/>
                             </RouterLink>
                         </div>
-                    </div>
-                </div>
-                <div v-show="showSection('DRAFTS')">
-                    <a id="booklet" class="relative bottom-[80px]"/>
-                    <h3>Draft booklets</h3>
-                    <p class="text-sm mt-1">You can only have one draft per kind of booklet.</p>
-                    <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have any booklets.</p>
-                        <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
-                        <Btn secondary class="mt-2">Browse the themes</Btn>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <DraftCard :creation="creation" v-for="creation of draftBooklets" :key="creation.id"/>
-                    </div>
-                </div>
-                <div v-show="showSection('MINTED')">
-                    <a id="minted" class="relative bottom-[80px]"/>
-                    <h3>Official Sets</h3>
-                    <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have any official Genesis sets.</p>
-                        <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
-                        <div class="mt-2 flex gap-2">
-                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                        </div>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <GenericCard
-                            v-for="creation in officialCreations" :key="creation.id"
-                            :status="creation?.id ? 'LOADED' : 'FETCHING'"
-                            :title="creation.name"
-                            :image-src="backendManager.getPreviewUrl(creation.id).replace('.png', '.jpg')"
-                            class="cursor-pointer"
-                            @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
-                            <template #subtitle>
-                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
-                                    {{ creation.id }}
-                                    <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
-                                        <template #button><i class="fas fa-ellipsis-h"/></template>
-                                        <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
-                                        <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
-                                    </MenuDropdown>
-                                </p>
-                            </template>
-                            <template #content>
-                                <p class="flex justify-between text-sm">
-                                    <span class="text-grad-dark">briqs used</span>
-                                    <span class="font-semibold">{{ creation.nb_briqs }}</span>
-                                </p>
-                                <p class="flex justify-between text-sm">
-                                    <span class="text-grad-dark">Minted on</span>
-                                    <span class="font-normal">{{ new Date(creation.created_at).toLocaleString("en-uk", { dateStyle: "medium" }) }}</span>
-                                </p>
-                            </template>
-                        </GenericCard>
                     </div>
                 </div>
             </div>
