@@ -1,9 +1,11 @@
-import { takeScreenshot as takeBuilderScreenshot } from '@/builder/graphics/Builder';
+import { camera, takeScreenshot as takeBuilderScreenshot } from '@/builder/graphics/Builder';
 import { ref } from 'vue';
 import { pushModal } from '../Modals.vue';
 
 import CropScreenshotVue from '@/components/builder/modals/CropScreenshot.vue';
 import ScreenshotVue from '@/components/builder/modals/Screenshot.vue';
+import { HighQualityScreenshot } from './genesis/HighQualityScreenshot';
+import { getSetObject } from '@/builder/graphics/SetRendering';
 
 
 export function useScreenshotHelpers(screenshot?: string, ogImage?: string) {
@@ -12,9 +14,9 @@ export function useScreenshotHelpers(screenshot?: string, ogImage?: string) {
 
     const imageProcessing = ref(undefined as undefined | Promise<typeof previewImage.value>);
 
-    const takeScreenshot = async() => {
+    const takeScreenshot = async(defaultCamera = false) => {
         const img = new Image();
-        img.src = takeBuilderScreenshot();
+        img.src = await (new HighQualityScreenshot(getSetObject(), 750*2, 1000*2)).takeScreenshot(!defaultCamera ? camera : undefined);
         return img;
     }
 
@@ -28,7 +30,7 @@ export function useScreenshotHelpers(screenshot?: string, ogImage?: string) {
     const prepareImage = async(img: HTMLImageElement): Promise<string> => {
         const c = document.createElement('canvas');
         const ctx = c.getContext('2d')!;
-        const ratio = Math.min(1, Math.min(800 / img.width, 600 / img.height));
+        const ratio = Math.min(1, Math.min(800 / img.width, 1000 / img.height));
 
         c.width = Math.floor(img.width * ratio);
         c.height = Math.floor(img.height * ratio);

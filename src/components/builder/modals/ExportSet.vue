@@ -50,8 +50,8 @@ const store = useStore();
 
 const { previewImage, imageProcessing, takeScreenshot, updateImage, retakeScreenshot, cropScreenshot } = useScreenshotHelpers(props.screenshot, props.originalImage);
 
-if (!previewImage.value && !booklet.value)
-    takeScreenshot().then(img => updateImage(img, true))
+if (!previewImage.value)
+    takeScreenshot(!!booklet.value).then(img => updateImage(img, true))
 
 const setName = computed({
     get() {
@@ -170,7 +170,7 @@ const startMinting = async () => {
 
         let TX;
         if (booklet.value)
-            TX = await userSetStore.current!.mintBookletSet(token_hint, data, booklet.value);
+            TX = await userSetStore.current!.mintBookletSet(token_hint, data, await imageProcessing.value, booklet.value);
         else
             TX = await userSetStore.current!.mintSet(token_hint, data, await imageProcessing.value);
 
@@ -244,12 +244,13 @@ button:not(.btn):not(.nostyle)::before {
     <template v-else-if="!exportStep && !booklet">
         <Window size="w-[38rem]">
             <template #title>Export set</template>
-            <div class="relative flex justify-center items-center">
+            <div class="relative flex justify-center items-center" id="totoro">
                 <div class="absolute top-2 right-2 flex gap-2">
                     <Btn secondary @click="cropScreenshot"><i class="fa-solid fa-crop-simple"/></Btn>
                     <Btn secondary @click="retakeScreenshot"><i class="fa-solid fa-camera"/></Btn>
                 </div>
-                <img class="max-h-[24rem] bg-background rounded-md" :src="previewImage">
+                <img v-show="previewImage" class="max-h-[24rem] bg-background rounded-md" :src="previewImage">
+                <div v-if="!previewImage" class="h-[12rem] bg-background rounded-md flex items-center justify-center text-sm"><p class="p-4">...Taking HD Screenshot...</p></div>
             </div>
             <div class="my-4">
                 <p class="mb-2">Name</p>
@@ -272,7 +273,9 @@ button:not(.btn):not(.nostyle)::before {
         <Window size="w-[40rem]">
             <template #title>Mint an official set</template>
             <div class="relative flex justify-center items-center bg-background rounded-md p-4">
-                <img class="max-h-[28rem]" :src="genesisStore.coverItemRoute(booklet)">
+                <img v-show="previewImage" class="max-h-[24rem] bg-background rounded-md" :src="previewImage">
+                <div v-if="!previewImage" class="h-[12rem] bg-background rounded-md flex items-center justify-center text-sm"><p class="p-4">...Taking HD Screenshot...</p></div>
+                <!--<img class="max-h-[28rem]" :src="genesisStore.coverItemRoute(booklet)">-->
             </div>
             <div class="my-2">
                 <h3>{{ bookletData!.name }}</h3>

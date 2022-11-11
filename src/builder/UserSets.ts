@@ -133,12 +133,11 @@ class UserSetStore implements perUserStorable {
         return this._mintSet(TX, data, image);
     }
 
-    async mintBookletSet(token_hint: string, data: any, booklet: string) {
+    async mintBookletSet(token_hint: string, data: any, image: string, booklet: string) {
         // Debug
         //downloadJSON(data, data.id + ".json")
         const genesisStore = useGenesisStore();
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome#solution
-        const image = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please');
         const bookletData = (await getBookletData(booklet));
         const TX = await contractStore.set!.assemble(
             this.user_id.split('/')[1],
@@ -146,13 +145,17 @@ class UserSetStore implements perUserStorable {
             data,
             bookletData.value.token_id,
         );
-        const imageBlob = (await (await image).blob());
-        const image_base64 = await new Promise(yes => {
-            const reader = new FileReader() ;
-            reader.onload = _ => reader.result && yes(reader.result);
-            reader.readAsDataURL(imageBlob);
-        });
-        return this._mintSet(TX, data, image_base64 as string, booklet);
+        if (!image) {
+            const bookletImage = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please');
+            const imageBlob = (await (await bookletImage).blob());
+            const image_base64 = await new Promise(yes => {
+                const reader = new FileReader() ;
+                reader.onload = _ => reader.result && yes(reader.result);
+                reader.readAsDataURL(imageBlob);
+            });
+            image = image_base64 as string;
+        }
+        return this._mintSet(TX, data, image, booklet);
     }
 
     async _mintSet(TX: any, data: any, image: string | undefined, booklet?: string) {

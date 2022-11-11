@@ -183,12 +183,11 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                             :is="'model-viewer'" shadow-intensity="0.5" shadow-softness="1" disable-pan camera-controls auto-rotate="true"
                             :src="backendManager.getRoute(`model/${getCurrentNetwork()}/${set.id}.glb`)"/>
                         <div v-if="booklet_id" v-show="view === 'BOOKLET'" class="w-full h-full p-0 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet_id!)}), url(${genesisStore.coverBookletRoute(booklet_id!, true)})` }"/>
-                        <div v-if="mode === 'CREATION'" v-show="view === 'PREVIEW'" class="w-full h-full p-0 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${previewURL.replace('.png', '.jpg')})` }" :src="previewURL">
-                            <div class="absolute top-4 left-4 flex flex-col gap-1" v-if="mode === 'CREATION'">
-                                <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-1 w-10 h-10" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="previewURL.replace('.png', '.jpg')"></Btn>
-                                <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-0 w-10 h-10 !text-sm !font-semibold" @click="view='3D'">3D</Btn>
-                                <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-0 w-10 h-10" v-if="bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
-                            </div>
+                        <div v-if="mode === 'CREATION'" v-show="view === 'PREVIEW'" class="w-full h-full p-0 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${previewURL.replace('.png', '.jpg')})` }" :src="previewURL"/>
+                        <div class="absolute top-4 left-4 flex flex-col gap-1" v-if="mode === 'CREATION'">
+                            <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-1 w-10 h-10" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="previewURL.replace('.png', '.jpg')"></Btn>
+                            <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-0 w-10 h-10 !text-sm !font-semibold" @click="view='3D'">3D</Btn>
+                            <Btn no-style class="border border-bg-lighter bg-grad-lightest rounded hover:border-2 p-0 w-10 h-10" v-if="bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
                         </div>
                     </div>
                 </template>

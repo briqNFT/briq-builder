@@ -10,7 +10,6 @@ import Flyout from '@/components/generic/Flyout.vue';
                 <div class="flex flex-col gap-1 p-2 mt-2">
                     <Btn primary icon class="justify-start text-sm" @click="returnScreen"><i class="fas fa-camera"/> Take Screenshot</Btn>
                     <Btn secondary icon class="justify-start text-sm" @click="$emit('close')"><i class="fas fa-ban"/> Cancel</Btn>
-                    <Btn no-background class="justify-start text-sm" @click="openSettings">Open Settings</Btn>
                 </div>
             </Flyout>
         </teleport>
