@@ -43,6 +43,7 @@ export class MaterialByColor {
 
     setLightMap(val: boolean) {
         this.material.lightMap = val ? this.lightMapTexture : null;
+        this.material.lightMapIntensity = 2;
         this.material.needsUpdate = true;
     }
 
