@@ -26,7 +26,7 @@ const themeList = computed(() => {
     return (_themeList.value[1] || []) as string[];
 });
 
-const { themeSplashSrcSet } = useThemeURLs();
+const { themeSplashSrc } = useThemeURLs();
 
 </script>
 
@@ -48,7 +48,9 @@ const { themeSplashSrcSet } = useThemeURLs();
             <RouterLink class="popOver" v-for="theme of themeList" :key="theme" :to="{ name: 'Theme', params: { theme: theme } }">
                 <div class="h-[16rem] flex flex-col justify-center items-center gap-2 rounded-lg relative">
                     <div class="absolute pointer-events-none overflow-hidden rounded-lg h-full w-full">
-                        <img class="max-w-none max-h-none w-auto h-full relative top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]" :srcset="themeSplashSrcSet(theme)" :alt="`Theme splash for ${theme}`">
+                        <div
+                            class="w-full h-full bg-cover bg-origin-content bg-center bg-no-repeat"
+                            :style="{ backgroundImage: `url(${themeSplashSrc(theme, 'high')}), url(${themeSplashSrc(theme, 'low')})` }"/>
                     </div>
                     <h4 class="text-md text-white absolute bottom-3 left-4">{{ genesisStore.themedata[theme]._data?.name }}</h4>
                 </div>

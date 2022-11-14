@@ -248,7 +248,7 @@ button:not(.btn):not(.nostyle)::before {
                 <p>If you want the old Starknet testnet site, got to <a class="text-primary" href="https://old.briq.construction" target="_blank">old.briq.construction</a></p>
                 <RouterLink :to="{ name: 'Theme', params: { theme: 'starknet_planet' } }" @click="emit('close')">
                     <div class="flex flex-col items-center justify-center relative my-4">
-                        <img class="rounded-md h-[10rem] w-auto" :srcset="themeSplashSrcSet('starknet_planet', 'starknet-mainnet')" :alt="`Theme splash for Starknet Planet`">
+                        <img class="rounded-md h-[10rem] w-auto" :srcset="themeSplashSrcSet('starknet_planet', 'high', 'starknet-mainnet')" :alt="`Theme splash for Starknet Planet`">
                         <p class="absolute bottom-2 text-white italic text-sm font-medium">Coming Soon</p>
                     </div>
                 </RouterLink>

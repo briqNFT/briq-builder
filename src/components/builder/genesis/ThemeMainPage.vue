@@ -82,7 +82,8 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
             <div class="bg-black text-white">
                 <div class="h-[585px] relative">
                     <div class="absolute w-full h-full theme-bg overflow-hidden">
-                        <img :src="themeCoverUrl(themeName)" alt="logo" class="absolute h-full 2xl:h-auto 2xl:w-full max-w-none max-h-none top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]">
+                        <img :src="themeCoverUrl(themeName, 'low')" alt="logo" class="invisible absolute h-full 2xl:h-auto 2xl:w-full max-w-none max-h-none top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]">
+                        <div class="h-full w-full bg-cover bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${themeCoverUrl(themeName, 'high')}), url(${themeCoverUrl(themeName, 'low')})` }"/>
                     </div>
                     <div class="min-h-[500px] container py-[3.375rem] m-auto px-2 md:px-8 lg:px-[3.375rem] relative z-1">
                         <!--<h1 class="text-left font-black uppercase my-16">{{ themeData.name || route.params.theme }}</h1>-->
