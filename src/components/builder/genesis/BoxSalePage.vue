@@ -126,7 +126,7 @@ p {
                 <div class="grid grid-cols-[7fr_5fr] gap-6 my-6">
                     <div class="flex flex-col gap-6">
                         <div class="flex justify-center items-center h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
-                            <div v-if="itemQuery._status !== 'ERROR'" class="w-full h-full p-0 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(token_id)}), url(${genesisStore.coverBoxRoute(token_id, true)})` }"/>
+                            <div v-if="itemQuery._status !== 'ERROR'" class="w-full h-full p-4 lg:p-8 xl:p-16 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(token_id)}), url(${genesisStore.coverBoxRoute(token_id, true)})` }"/>
                             <div v-else><p>Error while loading box data</p></div>
                         </div>
                         <div>

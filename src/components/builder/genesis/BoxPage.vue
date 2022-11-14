@@ -53,7 +53,7 @@ const nbItems = computed(() => {
         :status="itemQuery?._status"
         :attributes="attributes">
         <template #image>
-            <div class="w-full h-full p-0 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(box_id)}), url(${genesisStore.coverBoxRoute(box_id, true)})` }"/>
+            <div class="w-full h-full p-4 lg:p-8 xl:p-16 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(box_id)}), url(${genesisStore.coverBoxRoute(box_id, true)})` }"/>
         </template>
         <template #default>
             <h1>{{ item?.name }}</h1>
