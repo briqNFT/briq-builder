@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { setsManager } from '@/builder/SetsManager';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useBooklet } from '../BookletComposable';
 import { useBuilder } from '../BuilderComposable';
 
 const { currentSet } = useBuilder();
@@ -13,6 +14,8 @@ const emit = defineEmits(['close'])
 const setData = setsManager.getInfo(props.set).getSet();
 const name = ref(setData.getName());
 const description = ref(setData.description);
+
+const hasBooklet = computed(() => !!setsManager.getInfo(props.set).booklet);
 
 const save = () => {
     currentSet.value.name = name.value;
@@ -27,21 +30,24 @@ const save = () => {
         <div class="my-4">
             <p class="mb-2">Name</p>
             <p class="md:block hidden">
-                <input v-model="name" type="text" maxlength="200" minlength="1" size="60">
+                <input v-model="name" :disabled="hasBooklet" type="text" maxlength="200" minlength="1" size="60">
             </p>
             <p class="md:hidden block">
-                <input v-model="name" type="text" maxlength="200" minlength="1" size="30">
+                <input v-model="name" :disabled="hasBooklet" type="text" maxlength="200" minlength="1" size="30">
             </p>
         </div>
         <div class="my-4">
             <p class="mb-2">Description</p>
             <p class="md:block hidden">
-                <textarea v-model="description" cols="60"/>
+                <textarea v-model="description" :disabled="hasBooklet" cols="60"/>
             </p>
             <p class="md:hidden block">
-                <textarea v-model="description" cols="30"/>
+                <textarea v-model="description" :disabled="hasBooklet" cols="30"/>
             </p>
         </div>
-        <button class="btn float-right my-6" @click="save">Save</button>
+        <div class="mt-2 mb-6 float-right w-max flex gap-4 items-center">
+            <p v-if="hasBooklet" class="text-sm font-medium text-grad-dark">Official sets cannot be renamed</p>
+            <button v-else class="btn" @click="save" :disabled="hasBooklet">Save</button>
+        </div>
     </Window>
 </template>

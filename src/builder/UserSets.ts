@@ -139,6 +139,8 @@ class UserSetStore implements perUserStorable {
         const genesisStore = useGenesisStore();
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome#solution
         const bookletData = (await getBookletData(booklet));
+        data.name = bookletData.value.name;
+        data.descriptioon = bookletData.value.description;
         const TX = await contractStore.set!.assemble(
             this.user_id.split('/')[1],
             token_hint,
