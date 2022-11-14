@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBoxData, CARD_MODES } from '@/builder/BoxData';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { userBidsStore, productBidsStore } from '@/builder/BidStore';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 
@@ -32,6 +32,23 @@ const highestBid = computed(() => {
     if (!productBidsStore.bids(props.tokenName).highest_bid)
         return '0';
     return productBidsStore.bids(props.tokenName).bids[productBidsStore.bids(props.tokenName).highest_bid!].bid_amount;
+})
+
+let interval: any;
+watch([saledata], () => {
+    if ((saledata.value?.startIn() || 0) > 0 || (saledata.value?.durationLeft() || 0) < 3600)
+        interval = setInterval(() => {
+            let old = saledata.value!.auction_start;
+            saledata.value!.auction_start = -100;
+            saledata.value!.auction_start = old;
+        }, 1000)
+}, {
+    immediate: true,
+})
+
+onBeforeUnmount(() => {
+    if (interval)
+        clearInterval(interval);
 })
 
 // Avoid showing the item before the first hover.
