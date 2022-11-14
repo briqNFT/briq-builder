@@ -7,6 +7,7 @@ import confetti from 'canvas-confetti';
 import { pushModal } from '../Modals.vue';
 import BookletComplete from './modals/BookletComplete.vue';
 import { palettesMgr } from '@/builder/Palette';
+import { useGenesisStore } from '@/builder/GenesisStore';
 
 const {
     getStepImgSrc,
@@ -136,41 +137,46 @@ watch([shapeValidity], (nv, ov) => {
         badFetti();
 })
 
-const currentPage = ref(1)
+const currentPage = ref(0);
 
 const lowerPage = () => {
-    if (--currentPage.value < 1)
-        currentPage.value = +bookletData.value.nb_pages || 1;
+    if (--currentPage.value < 0)
+        currentPage.value = +bookletData.value.nb_pages || 0;
 }
 const higherPage = () => {
-    if (++currentPage.value > (+bookletData.value.nb_pages || 1))
-        currentPage.value = 1;
+    if (++currentPage.value > (+bookletData.value.nb_pages || 0))
+        currentPage.value = 0;
 }
 
 let watcher: unknown;
 onMounted(() => {
     if (window.sessionStorage.getItem(`booklet_${booklet.value}`))
-        currentPage.value = Math.max(1, +window.sessionStorage.getItem(`booklet_${booklet.value}`));
+        currentPage.value = +window.sessionStorage.getItem(`booklet_${booklet.value}`);
     watcher = watchEffect(() => {
         window.sessionStorage.setItem(`booklet_${booklet.value}`, `${currentPage.value}`)
     })
 });
 onBeforeUnmount(() => watcher());
 
+const genesisStore = useGenesisStore();
+genesisStore.coverItemRoute(booklet.value, true);
 </script>
 
 <template>
     <div v-if="booklet && !minimized" class="mx-1 sm:mx-2 sm:mt-2 w-fit min-w-[16rem] float-right border border-grad-light !shadow-none !text-sm rounded-md bg-grad-lightest">
-        <h6 class="font-medium text-sm bg-grad-lighter bg-opacity-50 rounded-t-md px-4 py-3">Booklet</h6>
+        <h6 class="font-semibold text-sm leading-figma bg-grad-lighter bg-opacity-50 rounded-t-md px-4 py-3">Booklet</h6>
         <div class="flex-col">
             <template v-if="!!bookletData">
                 <div class="flex px-1 py-1 text-sm font-medium justify-between items-center border-b border-grad-light">
                     <Btn no-background class="w-10" @click="lowerPage"><i class="fas fa-chevron-left"/></Btn>
-                    <span>{{ currentPage }}/{{ +bookletData.nb_pages || 1 }}</span>
+                    <span>{{ currentPage + 1 }}/{{ +bookletData.nb_pages + 1 || 1 }}</span>
                     <Btn no-background class="w-10" @click="higherPage"><i class="fas fa-chevron-right"/></Btn>
                 </div>
                 <div class="relative w-[400px] h-[400px]">
-                    <BookletStepRenderer :glb_name="booklet" :i="currentPage - 1"/>
+                    <BookletStepRenderer v-if="currentPage > 0" :glb_name="booklet" :i="currentPage - 1"/>
+                    <div v-else :style="{ backgroundImage: `url(${genesisStore.coverItemRoute(booklet)}), url(${genesisStore.coverItemRoute(booklet, true)}` }" class="p-4 w-full h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain">
+                        <p class="absolute bottom-0 mb-4 text-center">Follow the instructions of the booklet and build your Official Set !</p>
+                    </div>
                 </div>
                 <div class="border-t border-grad-light">
                     <div class="mx-4 my-4 relative">

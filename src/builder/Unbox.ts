@@ -1,6 +1,5 @@
 import contractStore from '@/chain/Contracts';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import { useSetHelpers } from '@/components/builder/SetComposable';
 import { chainBriqs } from './ChainBriqs';
 import { useGenesisStore } from './GenesisStore';
 import { setsManager } from './SetsManager';
@@ -9,7 +8,6 @@ import { userBoxesStore } from './UserBoxes';
 
 export function useUnboxHelpers() {
     const genesisStore = useGenesisStore();
-    const { openSetInBuilder } = useSetHelpers();
     const unbox = async function(box_id: string) {
         await walletInitComplete;
 
@@ -31,15 +29,17 @@ export function useUnboxHelpers() {
         chainBriqs.value!.show('0x1', data.nb_briqs, TX.transaction_hash);
     }
 
-    const createBookletSet = (set_name: string, booklet_id: string) => {
-        // Create a new local set with the proper booklet.
-
+    // Create a new local set with the proper booklet.
+    // For convenience, this passes the relevant data as arguments.
+    const createBookletSet = (booklet_id: string, name: string, description: string) => {
         const set = setsManager.createLocalSet();
-        set.name = set_name;
+        set.name = name;
+        set.description = description;
         const info = setsManager.getInfo(set.id);
         info.booklet = booklet_id;
         return set.id
     }
+
     return {
         unbox,
         fakeUnbox,

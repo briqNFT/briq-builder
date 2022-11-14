@@ -1,6 +1,7 @@
 import { backendManager } from '@/Backend';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { maybeStore } from '@/chain/WalletLoading';
+import { setsManager } from './SetsManager';
 
 class UserBookletsStore implements perUserStorable {
     user_id!: string;
@@ -42,6 +43,12 @@ class UserBookletsStore implements perUserStorable {
         try {
             this._lastDataFetch = await backendManager.fetch(`v1/user/data/${this.user_id}`);
             await this._updateData(this._lastDataFetch);
+            // There's no excellent place to do this, so I'm doing this here: drop WIP booklets that we no longer own.
+            for (const setId in setsManager.setsInfo) {
+                const booklet_id = setsManager.setsInfo[setId].booklet;
+                if (booklet_id && this.booklets.indexOf(booklet_id) === -1)
+                    setsManager.deleteLocalSet(setId);
+            }
         } catch(ex) {
             console.error(ex);
         }

@@ -311,7 +311,7 @@ const openBuilderState = new class implements FsmState {
         if (this.time >= this.step1time + this.step2time) {
             let set = setsManager.getBookletSet(boxId.value);
             if (!set)
-                openSetInBuilder(createBookletSet(boxMetadata._data!.name, boxId.value));
+                openSetInBuilder(createBookletSet(boxId.value, boxMetadata._data!.name, boxMetadata._data!.description));
             else
                 openSetInBuilder(set.id);
         }

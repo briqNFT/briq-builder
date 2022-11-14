@@ -36,7 +36,7 @@ const { createBookletSet } = useUnboxHelpers();
 const createSet = () => {
     if (!bookletData.value)
         return;
-    openSetInBuilder(createBookletSet(bookletData.value?.name, booklet_id.value!));
+    openSetInBuilder(createBookletSet(booklet_id.value!, bookletData.value!.name, bookletData.value!.description));
 }
 
 const doDisassembly = async () => {
