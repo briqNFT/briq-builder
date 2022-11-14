@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import { useBooklet } from './BookletComposable';
 import ProgressBar from '../generic/ProgressBar.vue';
 import BookletStepRenderer from './genesis/BookletStepRenderer.vue';
@@ -8,6 +8,10 @@ import { pushModal } from '../Modals.vue';
 import BookletComplete from './modals/BookletComplete.vue';
 import { palettesMgr } from '@/builder/Palette';
 import { useGenesisStore } from '@/builder/GenesisStore';
+import { backendManager } from '@/Backend';
+import { getCurrentNetwork } from '@/chain/Network';
+
+import QRCode from 'qrcode';
 
 const {
     getStepImgSrc,
@@ -138,13 +142,14 @@ watch([shapeValidity], (nv, ov) => {
 })
 
 const currentPage = ref(0);
+const lastPage = computed(() => +bookletData.value.nb_pages + 2 || 0);
 
 const lowerPage = () => {
     if (--currentPage.value < 0)
-        currentPage.value = +bookletData.value.nb_pages || 0;
+        currentPage.value = lastPage.value - 1;
 }
 const higherPage = () => {
-    if (++currentPage.value > (+bookletData.value.nb_pages || 0))
+    if (++currentPage.value > lastPage.value - 1)
         currentPage.value = 0;
 }
 
@@ -160,6 +165,13 @@ onBeforeUnmount(() => watcher());
 
 const genesisStore = useGenesisStore();
 genesisStore.coverItemRoute(booklet.value, true);
+
+const qrCodeCanvas = ref(null as unknown as HTMLCanvasElement);
+watchEffect(async () => {
+    await QRCode.toCanvas(qrCodeCanvas.value, backendManager.getRoute(`booklet/pdf/${getCurrentNetwork()}/${booklet}.pdf`), { width: 300 });
+})
+
+const showQrCode = ref(false);
 </script>
 
 <template>
@@ -169,13 +181,20 @@ genesisStore.coverItemRoute(booklet.value, true);
             <template v-if="!!bookletData">
                 <div class="flex px-1 py-1 text-sm font-medium justify-between items-center border-b border-grad-light">
                     <Btn no-background class="w-10" @click="lowerPage"><i class="fas fa-chevron-left"/></Btn>
-                    <span>{{ currentPage + 1 }}/{{ +bookletData.nb_pages + 1 || 1 }}</span>
+                    <span>{{ currentPage + 1 }}/{{ lastPage }}</span>
                     <Btn no-background class="w-10" @click="higherPage"><i class="fas fa-chevron-right"/></Btn>
                 </div>
                 <div class="relative w-[400px] h-[400px]">
                     <BookletStepRenderer v-if="currentPage > 0" :glb_name="booklet" :i="currentPage - 1"/>
-                    <div v-else :style="{ backgroundImage: `url(${genesisStore.coverItemRoute(booklet)}), url(${genesisStore.coverItemRoute(booklet, true)}` }" class="p-4 w-full h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain">
+                    <div v-else class="w-full h-full relative">
+                        <div :style="{ backgroundImage: `url(${genesisStore.coverItemRoute(booklet)}), url(${genesisStore.coverItemRoute(booklet, true)}` }" class="p-4 w-full h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain"/>
                         <p class="absolute bottom-0 mb-4 text-center">Follow the instructions of the booklet and build your Official Set !</p>
+                        <div :class="`absolute top-0 left-0 justify-center z-1 items-center w-full h-full bg-grad-lightest ${showQrCode ? 'flex' : 'hidden'}`"><canvas :class="`transition-all ${showQrCode ? 'opacity-100' : 'opacity-0'}`" ref="qrCodeCanvas"/></div>
+                        <a
+                            target="_blank" @mouseenter="showQrCode = true" @pointerleave="showQrCode = false" :href="backendManager.getRoute(`booklet/pdf/${getCurrentNetwork()}/${booklet}.pdf`)"
+                            class="absolute z-2 left-4 top-4">
+                            <Btn secondary class="w-10 h-10 p-0"><i class="far fa-qrcode text-xl"/></Btn>
+                        </a>
                     </div>
                 </div>
                 <div class="border-t border-grad-light">
