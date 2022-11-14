@@ -187,8 +187,10 @@ const showQrCode = ref(false);
                 <div class="relative w-[400px] h-[400px]">
                     <BookletStepRenderer v-if="currentPage > 0" :glb_name="booklet" :i="currentPage - 1"/>
                     <div v-else class="w-full h-full relative">
-                        <div :style="{ backgroundImage: `url(${genesisStore.coverItemRoute(booklet)}), url(${genesisStore.coverItemRoute(booklet, true)}` }" class="p-4 w-full h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain"/>
-                        <p class="absolute bottom-0 mb-4 text-center">Follow the instructions of the booklet and build your Official Set !</p>
+                        <div class="flex flex-col w-full h-full gap-2 pb-4">
+                            <div :style="{ backgroundImage: `url(${genesisStore.coverItemRoute(booklet)}), url(${genesisStore.coverItemRoute(booklet, true)}` }" class="p-4 w-full flex-1 h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain"/>
+                            <p class="text-center">Follow the instructions of the booklet<br>and build your Official Set !</p>
+                        </div>
                         <div :class="`absolute top-0 left-0 justify-center z-1 items-center w-full h-full bg-grad-lightest ${showQrCode ? 'flex' : 'hidden'}`"><canvas :class="`transition-all ${showQrCode ? 'opacity-100' : 'opacity-0'}`" ref="qrCodeCanvas"/></div>
                         <a
                             target="_blank" @mouseenter="showQrCode = true" @pointerleave="showQrCode = false" :href="backendManager.getRoute(`booklet/pdf/${getCurrentNetwork()}/${booklet}.pdf`)"
@@ -205,7 +207,7 @@ const showQrCode = ref(false);
                             :percentage="shapeValidity*100"
                             :color="shapeValidity > ((bookletData.steps_progress[currentPage - 1] - 0.2) / bookletData.briqs.length) ? 'rgb(var(--color-info-success))' : undefined"/>
                         <div
-                            v-show="shapeValidity < 1" :style="{ left: `${(bookletData.steps_progress[currentPage - 1]) / bookletData.briqs.length*100}%` }"
+                            v-show="shapeValidity < 1 && currentPage > 0" :style="{ left: `${(bookletData.steps_progress[currentPage - 1]) / bookletData.briqs.length*100}%` }"
                             class="w-1 h-4 absolute -bottom-0.5 rounded-sm bg-grad-dark"/>
                         <canvas ref="microCanvas" class="absolute w-[200px] h-[200px] top-6 translate-x-[-50%] -translate-x-1/2 -translate-y-1/2 pointer-events-none" :style="{ left: `${shapeValidity*100}%` }"/>
                     </div>
