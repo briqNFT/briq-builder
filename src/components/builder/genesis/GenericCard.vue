@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import Tooltip from '@/components/generic/Tooltip.vue';
+
 defineProps<{
     title: string | undefined,
     subtitle?: string,
     status: 'LOADED' | 'ERROR' | 'FETCHING',
     imageSrc: string | undefined,
-    imageBg?: string
+    imageBg?: string,
+    showPendingMarker?: boolean
 }>();
 
 </script>
@@ -31,6 +34,11 @@ defineProps<{
 <template>
     <div :class="'item-card relative h-full' + status">
         <div class="bg-white rounded-md gap-2 shadow-sm h-full">
+            <template v-if="showPendingMarker">
+                <Tooltip :tooltip="'This item is shown assuming a pending transaction goes through.\nIf the transaction fails, it may disappear.'">
+                    <div class="absolute top-3 right-3 w-4 h-4 p-1  cursor-help"><div class="w-2 h-2 rounded-[50%] bg-info-warning"/></div>
+                </Tooltip>
+            </template>
             <template v-if="status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
                 <p :class="`rounded-md overflow-hidden min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-[13rem] ${imageBg ?? ''}`">

@@ -29,6 +29,11 @@ export class Fetchable<T> {
             this._error = err;
         }
     }
+
+    clear() {
+        this._data = undefined;
+        this._fetch = undefined;
+    }
 }
 
 const autoFetchable = <T>(wraps: { [prop: string]: Fetchable<T> }, t: (prop: string) => Promise<T>) => {
@@ -155,6 +160,15 @@ let initialCall = () => {
                 this.network = network;
                 for (const key in this._metadata)
                     delete this._metadata[key];
+            },
+            refreshBoxes() {
+                for (const key in this._boxes)
+                    delete this._boxes[key];
+                for (const key in this._saledata)
+                    delete this._saledata[key];
+                for (const key in this._metadata)
+                    delete this._metadata[key];
+                //autoFetchable(this._boxes as any, (theme_id) => backendManager.fetch(`v1/${this.network}/${theme_id}/boxes`));
             },
         },
     })

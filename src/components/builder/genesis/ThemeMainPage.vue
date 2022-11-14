@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue';
+import { ref, computed, watchEffect, watch } from 'vue';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import BoxListing from './BoxListing.vue';
@@ -17,11 +17,16 @@ const themeName = computed(() => route.params.theme as string);
 
 const genesisStore = useGenesisStore();
 
-const themeStatus = computed(() => genesisStore.themedata[themeName.value]?._status );
 const themeData = computed(() => genesisStore.themedata[themeName.value]?._data );
-
 const themeBoxes = computed(() => genesisStore.boxes[themeName.value]);
+
 watchEffect(() => themeBoxes.value?._data?.map((x: string) => genesisStore.saledata[x]._data ));
+
+const themeStatus = computed(() => {
+    if (themeBoxes.value?._status !== 'LOADED')
+        return themeBoxes.value?._status;
+    return themeBoxes.value?._data?.some((x: string) => genesisStore.saledata[x]._status === 'LOADED') ? 'LOADED' : 'FETCHING';
+});
 
 const status = computed(() => themeBoxes.value._status);
 
@@ -53,6 +58,12 @@ const saleStartsIn = computed(() => {
     const seconds = Math.floor(tl);
     return [['Days', days], ['Hours', hours], ['Minutes', minutes], ['Seconds', seconds]];
 });
+
+watch([saleStartsInSeconds], (nv: number, ov: number) => {
+    if (ov > 0 && nv <= 0)
+        setTimeout(() => genesisStore.refreshBoxes(), 1000)
+
+})
 
 const hasDate = computed(() => !!themeData.value?.sale_start);
 const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
@@ -99,7 +110,7 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                                     <div
                                         v-for="i in saleStartsIn" :key="i[0]"
                                         class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
-                                        <p class="text-xl">{{ i[1] || '??' }}</p>
+                                        <p class="text-xl">{{ i?.[1] ?? '??' }}</p>
                                         <p class="text-xs capitalize">{{ i[0] }}</p>
                                     </div>
                                 </div>
@@ -154,7 +165,7 @@ const isLive = computed(() => hasDate.value && saleStartsInSeconds.value <= 0 );
                         </div>
                     </template>
                     <template v-else-if="themeStatus === 'FETCHING'">
-                        <div class="h-[400px] flex justify-center items-center"><p class="text-xl font-medium text-grad-darker italic">Loading collection <i class="fas fa-spinner animate-spin-slow"/></p></div>
+                        <div class="h-[400px] flex justify-center items-center"><p class="text-xl font-medium text-grad-darker italic">Loading collection <i class="ml-4 fas fa-spinner animate-spin-slow"/></p></div>
                     </template>
                     <template v-else-if="themeStatus === 'ERROR'">
                         <div class="h-[400px] flex justify-center items-center flex-col">

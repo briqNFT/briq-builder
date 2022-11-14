@@ -109,6 +109,7 @@ const masterInit = async () => {
                             <option value="set">set</option>
                             <option value="briq">briq</option>
                             <option value="booklet">booklet</option>
+                            <option value="box">box</option>
                         </select>
                     </p>
                     <p>Function: <input type="text" v-model="selector"></p>

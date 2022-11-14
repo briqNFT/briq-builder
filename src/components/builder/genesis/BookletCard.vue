@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useGenesisStore } from '@/builder/GenesisStore';
-import { toRef } from 'vue';
+import { userBookletsStore } from '@/builder/UserBooklets';
+import { computed, toRef } from 'vue';
 import { useBooklet } from '../BookletComposable';
 import GenericCardVue from './GenericCard.vue';
 
@@ -11,6 +12,7 @@ const props = defineProps<{
 const { getStepImgSrc, bookletData } = useBooklet(undefined, toRef(props, 'boxId'));
 
 const genesisStore = useGenesisStore();
+
 
 </script>
 
