@@ -224,17 +224,17 @@ div[data-name='menu'] button {
                 <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 mb-4">
                     <template v-if="activeTab === 'GENESIS'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ (userBoxesStore.current?.availableBoxes?.length ?? 0) + (userBookletsStore.current?.booklets?.length ?? 0) + officialCreations.length }}</span></Btn>
-                        <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Sealed boxes <span class="pastille">{{ userBoxesStore.current?.availableBoxes?.length ?? 0 }}</span></Btn>
+                        <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Boxes <span class="pastille">{{ userBoxesStore.current?.availableBoxes?.length ?? 0 }}</span></Btn>
                         <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Booklets <span class="pastille">{{ userBookletsStore.current?.booklets?.length ?? 0 }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'WIP'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ draftBooklets.length + creationsWIP.length }}</span></Btn>
-                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">Personal Creations<span class="pastille">{{ creationsWIP.length }}</span></Btn>
+                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">My Sets<span class="pastille">{{ creationsWIP.length }}</span></Btn>
                         <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ draftBooklets.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'CREATION'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ creations.length + officialCreations.length }}</span></Btn>
-                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">Personal Creations<span class="pastille">{{ creations.length }}</span></Btn>
+                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">My Sets<span class="pastille">{{ creations.length }}</span></Btn>
                         <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ officialCreations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'ACTIVITY'">
@@ -252,7 +252,7 @@ div[data-name='menu'] button {
             <div v-if="activeTab === 'WIP'">
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
-                    <h3>Personal Sets</h3>
+                    <h3>My Sets</h3>
                     <p class="text-sm mt-1">WIP sets are stored on this computer only and shared across wallets.</p>
                     <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have work-in-progress sets.</p>
@@ -314,10 +314,11 @@ div[data-name='menu'] button {
             <div v-else-if="activeTab === 'CREATION' && userAddress">
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
-                    <h3>Personal Sets</h3>
+                    <h3>My Sets</h3>
                     <div v-if="!creations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have personal creations.</p>
-                        <p>Get some briqs and start building!</p>
+                        <p class="font-semibold">
+                            You have not yet created a set yourself. <br> Let your imagination run free!
+                        </p><p>Get some briqs and start building!</p>
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
@@ -399,7 +400,8 @@ div[data-name='menu'] button {
             <div v-else-if="activeTab === 'GENESIS' && userAddress">
                 <div v-show="showSection('BOX')">
                     <a id="box" class="relative bottom-[80px]"/>
-                    <h3>Sealed boxes</h3>
+                    <h3>Boxes</h3>
+                    <p class="text-sm mt-1">Boxes contain briqs and an instruction booklet and briqs. Unbox them to get their content and start building!</p>
                     <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any boxes.</p>
                         <p>Browse the available items in our Genesis collections!</p>
@@ -414,6 +416,7 @@ div[data-name='menu'] button {
                 <div v-show="showSection('BOOKLET')">
                     <a id="booklet" class="relative bottom-[80px]"/>
                     <h3>Booklets</h3>
+                    <p class="text-sm mt-1">Booklets contain instructions to build official briq sets. Follow the instructions to mint the official sets!</p>
                     <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any booklets.</p>
                         <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
