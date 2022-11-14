@@ -13,7 +13,7 @@ resources:
     memory: "128Mi"
 #@schema/type any=True
 defaultLabels:
-  appname: briq-builder
+  appname: briq
   env: test
 image_name: briq-builder
 image_tag: ""

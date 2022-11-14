@@ -9,7 +9,7 @@ metadata:
     cloud.google.com/backend-config: #@ '{"default": "' + data.values.name + '"}'
 spec:
   selector:
-    appname: #@ data.values.name
+    deployname: #@ data.values.name
   ports:
     - protocol: TCP
       port: 80

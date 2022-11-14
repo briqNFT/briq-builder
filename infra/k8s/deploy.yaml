@@ -1,3 +1,4 @@
+#@ load("@ytt:template", "template")
 #@ load("@ytt:data", "data")
 ---
 apiVersion: apps/v1
@@ -8,10 +9,13 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: #@ data.values.defaultLabels
+    matchLabels:
+      deployname: #@ data.values.name
   template:
     metadata:
-      labels: #@ data.values.defaultLabels
+      labels:
+        _: #@ template.replace(data.values.defaultLabels)
+        deployname: #@ data.values.name
     spec:
       containers:
       - name: #@ data.values.name
@@ -74,7 +78,7 @@ data:
     location /api_relay/ {
         proxy_set_header   X-Forwarded-For $remote_addr;
         proxy_set_header   Host $http_host;
-        proxy_pass         http://dev-briq-protocol.default.svc.cluster.local/;
+        proxy_pass         http://dev-briq-api.default.svc.cluster.local/;
     }
 
 #@ else:

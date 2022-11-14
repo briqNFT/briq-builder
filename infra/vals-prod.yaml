@@ -6,5 +6,5 @@ static_ip: lb-sltech-company-ipv4-2
 sites: ["www.briq.construction", "briq.construction"]
 #@schema/type any=True
 defaultLabels:
-  appname: briq-builder
+  appname: briq
   env: prod

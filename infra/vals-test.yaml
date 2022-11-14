@@ -6,7 +6,7 @@ static_ip: lb-sltech-company-ipv4-4
 sites: ["test.sltech.company"]
 #@schema/type any=True
 defaultLabels:
-  appname: dev-briq-builder
+  appname: dev-briq
   env: test
 #! Temporarily secure the test site.
 useSecurity: true
