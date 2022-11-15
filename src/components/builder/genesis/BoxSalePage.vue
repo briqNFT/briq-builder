@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
@@ -84,6 +84,7 @@ const buy = () => {
     });
 }
 
+const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
 </script>
 
 <style scoped>
@@ -125,9 +126,23 @@ p {
             <div class="container m-auto min-h-[95vh]">
                 <div class="grid grid-cols-[7fr_5fr] gap-6 my-6">
                     <div class="flex flex-col gap-6">
-                        <div class="flex justify-center items-center h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
-                            <div v-if="itemQuery._status !== 'ERROR'" class="w-full h-full p-4 lg:p-8 xl:p-16 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(token_id)}), url(${genesisStore.coverBoxRoute(token_id, true)})` }"/>
-                            <div v-else><p>Error while loading box data</p></div>
+                        <div class="relative h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
+                            <template v-if="itemQuery._status === 'LOADED'">
+                                <div class="flex justify-center items-center h-full w-full select-none">
+                                    <div v-show="view === 'PREVIEW'" class="w-full h-full p-4 lg:p-8 xl:p-16 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(token_id)}), url(${genesisStore.coverBoxRoute(token_id, true)})` }"/>
+                                    <div v-show="view === 'BOOKLET'" class="w-full h-full p-4 xl:p-8 xl:pb-10 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(token_id)}), url(${genesisStore.coverBookletRoute(token_id, true)})` }"/>
+                                    <div v-show="view === 'SET'" class="w-full h-full p-4 lg:p-16 xl:p-24 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverItemRoute(token_id)}), url(${genesisStore.coverItemRoute(token_id, true)})` }"/>
+                                    <div class="absolute top-4 left-4 flex flex-col gap-1">
+                                        <Btn no-style :class="`${ view === 'PREVIEW' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="genesisStore.coverBoxRoute(token_id, true)"></Btn>
+                                        <Btn no-style :class="`${ view === 'BOOKLET' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" @click="view='BOOKLET'"><img class="max-w-full max-h-full" :src="genesisStore.coverBookletRoute(token_id, true)"></Btn>
+                                        <Btn no-style :class="`${ view === 'SET' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" @click="view='SET'"><img class="max-w-full max-h-full" :src="genesisStore.coverItemRoute(token_id, true)"></Btn>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-else-if="itemQuery._status === 'FETCHING'">
+                                <p>Loading image</p>
+                            </template>
+                            <div v-else><p>Error while loading data</p></div>
                         </div>
                         <div>
                             <h2>Attributes</h2>
@@ -193,14 +208,14 @@ p {
                             </template>
                         </template>
                         <template v-else-if="saledata?.isLive()">
-                            <h4>Instant Purchase</h4>
+                            <!--<h4>Instant Purchase</h4>-->
                             <div class="rounded border border-grad-light overflow-hidden">
                                 <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                                     <div>
-                                        <h5 class="font-normal text-grad-dark">Starting price</h5>
+                                        <h5 class="font-normal text-grad-dark">Price</h5>
                                         <p class="text-xl font-semibold pt-1">{{ readableNumber(saledata?.price) }} {{ readableUnit(saledata?.price) }}</p>
                                     </div>
-                                    <Btn :disabled="!canBuy" class="h-full text-md px-6" @click="buy">Buy now</Btn>
+                                    <Btn :disabled="!canBuy" class="!h-auto text-md px-6" @click="buy">Buy now</Btn>
                                 </div>
                                 <div class="p-6 py-4 flex flex-col gap-4">
                                     <div class="w-full flex justify-between items-baseline">
@@ -214,6 +229,7 @@ p {
                                     <p><span class="font-medium">Availability: </span>{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }}</p>
                                 </div>
                             </div>
+                            <!--
                             <div>
                                 <ul class="list-inside ml-4 text-sm list-disc">
                                     <li>Price drops by 0.28 <i class="fa-brands fa-ethereum"/> until sold out.</li>
@@ -221,6 +237,7 @@ p {
                                     <li>Sale ends 24h after the start.</li>
                                 </ul>
                             </div>
+                            -->
                         </template>
                     </div>
                 </div>

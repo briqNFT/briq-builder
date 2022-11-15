@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useGenesisStore } from '@/builder/GenesisStore';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import GenericItemPage from './GenericItemPage.vue';
 import ProgressBar from '@/components/generic/ProgressBar.vue';
@@ -46,14 +46,33 @@ const attributes = computed(() => {
 const nbItems = computed(() => {
     return userBoxesStore?.current?.availableBoxes?.filter(x => x === box_id.value).length ?? '...';
 });
+
+const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
 </script>
 
 <template>
     <GenericItemPage
         :status="itemQuery?._status"
         :attributes="attributes">
-        <template #image>
-            <div class="w-full h-full p-4 lg:p-8 xl:p-16 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(box_id)}), url(${genesisStore.coverBoxRoute(box_id, true)})` }"/>
+        <template #full-image="{ status }">
+            <div class="relative h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
+                <template v-if="status === 'LOADED'">
+                    <div class="flex justify-center items-center h-full w-full select-none">
+                        <div v-show="view === 'PREVIEW'" class="w-full h-full p-4 lg:p-8 xl:p-16 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(box_id)}), url(${genesisStore.coverBoxRoute(box_id, true)})` }"/>
+                        <div v-show="view === 'BOOKLET'" class="w-full h-full p-4 xl:p-8 xl:pb-10 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(box_id)}), url(${genesisStore.coverBookletRoute(box_id, true)})` }"/>
+                        <div v-show="view === 'SET'" class="w-full h-full p-4 lg:p-16 xl:p-24 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverItemRoute(box_id)}), url(${genesisStore.coverItemRoute(box_id, true)})` }"/>
+                        <div class="absolute top-4 left-4 flex flex-col gap-1">
+                            <Btn no-style :class="`${ view === 'PREVIEW' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="genesisStore.coverBoxRoute(box_id, true)"></Btn>
+                            <Btn no-style :class="`${ view === 'BOOKLET' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" @click="view='BOOKLET'"><img class="max-w-full max-h-full" :src="genesisStore.coverBookletRoute(box_id, true)"></Btn>
+                            <Btn no-style :class="`${ view === 'SET' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" @click="view='SET'"><img class="max-w-full max-h-full" :src="genesisStore.coverItemRoute(box_id, true)"></Btn>
+                        </div>
+                    </div>
+                </template>
+                <template v-else-if="status === 'FETCHING'">
+                    <p>Loading image</p>
+                </template>
+                <div v-else><p>Error while loading data</p></div>
+            </div>
         </template>
         <template #default>
             <h1>{{ item?.name }}</h1>
