@@ -162,6 +162,11 @@ p {
                         </p>
                         <h1>{{ boxName }}</h1>
                         <p class="my-2 whitespace-pre-line">{{ item?.description ?? 'Loading' }}</p>
+                        <h4>Inside this Box</h4>
+                        <ul class="list-outside ml-5 text-sm list-disc">
+                            <li>One instruction <span class="font-medium">booklet NFT</span> that you can use to create an Official&nbsp;Set</li>
+                            <li class="mt-1 mb-6">{{ item?.nb_briqs }} <span class="font-medium">briqs</span>, enough to build the Official&nbsp;Set and then more</li>
+                        </ul>
                         <template v-if="saledata?.isLive() && saledata?.total_quantity === 1">
                             <h4>Auction</h4>
                             <div class="rounded border border-grad-light overflow-hidden">
