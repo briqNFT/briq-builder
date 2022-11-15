@@ -401,7 +401,7 @@ div[data-name='menu'] button {
                 <div v-show="showSection('BOX')">
                     <a id="box" class="relative bottom-[80px]"/>
                     <h3>Boxes</h3>
-                    <p class="text-sm mt-1">Boxes contain briqs and an instruction booklet and briqs. Unbox them to get their content and start building!</p>
+                    <p class="text-sm mt-1">Boxes contain briqs and an instruction booklet. Unbox them to get their content and start building!</p>
                     <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any boxes.</p>
                         <p>Browse the available items in our Genesis collections!</p>
