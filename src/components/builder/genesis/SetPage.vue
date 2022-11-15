@@ -242,12 +242,11 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 </div>
                 <h2>Want to list your booklet?</h2>
                 <p>Seeling your booklet means you will no longer be able to mint the authenticated officiel set.</p>
-                <div class="flex gap-2 my-4">
+                <div class="flex gap-2 mt-4 mb-10">
                     <a href="https://testnet.aspect.co/" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
                     <a href="https://mintsquare.io/starknet" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
                 </div>
                 <div v-if="booklet_id">
-                    <h2 class="mt-8">Item activity</h2>
                     <Suspense>
                         <ItemActivity type="booklet" :user="maybeStore?.user_id" :network="(route.params.network as string) || getCurrentNetwork()" :item="booklet_id"/>
                     </Suspense>

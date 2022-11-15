@@ -81,8 +81,8 @@ const icons = {
 </style>
 
 <template>
-    <h2 v-if="actualData.length">Item activity</h2>
-    <div class="rounded-md bg-grad-lightest border border-grad-light max-h-[21rem] overflow-auto">
+    <h2 v-show="actualData.length">Item activity</h2>
+    <div v-show="actualData.length" class="rounded-md bg-grad-lightest border border-grad-light max-h-[21rem] overflow-auto">
         <div
             v-for="(item, i) of actualData" :key="i"
             class="border-b border-grad-light last:border-b-0 px-6 flex gap-6 items-center py-4">

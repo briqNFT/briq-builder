@@ -81,7 +81,6 @@ const nbItems = computed(() => {
                 </p>
             </div>
             <div v-if="box_id">
-                <h2 class="mt-8">Item activity</h2>
                 <Suspense>
                     <ItemActivity type="box" :user="maybeStore?.user_id" :network="(route.params.network as string) || getCurrentNetwork()" :item="box_id"/>
                 </Suspense>

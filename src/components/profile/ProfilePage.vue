@@ -253,11 +253,11 @@ div[data-name='menu'] button {
                     <template v-if="activeTab === 'GENESIS'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ inventoryBoxes.length + inventoryBooklets.length }}</span></Btn>
                         <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Boxes <span class="pastille">{{ inventoryBoxes.length }}</span></Btn>
-                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Booklets <span class="pastille">{{ inventoryBooklets.length }}</span></Btn>
+                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-center font-medium">Booklets <span class="pastille">{{ inventoryBooklets.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'WIP'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ draftBooklets.length + creationsWIP.length }}</span></Btn>
-                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">My Sets<span class="pastille">{{ creationsWIP.length }}</span></Btn>
+                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-center font-medium">My Sets<span class="pastille">{{ creationsWIP.length }}</span></Btn>
                         <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ draftBooklets.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'CREATION'">
@@ -280,7 +280,7 @@ div[data-name='menu'] button {
             <div v-if="activeTab === 'GENESIS' && userAddress">
                 <div v-show="showSection('BOX')">
                     <a id="box" class="relative bottom-[80px]"/>
-                    <h3>Boxes</h3>
+                    <h4>Boxes</h4>
                     <p class="text-sm mt-1">Boxes contain briqs and an instruction booklet. Unbox them to get their content and start building!</p>
                     <div v-if="!inventoryBoxes.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any boxes.</p>
@@ -295,7 +295,7 @@ div[data-name='menu'] button {
                 </div>
                 <div v-show="showSection('BOOKLET')">
                     <a id="booklet" class="relative bottom-[80px]"/>
-                    <h3>Booklets</h3>
+                    <h4>Booklets</h4>
                     <p class="text-sm mt-1">Booklets contain instructions to build official briq sets. Follow the instructions to mint the official sets!</p>
                     <div v-if="!inventoryBooklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any booklets.</p>
@@ -314,7 +314,7 @@ div[data-name='menu'] button {
             <div v-else-if="activeTab === 'WIP'">
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
-                    <h3>My Sets</h3>
+                    <h4>My Sets</h4>
                     <p class="text-sm mt-1">WIP sets are stored on this computer only and shared across wallets.</p>
                     <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have work-in-progress sets.</p>
@@ -361,7 +361,7 @@ div[data-name='menu'] button {
                 </div>
                 <div v-show="showSection('OFFICIAL')">
                     <a id="official" class="relative bottom-[80px]"/>
-                    <h3>Official Sets</h3>
+                    <h4>Official Sets</h4>
                     <p class="text-sm mt-1">WIP sets are stored on this computer only and shared across wallets. You can only have one work in progress per booklet type.</p>
                     <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any work-in-progress official sets.</p>
@@ -376,7 +376,7 @@ div[data-name='menu'] button {
             <div v-else-if="activeTab === 'CREATION' && userAddress">
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
-                    <h3>My Sets</h3>
+                    <h4>My Sets</h4>
                     <div v-if="!creations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">
                             You have not yet created a set yourself. <br> Let your imagination run free!
@@ -419,7 +419,7 @@ div[data-name='menu'] button {
                 </div>
                 <div v-show="showSection('OFFICIAL')">
                     <a id="official" class="relative bottom-[80px]"/>
-                    <h3>Official Sets</h3>
+                    <h4>Official Sets</h4>
                     <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any official Genesis sets.</p>
                         <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
@@ -463,7 +463,7 @@ div[data-name='menu'] button {
                 <div>
                     <div v-show="showSection('WINNING')">
                         <a id="winning" class="relative bottom-[80px]"/>
-                        <h3>Winning bids on ongoing auctions</h3>
+                        <h4>Winning bids on ongoing auctions</h4>
                         <div v-if="!winningBids.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                             <p class="font-semibold">You have no winning bids on ongoing auctions.</p>
                             <p>Browse the available items in our Genesis collections!</p>
@@ -475,7 +475,7 @@ div[data-name='menu'] button {
                     </div>
                     <div v-show="showSection('LOSING')">
                         <a id="losing" class="relative bottom-[80px]"/>
-                        <h3>Losing bids on ongoing auctions</h3>
+                        <h4>Losing bids on ongoing auctions</h4>
                         <div v-if="!losingBids.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                             <p class="font-semibold">No losing bids to report.</p>
                             <p>Browse the available items in our Genesis collections!</p>
@@ -487,7 +487,7 @@ div[data-name='menu'] button {
                     </div>
                     <div v-show="showSection('PURCHASED')">
                         <a id="purchased" class="relative bottom-[80px]"/>
-                        <h3>Purchased items</h3>
+                        <h4>Purchased items</h4>
                         <div class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                             <p class="font-semibold">You have not yet bought any item</p>
                             <p>Browse the available items in our Genesis collections!</p>
