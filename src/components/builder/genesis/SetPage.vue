@@ -184,7 +184,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                             :src="backendManager.getRoute(`model/${getCurrentNetwork()}/${set.id}.glb`)"/>
                         <div v-if="booklet_id" v-show="view === 'BOOKLET'" class="w-full h-full  p-4 xl:p-8 xl:pb-10 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet_id!)}), url(${genesisStore.coverBookletRoute(booklet_id!, true)})` }"/>
                         <div v-if="mode === 'CREATION'" v-show="view === 'PREVIEW'" class="w-full h-full p-4 lg:p-16 xl:p-24 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${previewURL.replace('.png', '.jpg')})` }" :src="previewURL"/>
-                        <div class="absolute top-4 left-4 flex flex-col gap-1" v-if="mode === 'CREATION'">
+                        <div class="absolute top-4 left-4 flex flex-col gap-4" v-if="mode === 'CREATION'">
                             <Btn no-style :class="`${ view === 'PREVIEW' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="previewURL.replace('.png', '.jpg')"></Btn>
                             <Btn no-style :class="`${ view === '3D' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20 p-0 text-xl relative`" @click="view='3D'"><img class="absolute z-[-1] p-2 max-w-full max-h-full" :src="previewURL.replace('.png', '.jpg')"><div class="w-full h-full flex justify-center items-center backdrop-blur-[2px] rounded-md bg-grad-lightest bg-opacity-70"><i class="far fa-360-degrees"/></div></Btn>
                             <Btn no-style :class="`${ view === 'BOOKLET' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" v-if="bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
@@ -256,7 +256,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <h5 class="mt-2">
                     {{ setKind === 'OFFICIAL' ? 'Official set' : 'Personal creation' }}<span class="font-normal"> - minted</span>
                 </h5>
-                <p class="mt-6">{{ set?.description }}</p>
+                <p class="mt-6 whitespace-pre-line">{{ set?.description }}</p>
                 <p class="my-6 font-semibold cursor-pointer select-none w-fit" @click="copySetId">
                     ID: <span class="font-normal">{{ `${route.params.set_id.slice(0, 6)}...${route.params.set_id.slice(-4)}` }} <i class="far fa-copy"/></span>
                 </p>
