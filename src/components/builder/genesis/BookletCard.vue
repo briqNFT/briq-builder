@@ -13,6 +13,10 @@ const { getStepImgSrc, bookletData } = useBooklet(undefined, toRef(props, 'boxId
 
 const genesisStore = useGenesisStore();
 
+const nbItems = computed(() => {
+    return userBookletsStore?.current?.booklets?.filter(x => x === props.boxId).length ?? '...';
+});
+
 
 </script>
 
@@ -22,10 +26,10 @@ const genesisStore = useGenesisStore();
         :image-src="genesisStore.coverBookletRoute(boxId, true)">
         <template #content>
             <p class="flex justify-between">
-                <span class="attribute">briqs needed</span><span class="font-semibold">{{ bookletData?.briqs?.length ?? '?' }}</span>
+                <span class="attribute">briqs needed</span><span class="font-medium">{{ bookletData?.briqs?.length ?? '?' }}</span>
             </p>
             <p class="flex justify-between">
-                <span class="attribute">Steps</span><span>{{ bookletData?.nb_pages ?? '?' }}</span>
+                <span class="attribute">You own</span><span class="font-medium">{{ nbItems }}</span>
             </p>
         </template>
     </GenericCardVue>

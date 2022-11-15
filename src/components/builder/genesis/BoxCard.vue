@@ -3,6 +3,7 @@ import { useBoxData, CARD_MODES } from '@/builder/BoxData';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { userBidsStore, productBidsStore } from '@/builder/BidStore';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
+import { userBoxesStore } from '@/builder/UserBoxes';
 
 const props = defineProps<{
     tokenName: string,
@@ -20,6 +21,10 @@ const {
 } = useBoxData(props.tokenName);
 
 const actualMode = getActualMode(props.mode);
+
+const nbItems = computed(() => {
+    return userBoxesStore?.current?.availableBoxes?.filter(x => x === props.tokenName).length ?? '...';
+});
 
 const bids = computed(() => userBidsStore.current?.bids ?? []);
 
@@ -105,7 +110,7 @@ const shallDisplay = ref(false);
                 <template v-if="actualMode === 'PRESALE'">
                     <hr class="my-2">
                     <div class="p-4 pt-0 flex flex-col gap-2">
-                        <p class="flex justify-between"><span class="text-grad-dark">Initial price</span><span class="font-semibold">0.01 ETH</span></p>
+                        <p class="flex justify-between"><span class="text-grad-dark">Initial price</span><span class="font-medium">0.01 ETH</span></p>
                         <p class="flex justify-between">
                             <span class="text-grad-dark">Sales begins in</span>
                             <span v-if="!saledata?.startIn()">...</span>
@@ -120,12 +125,12 @@ const shallDisplay = ref(false);
                     <hr class="my-2">
                     <div class="p-4 pt-0 flex flex-col gap-2">
                         <p class="flex justify-between">
-                            <span class="text-grad-dark">Bought at</span>
-                            <span class="font-semibold">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                            <span class="text-grad-dark">briqs inside</span>
+                            <span class="font-medium">{{ item?.nb_briqs }}</span>
                         </p>
                         <p class="flex justify-between">
-                            <span class="text-grad-dark">On</span>
-                            <span>August 5 2022</span>
+                            <span class="text-grad-dark">You own</span>
+                            <span class="font-medium">{{ nbItems }}</span>
                         </p>
                     </div>
                 </template>
@@ -133,16 +138,16 @@ const shallDisplay = ref(false);
                     <hr class="my-2">
                     <div class="p-4 pt-0 flex flex-col gap-2">
                         <p v-if="actualMode === 'SALE' && saledata?.total_quantity === 1" class="flex justify-between">
-                            <span class="text-grad-dark">Last Bid</span><span class="font-semibold">{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span>
+                            <span class="text-grad-dark">Last Bid</span><span class="font-medium">{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span>
                         </p>
                         <p v-else-if="actualMode === 'SALE'" class="flex justify-between">
-                            <span class="text-grad-dark">Current Price</span><span class="font-semibold">{{ readableNumber(saledata.price) }} {{ readableUnit(saledata.price) }}</span>
+                            <span class="text-grad-dark">Current Price</span><span class="font-medium">{{ readableNumber(saledata.price) }} {{ readableUnit(saledata.price) }}</span>
                         </p>
                         <p v-else-if="hasHighestBid" class="flex justify-between">
-                            <span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span class="font-semibold">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                            <span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
                         </p>
                         <p v-else class="flex justify-between">
-                            <span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span class="font-semibold">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                            <span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
                         </p>
                         <p class="flex justify-between">
                             <span class="text-grad-dark">Sales End</span>

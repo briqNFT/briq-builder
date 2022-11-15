@@ -28,6 +28,7 @@ import Tooltip from '../generic/Tooltip.vue';
 import { pushPopup } from '@/Notifications';
 import BoxCard from '../builder/genesis/BoxCard.vue';
 import DraftCard from './DraftCard.vue';
+import { boxMaterials } from '../builder/genesis/UnboxingGraphicsLight';
 
 const {
     openSetInBuilder,
@@ -66,6 +67,33 @@ const losingBids = computed(() => {
             boxes.push(bid.box_id);
     return boxes;
 })
+
+const inventoryBoxes = computed(() => {
+    if (!userBoxesStore?.current?.availableBoxes)
+        return [];
+    const ret = [] as string[];
+    const nb = {} as Record<string, boolean>;
+    for (const box of userBoxesStore.current.availableBoxes)
+        if (!nb[box]) {
+            nb[box] = true;
+            ret.push(box);
+        }
+    return ret;
+});
+
+
+const inventoryBooklets = computed(() => {
+    if (!userBookletsStore?.current?.booklets)
+        return [];
+    const ret = [] as string[];
+    const nb = {} as Record<string, boolean>;
+    for (const box of userBookletsStore.current.booklets)
+        if (!nb[box]) {
+            nb[box] = true;
+            ret.push(box);
+        }
+    return ret;
+});
 
 const creations = computed(() => {
     return userSetStore.current?.sets.map(setId => {
@@ -211,7 +239,7 @@ div[data-name='menu'] button {
             </div>
             -->
             <div class="flex gap-8">
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Boxes & Booklets&nbsp;<span class="pastille">{{ (userBoxesStore.current?.availableBoxes?.length ?? 0) + (userBookletsStore.current?.booklets?.length ?? 0) }}</span></p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Boxes & Booklets&nbsp;<span class="pastille">{{ inventoryBoxes.length + inventoryBooklets.length }}</span></p>
                 <p :class="`font-medium ${activeTab === 'WIP' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('WIP')">Work in Progress&nbsp;<span class="pastille">{{ creationsWIP.length + draftBooklets.length }}</span></p>
                 <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">Minted Sets&nbsp;<span class="pastille">{{ officialCreations.length + creations.length }}</span></p>
                 <!--<p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>-->
@@ -223,9 +251,9 @@ div[data-name='menu'] button {
             <div class="sticky top-[80px]">
                 <div v-if="userAddress" class="bg-grad-lightest rounded flex flex-col p-2 gap-2 mb-4">
                     <template v-if="activeTab === 'GENESIS'">
-                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ (userBoxesStore.current?.availableBoxes?.length ?? 0) + (userBookletsStore.current?.booklets?.length ?? 0) + officialCreations.length }}</span></Btn>
-                        <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Boxes <span class="pastille">{{ userBoxesStore.current?.availableBoxes?.length ?? 0 }}</span></Btn>
-                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Booklets <span class="pastille">{{ userBookletsStore.current?.booklets?.length ?? 0 }}</span></Btn>
+                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ inventoryBoxes.length + inventoryBooklets.length }}</span></Btn>
+                        <Btn @click="setSection('BOX')" :force-active="filter === 'BOX'" no-background class="w-full justify-start items-baseline font-medium">Boxes <span class="pastille">{{ inventoryBoxes.length }}</span></Btn>
+                        <Btn @click="setSection('BOOKLET')" :force-active="filter === 'BOOKLET'" no-background class="w-full justify-start text-left items-baseline font-medium">Booklets <span class="pastille">{{ inventoryBooklets.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'WIP'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ draftBooklets.length + creationsWIP.length }}</span></Btn>
@@ -249,7 +277,41 @@ div[data-name='menu'] button {
         </div>
         <div>
             <a ref="sectiontop" class="relative top-[-5rem]"/>
-            <div v-if="activeTab === 'WIP'">
+            <div v-if="activeTab === 'GENESIS' && userAddress">
+                <div v-show="showSection('BOX')">
+                    <a id="box" class="relative bottom-[80px]"/>
+                    <h3>Boxes</h3>
+                    <p class="text-sm mt-1">Boxes contain briqs and an instruction booklet. Unbox them to get their content and start building!</p>
+                    <div v-if="!inventoryBoxes.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have any boxes.</p>
+                        <p>Browse the available items in our Genesis collections!</p>
+                        <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
+                    </div>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
+                        <RouterLink :to="`box/${token_id}`" v-for="token_id, i of inventoryBoxes" :key="`${token_id}_${i}`">
+                            <BoxCard mode="INVENTORY" :token-name="token_id"/>
+                        </routerlink>
+                    </div>
+                </div>
+                <div v-show="showSection('BOOKLET')">
+                    <a id="booklet" class="relative bottom-[80px]"/>
+                    <h3>Booklets</h3>
+                    <p class="text-sm mt-1">Booklets contain instructions to build official briq sets. Follow the instructions to mint the official sets!</p>
+                    <div v-if="!inventoryBooklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
+                        <p class="font-semibold">You don't have any booklets.</p>
+                        <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
+                        <Btn secondary class="mt-2">Browse the themes</Btn>
+                    </div>
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
+                        <div v-for="booklet of inventoryBooklets" :key="booklet">
+                            <RouterLink :to="`booklet/${booklet}`">
+                                <BookletCard :box-id="booklet"/>
+                            </RouterLink>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-else-if="activeTab === 'WIP'">
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
                     <h3>My Sets</h3>
@@ -287,7 +349,7 @@ div[data-name='menu'] button {
                             <template #content>
                                 <p class="flex justify-between text-sm">
                                     <span class="text-grad-dark">briqs needed</span>
-                                    <span class="font-semibold">{{ creation.getNbBriqs() }}</span>
+                                    <span class="font-medium">{{ creation.getNbBriqs() }}</span>
                                 </p>
                                 <p class="flex justify-between text-sm">
                                     <span class="text-grad-dark">Last updated on</span>
@@ -345,7 +407,7 @@ div[data-name='menu'] button {
                             <template #content>
                                 <p class="flex justify-between text-sm">
                                     <span class="text-grad-dark">briqs used</span>
-                                    <span class="font-semibold">{{ creation.nb_briqs }}</span>
+                                    <span class="font-medium">{{ creation.nb_briqs }}</span>
                                 </p>
                                 <p class="flex justify-between text-sm">
                                     <span class="text-grad-dark">Minted on</span>
@@ -386,7 +448,7 @@ div[data-name='menu'] button {
                             <template #content>
                                 <p class="flex justify-between text-sm">
                                     <span class="text-grad-dark">briqs used</span>
-                                    <span class="font-semibold">{{ creation.nb_briqs }}</span>
+                                    <span class="font-medium">{{ creation.nb_briqs }}</span>
                                 </p>
                                 <p class="flex justify-between text-sm">
                                     <span class="text-grad-dark">Minted on</span>
@@ -394,40 +456,6 @@ div[data-name='menu'] button {
                                 </p>
                             </template>
                         </GenericCard>
-                    </div>
-                </div>
-            </div>
-            <div v-else-if="activeTab === 'GENESIS' && userAddress">
-                <div v-show="showSection('BOX')">
-                    <a id="box" class="relative bottom-[80px]"/>
-                    <h3>Boxes</h3>
-                    <p class="text-sm mt-1">Boxes contain briqs and an instruction booklet. Unbox them to get their content and start building!</p>
-                    <div v-if="!userBoxesStore.current?.availableBoxes.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have any boxes.</p>
-                        <p>Browse the available items in our Genesis collections!</p>
-                        <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <RouterLink :to="`box/${token_id}`" v-for="token_id, i of userBoxesStore.current!.availableBoxes" :key="token_id + i">
-                            <BoxCard mode="INVENTORY" :token-name="token_id"/>
-                        </routerlink>
-                    </div>
-                </div>
-                <div v-show="showSection('BOOKLET')">
-                    <a id="booklet" class="relative bottom-[80px]"/>
-                    <h3>Booklets</h3>
-                    <p class="text-sm mt-1">Booklets contain instructions to build official briq sets. Follow the instructions to mint the official sets!</p>
-                    <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have any booklets.</p>
-                        <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
-                        <Btn secondary class="mt-2">Browse the themes</Btn>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <div v-for="booklet of userBookletsStore.current?.booklets">
-                            <RouterLink :to="`booklet/${booklet}`">
-                                <BookletCard :box-id="booklet"/>
-                            </RouterLink>
-                        </div>
                     </div>
                 </div>
             </div>

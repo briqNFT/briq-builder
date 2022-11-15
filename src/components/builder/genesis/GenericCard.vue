@@ -44,7 +44,7 @@ defineProps<{
                 <p :class="`rounded-md overflow-hidden min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-[13rem] ${imageBg ?? ''}`">
                     <img class="min-h-0 min-w-0 max-h-full max-w-full" :src="imageSrc">
                 </p>
-                <h3 class="font-semibold text-md px-4 break-all">{{ title }} </h3>
+                <h3 class="font-semibold text-md px-4 overflow-x-auto">{{ title }} </h3>
 
                 <div v-if="!$slots.subtitle" class="px-4 flex justify-between text-sm leading-none py-[1px]">{{ subtitle }}</div>
                 <slot name="subtitle"/>

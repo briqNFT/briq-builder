@@ -44,7 +44,7 @@ const attributes = computed(() => {
 });
 
 const nbItems = computed(() => {
-    return userBoxesStore.current?.availableBoxes?.filter(x => x === box_id.value).length ?? '...';
+    return userBoxesStore?.current?.availableBoxes?.filter(x => x === box_id.value).length ?? '...';
 });
 </script>
 
