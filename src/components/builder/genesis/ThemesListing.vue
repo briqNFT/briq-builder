@@ -58,7 +58,7 @@ const { themeSplashSrc } = useThemeURLs();
             <div class="h-[16rem] flex flex-col justify-center items-center gap-2 bg-grad-lightest border border-grad-light rounded-lg">
                 <p class="text-primary">New themes</p>
                 <h3>COMING SOON</h3>
-                <briqIcon class="scale-[1.5]"/>
+                <briqIcon width="1.25rem"/>
             </div>
         </div>
     </div>

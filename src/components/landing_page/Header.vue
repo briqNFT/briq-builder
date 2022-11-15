@@ -62,7 +62,7 @@ onMounted(() => {
             <div class="flex items-stretch gap-2">
                 <template v-if="walletStore?.userWalletAddress">
                     <div class="border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
-                        <briqIcon class="inline-block"/> {{ chainBriqs?.getNbBriqs() }}
+                        <briqIcon width="0.9rem" class="inline-block"/> {{ chainBriqs?.getNbBriqs() }}
                     </div>
                     <div class="flex-none">
                         <MenuDropdown no-background icon class="text-xs">

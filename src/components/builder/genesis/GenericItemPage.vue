@@ -14,11 +14,11 @@ defineProps<{
 </script>
 
 <style scoped>
-h2, :slotted(h2) {
+h2, :slotted(h2), /deep/ h2 {
     @apply text-lg font-semibold my-2;
 }
 
-p, :slotted(p) {
+p, :slotted(p), /deep/ p {
     @apply text-copy;
 }
 

@@ -113,7 +113,7 @@ const menuOpen = ref(false);
                 <template v-if="maybeStore?.userWalletAddress">
                     <Tooltip :tooltip="`${ getNbBriqs } briqs used out of ${ chainBriqs?.getNbBriqs() } in wallet`">
                         <div class="flex items-center justify-left font-medium gap-2 pl-3 pr-4 cursor-help" :style="{ minWidth: `${getNbBriqs.toString().length * 0.6 + 5.7}rem`}">
-                            <briqIcon class="inline-block"/>
+                            <briqIcon width="0.9rem" class="inline-block"/>
                             {{ getNbBriqs }}/{{ chainBriqs?.getNbBriqs() }}
                         </div>
                     </Tooltip>

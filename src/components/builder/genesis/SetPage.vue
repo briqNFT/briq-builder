@@ -266,10 +266,10 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         <div>
                             <h5 class="font-normal text-grad-dark">briqs used</h5>
                             <p class="text-xl font-semibold pt-1">
-                                <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon/></span> {{ set?.getNbBriqs?.() }}
+                                <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon :width="12"/></span> {{ set?.getNbBriqs?.() }}
                             </p>
                         </div>
-                        <Btn v-if="isOwned" secondary @click="doDisassembly" class="h-full text-md px-6">Disassemble</Btn>
+                        <Btn v-if="isOwned" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
                     </div>
                     <div class="p-6 py-4 flex flex-col gap-4">
                         <p><span class="font-medium">Created on: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
@@ -283,7 +283,6 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                     </p>
                 </div>
                 <div v-if="set?.id">
-                    <h2>Item activity</h2>
                     <Suspense>
                         <ItemActivity type="set" :network="(route.params.network as string) || getCurrentNetwork()" :item="set.id"/>
                     </Suspense>
