@@ -208,8 +208,8 @@ watch([saleStartsInSeconds], (nv: number, ov: number) => {
                                 </h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
                                     <template v-for="i in 3">
-                                        <div class="shadow-sm rounded bg-grad-lightest pointer-events-none">
-                                            <div class="blur 2xl:blur-md flex justify-center items-center opacity-70">
+                                        <div class="pointer-events-none">
+                                            <div class="flex justify-center items-center opacity-70 saturate-50">
                                                 <img :src="MysteryBoxImg" class="">
                                             </div>
                                         </div>
