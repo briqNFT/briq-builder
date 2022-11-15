@@ -512,7 +512,7 @@ const useMockWallet = () => {
                         <p class="text-center font-semibold">Briqs <span class="font-normal">x {{ boxMetadata._data?.nb_briqs }}</span></p>
                         <div class="flex h-full justify-center items-center"><img class="max-w-[5rem]" :src="BriqsImg"></div>
                     </div>
-                    <Btn class="pointer-events-auto h-14" @click="openBuilder">Start Building</Btn>
+                    <Btn class="pointer-events-auto h-14" @click="openBuilder">Start building</Btn>
                 </div>
             </div>
         </div>

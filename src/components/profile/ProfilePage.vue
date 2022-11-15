@@ -257,12 +257,12 @@ div[data-name='menu'] button {
                     </template>
                     <template v-else-if="activeTab === 'WIP'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ draftBooklets.length + creationsWIP.length }}</span></Btn>
-                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-center font-medium">My Sets<span class="pastille">{{ creationsWIP.length }}</span></Btn>
+                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-center font-medium">Custom Sets<span class="pastille">{{ creationsWIP.length }}</span></Btn>
                         <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ draftBooklets.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'CREATION'">
                         <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ creations.length + officialCreations.length }}</span></Btn>
-                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">My Sets<span class="pastille">{{ creations.length }}</span></Btn>
+                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">Custom Sets<span class="pastille">{{ creations.length }}</span></Btn>
                         <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ officialCreations.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'ACTIVITY'">
@@ -314,8 +314,8 @@ div[data-name='menu'] button {
             <div v-else-if="activeTab === 'WIP'">
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
-                    <h4>My Sets</h4>
-                    <p class="text-sm mt-1">WIP sets are stored on this computer only and shared across wallets.</p>
+                    <h4>Custom Sets</h4>
+                    <p class="text-sm mt-1">Work in progress sets are stored on this computer only and shared across wallets.</p>
                     <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have work-in-progress sets.</p>
                         <p>Get some briqs and start building!</p>
@@ -362,7 +362,7 @@ div[data-name='menu'] button {
                 <div v-show="showSection('OFFICIAL')">
                     <a id="official" class="relative bottom-[80px]"/>
                     <h4>Official Sets</h4>
-                    <p class="text-sm mt-1">WIP sets are stored on this computer only and shared across wallets. You can only have one work in progress per booklet type.</p>
+                    <p class="text-sm mt-1">You can only have one WIP for each Booklet type. Like Custom Sets, these are stored locally on your computer.</p>
                     <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any work-in-progress official sets.</p>
                         <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
@@ -376,7 +376,7 @@ div[data-name='menu'] button {
             <div v-else-if="activeTab === 'CREATION' && userAddress">
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
-                    <h4>My Sets</h4>
+                    <h4>Custom Sets</h4>
                     <div v-if="!creations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">
                             You have not yet created a set yourself. <br> Let your imagination run free!
