@@ -30,14 +30,13 @@ const onClick = () => {
 </script>
 
 <template>
-    <Window class="!w-auto xl:max-w-[49%] lg:max-w-[80%] max-w-full">
+    <Window class="!max-w-[34rem]">
         <template #title>{{ title ?? 'Create new set' }}</template>
-        <p class="md:block hidden">
-            Name your new creation: <input v-model="name" :placeholder="placeholder" type="text" maxlength="200" minlength="1" size="60">
-        </p>
-        <p class="md:hidden block">
-            Name your new creation: <input v-model="name" :placeholder="placeholder" type="text" maxlength="200" minlength="1" size="30">
-        </p>
-        <button class="btn float-right my-4" @click="onClick">Create</button>
+        <p class="mb-2">Name</p>
+        <p><input v-model="name" :placeholder="placeholder" type="text" maxlength="200" minlength="1" class="w-full"></p>
+        <div class="mt-6 flex justify-between">
+            <Btn secondary @click="$emit('close')">Cancel</Btn>
+            <Btn @click="onClick">Create</Btn>
+        </div>
     </Window>
 </template>
