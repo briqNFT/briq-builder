@@ -2,11 +2,12 @@
 import { ref, computed, watchEffect, watch } from 'vue';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
-import BoxListing from './BoxListing.vue';
 import { useRoute } from 'vue-router';
 import { useGenesisStore } from '@/builder/GenesisStore';
 
 import ThemeSeparatorImg from '@/assets/landing/theme_separator.png';
+import MysteryBoxImg from '@/assets/landing/mysterybox.jpg';
+
 
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
@@ -205,7 +206,15 @@ watch([saleStartsInSeconds], (nv: number, ov: number) => {
                                     <span class="flex-1 text-right mr-8">WAVE #3</span>
                                     <span class="flex-1 font-normal ml-4">2022-11-26</span>
                                 </h4>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4"/>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
+                                    <template v-for="i in 3">
+                                        <div class="shadow-sm rounded bg-grad-lightest pointer-events-none">
+                                            <div class="blur 2xl:blur-md flex justify-center items-center opacity-70">
+                                                <img :src="MysteryBoxImg" class="">
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
                             </template>
                             <template v-else>
                                 <p class="text-center">Loading boxes</p>
