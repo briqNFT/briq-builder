@@ -91,8 +91,8 @@ const shallDisplay = ref(false);
             <template v-if="itemQuery._status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
                 <p class="min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 min-h-[13rem] relative">
-                    <img v-show="shallDisplay" class="absolute p-8 item-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverItemRoute(tokenName, true)">
-                    <img class="box-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverBoxRoute(tokenName, true)">
+                    <img v-show="shallDisplay" class="absolute p-12 item-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverItemRoute(tokenName, true)">
+                    <img class="box-display p-4 min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverBoxRoute(tokenName, true)">
                 </p>
                 <h3 class="font-semibold text-md px-4 break-all">{{ item.name }} </h3>
                 <template v-if="actualMode === 'PRESALE' && saleQuery._status === 'LOADED'">

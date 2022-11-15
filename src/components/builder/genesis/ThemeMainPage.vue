@@ -6,6 +6,8 @@ import BoxListing from './BoxListing.vue';
 import { useRoute } from 'vue-router';
 import { useGenesisStore } from '@/builder/GenesisStore';
 
+import ThemeSeparatorImg from '@/assets/landing/theme_separator.png';
+
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
@@ -43,6 +45,19 @@ const auctionBoxes = computed(() => themeBoxes.value?._data?.filter((x: string) 
 const dutchBoxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
     return genesisStore.saledata?.[x]?._data?.total_quantity > 1
 }));
+
+const wave1Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
+    return genesisStore.saledata?.[x]?._data?.wave === '1';
+}));
+
+const wave2Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
+    return genesisStore.saledata?.[x]?._data?.wave === '2';
+}));
+
+const wave3Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
+    return genesisStore.saledata?.[x]?._data?.wave === '3';
+}));
+
 
 const now = ref(Date.now() / 1000);
 setInterval(() => now.value = Date.now() / 1000, 1000);
@@ -154,20 +169,43 @@ watch([saleStartsInSeconds], (nv: number, ov: number) => {
                     <template v-if="themeStatus === 'LOADED'">
                         <div class="container m-auto mt-8">
                             <template v-if="status == 'LOADED'">
-                                <template v-if="auctionBoxes.length">
-                                    <h4>Auctions for unique NFTs ({{ auctionBoxes.length }})</h4>
-                                    <BoxListing :boxes="auctionBoxes" :mode="saleStartsInSeconds < 0 ? 'AUTO' : 'PRESALE' "/>
-                                </template>
-                                <template v-if="dutchBoxes.length">
-                                    <h4 class="mt-10">Instant Purchase ({{ dutchBoxes.length }})</h4>
+                                <template v-if="wave1Boxes.length">
+                                    <h4
+                                        class="font-medium bg-no-repeat bg-center flex justify-center mt-10 mb-6"
+                                        :style="{ backgroundImage: `-webkit-image-set(url(${ThemeSeparatorImg}) 2x)` }">
+                                        <span class="flex-1 text-right mr-8">WAVE #1</span>
+                                        <span class="flex-1 font-normal ml-4">2022-11-22</span>
+                                    </h4>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
                                         <router-link
-                                            v-for="token_id, i in dutchBoxes" :key="token_id + i"
+                                            v-for="token_id, i in wave1Boxes" :key="token_id + i"
                                             :to="{ name: 'BoxSale', 'params': { 'theme': token_id.split('/')[0], 'box': token_id.split('/')[1] } }">
                                             <BoxCard :mode="saleStartsInSeconds < 0 ? 'SALE' : 'PRESALE'" :token-name="token_id"/>
                                         </router-link>
                                     </div>
                                 </template>
+                                <template v-if="wave2Boxes.length">
+                                    <h4
+                                        class="font-medium bg-no-repeat bg-center flex justify-center mt-10 mb-6"
+                                        :style="{ backgroundImage: `-webkit-image-set(url(${ThemeSeparatorImg}) 2x)` }">
+                                        <span class="flex-1 text-right mr-8">WAVE #2</span>
+                                        <span class="flex-1 font-normal ml-4">2022-11-24</span>
+                                    </h4>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
+                                        <router-link
+                                            v-for="token_id, i in wave2Boxes" :key="token_id + i"
+                                            :to="{ name: 'BoxSale', 'params': { 'theme': token_id.split('/')[0], 'box': token_id.split('/')[1] } }">
+                                            <BoxCard :mode="saleStartsInSeconds < 0 ? 'SALE' : 'PRESALE'" :token-name="token_id"/>
+                                        </router-link>
+                                    </div>
+                                </template>
+                                <h4
+                                    class="font-medium bg-no-repeat bg-center flex justify-center mt-10 mb-6"
+                                    :style="{ backgroundImage: `-webkit-image-set(url(${ThemeSeparatorImg}) 2x)` }">
+                                    <span class="flex-1 text-right mr-8">WAVE #3</span>
+                                    <span class="flex-1 font-normal ml-4">2022-11-26</span>
+                                </h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4"/>
                             </template>
                             <template v-else>
                                 <p class="text-center">Loading boxes</p>

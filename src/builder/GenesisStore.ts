@@ -58,6 +58,7 @@ export class SaleData {
     auction_start!: number;
     auction_duration!: number;
     initial_price!: string;
+    wave?: string;
 
     constructor(saledata: any) {
         for (const key in saledata)
