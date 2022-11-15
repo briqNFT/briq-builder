@@ -11,8 +11,6 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import { backendManager } from '@/Backend';
 import { getCurrentNetwork } from '@/chain/Network';
 
-import QRCode from 'qrcode';
-
 const {
     getStepImgSrc,
     shapeValidity,
@@ -20,6 +18,8 @@ const {
     bookletData,
     minimized,
 } = useBooklet();
+
+const genesisStore = useGenesisStore();
 
 const particlesCanvas = ref(null as unknown as HTMLCanvasElement);
 const microCanvas = ref(null as unknown as HTMLCanvasElement);
@@ -141,37 +141,36 @@ watch([shapeValidity], (nv, ov) => {
         badFetti();
 })
 
+const isFirstTime = ref(true);
 const currentPage = ref(0);
-const lastPage = computed(() => +bookletData.value.nb_pages + 2 || 0);
+const lastPage = computed(() => +bookletData.value.nb_pages + 1 || 0);
 
 const lowerPage = () => {
     if (--currentPage.value < 0)
         currentPage.value = lastPage.value - 1;
+    isFirstTime.value = false;
 }
 const higherPage = () => {
     if (++currentPage.value > lastPage.value - 1)
         currentPage.value = 0;
+    isFirstTime.value = false;
 }
 
 let watcher: unknown;
 onMounted(() => {
-    if (window.sessionStorage.getItem(`booklet_${booklet.value}`))
+    if (window.sessionStorage.getItem(`booklet_${booklet.value}`)) {
         currentPage.value = +window.sessionStorage.getItem(`booklet_${booklet.value}`);
+        isFirstTime.value = false;
+    } else if (shapeValidity.value > 0) {
+        isFirstTime.value = false;
+        currentPage.value = 1;
+    }
     watcher = watchEffect(() => {
         window.sessionStorage.setItem(`booklet_${booklet.value}`, `${currentPage.value}`)
     })
+
 });
 onBeforeUnmount(() => watcher());
-
-const genesisStore = useGenesisStore();
-genesisStore.coverItemRoute(booklet.value, true);
-
-const qrCodeCanvas = ref(null as unknown as HTMLCanvasElement);
-watchEffect(async () => {
-    await QRCode.toCanvas(qrCodeCanvas.value, backendManager.getRoute(`booklet/pdf/${getCurrentNetwork()}/${booklet}.pdf`), { width: 300 });
-})
-
-const showQrCode = ref(false);
 </script>
 
 <template>
@@ -179,27 +178,23 @@ const showQrCode = ref(false);
         <h6 class="font-semibold text-sm leading-figma bg-grad-lighter bg-opacity-50 rounded-t-md px-4 py-3">Booklet</h6>
         <div class="flex-col">
             <template v-if="!!bookletData">
-                <div class="flex px-1 py-1 text-sm font-medium justify-between items-center border-b border-grad-light">
+                <div v-show="!isFirstTime" class="flex px-1 py-1 text-sm font-medium justify-between items-center border-b border-grad-light">
                     <Btn no-background class="w-10" @click="lowerPage"><i class="fas fa-chevron-left"/></Btn>
                     <span>{{ currentPage + 1 }}/{{ lastPage }}</span>
                     <Btn no-background class="w-10" @click="higherPage"><i class="fas fa-chevron-right"/></Btn>
                 </div>
                 <div class="relative w-[400px] h-[400px]">
                     <BookletStepRenderer v-if="currentPage > 0" :glb_name="booklet" :i="currentPage - 1"/>
-                    <div v-else class="w-full h-full relative">
-                        <div class="flex flex-col w-full h-full gap-2 pb-4">
-                            <div :style="{ backgroundImage: `url(${genesisStore.coverItemRoute(booklet)}), url(${genesisStore.coverItemRoute(booklet, true)}` }" class="p-4 w-full flex-1 h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain"/>
-                            <p class="text-center">Follow the instructions of the booklet<br>and build your Official Set !</p>
+                    <div v-else class="w-full h-full relative flex flex-col gap-4 p-4">
+                        <p class="text-center">Follow the instructions of the booklet<br>and build your Official Set !</p>
+                        <div :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet, false)}), url(${genesisStore.coverBookletRoute(booklet, true)}` }" class="p-4 w-full flex-1 h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain"/>
+                        <div class="flex justify-stretch gap-4">
+                            <a class="flex-1" target="_blank" :href="backendManager.getRoute(`booklet/pdf/${getCurrentNetwork()}/${booklet}.pdf`)"><Btn secondary class="!text-sm w-full">PDF version</Btn></a>
+                            <Btn class="!text-sm flex-1" @click="higherPage">Start building</Btn>
                         </div>
-                        <div :class="`absolute top-0 left-0 justify-center z-1 items-center w-full h-full bg-grad-lightest ${showQrCode ? 'flex' : 'hidden'}`"><canvas :class="`transition-all ${showQrCode ? 'opacity-100' : 'opacity-0'}`" ref="qrCodeCanvas"/></div>
-                        <a
-                            target="_blank" @mouseenter="showQrCode = true" @pointerleave="showQrCode = false" :href="backendManager.getRoute(`booklet/pdf/${getCurrentNetwork()}/${booklet}.pdf`)"
-                            class="absolute z-2 left-4 top-4">
-                            <Btn secondary class="w-10 h-10 p-0"><i class="far fa-qrcode text-xl"/></Btn>
-                        </a>
                     </div>
                 </div>
-                <div class="border-t border-grad-light">
+                <div v-show="!isFirstTime" class="border-t border-grad-light">
                     <div class="mx-4 my-4 relative">
                         <p class="flex justify-between mb-2"><span>Progress</span><span class="text-right font-medium">{{ Math.floor(shapeValidity*100) }}%</span></p>
                         <ProgressBar
