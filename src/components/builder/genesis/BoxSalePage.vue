@@ -122,7 +122,7 @@ p {
     <div class="relative">
         <Header/>
         <div>
-            <div class="container m-auto">
+            <div class="container m-auto min-h-[95vh]">
                 <div class="grid grid-cols-[7fr_5fr] gap-6 my-6">
                     <div class="flex flex-col gap-6">
                         <div class="flex justify-center items-center h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
@@ -141,11 +141,9 @@ p {
                     </div>
                     <div class="flex flex-col gap-4">
                         <p class="mt-1">
-                            <a
-                                @click="router.go(-1)"
-                                class="hover:text-primary cursor-pointer !text-sm">
+                            <router-link :to="`/product/${route.params.theme}`" class="hover:text-primary cursor-pointer !text-sm">
                                 <i class="fa-solid fa-chevron-left mr-2"/> Go back
-                            </a>
+                            </router-link>
                         </p>
                         <h1>{{ boxName }}</h1>
                         <p class="my-2 whitespace-pre-line">{{ item?.description ?? 'Loading' }}</p>
@@ -225,10 +223,6 @@ p {
                             </div>
                         </template>
                     </div>
-                </div>
-                <div>
-                    <h2 class="my-8">Other sets from this theme</h2>
-                    <BoxListing/>
                 </div>
             </div>
         </div>

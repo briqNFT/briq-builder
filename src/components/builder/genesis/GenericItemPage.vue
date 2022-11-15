@@ -68,7 +68,7 @@ p, :slotted(p) {
                                 class="hover:text-primary cursor-pointer !text-sm">
                                 <i class="fa-solid fa-chevron-left mr-2"/> Go back
                             </a>
-                            <MenuDropdown v-if="$slots.dropdown" no-background :must-click="true" class="h-10 w-10">
+                            <MenuDropdown v-if="$slots.dropdown" no-background :must-click="true" class="!h-8 !w-8 p-0">
                                 <template #icon>
                                     <i class="fa-regular fa-ellipsis text-lg"/>
                                 </template>
