@@ -39,24 +39,22 @@ const {
 } = useThemeURLs();
 
 // Wait until we've loaded sale data to show boxes.
-const auctionBoxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
-    return genesisStore.saledata?.[x]?._data?.total_quantity === 1
-}));
-
-const dutchBoxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
-    return genesisStore.saledata?.[x]?._data?.total_quantity > 1
-}));
-
 const wave1Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
     return genesisStore.saledata?.[x]?._data?.wave === '1';
+}).sort((a: string, b: string) => {
+    return genesisStore.saledata![a]._data?.price.cmp(genesisStore.saledata![b]._data?.price);
 }));
 
 const wave2Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
     return genesisStore.saledata?.[x]?._data?.wave === '2';
+}).sort((a: string, b: string) => {
+    return genesisStore.saledata![a]._data?.price.cmp(genesisStore.saledata![b]._data?.price);
 }));
 
 const wave3Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
     return genesisStore.saledata?.[x]?._data?.wave === '3';
+}).sort((a: string, b: string) => {
+    return genesisStore.saledata![a]._data?.price.cmp(genesisStore.saledata![b]._data?.price);
 }));
 
 

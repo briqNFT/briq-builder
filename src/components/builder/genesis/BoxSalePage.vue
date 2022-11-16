@@ -229,13 +229,8 @@ p {
                                     <Btn :disabled="!canBuy" class="!h-auto text-md px-6" @click="buy">Buy now</Btn>
                                 </div>
                                 <div class="p-6 py-4 flex flex-col gap-4">
-                                    <div class="w-full flex justify-between items-baseline">
-                                        <p><span class="font-medium">Sale starts on: </span> (TODO) July 1, 2022 at 11:32 AM GMT+1</p>
-                                        <p>
-                                            <template v-for="i in [['d', 2], ['h', 1], ['m', 24], ['s', 43]]" :key="i[0]">
-                                                <span class="pl-1">{{ i[1] }}{{ i[0] }}</span>
-                                            </template>
-                                        </p>
+                                    <div v-if="saledata?.startIn() > 0" class="w-full flex justify-between items-baseline">
+                                        <p><span class="font-medium">Sale starts on: </span> {{ new Date(saledata.auction_start*1000).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
                                     </div>
                                     <p><span class="font-medium">Availability: </span>{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }}</p>
                                 </div>

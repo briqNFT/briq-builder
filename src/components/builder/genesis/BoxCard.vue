@@ -89,6 +89,11 @@ const shallDisplay = ref(false);
     <div :class="'item-card relative ' + itemQuery._status" @pointerenter="shallDisplay = true">
         <div class="bg-white rounded-md gap-2 shadow-sm">
             <template v-if="itemQuery._status === 'LOADED'">
+                <div
+                    v-if="saledata?.quantity_left === 0"
+                    class="absolute top-4 left-4 z-10 rounded bg-primary bg-opacity-20 text-sm text-primary px-2 py-1">
+                    Sold Out
+                </div>
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
                 <p class="min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 min-h-[13rem] relative">
                     <img v-show="shallDisplay" class="absolute p-12 item-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverItemRoute(tokenName, true)">
