@@ -165,7 +165,7 @@ p {
                         <div>
                             <p>This box contains:</p>
                             <div class="mt-1 mb-2 flex flex-nowrap items-center">
-                                <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-10 brightness-[98%]" :src="genesisStore.coverBookletRoute(token_id)"></p>
+                                <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-10 brightness-[98%]" :src="genesisStore.coverBookletRoute(token_id, true)"></p>
                                 <p>One instruction <span class="font-medium">booklet NFT</span> that you can use to create an Official&nbsp;Set</p>
                             </div>
                             <div class="flex flex-nowrap items-center">
