@@ -140,16 +140,23 @@ const shallDisplay = ref(false);
                         <p v-if="actualMode === 'SALE' && saledata?.total_quantity === 1" class="flex justify-between">
                             <span class="text-grad-dark">Last Bid</span><span class="font-medium">{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span>
                         </p>
-                        <p v-else-if="actualMode === 'SALE'" class="flex justify-between">
-                            <span class="text-grad-dark">Current Price</span><span class="font-medium">{{ readableNumber(saledata.price) }} {{ readableUnit(saledata.price) }}</span>
-                        </p>
-                        <p v-else-if="hasHighestBid" class="flex justify-between">
-                            <span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
-                        </p>
-                        <p v-else class="flex justify-between">
-                            <span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
-                        </p>
-                        <p class="flex justify-between">
+                        <template v-else-if="actualMode === 'SALE'">
+                            <p class="flex justify-between">
+                                <span class="text-grad-dark">Price</span><span class="font-medium">{{ readableNumber(saledata?.price) }} {{ readableUnit(saledata?.price) }}</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span class="text-grad-dark">Briqs</span><span class="font-medium">{{ item?.nb_briqs }}</span>
+                            </p>
+                        </template>
+                        <template v-else-if="actualMode === 'BID'">
+                            <p v-if="hasHighestBid" class="flex justify-between">
+                                <span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                            </p>
+                            <p v-else class="flex justify-between">
+                                <span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                            </p>
+                        </template>
+                        <p v-if="actualMode !== 'SALE' || (saledata?.total_quantity || 2) === 1" class="flex justify-between">
                             <span class="text-grad-dark">Sales End</span>
                             <span v-if="!durationLeft">...</span>
                             <span v-else-if="durationLeft > 24*60*60">{{ Math.floor(durationLeft/24/60/60) }} day(s) left</span>

@@ -51,6 +51,33 @@ const autoFetchable = <T>(wraps: { [prop: string]: Fetchable<T> }, t: (prop: str
     });
 }
 
+const autoMultiFetchable = <T>(
+    wraps: { [prop: string]: Fetchable<T> },
+    propFactory: (data: Promise<unknown>) => Promise<T>,
+    multiQuery: (prop: string) => Promise<{ [prop: string]: unknown }>,
+) => {
+    return new Proxy(wraps, {
+        get: (target, prop: string, receiver): Fetchable<T> => {
+            if (Reflect.has(target, prop))
+                return Reflect.get(target, prop, receiver);
+
+            const promise = multiQuery(prop);
+            target[prop] = new Fetchable<T>();
+            target[prop].fetch(propFactory((async () => (await promise)[prop])()));
+            promise.then(x => {
+                for (const k in x)
+                    if (!target[k]) {
+                        target[k] = new Fetchable<T>();
+                        target[k].fetch(propFactory((async () => (await promise)[k])()));
+                    }
+            });
+            return target[prop];
+        },
+        set: (target, prop, value) => {
+            return Reflect.set(target, prop, value);
+        },
+    });
+}
 
 export class SaleData {
     total_quantity!: number;
@@ -128,7 +155,12 @@ let initialCall = () => {
                 return autoFetchable(state._boxes as any, (theme_id) => backendManager.fetch(`v1/${state.network}/${theme_id}/boxes`));
             },
             saledata(state) {
-                return autoFetchable(state._saledata, async (prop) => new SaleData(await backendManager.fetch(`v1/${state.network}/${prop}/saledata`)));
+                return autoMultiFetchable(
+                    state._saledata,
+                    async (data: Promise<any>) => new SaleData(await data),
+                    // This leverages backend cache, so if we make the same request a lot (such as when loading the theme page) it only goes through once.
+                    async (prop) => await backendManager.fetch(`v1/${state.network}/${prop.split('/')[0]}/saledata`),
+                );
             },
             coverItemRoute() {
                 return (token_id: string, lowQuality = false) => computed(() => {
