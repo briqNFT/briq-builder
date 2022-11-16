@@ -19,8 +19,6 @@ import { getBookletData, getBookletDataSync } from '@/builder/BookletData';
 import { useRoute, useRouter } from 'vue-router';
 import { setsManager } from '@/builder/SetsManager';
 import { useSetHelpers } from '../SetComposable';
-import { pushModal } from '@/components/Modals.vue';
-import UnboxModalVue from './UnboxModal.vue';
 import { useUnboxHelpers } from '@/builder/Unbox';
 import Toggle from '@/components/generic/Toggle.vue';
 import { featureFlags } from '@/FeatureFlags';

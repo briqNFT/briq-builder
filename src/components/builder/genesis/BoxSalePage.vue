@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
-import BoxListing from './BoxListing.vue';
 import { pushModal } from '@/components/Modals.vue';
 import BidModalVue from './BidModal.vue';
 import BuyModalVue from './BuyModal.vue';
@@ -16,8 +15,9 @@ import { useBids } from '@/components/BidComposable';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 
+import BriqsImg from '@/assets/genesis/briqs.png';
+
 const route = useRoute();
-const router = useRouter();
 
 const token_id = computed(() => `${route.params.theme}/${route.params.box}`);
 
@@ -124,7 +124,7 @@ p {
         <Header/>
         <div>
             <div class="container m-auto min-h-[95vh]">
-                <div class="grid grid-cols-[7fr_5fr] gap-6 my-6">
+                <div class="flex flex-col-reverse md:grid md:grid-cols-[7fr_5fr] gap-6 my-6">
                     <div class="flex flex-col gap-6">
                         <div class="relative h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
                             <template v-if="itemQuery._status === 'LOADED'">
@@ -162,11 +162,17 @@ p {
                         </p>
                         <h1>{{ boxName }}</h1>
                         <p class="my-2 whitespace-pre-line">{{ item?.description ?? 'Loading' }}</p>
-                        <h4>Inside this Box</h4>
-                        <ul class="list-outside ml-5 text-sm list-disc">
-                            <li>One instruction <span class="font-medium">booklet NFT</span> that you can use to create an Official&nbsp;Set</li>
-                            <li class="mt-1 mb-6">{{ item?.nb_briqs }} <span class="font-medium">briqs</span>, enough to build the Official&nbsp;Set and then more</li>
-                        </ul>
+                        <div>
+                            <p>This box contains:</p>
+                            <div class="mt-1 mb-2 flex flex-nowrap items-center">
+                                <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-10 brightness-[98%]" :src="genesisStore.coverBookletRoute(token_id)"></p>
+                                <p>One instruction <span class="font-medium">booklet NFT</span> that you can use to create an Official&nbsp;Set</p>
+                            </div>
+                            <div class="flex flex-nowrap items-center">
+                                <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-7" :src="BriqsImg"></p>
+                                <p>{{ item?.nb_briqs }} <span class="font-medium">briqs</span>, enough to build the Official&nbsp;Set and then more</p>
+                            </div>
+                        </div>
                         <template v-if="saledata?.isLive() && saledata?.total_quantity === 1">
                             <h4>Auction</h4>
                             <div class="rounded border border-grad-light overflow-hidden">
@@ -214,7 +220,7 @@ p {
                         </template>
                         <template v-else-if="saledata?.isLive()">
                             <!--<h4>Instant Purchase</h4>-->
-                            <div class="rounded border border-grad-light overflow-hidden">
+                            <div class="rounded border border-grad-light overflow-hidden mt-6">
                                 <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                                     <div>
                                         <h5 class="font-normal text-grad-dark">Price</h5>
