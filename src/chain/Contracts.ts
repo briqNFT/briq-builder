@@ -17,7 +17,9 @@ export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
     localhost: {},
     'starknet-testnet': {},
     'starknet-testnet-legacy': {},
-    'starknet-mainnet': {},
+    'starknet-mainnet': {
+        eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+    },
 };
 
 if (DEV) {
