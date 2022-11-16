@@ -233,6 +233,9 @@ p {
                                         <p><span class="font-medium">Sale starts on: </span> {{ new Date(saledata.auction_start*1000).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
                                     </div>
                                     <p><span class="font-medium">Availability: </span>{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }}</p>
+                                    <div v-if="saledata?.startIn() <= 0" class="w-full flex justify-between items-baseline">
+                                        <p><span class="font-medium">Sale ends on: </span> {{ new Date(saledata.auction_start*1000 + saledata.auction_duration*1000).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
+                                    </div>
                                 </div>
                             </div>
                             <!--
@@ -244,6 +247,9 @@ p {
                                 </ul>
                             </div>
                             -->
+                        </template>
+                        <template v-else-if="saledata?.durationLeft() < 0">
+                            <h4 class="mt-2">Sale is over</h4>
                         </template>
                     </div>
                 </div>
