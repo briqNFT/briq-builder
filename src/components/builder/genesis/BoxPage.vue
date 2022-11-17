@@ -15,6 +15,8 @@ import { getCurrentNetwork } from '@/chain/Network';
 import ItemActivity from './ItemActivity.vue';
 import { maybeStore } from '@/chain/WalletLoading';
 
+import BriqsImg from '@/assets/genesis/briqs.png';
+
 const route = useRoute();
 const genesisStore = useGenesisStore();
 
@@ -76,10 +78,24 @@ const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
         </template>
         <template #default>
             <h1>{{ item?.name }}</h1>
-            <h5 class="mt-2">Sealed Box<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme as string]?._data?.name }}</span></h5>
+            <h5 class="mt-0">Unopened Box<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme as string]?._data?.name }}</span></h5>
             <p class="mt-6 mb-8 whitespace-pre-line">{{ item?.description }}</p>
-            <h2>Unopened box</h2>
-            <p class="mb-4">Your set is still under blister, Unbox it to see what’s inside or keep it closed. Note that once it’s done you can’t go back.</p>
+            <div>
+                <p>This box contains:</p>
+                <div class="mt-1 mb-2 flex flex-nowrap items-center">
+                    <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-10 brightness-[98%]" :src="genesisStore.coverBookletRoute(box_id, true)"></p>
+                    <p>One instruction <span class="font-medium">booklet NFT</span> that you can use to create an Official&nbsp;Set</p>
+                </div>
+                <div class="flex flex-nowrap items-center">
+                    <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-7" :src="BriqsImg"></p>
+                    <p>{{ item?.nb_briqs }} <span class="font-medium">briqs</span>, enough to build the Official&nbsp;Set and then more</p>
+                </div>
+            </div>
+            <p class="mt-4">Your set is still under blister, unbox it to see what’s inside or keep it closed.<br>Note that once it’s opened, you can’t go back.</p>
+            <!--
+            <h2 class="mt-6">Unopened box</h2>
+
+            -->
             <div class="rounded border border-grad-light overflow-hidden mt-6 mb-10">
                 <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                     <div>

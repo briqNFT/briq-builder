@@ -203,7 +203,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
         <template #default>
             <h1>{{ set?.name || bookletData?.name }}</h1>
             <template v-if="mode === 'BOOKLET'">
-                <h5 class="mt-2">Booklet<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme]._data?.name }}</span></h5>
+                <h5 class="mt-0">Booklet<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme]._data?.name }}</span></h5>
                 <p class="mt-6 mb-8 whitespace-pre-line">{{ bookletData?.description }}</p>
                 <template v-if="!set">
                     <h2>Unstarted booklet</h2>
@@ -253,7 +253,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 </div>
             </template>
             <template v-else>
-                <h5 class="mt-2">
+                <h5 class="mt-0">
                     {{ setKind === 'OFFICIAL' ? 'Official set' : 'Personal creation' }}<span class="font-normal"> - minted</span>
                 </h5>
                 <p class="mt-6 whitespace-pre-line">{{ set?.description }}</p>
