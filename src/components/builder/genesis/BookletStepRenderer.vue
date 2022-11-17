@@ -94,9 +94,9 @@ const iridescentMaterialGen = (alpha: string) => new THREE.ShaderMaterial( {
         varying vec3 pos;
         uniform float time;
         void main() {
-            float xb = mod(pos.x + time, 2.0) * 0.7 + 0.1;
-            float yb = mod(pos.y + time, 2.0) * 0.7 + 0.1;
-            float zb = mod(pos.z + time, 2.0) * 0.7 + 0.1;
+            float xb = mod(pos.x + time, 2.0) * 0.9 + 0.1;
+            float yb = mod(pos.y + time, 2.0) * 0.9 + 0.1;
+            float zb = mod(pos.z + time, 2.0) * 0.9 + 0.1;
             gl_FragColor = vec4(xb, yb, zb, 1.0);
             vec3 iri = vec3(xb, yb, zb);
 
@@ -118,9 +118,11 @@ const iridescentMaterialGen = (alpha: string) => new THREE.ShaderMaterial( {
 
 const iridescentMaterial = iridescentMaterialGen('1.0');
 iridescentMaterial.transparent = true;
+iridescentMaterial.name = 'any_color_any_material';
 
 const iridescentMaterialLight = iridescentMaterialGen('0.3');
 iridescentMaterialLight.transparent = true;
+iridescentMaterialLight.name = 'any_color_any_material';
 
 function recreateRenderer() {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -218,6 +220,7 @@ async function useRenderer(canvas: HTMLCanvasElement) {
     const far = 750;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     camera.position.set(-20, 20, 20);
+    camera.layers.enableAll();
 
     orbitControls = new OrbitControls(camera, canvas);
     orbitControls.enableDamping = true;
@@ -252,43 +255,57 @@ async function loadGlbItems(glb_name: string, i: number) {
         borders.traverse(it => {
             if (!it.material)
                 return;
+            it.layers.set(1);
             if (it?.material?.name === '0x1_#1e1e1e')
                 it.material = borderLightMaterial;
             else
                 it.material = borderMaterial;
         });
+        const addIridescence = [] as THREE.Object3D[];
         item.traverse(it => {
             if (!it.material)
                 return;
-            if (it.material.name.search('any') !== -1) {
-                iridescentMaterial.name = 'any_color_any_material';
-                it.material = iridescentMaterial;
-                it.geometry.computeVertexNormals();
-            }
-        });
+            if (it.material.name.search('any') !== -1)
+                addIridescence.push(it);
 
+        });
+        for (const it of addIridescence) {
+            const border = it.clone();
+            border.material = iridescentMaterial;
+            border.geometry.computeVertexNormals();
+            it.add(border);
+        }
+        borders.layers.set(1);
         item.add(borders);
 
         if (i > 0) {
             const previousItem = await loadGlbItem(glb_name, i - 1, 'step_glb');
+            const addIridescence = [] as THREE.Object3D[];
             previousItem.traverse(item => {
                 if (!item.material)
                     return;
-                if (item.material.name.search('any') !== -1) {
-                    iridescentMaterialLight.name = 'any_color_any_material';
-                    item.material = iridescentMaterialLight;
-                    item.geometry.computeVertexNormals();
-                } else {
-                    item.material.fog = true;
-                    item.material.color = (item.material.color as THREE.Color).lerp(new THREE.Color(0xffffff), 0.25);
-                }
+                if (item.material.name.search('any') !== -1)
+                    addIridescence.push(item);
+                item.layers.set(1);
+                item.material.fog = true;
+                item.material.color = (item.material.color as THREE.Color).lerp(new THREE.Color(0xffffff), 0.25);
             });
+            for (const it of addIridescence) {
+                const border = it.clone();
+                border.material = iridescentMaterialLight;
+                border.geometry.computeVertexNormals();
+                it.add(border);
+            }
 
             const previousBorders = previousItem.clone(true);
             previousBorders.traverse(item => {
                 item.material = borderLightMaterial;
+                item.layers.set(1);
             });
+            previousBorders.layers.set(1);
             previousItem.add(previousBorders);
+
+            previousItem.layers.set(1);
             item.add(previousItem);
         }
         if (!glbItemPerNamePerStep[glb_name])
@@ -351,8 +368,11 @@ const sampleColor = (event: MouseEvent) => {
     const x = event.offsetX / canvasRef.value.clientWidth * 2 - 1;
     const y = -((event.offsetY / canvasRef.value.clientHeight) * 2 - 1);
     const rc = new THREE.Raycaster();
+    rc.layers.set(0);
     rc.setFromCamera({ x, y }, camera);
     const obj = rc.intersectObject(scene.children[0], true);
+    if (obj.length >= 2 && obj[1].distance - obj[0].distance < 0.01 && obj[1].object?.material?.name === 'any_color_any_material')
+        obj[0] = obj[1];
     if (obj?.[0]?.object?.material)
         if (obj[0].object.material.name === 'any_color_any_material')
             hoverColor.value = 'any_color_any_material';
