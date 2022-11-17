@@ -126,10 +126,12 @@ export class ShaderGrid {
         ret.material = material;
         this.grid = ret;
         ret.frustumCulled = false;
+        return this;
     }
 
-    place(x, y, z, w = 1, h = 1) {
+    place(x: number, y: number, z: number, w = 1, h = 1) {
         this.grid.position.set(Math.floor(x), Math.floor(y) + 0.01, Math.floor(z));
         this.grid.material.uniforms.size.value = new THREE.Vector2(w - 1, h - 1);
+        return this;
     }
 }

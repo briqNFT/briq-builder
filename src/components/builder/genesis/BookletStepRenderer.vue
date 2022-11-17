@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { backendManager } from '@/Backend';
+import { ShaderGrid } from '@/builder/graphics/ShaderGrid';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { getCurrentNetwork } from '@/chain/Network';
 import {
@@ -332,8 +333,15 @@ async function setupScene() {
     composer.passes[1].enabled = true;
     composer.passes[3].enabled = true;
 
+    const grid = (new ShaderGrid().generate()).place(-50, -0, -50, 100, 100);
+    grid.grid.translateX(-0.5);
+    grid.grid.translateY(-0.5);
+    grid.grid.translateZ(-0.5);
+    scene.add(grid.grid);
+
     if (glbItem)
         scene.add(glbItem);
+
     scene.add(camera);
 
     const ambient = new THREE.AmbientLight(new THREE.Color(0xFFFFFF), 0.6);
