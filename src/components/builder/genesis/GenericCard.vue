@@ -35,8 +35,11 @@ defineProps<{
     <div :class="'item-card relative h-full' + status">
         <div class="bg-white rounded-md gap-2 shadow-sm h-full">
             <template v-if="showPendingMarker">
-                <Tooltip :tooltip="'This item is shown assuming a pending transaction goes through.\nIf the transaction fails, it may disappear.'">
-                    <div class="absolute top-3 right-3 w-4 h-4 p-1  cursor-help"><div class="w-2 h-2 rounded-[50%] bg-info-warning"/></div>
+                <Tooltip tooltip="Some items of this type have pending transactions. Transaction failure could lead to UI changes.">
+                    <div
+                        class="absolute top-4 left-4 select-none z-10 rounded bg-info-info bg-opacity-20 text-sm text-info-info px-2 py-1">
+                        Pending
+                    </div>
                 </Tooltip>
             </template>
             <template v-if="status === 'LOADED'">

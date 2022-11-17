@@ -69,13 +69,6 @@ watchEffect(() => {
         :attributes="attributes">
         <template #full-image="{ status }">
             <div class="relative h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
-                <Tooltip tooltip="Some items of this type have pending transactions. Transaction failure could lead to UI changes.">
-                    <div
-                        v-if="hasPendingActivity"
-                        class="absolute top-4 select-none right-4 z-10 rounded bg-info-info bg-opacity-20 text-sm text-info-info px-2 py-1">
-                        Pending activity
-                    </div>
-                </Tooltip>
                 <template v-if="status === 'LOADED'">
                     <div class="flex justify-center items-center h-full w-full select-none">
                         <div v-show="view === 'PREVIEW'" class="w-full h-full p-4 lg:p-8 xl:p-16 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBoxRoute(box_id)}), url(${genesisStore.coverBoxRoute(box_id, true)})` }"/>

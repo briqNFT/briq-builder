@@ -17,13 +17,17 @@ const nbItems = computed(() => {
     return userBookletsStore?.current?.booklets?.filter(x => x === props.boxId).length ?? '...';
 });
 
+const hasPendingActivity = computed(() => {
+    return (userBookletsStore.current?.metadata?.[props.boxId]?.updates.length ?? 0) > 0;
+});
 
 </script>
 
 <template>
     <GenericCardVue
         :title="bookletData?.name ?? boxId" subtitle="Booklet" :status="!!bookletData ? 'LOADED' : 'ERROR'"
-        :image-src="genesisStore.coverBookletRoute(boxId, true)">
+        :image-src="genesisStore.coverBookletRoute(boxId, true)"
+        :show-pending-marker="hasPendingActivity">
         <template #content>
             <p class="flex justify-between">
                 <span class="attribute">briqs needed</span><span class="font-medium">{{ bookletData?.briqs?.length ?? '?' }}</span>

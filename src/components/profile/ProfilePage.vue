@@ -95,20 +95,6 @@ const inventoryBooklets = computed(() => {
     return ret;
 });
 
-const creations = computed(() => {
-    return userSetStore.current?.sets.map(setId => {
-        if (userSetStore.current?.setData[setId]?.booklet)
-            return undefined;
-        const data = userSetStore.current?.setData[setId];
-        return {
-            id: setId,
-            name: data?.data?.name || setId,
-            nb_briqs: data?.data?.getNbBriqs?.() || 0,
-            created_at: data?.created_at || Date.now(),
-        }
-    }).filter(x => !!x) || [];
-})
-
 const creationsWIP = computed(() => {
     return Object.values(setsManager.setsInfo).filter(x => !x.booklet).map(x => x.getSet()) || [];
 })
@@ -121,6 +107,23 @@ const draftBooklets = computed(() => {
     }) || [];
 })
 
+
+const creations = computed(() => {
+    return userSetStore.current?.sets.map(setId => {
+        if (userSetStore.current?.setData[setId]?.booklet)
+            return undefined;
+        const data = userSetStore.current?.setData[setId];
+        return {
+            id: setId,
+            name: data?.data?.name || setId,
+            nb_briqs: data?.data?.getNbBriqs?.() || 0,
+            created_at: data?.created_at || Date.now(),
+            pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
+        }
+    }).filter(x => !!x) || [];
+})
+
+
 const officialCreations = computed(() => {
     return userSetStore.current?.sets.map(setId => {
         if (!userSetStore.current?.setData[setId]?.booklet)
@@ -131,6 +134,7 @@ const officialCreations = computed(() => {
             name: data?.data?.name || setId,
             nb_briqs: data?.data?.getNbBriqs?.() || 0,
             created_at: data?.created_at || Date.now(),
+            pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
         }
     }).filter(x => !!x) || [];
 })
@@ -390,6 +394,7 @@ div[data-name='menu'] button {
                             :title="creation.name"
                             :image-src="backendManager.getPreviewUrl(creation.id).replace('.png', '.jpg')"
                             class="cursor-pointer"
+                            :show-pending-marker="creation?.pending"
                             @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
                             <template #subtitle>
                                 <p class="mx-4 text-grad-dark relative">
@@ -434,6 +439,7 @@ div[data-name='menu'] button {
                             :title="creation.name"
                             :image-src="backendManager.getPreviewUrl(creation.id).replace('.png', '.jpg')"
                             class="cursor-pointer"
+                            :show-pending-marker="creation?.pending"
                             @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
                             <template #subtitle>
                                 <p class="px-4 text-xs break-all text-grad-dark flex justify-between">

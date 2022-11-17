@@ -26,6 +26,7 @@ import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
 import { pushPopup } from '@/Notifications';
 import DownloadSet from '../modals/DownloadSet.vue';
+import Tooltip from '@/components/generic/Tooltip.vue';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -149,6 +150,13 @@ const nbItems = computed(() => {
     return 1;
 });
 
+const hasPendingActivity = computed(() => {
+    if (mode === 'BOOKLET')
+        return (userBookletsStore.current?.metadata?.[booklet_id.value]?.updates.length ?? 0) > 0;
+    return userSetStore.current?.metadata[route.params.set_id as string]?.status === 'TENTATIVE';
+});
+
+
 const copySetId = () => {
     navigator.clipboard.writeText(route.params.set_id);
     pushPopup('info', 'Set ID copied');
@@ -173,6 +181,13 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
         :attributes="attributes">
         <template #full-image="{ status }">
             <div class="relative h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
+                <Tooltip
+                    v-if="hasPendingActivity"
+                    tooltip="Some items of this type have pending transactions. Transaction failure could lead to UI changes.">
+                    <div class="absolute top-4 select-none right-4 z-10 rounded bg-info-info bg-opacity-20 text-sm text-info-info px-2 py-1">
+                        Pending activity
+                    </div>
+                </Tooltip>
                 <template v-if="status === 'LOADED'">
                     <div class="flex justify-center items-center h-full w-full select-none">
                         <component
@@ -268,7 +283,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                                 <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon :width="12"/></span> {{ set?.getNbBriqs?.() }}
                             </p>
                         </div>
-                        <Btn v-if="isOwned" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
+                        <Btn v-if="isOwned" :disabled="hasPendingActivity" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
                     </div>
                     <div class="p-6 py-4 flex flex-col gap-4">
                         <p><span class="font-medium">Created on: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>

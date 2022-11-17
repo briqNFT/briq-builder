@@ -23,7 +23,7 @@ export function useBoxData(tokenName: string) {
     });
 
     const hasPendingActivity = computed(() => {
-        return userBoxesStore.current?.metadata?.[tokenName]?.updates.length ?? 0 > 0;
+        return (userBoxesStore.current?.metadata?.[tokenName]?.updates.length ?? 0) > 0;
     });
 
     const isUnboxable = computed(() => {
