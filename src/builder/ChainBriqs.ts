@@ -39,7 +39,7 @@ export class ChainBriqs implements perUserStorable {
     // Only store metadata on sets where something is happening. Rest are assumed live.
     metadata = {} as {
         [material: string]: {
-            status: 'TENTATIVE' | 'TENTATIVE_DELETED',
+            status: 'TENTATIVE' | 'DELETING_SOON',
             tx_hash: string,
             quantity: number,
             block: number | undefined,
@@ -96,43 +96,52 @@ export class ChainBriqs implements perUserStorable {
     }
 
     async _parseChainData(chainData: { last_block: number } & { [material: string]: { ft_balance: number; nft_ids: string[] } }) {
-        this.byMaterial = {};
+        const byMaterial = {} as typeof this.byMaterial;
         for (const mat in chainData)
             if (mat !== 'last_block')
-                this.byMaterial[mat] = { ft_balance: chainData[mat].ft_balance, nft_ids: chainData[mat].nft_ids.slice() };
+                byMaterial[mat] = { ft_balance: chainData[mat].ft_balance, nft_ids: chainData[mat].nft_ids.slice() };
 
         let reprocess = false;
+        const promises = new Map<any, Promise<any>>();
         // Process metadata and clean it up where it seems like things went through (this is a bit optimistic but that's probably OK)
         for (const material in this.metadata)
             for (let i = 0; i < this.metadata[material].length; ++i) {
                 const update = this.metadata[material][i];
+                // Clear the metadata if we are now ahead of it.
                 if (update.block && update.block <= chainData.last_block) {
                     this.metadata[material].splice(i--, 1);
                     continue;
                 }
-                if (!update.block) {
+                // Try to fetch some updated data if we don't know the block, but don't block the optimistic processing.
+                if (!update.block && !promises.has(update)) {
                     const _block = maybeStore.value?.getProvider()?.getTransactionBlock(update.tx_hash);
-                    const status = (await _block)?.status;
-                    const block = (await _block)?.block_number;
-                    if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
-                        this.metadata[material].splice(i--, 1);
-                        continue;
-                    }
-                    if (block) {
-                        update.block = block;
-                        if (update.block)
-                            reprocess = true;
-                    }
+                    if (_block)
+                        promises.set(update, _block.then(data => {
+                            const status = data.status;
+                            const block = data.block_number;
+                            if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
+                                this.metadata[material].splice(i--, 1);
+                                return;
+                            }
+                            if (block) {
+                                update.block = block;
+                                if (update.block)
+                                    reprocess = true;
+                            }
+                        }).catch(() => {}));
                 }
-                if (update.status === 'TENTATIVE_DELETED') {
-                    if (this.byMaterial[material])
-                        this.byMaterial[material].ft_balance = Math.max(0, this.byMaterial[material].ft_balance - update.quantity);
+                if (update.status === 'DELETING_SOON') {
+                    if (byMaterial[material])
+                        byMaterial[material].ft_balance = Math.max(0, this.byMaterial[material].ft_balance - update.quantity);
                 } else {
-                    if (!this.byMaterial[material])
-                        this.byMaterial[material] = { ft_balance: 0, nft_ids: [] };
-                    this.byMaterial[material].ft_balance += update.quantity;
+                    if (!byMaterial[material])
+                        byMaterial[material] = { ft_balance: 0, nft_ids: [] };
+                    byMaterial[material].ft_balance += update.quantity;
                 }
             }
+        this.byMaterial = byMaterial;
+        for (const item of promises)
+            await item[1];
         if (reprocess)
             this._parseChainData(chainData);
     }
@@ -153,10 +162,10 @@ export class ChainBriqs implements perUserStorable {
     }
 
     hide(material: string, quantity: number, tx_hash: string, date?: number) {
-        this._add('TENTATIVE_DELETED', material, quantity, tx_hash, date);
+        this._add('DELETING_SOON', material, quantity, tx_hash, date);
     }
 
-    _add(status: 'TENTATIVE' | 'TENTATIVE_DELETED', material: string, quantity: number, tx_hash: string, date?: number) {
+    _add(status: 'TENTATIVE' | 'DELETING_SOON', material: string, quantity: number, tx_hash: string, date?: number) {
         if (!this.metadata[material])
             this.metadata[material] = [];
         this.metadata[material].push({

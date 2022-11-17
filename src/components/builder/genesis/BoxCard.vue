@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { userBidsStore, productBidsStore } from '@/builder/BidStore';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { userBoxesStore } from '@/builder/UserBoxes';
+import Tooltip from '@/components/generic/Tooltip.vue';
 
 const props = defineProps<{
     tokenName: string,
@@ -18,13 +19,11 @@ const {
     saledata,
     getActualMode,
     durationLeft,
+    nbOwned,
+    hasPendingActivity,
 } = useBoxData(props.tokenName);
 
 const actualMode = getActualMode(props.mode);
-
-const nbItems = computed(() => {
-    return userBoxesStore?.current?.availableBoxes?.filter(x => x === props.tokenName).length ?? '...';
-});
 
 const bids = computed(() => userBidsStore.current?.bids ?? []);
 
@@ -90,10 +89,17 @@ const shallDisplay = ref(false);
         <div class="bg-white rounded-md gap-2 shadow-sm">
             <template v-if="itemQuery._status === 'LOADED'">
                 <div
-                    v-if="saledata?.quantity_left === 0"
-                    class="absolute top-4 left-4 z-10 rounded bg-primary bg-opacity-20 text-sm text-primary px-2 py-1">
+                    v-if="actualMode === 'SALE' && saledata?.quantity_left === 0"
+                    class="absolute top-4 left-4 select-none z-10 rounded bg-primary bg-opacity-20 text-sm text-primary px-2 py-1">
                     Sold Out
                 </div>
+                <Tooltip tooltip="Some items of this type have pending transactions. Transaction failure could lead to UI changes.">
+                    <div
+                        v-if="actualMode === 'INVENTORY' && hasPendingActivity"
+                        class="absolute top-4 left-4 select-none z-10 rounded bg-info-info bg-opacity-20 text-sm text-info-info px-2 py-1">
+                        Pending
+                    </div>
+                </Tooltip>
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
                 <p class="min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 min-h-[13rem] relative">
                     <img v-show="shallDisplay" class="absolute p-12 item-display min-h-0 min-w-0 max-h-full max-w-full" :src="genesisStore.coverItemRoute(tokenName, true)">
@@ -135,7 +141,7 @@ const shallDisplay = ref(false);
                         </p>
                         <p class="flex justify-between">
                             <span class="text-grad-dark">You own</span>
-                            <span class="font-medium">{{ nbItems }}</span>
+                            <span class="font-medium">{{ nbOwned }}</span>
                         </p>
                     </div>
                 </template>

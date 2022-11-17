@@ -1,8 +1,9 @@
-import { markRaw, reactive, Ref, toRaw, watchEffect } from 'vue';
+import { markRaw, reactive, Ref, toRaw, watch, watchEffect } from 'vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import type { UserID, WalletStore } from '@/chain/Wallet';
 import { APP_ENV } from '@/Meta';
 import { logDebug } from '@/Messages';
+import { store } from '@/store/Store';
 
 export interface perUserStorable {
     user_id: string;
@@ -72,13 +73,20 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
                 if (event.key !== storeName)
                     return;
                 for (const wallet in this._perWallet)
-                    this._perWallet[wallet]._onStorageChange?.(JSON.parse(event.newValue!));
+                    try {
+                        this._perWallet[wallet]._onStorageChange?.(JSON.parse(event.newValue!).data[wallet]);
+                    } catch(err) {
+                        if (APP_ENV === 'dev')
+                            console.error(err)
+                    }
             });
 
             _walletInitComplete.then(() => {
-                watchEffect(() => {
+                watch([_maybeStore.value], () => {
                     const old = this.currentWallet;
                     this.currentWallet = _maybeStore.value?.user_id || undefined;
+                    if (old === this.currentWallet)
+                        return;
                     if (this.currentWallet && !this._perWallet[this.currentWallet]) {
                         this._perWallet[this.currentWallet] = new classType();
                         this._perWallet[this.currentWallet].user_id = this.currentWallet;
@@ -89,6 +97,8 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
                         this._perWallet[old].onLeave?.(old, this.currentWallet);
                     if (this.currentWallet)
                         this.current!.onEnter?.(old, this.currentWallet);
+                }, {
+                    deep: true,
                 });
                 this._setup = 'WALLET_LOADED';
             })

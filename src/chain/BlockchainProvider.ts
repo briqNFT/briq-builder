@@ -19,6 +19,7 @@ class BlockchainProvider {
     }
 
     async getTransactionBlock(tx_hash: string) {
+        console.log('totoro', this.provider)
         const data = (await (await fetch(`${this.provider.provider.feederGatewayUrl}/get_transaction?transactionHash=${tx_hash}`)).json());
         return {
             block_number: data.block_number,
@@ -39,6 +40,7 @@ import { getProvider } from './Provider';
 export const blockchainProvider = ref(undefined as undefined | BlockchainProvider);
 
 watchEffect(() => {
+    console.log('totoro', getProvider());
     blockchainProvider.value = new BlockchainProvider(getProvider());
     logDebug('SWITCHING BLOCKCHAIN PROVIDER TO ', getCurrentNetwork());
 });

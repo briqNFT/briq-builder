@@ -11,7 +11,9 @@ class UserBoxesStore implements perUserStorable {
     metadata = {} as { [id: string]: {
         box_id: string,
         updates: {
-            status: 'TENTATIVE' | 'TENTATIVE_DELETED',
+            // TENTATIVE_PENDING is a special state to indicate that something is pending,
+            // which we use to lock/unlock the unbox button.
+            status: 'TENTATIVE' | 'TENTATIVE_PENDING' | 'DELETING_SOON',
             tx_hash: string,
             block: number | undefined,
             date: number,
@@ -25,7 +27,7 @@ class UserBoxesStore implements perUserStorable {
             if (this.metadata[id].updates.length)
                 meta[id] = this.metadata[id];
         return {
-            boxes: this._availableBoxes,
+            boxes: this._availableBoxes || [],
             metadata: meta,
         }
     }
@@ -50,42 +52,70 @@ class UserBoxesStore implements perUserStorable {
     }
 
     async _updateData(data: any) {
-        this._availableBoxes = data.box_token_ids.slice();
+        const boxes = data.box_token_ids.slice();
         let reprocess = false;
+        const promises = new Map<any, Promise<any>>();
         // Process metadata and clean it up where it seems like things went through (this is a bit optimistic but that's probably OK)
         for (const id in this.metadata)
             for (let i = 0; i < this.metadata[id].updates.length; ++i) {
                 const update = this.metadata[id].updates[i];
+                // Clear the metadata if we are now ahead of it.
                 if (update.block && update.block <= data.last_block) {
                     this.metadata[id].updates.splice(i--, 1);
                     continue;
                 }
-                if (!update.block) {
+                // Try to fetch some updated data if we don't know the block, but don't block the optimistic processing.
+                if (!update.block && !promises.has(update)) {
                     const _block = maybeStore.value?.getProvider()?.getTransactionBlock(update.tx_hash);
-                    const status = (await _block)?.status;
-                    const block = (await _block)?.block_number;
-                    if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
-                        this.metadata[id].updates.splice(i--, 1);
-                        continue;
-                    }
-                    if (block) {
-                        update.block = block;
-                        if (update.block)
-                            reprocess = true;
-                    }
+                    if (_block)
+                        promises.set(update, _block.then(data => {
+                            const status = data.status;
+                            const block = data.block_number;
+                            if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
+                                this.metadata[id].updates.splice(i--, 1);
+                                reprocess = true;
+                                return;
+                            }
+                            if (update.status === 'TENTATIVE' && (status === 'PENDING' || status === 'ACCEPTED_ON_L2' || status === 'ACCEPTED_ON_L1'))
+                                update.status = 'TENTATIVE_PENDING';
+                            if (block) {
+                                update.block = block;
+                                if (update.block)
+                                    reprocess = true;
+                            }
+                        }).catch(() => {}));
                 }
-                if (update.status === 'TENTATIVE_DELETED') {
-                    const idx = this._availableBoxes.indexOf(id);
+                if (update.status === 'DELETING_SOON') {
+                    const idx = boxes.indexOf(id);
                     if (idx !== -1)
-                        this._availableBoxes.splice(idx, 1);
+                        boxes.splice(idx, 1);
                 } else
-                    this._availableBoxes.push(id);
+                    boxes.push(id);
             }
+        // Update locally, then wait for pending stuff and see if we need to reprocess.
+        this._availableBoxes = boxes;
+        for (const item of promises)
+            await item[1];
         if (reprocess)
             this._updateData(data);
     }
 
     onEnter() {
+        /*
+        this.metadata['starknet_city_ongoing/spaceman'] = {
+            box_id: 'starknet_city_ongoing/spaceman',
+            updates: [{
+                tx_hash: '0xcafe',
+                block: undefined,
+                status: 'TENTATIVE',
+                date: Date.now(),
+            },
+            ],
+        }
+        setTimeout(() => {
+            this.metadata['starknet_city_ongoing/spaceman'].updates[0].status = 'TENTATIVE_PENDING'
+        }, 6000);
+        */
         this.fetchData();
     }
 
@@ -98,11 +128,11 @@ class UserBoxesStore implements perUserStorable {
     }
 
     hideOne(box_id: string, tx_hash: string, date?: number) {
-        this._addOne('TENTATIVE_DELETED', box_id, tx_hash, date);
+        this._addOne('DELETING_SOON', box_id, tx_hash, date);
 
     }
 
-    _addOne(status: 'TENTATIVE' | 'TENTATIVE_DELETED', box_id: string, tx_hash: string, date?: number) {
+    _addOne(status: 'TENTATIVE' | 'DELETING_SOON', box_id: string, tx_hash: string, date?: number) {
         if (!this.metadata[box_id])
             this.metadata[box_id] = {
                 box_id: box_id,

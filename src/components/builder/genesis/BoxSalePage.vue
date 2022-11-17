@@ -42,6 +42,7 @@ const attributes = computed(() => {
         { name: 'Serial Number', value: `#${item.value.token_id}` },
         { name: 'Theme', value: genesisStore.themedata[route.params.theme as string]?._data?.name },
         { name: 'Artist', value: props.artist.value },
+        { name: 'Total Supply', value: saledata.value?.total_quantity },
         { name: 'Year', value: new Date(props.date.value).getFullYear() },
         { name: '# of briqs', value: props.nb_briqs.value },
     ]
