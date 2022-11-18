@@ -443,9 +443,9 @@ watchEffect(() => {
     if (!canvasObj.value)
         return;
     if(!hoverColor.value)
-        document.body.style.cursor = 'move';
+        canvasObj.value.style.cursor = 'move';
     else
-        document.body.style.cursor = `url(${Pipette}) 0 16, move`;
+        canvasObj.value.style.cursor = `url(${Pipette}) 0 16, move`;
 })
 </script>
 
