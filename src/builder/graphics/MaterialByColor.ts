@@ -74,9 +74,10 @@ export class MaterialByColor {
             if (col === '')
                 continue;
             const color = new THREE.Color(col).convertSRGBToLinear();
-            data[i * 4] = color.r * 255;
-            data[i * 4 + 1] = color.g * 255;
-            data[i * 4 + 2] = color.b * 255;
+            // Cheat on colors so that full black isn't perfect black, or borders become completely invisible.
+            data[i * 4] = color.r * 253 + 2;
+            data[i * 4 + 1] = color.g * 253 + 2;
+            data[i * 4 + 2] = color.b * 253 + 2;
             data[i * 4 + 3] = 255;
             ++i;
         }
