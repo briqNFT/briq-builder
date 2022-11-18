@@ -37,7 +37,7 @@ defineProps<{
             <template v-if="showPendingMarker">
                 <Tooltip tooltip="Some items of this type have pending transactions. Transaction failure could lead to UI changes.">
                     <div
-                        class="absolute top-4 left-4 select-none z-10 rounded bg-info-info bg-opacity-20 text-sm text-info-info px-2 py-1">
+                        class="absolute top-4 left-4 select-none z-10 rounded bg-info-info bg-opacity-10 text-sm text-info-info px-2 py-1">
                         Pending
                     </div>
                 </Tooltip>

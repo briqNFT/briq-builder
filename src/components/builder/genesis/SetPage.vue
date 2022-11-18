@@ -184,7 +184,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <Tooltip
                     v-if="hasPendingActivity"
                     tooltip="Some items of this type have pending transactions. Transaction failure could lead to UI changes.">
-                    <div class="absolute top-4 select-none right-4 z-10 rounded bg-info-info bg-opacity-20 text-sm text-info-info px-2 py-1">
+                    <div class="absolute top-4 select-none right-4 z-10 rounded bg-info-info bg-opacity-10 text-sm text-info-info px-2 py-1">
                         Pending activity
                     </div>
                 </Tooltip>
@@ -236,7 +236,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                     <div class="p-6 flex justify-between items-stretch bg-grad-lightest gap-4">
                         <div class="flex-1">
                             <h5 class="font-normal text-grad-dark">Progress</h5>
-                            <p class="text-lg font-semibold pt-1 flex justify-center items-center gap-3">
+                            <p class="text-xl font-semibold pt-1 flex justify-center items-center gap-3">
                                 {{ Math.floor(bookletMetadata?.shapeValidity.value * 100) || 0 }}%<ProgressBar class="h-3" :percentage="bookletMetadata?.shapeValidity.value * 100 || 0"/>
                             </p>
                         </div>

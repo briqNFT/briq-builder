@@ -113,14 +113,14 @@ watchEffect(() => {
                         -->
                         <div class="flex flex-col justify-between">
                             <h5 class="font-normal text-grad-dark">Currently owned</h5>
-                            <p class="text-lg font-semibold pt-1">{{ nbOwned === 1 ? '1 box' : `${nbOwned} boxes` }}</p>
+                            <p class="text-xl font-semibold">{{ nbOwned === 1 ? '1 box' : `${nbOwned} boxes` }}</p>
                         </div>
                         <RouterLink v-if="isUnboxable" :to="{ name: 'Unboxing', params: { theme: route.params.theme, box: route.params.box } }">
                             <Btn class="h-auto text-md px-6 py-[1.125rem]">Unbox</Btn>
                         </RouterLink>
                         <template v-else>
-                            <Btn :disabled="true" no-style class="h-auto text-sm px-4 py-[1.25rem] bg-info-info rounded-sm bg-opacity-20 text-info-info">
-                                <i class="far fa-loader animate-spin mr-2"/> Pending transaction
+                            <Btn :disabled="true" no-style class="h-auto text-sm pl-4 pr-6 py-4 bg-info-info rounded bg-opacity-10 text-info-info">
+                                <i class="text-lg far fa-loader animate-spin mr-3"/> Pending transaction
                             </Btn>
                         </template>
                     </div>
