@@ -319,7 +319,7 @@ div[data-name='menu'] button {
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
                     <h4>Custom Sets</h4>
-                    <p class="text-sm mt-1">Work in progress sets are stored on this computer only and shared across wallets.</p>
+                    <p class="text-sm mt-1">Sets you have started but haven't minted yet. They are stored locally on this computed only.</p>
                     <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have work-in-progress sets.</p>
                         <p>Get some briqs and start building!</p>
@@ -367,7 +367,7 @@ div[data-name='menu'] button {
                     <a id="official" class="relative bottom-[80px]"/>
                     <h4>Official Sets</h4>
                     <p class="text-sm mt-1">You can only have one WIP for each Booklet type. Like Custom Sets, these are stored locally on your computer.</p>
-                    <div v-if="!userBookletsStore.current?.booklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
+                    <div v-if="!draftBooklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any work-in-progress official sets.</p>
                         <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
                         <Btn secondary class="mt-2">Browse the themes</Btn>
@@ -381,6 +381,7 @@ div[data-name='menu'] button {
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
                     <h4>Custom Sets</h4>
+                    <p class="text-sm mt-1">These are minted NFTs that you have created yourself or got from someone else!</p>
                     <div v-if="!creations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">
                             You have not yet created a set yourself. <br> Let your imagination run free!
@@ -425,6 +426,7 @@ div[data-name='menu'] button {
                 <div v-show="showSection('OFFICIAL')">
                     <a id="official" class="relative bottom-[80px]"/>
                     <h4>Official Sets</h4>
+                    <p class="text-sm mt-1">These are minted NFTs from the briq official collection.</p>
                     <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have any official Genesis sets.</p>
                         <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
