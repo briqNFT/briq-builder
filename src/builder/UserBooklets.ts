@@ -94,11 +94,11 @@ class UserBookletsStore implements perUserStorable {
                         }).catch(() => {}));
                 }
                 if (update.status === 'DELETING_SOON') {
-                    const idx = this._booklets.indexOf(bookletId);
+                    const idx = booklets.indexOf(bookletId);
                     if (idx !== -1)
-                        this._booklets.splice(idx, 1);
+                        booklets.splice(idx, 1);
                 } else
-                    this._booklets.push(bookletId);
+                    booklets.push(bookletId);
             }
         // Update locally, then wait for pending stuff and see if we need to reprocess.
         this._booklets = booklets;

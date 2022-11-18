@@ -32,6 +32,7 @@ const {
     isUnboxable,
 } = useBoxData(box_id.value);
 
+const nbSetBriqs = computed(() => (item.value?.nb_briqs || 0) - (item.value?.nb_briqs_extra || 0))
 
 const attributes = computed(() => {
     if (!item.value)
@@ -43,7 +44,7 @@ const attributes = computed(() => {
         { name: 'Artist', value: props.artist.value },
         { name: 'Total Supply', value: saledata.value?.total_quantity },
         { name: 'Year', value: new Date(props.date.value).toLocaleDateString('en-uk', { year: 'numeric', month: 'short' }) },
-        { name: '# of briqs', value: props.nb_briqs.value },
+        { name: '# of briqs', value: `${nbSetBriqs.value} + ${item.value?.nb_briqs_extra} extra` },
     ]
 });
 
@@ -87,7 +88,7 @@ const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
                     </div>
                     <div class="flex flex-nowrap items-center">
                         <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-7" :src="BriqsImg"></p>
-                        <p>{{ item?.nb_briqs }} <span class="font-medium">briqs</span>, enough to build the Official&nbsp;Set and then more</p>
+                        <p>{{ item?.nb_briqs }} <span class="font-medium"> briqs</span>, enough to build the Official&nbsp;Set and then more</p>
                     </div>
                 </div>
                 <div class="rounded border border-grad-light overflow-hidden mt-6 mb-10">
@@ -107,7 +108,7 @@ const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
                         </RouterLink>
                         <template v-else>
                             <Btn
-                                :disabled="true" tooltip="Your purchase transaction is not yet PENDING. Please wait to start unboxing."
+                                :disabled="true" tooltip="Purchase confirmation is still being processed on StarkNet. Please wait a little bit more!"
                                 no-style class="h-auto text-sm pl-4 pr-6 py-4 bg-info-info rounded bg-opacity-10 text-info-info">
                                 <i class="text-lg far fa-loader animate-spin mr-3"/> Pending transaction
                             </Btn>

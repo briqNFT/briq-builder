@@ -29,7 +29,7 @@ class BackendManager {
     }
 
     getPreviewUrl(set_id: string, chain_id: string = getCurrentNetwork()) {
-        return `${this.url}/v1/preview/${chain_id}/${set_id}`;
+        return `${this.url}/v1/preview/${chain_id}/${set_id}.png`;
     }
 
     storeSet(data: { owner: string, token_id: string, chain_id: string, data: any, image_base64: any, message_hash?: string, signature?: any}) {

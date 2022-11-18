@@ -319,7 +319,9 @@ button:not(.btn):not(.nostyle)::before {
                 <Btn secondary class="!font-normal" @click="$emit('close')">Cancel</Btn>
                 <div class="inline-flex grow justify-end"><Btn no-background class="!font-normal self-end" @click="downloadSet">Save file locally</Btn></div>
                 <Btn v-if="isUnboxed" primary class="self-end" @click="startMinting">Mint</Btn>
-                <Btn v-else :disabled="true" tooltip="Your unbox transaction is not yet PENDING. Please wait to mint." no-style class="h-auto text-sm pl-4 pr-6 py-3 bg-info-info rounded bg-opacity-10 text-info-info">
+                <Btn
+                    v-else :disabled="true" tooltip="Unbox confirmation is still being processed on StarkNet. Please wait a little bit more!"
+                    no-style class="h-auto text-sm pl-4 pr-6 py-3 bg-info-info rounded bg-opacity-10 text-info-info">
                     <i class="text-lg far fa-loader animate-spin mr-3"/> Pending unboxing
                 </Btn>
             </div>

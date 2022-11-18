@@ -127,6 +127,7 @@ export interface BoxMetadata {
     auction_id: number;
     token_id: number;
     nb_briqs: number;
+    nb_briqs_extra: number;
     properties: Record<string, any>;
     version: number;
 }

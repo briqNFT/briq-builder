@@ -35,6 +35,8 @@ const {
 const themeName = computed(() => route.params.theme);
 const boxName = computed(() => item.value?.name ?? route.params.box);
 
+const nbSetBriqs = computed(() => (item.value?.nb_briqs || 0) - (item.value?.nb_briqs_extra || 0))
+
 const attributes = computed(() => {
     if (!item.value)
         return [];
@@ -45,7 +47,7 @@ const attributes = computed(() => {
         { name: 'Artist', value: props.artist.value },
         { name: 'Total Supply', value: saledata.value?.total_quantity },
         { name: 'Year', value: new Date(props.date.value).getFullYear() },
-        { name: '# of briqs', value: props.nb_briqs.value },
+        { name: '# of briqs', value: `${nbSetBriqs.value} + ${item.value?.nb_briqs_extra} extra` },
     ]
 });
 
@@ -172,7 +174,7 @@ p {
                             </div>
                             <div class="flex flex-nowrap items-center">
                                 <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-7" :src="BriqsImg"></p>
-                                <p>{{ item?.nb_briqs }} <span class="font-medium">briqs</span>, enough to build the Official&nbsp;Set and then more</p>
+                                <p>{{ item?.nb_briqs }}<span class="font-medium"> briqs</span>, enough to build the Official&nbsp;Set and then more</p>
                             </div>
                         </div>
                         <p v-if="nbOwned" class="mb-0">You already own <span class="text-primary">{{ nbOwned }}</span> {{ nbOwned > 1 ? 'such boxes' : 'such box' }}</p>

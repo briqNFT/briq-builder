@@ -104,6 +104,7 @@ const sapinState = new class implements FsmState {
     async onEnter() {}
     frame(delta: number) {
         sceneBox.rotateY(Math.PI/8*delta);
+        console.log(sceneBox.quaternion.clone())
     }
 }
 
@@ -111,15 +112,23 @@ const unboxingState = new class implements FsmState {
     rt: any;
     step = 0;
     async onEnter() {
-        this.rt = sceneBox.quaternion;
+        this.rt = sceneBox.quaternion.clone();
     }
 
     frame(delta: number) {
-        const tg = new THREE.Quaternion(0, 1, 0, -0.12);
-        const qt = sceneBox.quaternion.slerpQuaternions(this.rt, tg, this.step);
-        sceneBox.quaternion.set(qt.x, qt.y, qt.z, qt.w);
-        this.step += delta * 0.1;
-        if (sceneBox.quaternion.angleTo(tg) === 0)
+        const tg = new THREE.Quaternion(0, -0.99, 0, 0.125);
+
+        const ease = 1.0;
+        const curve = new THREE.CubicBezierCurve(
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(ease, 0),
+            new THREE.Vector2(1 - ease, 1),
+            new THREE.Vector2(1, 1),
+        );
+
+        sceneBox.quaternion.slerpQuaternions(this.rt, tg, Math.min(1.0, curve.getPoint(Math.min(1.0, this.step)).y));
+        this.step += delta;
+        if (this.step >= 1.0)
             fsm.switchTo('UNBOXING_OPEN')
     }
 }
@@ -230,7 +239,7 @@ const unboxingOpenState = new class implements FsmState {
             this.briqStep += delta / 2;
         }
 
-        if (this.time >= 13.5)
+        if (this.time >= 12.75)
             fsm.switchTo('UNBOXED');
 
     }
