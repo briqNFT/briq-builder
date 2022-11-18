@@ -2,7 +2,7 @@
 import GenericCard from '../builder/genesis/GenericCard.vue';
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { useBooklet } from '../builder/BookletComposable';
-import { toRef } from 'vue';
+import { computed, toRef } from 'vue';
 import { useSetHelpers } from '../builder/SetComposable';
 import ProgressBar from '../generic/ProgressBar.vue';
 
@@ -19,9 +19,13 @@ const {
 
 const { shapeValidity, bookletData } = useBooklet(undefined, toRef(props.creation, 'booklet'));
 
-const getPreview = (id: string) => {
-    return window.localStorage.getItem('set_preview_' + id);
-}
+// Show at least 1% because seeing 0% is weird af.
+const progress = computed(() => {
+    const value = Math.floor(shapeValidity.value * 100);
+    if (value === 0)
+        return 1;
+    return value;
+})
 </script>
 
 <template>
@@ -39,7 +43,7 @@ const getPreview = (id: string) => {
             </p>
             <p class="flex justify-between">
                 <span class="attribute">Progress</span>
-                <span class="font-medium flex-1 ml-8 inline-flex items-baseline gap-2"><ProgressBar class="h-2 p-0 !m-0" :percentage="Math.floor(shapeValidity*100)"/>{{ Math.floor(shapeValidity*100) }}%</span>
+                <span class="font-medium flex-1 ml-8 inline-flex items-baseline gap-2"><ProgressBar class="h-2 p-0 !m-0" :percentage="progress"/>{{ progress }}%</span>
             </p>
         </template>
     </GenericCard>

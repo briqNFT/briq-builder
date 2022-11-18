@@ -107,7 +107,7 @@ const menuOpen = ref(false);
         </div>
         <div class="flex-1 basis-1 flex lg:justify-end">
             <div v-if="booklet" class="rounded bg-grad-lightest border mr-2 flex justify-center items-center p-1">
-                <Btn no-background :force-active="!minimized" @click="minimized = !minimized"><i class="fa-solid fa-book-open"/></Btn>
+                <Btn no-background :force-active="!minimized" @click="minimized = !minimized"><i class="far fa-book-open"/></Btn>
             </div>
             <div class="flex items-stretch gap-1 p-1 border bg-grad-lightest rounded">
                 <template v-if="maybeStore?.userWalletAddress">
