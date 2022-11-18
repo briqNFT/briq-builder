@@ -1,21 +1,8 @@
-<script setup lang="ts">
-import { ref } from 'vue';
-
-const positionHack = ref(false);
-const vMounted = {
-    mounted: (el: HTMLElement) => {
-        positionHack.value = !positionHack.value;
-    },
-}
-
-</script>
 <template>
     <div
-        v-if="show"
         class="fixed z-[100] bg-grad-darker text-grad-lighter rounded pointer-events-none px-4 py-2 leading-normal shadow font-normal text-sm w-max whitespace-pre-line"
         :style="getPositionCSS"
-        ref="tooltipDiv"
-        v-mounted>
+        ref="tooltipDiv">
         {{ tooltip }}
     </div>
 </template>
@@ -35,6 +22,7 @@ export default defineComponent({
             lastChange: Date.now(),
             timeout: undefined as number | undefined,
             show: false,
+            posHack: 0,
             mx: 0,
             my: 0,
             dx: 0,
@@ -48,10 +36,12 @@ export default defineComponent({
         },
         getPositionCSS() {
             this.show;
-            this.positionHack;
+            this.posHack;
+            this.tooltip;
             let ret = {
                 left: `${this.mx + 10}px`,
                 top: `${this.my + 10}px`,
+                opacity: this.show ? 100 : 0,
             } as any;
             if (!this.$refs.tooltipDiv)
                 return ret;
@@ -75,8 +65,6 @@ export default defineComponent({
         updateMousePos(event: MouseEvent) {
             this.dx = event.clientX;
             this.dy = event.clientY;
-            if (!this.show)
-                return;
             this.mx = this.dx;
             this.my = this.dy;
         },
@@ -120,7 +108,9 @@ export default defineComponent({
                 this.lastChange = Date.now();
             } else
                 clearTimeout(this.timeout);
-
+        },
+        tooltip() {
+            setTimeout(() => this.posHack += 1, 0);
         },
     },
 });
