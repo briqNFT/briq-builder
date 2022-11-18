@@ -175,7 +175,7 @@ onBeforeUnmount(() => watcher());
 
 <template>
     <div v-if="booklet && !minimized" class="mx-1 sm:mx-2 sm:mt-2 w-fit min-w-[16rem] float-right border border-grad-light !shadow-none !text-sm rounded-md bg-grad-lightest select-none">
-        <h6 class="font-semibold text-sm leading-figma bg-grad-lighter bg-opacity-50 rounded-t-md px-4 py-3">Booklet</h6>
+        <h6 class="font-semibold text-sm leading-figma bg-grad-lighter rounded-t-md px-4 py-3">Booklet</h6>
         <div class="flex-col">
             <template v-if="!!bookletData">
                 <div v-show="!isFirstTime" class="flex px-1 py-1 text-sm font-medium justify-between items-center border-b border-grad-light">

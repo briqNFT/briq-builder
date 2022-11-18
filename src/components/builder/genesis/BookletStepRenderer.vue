@@ -475,7 +475,7 @@ watchEffect(() => {
     <div ref="canvasObj" class="flex justify-center items-center w-full h-full">
         <canvas class="w-full h-full" ref="canvasRef" @mousemove="sampleColor" @mousedown="startSelectHoveredColor" @mouseup="selectHoveredColor"/>
     </div>
-    <Btn v-if="userSet" @click="resetCamera" no-style class="w-10 h-10 absolute m-1 top-0 right-0 overlay hover:fill-primary p-3"><CrossHairs/></Btn>
+    <Btn v-if="userSet" @click="resetCamera" no-style class="w-10 h-10 absolute m-1 top-0 right-0 overlay fill-text-on-background hover:fill-primary p-3"><CrossHairs/></Btn>
     <p v-if="hoverColor" class="absolute pointer-events-none top-0 left-0 ml-1 mt-1 p-3 min-w-[7rem] flex items-center gap-1 overlay">
         <template v-if="hoverColor.name === 'any_color_any_material'">
             <span class="w-4 h-4 rounded-sm rainbow mr-1.5"/> Any color you like

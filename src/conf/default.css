@@ -23,18 +23,18 @@ html, ::before, ::after {
 }
 
 html.dark, .dark *::before, .dark *::after {
-    --color-background: 23 23 23;
+    --color-background: 17 17 40;
     --color-primary: 243 88 0;
     --color-primary-darker: 225 81 0;
     --color-primary-lighter: 255 113 31;
     --color-primary-lightest: 245 170 128;
 
-    --color-grad-lightest: 45 45 45;
-    --color-grad-lighter: 83 83 83;
-    --color-grad-light: 105 105 116;
-    --color-grad-dark: 189 212 215;
-    --color-grad-darker: 222 223 225;
-    --color-grad-darkest: 235 235 235;
+    --color-grad-darkest: 5 5 5;
+    --color-grad-darker: 255 255 255;
+    --color-grad-dark: 229 232 235;
+    --color-grad-light: 51 51 116;
+    --color-grad-lighter: 39 39 90;
+    --color-grad-lightest: 30 30 68;
 
     --color-info-info: 0 149 235;
     --color-info-warning: 246 200 68;

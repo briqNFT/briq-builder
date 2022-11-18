@@ -9,7 +9,7 @@ export const CONF = {
     builderSettings: {
         darkMode: {
             gridColor: '#999999',
-            backgroundColor: '#1e2229',
+            backgroundColor: '#1E1E44',
         },
         lightMode: {
             gridColor: '#eaeaea',

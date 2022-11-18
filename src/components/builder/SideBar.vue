@@ -29,7 +29,7 @@ const unproject = (n: { x: number, y: number, z: number }) => {
         <Flyout
             v-if="activeInputButton === 'select'"
             class="border border-grad-light !shadow-none !text-sm mt-2">
-            <div class="bg-background px-4 py-3 rounded-t">
+            <div class="bg-grad-lighter px-4 py-3 rounded-t">
                 <h4 class="font-semibold text-sm leading-figma">Selection tool</h4>
             </div>
             <div class="p-2 flex flex-col select-none">

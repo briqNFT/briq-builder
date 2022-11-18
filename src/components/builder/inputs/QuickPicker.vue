@@ -105,7 +105,7 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
 <template>
     <div class="flex flex-col">
         <div class="rounded border border-grad-light bg-grad-lightest max-w-[14.5rem] !text-sm">
-            <div class="bg-background p-4 py-3 rounded-t">
+            <div class="bg-grad-lighter p-4 py-3 rounded-t">
                 <h4 class="font-semibold text-sm leading-figma">Color palette</h4>
             </div>
             <div class="pl-4 pr-2 pb-4 pt-3">
