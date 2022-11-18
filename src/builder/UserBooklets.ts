@@ -12,12 +12,16 @@ class UserBookletsStore implements perUserStorable {
     metadata = {} as { [id: string]: {
         booklet_id: string,
         updates: {
-            status: 'TENTATIVE' | 'DELETING_SOON',
+            // TENTATIVE_PENDING is a special state to indicate that something is pending,
+            // which we use to lock/unlock the unbox button.
+            status: 'TENTATIVE' | 'TENTATIVE_PENDING' | 'DELETING_SOON',
             tx_hash: string,
             block: number | undefined,
             date: number,
         }[],
     }};
+
+    polling!: number;
 
     _serialize() {
         const meta = {};
@@ -48,6 +52,7 @@ class UserBookletsStore implements perUserStorable {
                 const booklet_id = setsManager.setsInfo[setId].booklet;
                 if (booklet_id && this.booklets.indexOf(booklet_id) === -1)
                     setsManager.deleteLocalSet(setId);
+
             }
         } catch(ex) {
             console.error(ex);
@@ -79,6 +84,8 @@ class UserBookletsStore implements perUserStorable {
                                 reprocess = true;
                                 return;
                             }
+                            if (update.status === 'TENTATIVE' && (status === 'PENDING' || status === 'ACCEPTED_ON_L2' || status === 'ACCEPTED_ON_L1'))
+                                update.status = 'TENTATIVE_PENDING';
                             if (block) {
                                 update.block = block;
                                 if (update.block)
@@ -115,6 +122,12 @@ class UserBookletsStore implements perUserStorable {
         }
         */
         this.fetchData();
+        this.polling = setInterval(() => this.fetchData(), 10000);
+    }
+
+    onLeave() {
+        if (this.polling)
+            clearTimeout(this.polling);
     }
 
     get booklets() {

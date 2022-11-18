@@ -32,7 +32,6 @@ export function useBoxData(tokenName: string) {
         const metaActivity = userBoxesStore.current?.metadata[tokenName];
         if (!metaActivity || metaActivity.updates.length < nbOwned.value)
             return true;
-        console.log('totoro ', metaActivity.updates.some(x => x.status === 'TENTATIVE_PENDING'));
         // At this point we'll have to check if any update is pending.
         // (we can ignore DELETING_SOON because those are removed from available boxes anyways)
         return metaActivity.updates.some(x => x.status === 'TENTATIVE_PENDING');

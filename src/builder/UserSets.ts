@@ -50,7 +50,7 @@ class UserSetStore implements perUserStorable {
         const setData = {} as UserSetStore['setData'];
         for (const setId in this._setData)
             // For now only save data for temp sets, otherwise it's too heavy
-            if (setId in this.metadata) // || this._sets.indexOf(setId) !== -1)
+            if (setId in this.metadata)
                 setData[setId] = {
                     data: this._setData[setId].data.serialize(),
                     booklet: this._setData[setId].booklet,
@@ -72,7 +72,7 @@ class UserSetStore implements perUserStorable {
             this._setData[setId] = {
                 data: new SetData(setId).deserialize(data.setData[setId].data),
                 booklet: data.setData[setId].booklet,
-                created_at: data._setData[setId].created_at,
+                created_at: data.setData[setId].created_at,
             }
     }
 
@@ -120,6 +120,53 @@ class UserSetStore implements perUserStorable {
                     if (APP_ENV === 'dev')
                         console.error(_);
                 }
+    }
+
+    async poll() {
+        await this.fetchData();
+        const network = this.user_id.split('/')[0];
+        for (const setId in this.metadata)
+            if (this.metadata[setId].status === 'TENTATIVE' && this._sets.indexOf(setId) !== -1)  {
+                this.notifyMintingConfirmed(this.metadata[setId]);
+                delete this.metadata[setId];
+                // At this point re-fetch the data just in case we ended up with something un-clean.
+                try {
+                    backendManager.fetch(`v1/metadata/${network}/${setId}.json`).then(data => {
+                        this._setData[setId] = {
+                            data: new SetData(setId).deserialize(data),
+                            booklet: data.booklet_id,
+                            created_at: data.created_at * 1000,
+                        }
+                    });
+                } catch(_)  {
+                    if (APP_ENV === 'dev')
+                        console.error(_);
+                }
+                // Reload briqs, we likely have an update.
+                chainBriqs.value?.loadFromChain();
+            } else if (this.metadata[setId].status === 'TENTATIVE_DELETED' && this._sets.indexOf(setId) === -1)  {
+                this.notifyDeletionConfirmed(this.metadata[setId]);
+                delete this.metadata[setId];
+                // Reload briqs, we likely have an update.
+                chainBriqs.value?.loadFromChain();
+            }
+        // At this point, if there remains any we must check for failure.
+        if (!Object.keys(this.metadata).length) {
+            setTimeout(() => this.poll(), 30000)
+            return;
+        }
+        for (const setId in this.metadata) {
+            const item = this.metadata[setId];
+            const status = await maybeStore.value?.getProvider()?.getTransactionStatus(item.tx_hash);
+            if (status === 'REJECTED') {
+                if (item.status === 'TENTATIVE')
+                    this.notifyMintingRejected(item);
+                else if (item.status === 'TENTATIVE_DELETED')
+                    this.notifyDeletionRejected(item);
+                delete this.metadata[setId];
+            }
+        }
+        setTimeout(() => this.poll(), 10000);
     }
 
     async mintSet(token_hint: string, data: any, image: string | undefined) {
@@ -219,47 +266,6 @@ class UserSetStore implements perUserStorable {
             tx_hash: TX.transaction_hash,
         }
         return TX;
-    }
-
-    async poll() {
-        await this.fetchData();
-        const network = this.user_id.split('/')[0];
-        for (const setId in this.metadata)
-            if (this.metadata[setId].status === 'TENTATIVE' && this._sets.indexOf(setId) !== -1)  {
-                this.notifyMintingConfirmed(this.metadata[setId]);
-                delete this.metadata[setId];
-                // At this point re-fetch the data just in case we ended up with something un-clean.
-                backendManager.fetch(`v1/metadata/${network}/${setId}.json`).then(data => {
-                    this._setData[setId] = {
-                        data: new SetData(setId).deserialize(data),
-                        booklet: data.booklet_id,
-                    }
-                });
-                // Reload briqs, we likely have an update.
-                chainBriqs.value?.loadFromChain();
-            } else if (this.metadata[setId].status === 'TENTATIVE_DELETED' && this._sets.indexOf(setId) === -1)  {
-                this.notifyDeletionConfirmed(this.metadata[setId]);
-                delete this.metadata[setId];
-                // Reload briqs, we likely have an update.
-                chainBriqs.value?.loadFromChain();
-            }
-        // At this point, if there remains any we must check for failure.
-        if (!Object.keys(this.metadata).length) {
-            setTimeout(() => this.poll(), 30000)
-            return;
-        }
-        for (const setId in this.metadata) {
-            const item = this.metadata[setId];
-            const status = await maybeStore.value?.getProvider()?.getTransactionStatus(item.tx_hash);
-            if (status === 'REJECTED') {
-                if (item.status === 'TENTATIVE')
-                    this.notifyMintingRejected(item);
-                else if (item.status === 'TENTATIVE_DELETED')
-                    this.notifyDeletionRejected(item);
-                delete this.metadata[setId];
-            }
-        }
-        setTimeout(() => this.poll(), 10000);
     }
 
     notifyMintingConfirmed(setData: UserSetStore['metadata']['any']) {

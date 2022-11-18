@@ -97,7 +97,8 @@ watchEffect(() => {
             return;
         if (userSetStore.current?.sets.indexOf(route.params.set_id as string) !== -1)
             return;
-    }
+    } else
+        return;
     if (externalSetData.value)
         return;
     // At this point, we assume the set is external and we must load its data explicitly.

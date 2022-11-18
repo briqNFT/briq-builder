@@ -1,5 +1,6 @@
 import contractStore from '@/chain/Contracts';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
+import { Notification } from '@/Notifications';
 import { chainBriqs } from './ChainBriqs';
 import { useGenesisStore } from './GenesisStore';
 import { setsManager } from './SetsManager';
@@ -16,6 +17,17 @@ export function useUnboxHelpers() {
         userBoxesStore.current!.hideOne(box_id, TX.transaction_hash);
         userBookletsStore.current!.showOne(box_id, TX.transaction_hash);
         chainBriqs.value!.show('0x1', data.nb_briqs, TX.transaction_hash);
+
+        new Notification({
+            type: 'box_unbox_started',
+            title: 'Unboxing',
+            level: 'info',
+            data: {
+                tx_hash: TX.transaction_hash,
+                box_id: box_id,
+            },
+            read: true,
+        }).push(true);
     }
 
     // For testing.

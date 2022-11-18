@@ -22,7 +22,7 @@ class UserPurchases implements perUserStorable {
 
     polling!: number;
     onEnter() {
-        this.polling = setTimeout(() => this.poll(), 5000)
+        this.polling = setTimeout(() => this.poll(), 30000)
     }
     onLeave() {
         if (this.polling)
@@ -58,6 +58,16 @@ class UserPurchases implements perUserStorable {
             status: 'TENTATIVE',
         }
         userBoxesStore.current!.showOne(box_id, tx_response!.transaction_hash);
+        new Notification({
+            type: 'box_purchase_started',
+            title: 'Purchasing box',
+            level: 'info',
+            data: {
+                tx_hash: tx_response!.transaction_hash,
+                box_id: box_id,
+            },
+            read: true,
+        }).push(true);
         return this.purchases[tx_response!.transaction_hash];
     }
 
@@ -69,45 +79,17 @@ class UserPurchases implements perUserStorable {
                 continue;
             const [network, wallet_id] = this.user_id.split('/');
             const transferData = await backendManager.fetch(`v1/box/get_transfer/${network}/${item.box_id}/${item.tx_hash}`)
-            if (transferData && transferData.to === wallet_id) {
+            if (transferData && transferData.to === wallet_id)
                 item.status = 'CONFIRMED';
-                this.notifyConfirmed(item);
-            } else {
+            else {
                 const _block = maybeStore.value?.getProvider()?.getTransactionBlock(item.tx_hash);
                 const status = (await _block)?.status;
-                if (status === 'REJECTED' || ((Date.now() - item.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
+                if (status === 'REJECTED' || ((Date.now() - item.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED'))
                     item.status = 'REJECTED';
-                    this.notifyRejected(item);
-                }
+
             }
         }
         setTimeout(() => this.poll(), 5000)
-    }
-
-    notifyConfirmed(item: Purchase) {
-        new Notification({
-            type: 'confirmed_purchase',
-            title: 'Box purchased',
-            level: 'success',
-            data: {
-                tx_hash: item.tx_hash,
-                box_id: item.box_id,
-            },
-            read: false,
-        }).push(true);
-    }
-
-    notifyRejected(item: Purchase) {
-        new Notification({
-            type: 'rejected_purchase',
-            title: 'Box purchase rejected',
-            level: 'error',
-            data: {
-                tx_hash: item.tx_hash,
-                box_id: item.box_id,
-            },
-            read: false,
-        }).push(true);
     }
 }
 

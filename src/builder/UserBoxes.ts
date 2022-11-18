@@ -1,6 +1,7 @@
 import { backendManager } from '@/Backend';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { maybeStore } from '@/chain/WalletLoading';
+import { Notification } from '@/Notifications';
 
 class UserBoxesStore implements perUserStorable {
     user_id!: string;
@@ -20,6 +21,7 @@ class UserBoxesStore implements perUserStorable {
         }[],
     }};
 
+    polling!: number;
 
     _serialize() {
         const meta = {};
@@ -62,22 +64,34 @@ class UserBoxesStore implements perUserStorable {
                 // Clear the metadata if we are now ahead of it.
                 if (update.block && update.block <= data.last_block) {
                     this.metadata[id].updates.splice(i--, 1);
+                    if (update.status.indexOf('TENTATIVE') !== -1)
+                        this.notifyPurchaseConfirmed({ tx_hash: update.tx_hash, box_id: id });
+                    else
+                        this.notifyUnboxConfirmed({ tx_hash: update.tx_hash, box_id: id });
                     continue;
                 }
                 // Try to fetch some updated data if we don't know the block, but don't block the optimistic processing.
                 if (!update.block && !promises.has(update)) {
                     const _block = maybeStore.value?.getProvider()?.getTransactionBlock(update.tx_hash);
                     if (_block)
-                        promises.set(update, _block.then(data => {
-                            const status = data.status;
-                            const block = data.block_number;
+                        promises.set(update, _block.then(txData => {
+                            const status = txData.status;
+                            const block = txData.block_number;
                             if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
                                 this.metadata[id].updates.splice(i--, 1);
                                 reprocess = true;
+                                if (update.status.indexOf('TENTATIVE') !== -1)
+                                    this.notifyPurchaseFailure({ tx_hash: update.tx_hash, box_id: id });
+                                else
+                                    this.notifyUnboxFailure({ tx_hash: update.tx_hash, box_id: id });
                                 return;
                             }
-                            if (update.status === 'TENTATIVE' && (status === 'PENDING' || status === 'ACCEPTED_ON_L2' || status === 'ACCEPTED_ON_L1'))
+                            if (update.status === 'TENTATIVE' && (status === 'PENDING' || status === 'ACCEPTED_ON_L2' || status === 'ACCEPTED_ON_L1')) {
                                 update.status = 'TENTATIVE_PENDING';
+                                // Don't notify if we'll immediately mark it as confirmed.
+                                if (block > data.last_block)
+                                    this.notifyPurchasePending({ tx_hash: update.tx_hash, box_id: id });
+                            }
                             if (block) {
                                 update.block = block;
                                 if (update.block)
@@ -107,16 +121,22 @@ class UserBoxesStore implements perUserStorable {
             updates: [{
                 tx_hash: '0xcafe',
                 block: undefined,
-                status: 'TENTATIVE',
-                date: Date.now(),
+                status: 'DELETING_SOON',
+                date: Date.now() - 1000*60*60*10,
             },
             ],
-        }
+        }/*
         setTimeout(() => {
             this.metadata['starknet_city_ongoing/spaceman'].updates[0].status = 'TENTATIVE_PENDING'
         }, 6000);
         */
         this.fetchData();
+        this.polling = setInterval(() => this.fetchData(), 10000);
+    }
+
+    onLeave() {
+        if (this.polling)
+            clearTimeout(this.polling);
     }
 
     get availableBoxes() {
@@ -146,6 +166,73 @@ class UserBoxesStore implements perUserStorable {
         })
         this._updateData(this._lastDataFetch);
     }
+
+    notifyPurchasePending(item: { tx_hash: string, box_id: string }) {
+        new Notification({
+            type: 'box_purchase_pending',
+            title: 'Unbox available',
+            level: 'info',
+            data: {
+                tx_hash: item.tx_hash,
+                box_id: item.box_id,
+            },
+            read: false,
+        }).push(true);
+    }
+
+    notifyPurchaseConfirmed(item: { tx_hash: string, box_id: string }) {
+        new Notification({
+            type: 'box_purchase_confirmed',
+            title: 'Box successfully purchased',
+            level: 'success',
+            data: {
+                tx_hash: item.tx_hash,
+                box_id: item.box_id,
+            },
+            read: false,
+        }).push(true);
+    }
+
+    notifyPurchaseFailure(item: { tx_hash: string, box_id: string }) {
+        new Notification({
+            type: 'box_purchase_failure',
+            title: 'Error with box purchase',
+            level: 'error',
+            data: {
+                tx_hash: item.tx_hash,
+                box_id: item.box_id,
+            },
+            read: false,
+        }).push(true);
+    }
+
+    // This one is pre-read -> we're assuming we're good.
+    notifyUnboxConfirmed(item: { tx_hash: string, box_id: string }) {
+        new Notification({
+            type: 'box_unbox_confirmed',
+            title: 'Unboxing successful',
+            level: 'success',
+            data: {
+                tx_hash: item.tx_hash,
+                box_id: item.box_id,
+            },
+            read: true,
+        }).push(false);
+    }
+
+    notifyUnboxFailure(item: { tx_hash: string, box_id: string }) {
+        new Notification({
+            type: 'box_unbox_failure',
+            title: 'Error during unboxing',
+            level: 'error',
+            data: {
+                tx_hash: item.tx_hash,
+                box_id: item.box_id,
+            },
+            read: false,
+        }).push(true);
+    }
+
 }
 
 export const userBoxesStore = perUserStore('UserBoxesStore', UserBoxesStore);

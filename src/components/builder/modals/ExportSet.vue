@@ -20,6 +20,8 @@ import { APP_ENV } from '@/Meta';
 import { getCurrentHub } from '@sentry/hub';
 import { getCurrentNetwork } from '@/chain/Network';
 import { getSetObject } from '@/builder/graphics/SetRendering';
+import { userBookletsStore } from '@/builder/UserBooklets';
+import Tooltip from '@/components/generic/Tooltip.vue';
 
 const { chainBriqs } = useBuilder();
 
@@ -87,6 +89,21 @@ const setDescription = computed({
 const downloadSet = () => {
     downloadJSON(setData.value.serialize(), setData.value.id + '.json');
 }
+
+const isUnboxed = computed(() => {
+    if (!booklet.value)
+        return true;
+    const nbOwned = userBookletsStore.current?.booklets?.filter(x => x === booklet.value).length || 0;
+    if (nbOwned === 0)
+        return false;
+    const metaActivity = userBookletsStore.current?.metadata[booklet.value];
+    if (!metaActivity || metaActivity.updates.length < nbOwned)
+        return true;
+    // At this point we'll have to check if any update is pending.
+    // (we can ignore DELETING_SOON because those are removed from available boxes anyways)
+    return metaActivity.updates.some(x => x.status === 'TENTATIVE_PENDING');
+})
+
 
 // To check for real briqs, attempt to convert the set (do this separately for serialization reasons).
 const exportSet = ref(undefined as undefined | SetData);
@@ -183,9 +200,10 @@ const startMinting = async () => {
         exportStep.value = 'SENDING_TRANSACTION';
 
         let TX;
-        if (booklet.value)
+        if (booklet.value) {
             TX = await userSetStore.current!.mintBookletSet(token_hint, data, await imageProcessing.value, booklet.value);
-        else
+            window.sessionStorage.removeItem(`booklet_${booklet.value}`);
+        } else
             TX = await userSetStore.current!.mintSet(token_hint, data, await imageProcessing.value);
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
@@ -300,7 +318,10 @@ button:not(.btn):not(.nostyle)::before {
             <div class="flex justify-between gap-2 mt-6">
                 <Btn secondary class="!font-normal" @click="$emit('close')">Cancel</Btn>
                 <div class="inline-flex grow justify-end"><Btn no-background class="!font-normal self-end" @click="downloadSet">Save file locally</Btn></div>
-                <Btn primary class="self-end" @click="startMinting">Mint</Btn>
+                <Btn v-if="isUnboxed" primary class="self-end" @click="startMinting">Mint</Btn>
+                <Btn v-else :disabled="true" tooltip="Your unbox transaction is not yet PENDING. Please wait to mint." no-style class="h-auto text-sm pl-4 pr-6 py-3 bg-info-info rounded bg-opacity-10 text-info-info">
+                    <i class="text-lg far fa-loader animate-spin mr-3"/> Pending unboxing
+                </Btn>
             </div>
         </Window>
     </template>

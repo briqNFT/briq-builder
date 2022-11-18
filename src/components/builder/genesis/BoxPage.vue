@@ -48,19 +48,6 @@ const attributes = computed(() => {
 });
 
 const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
-
-let stopChecking = false;
-watchEffect(() => {
-    let stop: any;
-    if (!stopChecking && nbOwned.value > 0 && !isUnboxable.value) {
-        stopChecking = true;
-        stop = setInterval(async () => {
-            await userBoxesStore.current?.fetchData();
-            if (isUnboxable.value)
-                clearInterval(stop);
-        }, 5000)
-    }
-})
 </script>
 
 <template>
@@ -119,7 +106,9 @@ watchEffect(() => {
                             <Btn class="h-auto text-md px-6 py-[1.125rem]">Unbox</Btn>
                         </RouterLink>
                         <template v-else>
-                            <Btn :disabled="true" no-style class="h-auto text-sm pl-4 pr-6 py-4 bg-info-info rounded bg-opacity-10 text-info-info">
+                            <Btn
+                                :disabled="true" tooltip="Your purchase transaction is not yet PENDING. Please wait to start unboxing."
+                                no-style class="h-auto text-sm pl-4 pr-6 py-4 bg-info-info rounded bg-opacity-10 text-info-info">
                                 <i class="text-lg far fa-loader animate-spin mr-3"/> Pending transaction
                             </Btn>
                         </template>

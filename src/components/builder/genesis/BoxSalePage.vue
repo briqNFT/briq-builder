@@ -29,6 +29,7 @@ const {
     saledata,
     getActualMode,
     durationLeft,
+    nbOwned,
 } = useBoxData(token_id.value);
 
 const themeName = computed(() => route.params.theme);
@@ -163,7 +164,7 @@ p {
                         </p>
                         <h1>{{ boxName }}</h1>
                         <p class="my-2 whitespace-pre-line">{{ item?.description ?? 'Loading' }}</p>
-                        <div>
+                        <div class="mb-6">
                             <p>This box contains:</p>
                             <div class="mt-1 mb-2 flex flex-nowrap items-center">
                                 <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-10 brightness-[98%]" :src="genesisStore.coverBookletRoute(token_id, true)"></p>
@@ -174,6 +175,7 @@ p {
                                 <p>{{ item?.nb_briqs }} <span class="font-medium">briqs</span>, enough to build the Official&nbsp;Set and then more</p>
                             </div>
                         </div>
+                        <p v-if="nbOwned" class="mb-0">You already own <span class="text-primary">{{ nbOwned }}</span> {{ nbOwned > 1 ? 'such boxes' : 'such box' }}</p>
                         <template v-if="saledata?.isLive() && saledata?.total_quantity === 1">
                             <h4>Auction</h4>
                             <div class="rounded border border-grad-light overflow-hidden">
@@ -221,7 +223,7 @@ p {
                         </template>
                         <template v-else-if="saledata?.isLive()">
                             <!--<h4>Instant Purchase</h4>-->
-                            <div class="rounded border border-grad-light overflow-hidden mt-6">
+                            <div class="rounded border border-grad-light overflow-hidden">
                                 <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                                     <div>
                                         <h5 class="font-normal text-grad-dark">Price</h5>
