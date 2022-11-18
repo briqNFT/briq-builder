@@ -15,9 +15,13 @@ import {
     SMAAPass,
 } from '@/three';
 
+import Pipette from '@/assets/eye-dropper-solid.svg?url';
+import CrossHairs from '@/assets/crosshairs-light.svg';
+
+
 import { GLTFLoader } from '@/three';
 
-import { onMounted, ref, toRef, watch } from 'vue';
+import { onMounted, ref, toRef, watch, watchEffect } from 'vue';
 
 const userSet = ref(false);
 
@@ -271,10 +275,11 @@ async function loadGlbItems(glb_name: string, i: number) {
 
         });
         for (const it of addIridescence) {
-            const border = it.clone();
-            border.material = iridescentMaterial;
-            border.geometry.computeVertexNormals();
-            it.add(border);
+            const irid = it.clone();
+            irid.material = iridescentMaterial.clone();
+            irid.geometry.computeVertexNormals();
+            irid.material.userData.name = it.material.name.split('_')[2];
+            it.add(irid);
         }
         borders.layers.set(1);
         item.add(borders);
@@ -370,7 +375,7 @@ const resetCamera = () => {
     userSet.value = false;
 };
 
-const hoverColor = ref('');
+const hoverColor = ref(undefined as undefined | THREE.Material);
 
 const sampleColor = (event: MouseEvent) => {
     const x = event.offsetX / canvasRef.value.clientWidth * 2 - 1;
@@ -378,16 +383,13 @@ const sampleColor = (event: MouseEvent) => {
     const rc = new THREE.Raycaster();
     rc.layers.set(0);
     rc.setFromCamera({ x, y }, camera);
-    const obj = rc.intersectObject(scene.children[0], true);
+    const obj = rc.intersectObject(glbItem, true);
     if (obj.length >= 2 && obj[1].distance - obj[0].distance < 0.01 && obj[1].object?.material?.name === 'any_color_any_material')
         obj[0] = obj[1];
     if (obj?.[0]?.object?.material)
-        if (obj[0].object.material.name === 'any_color_any_material')
-            hoverColor.value = 'any_color_any_material';
-        else
-            hoverColor.value = obj?.[0]?.object?.material.name.split('_')[1]
+        hoverColor.value = obj[0].object.material;
     else
-        hoverColor.value = '';
+        hoverColor.value = undefined;
 }
 
 let mx: number, my: number;
@@ -397,11 +399,14 @@ const startSelectHoveredColor = (event: MouseEvent) => {
 }
 
 const selectHoveredColor = (event: MouseEvent) => {
-    if (!hoverColor.value || hoverColor.value === 'any_color_any_material')
+    if (!hoverColor.value)
         return;
     if (Math.abs(event.clientX - mx) > 3 || Math.abs(event.clientY - my) > 3)
         return;
-    inputStore.currentColor = hoverColor.value;
+    if (hoverColor.value.name === 'any_color_any_material')
+        inputStore.currentColor = hoverColor.value.userData.name
+    else
+        inputStore.currentColor = hoverColor.value.name.split('_')[1];
 }
 
 const canvasRef = ref(null as unknown as HTMLCanvasElement);
@@ -424,7 +429,19 @@ watch([toRef(props, 'i'), toRef(props, 'glb_name')], async () => {
 }, {
     immediate: true,
 });
+
+const canvasObj = ref(null as unknown as HTMLDivElement);
+
+watchEffect(() => {
+    if (!canvasObj.value)
+        return;
+    if(!hoverColor.value)
+        document.body.style.cursor = 'move';
+    else
+        document.body.style.cursor = `url(${Pipette}) 0 16, move`;
+})
 </script>
+
 <style scoped>
 .rainbow {
     background: linear-gradient(
@@ -442,19 +459,22 @@ watch([toRef(props, 'i'), toRef(props, 'glb_name')], async () => {
         rgba(255, 0, 0, 1) 100%
     );
 }
+.overlay {
+    @apply bg-grad-lighter bg-opacity-60 rounded-sm backdrop-blur-sm;
+}
 </style>
 
 <template>
-    <Btn @click="resetCamera" :disabled="!userSet" class="w-10 h-10 absolute m-1 top-0 right-0" secondary><i class="text-lg fas fa-expand"/></Btn>
-    <div class="flex justify-center items-center cursor-move w-full h-full">
+    <div ref="canvasObj" class="flex justify-center items-center w-full h-full">
         <canvas class="w-full h-full" ref="canvasRef" @mousemove="sampleColor" @mousedown="startSelectHoveredColor" @mouseup="selectHoveredColor"/>
     </div>
-    <p class="absolute pointer-events-none bottom-0 left-0 ml-4 mb-2 flex items-center gap-1">
-        <template v-if="hoverColor === 'any_color_any_material'">
-            <span class="w-4 h-4 rounded-sm rainbow" :style="{ backgroundColor: hoverColor }"/> Any color you like
+    <Btn v-if="userSet" @click="resetCamera" no-style class="w-10 h-10 absolute m-1 top-0 right-0 overlay hover:fill-primary p-3"><CrossHairs/></Btn>
+    <p v-if="hoverColor" class="absolute pointer-events-none top-0 left-0 ml-1 mt-1 p-3 min-w-[7rem] flex items-center gap-1 overlay">
+        <template v-if="hoverColor.name === 'any_color_any_material'">
+            <span class="w-4 h-4 rounded-sm rainbow mr-1.5"/> Any color you like
         </template>
         <template v-else>
-            <span class="w-4 h-4 rounded-sm" :style="{ backgroundColor: hoverColor }"/>{{ hoverColor }}
+            <span class="w-4 h-4 rounded-sm  mr-1.5" :style="{ backgroundColor: hoverColor.name.split('_')[1] }"/>{{ hoverColor.name.split('_')[1] }}
         </template>
     </p>
 </template>
