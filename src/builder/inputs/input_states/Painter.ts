@@ -14,6 +14,8 @@ import { builderStore } from '@/builder/BuilderStore';
 const { currentSet } = builderStore;
 
 import SprayCan from '@/assets/spray-can-solid.svg?url';
+//import SprayCan from '@/assets/brush-solid.svg?url';
+//import SprayCan from '@/assets/paintbrush-fine-regular.svg?url';
 
 export class PainterInput extends MouseInputState {
     onEnter() {

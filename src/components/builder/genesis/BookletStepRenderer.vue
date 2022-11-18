@@ -342,6 +342,7 @@ async function setupScene() {
     grid.grid.translateX(-0.5);
     grid.grid.translateY(-0.5);
     grid.grid.translateZ(-0.5);
+    grid.grid.material.uniforms.color.value = new THREE.Vector3(0.6, 0.6, 0.6);
     scene.add(grid.grid);
 
     if (glbItem)
@@ -460,7 +461,7 @@ watchEffect(() => {
     );
 }
 .overlay {
-    @apply bg-grad-lighter bg-opacity-60 rounded-sm backdrop-blur-sm;
+    @apply bg-grad-lightest bg-opacity-60 rounded-sm backdrop-blur-sm;
 }
 </style>
 
