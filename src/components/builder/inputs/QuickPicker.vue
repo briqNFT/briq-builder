@@ -102,6 +102,12 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
 
 </script>
 
+<style scoped>
+.dark #app .tempdarkfix {
+    @apply border border-grad-light shadow-none;
+}
+</style>
+
 <template>
     <div class="flex flex-col">
         <div class="rounded border border-grad-light bg-grad-lightest max-w-[14.5rem] !text-sm">
@@ -138,7 +144,7 @@ const dropClose = () => closeTimer && clearTimeout(closeTimer);
                 </Teleport>
             </div>
         </div>
-        <div v-if="pickerOpen" class="flex flex-col bg-grad-lightest shadow-md rounded mt-2 p-2">
+        <div v-if="pickerOpen" class="flex flex-col bg-grad-lightest shadow-md rounded tempdarkfix mt-2 p-2">
             <ColorPicker :color="inputStore.currentColor" @color-change="col => inputStore.currentColor = col"/>
         </div>
     </div>

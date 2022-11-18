@@ -9,8 +9,15 @@ defineExpose({
 
 </script>
 
+<style scoped>
+.dark #app .tempdarkfix {
+    @apply border border-grad-light shadow-none;
+}
+</style>
+
+
 <template>
-    <div ref="flyout" class="rounded bg-grad-lightest shadow-md relative">
+    <div ref="flyout" class="rounded bg-grad-lightest shadow-md tempdarkfix relative">
         <slot/>
     </div>
 </template>

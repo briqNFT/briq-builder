@@ -14,8 +14,14 @@ const close = () => window.value.dispatchEvent(new CustomEvent('_close', { bubbl
 
 </script>
 
+<style scoped>
+.dark #app .tempdarkfix {
+    @apply border border-grad-light shadow-none;
+}
+</style>
+
 <template>
-    <div ref="window" :class="'container p-0 rounded-md md:rounded-lg bg-grad-lightest alternate-buttons m-2 sm:m-4 md:m-8 shadow-xl relative ' + _size">
+    <div ref="window" :class="'container p-0 rounded-md md:rounded-lg bg-grad-lightest alternate-buttons m-2 sm:m-4 md:m-8 shadow-xl tempdarkfix relative ' + _size">
         <div class="relative h-full p-4 md:p-6">
             <div class="flex justify-between items-center pb-6">
                 <h4 class="font-semibold w-full flex items-center" v-if="!!$slots.title"><slot name="title"/></h4>
