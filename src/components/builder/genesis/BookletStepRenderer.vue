@@ -99,16 +99,21 @@ const iridescentMaterialGen = (alpha: string) => new THREE.ShaderMaterial( {
         varying vec3 pos;
         uniform float time;
         void main() {
+            float xx = mod(pos.x + 0.5, 2.0);
+            float yy = mod(pos.y + 0.5, 2.0);
+            float zz = mod(pos.z + 0.5, 2.0);
+            xx = abs(1.0 - xx);
+            yy = abs(1.0 - yy);
+            zz = abs(1.0 - zz);
+
+            vec3 iri = vec3(xx, yy, zz);
             float xb = mod(pos.x + time, 2.0) * 0.9 + 0.1;
             float yb = mod(pos.y + time, 2.0) * 0.9 + 0.1;
             float zb = mod(pos.z + time, 2.0) * 0.9 + 0.1;
-            gl_FragColor = vec4(xb, yb, zb, 1.0);
-            vec3 iri = vec3(xb, yb, zb);
-
             xb = abs(0.5f - mod(pos.x - 0.5, 1.0f));
             yb = abs(0.5f - mod(pos.y - 0.5, 1.0f));
             zb = abs(0.5f - mod(pos.z - 0.5, 1.0f));
-            float threshold = 0.40;
+            float threshold = 0.47;
             if (xb > threshold && yb > threshold)
                 gl_FragColor = vec4(mix(vec3(1.0), iri, ${alpha}), 1.0f);
             else if (zb > threshold && yb > threshold)
@@ -266,6 +271,7 @@ async function loadGlbItems(glb_name: string, i: number) {
             else
                 it.material = borderMaterial;
         });
+        borders.layers.set(1);
         const addIridescence = [] as THREE.Object3D[];
         item.traverse(it => {
             if (!it.material)
@@ -281,11 +287,17 @@ async function loadGlbItems(glb_name: string, i: number) {
             irid.material.userData.name = it.material.name.split('_')[2];
             it.add(irid);
         }
-        borders.layers.set(1);
-        item.add(borders);
 
+        item.add(borders);
         if (i > 0) {
             const previousItem = await loadGlbItem(glb_name, i - 1, 'step_glb');
+
+            const previousBorders = previousItem.clone(true);
+            previousBorders.traverse(item => {
+                item.material = borderLightMaterial;
+                item.layers.set(1);
+            });
+            previousBorders.layers.set(1);
             const addIridescence = [] as THREE.Object3D[];
             previousItem.traverse(item => {
                 if (!item.material)
@@ -302,16 +314,9 @@ async function loadGlbItems(glb_name: string, i: number) {
                 border.geometry.computeVertexNormals();
                 it.add(border);
             }
-
-            const previousBorders = previousItem.clone(true);
-            previousBorders.traverse(item => {
-                item.material = borderLightMaterial;
-                item.layers.set(1);
-            });
-            previousBorders.layers.set(1);
-            previousItem.add(previousBorders);
-
             previousItem.layers.set(1);
+
+            previousItem.add(previousBorders);
             item.add(previousItem);
         }
         if (!glbItemPerNamePerStep[glb_name])
