@@ -79,7 +79,7 @@ button {
     }
 
     &.btn {
-        @apply text-text-on-primary;
+        @apply text-text-on-primary dark:text-text-on-background;
         @apply h-[2rem] md:h-[2.5rem];
         @apply px-3 md:px-4 py-2 md:py-4;
 
@@ -89,7 +89,7 @@ button {
             content: '';
             z-index: -1;
             @apply w-full h-full absolute top-0 left-0;
-            @apply bg-primary rounded border border-grad-darkest;
+            @apply bg-primary rounded border dark:border-0 border-grad-darkest;
         }
 
         &:not(:disabled) {

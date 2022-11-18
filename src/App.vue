@@ -81,6 +81,10 @@ h6 {
     @apply text-xs font-semibold;
 }
 
+hr {
+    @apply border-grad-light;
+}
+
 .briq-logo {
     @apply font-logo font-medium select-none text-primary tracking-wide;
 }
