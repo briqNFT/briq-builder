@@ -338,12 +338,13 @@ async function setupScene() {
     composer.passes[1].enabled = true;
     composer.passes[3].enabled = true;
 
+    /*
     const grid = (new ShaderGrid().generate()).place(-50, -0, -50, 100, 100);
     grid.grid.translateX(-0.5);
     grid.grid.translateY(-0.5);
     grid.grid.translateZ(-0.5);
     grid.grid.material.uniforms.color.value = new THREE.Vector3(0.6, 0.6, 0.6);
-    scene.add(grid.grid);
+    scene.add(grid.grid);*/
 
     if (glbItem)
         scene.add(glbItem);
