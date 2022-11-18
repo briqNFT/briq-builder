@@ -75,9 +75,9 @@ const menuOpen = ref(false);
 </style>
 
 <template>
-    <div class="mx-1 mt-1 sm:mx-2 sm:mt-2 flex flex-wrap" v-if="!inputStore.hideInput">
+    <div class="mx-1 mt-1 sm:mx-2 sm:mt-2 flex flex-wrap pointer-events-none" v-if="!inputStore.hideInput">
         <div class="flex-1 basis-1 min-w-max flex justify-stretch lg:justify-start">
-            <div class="flex flex-none items-center p-1 gap-1 border border-grad-light bg-grad-lightest rounded">
+            <div class="flex flex-none items-center p-1 gap-1 border border-grad-light bg-grad-lightest rounded pointer-events-auto">
                 <router-link :to="`/profile?tab=WIP`"><Btn no-background class="w-10"><i class="fa-solid fa-arrow-left"/></Btn></router-link>
                 <Btn no-background class="w-10" @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
@@ -94,7 +94,7 @@ const menuOpen = ref(false);
             </div>
         </div>
         <div class="flex-1 basis-1 flex lg:justify-center">
-            <div class="border bg-grad-lightest rounded flex gap-1 p-1">
+            <div class="border bg-grad-lightest rounded flex gap-1 p-1 pointer-events-auto">
                 <Btn no-background class="w-10" @click="switchToState('inspect')" tooltip="Select tool" :force-active="activeInputButton === 'select'"><i class="text-[1.1rem] far fa-mouse-pointer"/></Btn>
                 <Btn no-background class="w-10" @click="switchToState('place')" tooltip="Place tool" :force-active="activeInputButton === 'place'"><i class="text-[1.1rem] far fa-cube"/></Btn>
                 <Btn no-background class="w-10" @click="switchToState('paint')" tooltip="Paint tool" :force-active="activeInputButton === 'paint'"><i class="text-[1.1rem] far fa-paintbrush-fine"/></Btn>
@@ -106,10 +106,10 @@ const menuOpen = ref(false);
             </div>
         </div>
         <div class="flex-1 basis-1 flex lg:justify-end">
-            <div v-if="booklet" class="rounded bg-grad-lightest border mr-2 flex justify-center items-center p-1">
+            <div v-if="booklet" class="rounded bg-grad-lightest border mr-2 flex justify-center items-center p-1 pointer-events-auto">
                 <Btn no-background :force-active="!minimized" @click="minimized = !minimized"><i class="far fa-book-open"/></Btn>
             </div>
-            <div class="flex items-stretch gap-1 p-1 border bg-grad-lightest rounded">
+            <div class="flex items-stretch gap-1 p-1 border bg-grad-lightest rounded pointer-events-auto">
                 <template v-if="maybeStore?.userWalletAddress">
                     <Tooltip :tooltip="`${ getNbBriqs } briqs used out of ${ chainBriqs?.getNbBriqs() } in wallet`">
                         <div class="flex items-center justify-left font-medium gap-2 pl-3 pr-4 cursor-help" :style="{ minWidth: `${getNbBriqs.toString().length * 0.6 + 5.7}rem`}">
