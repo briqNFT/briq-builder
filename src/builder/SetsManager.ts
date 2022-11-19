@@ -21,6 +21,10 @@ export class SetInfo {
     booklet: string | undefined;
     lastUpdate: number;
 
+    // If this is non-null, the local set is hidden.
+    // This is used to recover the local set if the minting failed.
+    onchainId?: string;
+
     constructor(sid: string, setData?: SetData) {
         this.id = sid;
         this.lastUpdate = Date.now();
@@ -38,6 +42,7 @@ export class SetInfo {
             booklet: this.booklet,
             setData: data,
             lastUpdate: this.lastUpdate,
+            onchainId: this.onchainId,
         };
     }
 
@@ -45,6 +50,7 @@ export class SetInfo {
         this.id = data.id;
         this.booklet = data?.booklet;
         this.lastUpdate = data?.lastUpdate || Date.now();
+        this.onchainId = data?.onchainId;
 
         const setData = data.version === 1 ? data.local : data.setData;
         try {
@@ -99,6 +105,19 @@ export class SetsManager {
         }
     }
 
+    revealHiddenSetsMaybe() {
+        for (const sid in this.setsInfo) {
+            const info = this.setsInfo[sid];
+            if (!info.onchainId)
+                continue;
+            // Reveal the sets that are over a day old.
+            if (Date.now() - info.lastUpdate > 24*3600*1000) {
+                info.onchainId = undefined;
+                info.getSet().name += ' (recovered)';
+            }
+        }
+    }
+
     getInfo(sid: string) {
         return this.setsInfo[sid];
     }
@@ -109,13 +128,19 @@ export class SetsManager {
                 return this.setsInfo[sid].getSet();
     }
 
+    getHiddenSetInfo(onchainId: string) {
+        for (const sid in this.setsInfo)
+            if (this.setsInfo[sid].onchainId === onchainId)
+                return this.setsInfo[sid];
+    }
+
     /**
      * Return a random local set. Used to easily query a local set, since the builder needs to always have one for now.
      * @returns a local set, or undefined if none exist.
      */
     getLocalSet() {
         for (const sid in this.setsInfo)
-            if (!this.setsInfo[sid].booklet)
+            if (!this.setsInfo[sid].booklet && !this.setsInfo[sid].onchainId)
                 return this.setsInfo[sid].setData;
     }
 
@@ -153,6 +178,13 @@ export class SetsManager {
         window.localStorage.removeItem('set_preview_' + sid);
     }
 
+    hideLocalSet(localId: string, onchainId: string) {
+        const data = this.setsInfo[localId];
+        if (!data)
+            return;
+        data.onchainId = onchainId;
+    }
+
     duplicateLocally(set: SetData) {
         const copy = setsManager.createLocalSet();
         window.localStorage.setItem(`set_preview_${copy.id}`, window.localStorage.getItem(`set_preview_${set.id}`) || '');
@@ -161,21 +193,6 @@ export class SetsManager {
         copy.deserialize(data);
         copy.name = `Copy of ${copy.getName()}`
         return copy;
-    }
-
-    onSetMinted(oldSetId: string | null, newSet: SetData) {
-        const idx = this.setList.indexOf(oldSetId || '');
-        if (idx !== -1) {
-            this.setList.splice(idx, 1, newSet.id);
-            this.setsInfo[newSet.id] = this.setsInfo[oldSetId!];
-            this.setsInfo[newSet.id].id = newSet.id;
-            delete this.setsInfo[oldSetId!];
-        } else
-            this.setsInfo[newSet.id] = new SetInfo(newSet.id);
-
-        this.setsInfo[newSet.id].setData = newSet;
-
-        return this.setsInfo[newSet.id];
     }
 }
 

@@ -9,6 +9,7 @@ import { SetData } from './SetData';
 import { userBookletsStore } from './UserBooklets';
 import { maybeStore } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
+import { setsManager } from './SetsManager';
 
 
 class UserSetStore implements perUserStorable {
@@ -105,6 +106,14 @@ class UserSetStore implements perUserStorable {
             if (this._status === 'FETCHING')
                 this._status = 'ERROR';
         }
+        // Clean up all hidden sets that we have succesfully minted
+        for (const setId of this.sets) {
+            const hiddenSet = setsManager.getHiddenSetInfo(setId);
+            if (hiddenSet)
+                setsManager.deleteLocalSet(hiddenSet.id);
+        }
+        // Tell the set manager to reveal any other hidden set that's old enough, to prevent data loss.
+        setsManager.revealHiddenSetsMaybe();
         const network = this.user_id.split('/')[0];
         // Attempt to reload all active sets
         for (const setId of this.sets)
@@ -159,9 +168,13 @@ class UserSetStore implements perUserStorable {
             const item = this.metadata[setId];
             const status = await maybeStore.value?.getProvider()?.getTransactionStatus(item.tx_hash);
             if (status === 'REJECTED') {
-                if (item.status === 'TENTATIVE')
-                    this.notifyMintingRejected(item);
-                else if (item.status === 'TENTATIVE_DELETED')
+                if (item.status === 'TENTATIVE') {
+                    // Reveal the set.
+                    const info = setsManager.getHiddenSetInfo(item.set_id);
+                    if (info)
+                        info.onchainId = undefined;
+                    this.notifyMintingRejected(item, info?.id);
+                } else if (item.status === 'TENTATIVE_DELETED')
                     this.notifyDeletionRejected(item);
                 delete this.metadata[setId];
             }
@@ -276,6 +289,24 @@ class UserSetStore implements perUserStorable {
             data: {
                 tx_hash: setData.tx_hash,
                 set_id: setData.set_id,
+                name: this.setData[setData.set_id]?.data.name || `${setData.set_id.slice(0, 10)}...`,
+                network: this.user_id.split('/')[0],
+            },
+            read: false,
+        }).push(true);
+    }
+
+    notifyMintingRejected(setData: UserSetStore['metadata']['any'], localSetRestored?: string) {
+        new Notification({
+            type: 'set_mint_rejected',
+            title: 'Set failed to mint',
+            level: 'error',
+            data: {
+                tx_hash: setData.tx_hash,
+                set_id: setData.set_id,
+                name: this.setData[setData.set_id]?.data.name || `${setData.set_id.slice(0, 10)}...`,
+                network: this.user_id.split('/')[0],
+                local_set_restored: localSetRestored,
             },
             read: false,
         }).push(true);
@@ -289,19 +320,8 @@ class UserSetStore implements perUserStorable {
             data: {
                 tx_hash: setData.tx_hash,
                 set_id: setData.set_id,
-            },
-            read: false,
-        }).push(true);
-    }
-
-    notifyMintingRejected(setData: UserSetStore['metadata']['any']) {
-        new Notification({
-            type: 'set_mint_rejected',
-            title: 'Minting failure',
-            level: 'error',
-            data: {
-                tx_hash: setData.tx_hash,
-                set_id: setData.set_id,
+                name: this.setData[setData.set_id]?.data.name || `${setData.set_id.slice(0, 10)}...`,
+                network: this.user_id.split('/')[0],
             },
             read: false,
         }).push(true);
@@ -315,6 +335,8 @@ class UserSetStore implements perUserStorable {
             data: {
                 tx_hash: setData.tx_hash,
                 set_id: setData.set_id,
+                name: this.setData[setData.set_id]?.data.name || `${setData.set_id.slice(0, 10)}...`,
+                network: this.user_id.split('/')[0],
             },
             read: false,
         }).push(true);

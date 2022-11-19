@@ -25,7 +25,7 @@ p {
 <template>
     <div v-if="notifs.length" class="text-sm flex flex-col-reverse">
         <div v-for="notif, i of notifs" :key="i" class="w-full">
-            <div :class="`w-full text-left relative select-none ${border(i)} ${notif.read ? 'text-grad-darker' : 'hover:bg-grad-light'}`" @click="notif.read = true">
+            <div :class="`w-full max-w-[40rem] text-left relative select-none ${border(i)} ${notif.read ? 'text-grad-darker' : 'hover:bg-grad-light'}`" @click="notif.read = true">
                 <Notification :notif="notif" class="py-2 px-4"/>
                 <i v-show="!notif.read" class="absolute right-[1.125rem] top-[1.2rem] text-right text-primary text-[0.5rem] fas fa-circle"/>
             </div>

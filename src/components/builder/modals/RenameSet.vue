@@ -30,10 +30,10 @@ const save = () => {
         <div class="my-4">
             <p class="mb-2">Name</p>
             <p class="md:block hidden">
-                <input v-model="name" :disabled="hasBooklet" type="text" maxlength="200" minlength="1" size="60">
+                <input v-model="name" @keydown.enter="save" :disabled="hasBooklet" type="text" maxlength="200" minlength="1" size="60">
             </p>
             <p class="md:hidden block">
-                <input v-model="name" :disabled="hasBooklet" type="text" maxlength="200" minlength="1" size="30">
+                <input v-model="name" @keydown.enter="save" :disabled="hasBooklet" type="text" maxlength="200" minlength="1" size="30">
             </p>
         </div>
         <div class="my-4">

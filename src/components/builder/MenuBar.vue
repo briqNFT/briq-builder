@@ -72,7 +72,7 @@ const menuOpen = ref(false);
 .btn::before {
     @apply rounded-[0.375rem];
 }
-button:not(.btn):not(.nostyle) {
+div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
     @apply w-10 h-10;
 }
 </style>

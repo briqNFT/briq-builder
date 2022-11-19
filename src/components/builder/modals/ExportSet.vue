@@ -216,15 +216,16 @@ const startMinting = async () => {
             data: {
                 tx_hash: TX.transaction_hash,
                 name: data.name,
+                set_id: data.id,
+                network: getCurrentNetwork(),
             },
             read: true,
         }).push(false);
-        pushPopup('info', 'Minting set', h('div', [h('p', `Transaction to mint set '${data.name}' was successfully sent.`), HashVue(TX.transaction_hash)]));
 
         exportStep.value = 'DONE';
         setTimeout(() => {
             router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: data.id } })
-            setsManager.deleteLocalSet(setData.value.id);
+            setsManager.hideLocalSet(setData.value.id, data.id);
             emit('close');
         }, 0);
     } catch (err: any) {

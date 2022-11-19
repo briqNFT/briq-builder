@@ -30,6 +30,7 @@ const disassembleAndClose = async () => {
             level: 'info',
             data: {
                 tx_hash: TX.transaction_hash,
+                name: set.value.name || `${props.setId.slice(0, 10)}...`,
             },
             read: false,
         }).push();

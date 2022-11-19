@@ -3,6 +3,7 @@ import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 import type { Notification } from '@/Notifications';
+import { useSetHelpers } from './builder/SetComposable';
 
 defineProps<{
     notif: Notification,
@@ -17,6 +18,8 @@ const icons = {
 };
 
 const genesisStore = useGenesisStore();
+
+const { getSetRoute } = useSetHelpers();
 </script>
 
 <style scoped>
@@ -34,7 +37,25 @@ p {
             <p>{{ notif.data }}</p>
         </template>
         <template v-else-if="notif.type === 'minting_set'">
-            <p>Set '{{ notif.data.name }}' is being minted.</p>
+            <p>Set <RouterLink class="text-primary" :to="`/set/${notif.data.network}/${notif.data.set_id}`">'{{ notif.data.name }}'</RouterLink> is being minted.</p>
+        </template>
+        <template v-else-if="notif.type === 'set_mint_confirmed'">
+            <p>Set <RouterLink class="text-primary" :to="`/set/${notif.data.network}/${notif.data.set_id}`">'{{ notif.data.name }}'</RouterLink> was sucessfully minted.</p>
+        </template>
+        <template v-else-if="notif.type === 'set_mint_rejected'">
+            <p>Set '{{ notif.data.name }}' failed to mint.<br>There was an error with the transaction.</p>
+            <p v-if="notif.data.local_set_restored">
+                The <RouterLink class="text-primary" :to="getSetRoute(notif.data.local_set_restored)">unminted set</RouterLink> was restored in the work-in-progress section of your profile.
+            </p>
+        </template>
+        <template v-else-if="notif.type === 'set_delete_sent'">
+            <p>Set '{{ notif.data.name }}' is being disassembled.</p>
+        </template>
+        <template v-else-if="notif.type === 'set_delete_confirmed'">
+            <p>Set '{{ notif.data.name }}' was sucessfully disassembled.</p>
+        </template>
+        <template v-else-if="notif.type === 'set_delete_rejected'">
+            <p>Set '{{ notif.data.name }}' failed to disassemble.<br>There was an error with the transaction.</p>
         </template>
         <template v-else-if="notif.type === 'box_purchase_started'">
             <p>The transaction to purchase your box was sent.</p>

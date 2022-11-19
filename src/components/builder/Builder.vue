@@ -46,8 +46,9 @@ async function initializeStartSet() {
     if (route.query['set'])
         try {
             const setId = route.query['set'] as string;
-            if (setsManager.getInfo(setId))
-                await selectSet(setsManager.getInfo(setId).getSet());
+            const info = setsManager.getInfo(setId);
+            if (info && !info.onchainId)
+                await selectSet(info.getSet());
             else if (userSetStore.current?.setData[setId])
                 await selectSet(userSetStore.current.setData[setId].data);
             else {

@@ -96,7 +96,7 @@ const inventoryBooklets = computed(() => {
 });
 
 const creationsWIP = computed(() => {
-    return Object.values(setsManager.setsInfo).filter(x => !x.booklet).map(x => x.getSet()) || [];
+    return Object.values(setsManager.setsInfo).filter(x => !x.booklet && !x.onchainId).map(x => x.getSet()) || [];
 })
 
 const draftBooklets = computed(() => {
