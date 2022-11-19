@@ -109,7 +109,7 @@ const onCloseMenu = () => {
 
 <style scoped>
 #app button {
-    @apply text-xs tall-sm:text-sm justify-between mx-2 py-1 tall-sm:py-2 tall-md:py-3;
+    @apply text-xs tall-sm:text-sm font-normal justify-between mx-2 py-1 tall-sm:py-2 tall-md:py-3;
 }
 #app hr {
     @apply my-1 tall-md:my-2;

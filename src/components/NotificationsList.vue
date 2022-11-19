@@ -25,15 +25,13 @@ p {
 <template>
     <div v-if="notifs.length" class="text-sm flex flex-col-reverse">
         <div v-for="notif, i of notifs" :key="i" class="w-full">
-            <div :class="['w-full text-left relative flex justify-between p-3 select-none', border(i), notif.read ? 'text-grad-darker' : 'hover:bg-grad-light'].join(' ')" @click="notif.read = true">
-                <div class="grow">
-                    <Notification :notif="notif"/>
-                </div>
-                <p class="basis-[20px] text-right text-primary text-lg">{{ notif.read ? '' : '•' }}</p>
+            <div :class="`w-full text-left relative select-none ${border(i)} ${notif.read ? 'text-grad-darker' : 'hover:bg-grad-light'}`" @click="notif.read = true">
+                <Notification :notif="notif" class="py-2 px-4"/>
+                <i v-show="!notif.read" class="absolute right-[1.125rem] top-[1.2rem] text-right text-primary text-[0.5rem] fas fa-circle"/>
             </div>
         </div>
     </div>
     <div v-else>
-        <p class="px-4 py-2 text-grad-darker select-none text-sm">You don't have any notifications</p>
+        <p class="py-2 text-grad-darker select-none text-sm text-left">You don't have any notifications</p>
     </div>
 </template>

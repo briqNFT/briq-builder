@@ -278,8 +278,8 @@ button:not(.btn):not(.nostyle)::before {
             <template #title>Export set</template>
             <div class="relative flex justify-center items-center" id="totoro">
                 <div class="absolute top-2 right-2 flex gap-2">
-                    <Btn secondary @click="cropScreenshot"><i class="fa-solid fa-crop-simple"/></Btn>
-                    <Btn secondary @click="retakeScreenshot"><i class="fa-solid fa-camera"/></Btn>
+                    <Btn secondary @click="cropScreenshot"><i class="far fa-crop-simple"/></Btn>
+                    <Btn secondary @click="retakeScreenshot"><i class="far fa-camera"/></Btn>
                 </div>
                 <img v-show="previewImage" class="max-h-[24rem] bg-background rounded-md" :src="previewImage">
                 <div v-if="!previewImage" class="h-[12rem] bg-background rounded-md flex items-center justify-center text-sm"><p class="p-4">...Taking HD Screenshot...</p></div>

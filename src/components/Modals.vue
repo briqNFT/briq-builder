@@ -3,7 +3,7 @@ import Modal from './Modal.vue';
 </script>
 
 <template>
-    <div class="absolute top-0 left-0 h-screen w-full invisible overflow-hidden">
+    <div class="absolute z-[1000] top-0 left-0 h-screen w-full invisible overflow-hidden">
         <Modal
             v-for="(data, index) in store.modals"
             :key="data.id"

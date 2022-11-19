@@ -147,7 +147,7 @@ let lastCopy = 0;
 const copy = (id: string) => {
     navigator.clipboard.writeText(id);
     if (Date.now() - lastCopy > 500) {
-        pushPopup('info', 'Set ID copied')
+        pushPopup('info', 'Set ID copied', `${ id.slice(0, 7) }...${ id.slice(-3)}`)
         lastCopy = Date.now();
     }
 }
@@ -229,8 +229,7 @@ div[data-name='menu'] button {
                 <div class="p-4 flex flex-col gap-2">
                     <h5 class="font-normal text-grad-dark">Account</h5>
                     <template v-if="userAddress">
-                        <p class="block lg:hidden font-medium">{{ userAddress ? `${userAddress.slice(0, 5)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
-                        <p class="hidden lg:block font-medium">{{ userAddress ? `${userAddress.slice(0, 9)}...${userAddress.slice(-7)}` : 'No wallet selected' }}</p>
+                        <p class="font-medium">{{ userAddress ? `${userAddress.slice(0, 6)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
                         <p class="">{{ getNetworkName(getCurrentNetwork()) }}</p>
                     </template>
                     <p v-else class="my-4">Connect your wallet to access more functionality.</p>
@@ -399,7 +398,7 @@ div[data-name='menu'] button {
                             @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
                             <template #subtitle>
                                 <p class="mx-4 text-grad-dark relative">
-                                    {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-2) }}
+                                    {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-3) }}
                                     <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
                                     <span class="absolute bottom-0 right-0">
                                         <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
@@ -444,13 +443,16 @@ div[data-name='menu'] button {
                             :show-pending-marker="creation?.pending"
                             @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
                             <template #subtitle>
-                                <p class="px-4 text-xs break-all text-grad-dark flex justify-between">
-                                    {{ creation.id }}
-                                    <MenuDropdown no-background no-marker class="cardContextualMenu w-min p-1 text-sm text-grad-light">
-                                        <template #button><i class="fas fa-ellipsis-h"/></template>
-                                        <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
-                                        <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
-                                    </MenuDropdown>
+                                <p class="mx-4 text-grad-dark relative">
+                                    {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-3) }}
+                                    <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
+                                    <span class="absolute bottom-0 right-0">
+                                        <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
+                                            <template #button><i class="fas fa-ellipsis-h"/></template>
+                                            <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
+                                            <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
+                                        </MenuDropdown>
+                                    </span>
                                 </p>
                             </template>
                             <template #content>

@@ -74,7 +74,7 @@ p {
         </template>
         <p v-show="!toast" class="text-xs text-grad-dark mt-2 flex justify-between">
             <span>{{ new Date(notif.timestamp).toLocaleString("en-uk", { dateStyle: "long", timeStyle: "short" }) }}</span>
-            <span v-if="notif.data.tx_hash"><a :href="ExplorerTxUrl(notif.data.tx_hash)" target="_blank" class="text-primary">TX</a></span>
+            <span v-if="notif.data.tx_hash"><a :href="ExplorerTxUrl(notif.data.tx_hash)" target="_blank" class="text-primary">See transaction</a></span>
         </p>
     </div>
 </template>
