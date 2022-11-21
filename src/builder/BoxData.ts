@@ -19,7 +19,7 @@ export function useBoxData(tokenName: string) {
     const durationLeft = computed(() => saledata.value?.durationLeft());
 
     const nbOwned = computed(() => {
-        return userBoxesStore.current?.availableBoxes?.filter(x => x === tokenName).length ?? '...';
+        return userBoxesStore.current?.availableBoxes?.filter(x => x === tokenName).length || 0;
     });
 
     const hasPendingActivity = computed(() => {
