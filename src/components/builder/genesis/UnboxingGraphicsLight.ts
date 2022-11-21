@@ -252,12 +252,10 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     else
         renderer.shadowMap.type = THREE.VSMShadowMap;
 
-    // SSAO is costly, enable on ultra.
-    composer.passes[1].enabled = quality >= SceneQuality.ULTRA;
-    // FXAA is fast enough, enable on Medium.
-    composer.passes[3].enabled = quality === SceneQuality.MEDIUM;
-    // SMAA is better, enable on High onwards.
-    composer.passes[4].enabled = quality > SceneQuality.MEDIUM;
+    // For speed on release: disable SMAA, enable FXAA
+    composer.passes[1].enabled = false;
+    composer.passes[3].enabled = true;
+    composer.passes[4].enabled = false;
 
     const camzoom = 0.7;
     camera.position.set(camzoom * 1, camzoom * 0.8, camzoom * -1);
