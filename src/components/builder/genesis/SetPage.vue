@@ -27,6 +27,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { pushPopup } from '@/Notifications';
 import DownloadSet from '../modals/DownloadSet.vue';
 import Tooltip from '@/components/generic/Tooltip.vue';
+import { toBN } from 'starknet/utils/number';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -57,9 +58,6 @@ const booklet_id = computed(() => {
     return userSetStore.current?.setData[route.params.set_id as string]?.booklet;
 });
 
-const bookletQuery = computed(() => booklet_id.value ? genesisStore.metadata[booklet_id.value] : undefined);
-const bookletData = computed(() => bookletQuery.value?._data);
-
 const setKind = computed(() => booklet_id.value ? 'OFFICIAL' : 'PERSONAL');
 
 const isOwned = computed(() => !!userSetStore.current?.setData[route.params.set_id as string]);
@@ -87,9 +85,12 @@ watch([booklet_id, set], () => {
         bookletMetadata = useBooklet(mode === 'BOOKLET' ? set : undefined, booklet_id);
 }, { immediate: true })
 
+const bookletData = computed(() => bookletMetadata?.bookletData.value);
 
 // Fallback case for sharing sets.
 watchEffect(() => {
+    if (mode !== 'CREATION')
+        return;
     if (userSetStore.state !== 'WALLET_LOADED')
         return;
     if (userSetStore.currentWallet) {
@@ -173,12 +174,18 @@ if (mode === 'CREATION') {
 
 const previewURL = computed(() => backendManager.getPreviewUrl(set.value?.id, (route.params.network as string) || getCurrentNetwork()));
 
+const token_decimal = computed(() => {
+    if (route.params.set_id)
+        return toBN(route.params.set_id as string).toString();
+    return bookletData.value?.token_id || '0';
+})
+
 const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D' | 'BOOKLET');
 </script>
 
 <template>
     <GenericItemPage
-        :status="bookletQuery?._status || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
+        :status="bookletData && 'LOADED' || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
         :attributes="attributes">
         <template #full-image="{ status }">
             <div class="relative h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
@@ -259,8 +266,8 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <h2>Want to list your booklet?</h2>
                 <p>Seeling your booklet means you will no longer be able to mint the authenticated officiel set.</p>
                 <div class="flex gap-2 mt-4 mb-10">
-                    <a href="https://testnet.aspect.co/" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
-                    <a href="https://mintsquare.io/starknet" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
+                    <a :href="`https://aspect.co/asset/0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
+                    <a :href="`https://mintsquare.io/asset/starknet/0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
                 </div>
                 <div v-if="booklet_id">
                     <Suspense>
@@ -293,8 +300,8 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <div>
                     <h4>See on</h4>
                     <p class="flex gap-3 mt-4 mb-10">
-                        <a href="https://testnet.aspect.co/" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
-                        <a href="https://mintsquare.io/starknet" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
+                        <a :href="`https://aspect.co/asset/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
+                        <a :href="`https://mintsquare.io/asset/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
                     </p>
                 </div>
                 <div v-if="set?.id">
