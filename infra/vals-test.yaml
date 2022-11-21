@@ -10,3 +10,10 @@ defaultLabels:
   env: test
 #! Temporarily secure the test site.
 useSecurity: true
+resources:
+  node:
+    cpu: "100m"
+    memory: "128Mi"
+  nginx:
+    cpu: "50m"
+    memory: "128Mi"

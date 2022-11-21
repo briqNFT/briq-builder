@@ -8,3 +8,10 @@ sites: ["www.briq.construction", "briq.construction"]
 defaultLabels:
   appname: briq
   env: prod
+resources:
+  node:
+    cpu: "1000m"
+    memory: "2048Mi"
+  nginx:
+    cpu: "1000m"
+    memory: "512Mi"
