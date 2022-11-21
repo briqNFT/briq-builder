@@ -33,6 +33,13 @@ spec:
           requests:
             cpu: #@ data.values.resources.nginx.cpu
             memory: #@ data.values.resources.nginx.memory 
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 2
         livenessProbe:
           httpGet:
             path: /health
@@ -48,6 +55,13 @@ spec:
           requests:
             cpu: #@ data.values.resources.node.cpu
             memory: #@ data.values.resources.node.memory
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 2
         livenessProbe:
           httpGet:
             path: /health
