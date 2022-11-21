@@ -133,13 +133,13 @@ export class WalletStore {
     }
 
     get userWalletAddress(): UserID | undefined {
-        if (getCurrentNetwork() !== (APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet'))
+        if (APP_ENV === 'prod' && getCurrentNetwork(true) !== 'starknet-mainnet')
             return undefined;
         return this._userWalletAddress;
     }
 
     get user_id(): UserID | undefined {
-        if (!this._userWalletAddress || getCurrentNetwork() !== (APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet'))
+        if (!this._userWalletAddress || (APP_ENV === 'prod' && getCurrentNetwork(true) !== 'starknet-mainnet'))
             return undefined;
         return `${getCurrentNetwork(true)}/${this._userWalletAddress}`;
     }

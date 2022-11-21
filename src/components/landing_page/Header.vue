@@ -43,6 +43,9 @@ onMounted(() => {
 #app .isSticky {
     box-shadow: 0 3px 6px 0 rgba(var(--color-grad-darker) /  0.05);
 }
+::v-deep(button.roundedButton)::before {
+    @apply !rounded;
+}
 </style>
 
 <template>
@@ -66,7 +69,7 @@ onMounted(() => {
                         <briqIcon width="0.9rem" class="inline-block"/> {{ chainBriqs?.getNbBriqs() }}
                     </div>
                     <div class="flex-none">
-                        <MenuDropdown no-background icon class="text-xs">
+                        <MenuDropdown no-background icon class="text-xs roundedButton">
                             <template #button><SmallProfileIcon width="1rem" height="1rem" class="inline-block !mr-2"/></template>
                             <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
                             <Btn no-background class="justify-start" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
@@ -76,10 +79,12 @@ onMounted(() => {
                     <NotificationsMenu class="hidden sm:block"/>
                 </template>
                 <template v-else-if="!walletStore?.userWalletAddress && walletStore?._userWalletAddress">
-                    <MenuDropdown no-background icon class="text-xs">
+                    <MenuDropdown no-background icon class="text-xs py-0 px-1 roundedButton">
                         <template #button>
-                            <div class="mr-1"><i class="text-md far fa-triangle-exclamation text-info-error"/></div>
-                            Invalid network
+                            <div class="select-none z-10 rounded font-normal bg-primary bg-opacity-20 text-sm text-primary p-2">
+                                <span class="hidden md:block">Wrong network, switch to mainnet</span>
+                                <span class="md:hidden block">Switch to mainnet</span>
+                            </div>
                             <SmallProfileIcon width="1rem" height="1rem" class="inline-block !mx-2"/>
                         </template>
                         <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
