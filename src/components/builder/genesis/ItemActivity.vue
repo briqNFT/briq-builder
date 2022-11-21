@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { backendManager } from '@/Backend';
+import { ADDRESSES } from '@/chain/Contracts';
 import { ExplorerTxUrl } from '@/chain/Explorer';
+import { toBN } from 'starknet/utils/number';
 import { computed } from 'vue';
 
 
@@ -13,14 +15,10 @@ const props = defineProps<{
 
 const data = await backendManager.fetch(`v1/activity/${props.type}/${props.network}/${props.item}`);
 
-data.sort((a, b) => {
-    return b.block - a.block;
-});
-
 const user_wallet = computed(() => props.user?.split('/')?.[1])
 
 const actualData = computed(() => data.map((item: unknown) => {
-    if (props.type === 'set') {
+    if (props.type === 'set')
         if (item.from === '0x0')
             return {
                 kind: 'minted',
@@ -28,7 +26,25 @@ const actualData = computed(() => data.map((item: unknown) => {
                 date: new Date(item.timestamp),
                 tx_hash: item.tx_hash,
             }
-    } else if (props.type === 'booklet') {
+        else if (item.to === '0x0')
+            return {
+                kind: 'disassembled',
+                by: item.from.slice(0, 6) + '...' + item.from.slice(-3),
+                date: new Date(item.timestamp),
+                tx_hash: item.tx_hash,
+            }
+        else
+            return {
+                kind: 'transferred',
+                by: item.from.slice(0, 6) + '...' + item.from.slice(-3),
+                to: item.to.slice(0, 6) + '...' + item.to.slice(-3),
+                date: new Date(item.timestamp),
+                tx_hash: item.tx_hash,
+            }
+
+    else if (props.type === 'booklet')
+        return null;
+    /*
         if (!user_wallet.value || !(item.from === user_wallet.value || item.to === user_wallet.value))
             return null;
         else if (item.from === user_wallet.value)
@@ -47,10 +63,11 @@ const actualData = computed(() => data.map((item: unknown) => {
                 date: new Date(item.timestamp),
                 tx_hash: item.tx_hash,
             }
-    } else if (props.type === 'box')
-        if (!user_wallet.value || !(item.from === user_wallet.value || item.to === user_wallet.value))
+        */
+    else if (props.type === 'box')
+        if (!user_wallet.value || !(toBN(item.from).cmp(toBN(user_wallet.value)) === 0 || toBN(item.to).cmp(toBN(user_wallet.value)) === 0))
             return null;
-        else if (item.from === user_wallet.value && item.to === '0x0')
+        else if (toBN(item.from).cmp(toBN(user_wallet.value)) === 0 && item.to === '0x0')
             return {
                 kind: 'unboxed',
                 by: item.from.slice(0, 6) + '...' + item.from.slice(-3),
@@ -58,21 +75,39 @@ const actualData = computed(() => data.map((item: unknown) => {
                 date: new Date(item.timestamp),
                 tx_hash: item.tx_hash,
             }
-        else if (item.from === '0x344c97a38c9b5f632e0f1de386402ff0e3ebcf6878a65f588aa4375f9750c00')
+        else if (toBN(item.from).cmp(toBN(ADDRESSES[props.network].auction)) === 0 && toBN(item.to).cmp(toBN(user_wallet.value)) === 0)
             return {
                 kind: 'bought',
                 by: item.to.slice(0, 6) + '...' + item.to.slice(-3),
                 date: new Date(item.timestamp),
                 tx_hash: item.tx_hash,
             }
-}).filter(x => x));
+        else if (toBN(item.to).cmp(toBN(user_wallet.value)) === 0)
+            return {
+                kind: 'obtained',
+                by: item.to.slice(0, 6) + '...' + item.to.slice(-3),
+                date: new Date(item.timestamp),
+                tx_hash: item.tx_hash,
+            }
+}).filter(x => x).sort((a, b) => {
+    if (a.date - b.date !== 0)
+        return b.date - a.date;
+    if (a.kind === 'unboxed')
+        return -1;
+    if (b.kind === 'unboxed')
+        return 1;
+    return 0;
+}));
 
 const icons = {
     'minted': 'fa-fingerprint',
+    'disassembled': 'fa-recycle',
+    'transferred': 'fa-arrow-right-arrow-left',
     'wrapped': 'fa-gift',
     'unwrapped': 'fa-box-open',
     'unboxed': 'fa-box-open',
     'bought': 'fa-coins',
+    'obtained': 'fa-parachute-box',
 }
 </script>
 
@@ -90,9 +125,12 @@ const icons = {
             <div class="flex-1">
                 <p class="font-medium mb-2">
                     <template v-if="item.kind === 'minted'">Minted by <span class="text-primary">{{ item.by }}</span></template>
+                    <template v-if="item.kind === 'disassembled'">Disassembled by <span class="text-primary">{{ item.by }}</span></template>
+                    <template v-if="item.kind === 'transferred'">Transferred by <span class="text-primary">{{ item.by }}</span> to <span class="text-primary">{{ item.to }}</span></template>
                     <template v-if="item.kind === 'wrapped'">Official set minted by <span class="text-primary">{{ item.by }}</span></template>
                     <template v-if="item.kind === 'unwrapped'">Set disassembled by <span class="text-primary">{{ item.by }}</span></template>
                     <template v-if="item.kind === 'bought'">Bought one</template>
+                    <template v-if="item.kind === 'obtained'">Obtained one</template>
                     <template v-if="item.kind === 'unboxed'">Opened one</template>
                 </p>
                 <p class="text-xs">on <span class="text-grad-dark">{{ item.date.toLocaleString("en-uk", { dateStyle:"long" }) }}</span></p>

@@ -96,10 +96,11 @@ watchEffect(() => {
     if (userSetStore.currentWallet) {
         if (userSetStore.current?.status === 'FETCHING')
             return;
-        if (userSetStore.current?.sets.indexOf(route.params.set_id as string) !== -1)
+        if (userSetStore.current?.sets.indexOf(route.params.set_id as string) !== -1) {
+            externalSetData.value = undefined;
             return;
-    } else
-        return;
+        }
+    }
     if (externalSetData.value)
         return;
     // At this point, we assume the set is external and we must load its data explicitly.
