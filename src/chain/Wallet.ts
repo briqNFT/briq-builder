@@ -23,7 +23,7 @@ export class WalletStore {
     signer: undefined | AccountInterface = undefined;
 
     // See also user_id below.
-    userWalletAddress = '';
+    _userWalletAddress = '';
 
     starknetObject?: IStarknetWindowObject;
 
@@ -35,7 +35,7 @@ export class WalletStore {
         logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
 
         if (storedAddress && storedAddress.indexOf('/')) {
-            this.userWalletAddress = storedAddress.split('/')[1];
+            this._userWalletAddress = storedAddress.split('/')[1];
             setNetwork(storedAddress.split('/')[0]);
         }
 
@@ -94,7 +94,7 @@ export class WalletStore {
     async setSignerFromGSW() {
         if (this.starknetObject?.isConnected) {
             this.signer = markRaw(this.starknetObject.account);
-            this.userWalletAddress = this.starknetObject.account.address;
+            this._userWalletAddress = this.starknetObject.account.address;
             this.setProviderFromSigner();
         }
     }
@@ -105,12 +105,7 @@ export class WalletStore {
             clearDefaultWallet: true,
         });
         this.signer = undefined;
-        this.userWalletAddress = '';
-    }
-
-    // TODO: might want to split the signer network from the provider network?
-    getNetwork() {
-        return getCurrentNetwork();
+        this._userWalletAddress = '';
     }
 
     // Return the provider for the current network, even if we aren't signed.
@@ -132,15 +127,21 @@ export class WalletStore {
     }
 
     getShortAddress() {
-        if (!this.userWalletAddress)
+        if (!this._userWalletAddress)
             return undefined;
-        return this.userWalletAddress.substring(0, 5) + '...' + this.userWalletAddress.substring(this.userWalletAddress.length - 4);
+        return this._userWalletAddress.substring(0, 5) + '...' + this._userWalletAddress.substring(this._userWalletAddress.length - 4);
+    }
+
+    get userWalletAddress(): UserID | undefined {
+        if (getCurrentNetwork() !== (APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet'))
+            return undefined;
+        return this._userWalletAddress;
     }
 
     get user_id(): UserID | undefined {
-        if (!this.userWalletAddress)
+        if (!this._userWalletAddress || getCurrentNetwork() !== (APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet'))
             return undefined;
-        return `${getCurrentNetwork()}/${this.userWalletAddress}`;
+        return `${getCurrentNetwork(true)}/${this._userWalletAddress}`;
     }
 }
 

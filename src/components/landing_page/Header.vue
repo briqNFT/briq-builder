@@ -75,6 +75,18 @@ onMounted(() => {
                     </div>
                     <NotificationsMenu class="hidden sm:block"/>
                 </template>
+                <template v-else-if="!walletStore?.userWalletAddress && walletStore?._userWalletAddress">
+                    <MenuDropdown no-background icon class="text-xs">
+                        <template #button>
+                            <div class="mr-1"><i class="text-md far fa-triangle-exclamation text-info-error"/></div>
+                            Invalid network
+                            <SmallProfileIcon width="1rem" height="1rem" class="inline-block !mx-2"/>
+                        </template>
+                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                        <Btn no-background class="justify-start" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
+                        <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
+                    </MenuDropdown>
+                </template>
                 <template v-else>
                     <Btn class="flex-none text-md" secondary @click="connectWallet">Connect</Btn>
                 </template>

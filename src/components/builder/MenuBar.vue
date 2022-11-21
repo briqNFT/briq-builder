@@ -131,6 +131,19 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                     <NotificationsMenu/>
                     <Btn @click="pushModal(ExportSetVue, { setId: currentSet.id })" :disabled="!canMintSet">Mint</Btn>
                 </template>
+                <template v-else-if="!maybeStore?.userWalletAddress && maybeStore?._userWalletAddress">
+                    <MenuDropdown no-background icon class="text-xs">
+                        <template #button>
+                            <div class="mr-1"><i class="text-md far fa-triangle-exclamation text-info-error"/></div>
+                            Invalid network
+                            <ProfileIcon width="1rem" height="1rem" class="inline-block !mx-2"/>
+                        </template>
+                        <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                        <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
+                        <Btn no-background class="justify-start" icon @click="maybeStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
+                    </MenuDropdown>
+                    <Btn disabled="true" id="mintbutton">Mint</Btn>
+                </template>
                 <template v-else>
                     <Btn class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
                     <Btn disabled="true" id="mintbutton">Mint</Btn>
