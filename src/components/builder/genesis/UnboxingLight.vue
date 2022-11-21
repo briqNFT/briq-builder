@@ -104,7 +104,6 @@ const sapinState = new class implements FsmState {
     async onEnter() {}
     frame(delta: number) {
         sceneBox.rotateY(Math.PI/8*delta);
-        console.log(sceneBox.quaternion.clone())
     }
 }
 
