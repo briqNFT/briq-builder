@@ -191,16 +191,19 @@ let initialCall = () => {
         actions: {
             setNetwork(network: CHAIN_NETWORKS) {
                 this.network = network;
-                for (const key in this._metadata)
-                    delete this._metadata[key];
+                this.refreshBoxes();
             },
             refreshBoxes() {
+                for (const key in this._themedata)
+                    delete this._themedata[key];
                 for (const key in this._boxes)
                     delete this._boxes[key];
                 for (const key in this._saledata)
                     delete this._saledata[key];
                 for (const key in this._metadata)
                     delete this._metadata[key];
+                for (const key in this._boxes)
+                    delete this._boxes[key];
                 //autoFetchable(this._boxes as any, (theme_id) => backendManager.fetch(`v1/${this.network}/${theme_id}/boxes`));
             },
         },
