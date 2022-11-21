@@ -305,12 +305,13 @@ button:not(.btn):not(.nostyle)::before {
     <template v-else-if="!exportStep && booklet">
         <Window size="w-[40rem]">
             <template #title>Mint an official set</template>
+            <p class="mb-4">Minting an official set will wrap the corresponding booklet inside the set.</p>
             <div class="relative flex justify-center items-center bg-background rounded-md p-4">
                 <img v-show="previewImage" class="max-h-[24rem] bg-background rounded-md" :src="previewImage">
                 <div v-if="!previewImage" class="h-[12rem] bg-background rounded-md flex items-center justify-center text-sm"><p class="p-4">...Taking HD Screenshot...</p></div>
                 <!--<img class="max-h-[28rem]" :src="genesisStore.coverItemRoute(booklet)">-->
             </div>
-            <div class="my-2">
+            <div class="mt-3 mb-2">
                 <h3>{{ bookletData!.name }}</h3>
             </div>
             <div class="my-2">
