@@ -244,7 +244,7 @@ div[data-name='menu'] button {
             <div class="flex gap-8">
                 <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Boxes & Booklets&nbsp;<span class="pastille">{{ inventoryBoxes.length + inventoryBooklets.length }}</span></p>
                 <p :class="`font-medium ${activeTab === 'WIP' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('WIP')">Work in Progress&nbsp;<span class="pastille">{{ creationsWIP.length + draftBooklets.length }}</span></p>
-                <p :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">Minted Sets&nbsp;<span class="pastille">{{ officialCreations.length + creations.length }}</span></p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">Minted Sets&nbsp;<span class="pastille">{{ officialCreations.length + creations.length }}</span></p>
                 <!--<p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>-->
             </div>
         </div>
