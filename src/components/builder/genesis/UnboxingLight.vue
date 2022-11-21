@@ -83,13 +83,14 @@ const loadingState = new class implements FsmState {
 
     async onEnter() {
         await sceneReady;
-        await this.hasEnoughFrames;
+        //await this.hasEnoughFrames;
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
     }
 
     frame(delta: number) {
+        /*
         this.fps.unshift(delta * 1000);
         if (this.fps.length > 120)
             this.fps.pop();
@@ -97,6 +98,7 @@ const loadingState = new class implements FsmState {
             this.setEnoughFrames();
             this.setEnoughFrames = undefined;
         }
+        */
     }
 }
 
@@ -410,7 +412,7 @@ onMounted(async () => {
     }
     requestAnimationFrame(frame);
 
-    if (APP_ENV !== 'prod') {
+    if (APP_ENV !== 'prod' && false) {
         /** FPS counter */
         const Stats = (await import('stats.js')).default;
         var stats = new Stats();
