@@ -46,13 +46,19 @@ const wave1Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) =>
 }));
 
 const wave2Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
-    return genesisStore.saledata?.[x]?._data?.wave === '2';
+    const sdata = genesisStore.saledata?.[x]?._data;
+    if (!sdata)
+        return false;
+    return sdata.startIn() <= 0 && sdata.wave === '2';
 }).sort((a: string, b: string) => {
     return genesisStore.saledata![a]._data?.price.cmp(genesisStore.saledata![b]._data?.price);
 }));
 
 const wave3Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
-    return genesisStore.saledata?.[x]?._data?.wave === '3';
+    const sdata = genesisStore.saledata?.[x]?._data;
+    if (!sdata)
+        return false;
+    return sdata.startIn() <= 0 && sdata.wave === '3';
 }).sort((a: string, b: string) => {
     return genesisStore.saledata![a]._data?.price.cmp(genesisStore.saledata![b]._data?.price);
 }));
@@ -183,13 +189,13 @@ watch([saleStartsInSeconds], (nv: number, ov: number) => {
                                         </router-link>
                                     </div>
                                 </template>
+                                <h4
+                                    class="font-medium bg-no-repeat bg-center flex justify-center mt-10 mb-6"
+                                    :style="{ backgroundImage: `-webkit-image-set(url(${ThemeSeparatorImg}) 2x)` }">
+                                    <span class="flex-1 text-right mr-8">WAVE #2</span>
+                                    <span class="flex-1 font-normal ml-4">2022-11-24</span>
+                                </h4>
                                 <template v-if="wave2Boxes.length">
-                                    <h4
-                                        class="font-medium bg-no-repeat bg-center flex justify-center mt-10 mb-6"
-                                        :style="{ backgroundImage: `-webkit-image-set(url(${ThemeSeparatorImg}) 2x)` }">
-                                        <span class="flex-1 text-right mr-8">WAVE #2</span>
-                                        <span class="flex-1 font-normal ml-4">2022-11-24</span>
-                                    </h4>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
                                         <router-link
                                             v-for="token_id, i in wave2Boxes" :key="token_id + i"
@@ -198,12 +204,38 @@ watch([saleStartsInSeconds], (nv: number, ov: number) => {
                                         </router-link>
                                     </div>
                                 </template>
+                                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
+                                    <div class="pointer-events-none">
+                                        <div class="flex justify-center items-center opacity-70 saturate-50 px-8">
+                                            <img :src="MysteryBoxImg" class="">
+                                        </div>
+                                    </div>
+                                    <div class="hidden md:block pointer-events-none">
+                                        <div class="flex justify-center items-center opacity-70 saturate-50 px-8">
+                                            <img :src="MysteryBoxImg" class="">
+                                        </div>
+                                    </div>
+                                    <div class="hidden lg:block pointer-events-none">
+                                        <div class="flex justify-center items-center opacity-70 saturate-50 px-8">
+                                            <img :src="MysteryBoxImg" class="">
+                                        </div>
+                                    </div>
+                                </div>
                                 <h4
                                     class="font-medium bg-no-repeat bg-center flex justify-center mt-10 mb-6"
                                     :style="{ backgroundImage: `-webkit-image-set(url(${ThemeSeparatorImg}) 2x)` }">
                                     <span class="flex-1 text-right mr-8">WAVE #3</span>
                                     <span class="flex-1 font-normal ml-4">2022-11-26</span>
                                 </h4>
+                                <template v-if="wave3Boxes.length">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
+                                        <router-link
+                                            v-for="token_id, i in wave3Boxes" :key="token_id + i"
+                                            :to="{ name: 'BoxSale', 'params': { 'theme': token_id.split('/')[0], 'box': token_id.split('/')[1] } }">
+                                            <BoxCard :mode="saleStartsInSeconds < 0 ? 'SALE' : 'PRESALE'" :token-name="token_id"/>
+                                        </router-link>
+                                    </div>
+                                </template>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
                                     <div class="pointer-events-none">
                                         <div class="flex justify-center items-center opacity-70 saturate-50 px-8">
