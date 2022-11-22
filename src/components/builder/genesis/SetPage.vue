@@ -36,9 +36,9 @@ const { openSetInBuilder, disassembleSet } = useSetHelpers();
 const { createBookletSet } = useUnboxHelpers();
 
 const createSet = () => {
-    if (!bookletData.value)
+    if (!bookletMetadata?.bookletData.value)
         return;
-    openSetInBuilder(createBookletSet(booklet_id.value!, bookletData.value!.name, bookletData.value!.description));
+    openSetInBuilder(createBookletSet(booklet_id.value!, bookletMetadata?.bookletData.value!.name, bookletMetadata?.bookletData.value!.description));
 }
 
 const doDisassembly = async () => {
@@ -85,8 +85,6 @@ watch([booklet_id, set], () => {
         bookletMetadata = useBooklet(mode === 'BOOKLET' ? set : undefined, booklet_id);
 }, { immediate: true })
 
-const bookletData = computed(() => bookletMetadata?.bookletData.value);
-
 // Fallback case for sharing sets.
 watchEffect(() => {
     if (mode !== 'CREATION')
@@ -114,6 +112,15 @@ watchEffect(() => {
             }
     })
 })
+
+const description = computed(() => {
+    if (mode === 'CREATION' && set.value?.description)
+        return set.value.description.split('\n\n');
+    if (mode === 'BOOKLET' && bookletMetadata?.bookletData?.value?.description)
+        return bookletMetadata.bookletData.value.description.split('\n\n');
+    return [];
+});
+
 
 const attributes = computed(() => {
     if (mode === 'BOOKLET') {
@@ -178,7 +185,7 @@ const previewURL = computed(() => backendManager.getPreviewUrl(set.value?.id, (r
 const token_decimal = computed(() => {
     if (route.params.set_id)
         return toBN(route.params.set_id as string).toString();
-    return bookletData.value?.token_id || '0';
+    return bookletMetadata.bookletData.value?.token_id || '0';
 })
 
 const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D' | 'BOOKLET');
@@ -186,7 +193,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
 
 <template>
     <GenericItemPage
-        :status="bookletData && 'LOADED' || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
+        :status="(!!bookletMetadata?.bookletData && 'LOADED') || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
         :attributes="attributes">
         <template #full-image="{ status }">
             <div class="relative h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
@@ -211,7 +218,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         <div class="absolute top-4 left-4 flex flex-col gap-4" v-if="mode === 'CREATION'">
                             <Btn no-style :class="`${ view === 'PREVIEW' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="previewURL"></Btn>
                             <Btn no-style :class="`${ view === '3D' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20 p-0 text-xl relative`" @click="view='3D'"><img class="absolute z-[-1] p-2 max-w-full max-h-full" :src="previewURL"><div class="w-full h-full flex justify-center items-center backdrop-blur-[2px] rounded-md bg-grad-lightest bg-opacity-70"><i class="far fa-360-degrees"/></div></Btn>
-                            <Btn no-style :class="`${ view === 'BOOKLET' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" v-if="bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
+                            <Btn no-style :class="`${ view === 'BOOKLET' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" v-if="bookletMetadata?.bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
                         </div>
                     </div>
                 </template>
@@ -225,10 +232,17 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
             <Btn no-background class="text-sm font-normal" @click="pushModal(DownloadSet, { setId: set?.id })">Download</Btn>
         </template>
         <template #default>
-            <h1>{{ set?.name || bookletData?.name }}</h1>
+            <h1>{{ set?.name || bookletMetadata?.bookletData?.name }}</h1>
             <template v-if="mode === 'BOOKLET'">
                 <h5 class="mt-1">Booklet<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme]._data?.name }}</span></h5>
-                <p class="mt-6 mb-8 whitespace-pre-line">{{ bookletData?.description }}</p>
+                <div class="mb-8">
+                    <p class="mt-6 mb-4 font-medium whitespace-pre-line">{{ description?.[0] ?? 'Loading' }}</p>
+                    <p
+                        v-for="par, i in description?.slice(1) || []" :key="i"
+                        class="whitespace-pre-line mb-2 text-justify">
+                        {{ par }}
+                    </p>
+                </div>
                 <template v-if="!set">
                     <h2>Unstarted booklet</h2>
                     <p>Click on the button below to open the briq builder and create your official Genesis set.</p>
@@ -280,7 +294,14 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <h5 class="mt-1">
                     {{ setKind === 'OFFICIAL' ? 'Official set' : 'Personal creation' }}<span class="font-normal"> - minted</span>
                 </h5>
-                <p class="mt-6 whitespace-pre-line">{{ set?.description }}</p>
+                <div class="mb-8">
+                    <p class="mt-6 mb-4 font-medium whitespace-pre-line">{{ description?.[0] ?? 'Loading' }}</p>
+                    <p
+                        v-for="par, i in description?.slice(1) || []" :key="i"
+                        class="whitespace-pre-line mb-2 text-justify">
+                        {{ par }}
+                    </p>
+                </div>
                 <p class="my-6 font-semibold cursor-pointer select-none w-fit" @click="copySetId">
                     ID: <span class="font-normal">{{ `${route.params.set_id.slice(0, 6)}...${route.params.set_id.slice(-4)}` }} <i class="far fa-copy"/></span>
                 </p>

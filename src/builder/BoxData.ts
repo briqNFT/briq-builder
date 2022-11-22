@@ -16,6 +16,12 @@ export function useBoxData(tokenName: string) {
     const saleQuery = computed(() => genesisStore.saledata[tokenName]);
     const saledata = computed(() => saleQuery.value?._data);
 
+    const description = computed(() => {
+        if (!item.value?.description)
+            return [];
+        return item.value.description.split('\n\n');
+    });
+
     const durationLeft = computed(() => saledata.value?.durationLeft());
 
     const nbOwned = computed(() => {
@@ -51,6 +57,7 @@ export function useBoxData(tokenName: string) {
         item,
         saleQuery,
         saledata,
+        description,
         getActualMode,
         durationLeft,
         nbOwned,

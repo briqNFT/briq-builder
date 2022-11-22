@@ -30,6 +30,7 @@ const {
     getActualMode,
     durationLeft,
     nbOwned,
+    description,
 } = useBoxData(token_id.value);
 
 const themeName = computed(() => route.params.theme);
@@ -165,9 +166,16 @@ p {
                             </router-link>
                         </p>
                         <h1>{{ boxName }}</h1>
-                        <p class="my-2 whitespace-pre-line">{{ item?.description ?? 'Loading' }}</p>
+                        <div>
+                            <p class="mb-4 font-medium whitespace-pre-line">{{ description?.[0] ?? 'Loading' }}</p>
+                            <p
+                                v-for="par, i in description?.slice(1) || []" :key="i"
+                                class="whitespace-pre-line mb-2 text-justify">
+                                {{ par }}
+                            </p>
+                        </div>
                         <div class="mb-6">
-                            <p>This box contains:</p>
+                            <p class="font-medium">This box contains:</p>
                             <div class="mt-1 mb-2 flex flex-nowrap items-center">
                                 <p class="pointer-events-none select-none w-14 flex-none text-center"><img class="inline h-10 brightness-[98%]" :src="genesisStore.coverBookletRoute(token_id, true)"></p>
                                 <p>One instruction <span class="font-medium">booklet NFT</span> that you can use to create an Official&nbsp;Set</p>

@@ -30,6 +30,7 @@ const {
     nbOwned,
     hasPendingActivity,
     isUnboxable,
+    description,
 } = useBoxData(box_id.value);
 
 const nbSetBriqs = computed(() => (item.value?.nb_briqs || 0) - (item.value?.nb_briqs_extra || 0))
@@ -78,7 +79,14 @@ const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
         <template #default>
             <h1>{{ item?.name }}</h1>
             <h5 class="mt-1">Unopened Box<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme as string]?._data?.name }}</span></h5>
-            <p class="mt-6 mb-8 whitespace-pre-line">{{ item?.description }}</p>
+            <div class="mb-8">
+                <p class="mt-6 mb-4 font-medium whitespace-pre-line">{{ description?.[0] ?? 'Loading' }}</p>
+                <p
+                    v-for="par, i in description?.slice(1) || []" :key="i"
+                    class="whitespace-pre-line mb-2 text-justify">
+                    {{ par }}
+                </p>
+            </div>
             <template v-if="nbOwned > 0">
                 <div>
                     <p>This box contains:</p>
