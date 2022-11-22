@@ -115,7 +115,6 @@ const shallDisplay = ref(false);
                 <template v-else-if="actualMode === 'SALE'">
                     <div v-if="saleQuery._status === 'LOADED'" class="px-4 flex justify-between text-sm leading-none py-[1px]">
                         <p v-if="saledata?.total_quantity === 1">Unique</p>
-                        <p v-else-if="saledata?.quantity_left ?? 1> 0">Selling out soon</p>
                         <p v-else>{{ saledata?.quantity_left }} / {{ saledata?.total_quantity }} left</p>
                     </div>
                 </template>
