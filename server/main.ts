@@ -5,10 +5,11 @@ import type { createServer, ViteDevServer } from 'vite';
 
 import * as fs from 'fs';
 import * as http from 'http';
-import * as https from 'https';
 import * as path from 'path';
 import * as url from 'url';
 import connect from 'connect';
+
+import { APP_ENV } from '@/Meta';
 
 const DEV = process.env.NODE_ENV === 'development';
 
@@ -62,27 +63,25 @@ async function runServer() {
             if (DEV)
                 processedTemplate = await vite!.transformIndexHtml(req.url!, processedTemplate);
 
-            if (req.url?.indexOf('/share') !== -1) {
+            if (req.url?.indexOf('/set') !== -1) {
                 const url_parts = url.parse(req.url!, true);
-                const setId = url_parts.query['set_id'];
-
+                const relevant_part = url_parts.path?.slice(5);
                 let data: any;
                 try {
                     // Fetch information from the API.
-                    // TODO: would perhaps be nice to not go through the external router.
-                    const apiUrl = getApiUrl(req.headers.host);
+                    const apiUrl = APP_ENV === 'prod' ? 'briq-api' : 'dev-briq-api';
                     data = await new Promise((resolve, reject) => {
                         try {
-                            const query = https.request(
+                            const query = http.request(
+                                `http://${apiUrl}/v1/metadata/${relevant_part}.json`,
                                 {
-                                    hostname: apiUrl,
-                                    port: 443,
+                                    port: 80,
                                     method: 'GET',
-                                    path: '/store_get/' + setId,
+                                    // Low timeout, we don't want to be too reliant on the API
+                                    timeout: 1000,
                                 },
                                 (resp) => {
                                     let data = '';
-
                                     // A chunk of data has been received.
                                     resp.on('data', (chunk) => {
                                         data += chunk;
@@ -113,10 +112,10 @@ async function runServer() {
                     processedTemplate = processedTemplate.replace(
                         '<!--<meta-replace>-->',
                         [
-                            '<meta property="og:title" content="' + (data.data.name || data.data.id) + '">',
+                            '<meta property="og:title" content="' + (data.name || data.id) + '">',
                             '<meta property="og:type" content="article" />',
                             '<meta property="og:description" content="Built with briqs">',
-                            '<meta property="og:image" content="https://' + apiUrl + '/v1/preview/testnet/' + setId + '.png">',
+                            '<meta property="og:image" content="https://api.briq.construction/v1/preview/' + relevant_part + '.png">',
                             '<meta property="og:url" content="https://' + req.headers.host + req.url + '">',
                             '<meta name="twitter:card" content="summary_large_image">',
                         ].join('\n'),
@@ -151,7 +150,7 @@ async function runServer() {
             // If an error is caught, let Vite fix the stracktrace so it maps back to
             // your actual source code.
             if (DEV && e instanceof Error)
-vite!.ssrFixStacktrace(e);
+                vite!.ssrFixStacktrace(e);
             console.error(e);
             res.statusCode = 500;
             res.end(e?.message || e?.toString() || 'Unknown error');
