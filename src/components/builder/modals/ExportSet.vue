@@ -258,17 +258,15 @@ button:not(.btn):not(.nostyle)::before {
     <template v-if="validationError">
         <Window>
             <template #title>{{ validationError.title }}</template>
-            <div v-if="validationError.code !== 'NOT_ENOUGH_BRIQS' || APP_ENV !== 'prod'" class="whitespace-pre-line">
+            <div v-if="validationError.code !== 'NOT_ENOUGH_BRIQS' || APP_ENV !== 'dev'" class="whitespace-pre-line">
                 {{ validationError.message }}
             </div>
             <div v-else class="leading-snug">
-                <p class="mb-1">Briq will launch on StarkNet mainnet soon!</p>
-                <p class="mb-1">Once our <RouterLink :to="{ name: 'Theme', params: { theme: 'starknet_planet' } }" @click="emit('close')">Genesis Sale</RouterLink> is launched, you'll be able to get some briqs and mint!</p>
-                <p>If you want the old Starknet testnet site, got to <a class="text-primary" href="https://old.briq.construction" target="_blank">old.briq.construction</a></p>
+                <p class="mb-1">Briq has launched on StarkNet mainnet.</p>
+                <p class="mb-1">Check out our initial sale to get some briqs!</p>
                 <RouterLink :to="{ name: 'Theme', params: { theme: 'starknet_planet' } }" @click="emit('close')">
                     <div class="flex flex-col items-center justify-center relative my-4">
                         <img class="rounded-md h-[10rem] w-auto" :srcset="themeSplashSrcSet('starknet_planet', 'high', 'starknet-mainnet')" :alt="`Theme splash for Starknet Planet`">
-                        <p class="absolute bottom-2 text-white italic text-sm font-medium">Coming Soon</p>
                     </div>
                 </RouterLink>
             </div>
