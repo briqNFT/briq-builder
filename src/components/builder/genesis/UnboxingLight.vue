@@ -146,7 +146,7 @@ const unboxingOpenState = new class implements FsmState {
     deltaV = [];
 
     async onEnter() {
-        getBookletData('starknet_city_ongoing/spaceman');
+        getBookletData(boxId.value);
         this.rt = sceneBox.quaternion.clone();
         this.initialPos = sceneBox.position.clone();
 
@@ -217,7 +217,7 @@ const unboxingOpenState = new class implements FsmState {
             // Spawn cubes early
             if (!this.genCubes && this.briqStep >= 0) {
                 const colors = {};
-                const briqs = getBookletDataSync('starknet_city_ongoing/spaceman').value.briqs;
+                const briqs = getBookletDataSync(boxId.value).value.briqs;
                 for (const briq of briqs)
                     colors[briq.data.color] = 1;
                 generateCubes(Object.keys(colors));

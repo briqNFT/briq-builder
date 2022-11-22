@@ -66,9 +66,14 @@ const wave3Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) =>
 
 const now = ref(Date.now() / 1000);
 setInterval(() => now.value = Date.now() / 1000, 1000);
-const saleStartsInSeconds = computed(() => themeData.value?.sale_start - now.value || 0);
-const saleStartsIn = computed(() => {
-    let tl = saleStartsInSeconds.value;
+const saleStartsInSeconds = computed(() => themeData.value?.sale_start - now.value || -1);
+const wave2InSeconds = computed(() => themeData.value?.wave2 - now.value || undefined);
+const wave3InSeconds = computed(() => themeData.value?.wave3 - now.value || undefined);
+
+const timerCountdown = computed(() => {
+    if (!wave2InSeconds.value)
+        return;
+    let tl = Math.max(wave2InSeconds.value, 0);
     const days = Math.floor(tl / 24 / 3600);
     tl -= days * 24 * 3600;
     const hours = Math.floor(tl / 3600);
@@ -92,8 +97,8 @@ const coverUrl = computed(() => {
 })
 
 
-watch([saleStartsInSeconds], (nv: number, ov: number) => {
-    if (ov > 0 && nv <= 0)
+watch([saleStartsInSeconds, wave2InSeconds, wave3InSeconds], (nv: number[], ov: number[]) => {
+    if ((ov[0] > 0 && nv[0] <= 0) || (ov[1] > 0 && nv[1] <= 0) || (ov[2] > 0 && nv[2] <= 0))
         setTimeout(() => genesisStore.refreshBoxes(), 1000)
 
 })
@@ -138,7 +143,20 @@ watch([saleStartsInSeconds], (nv: number, ov: number) => {
                                 <p class="text-sm">Sale starting soon</p>
                                 <div class="mt-2 grid grid-cols-4 gap-2 auction-countdown">
                                     <div
-                                        v-for="i in saleStartsIn" :key="i[0]"
+                                        v-for="i in timerCountdown" :key="i[0]"
+                                        class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
+                                        <p class="text-xl">{{ i?.[1] ?? '??' }}</p>
+                                        <p class="text-xs capitalize">{{ i[0] }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <template v-else-if="isLive && hasDate && themeData?.wave2 && wave2InSeconds >= 0">
+                            <div class="w-[340px] my-8 px-2 py-2 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
+                                <p class="text-sm">Second wave in</p>
+                                <div class="mt-2 grid grid-cols-4 gap-2 auction-countdown">
+                                    <div
+                                        v-for="i in timerCountdown" :key="i[0]"
                                         class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
                                         <p class="text-xl">{{ i?.[1] ?? '??' }}</p>
                                         <p class="text-xs capitalize">{{ i[0] }}</p>
