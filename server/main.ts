@@ -69,7 +69,7 @@ async function runServer() {
                 let data: any;
                 try {
                     // Fetch information from the API.
-                    // TODO: would perhaps be nice to not go throught the external router.
+                    // TODO: would perhaps be nice to not go through the external router.
                     const apiUrl = getApiUrl(req.headers.host);
                     data = await new Promise((resolve, reject) => {
                         try {
@@ -125,7 +125,24 @@ async function runServer() {
                     // Ignore error -> probably just a bad ID, will be handled by frontend.
                     // console.error(_);
                 }
-            }
+            } else if (req.url?.indexOf('/starknet_planet') !== -1)
+                try {
+                    processedTemplate = processedTemplate.replace(
+                        '<!--<meta-replace>-->',
+                        [
+                            '<meta property="og:title" content="briq - Starknet Planet">',
+                            '<meta property="og:type" content="article" />',
+                            '<meta property="og:description" content="“A few briqs for a man, a giant leap for NFTs”. Get ready to build your first NFT collection, briq by briq.">',
+                            '<meta property="og:image" content="https://api.briq.construction/v1/starknet-mainnet/starknet_planet/high/splash.jpg">',
+                            '<meta property="og:url" content="https://briq.construction/product/starknet_planet">',
+                            '<meta name="twitter:card" content="summary_large_image">',
+                        ].join('\n'),
+                    );
+                } catch (_) {
+                    // Ignore error -> probably just a bad ID, will be handled by frontend.
+                    // console.error(_);
+                }
+
 
             res.statusCode = 200;
             res.setHeader('Content-Type', 'text/html');
