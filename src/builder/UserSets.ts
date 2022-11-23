@@ -185,7 +185,7 @@ class UserSetStore implements perUserStorable {
     async mintSet(token_hint: string, data: any, image: string | undefined) {
         // Debug
         //downloadJSON(data, data.id + ".json")
-        const TX = await contractStore.set!.assemble(
+        const TX = contractStore.set!.assemble(
             this.user_id.split('/')[1],
             token_hint,
             data,
@@ -201,7 +201,7 @@ class UserSetStore implements perUserStorable {
         const bookletData = (await getBookletData(booklet));
         data.name = bookletData.value.name;
         data.descriptioon = bookletData.value.description;
-        const TX = await contractStore.set!.assemble(
+        const TX = contractStore.set!.assemble(
             this.user_id.split('/')[1],
             token_hint,
             data,
@@ -220,40 +220,53 @@ class UserSetStore implements perUserStorable {
         return this._mintSet(TX, data, image, booklet);
     }
 
-    async _mintSet(TX: any, data: any, image: string | undefined, booklet?: string) {
-        // Send a hint to the backend
-        const backendHint = backendManager.storeSet({
-            chain_id: this.user_id.split('/')[0],
-            owner: this.user_id.split('/')[1],
-            token_id: data.id,
-            data: data,
-            image_base64: image,
-        });
+    beforeUnloadTxPendingWarning(event: BeforeUnloadEvent) {
+        event.preventDefault();
+        event.returnValue = 'alert';
+    }
 
-        if (booklet)
-            userBookletsStore.current!.hideOne(booklet, TX.transaction_hash);
-        const materials = {};
-        for (const briq of data.briqs) {
-            if (!materials[briq.data.material])
-                materials[briq.data.material] = 0;
-            ++materials[briq.data.material];
-        }
-        for (const mat in materials)
-            chainBriqs.value?.hide(mat, materials[mat], TX.transaction_hash);
+    async _mintSet(TXp: Promise<any>, data: any, image: string | undefined, booklet?: string) {
+        window.addEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
+        try {
+            // Send a hint to the backend
+            const backendHint = backendManager.storeSet({
+                chain_id: this.user_id.split('/')[0],
+                owner: this.user_id.split('/')[1],
+                token_id: data.id,
+                data: data,
+                image_base64: image,
+            });
 
-        this._setData[data.id] = {
-            data: new SetData(data.id).deserialize(data),
-            booklet: booklet,
-            created_at: Date.now(),
+            const TX = await TXp;
+            if (booklet)
+                userBookletsStore.current!.hideOne(booklet, TX.transaction_hash);
+            const materials = {};
+            for (const briq of data.briqs) {
+                if (!materials[briq.data.material])
+                    materials[briq.data.material] = 0;
+                ++materials[briq.data.material];
+            }
+            for (const mat in materials)
+                chainBriqs.value?.hide(mat, materials[mat], TX.transaction_hash);
+
+            this._setData[data.id] = {
+                data: new SetData(data.id).deserialize(data),
+                booklet: booklet,
+                created_at: Date.now(),
+            }
+            this.metadata[data.id] = {
+                set_id: data.id,
+                status: 'TENTATIVE',
+                tx_hash: TX.transaction_hash,
+            }
+            window.removeEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
+            // Wait on the backend to be done before returning.
+            await backendHint;
+            return TX;
+        } catch(_) {
+            window.removeEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
+            throw _;
         }
-        this.metadata[data.id] = {
-            set_id: data.id,
-            status: 'TENTATIVE',
-            tx_hash: TX.transaction_hash,
-        }
-        // Wait on the backend to be done before returning.
-        await backendHint;
-        return TX;
     }
 
     async disassemble(token_id: string) {
