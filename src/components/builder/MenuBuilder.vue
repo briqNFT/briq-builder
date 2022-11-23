@@ -130,7 +130,7 @@ const onCloseMenu = () => {
                         <Btn @click="downloadSet(currentSet)" no-background>Save to computer</Btn>
                         <hr>
                         <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
-                        <RouterLink class="block mx-2" :to="{ name: 'Profile', query: { tab: 'CREATION' } }"><Btn class="w-full !mx-0" no-background>Manage my sets</Btn></RouterLink>
+                        <RouterLink class="block mx-2" :to="{ name: 'Profile', query: { tab: 'WIP' } }"><Btn class="w-full !mx-0" no-background>Manage my sets</Btn></RouterLink>
                         <hr>
                         <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>
                         <Btn @click="store.dispatch('redo_history')" no-background>Redo <span>Ctrl&ThinSpace;+&ThinSpace;Shift&ThinSpace;+&ThinSpace;U</span></Btn>

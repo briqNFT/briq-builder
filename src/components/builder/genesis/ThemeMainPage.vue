@@ -81,7 +81,7 @@ const timerCountdown = computed(() => {
     const minutes = Math.floor(tl / 60);
     tl -= minutes * 60;
     const seconds = Math.floor(tl);
-    return [['Days', days], ['Hours', hours], ['Minutes', minutes], ['Seconds', seconds]];
+    return [[days !== 1 ? 'Days' : 'Day', days], [hours !== 1 ? 'Hours' : 'Hour', hours], [minutes !== 1 ? 'Minutes' : 'Minute', minutes], [seconds !== 1 ? 'Seconds' : 'seconds', seconds]];
 });
 
 const hasDate = computed(() => !!themeData.value?.sale_start);
