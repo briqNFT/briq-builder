@@ -23,7 +23,7 @@ metadata:
 spec:
   timeoutSec: 10
   healthCheck:
-    checkIntervalSec: 100
+    checkIntervalSec: 10
     timeoutSec: 10
     port: 8080
     type: HTTP
