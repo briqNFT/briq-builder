@@ -172,6 +172,18 @@ const copySetId = () => {
     pushPopup('info', 'Set ID copied');
 }
 
+const shareUrl = computed(() => `https://${window.location.hostname}${route.path}`);
+
+const encodedTweet = computed(() => {
+    if (externalSetData.value)
+        return encodeURIComponent('Check out this cool NFT built with @briqNFT!🧱');
+    return encodeURIComponent('I\'ve built this with @briqNFT and you can too!🧱');
+});
+
+const copyShareLink = () => {
+    navigator.clipboard.writeText(shareUrl.value);
+};
+
 const modelViewerLoading = ref(true);
 let modelViewerLoadingPromise: Promise<any>;
 
@@ -227,6 +239,14 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 </template>
                 <div v-else><p>Error while loading data</p></div>
             </div>
+        </template>
+        <template v-if="mode === 'CREATION'" #share>
+            <Btn no-background ico class="text-sm justify-start font-normal" @click="copyShareLink"><i class="far fa-copy mr-2"/> Copy link</Btn>
+            <a
+                target="_blank"
+                :href="`https://twitter.com/intent/tweet?text=${encodedTweet}&url=${encodeURIComponent(shareUrl)}&via=briqNFT`">
+                <Btn no-background ico class="text-sm justify-start font-normal"><i class="fa-brands fa-twitter text-md mr-2"/> Share on Twitter</Btn>
+            </a>
         </template>
         <template v-if="mode === 'CREATION'" #dropdown>
             <Btn no-background class="text-sm font-normal" @click="pushModal(DownloadSet, { setId: set?.id })">Download</Btn>
