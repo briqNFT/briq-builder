@@ -82,6 +82,7 @@ const autoMultiFetchable = <T>(
 export class SaleData {
     total_quantity!: number;
     quantity_left!: number;
+    quantity_left_pending?: number;
     auction_start!: number;
     auction_duration!: number;
     initial_price!: string;
@@ -90,6 +91,8 @@ export class SaleData {
     constructor(saledata: any) {
         for (const key in saledata)
             this[key] = saledata[key];
+        if (this.quantity_left_pending && this.quantity_left_pending < this.quantity_left)
+            this.quantity_left = this.quantity_left_pending;
     }
 
     startIn() {
