@@ -16,6 +16,7 @@ import { connect, disconnect, IStarknetWindowObject } from 'get-starknet';
 import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider } from './BlockchainProvider';
+import { reportError } from '@/Monitoring';
 
 export type UserID = string;
 
@@ -86,7 +87,13 @@ export class WalletStore {
 
     async enableWallet(starknetObj: IStarknetWindowObject) {
         this.starknetObject = starknetObj;
-        await this.starknetObject.enable();
+        try {
+            await this.starknetObject.enable();
+        } catch(_) {
+            reportError('' + this.starknetObject);
+            reportError('' + this.starknetObject.enable);
+            reportError(_);
+        }
         await this.setSignerFromGSW();
         this.starknetObject.on('accountsChanged', () => this.setSignerFromGSW());
     }
