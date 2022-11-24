@@ -10,8 +10,8 @@ defaultLabels:
   env: prod
 resources:
   node:
-    cpu: "1000m"
-    memory: "2048Mi"
+    cpu: "500m"
+    memory: "256Mi"
   nginx:
-    cpu: "1000m"
-    memory: "512Mi"
+    cpu: "500m"
+    memory: "256Mi"

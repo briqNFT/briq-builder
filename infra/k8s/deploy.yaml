@@ -17,6 +17,20 @@ spec:
         _: #@ template.replace(data.values.defaultLabels)
         deployname: #@ data.values.name
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: node_type
+#@ if data.values.env == 'prod':
+                operator: NotIn
+#@ else:
+                operator: In
+#@ end
+                values:
+                - release_surge
       containers:
       - name: #@ data.values.name
         image: #@ "europe-west3-docker.pkg.dev/healthy-saga-329513/sltech-briq/" + data.values.image_name + ":" + data.values.image_tag
