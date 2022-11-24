@@ -93,7 +93,6 @@ export class SaleData {
             this[key] = saledata[key];
         if (this.quantity_left_pending && this.quantity_left_pending < this.quantity_left)
             this.quantity_left = this.quantity_left_pending;
-        this.quantity_left = 0;
     }
 
     startIn() {
