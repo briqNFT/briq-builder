@@ -16,7 +16,7 @@ import { connect, disconnect, IStarknetWindowObject } from 'get-starknet';
 import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider } from './BlockchainProvider';
-import { reportError } from '@/Monitoring';
+import { addBreadCrumb, reportError } from '@/Monitoring';
 
 export type UserID = string;
 
@@ -90,9 +90,9 @@ export class WalletStore {
         try {
             await this.starknetObject.enable();
         } catch(_) {
-            reportError('' + this.starknetObject);
-            reportError('' + this.starknetObject.enable);
-            reportError(_);
+            addBreadCrumb('' + this.starknetObject);
+            addBreadCrumb('' + this.starknetObject.enable);
+            throw _;
         }
         await this.setSignerFromGSW();
         this.starknetObject.on('accountsChanged', () => this.setSignerFromGSW());
