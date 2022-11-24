@@ -30,7 +30,7 @@
             <Btn @click="downloadImg">Download</Btn>
             <a
                 target="_blank"
-                :href="`https://twitter.com/intent/tweet?text=Check out what I built with @briqNFT!🧱 &url=${link}&via=briqNFT`">
+                :href="`https://twitter.com/intent/tweet?text=Check out what I built with @briqNFT!🧱 &url=${link}`">
                 <Btn @click="downloadImg"><i class="fab fa-twitter"/> Tweet</Btn></a>
         </div>
     </Window>

@@ -244,7 +244,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
             <Btn no-background ico class="text-sm justify-start font-normal" @click="copyShareLink"><i class="far fa-copy mr-2"/> Copy link</Btn>
             <a
                 target="_blank"
-                :href="`https://twitter.com/intent/tweet?text=${encodedTweet}&url=${encodeURIComponent(shareUrl)}&via=briqNFT`">
+                :href="`https://twitter.com/intent/tweet?text=${encodedTweet}&url=${encodeURIComponent(shareUrl)}`">
                 <Btn no-background ico class="text-sm justify-start font-normal"><i class="fa-brands fa-twitter text-md mr-2"/> Share on Twitter</Btn>
             </a>
         </template>
