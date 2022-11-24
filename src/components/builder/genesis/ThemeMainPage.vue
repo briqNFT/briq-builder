@@ -71,9 +71,9 @@ const wave2InSeconds = computed(() => themeData.value?.wave2 - now.value || unde
 const wave3InSeconds = computed(() => themeData.value?.wave3 - now.value || undefined);
 
 const timerCountdown = computed(() => {
-    if (!wave2InSeconds.value)
+    if (!wave3InSeconds.value)
         return;
-    let tl = Math.max(wave2InSeconds.value, 0);
+    let tl = Math.max(wave3InSeconds.value, 0);
     const days = Math.floor(tl / 24 / 3600);
     tl -= days * 24 * 3600;
     const hours = Math.floor(tl / 3600);
@@ -151,9 +151,9 @@ watch([saleStartsInSeconds, wave2InSeconds, wave3InSeconds], (nv: number[], ov: 
                                 </div>
                             </div>
                         </template>
-                        <template v-else-if="isLive && hasDate && themeData?.wave2 && wave2InSeconds >= 0">
+                        <template v-else-if="isLive && hasDate && themeData?.wave3 && wave3InSeconds >= 0">
                             <div class="w-[340px] my-8 px-2 py-2 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
-                                <p class="text-sm">Second wave in</p>
+                                <p class="text-sm">Third wave in</p>
                                 <div class="mt-2 grid grid-cols-4 gap-2 auction-countdown">
                                     <div
                                         v-for="i in timerCountdown" :key="i[0]"
@@ -254,7 +254,7 @@ watch([saleStartsInSeconds, wave2InSeconds, wave3InSeconds], (nv: number[], ov: 
                                         </router-link>
                                     </div>
                                 </template>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
+                                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
                                     <div class="pointer-events-none">
                                         <div class="flex justify-center items-center opacity-70 saturate-50 px-8">
                                             <img :src="MysteryBoxImg" class="">
