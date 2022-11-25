@@ -149,6 +149,12 @@ let initialCall = () => {
         },
         getters: {
             metadata(state) {
+                return autoMultiFetchable(
+                    state._metadata,
+                    async (data: Promise<any>) => await data as BoxMetadata,
+                    // This leverages backend cache, so if we make the same request a lot (such as when loading the theme page) it only goes through once.
+                    async (prop) => await backendManager.fetch(`v1/box/data_all/${state.network}/${prop.split('/')[0]}`),
+                );
                 return autoFetchable<BoxMetadata>(state._metadata, (prop) => backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`));
             },
             themedata(state) {
