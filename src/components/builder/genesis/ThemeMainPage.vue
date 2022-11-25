@@ -55,6 +55,8 @@ const wave2Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) =>
 }));
 
 const wave3Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
+    if (wave3InSeconds.value !== undefined && wave3InSeconds.value > 0)
+        return false;
     const sdata = genesisStore.saledata?.[x]?._data;
     if (!sdata)
         return false;
