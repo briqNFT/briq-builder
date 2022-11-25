@@ -99,6 +99,7 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
                         this.current!.onEnter?.(old, this.currentWallet);
                 }, {
                     deep: true,
+                    immediate: true,
                 });
                 this._setup = 'WALLET_LOADED';
             })
