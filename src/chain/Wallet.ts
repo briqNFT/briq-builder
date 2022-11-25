@@ -17,6 +17,7 @@ import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider } from './BlockchainProvider';
 import { addBreadCrumb, reportError } from '@/Monitoring';
+import { LatheGeometry } from 'three';
 
 export type UserID = string;
 
@@ -90,8 +91,10 @@ export class WalletStore {
         try {
             await this.starknetObject.enable();
         } catch(_) {
-            addBreadCrumb('' + this.starknetObject);
-            addBreadCrumb('' + this.starknetObject.enable);
+            addBreadCrumb('object ' + !!this.starknetObject);
+            addBreadCrumb('name ' + this.starknetObject?.name);
+            addBreadCrumb('version ' + this.starknetObject?.version);
+            addBreadCrumb('enable' + this.starknetObject.enable);
             throw _;
         }
         await this.setSignerFromGSW();
