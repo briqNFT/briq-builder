@@ -17,7 +17,6 @@ import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider } from './BlockchainProvider';
 import { addBreadCrumb, reportError } from '@/Monitoring';
-import { LatheGeometry } from 'three';
 
 export type UserID = string;
 

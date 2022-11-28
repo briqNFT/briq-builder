@@ -244,6 +244,5 @@ export function handleActions(dispatchedActions: Array<{ action: string; payload
 
 import { ShaderGrid } from './ShaderGrid';
 import { setsManager } from '../SetsManager';
-import { number } from 'starknet';
 
 export const grid = new ShaderGrid();
