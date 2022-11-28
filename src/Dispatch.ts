@@ -13,8 +13,10 @@ import ShareVue from './components/builder/share/Share.vue';
 import * as walletModule from '@/chain/Wallet';
 import _contractStore from './chain/Contracts';
 import UnboxingVue_ from './components/builder/genesis/UnboxingLight.vue';
+import Unboxing2_ from './components/builder/genesis/Unboxing.vue';
 
 export const UnboxingVue = UnboxingVue_;
+export const Unboxing2 = Unboxing2_;
 export const contractStore = _contractStore;
 export const Builder = BuilderVue;
 export const Admin = AdminVue;

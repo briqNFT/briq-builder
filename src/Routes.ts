@@ -1,6 +1,4 @@
 import Legal from './components/Legal.vue';
-import LandingPage from './components/landing_page/LandingPage.vue';
-import Team from './components/team/Team.vue';
 import GenesisMint from '@/components/builder/genesis/GenesisMint.vue';
 
 import BuilderLoader from './components/builder/BuilderLoader.vue';
@@ -117,17 +115,23 @@ export const routes = [
         name: 'Image loader',
         component: ImageLoaderVue,
     },
-];
-
-if (import.meta.env.mode !== 'production')
-    routes.push({
+    {
         path: '/unboxing/:theme/:box',
         name: 'Unboxing',
         component: async () => {
             await loadExtraPages();
             return loader.UnboxingVue;
         },
-    })
+    },
+    {
+        path: '/briqmas',
+        name: 'BriqMas',
+        component: async () => {
+            await loadExtraPages();
+            return loader.Unboxing2;
+        },
+    },
+];
 
 if (CONF.theme === 'realms') {
     routes.push({

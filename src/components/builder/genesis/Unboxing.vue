@@ -1,81 +1,60 @@
 <script setup lang="ts">
-import { reactive, shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, h, watchEffect, shallowRef, WatchStopHandle, onUnmounted } from 'vue';
+import {
+    THREE,
+} from '@/three';
 
-import { useBuilder } from '@/components/builder/BuilderComposable';
+import { shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef, WatchStopHandle, onUnmounted } from 'vue';
+
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, addBox, materials, graphicsFrame, getBoxAt, resetGraphics, SceneQuality, boxMaterials, boxTexture } from './UnboxingGraphics';
-import LookAtBoxVue from './Texts/LookAtBox.vue';
-import { hexUuid } from '@/Uuid';
-import WalletsVue from './Texts/Wallets.vue';
-import BeforeActualUnboxVue from './Texts/BeforeActualUnbox.vue';
-import AfterUnboxVue from './Texts/AfterUnbox.vue';
-
+import { setupScene, useRenderer, SceneQuality, graphicsFrame, resetGraphics, setBox, generateCubes, generateBooklet, StopPhysics, sceneData, triggerBoom } from './UnboxingGraphics';
 import { APP_ENV } from '@/Meta';
 
-import { userBoxesStore } from '@/builder/UserBoxes';
 import { useGenesisStore } from '@/builder/GenesisStore';
-import contractStore from '@/chain/Contracts';
 
+import BriqsImg from '@/assets/genesis/briqs.png';
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
-
-import { threeSetupComplete } from '@/threeLoading';
-import type { THREE as THREE_T } from '@/three';
-let THREE: typeof THREE_T;
-threeSetupComplete.then(x => THREE = x);
+import { hexUuid } from '@/Uuid';
+import { useRoute, useRouter } from 'vue-router';
+import { setsManager } from '@/builder/SetsManager';
+import { useSetHelpers } from '../SetComposable';
+import { useUnboxHelpers } from '@/builder/Unbox';
+import Toggle from '@/components/generic/Toggle.vue';
+import { featureFlags } from '@/FeatureFlags';
 
 
 //////////////////////////////
 //////////////////////////////
 
 const genesisStore = useGenesisStore();
-
-const chapters = reactive([] as { uid: string, active: boolean, component: any }[]);
-
-const addChapter = (component: any) => {
-    chapters.push(
-        {
-            uid: hexUuid(),
-            active: true,
-            component,
-        },
-    )
-    return chapters[chapters.length - 1];
-}
-
 const canvas = ref(null as unknown as HTMLCanvasElement);
 
 let camera: THREE.PerspectiveCamera;
 let scene: THREE.Scene;
-
-const boxes = reactive([]);
 
 let setSceneReady: CallableFunction;
 const sceneReady = new Promise((resolve) => {
     setSceneReady = resolve;
 })
 
-const lastCamRot = ref(null as unknown as THREE.Quaternion);
-const lastCamPos = ref(null as unknown as THREE.Vector3);
-const currentCamRot = ref(null as unknown as THREE.Quaternion);
-const currentCamPos = ref(null as unknown as THREE.Vector3);
-const camInterp = ref(0);
+const route = useRoute();
+const router = useRouter();
 
-const selectedObject = shallowRef(undefined as THREE.Mesh | undefined);
-const hoveredObject = shallowRef(undefined as THREE.Mesh | undefined);
+const { openSetInBuilder } = useSetHelpers();
+const { createBookletSet } = useUnboxHelpers();
 
-const quality = ref(SceneQuality.HIGH);
 
 //////////////////////////////
 //////////////////////////////
 
-type steps = 'CHECK_WALLET' | 'LOADING' | 'SAPIN' | 'CHECK_BOX' | 'UNBOXING' | 'UNBOXED';
+type steps = 'CHECK_WALLET' | 'LOADING' | 'SAPIN' | 'UNBOXING' | 'UNBOXING_OPEN' | 'UNBOXED' | 'OPEN_BUILDER';
 
 interface FsmState {
     onEnter(): Promise<any>;
     onLeave?: (to: string) => Promise<void>;
     frame?: (delta: number) => void;
-    onClick?: (event: PointerEvent) => void;
+    onClick?: (event: MouseEvent) => void;
+    onPointerMove?: (event: PointerEvent) => void;
 }
 
 const initialState = new class implements FsmState {
@@ -96,98 +75,15 @@ const loadingState = new class implements FsmState {
     }
 
     async onEnter() {
-        const userData = userBoxesStore.current?.fetchData();
         await sceneReady;
-        await userData;
-        const pos = [
-            [0.4, 0.07, 1.8],
-            [1.3, 0.07, 1.0],
-            [0.7, 0.07, 1.2],
-            [0.45, 0.245, 1.83],
-            [1.33, 0.245, 0.98],
-            [0.74, 0.245, 1.18],
-            [0.4, 0.42, 1.8],
-            [1.3, 0.42, 1.0],
-            [0.7, 0.42, 1.2],
-        ]
-        const boxesData = userBoxesStore.current?.availableBoxes.map((token_id, i) => ({
-            uid: hexUuid(),
-            box_token_id: token_id,
-            box_name: token_id.endsWith('1') ? 'starknet_city/spaceman' : 'starknet_city/base_module_1',
-            position: pos[i],
-        })) || [];
-        for (const box of boxesData)
-            boxes.push(addBox(box, scene));
-
-        const loader = new THREE.TextureLoader();
-        boxesData.forEach(data => {
-            loader.loadAsync(genesisStore.boxTexture(data.box_name)).then(x => {
-                if (!boxTexture[data.box_name])
-                    boxTexture[data.box_name] = {
-                        texture: x,
-                        users: [],
-                    }
-                boxTexture[data.box_name].texture = x;
-                boxTexture[data.box_name].texture.encoding = THREE.sRGBEncoding;
-                boxTexture[data.box_name].texture.flipY = false;
-                boxTexture[data.box_name].users.forEach(box => {
-                    box.children[1].children[0].material.map = x;
-                })
-            });
-        });
-
-        await this.hasEnoughFrames;
-        this.fps.sort((a, b) => b - a);
-        let medianFPS = this.fps[Math.floor(this.fps.length / 2)];
-
-        if (medianFPS > 25) {
-            // Switch to lower quality scene.
-            quality.value = SceneQuality.MEDIUM;
-            await setupScene(quality.value);
-
-            this.hasEnoughFrames = new Promise((resolve, _) => {
-                this.setEnoughFrames = resolve;
-            });
-            this.fps.length = 0;
-            await this.hasEnoughFrames;
-            this.fps.sort((a, b) => b - a);
-            medianFPS = this.fps[Math.floor(this.fps.length / 2)];
-            if (medianFPS > 25) {
-                quality.value = SceneQuality.LOW;
-                await setupScene(quality.value);
-            }
-        } else if (medianFPS < 18) {
-            // Try ultra
-            quality.value = SceneQuality.ULTRA;
-            await setupScene(quality.value);
-            this.hasEnoughFrames = new Promise((resolve, _) => {
-                this.setEnoughFrames = resolve;
-            });
-            this.fps.length = 0;
-            await this.hasEnoughFrames;
-            this.fps.sort((a, b) => b - a);
-            medianFPS = this.fps[Math.floor(this.fps.length / 2)];
-            if (medianFPS > 20) {
-                // Reset to high
-                quality.value = SceneQuality.HIGH;
-                await setupScene(quality.value);
-            }
-        }
+        //await this.hasEnoughFrames;
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
     }
 
-    async onLeave() {
-        setTimeout(() => addChapter(
-            h('dic', [
-                h('p', ['Today is Christmas, 1995.', h('br'), 'Your gifts have been left by the tree, and are waiting for you.']),
-                h('p', { class: 'my-2' }, ['The hour is now, and by the fireplace you may open them.', h('br'), 'Let your imagination roam free.']),
-            ]),
-        ), 250);
-    }
-
     frame(delta: number) {
+        /*
         this.fps.unshift(delta * 1000);
         if (this.fps.length > 120)
             this.fps.pop();
@@ -195,171 +91,233 @@ const loadingState = new class implements FsmState {
             this.setEnoughFrames();
             this.setEnoughFrames = undefined;
         }
+        */
     }
 }
 
 const sapinState = new class implements FsmState {
-    async onEnter() {
-        camera.getWorldPosition(lastCamPos.value);
-        camera.getWorldQuaternion(lastCamRot.value);
-        camInterp.value = 0;
-        camera.position.set(-2, 1.8, -2);
-        camera.lookAt(new THREE.Vector3(2, 0, 2));
-        currentCamPos.value = camera.position.clone();
-        camera.getWorldQuaternion(currentCamRot.value);
-        this.setCam();
-    }
-
-    setCam() {
-        const pos = new THREE.Vector3().lerpVectors(lastCamPos.value, currentCamPos.value, camInterp.value);
-        camera.position.set(pos.x, pos.y, pos.z);
-        const quat = new THREE.Quaternion().slerpQuaternions(lastCamRot.value, currentCamRot.value, camInterp.value);
-        camera.setRotationFromQuaternion(quat);
-    }
-
+    async onEnter() {}
     frame(delta: number) {
-        if (camInterp.value < 1)
-            camInterp.value = Math.min(1.0, camInterp.value + delta);
-        this.setCam();
-    }
-
-    onClick(event: PointerEvent) {
-        let box = getBoxAt(event);
-        selectedObject.value = box;
-        if (box)
-            return fsm.switchTo('CHECK_BOX');
-
-    }
-
-    onPointerMove(event: PointerEvent) {
-        let box = getBoxAt(event);
-        hoveredObject.value = box;
-    }
-}
-
-const checkBoxState = new class implements FsmState {
-    initialChapter: any;
-    async onEnter() {
-        this.initialChapter = addChapter(
-            h(LookAtBoxVue, {
-                startUnbox: start_unbox,
-                boxName: selectedObject.value?.userData.box_name,
-            }),
-        );
-
-        camera.getWorldPosition(lastCamPos.value);
-        camera.getWorldQuaternion(lastCamRot.value);
-        camInterp.value = 0;
-        camera.position.set(selectedObject.value?.position.x - 1.0, selectedObject.value?.position.y + 1.0, selectedObject.value?.position.z - 1.0);
-        camera.lookAt(new THREE.Vector3(
-            selectedObject.value?.position.x,
-            selectedObject.value?.position.y,
-            selectedObject.value?.position.z,
-        ));
-        currentCamPos.value = camera.position.clone();
-        camera.getWorldQuaternion(currentCamRot.value);
-        this.setCam();
-
-        hoveredObject.value = undefined;
-    }
-
-    async onLeave(to: string) {
-        this.initialChapter.active = false;
-        if (to !== 'UNBOXING')
-            chapters.splice(chapters.findIndex(x => x.uid === this.initialChapter.uid), 1);
-    }
-
-    setCam() {
-        const pos = new THREE.Vector3().lerpVectors(lastCamPos.value, currentCamPos.value, camInterp.value);
-        camera.position.set(pos.x, pos.y, pos.z);
-        const quat = new THREE.Quaternion().slerpQuaternions(lastCamRot.value, currentCamRot.value, camInterp.value);
-        camera.setRotationFromQuaternion(quat);
-    }
-
-    frame(delta: number) {
-        if (camInterp.value < 1)
-            camInterp.value = Math.min(1.0, camInterp.value + delta);
-        this.setCam();
-    }
-
-    onClick(event: PointerEvent) {
-        let box = getBoxAt(event);
-        const lastSel = selectedObject.value;
-        selectedObject.value = box;
-        if (box && box.uuid !== lastSel?.uuid)
-            return fsm.switchTo('CHECK_BOX');
-        else if (!box)
-            return fsm.switchTo('SAPIN');
-    }
-
-    onPointerMove(event: PointerEvent) {
-        let box = getBoxAt(event);
-        hoveredObject.value = box;
     }
 }
 
 const unboxingState = new class implements FsmState {
-    chapters = [];
+    rt: any;
+    step = 0;
     async onEnter() {
-        this.chapters.push(addChapter(
-            h(WalletsVue),
-        ));
-        this.chapters.push(addChapter(
-            h(BeforeActualUnboxVue, {
-                unbox: unbox,
-            }),
-        ));
-    }
-
-    async onLeave() {
-        this.chapters.forEach(x => x.active = false);
+        this.rt = sceneData.box!.quaternion.clone();
     }
 
     frame(delta: number) {
+        const tg = new THREE.Quaternion(0, -0.99, 0, 0.125);
+
+        const ease = 1.0;
+        const curve = new THREE.CubicBezierCurve(
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(ease, 0),
+            new THREE.Vector2(1 - ease, 1),
+            new THREE.Vector2(1, 1),
+        );
+
+        sceneData.box!.quaternion.slerpQuaternions(this.rt, tg, Math.min(1.0, curve.getPoint(Math.min(1.0, this.step)).y));
+        this.step += delta;
+        if (this.step >= 1.0)
+            fsm.switchTo('UNBOXING_OPEN')
+    }
+}
+
+const unboxingOpenState = new class implements FsmState {
+    time = 0;
+    briqStep = 0;
+    boxMoveStep = 0;
+    c2 = 0;
+    rt: any;
+    genCubes = false;
+    genBooklet = false;
+    initialPos!: THREE.Vector3;
+    deltaV = [];
+
+    async onEnter() {
+        this.rt = sceneData.box!.quaternion.clone();
+        this.initialPos = sceneData.box!.position.clone();
+
+        this.camPos = camera.position.clone();
+        this.camQuat = camera.quaternion.clone();
     }
 
-    onClick(event: PointerEvent) {
-        let box = getBoxAt(event);
-        const lastSel = selectedObject.value;
-        selectedObject.value = box;
-        if (box && box.uuid !== lastSel?.uuid)
-            return fsm.switchTo('CHECK_BOX');
-        else if (!box)
-            return fsm.switchTo('SAPIN');
-    }
+    frame(delta: number) {
+        //delta *= 10;
+        sceneData.box!.userData.mixer.update(delta);
+        this.time += delta;
 
-    onPointerMove(event: PointerEvent) {
-        let box = getBoxAt(event);
-        hoveredObject.value = box;
+        // Camera movement - step 1
+        if (!this.genCubes) {
+            const ease = 1.0;
+            const curve = new THREE.CubicBezierCurve(
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(ease, 0),
+                new THREE.Vector2(1 - ease, 1),
+                new THREE.Vector2(1, 1),
+            );
+            const easedTime = curve.getPoint(Math.min(1.0, this.time / 4)).y;
+            camera.position.lerpVectors(this.camPos, new THREE.Vector3(2.75, 2.25, 0.15), Math.min(1, easedTime));
+            camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), Math.min(1, easedTime));
+
+            scene.fog.near = 1.3 + easedTime * 1.7;
+            scene.fog.far = 4.5 + easedTime * 0.5;
+        }
+
+        // Camera movement - step 2
+        if (this.genCubes) {
+            const ease = 1.0;
+            const curve = new THREE.CubicBezierCurve(
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(1.3, 0),
+                new THREE.Vector2(0.7, 1),
+                new THREE.Vector2(1, 1),
+            );
+            const easedTime = curve.getPoint(Math.min(1.0, this.c2 / 8)).y;
+            //camera.position.lerpVectors(new THREE.Vector3(2.75, 2.25, 0.15), new THREE.Vector3(1.6, 1.6, 0.3), Math.min(1, easedTime));
+            //camera.quaternion.slerpQuaternions(new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), new THREE.Quaternion(-0.36, 0.584, 0.326, 0.65), Math.min(1, easedTime));
+            camera.position.lerpVectors(new THREE.Vector3(2.75, 2.25, 0.15), new THREE.Vector3(2.42, 0.105, 0.43), Math.min(1, easedTime));
+            camera.quaternion.slerpQuaternions(new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), new THREE.Quaternion(-0.06, 0.62, 0.047, 0.78), Math.min(1, easedTime));
+            //scene.fog.near = 1.3 + easedTime * 1.7;
+            //scene.fog.far = 4.5 + easedTime * 0.5;
+            this.c2 += delta;
+        }
+        // Box movement
+        if (sceneData.box!.userData.mixer.time > 2.5 && this.boxMoveStep < 1) {
+            this.boxMoveStep += delta / 2;
+
+            const ease = 0.8;
+            const curve = new THREE.CubicBezierCurve(
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(ease, 0),
+                new THREE.Vector2(1 - ease, 1),
+                new THREE.Vector2(1, 1),
+            );
+            const easedTime = curve.getPoint(this.boxMoveStep).y;
+            const tg = this.rt.clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 3));
+            tg.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -0.2));
+            tg.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0.2));
+            sceneData.box!.quaternion.slerpQuaternions(this.rt, tg, easedTime);
+            sceneData.box!.position.lerpVectors(this.initialPos, new THREE.Vector3(0, 0.7, -0.2), easedTime);
+        }
+
+        if (this.boxMoveStep >= 1.0) {
+            // Spawn cubes early
+            if (!this.genCubes && this.briqStep >= 0) {
+                const colors = {};
+                /*const briqs = getBookletDataSync(boxId.value).value.briqs;
+                for (const briq of briqs)
+                    colors[briq.data.color] = 1;
+                */
+                color['0xff0000'] = 1;
+                generateCubes(Object.keys(colors));
+                this.genCubes = true;
+            }
+
+            // Trigger 'boom' effect when booklet hits the ground
+            if (this.genBooklet && this.briqStep >= 1.0) {
+                this.deltaV[0] = this.deltaV[1];
+                this.deltaV[1] = sceneData.booklet.position.y;
+                if (this.deltaV[1] - this.deltaV[0] > -0.001)
+                    triggerBoom();
+            }
+            // Spawn booklet a little while after briqs
+            if (!this.genBooklet && this.briqStep >= 0.8) {
+                generateBooklet();
+                this.genBooklet = true;
+                this.deltaV = [sceneData.booklet.position.y, sceneData.booklet.position.y];
+            }
+            this.briqStep += delta / 2;
+        }
+
+        if (this.time >= 12.75)
+            fsm.switchTo('UNBOXED');
+
     }
 }
 
 const unboxedState = new class implements FsmState {
     async onEnter() {
-        addChapter(
-            h(AfterUnboxVue, {
-                goToBuilder: goToBuilder,
-            }),
-        )
+        StopPhysics();
+    }
+    frame(delta: number) {}
+}
+
+
+const openBuilderState = new class implements FsmState {
+    time = 0;
+    easedTime = ref(0);
+
+    camPos!: THREE.Vector3;
+    tpos!: THREE.Vector3;
+    intermediatePos!: THREE.Vector3;
+
+    camRot!: THREE.Quaternion;
+    tRot!: THREE.Quaternion;
+    intermediateRot!: THREE.Quaternion;
+
+    step1curve!: THREE.CubicBezierCurve;
+    step2curve!: THREE.CubicBezierCurve;
+
+    step1time!: number;
+    step2time!: number;
+    async onEnter() {
+        this.camPos = camera.position.clone();
+        this.camRot = camera.quaternion.clone();
+
+        this.tpos = sceneData.booklet!.position.clone();
+        this.tRot = sceneData.booklet!.quaternion.clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2));
+
+        this.intermediatePos = this.tpos.clone().lerp(this.camPos, 0.05);
+        this.intermediatePos.add(new THREE.Vector3(0, 1, 0));
+        this.intermediateRot = this.camRot.clone().slerp(this.tRot, 0.9);
+
+        this.step1curve = new THREE.CubicBezierCurve(
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(1.0, 0),
+            new THREE.Vector2(0.0, 1),
+            new THREE.Vector2(1, 1),
+        );
+
+        this.step2curve = new THREE.CubicBezierCurve(
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(1.0, 0),
+            new THREE.Vector2(1.0, 0.5),
+            new THREE.Vector2(1, 1),
+        );
+
+        this.step1time = 1.7;
+        this.step2time = 0.8;
     }
 
     frame(delta: number) {
-        selectedObject.value?.userData.mixer.update(delta);
-    }
+        // Camera movement - step 1
 
-    onClick(event: PointerEvent) {
-        let box = getBoxAt(event);
-        const lastSel = selectedObject.value;
-        selectedObject.value = box;
-        if (box && box.uuid !== lastSel?.uuid)
-            return fsm.switchTo('CHECK_BOX');
-        else if (!box)
-            return fsm.switchTo('SAPIN');
-    }
+        if (this.time < this.step1time) {
+            const easedTime = this.step1curve.getPoint(Math.min(1.0, this.time / this.step1time)).y;
+            camera.position.lerpVectors(this.camPos, this.intermediatePos, Math.min(1, easedTime));
+            camera.quaternion.slerpQuaternions(this.camRot, this.intermediateRot, Math.min(1, easedTime));
+        } else if (this.time < this.step1time + this.step2time) {
+            const easedTime = this.step2curve.getPoint(Math.min(1.0, (this.time - this.step1time) / (this.step2time))).y;
+            this.easedTime.value = easedTime;
+            camera.position.lerpVectors(this.intermediatePos, this.tpos, Math.min(1, easedTime));
 
-    onPointerMove(event: PointerEvent) {
-        let box = getBoxAt(event);
-        hoveredObject.value = box;
+            camera.near = Math.max(0.0001, 0.3 - easedTime * 0.3);
+            camera.far = 100 - easedTime * 99.9;
+        }
+
+        if (this.time >= this.step1time + this.step2time) {
+            let set = setsManager.getBookletSet('starknet_planet/spaceman');
+            if (!set)
+                openSetInBuilder(createBookletSet('starknet_planet/spaceman', 'toto', 'tata'));
+            else
+                openSetInBuilder(set.id);
+        }
+
+        this.time += delta / 2;
     }
 }
 
@@ -374,9 +332,10 @@ const fsm = shallowReactive(new class FSM {
             'CHECK_WALLET': initialState,
             'LOADING': loadingState,
             'SAPIN': sapinState,
-            'CHECK_BOX': checkBoxState,
             'UNBOXING': unboxingState,
+            'UNBOXING_OPEN': unboxingOpenState,
             'UNBOXED': unboxedState,
+            'OPEN_BUILDER': openBuilderState,
         }[state];
         this.stateName = state;
         await this.state.onEnter();
@@ -388,10 +347,11 @@ const step = computed(() => fsm.stateName);
 //////////////////////////////
 //////////////////////////////
 
-let initFsm: Promise<void>;
+let lastTime: number;
+let mounted = false;
 
+let initFsm: Promise<void>;
 let walletWatcher: WatchStopHandle;
-let boxWatcher: WatchStopHandle;
 
 onBeforeMount(() => {
     initFsm = fsm.state.onEnter();
@@ -404,42 +364,8 @@ onBeforeMount(() => {
     }, {
         immediate: true,
     })
-
-    boxWatcher = watchEffect(() => {
-        if (selectedObject.value)
-            for (const box of boxes)
-                if (selectedObject.value?.uuid === box.uuid) {
-                    box.children[1].children[0].material = boxMaterials.default[0].clone();
-                    box.children[1].children[1].material = boxMaterials.default[1];
-                    box.children[1].children[0].material.map = boxTexture[box.userData.box_name].texture;
-                    box.children[1].children[0].receiveShadow = false;
-                } else {
-                    box.children[1].children[0].material = boxMaterials.hidden[0].clone();
-                    box.children[1].children[1].material = boxMaterials.hidden[1];
-                    box.children[1].children[0].material.map = boxTexture[box.userData.box_name].texture;
-                    box.children[1].children[0].receiveShadow = true;
-                }
-        else
-            for (const box of boxes) {
-                box.children[1].children[0].material = boxMaterials.default[0].clone();
-                box.children[1].children[1].material = boxMaterials.default[1];
-                box.children[1].children[0].material.map = boxTexture[box.userData.box_name].texture;
-                box.children[1].children[0].receiveShadow = true;
-            }
-        if (hoveredObject.value?.uuid)
-            for (const box of boxes)
-                if (hoveredObject.value?.uuid === box.uuid)
-                    if (selectedObject.value?.uuid !== box.uuid) {
-                        box.children[1].children[0].material = boxMaterials.hovered[0].clone();
-                        box.children[1].children[0].material.map = boxTexture[box.userData.box_name].texture;
-                    }
-    })
 });
 
-import Stats from 'stats.js';
-
-let lastTime: number;
-let mounted = false;
 onMounted(async () => {
     mounted = true;
     await initFsm;
@@ -449,14 +375,15 @@ onMounted(async () => {
 
     await setupScene();
 
-    lastCamRot.value = new THREE.Quaternion();
-    lastCamPos.value = new THREE.Vector3();
-    currentCamRot.value = new THREE.Quaternion();
-    currentCamPos.value = new THREE.Vector3();
-    camera.getWorldQuaternion(lastCamRot.value);
-    camera.getWorldPosition(lastCamPos.value);
-    camera.getWorldQuaternion(currentCamRot.value);
-    camera.getWorldPosition(currentCamPos.value);
+    const boxData = {
+        uid: hexUuid(),
+        box_token_id: 1,
+        box_name: 'starknet_planet/spaceman',
+        position: [0, 0, 0],
+        texture: genesisStore.boxTexture('starknet_planet/spaceman'),
+        bookletTexture: genesisStore.bookletTexture('starknet_planet/spaceman'),
+    };
+    sceneData.box! = await setBox(boxData);
 
     setSceneReady();
 
@@ -471,86 +398,85 @@ onMounted(async () => {
         graphicsFrame(delta / 1000.0);
         if (fsm.state.frame)
             fsm.state.frame(delta / 1000.0);
-        setupData.render();
         requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
 
-    /** FPS counter */
-    var stats = new Stats();
-    stats.showPanel(0)
-    document.body.appendChild(stats.dom);
-    function animate() {
-        if (!mounted)
-            return;
-        stats.end();
+    if (APP_ENV !== 'prod') {
+        /** FPS counter */
+        const Stats = (await import('stats.js')).default;
+        var stats = new Stats();
+        stats.showPanel(0)
+        document.body.appendChild(stats.dom);
+        const animate = () => {
+            if (!mounted)
+                return;
+            stats.end();
+            stats.begin();
+            requestAnimationFrame(animate);
+        }
+
         stats.begin();
         requestAnimationFrame(animate);
     }
-
-    stats.begin();
-    requestAnimationFrame(animate);
 });
 
 onUnmounted(() => {
     resetGraphics();
     walletWatcher();
-    boxWatcher();
     mounted = false;
 })
 
 
-import FireplaceAudio from './FireplaceAudio.vue';
+const termsSale = ref(false);
+const termsBriq = ref(false);
 
-import { useRouter } from 'vue-router';
-const router = useRouter()
+const { unbox, fakeUnbox } = useUnboxHelpers();
+const disableButtons = ref(false);
 
-const goToBuilder = () => {
-    router.push({ name: 'Builder' });
+const doUnbox = async () => {
+    disableButtons.value = true;
+    try {
+        await unbox('starknet_planet/spaceman');
+        fsm.switchTo('UNBOXING');
+    } catch(_) { /**/ }
+    disableButtons.value = false;
 }
-
-const start_unbox = () => {
+const doFakeUnbox = async () => {
+    await fakeUnbox('starknet_planet/spaceman');
     fsm.switchTo('UNBOXING');
 }
 
-const unbox = async () => {
-    await contractStore.box?.unbox(walletStore.userWalletAddress, selectedObject.value?.userData.box_token_id);
-
-    if (true) {
-        // Create a new local set with the proper booklet.
-        const { setsManager, store } = useBuilder();
-        const maybeExisting = setsManager.setList.filter(sid => {
-            setsManager.getInfo(sid).local?.getNbBriqs() === 0 && setsManager.getInfo(sid).booklet === 'spaceman'
-        });
-        if (maybeExisting.length !== 0) {
-            store.dispatch('builderData/select_set', maybeExisting[0].id);
-            return;
-        }
-
-        const set = setsManager.createLocalSet();
-        set.name = 'Spaceman';
-        const info = setsManager.getInfo(set.id);
-        info.booklet = 'spaceman';
-        store.dispatch('builderData/select_set', set.id);
-
-        // Play the box open animation.
-        fsm.switchTo('UNBOXED');
-    }
+const openBuilder = async () => {
+    fsm.switchTo('OPEN_BUILDER')
 }
 
-const useMockWallet = () => {
-    window.useDebugProvider();
-}
+
+import FireplaceAudio from './FireplaceAudio.vue';
+const quality = ref(SceneQuality.ULTRA);
 
 </script>
 
 <template>
     <canvas
         class="absolute top-0 left-0 w-screen h-screen"
-        id="unboxGl"
         ref="canvas"
         @click="(event) => fsm.state?.onClick?.(event)"
         @pointermove="(event) => fsm.state?.onPointerMove?.(event)"/>
+    <!-- preload -->
+    <div class="hidden absolute"><img :src="genesisStore.coverBookletRoute('starknet_planet/spaceman')"></div>
+    <Transition name="fade">
+        <div
+            v-if="step === 'CHECK_WALLET' || step === 'LOADING'"
+            class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-grad-lightest bg-repeat bg-auto alternate-buttons flex-col gap-4 bg-opacity-100 transition-all"
+            :style="{ backgroundImage: `url(${BriqsOverlay})`, backgroundSize: '1000px auto' }">
+            <h2>briq unboxing</h2>
+            <p v-if="step === 'LOADING'">...Loading Scene...</p>
+            <template v-else>
+                <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
+            </template>
+        </div>
+    </Transition>
     <template v-if="step !== 'CHECK_WALLET' && step !== 'LOADING'">
         <div class="absolute bottom-0 left-0 text-base">
             <FireplaceAudio/>
@@ -564,31 +490,43 @@ const useMockWallet = () => {
             </select>
         </div>
     </template>
-    <div
-        id="unboxing"
-        class="absolute top-0 right-0 xl:w-[30%] w-[400px] bg-black bg-opacity-40 h-screen overflow-auto snap-y transition-all scroll-smooth"
-        @click.stop="">
-        <div class="snap-end text text-base pb-[15rem] px-8 py-4">
-            <h2 class="text-center my-8">briq unboxing</h2>
-            <TransitionGroup name="xfade">
-                <div v-for="chapter, i of chapters" :key="i">
-                    <component :is="chapter.component" :active="chapter.active"/>
+    <Transition appear name="fade">
+        <div v-if="step === 'SAPIN'">
+            <div class="fixed right-0 top-0 m-8 shadow bg-grad-lightest rounded-md p-6 max-w-[27rem]">
+                <h4 class="text-md mb-6">Unboxing</h4>
+                <p>Unboxing this <span class="font-medium">{{ 'SPACEMAN' }}</span> box will burn it forever.<br>In exchange, its content will be available to you.</p>
+                <h5 class="mt-6 mb-3 font-medium">Terms and conditions</h5>
+                <div class="text-sm flex flex-col gap-4">
+                    <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
+                    <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
                 </div>
-            </TransitionGroup>
+                <div class="mt-8 flex justify-between">
+                    <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm" :disabled="disableButtons">Back to inventory</Btn></RouterLink>
+                    <Btn no-background v-if="featureFlags.adminOnly" class="pointer-events-auto !text-sm" @click="doFakeUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Fakeunbox</Btn>
+                    <Btn class="pointer-events-auto !text-sm" @click="doUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Unbox</Btn>
+                </div>
+            </div>
         </div>
-    </div>
-    <Transition name="fade">
-        <div
-            v-if="step === 'CHECK_WALLET' || step === 'LOADING'"
-            class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-grad-lightest bg-repeat bg-auto alternate-buttons flex-col gap-4 bg-opacity-100 transition-all"
-            :style="{ backgroundImage: `url(${BriqsOverlay})`, backgroundSize: '1000px auto' }">
-            <h2>briq unboxing</h2>
-            <p v-if="step === 'LOADING'">...Loading Scene...</p>
-            <template v-else>
-                <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
-                <Btn v-if="APP_ENV !== 'prod'" @click="useMockWallet">Dev</Btn>
-            </template>
+        <div v-else-if="step === 'UNBOXED'" class="flex flex-col justify-center items-center w-full absolute left-0 top-[10%] pointer-events-none gap-8">
+            <p>Here's what's inside your box</p>
+            <div class="grid grid-cols-2 gap-6">
+                <div class="flex flex-col gap-6">
+                    <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
+                        <p class="text-center font-semibold">Booklet <span class="font-normal">x 1</span></p>
+                        <div class="flex h-full justify-center items-center"><img :src="genesisStore.coverBookletRoute('starknet_planet/spaceman')"></div>
+                    </div>
+                    <Btn secondary class="pointer-events-auto h-14" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
+                        <p class="text-center font-semibold">Briqs <span class="font-normal">x {{ 3290578290837598 }}</span></p>
+                        <div class="flex h-full justify-center items-center"><img class="max-w-[5rem]" :src="BriqsImg"></div>
+                    </div>
+                    <Btn class="pointer-events-auto h-14" @click="openBuilder">Start building</Btn>
+                </div>
+            </div>
         </div>
+        <div v-else-if="step === 'OPEN_BUILDER'" class="absolute h-screen w-screen bg-grad-lightest" :style="`opacity: ${Math.min(1, (fsm.state.easedTime?.value ?? 0) * (fsm.state.easedTime?.value ?? 0))};`"/>
     </Transition>
 </template>
 
@@ -622,16 +560,16 @@ const useMockWallet = () => {
 }
 .xfade-enter-active,
 .xfade-leave-active {
-  transition: clip-path 1.5s ease;
+    transition: clip-path 1.5s ease;
 }
 
-.fade-leave-from {
+.fade-enter-to, .fade-leave-from {
     opacity: 100%;
 }
-.fade-leave-to {
+.fade-enter-from, .fade-leave-to {
     opacity: 0%;
 }
-.fade-leave-active {
-  transition: all 0.5s ease !important;
+.fade-enter-active, .fade-leave-active {
+    transition: all 0.5s ease !important;
 }
 </style>

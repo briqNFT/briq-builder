@@ -78,7 +78,7 @@ hr {
             <hr>
             <p>Dark mode</p>
             <p>
-                <select v-model="darkModeStore.forcedMode">
+                <select v-model="darkModeStore.userChoice">
                     <option value="">OS Default</option>
                     <option value="dark">Dark Mode</option>
                     <option value="light">Light Mode</option>
