@@ -98,6 +98,22 @@ function recreateRenderer(quality: SceneQuality) {
         aoPass.kernelRadius = 0.02;
         aoPass.minDistance = 0.001;
         aoPass.maxDistance = 0.02;
+
+        // Overwrite the visibility pass so that the fire material is ignored, or SSAO writes depth.
+        aoPass.overrideVisibility = function() {
+            const scene = aoPass.scene;
+            const cache = aoPass._visibilityCache;
+            scene.traverse(function (object: any) {
+                cache.set( object, object.visible );
+                if (object.name === 'fire')
+                    object.visible = false;
+                if(object.parent?.name === 'wooden_logs')
+                    object.visible = false;
+                if (object.isPoints || object.isLine)
+                    object.visible = false;
+            });
+        }
+
         composer.addPass(aoPass);
 
         const copyPass = new ShaderPass(GammaCorrectionShader);
@@ -149,6 +165,66 @@ export function render() {
 
 export async function useRenderer(_canvas: HTMLCanvasElement) {
     await threeSetupComplete;
+
+    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow', 'float getPointShadow2');
+    THREE.ShaderChunk.shadowmap_pars_fragment += `
+    float texture2DCompare2( float value, vec2 uv, float compare, float dist) {
+        return mix(step(compare, value), (clamp((value - compare), -0.1, 0.0) + 0.1) * 10.0, clamp(-dist * 3.0 - 0.3, 0.0, 1.0));
+	}
+
+    float texture2DCompare3( sampler2D depths, vec2 uv, float compare ) {
+		return unpackRGBAToDepth( texture2D( depths, uv ) );
+	}
+
+    float getPointShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowBias, float shadowRadius, vec4 shadowCoord, float shadowCameraNear, float shadowCameraFar ) {
+
+		vec2 texelSize = vec2( 1.0 ) / ( shadowMapSize * vec2( 4.0, 2.0 ) );
+
+		// for point lights, the uniform @vShadowCoord is re-purposed to hold
+		// the vector from the light to the world-space position of the fragment.
+		vec3 lightToPosition = shadowCoord.xyz;
+
+		// dp = normalized distance from light to fragment position
+		float dp = ( length( lightToPosition ) - shadowCameraNear ) / ( shadowCameraFar - shadowCameraNear ); // need to clamp?
+		dp += shadowBias;
+
+		// bd3D = base direction 3D
+		vec3 bd3D = normalize( lightToPosition );
+
+		#if defined( SHADOWMAP_TYPE_PCF ) || defined( SHADOWMAP_TYPE_PCF_SOFT ) || defined( SHADOWMAP_TYPE_VSM )
+
+			vec2 offset = vec2( - 1, 1 ) * shadowRadius * texelSize.y * dp * 2.0;
+
+            float dist1 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp );
+            float dist2 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp );
+            float dist3 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp );
+            float dist4 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp );
+            float dist5 = texture2DCompare3( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );
+            float dist6 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp );
+            float dist7 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp );
+            float dist8 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp );
+            float dist9 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp );
+
+            float cm = max(max(max(max(dist1, dist3), dist5), dist7), dist9) - dp;
+			return (
+				texture2DCompare2( dist1, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist2, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist3, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist4, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist5, cubeToUV( bd3D, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist6, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp, cm ) +
+				texture2DCompare2( dist7, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp, cm ) +
+				texture2DCompare2( dist8, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp, cm ) +
+				texture2DCompare2( dist9, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp, cm )
+			) * ( 1.0 / 9.0 );
+
+		#else // no percentage-closer filtering
+
+			return texture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );
+
+		#endif
+
+	}`;
 
     canvas = _canvas;
 
@@ -246,7 +322,21 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
 }
 
 export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
-    physicsWorld = (await ammoPromise)();
+    if (!physicsWorld) {
+        physicsWorld = (await ammoPromise)();
+        const floor = new THREE.Mesh(
+            new THREE.BoxGeometry(20, 1, 20),
+        );
+        floor.position.y = -0.52;
+        physicsWorld.addMesh(floor, 0.0, 0.7);
+
+        // Carpet floats slightly
+        const carpet = new THREE.Mesh(
+            new THREE.BoxGeometry(3, 1, 2),
+        );
+        carpet.position.set(0.445, -0.51, -0.6);
+        physicsWorld.addMesh(carpet, 0.0, 1.0);
+    }
 
     runPhysics = true;
     boomTriggered = false;
@@ -254,7 +344,7 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     scene.clear();
     recreateRenderer(quality);
 
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = quality >= SceneQuality.MEDIUM ? THREE.PCFSoftShadowMap : THREE.BasicShadowMap;
 
     // SSAO
     composer.passes[1].enabled = quality >= SceneQuality.ULTRA;
@@ -270,9 +360,8 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
     if (quality <= SceneQuality.MEDIUM)
         scene.add(new THREE.AmbientLight(new THREE.Color('#ffb86c').convertSRGBToLinear(), 0.01))
 
-
     camera.position.set(2.5, 1.8, 2.5);
-    camera.lookAt(new THREE.Vector3(-1, 0.2, -1))
+    camera.lookAt(new THREE.Vector3(-1.5, 0.2, -1.5))
     scene.add(camera);
 
     const house = await setupHomeScene(quality)
@@ -365,7 +454,7 @@ async function setupHomeScene(quality: SceneQuality) {
 
     const obj = homeSceneMesh.clone(true);
 
-    const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv', 'gamecube_controller', 'car_rug'];
+    const casters = ['fireplace', 'christmas_tree', 'gamecube', 'lamp', 'side_table', 'sofa', 'tv', 'gamecube_controller', 'game_1', 'game_2'];
     obj.traverse(mesh => {
         if (casters.indexOf(mesh.name) !== -1)
             castShadow(mesh)
@@ -406,8 +495,9 @@ async function setupHomeScene(quality: SceneQuality) {
     if (true) {
         light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), quality >= SceneQuality.HIGH ? 0.7 : 0.8, 10.0);
         light.position.set(-0.53, 1.02 + 2.05, -2.47 - 9);
-        light.shadow.radius = 12;
-        light.shadow.mapSize = new THREE.Vector2(512, 512);
+        light.shadow.radius = 4;
+        const qual = quality > SceneQuality.LOW ? 256 : 512;
+        light.shadow.mapSize = new THREE.Vector2(qual, qual);
     } else {
         const lightTarget = new THREE.Object3D();
         lightTarget.position.set(0.58, 0, 2.47);
@@ -417,26 +507,51 @@ async function setupHomeScene(quality: SceneQuality) {
         light.target = lightTarget;
         light.shadow.mapSize = new THREE.Vector2(512, 512);
     }
-    light.shadow.bias = -0.001;
-    light.shadow.normalBias = 0.08;
+    light.shadow.bias = quality > SceneQuality.LOW ? 0.0 : -0.01;
+    light.shadow.normalBias = 0.02;
     light.shadow.camera.near = 0.03;
     light.shadow.camera.far = 10;
 
     light.castShadow = true;
     obj.add(light);
 
-    /* Add a secondary support light for the lamp stand. */
+    // Massive hack to use linear filtering on shadow map.
+    light.shadow = new Proxy(light.shadow, {
+        set(target, prop, value, receiver) {
+            if (prop === 'map')
+                return Reflect.set(target, prop, new THREE.WebGLRenderTarget(value.width, value.height, {
+                    minFilter: THREE.LinearFilter,
+                    magFilter: THREE.LinearFilter,
+                }), receiver);
+
+            return Reflect.set(target, prop, value, receiver);
+        },
+    })
+
+    // Add a secondary support light for the lamp stand.
     if (quality >= SceneQuality.HIGH) {
         const lightSupport = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.1, 10.0);
         lightSupport.position.set(-0.53, 1 + 2.05, -2.47 - 9);
-        lightSupport.shadow.bias = -0.001;
-        lightSupport.shadow.normalBias = 0.05;
+        lightSupport.shadow.bias = quality > SceneQuality.LOW ? 0.0 : -0.01;
+        lightSupport.shadow.normalBias = 0.02;
         lightSupport.shadow.camera.near = 0.03;
         lightSupport.shadow.camera.far = 10;
-        lightSupport.shadow.radius = 16;
-        lightSupport.shadow.mapSize = new THREE.Vector2(256, 256);
+        lightSupport.shadow.radius = 2;
+        lightSupport.shadow.mapSize = new THREE.Vector2(64, 64);
         lightSupport.castShadow = true;
         obj.add(lightSupport);
+
+        lightSupport.shadow = new Proxy(lightSupport.shadow, {
+            set(target, prop, value, receiver) {
+                if (prop === 'map')
+                    return Reflect.set(target, prop, new THREE.WebGLRenderTarget(value.width, value.height, {
+                        minFilter: THREE.LinearFilter,
+                        magFilter: THREE.LinearFilter,
+                    }), receiver);
+
+                return Reflect.set(target, prop, value, receiver);
+            },
+        })
     }
 
     /* Add a small light for the TV. */
@@ -457,10 +572,10 @@ async function setupHomeScene(quality: SceneQuality) {
 
     chimneyLight = new THREE.PointLight(new THREE.Color('#ffaa22').convertSRGBToLinear(), 1.2, 5.0);
     chimneyLight.position.set(-2.5, 0.4 + 2.05, -0.6 -9);
-    chimneyLight.shadow.bias = -0.001;
-    chimneyLight.shadow.normalBias = 0.01;
-    chimneyLight.shadow.camera.near = 0.05;
-    chimneyLight.shadow.camera.far = 10.0;
+    chimneyLight.shadow.bias = -0.02;
+    chimneyLight.shadow.normalBias = 0.02;
+    chimneyLight.shadow.camera.near = 0.1;
+    chimneyLight.shadow.camera.far = 5.0;
     // Massive hack to use linear filtering on shadow map.
     chimneyLight.shadow = new Proxy(chimneyLight.shadow, {
         set(target, prop, value, receiver) {
@@ -476,8 +591,8 @@ async function setupHomeScene(quality: SceneQuality) {
     if (quality === SceneQuality.LOW)
         chimneyLight.shadow.mapSize = new THREE.Vector2(512, 512);
     else {
-        chimneyLight.shadow.radius = 16;
-        chimneyLight.shadow.mapSize = new THREE.Vector2(512, 512);
+        chimneyLight.shadow.radius = 4;
+        chimneyLight.shadow.mapSize = new THREE.Vector2(128, 128);
     }
     chimneyLight.castShadow = true;
     obj.add(chimneyLight);
@@ -746,7 +861,7 @@ export function triggerBoom() {
 
 export function graphicsFrame(delta: number) {
     render();
-    {
+    if (true) {
         fireMaterial.uniforms['time'].value += delta;
         lightTime += delta * 12.0;
         const intensity = (Math.sin(2 * lightTime) + Math.sin(Math.PI * lightTime)) / 4.0 + 0.5;

@@ -102,27 +102,38 @@ const sapinState = new class implements FsmState {
 }
 
 const unboxingState = new class implements FsmState {
-    rt: any;
     step = 0;
-    async onEnter() {
-        this.rt = sceneData.box!.quaternion.clone();
-    }
 
-    frame(delta: number) {
-        const tg = new THREE.Quaternion(0, -0.99, 0, 0.125);
+    camPos!: THREE.Vector3;
+    camQuat!: THREE.Quaternion;
+
+    curve!: THREE.CubicBezierCurve;
+
+    targPos = new THREE.Vector3(-0.5051985807049573, 0.9106641122513064, -0.6608630977181946);
+    targQuat = new THREE.Quaternion(-0.21513355823476782, 0.36465427428385455, 0.08699554956570354, 0.9017630435560798);
+
+    duration = 3.0;
+    async onEnter() {
+        this.camPos = camera.position.clone();
+        this.camQuat = camera.quaternion.clone();
 
         const ease = 1.0;
-        const curve = new THREE.CubicBezierCurve(
+        this.curve = new THREE.CubicBezierCurve(
             new THREE.Vector2(0, 0),
             new THREE.Vector2(ease, 0),
             new THREE.Vector2(1 - ease, 1),
             new THREE.Vector2(1, 1),
         );
+    }
 
-        sceneData.box!.quaternion.slerpQuaternions(this.rt, tg, Math.min(1.0, curve.getPoint(Math.min(1.0, this.step)).y));
+    frame(delta: number) {
+        if (this.step >= this.duration)
+            return;
+        const point = this.curve.getPointAt(this.step / this.duration).y;
+        camera.position.lerpVectors(this.camPos, this.targPos, point);
+        camera.quaternion.slerpQuaternions(this.camQuat, this.targQuat, point);
+
         this.step += delta;
-        if (this.step >= 1.0)
-            fsm.switchTo('UNBOXING_OPEN')
     }
 }
 
@@ -131,11 +142,15 @@ const unboxingOpenState = new class implements FsmState {
     briqStep = 0;
     boxMoveStep = 0;
     c2 = 0;
-    rt: any;
+    rt: THREE.Quaternion;
     genCubes = false;
     genBooklet = false;
+    lastMoveOn = 0;
     initialPos!: THREE.Vector3;
     deltaV = [];
+
+    camPos!: THREE.Vector3;
+    camQuat!: THREE.Quaternion;
 
     async onEnter() {
         this.rt = sceneData.box!.quaternion.clone();
@@ -146,12 +161,10 @@ const unboxingOpenState = new class implements FsmState {
     }
 
     frame(delta: number) {
-        //delta *= 10;
-        sceneData.box!.userData.mixer.update(delta);
         this.time += delta;
 
         // Camera movement - step 1
-        if (!this.genCubes) {
+        if (!this.genCubes && this.time < 4) {
             const ease = 1.0;
             const curve = new THREE.CubicBezierCurve(
                 new THREE.Vector2(0, 0),
@@ -160,33 +173,15 @@ const unboxingOpenState = new class implements FsmState {
                 new THREE.Vector2(1, 1),
             );
             const easedTime = curve.getPoint(Math.min(1.0, this.time / 4)).y;
-            camera.position.lerpVectors(this.camPos, new THREE.Vector3(2.75, 2.25, 0.15), Math.min(1, easedTime));
-            camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), Math.min(1, easedTime));
-
-            scene.fog.near = 1.3 + easedTime * 1.7;
-            scene.fog.far = 4.5 + easedTime * 0.5;
+            camera.position.lerpVectors(this.camPos, new THREE.Vector3(-0.72, 1.33, 0.94), Math.min(1, easedTime));
+            //camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.22, 0.082, 0.0185, 0.97), Math.min(1, easedTime));
+            camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.214, 0.148, 0.033, 0.965), Math.min(1, easedTime));
         }
 
-        // Camera movement - step 2
-        if (this.genCubes) {
-            const ease = 1.0;
-            const curve = new THREE.CubicBezierCurve(
-                new THREE.Vector2(0, 0),
-                new THREE.Vector2(1.3, 0),
-                new THREE.Vector2(0.7, 1),
-                new THREE.Vector2(1, 1),
-            );
-            const easedTime = curve.getPoint(Math.min(1.0, this.c2 / 8)).y;
-            //camera.position.lerpVectors(new THREE.Vector3(2.75, 2.25, 0.15), new THREE.Vector3(1.6, 1.6, 0.3), Math.min(1, easedTime));
-            //camera.quaternion.slerpQuaternions(new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), new THREE.Quaternion(-0.36, 0.584, 0.326, 0.65), Math.min(1, easedTime));
-            camera.position.lerpVectors(new THREE.Vector3(2.75, 2.25, 0.15), new THREE.Vector3(2.42, 0.105, 0.43), Math.min(1, easedTime));
-            camera.quaternion.slerpQuaternions(new THREE.Quaternion(-0.24, 0.67, 0.24, 0.66), new THREE.Quaternion(-0.06, 0.62, 0.047, 0.78), Math.min(1, easedTime));
-            //scene.fog.near = 1.3 + easedTime * 1.7;
-            //scene.fog.far = 4.5 + easedTime * 0.5;
-            this.c2 += delta;
-        }
         // Box movement
-        if (sceneData.box!.userData.mixer.time > 2.5 && this.boxMoveStep < 1) {
+        if (this.time > 1.0 && this.boxMoveStep < 1) {
+            sceneData.box!.userData.mixer.update(delta);
+
             this.boxMoveStep += delta / 2;
 
             const ease = 0.8;
@@ -197,14 +192,19 @@ const unboxingOpenState = new class implements FsmState {
                 new THREE.Vector2(1, 1),
             );
             const easedTime = curve.getPoint(this.boxMoveStep).y;
-            const tg = this.rt.clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 3));
-            tg.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -0.2));
-            tg.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0.2));
-            sceneData.box!.quaternion.slerpQuaternions(this.rt, tg, easedTime);
-            sceneData.box!.position.lerpVectors(this.initialPos, new THREE.Vector3(0, 0.7, -0.2), easedTime);
+
+            const rot = this.rt.clone();
+            rot.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 2 * -Math.PI / 3));
+            // point down
+            rot.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 5));
+            // slightly flatten
+            rot.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -0.2));
+
+            sceneData.box!.quaternion.slerpQuaternions(this.rt, rot, easedTime);
+            sceneData.box!.position.lerpVectors(this.initialPos, new THREE.Vector3(-0.65, 0.8, -0.5), easedTime);
         }
 
-        if (this.boxMoveStep >= 1.0) {
+        if (this.time >= 4.0) {
             // Spawn cubes early
             if (!this.genCubes && this.briqStep >= 0) {
                 const colors = {};
@@ -212,7 +212,8 @@ const unboxingOpenState = new class implements FsmState {
                 for (const briq of briqs)
                     colors[briq.data.color] = 1;
                 */
-                color['0xff0000'] = 1;
+                colors['#ff0000'] = 1;
+                colors['#00FF00'] = 1;
                 generateCubes(Object.keys(colors));
                 this.genCubes = true;
             }
@@ -233,7 +234,28 @@ const unboxingOpenState = new class implements FsmState {
             this.briqStep += delta / 2;
         }
 
-        if (this.time >= 12.75)
+        // Camera movement - step 2
+        if (this.genCubes && !this.lastMoveOn) {
+            this.lastMoveOn = 1;
+            setTimeout(() => this.lastMoveOn = 2, 1000);
+            this.camPos = camera.position.clone();
+            this.camQuat = camera.quaternion.clone();
+        }
+
+        if (this.lastMoveOn >= 2) {
+            const curve = new THREE.CubicBezierCurve(
+                new THREE.Vector2(0, 0),
+                new THREE.Vector2(1, 0),
+                new THREE.Vector2(0, 1),
+                new THREE.Vector2(1, 1),
+            );
+            const easedTime = curve.getPoint(Math.min(1.0, this.c2 / 5.0)).y;
+            camera.position.lerpVectors(this.camPos, new THREE.Vector3(-0.12, 0.4, -0.23), Math.min(1, easedTime));
+            camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.1, 0.495, 0.058, 0.86), Math.min(1, easedTime));
+            this.c2 += delta;
+        }
+
+        if (this.time >= 11)
             fsm.switchTo('UNBOXED');
 
     }
@@ -428,7 +450,6 @@ onUnmounted(() => {
 })
 
 
-const termsSale = ref(false);
 const termsBriq = ref(false);
 
 const { unbox, fakeUnbox } = useUnboxHelpers();
@@ -438,13 +459,13 @@ const doUnbox = async () => {
     disableButtons.value = true;
     try {
         await unbox('starknet_planet/spaceman');
-        fsm.switchTo('UNBOXING');
+        fsm.switchTo('UNBOXING_OPEN');
     } catch(_) { /**/ }
     disableButtons.value = false;
 }
 const doFakeUnbox = async () => {
-    await fakeUnbox('starknet_planet/spaceman');
-    fsm.switchTo('UNBOXING');
+    //await fakeUnbox('starknet_planet/spaceman');
+    fsm.switchTo('UNBOXING_OPEN');
 }
 
 const openBuilder = async () => {
@@ -477,7 +498,7 @@ const quality = ref(SceneQuality.ULTRA);
             </template>
         </div>
     </Transition>
-    <template v-if="step !== 'CHECK_WALLET' && step !== 'LOADING'">
+    <template v-if="step !== 'CHECK_WALLET' && step !== 'LOADING' && APP_ENV === 'dev'">
         <div class="absolute bottom-0 left-0 text-base">
             <FireplaceAudio/>
         </div>
@@ -489,21 +510,34 @@ const quality = ref(SceneQuality.ULTRA);
                 <option :value="SceneQuality.ULTRA">Ultra</option>
             </select>
         </div>
+        <div class="absolute bottom-0 right-0 text-white" @click="$forceUpdate()">
+            {{ camera.position }}
+            {{ camera.quaternion }}
+        </div>
     </template>
     <Transition appear name="fade">
         <div v-if="step === 'SAPIN'">
-            <div class="fixed right-0 top-0 m-8 shadow bg-grad-lightest rounded-md p-6 max-w-[27rem]">
-                <h4 class="text-md mb-6">Unboxing</h4>
-                <p>Unboxing this <span class="font-medium">{{ 'SPACEMAN' }}</span> box will burn it forever.<br>In exchange, its content will be available to you.</p>
+            <div class="fixed right-0 top-0 m-8 shadow bg-grad-lightest rounded-md p-6 max-w-[23rem] text-md leading-snug">
+                <p class="mb-2">The sounds of the fireplace. Outside, the stars twinkle.</p>
+                <p class="mb-2">Today is <span class="text-primary font-medium">briqmas</span>, 2022.</p>
+                <p class="mb-2">By the tree a gift was left. <br>It is yours to open.</p>
+                <div class="mt-8 flex justify-end">
+                    <Btn class="pointer-events-auto !text-sm" @click="fsm.switchTo('UNBOXING')">Get Closer</Btn>
+                </div>
+            </div>
+        </div>
+        <div v-else-if="step === 'UNBOXING'">
+            <div class="fixed right-0 top-0 m-8 shadow bg-grad-lightest rounded-md p-6 max-w-[23rem] text-md leading-snug">
+                <p class="mb-2">A briq box! You did not expect that.</p>
+                <p>Inside, the box says, some briqs and an instruction booklet.</p>
                 <h5 class="mt-6 mb-3 font-medium">Terms and conditions</h5>
                 <div class="text-sm flex flex-col gap-4">
                     <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
-                    <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
                 </div>
                 <div class="mt-8 flex justify-between">
                     <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm" :disabled="disableButtons">Back to inventory</Btn></RouterLink>
-                    <Btn no-background v-if="featureFlags.adminOnly" class="pointer-events-auto !text-sm" @click="doFakeUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Fakeunbox</Btn>
-                    <Btn class="pointer-events-auto !text-sm" @click="doUnbox" :disabled="disableButtons || !termsSale || !termsBriq">Unbox</Btn>
+                    <Btn no-background class="pointer-events-auto !text-sm" @click="doFakeUnbox" :disabled="disableButtons || !termsBriq">Fake</Btn>
+                    <Btn class="pointer-events-auto !text-sm" @click="doUnbox" :disabled="disableButtons || !termsBriq">Unbox</Btn>
                 </div>
             </div>
         </div>
@@ -570,6 +604,6 @@ const quality = ref(SceneQuality.ULTRA);
     opacity: 0%;
 }
 .fade-enter-active, .fade-leave-active {
-    transition: all 0.5s ease !important;
+    transition: all 2.5s ease !important;
 }
 </style>
