@@ -18,6 +18,7 @@ import { BoxSelection, VoxelAlignedSelection } from './SelectHelpers';
 import { inputStore } from '../InputStore';
 import { useSetHelpers } from '@/components/builder/SetComposable';
 import { builderStore } from '@/builder/BuilderStore';
+import { canCopyPaste } from './CopyPaste';
 
 const { openSetInBuilder } = useSetHelpers();
 
@@ -133,6 +134,7 @@ export class InspectInput extends MouseInputState {
     otherMesh!: THREE.Object3D;
 
     copyHotkey!: HotkeyHandle;
+    pasteHotkey!: HotkeyHandle;
     newHotkey!: HotkeyHandle;
 
     meshWatcher!: WatchStopHandle;
@@ -152,7 +154,7 @@ export class InspectInput extends MouseInputState {
     }
 
     _canCopyPaste() {
-        return this.fsm.store.selectionMgr.selectedBriqs.length > 0;
+        return canCopyPaste(this.fsm);
     }
 
     override onEnter() {
@@ -188,6 +190,11 @@ export class InspectInput extends MouseInputState {
 
         this.fsm.hotkeyMgr.register('copy', { code: 'KeyC', ctrl: true, onDown: true });
         this.copyHotkey = this.fsm.hotkeyMgr.subscribe('copy', () =>
+            this._canCopyPaste() ? this.fsm.switchTo('copy') : null,
+        );
+        // See also MenuBuilder's shortcut.
+        this.fsm.hotkeyMgr.register('paste', { code: 'KeyV', ctrl: true, onDown: true });
+        this.pasteHotkey = this.fsm.hotkeyMgr.subscribe('paste', () =>
             this._canCopyPaste() ? this.fsm.switchTo('copy_paste') : null,
         );
 
@@ -205,6 +212,7 @@ export class InspectInput extends MouseInputState {
         overlayObjects.remove(this.mesh);
         overlayObjects.remove(this.otherMesh);
         this.fsm.hotkeyMgr.unsubscribe(this.copyHotkey);
+        this.fsm.hotkeyMgr.unsubscribe(this.pasteHotkey);
         this.fsm.hotkeyMgr.unsubscribe(this.newHotkey);
     }
 

@@ -45,8 +45,8 @@ export class BuilderInputFSM {
         const oldState = this.state;
         this.state = new inputMap[state](this, this.canvas);
         this.state._copyOver(oldState);
-        this.state._onEnter(data);
         this.store.currentInput = state;
+        this.state._onEnter(data);
     }
 
     waitForInit() {

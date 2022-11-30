@@ -1,4 +1,4 @@
-import { MouseInputState } from './BuilderInputState';
+import { BuilderInputState, MouseInputState } from './BuilderInputState';
 import { store } from '@/store/Store';
 
 import type { HotkeyHandle } from '@/Hotkeys';
@@ -7,8 +7,24 @@ import { SelectionManager, selectionRender } from '../Selection';
 import { THREE } from '@/three';
 import { pushMessage } from '@/Messages';
 import { builderStore } from '@/builder/BuilderStore';
+import type { BuilderInputFSM } from '../BuilderInput';
+import { APP_ENV } from '@/Meta';
 
 const { currentSet } = builderStore;
+
+
+export function canCopyPaste(fsm?: BuilderInputFSM) {
+    return window.localStorage.getItem('copy_paste_data') || fsm && fsm.store.selectionMgr.selectedBriqs.length > 0;
+}
+
+export class CopyInput extends BuilderInputState {
+    onEnter() {
+        window.localStorage.setItem('copy_paste_data',
+            JSON.stringify(this.fsm.store.selectionMgr.selectedBriqs.map(x => ({ position: x.position, color: x.color, material: x.material }))),
+        );
+        this.fsm.switchTo('copy_paste');
+    }
+}
 
 export class CopyPasteInput extends MouseInputState {
     lastClickPos: [number, number, number] | undefined;
@@ -22,9 +38,19 @@ export class CopyPasteInput extends MouseInputState {
     ColorOverlay = new THREE.Color(0xffaa000);
 
     cancelHotkey!: HotkeyHandle;
-    pasteHotkey!: HotkeyHandle;
 
     override onEnter() {
+        try {
+            const copiedData = JSON.parse(window.localStorage.getItem('copy_paste_data')!);
+            if (copiedData) {
+                this.fsm.store.selectionMgr.clear();
+                // Bit of a hack because these are 'virtual briqs' in a sense, but it works
+                this.fsm.store.selectionMgr.select(copiedData);
+            }
+        } catch(_) {
+            if (APP_ENV === 'dev')
+                console.error(_);
+        }
         selectionRender.show();
         this.selectionCenter = this.fsm.store.selectionMgr.getCenterPos();
         if (!this.selectionCenter)
@@ -55,10 +81,6 @@ export class CopyPasteInput extends MouseInputState {
         this.cancelHotkey = this.fsm.hotkeyMgr.subscribe('escape', () => {
             this.fsm.switchTo('inspect');
         });
-        this.fsm.hotkeyMgr.register('paste', { code: 'KeyV', ctrl: true });
-        this.pasteHotkey = this.fsm.hotkeyMgr.subscribe('paste', () => {
-            this.doPaste();
-        });
 
         this.onPointerMove();
     }
@@ -67,7 +89,6 @@ export class CopyPasteInput extends MouseInputState {
         selectionRender.hide();
         selectionRender.parent.position.set(0, 0, 0);
         selectionRender.parent.children[0].material.color = this.ColorOK;
-        this.fsm.hotkeyMgr.unsubscribe(this.pasteHotkey);
         this.fsm.hotkeyMgr.unsubscribe(this.cancelHotkey);
     }
 

@@ -1,10 +1,8 @@
-import { BuilderInputState } from './input_states/BuilderInputState';
-
 import { NFTPlacerInput, PlacerInput, PlacerMultiInput } from './input_states/Placer';
 import { EraserInput, EraserMultiInput } from './input_states/Eraser';
 import { PainterInput, PainterMultiInput, PainterSprayInput } from './input_states/Painter';
 import { InspectInput, BoxSelect, VASelect, DragInput, RotateInput, InspectSprayInput } from './input_states/Inspect';
-import { CopyPasteInput } from './input_states/CopyPaste';
+import { CopyInput, CopyPasteInput } from './input_states/CopyPaste';
 import { CameraInput, CameraSelect } from './input_states/Camera';
 import { inputMap } from './InputMap';
 
@@ -23,6 +21,7 @@ export function setupInputMap() {
     inputMap.inspect_box = BoxSelect;
     inputMap.drag = DragInput;
     inputMap.rotate = RotateInput;
+    inputMap.copy = CopyInput;
     inputMap.copy_paste = CopyPasteInput;
 
     inputMap.camera = CameraInput;

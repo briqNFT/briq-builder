@@ -19,6 +19,8 @@ import { useRecording } from './Recording';
 import NewSetModalVue from './modals/NewSetModal.vue';
 import { DEV } from '@/Meta';
 import CameraTools from './CameraTool.vue';
+import { canCopyPaste } from '@/builder/inputs/input_states/CopyPaste';
+import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
@@ -98,6 +100,12 @@ const unselectAllBriqs = (event: Event) => {
     inputStore.selectionMgr.clear();
 }
 
+// See also Inspect.ts
+const pasteBriqs = () => {
+    if (canCopyPaste())
+        builderInputFsm.switchTo('copy_paste');
+}
+
 const onCloseMenu = () => {
     if (mode.value === 'CAMERA_SETTINGS')
         return;
@@ -157,6 +165,7 @@ const onCloseMenu = () => {
         </div>
         <Hotkey v-if="activeInputButton === 'select'" name="delete-1" :data="{ onDown: true, code: 'Delete' }" :handler="() => deleteBriqs()"/>
         <Hotkey v-if="activeInputButton === 'select'" name="delete-2" :data="{ onDown: true, code: 'Backspace' }" :handler="() => deleteBriqs()"/>
+        <Hotkey v-if="activeInputButton !== 'select'" name="paste" :data="{ onDown: true, code: 'KeyV', ctrl: true }" :handler="() => pasteBriqs()"/>
         <Hotkey name="select-all" :data="{ key: 'a', ctrl: true, onDown: true }" :handler="selectAllbriqs"/>
         <Hotkey name="escape" :handler="unselectAllBriqs"/>
     </div>
