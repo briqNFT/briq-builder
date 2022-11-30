@@ -46,10 +46,10 @@ export default defineComponent({
             if (!this.$refs.tooltipDiv)
                 return ret;
             const rect = this.$refs.tooltipDiv.getBoundingClientRect();
-            if (this.mx > window.innerWidth - rect.width - 10)
-                ret.left = `${window.innerWidth - rect.width}px`;
-            if (this.my > window.innerHeight - rect.height - 10)
-                ret.top = `${window.innerHeight - rect.height}px`;
+            if (this.mx > window.innerWidth - rect.width - 20)
+                ret.left = `${window.innerWidth - rect.width - 20}px`;
+            if (this.my > window.innerHeight - rect.height - 20)
+                ret.top = `${window.innerHeight - rect.height - 20}px`;
             return ret;
         },
     },
