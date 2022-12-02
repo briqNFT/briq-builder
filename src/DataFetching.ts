@@ -22,7 +22,6 @@ export class Fetchable<T> {
             this._data = await this._fetch;
         } catch(err) {
             this._error = err;
-            console.log(err);
         }
     }
 

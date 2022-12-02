@@ -1,7 +1,7 @@
-import { markRaw } from 'vue';
+import { computed, isReactive, markRaw, reactive, shallowReactive } from 'vue';
 import { getCurrentNetwork } from '@/chain/Network';
 import { backendManager } from '@/Backend';
-import { makeAutoFetchable } from '@/DataFetching';
+import { autoFetchable, makeAutoFetchable } from '@/DataFetching';
 
 export type bookletId = string;
 
@@ -16,14 +16,35 @@ export interface BookletData {
     properties: Record<string, any>;
 }
 
-export const bookletDataStore = makeAutoFetchable(
-    async (booklet: bookletId) => {
-        if (!booklet)
-            throw Error('No booklet passed');
-        return markRaw(await backendManager.fetch(`v1/booklet/data/${getCurrentNetwork()}/${booklet}.json`));
-    },
-);
+// Returns existing object or creates a new one and returns it.
+const defaultDict = <T>(t: (prop: string) => T, ...args: any[]) => {
+    return new Proxy(shallowReactive({} as Record<string, T>), {
+        get: (target, prop: string, receiver): T => {
+            if (Reflect.has(target, prop))
+                return Reflect.get(target, prop, receiver);
+            target[prop] = t(prop, ...args);
+            return target[prop];
+        },
+        set: (target, prop, value) => {
+            return Reflect.set(target, prop, value);
+        },
+    });
+}
+
+// Creates a simple object indexing on network ID & object key.
+// The `query` data fetcher receives those as arguments and returns the data,
+// which is assumed to be static (and thus marked raw).
+const perNetworkStaticData = (query: (network: string, prop: string) => Promise<any>) => {
+    return defaultDict((network: string) => makeAutoFetchable(async (prop: string) => {
+        return markRaw(await query(network, prop));
+    }));
+}
+
+export const bookletDataStore = perNetworkStaticData(async (network: string, booklet: bookletId) => {
+    return backendManager.fetch(`v1/booklet/data/${network}/${booklet}.json`);
+});
 
 export function getStepImgSrc(booklet: bookletId, page: number) {
     return `${backendManager.url}/v1/box/step_image/${getCurrentNetwork()}/${booklet}/${page - 1}.png`;
 }
+

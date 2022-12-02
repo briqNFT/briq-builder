@@ -47,6 +47,8 @@ const doDisassembly = async () => {
         router.push({ name: 'Profile' });
 }
 
+const chain_id = computed(() => (route.params.network as string) || getCurrentNetwork());
+
 const mode = route.name === 'UserBooklet' ? 'BOOKLET' : 'CREATION';
 
 const externalSetData = ref();
@@ -91,7 +93,7 @@ watch([booklet_id], () => {
 const bookletQuery = computed(() => {
     if (!booklet_id.value)
         return undefined;
-    return bookletDataStore[booklet_id.value];
+    return bookletDataStore[chain_id.value][booklet_id.value];
 });
 
 const bookletData = computed(() => {
@@ -115,7 +117,7 @@ watchEffect(() => {
     if (externalSetData.value)
         return;
     // At this point, we assume the set is external and we must load its data explicitly.
-    backendManager.fetch(`v1/metadata/${route.params.network}/${route.params.set_id as string}.json`).then(data => {
+    backendManager.fetch(`v1/metadata/${chain_id.value}/${route.params.set_id as string}.json`).then(data => {
         // in case it runs several times.
         if (!externalSetData.value)
             externalSetData.value = {
@@ -205,7 +207,7 @@ if (mode === 'CREATION') {
     modelViewerLoadingPromise.then(() => modelViewerLoading.value = false);
 }
 
-const previewURL = computed(() => backendManager.getPreviewUrl(set.value?.id, (route.params.network as string) || getCurrentNetwork()));
+const previewURL = computed(() => backendManager.getPreviewUrl(set.value?.id, chain_id.value));
 
 const token_decimal = computed(() => {
     if (route.params.set_id)
@@ -237,7 +239,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                             class="w-full h-full"
                             :exposure="0.9"
                             :is="'model-viewer'" shadow-intensity="0.5" shadow-softness="1" disable-pan camera-controls auto-rotate="true"
-                            :src="backendManager.getRoute(`model/${getCurrentNetwork()}/${set.id}.glb`)"/>
+                            :src="backendManager.getRoute(`model/${chain_id}/${set.id}.glb`)"/>
                         <div v-if="booklet_id" v-show="view === 'BOOKLET'" class="w-full h-full  p-4 xl:p-8 xl:pb-10 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet_id!)}), url(${genesisStore.coverBookletRoute(booklet_id!, true)})` }"/>
                         <div v-if="mode === 'CREATION'" v-show="view === 'PREVIEW'" class="w-full h-full p-4 lg:p-16 xl:p-24 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${previewURL})` }" :src="previewURL"/>
                         <div class="absolute top-4 left-4 flex flex-col gap-4" v-if="mode === 'CREATION'">
@@ -319,7 +321,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 </div>
                 <div v-if="booklet_id">
                     <Suspense>
-                        <ItemActivity type="booklet" :user="maybeStore?.user_id" :network="(route.params.network as string) || getCurrentNetwork()" :item="booklet_id"/>
+                        <ItemActivity type="booklet" :user="maybeStore?.user_id" :network="chain_id" :item="booklet_id"/>
                     </Suspense>
                 </div>
             </template>
@@ -361,7 +363,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 </div>
                 <div v-if="set?.id">
                     <Suspense>
-                        <ItemActivity type="set" :network="(route.params.network as string) || getCurrentNetwork()" :item="set.id"/>
+                        <ItemActivity type="set" :network="chain_id" :item="set.id"/>
                     </Suspense>
                 </div>
             </template>

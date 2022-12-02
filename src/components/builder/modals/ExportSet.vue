@@ -41,7 +41,7 @@ watch(toRef(props, 'setId'), () => {
 })
 
 const booklet = computed(() => setsManager.getInfo(props.setId).booklet);
-const bookletData = computed(() => booklet.value && bookletDataStore[booklet.value]._data);
+const bookletData = computed(() => booklet.value && bookletDataStore[getCurrentNetwork()][booklet.value]._data);
 
 // Reload the briqs on-chain in case there was an update.
 chainBriqs.value?.loadFromChain();

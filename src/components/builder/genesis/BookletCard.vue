@@ -2,14 +2,15 @@
 import { bookletDataStore } from '@/builder/BookletData';
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { userBookletsStore } from '@/builder/UserBooklets';
-import { computed } from 'vue';
+import { getCurrentNetwork } from '@/chain/Network';
+import { computed, isReactive } from 'vue';
 import GenericCardVue from './GenericCard.vue';
 
 const props = defineProps<{
     boxId: string
 }>();
 
-const bookletQuery = computed(() => bookletDataStore[props.boxId]);
+const bookletQuery = computed(() => bookletDataStore[getCurrentNetwork()][props.boxId]);
 const bookletData = computed(() => bookletQuery.value?._data);
 const genesisStore = useGenesisStore();
 

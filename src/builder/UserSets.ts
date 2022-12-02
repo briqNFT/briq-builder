@@ -197,17 +197,18 @@ class UserSetStore implements perUserStorable {
         // Debug
         //downloadJSON(data, data.id + ".json")
         const genesisStore = useGenesisStore();
-        // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome#solution
-        const bookletData = await bookletDataStore[booklet]._fetch!;
+        const [network, wallet_address] = this.user_id.split('/');
+        const bookletData = await bookletDataStore[network][booklet]._fetch!;
         data.name = bookletData.name;
         data.descriptioon = bookletData.description;
         const TX = contractStore.set!.assemble(
-            this.user_id.split('/')[1],
+            wallet_address,
             token_hint,
             data,
             bookletData.token_id,
         );
         if (!image) {
+            // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome#solution
             const bookletImage = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please');
             const imageBlob = (await (await bookletImage).blob());
             const image_base64 = await new Promise(yes => {
@@ -227,11 +228,12 @@ class UserSetStore implements perUserStorable {
 
     async _mintSet(TXp: Promise<any>, data: any, image: string | undefined, booklet?: string) {
         window.addEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
+        const [network, wallet_address] = this.user_id.split('/');
         try {
             // Send a hint to the backend
             const backendHint = backendManager.storeSet({
-                chain_id: this.user_id.split('/')[0],
-                owner: this.user_id.split('/')[1],
+                chain_id: network,
+                owner: wallet_address,
                 token_id: data.id,
                 data: data,
                 image_base64: image,
@@ -271,10 +273,11 @@ class UserSetStore implements perUserStorable {
 
     async disassemble(token_id: string) {
         let booklet_token_id;
+        const [network, wallet_address] = this.user_id.split('/');
         if (this.setData[token_id].booklet)
-            booklet_token_id = (await bookletDataStore[this.setData[token_id].booklet!]._fetch)!.token_id;
+            booklet_token_id = (await bookletDataStore[network][this.setData[token_id].booklet!]._fetch)!.token_id;
         const TX = await contractStore.set!.disassemble(
-            this.user_id.split('/')[1],
+            wallet_address,
             token_id,
             this.setData[token_id].data,
             booklet_token_id,

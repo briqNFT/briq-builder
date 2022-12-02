@@ -24,13 +24,13 @@ describe('Test Booklet data setup', () => {
 
     test('should create new fetchables and work correctly on success', async () => {
         mockPool.intercept({
-            path: '/v1/booklet/data/starknet-testnet/test.json',
+            path: '/v1/booklet/data/test_network/test.json',
             method: 'GET',
         }).reply(() => ({
             data: { test: true },
             statusCode: 200,
         }));
-        const data = bookletDataStore['test'];
+        const data = bookletDataStore['test_network']['test'];
         expect(data._data).toEqual(undefined);
         expect(data._fetch).toBeInstanceOf(Promise);
         expect(data._status).toEqual('FETCHING');
@@ -43,12 +43,12 @@ describe('Test Booklet data setup', () => {
 
     test('should fail on error', async () => {
         mockPool.intercept({
-            path: '/v1/booklet/data/starknet-testnet/test2.json',
+            path: '/v1/booklet/data/test_network/test2.json',
             method: 'GET',
         }).reply(() => ({
             statusCode: 500,
         }));
-        const data = bookletDataStore['test2'];
+        const data = bookletDataStore['test_network']['test2'];
         expect(data._data).toEqual(undefined);
         expect(data._fetch).toBeInstanceOf(Promise);
         expect(data._status).toEqual('FETCHING');
@@ -65,12 +65,12 @@ describe('Test Booklet data setup', () => {
 
     test('should fail on error (no explicit _fetch await)', async () => {
         mockPool.intercept({
-            path: '/v1/booklet/data/starknet-testnet/test3.json',
+            path: '/v1/booklet/data/test_network/test3.json',
             method: 'GET',
         }).reply(() => ({
             statusCode: 500,
         }));
-        const data = bookletDataStore['test3'];
+        const data = bookletDataStore['test_network']['test3'];
         expect(data._data).toEqual(undefined);
         expect(data._fetch).toBeInstanceOf(Promise);
         expect(data._status).toEqual('FETCHING');

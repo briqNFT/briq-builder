@@ -3,6 +3,7 @@ import { reactive, toRef, watchEffect, computed, Ref, onBeforeUnmount } from 'vu
 import { useBuilder } from '@/components/builder/BuilderComposable';
 import { bookletId, getStepImgSrc, bookletDataStore } from '@/builder/BookletData';
 import { setsManager } from '@/builder/SetsManager';
+import { getCurrentNetwork } from '@/chain/Network';
 
 export const bookletStore = reactive({
     minimized: false,
@@ -21,7 +22,7 @@ export function useBooklet(forceBooklet?: string) {
     const { currentSet, currentSetInfo } = useBuilder();
 
     const booklet = computed(() => forceBooklet || currentSetInfo.value?.booklet as string);
-    const bookletRef = computed(() => booklet.value ? bookletDataStore[booklet.value]._data : undefined);
+    const bookletRef = computed(() => booklet.value ? bookletDataStore[getCurrentNetwork()][booklet.value]._data : undefined);
 
     // Compute the progress
     // Do nothing if the calculator already exists.

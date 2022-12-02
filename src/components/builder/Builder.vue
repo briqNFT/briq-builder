@@ -83,7 +83,7 @@ const store = useStore();
 
 const initializePalette = async () => {
     if (booklet.value) {
-        await bookletDataStore[booklet.value]._fetch;
+        await bookletDataStore[getCurrentNetwork()][booklet.value]._fetch;
 
         const colors = [];
         let starter = undefined;

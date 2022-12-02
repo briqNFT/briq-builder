@@ -22,6 +22,7 @@ import { useSetHelpers } from '../SetComposable';
 import { useUnboxHelpers } from '@/builder/Unbox';
 import Toggle from '@/components/generic/Toggle.vue';
 import { featureFlags } from '@/FeatureFlags';
+import { getCurrentNetwork } from '@/chain/Network';
 
 
 //////////////////////////////
@@ -49,7 +50,7 @@ const boxId = computed(() => `${route.params.theme}/${route.params.box}`);
 const boxMetadata = genesisStore.metadata[boxId.value];
 
 // Load the booklet data early.
-bookletDataStore[boxId.value];
+bookletDataStore[getCurrentNetwork()][boxId.value];
 
 const { openSetInBuilder } = useSetHelpers();
 const { createBookletSet } = useUnboxHelpers();
@@ -220,7 +221,7 @@ const unboxingOpenState = new class implements FsmState {
             // Spawn cubes early
             if (!this.genCubes && this.briqStep >= 0) {
                 const colors = {};
-                const briqs = bookletDataStore[boxId.value]._data!.briqs;
+                const briqs = bookletDataStore[getCurrentNetwork()][boxId.value]._data!.briqs;
                 for (const briq of briqs)
                     colors[briq.data.color] = 1;
                 generateCubes(Object.keys(colors));
