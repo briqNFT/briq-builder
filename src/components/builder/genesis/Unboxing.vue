@@ -208,7 +208,7 @@ const unboxingOpenState = new class implements FsmState {
             // Spawn cubes early
             if (!this.genCubes && this.briqStep >= 0) {
                 const colors = {};
-                /*const briqs = getBookletDataSync(boxId.value).value.briqs;
+                /*const briqs = bookletDataStore[boxId.value]._data.briqs;
                 for (const briq of briqs)
                     colors[briq.data.color] = 1;
                 */

@@ -15,7 +15,7 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import BriqsImg from '@/assets/genesis/briqs.png';
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { hexUuid } from '@/Uuid';
-import { getBookletData, getBookletDataSync } from '@/builder/BookletData';
+import { bookletDataStore } from '@/builder/BookletData';
 import { useRoute, useRouter } from 'vue-router';
 import { setsManager } from '@/builder/SetsManager';
 import { useSetHelpers } from '../SetComposable';
@@ -45,7 +45,11 @@ const router = useRouter();
 
 const boxId = computed(() => `${route.params.theme}/${route.params.box}`);
 
+// Load the box data right away.
 const boxMetadata = genesisStore.metadata[boxId.value];
+
+// Load the booklet data early.
+bookletDataStore[boxId.value];
 
 const { openSetInBuilder } = useSetHelpers();
 const { createBookletSet } = useUnboxHelpers();
@@ -146,7 +150,6 @@ const unboxingOpenState = new class implements FsmState {
     deltaV = [];
 
     async onEnter() {
-        getBookletData(boxId.value);
         this.rt = sceneBox.quaternion.clone();
         this.initialPos = sceneBox.position.clone();
 
@@ -217,7 +220,7 @@ const unboxingOpenState = new class implements FsmState {
             // Spawn cubes early
             if (!this.genCubes && this.briqStep >= 0) {
                 const colors = {};
-                const briqs = getBookletDataSync(boxId.value).value.briqs;
+                const briqs = bookletDataStore[boxId.value]._data!.briqs;
                 for (const briq of briqs)
                     colors[briq.data.color] = 1;
                 generateCubes(Object.keys(colors));

@@ -1,7 +1,7 @@
-import { markRaw, shallowRef } from 'vue';
+import { reactive, markRaw, shallowRef } from 'vue';
 import { getCurrentNetwork } from '@/chain/Network';
 import { backendManager } from '@/Backend';
-import { noParallel } from '@/Async';
+import { autoFetchable } from './GenesisStore';
 
 export type bookletId = string;
 
@@ -16,35 +16,18 @@ export interface BookletData {
     properties: Record<string, any>;
 }
 
-const bookletsData = {} as { [booklet_id: bookletId]: BookletData };
-
-const loadBookletData = noParallel(async (booklet: bookletId) => {
-    if (!booklet)
-        return;
-    if (bookletsData[booklet])
-        return bookletsData[booklet];
-    try {
-        const metadata = await backendManager.fetch(`v1/booklet/data/${getCurrentNetwork()}/${booklet}.json`)
-        bookletsData[booklet] = markRaw(metadata);
-        return bookletsData[booklet];
-    } catch(_) { /* ignore */ }
-});
-
-export async function getBookletData(bookletId: bookletId) {
-    const ret = shallowRef(bookletsData?.[bookletId]);
-    if (!ret.value)
-        await loadBookletData(bookletId).then(x => ret.value = x);
-    return ret;
+const makeAutoFetchable = <keyT, valueT>(dataFetcher: (key: keyT) => Promise<valueT>) => {
+    return autoFetchable(reactive({}), dataFetcher);
 }
 
-export function getBookletDataSync(bookletId: bookletId) {
-    const ret = shallowRef(bookletsData?.[bookletId]);
-    if (!ret.value)
-        loadBookletData(bookletId).then(x => ret.value = x);
-    return ret;
-}
+export const bookletDataStore = makeAutoFetchable(
+    async (booklet: bookletId) => {
+        if (!booklet)
+            throw Error('No booklet passed');
+        return markRaw(await backendManager.fetch(`v1/booklet/data/${getCurrentNetwork()}/${booklet}.json`));
+    },
+);
 
 export function getStepImgSrc(booklet: bookletId, page: number) {
     return `${backendManager.url}/v1/box/step_image/${getCurrentNetwork()}/${booklet}/${page - 1}.png`;
 }
-

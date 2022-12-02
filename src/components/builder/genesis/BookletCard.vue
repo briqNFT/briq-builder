@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import { bookletDataStore } from '@/builder/BookletData';
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { userBookletsStore } from '@/builder/UserBooklets';
-import { computed, toRef } from 'vue';
-import { useBooklet } from '../BookletComposable';
+import { computed } from 'vue';
 import GenericCardVue from './GenericCard.vue';
 
 const props = defineProps<{
     boxId: string
 }>();
 
-const { getStepImgSrc, bookletData } = useBooklet(undefined, toRef(props, 'boxId'));
-
+const bookletQuery = computed(() => bookletDataStore[props.boxId]);
+const bookletData = computed(() => bookletQuery.value?._data);
 const genesisStore = useGenesisStore();
 
 const nbItems = computed(() => {
@@ -25,7 +25,7 @@ const hasPendingActivity = computed(() => {
 
 <template>
     <GenericCardVue
-        :title="bookletData?.name ?? boxId" subtitle="Booklet" :status="!!bookletData ? 'LOADED' : 'ERROR'"
+        :title="bookletData?.name ?? boxId" subtitle="Booklet" :status="bookletQuery._status"
         :image-src="genesisStore.coverBookletRoute(boxId, true)"
         :show-pending-marker="hasPendingActivity">
         <template #content>

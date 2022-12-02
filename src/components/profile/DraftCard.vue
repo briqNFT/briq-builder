@@ -17,7 +17,7 @@ const {
     openSetInBuilder,
 } = useSetHelpers();
 
-const { shapeValidity, bookletData } = useBooklet(undefined, toRef(props.creation, 'booklet'));
+const { shapeValidity, bookletData } = useBooklet(props.creation.booklet);
 
 // Show at least 1% because seeing 0% is weird af.
 const progress = computed(() => {

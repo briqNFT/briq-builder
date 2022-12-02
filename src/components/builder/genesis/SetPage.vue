@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { setsManager } from '@/builder/SetsManager';
-import { computed, ref, watch, watchEffect } from 'vue';
+import { computed, ComputedRef, ref, watch, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import GenericItemPage from './GenericItemPage.vue';
 import { useUnboxHelpers } from '@/builder/Unbox';
@@ -28,6 +28,7 @@ import { pushPopup } from '@/Notifications';
 import DownloadSet from '../modals/DownloadSet.vue';
 import Tooltip from '@/components/generic/Tooltip.vue';
 import { toBN } from 'starknet/utils/number';
+import { bookletDataStore } from '@/builder/BookletData';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -36,9 +37,9 @@ const { openSetInBuilder, disassembleSet } = useSetHelpers();
 const { createBookletSet } = useUnboxHelpers();
 
 const createSet = () => {
-    if (!bookletMetadata?.bookletData.value)
+    if (!bookletData.value)
         return;
-    openSetInBuilder(createBookletSet(booklet_id.value!, bookletMetadata?.bookletData.value!.name, bookletMetadata?.bookletData.value!.description));
+    openSetInBuilder(createBookletSet(booklet_id.value!, bookletData.value!.name, bookletData.value!.description));
 }
 
 const doDisassembly = async () => {
@@ -79,11 +80,23 @@ const set = computed(() => {
     return userSetStore.current?.setData[route.params.set_id as string]?.data;
 });
 
-let bookletMetadata = undefined as undefined | ReturnType<typeof useBooklet>;
-watch([booklet_id, set], () => {
-    if (!bookletMetadata && booklet_id.value)
-        bookletMetadata = useBooklet(mode === 'BOOKLET' ? set : undefined, booklet_id);
+let shapeValidity: ComputedRef<number> | undefined;
+watch([booklet_id], () => {
+    if (mode === 'BOOKLET')
+        // Changing shapeValidity isn't reactive itself but we'll always update regardless,
+        // because this means we've changed booklet_id.
+        shapeValidity = useBooklet(booklet_id.value).shapeValidity;
 }, { immediate: true })
+
+const bookletQuery = computed(() => {
+    if (!booklet_id.value)
+        return undefined;
+    return bookletDataStore[booklet_id.value];
+});
+
+const bookletData = computed(() => {
+    return bookletQuery.value?._data;
+});
 
 // Fallback case for sharing sets.
 watchEffect(() => {
@@ -116,27 +129,27 @@ watchEffect(() => {
 const description = computed(() => {
     if (mode === 'CREATION' && set.value?.description)
         return set.value.description.split('\n\n');
-    if (mode === 'BOOKLET' && bookletMetadata?.bookletData?.value?.description)
-        return bookletMetadata.bookletData.value.description.split('\n\n');
+    if (mode === 'BOOKLET' && bookletData.value?.description)
+        return bookletData.value.description.split('\n\n');
     return [];
 });
 
 
 const attributes = computed(() => {
     if (mode === 'BOOKLET') {
-        if (!bookletMetadata?.bookletData?.value)
+        if (!bookletData?.value)
             return [];
-        const props = bookletMetadata?.bookletData?.value?.properties;
+        const props = bookletData.value?.properties;
         return [
-            { name: 'Serial Number', value: `#${bookletMetadata?.bookletData?.value.serial_number}` },
+            { name: 'Serial Number', value: `#${bookletData.value.serial_number}` },
             { name: 'Theme', value: genesisStore.themedata[route.params.theme]._data?.name },
             { name: 'Artist', value: props.artist.value },
             { name: 'Year', value: new Date(props.date.value).getFullYear() },
             { name: '# of steps', value: props.nb_steps.value },
-            { name: '# of briqs', value: bookletMetadata!.bookletData!.value.briqs.length },
+            { name: '# of briqs', value: bookletData!.value.briqs.length },
         ]
     } else if (setKind.value === 'OFFICIAL') {
-        const setmetadata = bookletMetadata?.bookletData?.value;
+        const setmetadata = bookletData.value;
         if (!setmetadata)
             return [];
         const props = setmetadata.properties;
@@ -145,7 +158,7 @@ const attributes = computed(() => {
             { name: 'Theme', value: genesisStore.themedata[setmetadata.booklet_id.split('/')[0]]._data?.name },
             { name: 'Artist', value: props.artist.value },
             { name: 'Year', value: new Date(props.date.value).getFullYear() },
-            { name: '# of briqs', value: bookletMetadata!.bookletData!.value.briqs.length },
+            { name: '# of briqs', value: bookletData.value!.briqs.length },
         ]
     } else
         return [
@@ -197,7 +210,7 @@ const previewURL = computed(() => backendManager.getPreviewUrl(set.value?.id, (r
 const token_decimal = computed(() => {
     if (route.params.set_id)
         return toBN(route.params.set_id as string).toString();
-    return bookletMetadata.bookletData.value?.token_id || '0';
+    return bookletData.value?.token_id || '0';
 })
 
 const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D' | 'BOOKLET');
@@ -205,7 +218,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
 
 <template>
     <GenericItemPage
-        :status="(!!bookletMetadata?.bookletData && 'LOADED') || (booklet_id ? 'FETCHING' : (set ? 'LOADED' : 'FETCHING'))"
+        :status="bookletQuery?._status ?? (set ? 'LOADED' : 'FETCHING')"
         :attributes="attributes">
         <template #full-image="{ status }">
             <div class="relative h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
@@ -230,7 +243,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         <div class="absolute top-4 left-4 flex flex-col gap-4" v-if="mode === 'CREATION'">
                             <Btn no-style :class="`${ view === 'PREVIEW' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" @click="view='PREVIEW'"><img class="max-w-full max-h-full" :src="previewURL"></Btn>
                             <Btn no-style :class="`${ view === '3D' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20 p-0 text-xl relative`" @click="view='3D'"><img class="absolute z-[-1] p-2 max-w-full max-h-full" :src="previewURL"><div class="w-full h-full flex justify-center items-center backdrop-blur-[2px] rounded-md bg-grad-lightest bg-opacity-70"><i class="far fa-360-degrees"/></div></Btn>
-                            <Btn no-style :class="`${ view === 'BOOKLET' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" v-if="bookletMetadata?.bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
+                            <Btn no-style :class="`${ view === 'BOOKLET' ? 'border-primary' : ''} border border-bg-lighter bg-grad-lightest rounded hover:border-primary w-20 h-20`" v-if="bookletData" @click="view='BOOKLET'"><img :src="genesisStore.coverBookletRoute(booklet_id!, true)"></Btn>
                         </div>
                     </div>
                 </template>
@@ -252,7 +265,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
             <Btn no-background class="text-sm font-normal" @click="pushModal(DownloadSet, { setId: set?.id })">Download</Btn>
         </template>
         <template #default>
-            <h1>{{ set?.name || bookletMetadata?.bookletData?.name }}</h1>
+            <h1>{{ set?.name || bookletData?.name }}</h1>
             <template v-if="mode === 'BOOKLET'">
                 <h5 class="mt-1">Booklet<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme]._data?.name }}</span></h5>
                 <div class="mb-8">
@@ -267,7 +280,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                     <h2>Unstarted booklet</h2>
                     <p>Click on the button below to open the briq builder and create your official Genesis set.</p>
                 </template>
-                <template v-else-if="bookletMetadata?.shapeValidity.value !== 1">
+                <template v-else-if="shapeValidity !== 1">
                     <h2>Work in progress</h2>
                     <p>Your booklet set is unfinished. Make sure that it has all the pieces positioned at the right place to be able to mint it.</p>
                 </template>
@@ -280,17 +293,17 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         <div class="flex-1">
                             <h5 class="font-normal text-grad-dark">Progress</h5>
                             <p class="text-xl font-semibold pt-1 flex justify-center items-center gap-3">
-                                {{ Math.floor(bookletMetadata?.shapeValidity.value * 100) || 0 }}%<ProgressBar class="h-3" :percentage="bookletMetadata?.shapeValidity.value * 100 || 0"/>
+                                {{ Math.floor(shapeValidity * 100) || 0 }}%<ProgressBar class="h-3" :percentage="shapeValidity * 100 || 0"/>
                             </p>
                         </div>
                         <template v-if="!set">
                             <Btn class="!h-auto text-md px-6 w-fit" @click="createSet()">Start building</Btn>
                         </template>
-                        <template v-else-if="bookletMetadata?.shapeValidity.value !== 1">
+                        <template v-else-if="shapeValidity !== 1">
                             <Btn class="!h-auto text-md px-6 w-fit" @click="openSetInBuilder(set!.id)">Keep building</Btn>
                         </template>
                         <template v-else>
-                            <Btn v-if="bookletMetadata?.shapeValidity?.value === 1" class="!h-auto text-md px-6 " secondary @click="pushModal(ExportSetVue, { setId: set!.id })">Mint</Btn>
+                            <Btn v-if="shapeValidity === 1" class="!h-auto text-md px-6 " secondary @click="pushModal(ExportSetVue, { setId: set!.id })">Mint</Btn>
                             <Btn class="!h-auto text-md px-6 w-max" @click="openSetInBuilder(set!.id)">Open builder</Btn>
                         </template>
                     </div>

@@ -2,7 +2,7 @@
  * Run a promise only once, concurrent calls will wait on the same promise.
  * Useful to avoid multiple network connections.
  */
-export function noParallel(func: CallableFunction) {
+export function noParallel<T>(func: (...args: any[]) => Promise<T>): typeof func {
     let prom: Promise<any> | undefined;
     return async function (...args: any[]) {
         if (prom)

@@ -36,7 +36,7 @@ export class Fetchable<T> {
     }
 }
 
-const autoFetchable = <T>(wraps: { [prop: string]: Fetchable<T> }, t: (prop: string) => Promise<T>) => {
+export const autoFetchable = <T>(wraps: { [prop: string]: Fetchable<T> }, t: (prop: string) => Promise<T>) => {
     return new Proxy(wraps, {
         get: (target, prop: string, receiver): Fetchable<T> => {
             if (Reflect.has(target, prop))

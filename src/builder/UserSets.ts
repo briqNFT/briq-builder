@@ -1,7 +1,7 @@
 import { backendManager } from '@/Backend';
 import contractStore from '@/chain/Contracts';
 import { Notification } from '@/Notifications';
-import { getBookletData } from './BookletData';
+import { bookletDataStore } from './BookletData';
 import { chainBriqs } from './ChainBriqs';
 import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
@@ -198,14 +198,14 @@ class UserSetStore implements perUserStorable {
         //downloadJSON(data, data.id + ".json")
         const genesisStore = useGenesisStore();
         // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome#solution
-        const bookletData = (await getBookletData(booklet));
-        data.name = bookletData.value.name;
-        data.descriptioon = bookletData.value.description;
+        const bookletData = await bookletDataStore[booklet]._fetch!;
+        data.name = bookletData.name;
+        data.descriptioon = bookletData.description;
         const TX = contractStore.set!.assemble(
             this.user_id.split('/')[1],
             token_hint,
             data,
-            bookletData.value.token_id,
+            bookletData.token_id,
         );
         if (!image) {
             const bookletImage = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please');
@@ -272,7 +272,7 @@ class UserSetStore implements perUserStorable {
     async disassemble(token_id: string) {
         let booklet_token_id;
         if (this.setData[token_id].booklet)
-            booklet_token_id = (await getBookletData(this.setData[token_id].booklet!)).value.token_id;
+            booklet_token_id = (await bookletDataStore[this.setData[token_id].booklet!]._fetch)!.token_id;
         const TX = await contractStore.set!.disassemble(
             this.user_id.split('/')[1],
             token_id,

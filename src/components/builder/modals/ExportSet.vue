@@ -6,22 +6,21 @@ import { setsManager } from '@/builder/SetsManager';
 import contractStore from '@/chain/Contracts';
 import { maybeStore } from '@/chain/WalletLoading';
 import Window from '@/components/generic/Window.vue';
-import { HashVue, Notification, pushPopup } from '@/Notifications';
+import { Notification, pushPopup } from '@/Notifications';
 import { downloadJSON } from '@/url';
-import { computed, h, ref, toRef, watch } from 'vue';
+import { computed, ref, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useScreenshotHelpers } from '../ScreenshotComposable';
 import { userSetStore } from '@/builder/UserSets';
-import { bookletStore, useBooklet } from '../BookletComposable';
+import { bookletStore } from '../BookletComposable';
 import { router } from '@/Routes';
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { useThemeURLs } from '../genesis/ThemeUrlComposable';
 import { APP_ENV } from '@/Meta';
-import { getCurrentHub } from '@sentry/hub';
 import { getCurrentNetwork } from '@/chain/Network';
 import { getSetObject } from '@/builder/graphics/SetRendering';
 import { userBookletsStore } from '@/builder/UserBooklets';
-import Tooltip from '@/components/generic/Tooltip.vue';
+import { bookletDataStore } from '@/builder/BookletData';
 
 const { chainBriqs } = useBuilder();
 
@@ -41,10 +40,8 @@ watch(toRef(props, 'setId'), () => {
     setData.value = setsManager.getInfo(props.setId).getSet()!;
 })
 
-const {
-    booklet,
-    bookletData,
-} = useBooklet(setData);
+const booklet = computed(() => setsManager.getInfo(props.setId).booklet);
+const bookletData = computed(() => booklet.value && bookletDataStore[booklet.value]._data);
 
 // Reload the briqs on-chain in case there was an update.
 chainBriqs.value?.loadFromChain();
@@ -312,7 +309,7 @@ button:not(.btn):not(.nostyle)::before {
             <div class="mt-3 mb-2">
                 <h3>{{ bookletData!.name }}</h3>
             </div>
-            <div class="my-2">
+            <div class="my-2 text-sm whitespace-pre-line">
                 <p>{{ bookletData!.description }}</p>
             </div>
             <div class="flex justify-between gap-2 mt-6">

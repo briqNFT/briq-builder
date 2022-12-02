@@ -21,7 +21,7 @@ import { getCurrentNetwork } from '@/chain/Network';
 import { useBooklet } from './BookletComposable';
 import { packPaletteChoice, palettesMgr, unpackPaletteChoice } from '@/builder/Palette';
 import { inputStore } from '@/builder/inputs/InputStore';
-import { getBookletData } from '@/builder/BookletData';
+import { bookletDataStore } from '@/builder/BookletData';
 import { threeSetupComplete } from '@/threeLoading';
 import { checkForInitialGMSet } from '@/builder/SetsManager';
 import { useStore } from 'vuex';
@@ -83,7 +83,7 @@ const store = useStore();
 
 const initializePalette = async () => {
     if (booklet.value) {
-        await getBookletData(booklet.value);
+        await bookletDataStore[booklet.value]._fetch;
 
         const colors = [];
         let starter = undefined;
