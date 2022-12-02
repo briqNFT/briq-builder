@@ -1,7 +1,7 @@
-import { reactive, markRaw, shallowRef } from 'vue';
+import { markRaw } from 'vue';
 import { getCurrentNetwork } from '@/chain/Network';
 import { backendManager } from '@/Backend';
-import { autoFetchable } from './GenesisStore';
+import { makeAutoFetchable } from '@/DataFetching';
 
 export type bookletId = string;
 
@@ -14,10 +14,6 @@ export interface BookletData {
     description: string,
     briqs: { data: { material: string, color: string }, pos: [number, number, number] }[];
     properties: Record<string, any>;
-}
-
-const makeAutoFetchable = <keyT, valueT>(dataFetcher: (key: keyT) => Promise<valueT>) => {
-    return autoFetchable(reactive({}), dataFetcher);
 }
 
 export const bookletDataStore = makeAutoFetchable(

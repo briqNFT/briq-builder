@@ -19,7 +19,6 @@
     "@jaames/iro": "^5.5",
     "@sentry/tracing": "^6.16",
     "@sentry/vue": "^6.16",
-    "@vitest/coverage-c8": "^0.23.2",
     "ammo.js": "github:kripken/ammo.js",
     "canvas-confetti": "^1.6.0",
     "chart.js": "^3.8.0",
@@ -48,6 +47,7 @@
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
     "@vitejs/plugin-vue": "^3.0",
+    "@vitest/coverage-c8": "^0.25",
     "autoprefixer": "^10.4",
     "c8": "^7.11.0",
     "eslint": "^8.14.0",
@@ -58,7 +58,8 @@
     "rollup-plugin-analyzer": "^4.0.0",
     "rollup-plugin-visualizer": "^5.6.0",
     "tailwindcss": "^3.0",
+    "undici": "^5.13.0",
     "vite-svg-loader": "^3.1",
-    "vitest": "^0.23"
+    "vitest": "^0.25"
   }
 }

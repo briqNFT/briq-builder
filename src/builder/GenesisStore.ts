@@ -7,49 +7,9 @@ import { APP_ENV } from '@/Meta';
 
 import { userBalance } from './UserBalance';
 import { toBN } from 'starknet/utils/number';
+import { Fetchable, autoFetchable } from '@/DataFetching';
 
 userBalance.setup();
-
-// TODO: I am reinventing graphQL only slower I think.
-
-export class Fetchable<T> {
-    _data = undefined as undefined | T;
-    _fetch = undefined as undefined | Promise<T>;
-    _error = undefined as any;
-
-    get _status() {
-        return this._data !== undefined ? 'LOADED' : (this._error !== undefined ? 'ERROR' : 'FETCHING');
-    }
-
-    async fetch(t: Promise<T>) {
-        try {
-            this._fetch = t;
-            this._data = await this._fetch;
-        } catch(err) {
-            this._error = err;
-        }
-    }
-
-    clear() {
-        this._data = undefined;
-        this._fetch = undefined;
-    }
-}
-
-export const autoFetchable = <T>(wraps: { [prop: string]: Fetchable<T> }, t: (prop: string) => Promise<T>) => {
-    return new Proxy(wraps, {
-        get: (target, prop: string, receiver): Fetchable<T> => {
-            if (Reflect.has(target, prop))
-                return Reflect.get(target, prop, receiver);
-            target[prop] = new Fetchable<T>();
-            target[prop].fetch(t(prop));
-            return target[prop];
-        },
-        set: (target, prop, value) => {
-            return Reflect.set(target, prop, value);
-        },
-    });
-}
 
 const autoMultiFetchable = <T>(
     wraps: { [prop: string]: Fetchable<T> },
@@ -63,12 +23,12 @@ const autoMultiFetchable = <T>(
 
             const promise = multiQuery(prop);
             target[prop] = new Fetchable<T>();
-            target[prop].fetch(propFactory((async () => (await promise)[prop])()));
+            target[prop].fetch(() => propFactory((async () => (await promise)[prop])()));
             promise.then(x => {
                 for (const k in x)
                     if (!target[k]) {
                         target[k] = new Fetchable<T>();
-                        target[k].fetch(propFactory((async () => (await promise)[k])()));
+                        target[k].fetch(() => propFactory((async () => (await promise)[k])()));
                     }
             });
             return target[prop];
