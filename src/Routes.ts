@@ -123,15 +123,18 @@ export const routes = [
             return loader.UnboxingVue;
         },
     },
-    {
+];
+
+if (APP_ENV !== 'prod')
+    routes.push({
         path: '/briqmas',
         name: 'BriqMas',
         component: async () => {
             await loadExtraPages();
             return loader.Unboxing2;
         },
-    },
-];
+    })
+
 
 if (CONF.theme === 'realms') {
     routes.push({
