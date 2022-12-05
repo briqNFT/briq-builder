@@ -28,13 +28,13 @@ class UserBoxesStore extends GeneralizedUserItem {
 
     onEnter() {
         /*
-        this.metadata['starknet_city_ongoing/spaceman'] = {
-            box_id: 'starknet_city_ongoing/spaceman',
+        this.metadata['briqmas/briqmas_tree'] = {
+            token_name: 'briqmas/briqmas_tree',
             updates: [{
                 tx_hash: '0xcafe',
                 block: undefined,
-                status: 'DELETING_SOON',
-                date: Date.now() - 1000*60*60*10,
+                status: 'TENTATIVE_PENDING',
+                date: Date.now(),
             },
             ],
         }/*
