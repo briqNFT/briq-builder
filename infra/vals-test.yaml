@@ -12,7 +12,7 @@ defaultLabels:
 useSecurity: true
 resources:
   node:
-    cpu: "100m"
+    cpu: "50m"
     memory: "128Mi"
   nginx:
     cpu: "50m"
