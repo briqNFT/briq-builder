@@ -22,7 +22,6 @@ import BriqBox from '@/assets/genesis/briqs_box.glb?url';
 import EnvMapImg from '@/assets/genesis/briq-box-xmas-equi.png';
 import BoxNormImg from '@/assets/genesis/box_tex_norm.png';
 import HomeScene from '@/assets/genesis/briqs_box_xmas.glb?url';
-import { Scene } from 'three';
 
 export enum SceneQuality {
     LOW,
@@ -187,6 +186,11 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
 		// dp = normalized distance from light to fragment position
 		float dp = ( length( lightToPosition ) - shadowCameraNear ) / ( shadowCameraFar - shadowCameraNear ); // need to clamp?
 		dp += shadowBias;
+
+        // For the chimney (only with radius > 4) don't light in the -X direction.
+        if (shadowRadius > 4.5)
+            if (lightToPosition.x < 0.0)
+                return 0.0;
 
 		// bd3D = base direction 3D
 		vec3 bd3D = normalize( lightToPosition );
@@ -588,10 +592,11 @@ async function setupHomeScene(quality: SceneQuality) {
             return Reflect.set(target, prop, value, receiver);
         },
     })
-    if (quality === SceneQuality.LOW)
+    if (quality === SceneQuality.LOW) {
         chimneyLight.shadow.mapSize = new THREE.Vector2(512, 512);
-    else {
-        chimneyLight.shadow.radius = 4;
+        chimneyLight.shadow.radius = 5;
+    } else {
+        chimneyLight.shadow.radius = 5;
         chimneyLight.shadow.mapSize = new THREE.Vector2(128, 128);
     }
     chimneyLight.castShadow = true;
@@ -660,7 +665,6 @@ export async function setBox(boxData: any) {
     box.rotateY(8 * Math.PI/9);
 
     box.userData.uid = boxData.uid;
-    box.userData.box_token_id = boxData.box_token_id;
     box.userData.box_name = boxData.box_name;
 
     const min = new THREE.Vector3(0.05, -0.07, -0.26)

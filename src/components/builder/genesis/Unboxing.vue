@@ -15,12 +15,12 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import BriqsImg from '@/assets/genesis/briqs.png';
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { hexUuid } from '@/Uuid';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { setsManager } from '@/builder/SetsManager';
 import { useSetHelpers } from '../SetComposable';
 import { useUnboxHelpers } from '@/builder/Unbox';
 import Toggle from '@/components/generic/Toggle.vue';
-import { featureFlags } from '@/FeatureFlags';
+import { bookletDataStore } from '@/builder/BookletData';
 
 
 //////////////////////////////
@@ -30,19 +30,20 @@ const genesisStore = useGenesisStore();
 const canvas = ref(null as unknown as HTMLCanvasElement);
 
 let camera: THREE.PerspectiveCamera;
-let scene: THREE.Scene;
 
 let setSceneReady: CallableFunction;
 const sceneReady = new Promise((resolve) => {
     setSceneReady = resolve;
 })
 
-const route = useRoute();
 const router = useRouter();
 
 const { openSetInBuilder } = useSetHelpers();
 const { createBookletSet } = useUnboxHelpers();
 
+const tokenName = 'briqmas/briqmas_tree';
+const boxData = genesisStore.metadata[tokenName];
+const bookletData = bookletDataStore['starknet-mainnet'][tokenName];
 
 //////////////////////////////
 //////////////////////////////
@@ -208,12 +209,8 @@ const unboxingOpenState = new class implements FsmState {
             // Spawn cubes early
             if (!this.genCubes && this.briqStep >= 0) {
                 const colors = {};
-                /*const briqs = bookletDataStore[boxId.value]._data.briqs;
-                for (const briq of briqs)
+                for (const briq of bookletData._data.briqs)
                     colors[briq.data.color] = 1;
-                */
-                colors['#ff0000'] = 1;
-                colors['#00FF00'] = 1;
                 generateCubes(Object.keys(colors));
                 this.genCubes = true;
             }
@@ -332,9 +329,9 @@ const openBuilderState = new class implements FsmState {
         }
 
         if (this.time >= this.step1time + this.step2time) {
-            let set = setsManager.getBookletSet('starknet_planet/spaceman');
+            let set = setsManager.getBookletSet(tokenName);
             if (!set)
-                openSetInBuilder(createBookletSet('starknet_planet/spaceman', 'toto', 'tata'));
+                openSetInBuilder(createBookletSet(tokenName, boxData._data!.name, boxData._data!.description));
             else
                 openSetInBuilder(set.id);
         }
@@ -397,15 +394,17 @@ onMounted(async () => {
 
     await setupScene();
 
-    const boxData = {
+    await bookletData._fetch;
+    await boxData._fetch;
+
+    const graphicsBoxData = {
         uid: hexUuid(),
-        box_token_id: 1,
-        box_name: 'starknet_planet/spaceman',
+        box_name: tokenName,
         position: [0, 0, 0],
-        texture: genesisStore.boxTexture('starknet_planet/spaceman'),
-        bookletTexture: genesisStore.bookletTexture('starknet_planet/spaceman'),
+        texture: genesisStore.boxTexture(tokenName),
+        bookletTexture: genesisStore.bookletTexture(tokenName),
     };
-    sceneData.box! = await setBox(boxData);
+    sceneData.box! = await setBox(graphicsBoxData);
 
     setSceneReady();
 
@@ -458,13 +457,13 @@ const disableButtons = ref(false);
 const doUnbox = async () => {
     disableButtons.value = true;
     try {
-        await unbox('starknet_planet/spaceman');
+        await unbox(tokenName);
         fsm.switchTo('UNBOXING_OPEN');
     } catch(_) { /**/ }
     disableButtons.value = false;
 }
 const doFakeUnbox = async () => {
-    //await fakeUnbox('starknet_planet/spaceman');
+    await fakeUnbox(tokenName);
     fsm.switchTo('UNBOXING_OPEN');
 }
 
@@ -485,7 +484,7 @@ const quality = ref(SceneQuality.ULTRA);
         @click="(event) => fsm.state?.onClick?.(event)"
         @pointermove="(event) => fsm.state?.onPointerMove?.(event)"/>
     <!-- preload -->
-    <div class="hidden absolute"><img :src="genesisStore.coverBookletRoute('starknet_planet/spaceman')"></div>
+    <div class="hidden absolute"><img :src="genesisStore.coverBookletRoute(tokenName)"></div>
     <Transition name="fade">
         <div
             v-if="step === 'CHECK_WALLET' || step === 'LOADING'"
@@ -547,13 +546,13 @@ const quality = ref(SceneQuality.ULTRA);
                 <div class="flex flex-col gap-6">
                     <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
                         <p class="text-center font-semibold">Booklet <span class="font-normal">x 1</span></p>
-                        <div class="flex h-full justify-center items-center"><img :src="genesisStore.coverBookletRoute('starknet_planet/spaceman')"></div>
+                        <div class="flex h-full justify-center items-center"><img :src="genesisStore.coverBookletRoute(tokenName)"></div>
                     </div>
                     <Btn secondary class="pointer-events-auto h-14" @click="router.push({ name: 'Profile' });">Open Profile</Btn>
                 </div>
                 <div class="flex flex-col gap-6">
                     <div class="bg-grad-lightest shadow rounded-md w-[14rem] h-[14rem] p-6">
-                        <p class="text-center font-semibold">Briqs <span class="font-normal">x {{ 3290578290837598 }}</span></p>
+                        <p class="text-center font-semibold">Briqs <span class="font-normal">x {{ boxData._data!.nb_briqs }}</span></p>
                         <div class="flex h-full justify-center items-center"><img class="max-w-[5rem]" :src="BriqsImg"></div>
                     </div>
                     <Btn class="pointer-events-auto h-14" @click="openBuilder">Start building</Btn>
