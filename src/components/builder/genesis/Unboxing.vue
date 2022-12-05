@@ -21,6 +21,10 @@ import { useSetHelpers } from '../SetComposable';
 import { useUnboxHelpers } from '@/builder/Unbox';
 import Toggle from '@/components/generic/Toggle.vue';
 import { bookletDataStore } from '@/builder/BookletData';
+import { userBoxesStore } from '@/builder/UserBoxes';
+
+import AspectLogo from '@/assets/landing/aspect.png';
+import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
 
 //////////////////////////////
 //////////////////////////////
@@ -47,7 +51,7 @@ const bookletData = bookletDataStore['starknet-mainnet'][tokenName];
 //////////////////////////////
 //////////////////////////////
 
-type steps = 'CHECK_WALLET' | 'LOADING' | 'SAPIN' | 'UNBOXING' | 'UNBOXING_OPEN' | 'UNBOXED' | 'OPEN_BUILDER';
+type steps = 'CHECK_WALLET' | 'LOADING' | 'NO_BOX' | 'SAPIN' | 'UNBOXING' | 'UNBOXING_OPEN' | 'UNBOXED' | 'OPEN_BUILDER';
 
 interface FsmState {
     onEnter(): Promise<any>;
@@ -76,13 +80,18 @@ const loadingState = new class implements FsmState {
 
     async onEnter() {
         await sceneReady;
-        //await this.hasEnoughFrames;
+
+        // At this point this should be loaded because we've loaded the wallet.
+        console.log('totoro', userBoxesStore.current?.availableBoxes.indexOf(tokenName))
+        if (userBoxesStore.current?.availableBoxes.indexOf(tokenName) === -1)
+            return fsm.switchTo('NO_BOX');
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
     }
 
     frame(delta: number) {
+
         /*
         this.fps.unshift(delta * 1000);
         if (this.fps.length > 120)
@@ -93,6 +102,10 @@ const loadingState = new class implements FsmState {
         }
         */
     }
+}
+
+const noBoxState = new class implements FsmState {
+    async onEnter() {}
 }
 
 const sapinState = new class implements FsmState {
@@ -349,6 +362,7 @@ const fsm = shallowReactive(new class FSM {
         this.state = {
             'CHECK_WALLET': initialState,
             'LOADING': loadingState,
+            'NO_BOX': noBoxState,
             'SAPIN': sapinState,
             'UNBOXING': unboxingState,
             'UNBOXING_OPEN': unboxingOpenState,
@@ -485,13 +499,27 @@ const quality = ref(SceneQuality.ULTRA);
     <div class="hidden absolute"><img :src="genesisStore.coverBookletRoute(tokenName)"></div>
     <Transition name="fade">
         <div
-            v-if="step === 'CHECK_WALLET' || step === 'LOADING'"
+            v-if="step === 'CHECK_WALLET' || step === 'LOADING' || step === 'NO_BOX'"
             class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-grad-lightest bg-repeat bg-auto alternate-buttons flex-col gap-4 bg-opacity-100 transition-all"
             :style="{ backgroundImage: `url(${BriqsOverlay})`, backgroundSize: '1000px auto' }">
-            <h2>briq unboxing</h2>
-            <p v-if="step === 'LOADING'">...Loading Scene...</p>
+            <h2>briqmas is here</h2>
+            <template v-if="step === 'NO_BOX'">
+                <p class="mt-12">Unfortunately, you don't own a briqmas box.</p>
+                <p>Try getting one on the secondary market!</p>
+                <div class="flex gap-4 mt-8 ">
+                    <a href="https://aspect.co/collection/0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139" rel="noopener" target="_blank">
+                        <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><img class="w-6 mr-3" :src="AspectLogo"> Aspect</Btn>
+                    </a>
+                    <a href="https://mintsquare.io/collection/starknet/0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139" rel="noopener" target="_blank">
+                        <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><MintsquareLogo class="mr-3" height="1.5rem" width="1.5rem"/> Mintsquare</Btn>
+                    </a>
+                </div>
+            </template>
             <template v-else>
-                <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
+                <p v-if="step === 'LOADING'">...Loading Scene...</p>
+                <template v-else>
+                    <Btn @click="walletStore.openWalletSelector()">Connect your Wallet</Btn>
+                </template>
             </template>
         </div>
     </Transition>
