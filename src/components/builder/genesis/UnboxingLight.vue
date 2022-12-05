@@ -16,14 +16,13 @@ import BriqsImg from '@/assets/genesis/briqs.png';
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { hexUuid } from '@/Uuid';
 import { bookletDataStore } from '@/builder/BookletData';
-import { useRoute, useRouter } from 'vue-router';
+import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
 import { setsManager } from '@/builder/SetsManager';
 import { useSetHelpers } from '../SetComposable';
 import { useUnboxHelpers } from '@/builder/Unbox';
 import Toggle from '@/components/generic/Toggle.vue';
 import { featureFlags } from '@/FeatureFlags';
 import { getCurrentNetwork } from '@/chain/Network';
-
 
 //////////////////////////////
 //////////////////////////////
@@ -55,6 +54,22 @@ bookletDataStore[getCurrentNetwork()][boxId.value];
 const { openSetInBuilder } = useSetHelpers();
 const { createBookletSet } = useUnboxHelpers();
 
+// Handle briqmas
+const handleBriqmasRerouting = (theme: string ) => {
+    console.log('totoro here', theme)
+    if (theme === 'briqmas') {
+        router.replace({ name: 'BriqMas' });
+        return true;
+    }
+    return false;
+}
+
+onBeforeRouteUpdate((to, from, next) => {
+    if (!handleBriqmasRerouting(to.params.theme as string))
+        next();
+});
+
+handleBriqmasRerouting(route.params.theme as string);
 
 //////////////////////////////
 //////////////////////////////
@@ -436,8 +451,12 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-    resetGraphics();
-    walletWatcher();
+    try {
+        resetGraphics();
+        walletWatcher();
+    } catch(_) {
+        // ignore failures, may be caused by brimas rerouting & doesn't matter.
+    }
     mounted = false;
 })
 

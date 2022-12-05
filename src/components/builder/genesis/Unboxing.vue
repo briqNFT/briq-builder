@@ -22,7 +22,6 @@ import { useUnboxHelpers } from '@/builder/Unbox';
 import Toggle from '@/components/generic/Toggle.vue';
 import { bookletDataStore } from '@/builder/BookletData';
 
-
 //////////////////////////////
 //////////////////////////////
 
@@ -390,7 +389,6 @@ onMounted(async () => {
     await initFsm;
     const setupData = await useRenderer(canvas.value);
     camera = setupData.camera;
-    scene = setupData.scene;
 
     await setupScene();
 

@@ -165,70 +165,7 @@ export function render() {
 export async function useRenderer(_canvas: HTMLCanvasElement) {
     await threeSetupComplete;
 
-    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow', 'float getPointShadow2');
-    THREE.ShaderChunk.shadowmap_pars_fragment += `
-    float texture2DCompare2( float value, vec2 uv, float compare, float dist) {
-        return mix(step(compare, value), (clamp((value - compare), -0.1, 0.0) + 0.1) * 10.0, clamp(-dist * 3.0 - 0.3, 0.0, 1.0));
-	}
-
-    float texture2DCompare3( sampler2D depths, vec2 uv, float compare ) {
-		return unpackRGBAToDepth( texture2D( depths, uv ) );
-	}
-
-    float getPointShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowBias, float shadowRadius, vec4 shadowCoord, float shadowCameraNear, float shadowCameraFar ) {
-
-		vec2 texelSize = vec2( 1.0 ) / ( shadowMapSize * vec2( 4.0, 2.0 ) );
-
-		// for point lights, the uniform @vShadowCoord is re-purposed to hold
-		// the vector from the light to the world-space position of the fragment.
-		vec3 lightToPosition = shadowCoord.xyz;
-
-		// dp = normalized distance from light to fragment position
-		float dp = ( length( lightToPosition ) - shadowCameraNear ) / ( shadowCameraFar - shadowCameraNear ); // need to clamp?
-		dp += shadowBias;
-
-        // For the chimney (only with radius > 4) don't light in the -X direction.
-        if (shadowRadius > 4.5)
-            if (lightToPosition.x < 0.0)
-                return 0.0;
-
-		// bd3D = base direction 3D
-		vec3 bd3D = normalize( lightToPosition );
-
-		#if defined( SHADOWMAP_TYPE_PCF ) || defined( SHADOWMAP_TYPE_PCF_SOFT ) || defined( SHADOWMAP_TYPE_VSM )
-
-			vec2 offset = vec2( - 1, 1 ) * shadowRadius * texelSize.y * dp * 2.0;
-
-            float dist1 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp );
-            float dist2 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp );
-            float dist3 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp );
-            float dist4 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp );
-            float dist5 = texture2DCompare3( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );
-            float dist6 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp );
-            float dist7 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp );
-            float dist8 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp );
-            float dist9 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp );
-
-            float cm = max(max(max(max(dist1, dist3), dist5), dist7), dist9) - dp;
-			return (
-				texture2DCompare2( dist1, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp, cm) +
-				texture2DCompare2( dist2, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp, cm) +
-				texture2DCompare2( dist3, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp, cm) +
-				texture2DCompare2( dist4, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp, cm) +
-				texture2DCompare2( dist5, cubeToUV( bd3D, texelSize.y ), dp, cm) +
-				texture2DCompare2( dist6, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp, cm ) +
-				texture2DCompare2( dist7, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp, cm ) +
-				texture2DCompare2( dist8, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp, cm ) +
-				texture2DCompare2( dist9, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp, cm )
-			) * ( 1.0 / 9.0 );
-
-		#else // no percentage-closer filtering
-
-			return texture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );
-
-		#endif
-
-	}`;
+    updateThreeShadowMapShader();
 
     canvas = _canvas;
 
@@ -913,6 +850,7 @@ export function graphicsFrame(delta: number) {
 }
 
 export function resetGraphics() {
+    cleanThreeShadowMapShader();
     scene.clear();
     renderer.dispose();
 }
@@ -1040,4 +978,84 @@ const fireSource = async function(useSimplex: boolean) {
     obj.material = fireMaterial;
     obj.name = 'fire';
     return obj;
+}
+
+let alreadUpdatedThree = false;
+const updateThreeShadowMapShader = () => {
+    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow', 'float getPointShadow3');
+    if (alreadUpdatedThree) {
+        THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow2', 'float getPointShadow');
+        THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow3', 'float getPointShadow2');
+        return;
+    }
+    alreadUpdatedThree = true;
+    THREE.ShaderChunk.shadowmap_pars_fragment += `
+    float texture2DCompare2( float value, vec2 uv, float compare, float dist) {
+        return mix(step(compare, value), (clamp((value - compare), -0.1, 0.0) + 0.1) * 10.0, clamp(-dist * 3.0 - 0.3, 0.0, 1.0));
+	}
+
+    float texture2DCompare3( sampler2D depths, vec2 uv, float compare ) {
+		return unpackRGBAToDepth( texture2D( depths, uv ) );
+	}
+
+    float getPointShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowBias, float shadowRadius, vec4 shadowCoord, float shadowCameraNear, float shadowCameraFar ) {
+
+		vec2 texelSize = vec2( 1.0 ) / ( shadowMapSize * vec2( 4.0, 2.0 ) );
+
+		// for point lights, the uniform @vShadowCoord is re-purposed to hold
+		// the vector from the light to the world-space position of the fragment.
+		vec3 lightToPosition = shadowCoord.xyz;
+
+		// dp = normalized distance from light to fragment position
+		float dp = ( length( lightToPosition ) - shadowCameraNear ) / ( shadowCameraFar - shadowCameraNear ); // need to clamp?
+		dp += shadowBias;
+
+        // For the chimney (only with radius > 4) don't light in the -X direction.
+        if (shadowRadius > 4.5)
+            if (lightToPosition.x < 0.0)
+                return 0.0;
+
+		// bd3D = base direction 3D
+		vec3 bd3D = normalize( lightToPosition );
+
+		#if defined( SHADOWMAP_TYPE_PCF ) || defined( SHADOWMAP_TYPE_PCF_SOFT ) || defined( SHADOWMAP_TYPE_VSM )
+
+			vec2 offset = vec2( - 1, 1 ) * shadowRadius * texelSize.y * dp * 2.0;
+
+            float dist1 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp );
+            float dist2 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp );
+            float dist3 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp );
+            float dist4 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp );
+            float dist5 = texture2DCompare3( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );
+            float dist6 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp );
+            float dist7 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp );
+            float dist8 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp );
+            float dist9 = texture2DCompare3( shadowMap, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp );
+
+            float cm = max(max(max(max(dist1, dist3), dist5), dist7), dist9) - dp;
+			return (
+				texture2DCompare2( dist1, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist2, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist3, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist4, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist5, cubeToUV( bd3D, texelSize.y ), dp, cm) +
+				texture2DCompare2( dist6, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp, cm ) +
+				texture2DCompare2( dist7, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp, cm ) +
+				texture2DCompare2( dist8, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp, cm ) +
+				texture2DCompare2( dist9, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp, cm )
+			) * ( 1.0 / 9.0 );
+
+		#else // no percentage-closer filtering
+
+			return texture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );
+
+		#endif
+
+	}`;
+}
+
+const cleanThreeShadowMapShader = () => {
+    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow', 'float getPointShadow3');
+    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow2', 'float getPointShadow');
+    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow3', 'float getPointShadow2');
 }
