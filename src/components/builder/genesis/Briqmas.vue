@@ -7,7 +7,7 @@ import { shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef,
 
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, SceneQuality, graphicsFrame, resetGraphics, setBox, generateCubes, generateBooklet, StopPhysics, sceneData, triggerBoom } from './UnboxingGraphics';
+import { setupScene, useRenderer, SceneQuality, graphicsFrame, resetGraphics, setBox, generateCubes, generateBooklet, StopPhysics, sceneData, triggerBoom } from './BriqmasGraphics';
 import { APP_ENV } from '@/Meta';
 
 import { useGenesisStore } from '@/builder/GenesisStore';
@@ -82,7 +82,6 @@ const loadingState = new class implements FsmState {
         await sceneReady;
 
         // At this point this should be loaded because we've loaded the wallet.
-        console.log('totoro', userBoxesStore.current?.availableBoxes.indexOf(tokenName))
         if (userBoxesStore.current?.availableBoxes.indexOf(tokenName) === -1)
             return fsm.switchTo('NO_BOX');
 

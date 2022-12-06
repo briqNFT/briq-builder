@@ -252,7 +252,7 @@ button:not(.btn):not(.nostyle)::before {
     <template v-else-if="!exportStep && !booklet">
         <Window size="w-[38rem]">
             <template #title>Export set</template>
-            <div class="relative flex justify-center items-center" id="totoro">
+            <div class="relative flex justify-center items-center">
                 <div class="absolute top-2 right-2 flex gap-2">
                     <Btn secondary @click="cropScreenshot"><i class="far fa-crop-simple"/></Btn>
                     <Btn secondary @click="retakeScreenshot"><i class="far fa-camera"/></Btn>

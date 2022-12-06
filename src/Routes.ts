@@ -130,7 +130,7 @@ if (APP_ENV !== 'prod')
         name: 'BriqMas',
         component: async () => {
             await loadExtraPages();
-            return loader.Unboxing2;
+            return loader.Briqmas;
         },
     })
 

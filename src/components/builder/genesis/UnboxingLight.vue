@@ -56,7 +56,6 @@ const { createBookletSet } = useUnboxHelpers();
 
 // Handle briqmas
 const handleBriqmasRerouting = (theme: string ) => {
-    console.log('totoro here', theme)
     if (theme === 'briqmas') {
         router.replace({ name: 'BriqMas' });
         return true;
