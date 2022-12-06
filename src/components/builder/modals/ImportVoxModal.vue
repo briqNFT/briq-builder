@@ -61,8 +61,7 @@ const copyError = () => {
             </template>
             <template v-else>
                 <h4>Set Name</h4>
-                <p class="lg:block hidden"><input type="text" v-model="set.name" maxlength="200" size="80"></p>
-                <p class="lg:hidden block"><input type="text" v-model="set.name" maxlength="200" size="30"></p>
+                <p><input type="text" v-model="set.name" maxlength="200" class="w-full"></p>
                 <p class="float-right my-8 ml-4"><Btn @click="importSet">Import</Btn></p>
                 <p>Made of {{ set.getAllBriqs().length }} briqs.</p>
                 <p>All briqs will be loaded with the standard material.</p>
