@@ -1,10 +1,11 @@
 import { MouseInputState } from './BuilderInputState';
 import { VoxelAlignedSelection } from './SelectHelpers';
 import getPreviewCube from '@/builder/graphics/PreviewCube';
-import { store } from '@/store/Store';
 
 import { THREE } from '@/three';
 import { builderStore } from '@/builder/BuilderStore';
+import { builderHistory } from '@/builder/BuilderHistory';
+import { PlaceOrRemoveBriqs } from '@/builder/BuilderActions';
 
 const { currentSet } = builderStore;
 
@@ -50,7 +51,8 @@ export class EraserInput extends MouseInputState {
         if (!pos || pos[1] < 0)
             return;
 
-        await store.dispatch('builderData/place_briqs', [{ pos: pos }]);
+        builderHistory.push_command(PlaceOrRemoveBriqs, [{ pos: pos }]);
+        builderHistory.push_checkpoint();
         // Update the preview cursor in a few milliseconds to let the world update.
         // Use the 'non event updating version' so the cube doesn't accidentally jump back.
         setTimeout(() => this.onPointerMove(event), 100);
@@ -75,7 +77,8 @@ export class EraserMultiInput extends VoxelAlignedSelection {
                     ++z
                 )
                     if (currentSet.value.getAt(x, y, z))
-                        actionData.push({ pos: [x, y, z] });
-        await store.dispatch('builderData/place_briqs', actionData);
+                        actionData.push({ pos: [x, y, z] as [number, number, number] });
+        builderHistory.push_command(PlaceOrRemoveBriqs, actionData);
+        builderHistory.push_checkpoint();
     }
 }

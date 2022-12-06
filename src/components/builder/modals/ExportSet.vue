@@ -9,7 +9,6 @@ import Window from '@/components/generic/Window.vue';
 import { Notification, pushPopup } from '@/Notifications';
 import { downloadJSON } from '@/url';
 import { computed, ref, toRef, watch } from 'vue';
-import { useStore } from 'vuex';
 import { useScreenshotHelpers } from '../ScreenshotComposable';
 import { userSetStore } from '@/builder/UserSets';
 import { bookletStore } from '../BookletComposable';
@@ -46,8 +45,6 @@ const bookletData = computed(() => booklet.value && bookletDataStore[getCurrentN
 // Reload the briqs on-chain in case there was an update.
 chainBriqs.value?.loadFromChain();
 
-const store = useStore();
-
 const { previewImage, imageProcessing, takeScreenshot, updateImage, retakeScreenshot, cropScreenshot } = useScreenshotHelpers(props.screenshot, props.originalImage);
 
 if (!previewImage.value) {
@@ -65,23 +62,6 @@ if (!previewImage.value) {
 
     takeScreenshot(object, !!booklet.value).then(img => updateImage(img, true))
 }
-
-const setName = computed({
-    get() {
-        return setData.value.name;
-    },
-    async set(name: string) {
-        await store.dispatch('builderData/change_set_name', { set: setData.value, name });
-    },
-});
-const setDescription = computed({
-    get() {
-        return setData.value.description;
-    },
-    async set(desc: string) {
-        store.commit('builderData/change_set_desc', { set: setData.value, desc });
-    },
-});
 
 const downloadSet = () => {
     downloadJSON(setData.value.serialize(), setData.value.id + '.json');
@@ -282,12 +262,12 @@ button:not(.btn):not(.nostyle)::before {
             </div>
             <div class="my-4">
                 <p class="mb-2">Name</p>
-                <p><input class="max-w-full" type="text" v-model="setName" size="61" autocomplete="off" data-lpignore="true" data-form-type="other"></p>
+                <p><input class="max-w-full" type="text" v-model="setData.name" size="61" autocomplete="off" data-lpignore="true" data-form-type="other"></p>
             </div>
             <div class="my-4">
                 <p class="mb-2">Description</p>
                 <p>
-                    <textarea class="max-w-full" v-model="setDescription" cols="60"/>
+                    <textarea class="max-w-full" v-model="setData.description" cols="60"/>
                 </p>
             </div>
             <div class="flex justify-between gap-2 mt-6">

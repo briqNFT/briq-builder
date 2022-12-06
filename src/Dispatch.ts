@@ -5,7 +5,6 @@
  * Three.js is also split in a similar manner.
  */
 
-import * as StoreModule from './store/Store';
 import BuilderVue from './components/builder/Builder.vue';
 import AdminVue from './components/Admin.vue';
 import DebugVue from './components/debug/Debug.vue';
@@ -22,10 +21,4 @@ export const Builder = BuilderVue;
 export const Admin = AdminVue;
 export const Debug = DebugVue;
 export const Share = ShareVue;
-export const Store = StoreModule;
 export const Wallet = walletModule;
-
-// Load VueX store - this is only relied upon by modules loaded here.
-import { app } from './main.js';
-app.use(StoreModule.store);
-StoreModule.setLoaded();

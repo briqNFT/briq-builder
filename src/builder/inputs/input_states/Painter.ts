@@ -1,7 +1,6 @@
 import { MouseInputState } from './BuilderInputState';
 import getPreviewCube from '@/builder/graphics/PreviewCube';
 import { inputStore } from '../InputStore';
-import { store } from '@/store/Store';
 
 import type { SetData } from '@/builder/SetData';
 
@@ -14,6 +13,8 @@ import { builderStore } from '@/builder/BuilderStore';
 const { currentSet } = builderStore;
 
 import SprayCan from '@/assets/spray-can-solid.svg?url';
+import { PaintBriqs } from '@/builder/BuilderActions';
+import { builderHistory } from '@/builder/BuilderHistory';
 //import SprayCan from '@/assets/brush-solid.svg?url';
 //import SprayCan from '@/assets/paintbrush-fine-regular.svg?url';
 
@@ -72,12 +73,14 @@ export class PainterInput extends MouseInputState {
                 inputStore.currentMaterial = target.material;
                 inputStore.currentColor = target.color;
             }
-        } else
-            await store.dispatch('builderData/set_briq_color', [{
+        } else {
+            builderHistory.push_command(PaintBriqs, [{
                 pos: pos,
                 color: inputStore.currentColor,
                 material: inputStore.currentMaterial,
             }]);
+            builderHistory.push_checkpoint();
+        }
         // Update preview cube.
         await this.onPointerMove(event);
     }
@@ -100,6 +103,7 @@ export class PainterSprayInput extends MouseInputState {
         document.body.style.cursor = 'auto';
         getPreviewCube().scale.set(1, 1, 1);
         getPreviewCube().visible = false;
+        builderHistory.push_checkpoint();
     }
 
     async onPointerMove(event: PointerEvent) {
@@ -113,7 +117,7 @@ export class PainterSprayInput extends MouseInputState {
         const target = (currentSet.value as SetData).getAt(...pos);
         if (target?.color === inputStore.currentColor && target?.material === inputStore.currentMaterial)
             return;
-        await store.dispatch('builderData/set_briq_color', [{
+        builderHistory.push_command(PaintBriqs, [{
             pos: pos,
             color: inputStore.currentColor,
             material: inputStore.currentMaterial,
@@ -143,10 +147,11 @@ export class PainterMultiInput extends VoxelAlignedSelection {
                 for (let z = Math.min(this.initialClickPos[2], pos[2]); z <= Math.max(this.initialClickPos[2], pos[2]); ++z)
                     if (currentSet.value.getAt(x, y, z))
                         actionData.push({
-                            pos: [x, y, z],
+                            pos: [x, y, z] as [number, number, number],
                             color: inputStore.currentColor,
                             material: inputStore.currentMaterial,
                         });
-        await store.dispatch('builderData/set_briq_color', actionData);
+        builderHistory.push_command(PaintBriqs, actionData);
+        builderHistory.push_checkpoint();
     }
 }

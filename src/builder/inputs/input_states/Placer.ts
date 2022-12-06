@@ -1,7 +1,6 @@
 import { MouseInputState } from './BuilderInputState';
 import getPreviewCube from '@/builder/graphics/PreviewCube';
 import { inputStore } from '../InputStore';
-import { store } from '@/store/Store';
 
 import { THREE } from '@/three';
 import { VoxelAlignedSelection } from './SelectHelpers';
@@ -10,6 +9,8 @@ import { watchEffect } from 'vue';
 import { builderStore } from '@/builder/BuilderStore';
 import { underlayObjects } from '@/builder/graphics/Builder';
 import { ShaderGrid } from '@/builder/graphics/ShaderGrid';
+import { PlaceOrRemoveBriqs } from '@/builder/BuilderActions';
+import { builderHistory } from '@/builder/BuilderHistory';
 
 const { currentSet } = builderStore;
 
@@ -102,7 +103,8 @@ export class PlacerInput extends MouseInputState {
             const data = removing
                 ? { pos }
                 : { pos, color: inputStore.currentColor, material: inputStore.currentMaterial };
-            await store.dispatch('builderData/place_briqs', [data]);
+            builderHistory.push_command(PlaceOrRemoveBriqs, [data]);
+            builderHistory.push_checkpoint();
             // Update the preview cursor in a few milliseconds to let the world update.
             // Use the 'non event updating version' so the cube doesn't accidentally jump back.
             setTimeout(() => this.onPointerMove(event), 100);
@@ -142,11 +144,12 @@ export class PlacerMultiInput extends VoxelAlignedSelection {
                 )
                     if (!currentSet.value.getAt(x, y, z))
                         briqs.push({
-                            pos: [x, y, z],
+                            pos: [x, y, z] as [number, number, number],
                             color: inputStore.currentColor,
                             material: inputStore.currentMaterial,
                         });
-        await store.dispatch('builderData/place_briqs', briqs);
+        builderHistory.push_command(PlaceOrRemoveBriqs, briqs);
+        builderHistory.push_checkpoint();
     }
 }
 
@@ -182,7 +185,8 @@ export class NFTPlacerInput extends PlacerInput {
                     material: this.token_data.material,
                     id: this.token_data.token_id,
                 };
-            await store.dispatch('builderData/place_briqs', [data]);
+            builderHistory.push_command(PlaceOrRemoveBriqs, [data]);
+            builderHistory.push_checkpoint();
             // Update the preview cursor in a few milliseconds to let the world update.
             // Use the 'non event updating version' so the cube doesn't accidentally jump back.
             setTimeout(() => this.onPointerMove(event), 100);

@@ -1,14 +1,15 @@
 import { BuilderInputState, MouseInputState } from './BuilderInputState';
-import { store } from '@/store/Store';
 
 import type { HotkeyHandle } from '@/Hotkeys';
 
-import { SelectionManager, selectionRender } from '../Selection';
+import { selectionRender } from '../Selection';
 import { THREE } from '@/three';
 import { pushMessage } from '@/Messages';
 import { builderStore } from '@/builder/BuilderStore';
 import type { BuilderInputFSM } from '../BuilderInput';
 import { APP_ENV } from '@/Meta';
+import { builderHistory } from '@/builder/BuilderHistory';
+import { PlaceOrRemoveBriqs } from '@/builder/BuilderActions';
 
 const { currentSet } = builderStore;
 
@@ -187,7 +188,7 @@ export class CopyPasteInput extends MouseInputState {
                 Math.round(pos[0] + briq.position![0] + corr[0] - this.selectionCenter.x),
                 Math.round(pos[1] + briq.position![1] + corr[1] - this.selectionCenter.y),
                 Math.round(pos[2] + briq.position![2] + corr[2] - this.selectionCenter.z),
-            ];
+            ] as [number, number, number];
             if (currentSet.value.getAt(...bp) && this.fsm.store.briqOverlayMode === 'KEEP') {
                 didOverlay = true;
                 continue;
@@ -196,7 +197,8 @@ export class CopyPasteInput extends MouseInputState {
             // Explicitly do not copy NFT ids, for those cannot be duplicated.
             data.push({ pos: bp, color: briq.color, material: briq.material });
         }
-        await store.dispatch('builderData/place_briqs', data);
+        builderHistory.push_command(PlaceOrRemoveBriqs, data);
+        builderHistory.push_checkpoint();
 
         if (didOverlay && this.fsm.store.briqOverlayMode === 'KEEP')
             pushMessage('Some briqs were not placed because they overlayed existing briqs');

@@ -19,7 +19,6 @@
     "@jaames/iro": "^5.5",
     "@sentry/tracing": "^6.16",
     "@sentry/vue": "^6.16",
-    "ammo.js": "github:kripken/ammo.js",
     "canvas-confetti": "^1.6.0",
     "chart.js": "^3.8.0",
     "connect": "^3.7",
@@ -36,8 +35,7 @@
     "vox-reader": "git+https://github.com/FlorianFe/vox-reader.js.git",
     "vue": "^3.2",
     "vue-pdf-embed": "^1.1",
-    "vue-router": "^4.0",
-    "vuex": "^4.0"
+    "vue-router": "^4.0"
   },
   "devDependencies": {
     "@types/connect": "^3.4",

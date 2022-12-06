@@ -19,13 +19,10 @@ import ExportSetVue from './modals/ExportSet.vue';
 import { pushModal } from '../Modals.vue';
 import { useBooklet } from './BookletComposable';
 import Hotkey from '../generic/Hotkey.vue';
-import { useRouter } from 'vue-router';
 import Tooltip from '../generic/Tooltip.vue';
 import RenameSetVue from './modals/RenameSet.vue';
 
 const { currentSet } = useBuilder();
-
-const router = useRouter();
 
 const getNbBriqs = computed(() => {
     // Vue reactiveness, this is opt-in for performance.

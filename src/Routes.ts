@@ -20,7 +20,6 @@ import SetPageVue from './components/builder/genesis/SetPage.vue';
 let loader;
 async function loadExtraPages() {
     loader = await import('@/Dispatch');
-    await loader.Store.isLoaded;
 }
 
 // Preload the rest of the javascript after a short while,

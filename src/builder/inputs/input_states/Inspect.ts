@@ -1,5 +1,4 @@
 import { MouseInputState } from './BuilderInputState';
-import { store } from '@/store/Store';
 import type { SetData } from '@/builder/SetData';
 import type { Briq } from '@/builder/Briq';
 import { selectionRender } from '../Selection';
@@ -19,6 +18,8 @@ import { inputStore } from '../InputStore';
 import { useSetHelpers } from '@/components/builder/SetComposable';
 import { builderStore } from '@/builder/BuilderStore';
 import { canCopyPaste } from './CopyPaste';
+import { builderHistory } from '@/builder/BuilderHistory';
+import { MoveBriqs, RotateBriqs } from '@/builder/BuilderActions';
 
 const { openSetInBuilder } = useSetHelpers();
 
@@ -568,11 +569,12 @@ export class DragInput extends MouseInputState {
             this._specialClamp(intersects);
             const res = new THREE.Vector3().subVectors(this.startPos, intersects);
             res.round();
-            await store.dispatch('builderData/move_briqs', {
+            builderHistory.push_command(MoveBriqs, {
                 delta: { [this.direction]: -res?.[this.direction] },
                 briqs: this.fsm.store.selectionMgr.selectedBriqs,
                 allow_overwrite: this.fsm.store.briqOverlayMode === 'OVERWRITE',
             });
+            builderHistory.push_checkpoint();
         } catch (err) {
             console.error(err);
             pushMessage(err);
@@ -589,7 +591,7 @@ export class RotateInput extends MouseInputState {
     startPos!: THREE.Vector3;
     initialOffset!: THREE.Vector3;
 
-    direction!: string;
+    direction!: 'x' | 'y' | 'z';
     mesh!: THREE.Object3D;
 
     min!: [number, number, number];
@@ -774,13 +776,14 @@ obj.parent!.worldToLocal(obj.position); // undo world coordinates compensation
                 this.fsm.switchTo('inspect');
                 return;
             }
-            await store.dispatch('builderData/rotate_briqs', {
+            builderHistory.push_command(RotateBriqs, {
                 axis: this.direction,
-                angle: angle,
+                angle: angle as number,
                 rotationCenter: this.startPos,
                 briqs: this.fsm.store.selectionMgr.selectedBriqs,
                 allow_overwrite: this.fsm.store.briqOverlayMode === 'OVERWRITE',
             });
+            builderHistory.push_checkpoint();
         } catch (err) {
             console.error(err);
             pushMessage(err);

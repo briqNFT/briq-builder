@@ -1,9 +1,8 @@
-import { markRaw, reactive, Ref, toRaw, watch, watchEffect } from 'vue';
+import { reactive, watch, watchEffect } from 'vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import type { UserID, WalletStore } from '@/chain/Wallet';
+import type { UserID } from '@/chain/Wallet';
 import { APP_ENV } from '@/Meta';
 import { logDebug } from '@/Messages';
-import { store } from '@/store/Store';
 
 export interface perUserStorable {
     user_id: string;

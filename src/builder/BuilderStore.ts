@@ -4,12 +4,10 @@ import contractStore from '@/chain/Contracts';
 
 import { setsManager as sm } from '@/builder/SetsManager';
 
-import { store } from '@/store/Store';
 import type { SetData } from './SetData';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { dispatchBuilderAction } from './graphics/Dispatch';
-import { currentSet as ___currentSet } from './BuilderData';
 import { logDebug } from '@/Messages';
 
 /**
@@ -28,7 +26,6 @@ export const builderStore = (() => {
         logDebug('BUILDER - SWITCHING TO SET ', set.id);
         _currentSet.value = set;
         inputStore.selectionMgr.selectSet(currentSet.value);
-        ___currentSet.value = set;
 
         const isLocal = sm.getInfo(currentSet.value?.id);
         builderInputFsm.switchTo(isLocal ? 'place' : 'camera');
@@ -44,7 +41,6 @@ export const builderStore = (() => {
         currentSetInfo,
         currentSet,
         selectSet,
-        store,
         contractStore,
         setsManager: sm,
         resetBuilderState,

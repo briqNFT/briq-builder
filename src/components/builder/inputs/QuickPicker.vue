@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import BriqPicker from '../modals/BriqPicker.vue';
-import PaletteManager from '../modals/PaletteManager.vue';
 
-import { useStore } from 'vuex';
 import { packPaletteChoice, palettesMgr, unpackPaletteChoice } from '../../../builder/Palette';
 import { pushModal } from '../../Modals.vue';
 import { builderInputFsm } from '../../../builder/inputs/BuilderInput';
@@ -15,10 +13,11 @@ import { addMaterialCSS } from '@/Conf';
 import ColorPicker from '@/components/generic/ColorPicker.vue';
 import Flyout from '@/components/generic/Flyout.vue';
 import { useBuilderInput } from '../InputComposable';
+import { builderHistory } from '@/builder/BuilderHistory';
+import { PaintBriqs } from '@/builder/BuilderActions';
 
-const { inputStore, activeInputButton, switchToState } = useBuilderInput();
+const { inputStore, activeInputButton } = useBuilderInput();
 
-const store = useStore();
 
 // TODO: reduce duplication here.
 const palette = computed(() => palettesMgr.getCurrent());
@@ -47,7 +46,8 @@ const changeColorOfSelectedBriqs = () => {
         color: inputStore.currentColor,
         material: inputStore.currentMaterial,
     }))
-    store.dispatch('builderData/set_briq_color', change);
+    builderHistory.push_command(PaintBriqs, change);
+    builderHistory.push_checkpoint();
 }
 
 const changeColor = async () => {

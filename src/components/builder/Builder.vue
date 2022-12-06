@@ -24,10 +24,10 @@ import { inputStore } from '@/builder/inputs/InputStore';
 import { bookletDataStore } from '@/builder/BookletData';
 import { threeSetupComplete } from '@/threeLoading';
 import { checkForInitialGMSet } from '@/builder/SetsManager';
-import { useStore } from 'vuex';
 import { APP_ENV } from '@/Meta';
 import { setupInputMap } from '@/builder/inputs/InputMapPopulate';
 import { walletInitComplete } from '@/chain/WalletLoading';
+import { builderHistory } from '@/builder/BuilderHistory';
 
 const { setsManager, chainBriqs, currentSet, selectSet, resetBuilderState } = useBuilder();
 
@@ -78,8 +78,6 @@ async function initializeStartSet() {
 
     logDebug('BUILDER - START SET INITIALIZED');
 }
-
-const store = useStore();
 
 const initializePalette = async () => {
     if (booklet.value) {
@@ -137,7 +135,7 @@ onBeforeMount(async () => {
     dispatchBuilderAction('put_all_in_view');
 
     // Reset history so we start fresh, because at this point other operations have polluted it.
-    await store.dispatch('reset_history');
+    builderHistory.resetHistory();
 
     await walletInitComplete;
 
@@ -158,7 +156,7 @@ watch([toRef(route, 'query'), toRef(route.query, 'set')], async () => {
     dispatchBuilderAction('put_all_in_view');
 
     // Reset history so we start fresh, because at this point other operations have polluted it.
-    await store.dispatch('reset_history');
+    builderHistory.resetHistory();
 }, {
     deep: true,
 })

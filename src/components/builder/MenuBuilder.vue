@@ -4,7 +4,6 @@ import { CONF } from '@/Conf';
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
 import { hexUuid } from '@/Uuid';
 import { ref, toRef, watch } from 'vue';
-import { useStore } from 'vuex';
 import Flyout from '../generic/Flyout.vue';
 import { pushModal } from '../Modals.vue';
 import { pushPopup } from '@/Notifications';
@@ -21,6 +20,8 @@ import { DEV } from '@/Meta';
 import CameraTools from './CameraTool.vue';
 import { canCopyPaste } from '@/builder/inputs/input_states/CopyPaste';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
+import { builderHistory } from '@/builder/BuilderHistory';
+import { PlaceOrRemoveBriqs } from '@/builder/BuilderActions';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
@@ -48,8 +49,6 @@ const { inputStore, activeInputButton, switchToState, currentInput } = useBuilde
 const renameSet = () => {
     pushModal(RenameSetVue, { set: currentSet.value.id })
 }
-
-const store = useStore();
 
 const { downloadSet } = useSetHelpers();
 
@@ -83,10 +82,8 @@ const selectCopy = () => {
 }
 
 const deleteBriqs = async () => {
-    await store.dispatch(
-        'builderData/place_briqs',
-        inputStore.selectionMgr.selectedBriqs.map((briq) => ({ pos: briq.position })),
-    );
+    builderHistory.push_command(PlaceOrRemoveBriqs, inputStore.selectionMgr.selectedBriqs.map((briq) => ({ pos: briq.position! })));
+    builderHistory.push_checkpoint();
 }
 
 const selectAllbriqs = (event: Event) => {
@@ -140,8 +137,8 @@ const onCloseMenu = () => {
                         <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
                         <RouterLink class="block mx-2" :to="{ name: 'Profile', query: { tab: 'WIP' } }"><Btn class="w-full !mx-0" no-background>Manage my sets</Btn></RouterLink>
                         <hr>
-                        <Btn @click="store.dispatch('undo_history')" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>
-                        <Btn @click="store.dispatch('redo_history')" no-background>Redo <span>Ctrl&ThinSpace;+&ThinSpace;Shift&ThinSpace;+&ThinSpace;U</span></Btn>
+                        <Btn @click="builderHistory.undo()" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>
+                        <Btn @click="builderHistory.redo()" no-background>Redo <span>Ctrl&ThinSpace;+&ThinSpace;Shift&ThinSpace;+&ThinSpace;U</span></Btn>
                         <hr>
                         <Btn no-background @click="selectCopy">Copy <span>Ctrl&ThinSpace;+&ThinSpace;C</span></Btn>
                         <Btn no-background :disabled="currentInput !== 'copy_paste'">Paste <span>Ctrl&ThinSpace;+&ThinSpace;V</span></Btn>
