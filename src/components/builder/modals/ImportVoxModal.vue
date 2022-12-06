@@ -3,7 +3,6 @@ import type { SetData } from '@/builder/SetData';
 import { VoxLoader } from '@/builder/VoxLoader';
 
 import { onBeforeMount, ref } from 'vue';
-import builderSettings from '@/builder/graphics/Settings';
 import { useSetHelpers } from '../SetComposable';
 import { pushPopup } from '@/Notifications';
 import { setsManager } from '@/builder/SetsManager';

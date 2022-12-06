@@ -18,7 +18,12 @@ export class VoxLoader {
     material = CONF.defaultMaterial;
 
     constructor(fileData: ArrayBuffer) {
-        this.data = voxReader(new Uint8Array(fileData) as unknown as number[]);
+        const inputData = new Uint8Array(fileData) as unknown as number[];
+        // the library only supports version 150, but as far as I can tell
+        // there is no fundamental difference with version 200 (or at least it seems to work).
+        // Rather than fork the lib I'll just lie about the file.
+        inputData[4] = 150;
+        this.data = voxReader(inputData);
 
         for (const _ of this.data.RGBA)
             for (const c of _.values)
