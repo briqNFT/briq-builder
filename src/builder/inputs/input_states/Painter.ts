@@ -56,37 +56,10 @@ export class PainterInput extends MouseInputState {
         else if (getPreviewCube().visible)
             this.fsm.switchTo('paint_spray', { x: event.clientX, y: event.clientY });
     }
-
-    async onPointerUp(event: PointerEvent) {
-        const mov = Math.abs(event.clientX - this.lastClickX) + Math.abs(event.clientY - this.lastClickY);
-        if (mov > 10)
-            return;
-
-        const pos = this.getIntersectionPos(this.curX, this.curY, true);
-        if (!pos || !this.isWithinBounds(...pos))
-            return;
-
-        // Left-click paints, right-click samples the briq color.
-        if (event.button === 2) {
-            const target = (currentSet.value as SetData).getAt(...pos);
-            if (target) {
-                inputStore.currentMaterial = target.material;
-                inputStore.currentColor = target.color;
-            }
-        } else {
-            builderHistory.push_command(PaintBriqs, [{
-                pos: pos,
-                color: inputStore.currentColor,
-                material: inputStore.currentMaterial,
-            }]);
-            builderHistory.push_checkpoint();
-        }
-        // Update preview cube.
-        await this.onPointerMove(event);
-    }
 }
 
 export class PainterSprayInput extends MouseInputState {
+    didPaint = false;
     onEnter() {
         this.fsm.orbitControls.enabled = false;
         this.fsm.store.grabFocus = true;
@@ -103,7 +76,8 @@ export class PainterSprayInput extends MouseInputState {
         document.body.style.cursor = 'auto';
         getPreviewCube().scale.set(1, 1, 1);
         getPreviewCube().visible = false;
-        builderHistory.push_checkpoint();
+        if (this.didPaint)
+            builderHistory.push_checkpoint();
     }
 
     async onPointerMove(event: PointerEvent) {
@@ -122,6 +96,7 @@ export class PainterSprayInput extends MouseInputState {
             color: inputStore.currentColor,
             material: inputStore.currentMaterial,
         }]);
+        this.didPaint = true;
     }
 
     async onPointerUp(_: unknown) {
