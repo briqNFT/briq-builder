@@ -337,8 +337,11 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
 
 async function setupHomeScene(quality: SceneQuality) {
     const castShadow = (obj: any) => {
-        obj.castShadow = true;
-        obj.traverse(m => m.castShadow = true)
+        obj.traverse(m => {
+            m.castShadow = true;
+            if (m.material)
+                m.material.shadowSide = THREE.FrontSide;
+        })
     }
 
     const receiveShadow = (obj: any) => {
@@ -399,6 +402,9 @@ async function setupHomeScene(quality: SceneQuality) {
     obj.traverse(mesh => {
         if (casters.indexOf(mesh.name) !== -1)
             castShadow(mesh)
+        if (mesh.name === 'lamp')
+            // Lamp shade needs both side culling for depth buffer to work correctly here.
+            mesh.children[0].material.shadowSide = THREE.DoubleSide;
         mesh.receiveShadow = true;
         if (mesh?.material?.envMapIntensity)
             mesh.material.envMapIntensity = 0.3;
@@ -829,7 +835,7 @@ export function graphicsFrame(delta: number) {
         debugGeometry.setDrawRange(0, debugDrawer.index);
         debugDrawer.update()
     }
-    if (physicsWorld && runPhysics) {
+    if (physicsWorld && runPhysics && sceneData.box) {
         physicsWorld.step(delta);
 
         // Keep the box collision objects aligned to the box.

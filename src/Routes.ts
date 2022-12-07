@@ -134,6 +134,16 @@ if (APP_ENV !== 'prod')
         },
     })
 
+if (APP_ENV !== 'prod')
+    routes.push({
+        path: '/briqmas_next_day',
+        name: 'briqmas_next_day',
+        component: async () => {
+            await loadExtraPages();
+            return loader.BriqmasNextDay;
+        },
+    })
+
 
 if (CONF.theme === 'realms') {
     routes.push({

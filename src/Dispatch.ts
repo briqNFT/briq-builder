@@ -5,17 +5,19 @@
  * Three.js is also split in a similar manner.
  */
 
-import BuilderVue from './components/builder/Builder.vue';
-import AdminVue from './components/Admin.vue';
-import DebugVue from './components/debug/Debug.vue';
-import ShareVue from './components/builder/share/Share.vue';
+import BuilderVue from '@/components/builder/Builder.vue';
+import AdminVue from '@/components/Admin.vue';
+import DebugVue from '@/components/debug/Debug.vue';
+import ShareVue from '@/components/builder/share/Share.vue';
 import * as walletModule from '@/chain/Wallet';
-import _contractStore from './chain/Contracts';
-import UnboxingVue_ from './components/builder/genesis/UnboxingLight.vue';
-import Briqmas_ from './components/builder/genesis/Briqmas.vue';
+import _contractStore from '@/chain/Contracts';
+import UnboxingVue_ from '@/components/builder/genesis/UnboxingLight.vue';
+import Briqmas_ from '@/components/builder/genesis/Briqmas.vue';
+import BriqmasNextDay_ from '@/components/builder/genesis/BriqmasCompleted.vue';
 
 export const UnboxingVue = UnboxingVue_;
 export const Briqmas = Briqmas_;
+export const BriqmasNextDay = BriqmasNextDay_;
 export const contractStore = _contractStore;
 export const Builder = BuilderVue;
 export const Admin = AdminVue;
