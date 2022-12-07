@@ -52,10 +52,14 @@ export class CopyPasteInput extends MouseInputState {
             if (APP_ENV === 'dev')
                 console.error(_);
         }
+        this.cancelHotkey = this.fsm.hotkeyMgr.subscribe('escape', () => {
+            this.fsm.switchTo('inspect');
+        });
+
         selectionRender.show();
         this.selectionCenter = this.fsm.store.selectionMgr.getCenterPos();
         if (!this.selectionCenter)
-            throw new Error('Entered copy paste with no selection');
+            return this.fsm.switchTo('inspect');
 
         const briqs = this.fsm.store.selectionMgr.selectedBriqs;
         this.min = briqs[0].position!.slice();
@@ -79,9 +83,6 @@ export class CopyPasteInput extends MouseInputState {
             (this.max[1] + this.min[1]) / 2 + 0.5,
             (this.max[2] + this.min[2]) / 2 + 0.5,
         ];
-        this.cancelHotkey = this.fsm.hotkeyMgr.subscribe('escape', () => {
-            this.fsm.switchTo('inspect');
-        });
 
         this.onPointerMove();
     }
