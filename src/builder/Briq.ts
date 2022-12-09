@@ -19,7 +19,7 @@ export class Briq {
     _uuid: string;
     position: undefined | [number, number, number] = undefined;
 
-    constructor(material: string = CONF.defaultMaterial, color = '#C94A00') {
+    constructor(material: string = CONF.defaultMaterial, color = '#c94a00') {
         // Unique identifier for the builder.
         this._uuid = hexUuid();
         this.material = material;
@@ -40,7 +40,7 @@ export class Briq {
         // No need to serialize the set, we don't store briqs outside of sets.
         const ret: any = {
             material: this.material,
-            color: this.color,
+            color: this.color.toLowerCase(),
         };
         if (this.id)
             ret.id = this.id;
