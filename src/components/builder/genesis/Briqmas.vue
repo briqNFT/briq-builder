@@ -121,7 +121,7 @@ const unboxingState = new class implements FsmState {
 
     curve!: THREE.CubicBezierCurve;
 
-    targPos = new THREE.Vector3(-0.5051985807049573, 0.9106641122513064, -0.6608630977181946);
+    targPos = new THREE.Vector3(-0.4651985807049573, 0.9106641122513064, -0.4608630977181946);
     targQuat = new THREE.Quaternion(-0.21513355823476782, 0.36465427428385455, 0.08699554956570354, 0.9017630435560798);
 
     duration = 3.0;
@@ -206,6 +206,7 @@ const unboxingOpenState = new class implements FsmState {
             const easedTime = curve.getPoint(this.boxMoveStep).y;
 
             const rot = this.rt.clone();
+            rot.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2));
             rot.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 2 * -Math.PI / 3));
             // point down
             rot.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 5));
@@ -474,7 +475,7 @@ const doUnbox = async () => {
     disableButtons.value = false;
 }
 const doFakeUnbox = async () => {
-    await fakeUnbox(tokenName);
+    //await fakeUnbox(tokenName);
     fsm.switchTo('UNBOXING_OPEN');
 }
 

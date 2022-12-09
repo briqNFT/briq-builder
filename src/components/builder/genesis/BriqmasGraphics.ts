@@ -571,7 +571,7 @@ export async function setBox(boxData: any) {
             tex.encoding = THREE.sRGBEncoding;
             tex.flipY = false;
             texturedMat.map = tex;
-            texturedMat.map.anisotropy = 4;
+            texturedMat.map.anisotropy = 8;
             texturedMat.normalMap = boxNormTexture;
             texturedMat.normalMap.anisotropy = 8;
             texturedMat.normalMap.encoding = THREE.LinearEncoding;
@@ -604,8 +604,10 @@ export async function setBox(boxData: any) {
 
     box.userData.mixer = mixer;
     //box.position.set(...boxData.position);
-    box.position.set(-1.6, 0.13, -1.8);
+    box.position.set(-1.45, 0.215, -1.45);
     box.rotateY(8 * Math.PI/9);
+    box.rotateX(Math.PI/2);
+    //rot.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 2 * -Math.PI / 3));
 
     box.userData.uid = boxData.uid;
     box.userData.box_name = boxData.box_name;
