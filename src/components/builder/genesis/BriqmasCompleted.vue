@@ -63,13 +63,17 @@ const loadingState = new class implements FsmState {
 
     async onEnter() {
         await sceneReady;
-
-        // At this point this should be loaded because we've loaded the wallet.
-        //if (userBoxesStore.current?.availableBoxes.indexOf(tokenName) === -1)
-        //return fsm.switchTo('NO_BOX');
         const set = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
-        if (!set)
-            return fsm.switchTo('NO_BOX');
+        if (!set) {
+            // We have a data race here, because the sets are fetching data independently after the wallet has loaded.
+            // So if we haven't found a set, try again in a second, then fail.
+            // This should generally be OK, because we can sorta assume that the frontend has cached the data.
+            // TODO: improve on this.
+            await new Promise(res => setTimeout(() => res(null), 1500));
+            const set = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
+            if (!set)
+                return fsm.switchTo('NO_BOX');
+        }
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
