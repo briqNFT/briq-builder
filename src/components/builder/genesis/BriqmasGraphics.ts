@@ -18,7 +18,7 @@ import { AmmoPhysics, AmmoDebugDrawer } from './AmmoPhysics.js';
 import { APP_ENV } from '@/Meta';
 
 import BookletModel from '@/assets/genesis/booklet.glb?url';
-import BriqBox from '@/assets/genesis/briqs_box.glb?url';
+import BriqBox from '@/assets/genesis/box_vert.glb?url';
 import EnvMapImg from '@/assets/genesis/briq-box-xmas-equi.png';
 import BoxNormImg from '@/assets/genesis/box_tex_norm.png';
 import HomeScene from '@/assets/genesis/briqs_box_xmas.glb?url';
@@ -277,6 +277,19 @@ export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
         );
         carpet.position.set(0.445, -0.51, -0.6);
         physicsWorld.addMesh(carpet, 0.0, 1.0);
+
+        // Add walls to prevent the booklet from drifting into the Christmas tree.
+        const wall1 = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 1, 4),
+        );
+        wall1.position.set(-1, 0, -4.2);
+        wall1.rotateY(Math.PI/9);
+        physicsWorld.addMesh(wall1, 0.0, 0.7);
+        const wall2 = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 1, 4),
+        );
+        wall2.position.set(-4, 0, -1);
+        physicsWorld.addMesh(wall2, 0.0, 0.7);
     }
 
     runPhysics = true;
@@ -557,7 +570,7 @@ export async function setBox(boxData: any) {
         if (mesh.material)
             mesh.receiveShadow = true;
 
-        if (mesh.material?.name === 'briq_box.001') {
+        if (mesh.material?.name === 'briq_box_vert') {
             mesh.castShadow = true;
             texturedMat = new THREE.MeshPhysicalMaterial();
             mesh.material = texturedMat;
@@ -570,6 +583,7 @@ export async function setBox(boxData: any) {
         defaultLoader.load(boxData.texture, (tex) => {
             tex.encoding = THREE.sRGBEncoding;
             tex.flipY = false;
+            texturedMat.shadowSide = THREE.FrontSide;
             texturedMat.map = tex;
             texturedMat.map.anisotropy = 8;
             texturedMat.normalMap = boxNormTexture;
@@ -604,7 +618,7 @@ export async function setBox(boxData: any) {
 
     box.userData.mixer = mixer;
     //box.position.set(...boxData.position);
-    box.position.set(-1.45, 0.215, -1.45);
+    box.position.set(-1.5, 0.215, -1.48);
     box.rotateY(8 * Math.PI/9);
     box.rotateX(Math.PI/2);
     //rot.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 2 * -Math.PI / 3));
@@ -710,6 +724,7 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
     material.roughness = 0.02;
     material.envMap = envMapTexture;
     material.envMapIntensity = 0.6;
+    material.shadowSide = THREE.FrontSide;
 
     let i = 0;
     for (let x = 0; x < xcount; ++x)

@@ -144,7 +144,8 @@ const unboxingState = new class implements FsmState {
         const point = this.curve.getPointAt(this.step / this.duration).y;
         camera.position.lerpVectors(this.camPos, this.targPos, point);
         camera.quaternion.slerpQuaternions(this.camQuat, this.targQuat, point);
-
+        camera.fov = THREE.MathUtils.lerp(40, 30, point);
+        camera.updateProjectionMatrix();
         this.step += delta;
     }
 }
@@ -164,12 +165,15 @@ const unboxingOpenState = new class implements FsmState {
     camPos!: THREE.Vector3;
     camQuat!: THREE.Quaternion;
 
+    camFov!: number;
+
     async onEnter() {
         this.rt = sceneData.box!.quaternion.clone();
         this.initialPos = sceneData.box!.position.clone();
 
         this.camPos = camera.position.clone();
         this.camQuat = camera.quaternion.clone();
+        this.camFov = camera.fov;
     }
 
     frame(delta: number) {
@@ -188,6 +192,8 @@ const unboxingOpenState = new class implements FsmState {
             camera.position.lerpVectors(this.camPos, new THREE.Vector3(-0.72, 1.33, 0.94), Math.min(1, easedTime));
             //camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.22, 0.082, 0.0185, 0.97), Math.min(1, easedTime));
             camera.quaternion.slerpQuaternions(this.camQuat, new THREE.Quaternion(-0.214, 0.148, 0.033, 0.965), Math.min(1, easedTime));
+            camera.fov = THREE.MathUtils.lerp(this.camFov, 40, Math.min(1, easedTime));
+            camera.updateProjectionMatrix();
         }
 
         // Box movement
