@@ -56,6 +56,27 @@ export class PainterInput extends MouseInputState {
         else if (getPreviewCube().visible)
             this.fsm.switchTo('paint_spray', { x: event.clientX, y: event.clientY });
     }
+
+    async onPointerUp(event: PointerEvent) {
+        // Left-click is handled by paint_spray so ignore anything but right-click.
+        if (event.button !== 2)
+            return;
+
+        const pos = this.getIntersectionPos(this.curX, this.curY, true);
+        if (!pos || !this.isWithinBounds(...pos))
+            return;
+
+
+        // Right-click samples the color
+        const target = (currentSet.value as SetData).getAt(...pos);
+        if (target) {
+            inputStore.currentMaterial = target.material;
+            inputStore.currentColor = target.color;
+        }
+
+        // Update preview cube.
+        this.onPointerMove(event);
+    }
 }
 
 export class PainterSprayInput extends MouseInputState {
