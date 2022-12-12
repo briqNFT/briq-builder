@@ -477,7 +477,10 @@ const doUnbox = async () => {
     try {
         await unbox(tokenName);
         fsm.switchTo('UNBOXING_OPEN');
-    } catch(_) { /**/ }
+    } catch(_) {
+        if (APP_ENV === 'dev')
+            console.error(_);
+    }
     disableButtons.value = false;
 }
 const doFakeUnbox = async () => {

@@ -11,11 +11,6 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { useRouter } from 'vue-router';
-import { setsManager } from '@/builder/SetsManager';
-import { useSetHelpers } from '../SetComposable';
-import { useUnboxHelpers } from '@/builder/Unbox';
-import { bookletDataStore } from '@/builder/BookletData';
-import { userBoxesStore } from '@/builder/UserBoxes';
 
 import AspectLogo from '@/assets/landing/aspect.png';
 import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';

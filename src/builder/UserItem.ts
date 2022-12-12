@@ -95,11 +95,11 @@ export abstract class GeneralizedUserItem implements perUserStorable {
             this._updateData(data);
     }
 
-    _showOne(tokenName: string, txHash: string, date?: number) {
+    showOne(tokenName: string, txHash: string, date?: number) {
         this._addOne('TENTATIVE', tokenName, txHash, date);
     }
 
-    _hideOne(tokenName: string, txHash: string, date?: number) {
+    hideOne(tokenName: string, txHash: string, date?: number) {
         this._addOne('DELETING_SOON', tokenName, txHash, date);
     }
 

@@ -1,4 +1,5 @@
-export const DARKMODE_MEDIA = !!window.matchMedia('(prefers-color-scheme: dark)').matches;
+// matchMedia is optional so that it works in JSDOM's test environment.
+export const DARKMODE_MEDIA = !!window.matchMedia?.('(prefers-color-scheme: dark)').matches;
 
 import { reactive, watchEffect, WatchStopHandle } from 'vue';
 

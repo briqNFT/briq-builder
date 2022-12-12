@@ -9,7 +9,6 @@ import type { Interceptable } from 'undici/types/mock-interceptor';
 let mockAgent: MockAgent;
 let mockPool: Interceptable;
 
-
 describe('Test Booklet data setup', () => {
     beforeEach(() => {
         mockAgent = new MockAgent();
