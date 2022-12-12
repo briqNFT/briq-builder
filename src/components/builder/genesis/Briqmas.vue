@@ -82,8 +82,8 @@ const loadingState = new class implements FsmState {
         await sceneReady;
 
         // At this point this should be loaded because we've loaded the wallet.
-        //if (userBoxesStore.current?.availableBoxes.indexOf(tokenName) === -1)
-        //    return fsm.switchTo('NO_BOX');
+        if (userBoxesStore.current?.availableBoxes.indexOf(tokenName) === -1)
+            return fsm.switchTo('NO_BOX');
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
