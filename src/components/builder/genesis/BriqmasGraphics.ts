@@ -56,6 +56,8 @@ let camera: THREE.Camera;
 let briqCubes: THREE.InstancedMesh;
 let chimneyLight: THREE.Light;
 
+let orbitControls;
+
 export const sceneData = {
     box: undefined as THREE.Mesh | undefined,
     booklet: undefined as THREE.Mesh | undefined,
@@ -241,9 +243,9 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
 
     /* Debug */
     if (APP_ENV === 'dev') {
-        const orbitControls = new OrbitControls(camera, canvas);
+        orbitControls = new OrbitControls(camera, canvas);
         orbitControls.enableDamping = true;
-        orbitControls.target = new THREE.Vector3(0, 0, 0);
+        orbitControls.target = new THREE.Vector3(-1.5, 0.2, -1.5);
     }
 
     boxGlb = await boxPromise;
@@ -260,6 +262,15 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
         scene,
         render,
     }
+}
+
+export function setupOrbitalControls() {
+    if (orbitControls)
+        return;
+    orbitControls = new OrbitControls(camera, canvas);
+    orbitControls.enableDamping = true;
+    orbitControls.target = new THREE.Vector3(-0.5, 0.2, -0.5);
+    orbitControls.update();
 }
 
 export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {

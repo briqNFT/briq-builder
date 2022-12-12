@@ -21,6 +21,7 @@ export async function updateScene(scene: THREE.Scene) {
     scene.children[1].remove(scene.children[1].children.find(x => x.name === 'christmass_ball_silver')!);
     scene.children[1].remove(scene.children[1].children.find(x => x.name === 'christmass_ball_red')!);
     scene.children[1].remove(scene.children[1].children.find(x => x.name === 'christmas_tree_trunk')!);
+    scene.children[1].remove(scene.children[1].children.find(x => x.name === 'star')!);
 
     const ct = scene.children[1].children.find(x => x.name === 'christmas_tree')!;
     const newCT = await bookletPromise;

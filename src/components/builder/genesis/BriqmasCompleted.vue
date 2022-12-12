@@ -3,7 +3,7 @@ import { shallowReactive, computed, ref, onMounted, watch, onBeforeMount, toRef,
 
 import { walletStore } from '@/chain/Wallet';
 
-import { setupScene, useRenderer, SceneQuality, graphicsFrame, resetGraphics } from './BriqmasGraphics';
+import { setupScene, useRenderer, SceneQuality, graphicsFrame, resetGraphics, setupOrbitalControls } from './BriqmasGraphics';
 import { updateScene } from './BriqmasCompleted';
 import { APP_ENV } from '@/Meta';
 
@@ -14,6 +14,7 @@ import { useRouter } from 'vue-router';
 
 import AspectLogo from '@/assets/landing/aspect.png';
 import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
+import { userSetStore } from '@/builder/UserSets';
 
 //////////////////////////////
 //////////////////////////////
@@ -66,6 +67,9 @@ const loadingState = new class implements FsmState {
         // At this point this should be loaded because we've loaded the wallet.
         //if (userBoxesStore.current?.availableBoxes.indexOf(tokenName) === -1)
         //return fsm.switchTo('NO_BOX');
+        const set = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
+        if (!set)
+            return fsm.switchTo('NO_BOX');
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
@@ -144,6 +148,8 @@ onMounted(async () => {
     await setupScene();
 
     await updateScene(setupData.scene);
+
+    setupOrbitalControls();
 
     setSceneReady();
 

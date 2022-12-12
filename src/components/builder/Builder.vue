@@ -49,7 +49,7 @@ async function initializeStartSet() {
             const info = setsManager.getInfo(setId);
             if (info && !info.onchainId)
                 await selectSet(info.getSet());
-            else if (userSetStore.current?.setData[setId])
+            else if (userSetStore.current?.setData[setId]?.data)
                 await selectSet(userSetStore.current.setData[setId].data);
             else {
                 // This is likely to fail but we won't care too much.

@@ -25,7 +25,7 @@ class UserSetStore implements perUserStorable {
     _status = 'FETCHING' as 'FETCHING' | 'LOADED' | 'ERROR';
 
     _setData = {} as { [setId: string]: {
-            data: SetData,
+            data?: SetData,
             booklet: string | undefined,
             created_at: number,
         }
@@ -53,7 +53,12 @@ class UserSetStore implements perUserStorable {
             // For now only save data for temp sets, otherwise it's too heavy
             if (setId in this.metadata)
                 setData[setId] = {
-                    data: this._setData[setId].data.serialize(),
+                    data: this._setData[setId].data!.serialize(),
+                    booklet: this._setData[setId].booklet,
+                    created_at: this._setData[setId].created_at,
+                }
+            else
+                setData[setId] = {
                     booklet: this._setData[setId].booklet,
                     created_at: this._setData[setId].created_at,
                 }
@@ -71,7 +76,7 @@ class UserSetStore implements perUserStorable {
         this._setData = {};
         for (const setId in data.setData)
             this._setData[setId] = {
-                data: new SetData(setId).deserialize(data.setData[setId].data),
+                data: data.setData[setId].data ? new SetData(setId).deserialize(data.setData[setId].data) : undefined,
                 booklet: data.setData[setId].booklet,
                 created_at: data.setData[setId].created_at,
             }
@@ -117,7 +122,7 @@ class UserSetStore implements perUserStorable {
         const network = this.user_id.split('/')[0];
         // Attempt to reload all active sets
         for (const setId of this.sets)
-            if (!this._setData[setId])
+            if (!this._setData[setId]?.data)
                 try {
                     const data = await backendManager.fetch(`v1/metadata/${network}/${setId}.json`);
                     this._setData[setId] = {
