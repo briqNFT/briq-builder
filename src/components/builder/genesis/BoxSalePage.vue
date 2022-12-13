@@ -48,7 +48,7 @@ const attributes = computed(() => {
         { name: 'Artist', value: props.artist.value },
         { name: 'Total Supply', value: saledata.value?.total_quantity },
         { name: 'Year', value: new Date(props.date.value).getFullYear() },
-        { name: '# of briqs', value: `${nbSetBriqs.value} + ${item.value?.nb_briqs_extra} extra` },
+        { name: '# of briqs', value: nbSetBriqs.value + (item.value?.nb_briqs_extra ? ` + ${item.value?.nb_briqs_extra} extra` : '') },
     ]
 });
 

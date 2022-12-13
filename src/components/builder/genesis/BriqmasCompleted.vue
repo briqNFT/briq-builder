@@ -250,6 +250,14 @@ const quality = ref(SceneQuality.ULTRA);
             </select>
         </div>
     </template>
+    <div v-if="step === 'SAPIN'" class="fixed right-0 top-0 m-8 shadow bg-grad-lightest rounded-md p-6 max-w-[23rem] text-md leading-snug">
+        <p class="mb-2">The sounds of the fireplace. Outside, the stars twinkle.</p>
+        <p class="mb-2">Yesterday was briqmas</p>
+        <p class="mb-2">Your tree stands in the living room.</p>
+        <div class="mt-8 flex justify-end">
+            <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm" :disabled="disableButtons">Back to inventory</Btn></RouterLink>
+        </div>
+    </div>
 </template>
 
 
