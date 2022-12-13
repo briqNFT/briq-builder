@@ -255,7 +255,7 @@ const quality = ref(SceneQuality.ULTRA);
         <p class="mb-2">Yesterday was briqmas</p>
         <p class="mb-2">Your tree stands in the living room.</p>
         <div class="mt-8 flex justify-end">
-            <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm" :disabled="disableButtons">Back to inventory</Btn></RouterLink>
+            <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm">Back to inventory</Btn></RouterLink>
         </div>
     </div>
 </template>
