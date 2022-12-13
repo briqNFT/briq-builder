@@ -103,12 +103,8 @@ function createPhysicsWorld() {
 			 else
 
                 handleMesh( mesh, mass, shape, friction );
-
-
-
-
-
     }
+
 
     function handleMesh( mesh, mass, shape, friction ) {
         const position = mesh.position;
@@ -146,33 +142,62 @@ function createPhysicsWorld() {
 
         const bodies = [];
 
+        const localInertia = new AmmoLib.btVector3( 0, 0, 0 );
+        shape.calculateLocalInertia( mass, localInertia );
+
         for ( let i = 0; i < mesh.count; i ++ ) {
-
             const index = i * 16;
-
             const transform = new AmmoLib.btTransform();
             transform.setFromOpenGLMatrix( array.slice( index, index + 16 ) );
-
             const motionState = new AmmoLib.btDefaultMotionState( transform );
-
-            const localInertia = new AmmoLib.btVector3( 0, 0, 0 );
-            shape.calculateLocalInertia( mass, localInertia );
-
             const rbInfo = new AmmoLib.btRigidBodyConstructionInfo( mass, motionState, shape, localInertia );
-
             const body = new AmmoLib.btRigidBody( rbInfo );
             world.addRigidBody( body );
-
             bodies.push( body );
-
         }
 
         if ( mass > 0 ) {
-
             meshes.push( mesh );
-
             meshMap.set( mesh, bodies );
+        }
 
+    }
+
+    async function addStaggeredInstanceMesh( mesh, mass = 0, friction = 1.0) {
+        const shape = getShape(mesh);
+        if (mesh.isInstancedMesh)
+            await staggeredHandleInstancedMesh( mesh, mass, shape );
+    }
+
+    async function staggeredHandleInstancedMesh( mesh, mass, shape ) {
+
+        const array = mesh.instanceMatrix.array;
+
+        const bodies = [];
+
+        const localInertia = new AmmoLib.btVector3( 0, 0, 0 );
+        shape.calculateLocalInertia( mass, localInertia );
+
+        let i = 0;
+        while (i < mesh.count)
+            await new Promise(res => setTimeout(() => {
+                for (let j = 0; j < 5 && i < mesh.count; i++, j++) {
+                    const index = i * 16;
+                    const transform = new AmmoLib.btTransform();
+                    transform.setFromOpenGLMatrix( array.slice( index, index + 16 ) );
+                    const motionState = new AmmoLib.btDefaultMotionState( transform );
+                    const rbInfo = new AmmoLib.btRigidBodyConstructionInfo( mass, motionState, shape, localInertia );
+                    const body = new AmmoLib.btRigidBody( rbInfo );
+                    world.addRigidBody( body );
+                    bodies.push( body );
+                    res(null);
+                }
+            }), 0);
+
+
+        if ( mass > 0 ) {
+            meshes.push( mesh );
+            meshMap.set( mesh, bodies );
         }
 
     }
@@ -259,6 +284,7 @@ function createPhysicsWorld() {
 
     return {
         addMesh: addMesh,
+        addStaggeredInstanceMesh,
         setMeshPosition: setMeshPosition,
         AmmoLib,
         world,

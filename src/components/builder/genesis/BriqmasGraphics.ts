@@ -63,7 +63,7 @@ export const sceneData = {
     booklet: undefined as THREE.Mesh | undefined,
 };
 
-let runPhysics = true;
+let runPhysics = false;
 let boomTriggered = false;
 let lightTime = 0.0;
 
@@ -303,7 +303,6 @@ export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
         physicsWorld.addMesh(wall2, 0.0, 0.7);
     }
 
-    runPhysics = true;
     boomTriggered = false;
 
     scene.clear();
@@ -722,7 +721,7 @@ export async function setBox(boxData: any) {
     return sceneData.box;
 }
 
-export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
+export async function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
     const xcount = DEBUG_PHYSICS ? 3 : 2;
     const ycount = DEBUG_PHYSICS ? 3 : 6;
     const zcount = DEBUG_PHYSICS ? 3 : 5;
@@ -753,7 +752,7 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
                 ++i;
             }
     scene.add(briqCubes);
-    physicsWorld.addMesh(briqCubes, 0.1);
+    await physicsWorld.addStaggeredInstanceMesh(briqCubes, 0.1);
     const bodies = physicsWorld.meshMap.get(briqCubes)
     for (const body of bodies) {
         const vec = new THREE.Vector3(0, -0.03, -0.03);
@@ -761,6 +760,8 @@ export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
         body.applyCentralImpulse(new Ammo.btVector3(vec.x, vec.y, vec.z));
         body.applyTorqueImpulse(new Ammo.btVector3(Math.random() / 10000.0, Math.random() / 10000.0, Math.random() / 10000.0));
     }
+    // Activate the physics once that's done.
+    runPhysics = true;
 }
 
 export function generateBooklet() {
