@@ -477,7 +477,7 @@ async function setupHomeScene(quality: SceneQuality) {
         light.target = lightTarget;
         light.shadow.mapSize = new THREE.Vector2(512, 512);
     }
-    light.shadow.bias = quality > SceneQuality.LOW ? -0.01 : -0.02;
+    light.shadow.bias = -0.03;
     light.shadow.normalBias = 0.02;
     light.shadow.camera.near = 0.03;
     light.shadow.camera.far = 10;
@@ -502,7 +502,7 @@ async function setupHomeScene(quality: SceneQuality) {
     if (quality >= SceneQuality.HIGH) {
         const lightSupport = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.1, 10.0);
         lightSupport.position.set(-0.53, 1 + 2.05, -2.47 - 9);
-        lightSupport.shadow.bias = quality > SceneQuality.LOW ? 0.0 : -0.01;
+        lightSupport.shadow.bias = -0.02;
         lightSupport.shadow.normalBias = -0.02;
         lightSupport.shadow.camera.near = 0.03;
         lightSupport.shadow.camera.far = 10;
