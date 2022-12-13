@@ -34,6 +34,13 @@ export class BuilderInputFSM {
             this.switchTo(...this._preinitState);
     }
 
+    deinit() {
+        if (this.state)
+            this.state._onExit();
+        // This leaves us in an invalid state but that's fine.
+        this.state = null;
+    }
+
     switchTo(state: string, data?: object) {
         // We might be called before we're initialised, so just remember the latest call for convenience.
         if (!this.store) {

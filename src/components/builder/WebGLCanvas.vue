@@ -34,6 +34,7 @@ onMounted(async () => {
 
 onBeforeUnmount(async () => {
     setup.value = false;
+    builderInputFsm.deinit();
     await unmount();
     resetInputComplete();
 });
