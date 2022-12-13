@@ -82,8 +82,8 @@ const loadingState = new class implements FsmState {
         await sceneReady;
 
         // At this point this should be loaded because we've loaded the wallet.
-        if (userBoxesStore.current?.availableBoxes.indexOf(tokenName) === -1)
-            return fsm.switchTo('NO_BOX');
+        //if (userBoxesStore.current?.availableBoxes.indexOf(tokenName) === -1)
+        //    return fsm.switchTo('NO_BOX');
 
         // use a timeout -> We use this to cheat and hopefully load the box textures.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
@@ -494,7 +494,7 @@ const openBuilder = async () => {
 
 
 import FireplaceAudio from './FireplaceAudio.vue';
-const quality = ref(SceneQuality.ULTRA);
+const quality = ref(SceneQuality.HIGH);
 
 </script>
 
@@ -555,7 +555,8 @@ const quality = ref(SceneQuality.ULTRA);
                 <p class="mb-2">The sounds of the fireplace. Outside, the stars twinkle.</p>
                 <p class="mb-2">Today is <span class="text-primary font-medium">briqmas</span>, 2022.</p>
                 <p class="mb-2">By the tree a gift was left. <br>It is yours to open.</p>
-                <div class="mt-8 flex justify-end">
+                <div class="mt-8 flex justify-between">
+                    <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm" :disabled="disableButtons">Back to inventory</Btn></RouterLink>
                     <Btn class="pointer-events-auto !text-sm" @click="fsm.switchTo('UNBOXING')">Get Closer</Btn>
                 </div>
             </div>

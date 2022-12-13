@@ -273,7 +273,7 @@ export function setupOrbitalControls() {
     orbitControls.update();
 }
 
-export async function setupScene(quality: SceneQuality = SceneQuality.ULTRA) {
+export async function setupScene(quality: SceneQuality = SceneQuality.HIGH) {
     if (!physicsWorld) {
         physicsWorld = (await ammoPromise)();
         const floor = new THREE.Mesh(
@@ -478,7 +478,7 @@ async function setupHomeScene(quality: SceneQuality) {
         light.target = lightTarget;
         light.shadow.mapSize = new THREE.Vector2(512, 512);
     }
-    light.shadow.bias = quality > SceneQuality.LOW ? 0.0 : -0.01;
+    light.shadow.bias = quality > SceneQuality.LOW ? -0.01 : -0.02;
     light.shadow.normalBias = 0.02;
     light.shadow.camera.near = 0.03;
     light.shadow.camera.far = 10;
@@ -504,7 +504,7 @@ async function setupHomeScene(quality: SceneQuality) {
         const lightSupport = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.1, 10.0);
         lightSupport.position.set(-0.53, 1 + 2.05, -2.47 - 9);
         lightSupport.shadow.bias = quality > SceneQuality.LOW ? 0.0 : -0.01;
-        lightSupport.shadow.normalBias = 0.02;
+        lightSupport.shadow.normalBias = -0.02;
         lightSupport.shadow.camera.near = 0.03;
         lightSupport.shadow.camera.far = 10;
         lightSupport.shadow.radius = 2;
@@ -723,7 +723,7 @@ export async function setBox(boxData: any) {
 }
 
 export function generateCubes(colors: any[] = [0xff0000, 0x00ff00, 0x0000ff]) {
-    const xcount = DEBUG_PHYSICS ? 3 : 4;
+    const xcount = DEBUG_PHYSICS ? 3 : 2;
     const ycount = DEBUG_PHYSICS ? 3 : 6;
     const zcount = DEBUG_PHYSICS ? 3 : 5;
     briqCubes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.015, 0.015, 0.015, 1, 1, 1), new THREE.MeshStandardMaterial(), xcount*ycount*zcount);
@@ -1014,15 +1014,10 @@ const fireSource = async function(useSimplex: boolean) {
     return obj;
 }
 
-let alreadUpdatedThree = false;
+const og_fragment = THREE.ShaderChunk.shadowmap_pars_fragment;
 const updateThreeShadowMapShader = () => {
-    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow', 'float getPointShadow3');
-    if (alreadUpdatedThree) {
-        THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow2', 'float getPointShadow');
-        THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow3', 'float getPointShadow2');
-        return;
-    }
-    alreadUpdatedThree = true;
+    THREE.ShaderChunk.shadowmap_pars_fragment = og_fragment;
+    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow', 'float getPointShadow2');
     THREE.ShaderChunk.shadowmap_pars_fragment += `
     float texture2DCompare2( float value, vec2 uv, float compare, float dist) {
         return mix(step(compare, value), (clamp((value - compare), -0.1, 0.0) + 0.1) * 10.0, clamp(-dist * 3.0 - 0.3, 0.0, 1.0));
@@ -1089,7 +1084,5 @@ const updateThreeShadowMapShader = () => {
 }
 
 const cleanThreeShadowMapShader = () => {
-    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow', 'float getPointShadow3');
-    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow2', 'float getPointShadow');
-    THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow3', 'float getPointShadow2');
+    THREE.ShaderChunk.shadowmap_pars_fragment = og_fragment;
 }
