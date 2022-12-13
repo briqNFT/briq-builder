@@ -10,7 +10,7 @@ import { APP_ENV } from '@/Meta';
 import { useGenesisStore } from '@/builder/GenesisStore';
 
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import AspectLogo from '@/assets/landing/aspect.png';
 import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
@@ -28,6 +28,7 @@ const sceneReady = new Promise((resolve) => {
 })
 
 const router = useRouter();
+const route = useRoute();
 
 const tokenName = 'briqmas/briqmas_tree';
 
@@ -65,7 +66,9 @@ const loadingState = new class implements FsmState {
 
     async onEnter() {
         await sceneReady;
-        let userSet = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
+        let userSet = route.query['token'] ?
+            userSetStore.current?.sets.find(x => x === route.query['token'])
+            : userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
         if (!userSet) {
             // We have a data race here, because the sets are fetching data independently after the wallet has loaded.
             // So if we haven't found a set, try again in a second, then fail.

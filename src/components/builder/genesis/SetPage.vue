@@ -349,7 +349,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                             </p>
                         </div>
                         <div class="flex justify-between items-stretch gap-2">
-                            <RouterLink :to="'/briqmas_next_day'"><Btn v-if="isOwned && booklet_id === 'briqmas/briqmas_tree'" class="!h-full text-md px-6 py-0">View in<br>living room</Btn></RouterLink>
+                            <RouterLink :to="`/briqmas_next_day?token=${set.id}`"><Btn v-if="isOwned && booklet_id === 'briqmas/briqmas_tree'" class="!h-full text-md px-6 py-0">View in<br>living room</Btn></RouterLink>
                             <Btn v-if="isOwned" :disabled="hasPendingActivity" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
                         </div>
                     </div>
