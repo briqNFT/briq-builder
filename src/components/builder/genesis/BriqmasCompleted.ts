@@ -1,14 +1,15 @@
 import { backendManager } from '@/Backend';
+import { getCurrentNetwork } from '@/chain/Network';
 import {
     THREE,
 } from '@/three';
 import { GLTFLoader } from '@/three';
 
-export async function updateScene(scene: THREE.Scene) {
+export async function updateScene(scene: THREE.Scene, userSet: string) {
     const bookletPromise = new Promise<THREE.Mesh>((resolve, reject) => {
         const loader = new GLTFLoader();
         loader.load(
-            backendManager.getRoute('model/starknet-mainnet/0xcafe.glb'),
+            backendManager.getRoute(`model/${getCurrentNetwork()}/${userSet}.glb`),
             (gltf: any) => {
                 resolve(gltf.scene.children.slice()[0]);
             },

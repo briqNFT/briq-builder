@@ -31,6 +31,8 @@ const router = useRouter();
 
 const tokenName = 'briqmas/briqmas_tree';
 
+let scene: unknown;
+
 //////////////////////////////
 //////////////////////////////
 
@@ -63,19 +65,21 @@ const loadingState = new class implements FsmState {
 
     async onEnter() {
         await sceneReady;
-        const set = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
-        if (!set) {
+        let userSet = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
+        if (!userSet) {
             // We have a data race here, because the sets are fetching data independently after the wallet has loaded.
             // So if we haven't found a set, try again in a second, then fail.
             // This should generally be OK, because we can sorta assume that the frontend has cached the data.
             // TODO: improve on this.
             await new Promise(res => setTimeout(() => res(null), 1500));
-            const set = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
-            if (!set)
+            userSet = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
+            if (!userSet)
                 return fsm.switchTo('NO_BOX');
         }
 
-        // use a timeout -> We use this to cheat and hopefully load the box textures.
+        await updateScene(scene, userSet);
+
+        // TODO: timeout is probably un-needed here.
         return setTimeout(() => fsm.switchTo('SAPIN'), 100);
     }
 
@@ -148,10 +152,9 @@ onMounted(async () => {
     mounted = true;
     await initFsm;
     const setupData = await useRenderer(canvas.value);
+    scene = setupData.scene;
 
     await setupScene();
-
-    await updateScene(setupData.scene);
 
     setupOrbitalControls();
 
