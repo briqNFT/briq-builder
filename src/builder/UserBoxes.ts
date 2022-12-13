@@ -23,7 +23,11 @@ class UserBoxesStore extends GeneralizedUserItem {
     }
 
     async fetchData() {
-        return (await backendManager.fetch(`v1/user/data/${this.user_id}`)).box_token_ids;
+        const data = (await backendManager.fetch(`v1/user/data/${this.user_id}`));
+        return {
+            lastBlock: data.last_block,
+            data: data.box_token_ids,
+        }
     }
 
     onEnter() {

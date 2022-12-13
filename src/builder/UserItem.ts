@@ -34,7 +34,7 @@ export abstract class GeneralizedUserItem implements perUserStorable {
 
     onLeave() {}
 
-    abstract fetchData(): Promise<any>;
+    abstract fetchData(): Promise<{ lastBlock: number, data: any }>;
 
     async _fetchData() {
         try {
@@ -45,9 +45,9 @@ export abstract class GeneralizedUserItem implements perUserStorable {
         }
     }
 
-    async _updateData(data: any) {
+    async _updateData(data: { lastBlock: number, data: any }) {
         // Generalize the _updataData functionss in UserBooklets and UserBoxes
-        const tokens = data.slice();
+        const tokens = data.data.slice();
         let reprocess = false;
         const promises = new Map<any, Promise<any>>();
         // Process metadata and clean it up where it seems like things went through (this is a bit optimistic but that's probably OK)
@@ -55,7 +55,7 @@ export abstract class GeneralizedUserItem implements perUserStorable {
             for (let i = 0; i < this.metadata[tokenName].updates.length; ++i) {
                 const update = this.metadata[tokenName].updates[i];
                 // Clear the metadata if we are now ahead of it.
-                if (update.block && update.block <= data.last_block) {
+                if (update.block && update.block <= data.lastBlock) {
                     this.metadata[tokenName].updates.splice(i--, 1);
                     continue;
                 }

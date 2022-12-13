@@ -22,7 +22,11 @@ class UserBookletsStore extends GeneralizedUserItem {
     }
 
     async fetchData() {
-        return (await backendManager.fetch(`v1/user/data/${this.user_id}`)).booklets;
+        const data = (await backendManager.fetch(`v1/user/data/${this.user_id}`));
+        return {
+            lastBlock: data.last_block,
+            data: data.booklets,
+        }
     }
 
     async _fetchData() {
