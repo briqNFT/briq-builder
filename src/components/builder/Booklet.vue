@@ -22,12 +22,18 @@ const {
 const genesisStore = useGenesisStore();
 
 const particlesCanvas = ref(null as unknown as HTMLCanvasElement);
+const snowCanvas = ref(null as unknown as HTMLCanvasElement);
 const microCanvas = ref(null as unknown as HTMLCanvasElement);
 
 let confettiGenerator: ReturnType<confetti.create>;
+let snowGenerator: ReturnType<confetti.create>;
 let microConfetti: ReturnType<confetti.create>;
 onMounted(async () => {
     confettiGenerator = await confetti.create(particlesCanvas.value, {
+        resize: true,
+        useWorker: true,
+    });
+    snowGenerator = await confetti.create(snowCanvas.value, {
         resize: true,
         useWorker: true,
     });
@@ -35,6 +41,48 @@ onMounted(async () => {
         resize: true,
     });
 });
+
+let snowInterval;
+onMounted(() => {
+    if (booklet.value === 'briqmas/briqmas_tree')
+        snowInterval = setInterval(snow, 300);
+})
+onBeforeUnmount(() => {
+    if (snowInterval)
+        clearInterval(snowInterval);
+});
+const snow = () => {
+    const options = {
+        particleCount: 2,
+        startVelocity: 50,
+        spread: 120,
+        decay: 0.93,
+        gravity: Math.random() * 0.3 + 0.65,
+        ticks: 600,
+        zIndex: 9000,
+        colors: ['cceaea', 'ccdddd'],
+        shapes: ['circle'],
+        scalar: Math.random() * 0.5 + 0.7,
+        disableForReducedMotion: true,
+        drift: Math.random() * 0.6 + 0.25,
+    }
+    snowGenerator(Object.assign({
+        angle: -120,
+        origin: {
+            x: 0.3,
+            y: -1,
+        },
+    }, options));
+    snowGenerator(Object.assign({
+        angle: -60,
+        origin: {
+            x: 0.5,
+            y: -1,
+        },
+    }, options));
+
+}
+
 
 const fire = () => {
     const options = {
@@ -212,7 +260,10 @@ onBeforeUnmount(() => watcher());
                 <p>Loading booklet data</p>
                 <p class="text-center"><i class="fas fa-spinner animate-spin"/></p>
             </div>
-            <teleport to="#app"><canvas ref="particlesCanvas" class="fixed w-screen h-screen top-0 left-0 pointer-events-none"/></teleport>
+            <teleport to="#app">
+                <canvas ref="snowCanvas" class="fixed w-screen h-screen top-0 left-0 pointer-events-none"/>
+                <canvas ref="particlesCanvas" class="fixed w-screen h-screen top-0 left-0 pointer-events-none"/>
+            </teleport>
         </div>
     </div>
 </template>

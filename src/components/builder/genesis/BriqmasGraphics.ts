@@ -428,6 +428,10 @@ async function setupHomeScene(quality: SceneQuality) {
         if (mesh.name === 'lamp')
             // Lamp shade needs both side culling for depth buffer to work correctly here.
             mesh.children[0].material.shadowSide = THREE.DoubleSide;
+        if (mesh?.material?.name === 'emission')
+            mesh.material.emissiveMap.anisotropy = 8;
+        else if (mesh?.material?.name === 'game_2')
+            mesh.material.map.anisotropy = 8;
         mesh.receiveShadow = true;
         if (mesh?.material?.envMapIntensity)
             mesh.material.envMapIntensity = 0.3;
