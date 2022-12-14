@@ -235,7 +235,8 @@ onBeforeUnmount(() => watcher());
                     <BookletStepRenderer v-if="currentPage > 0" :glb_name="booklet" :i="currentPage - 1"/>
                     <div v-else class="w-full h-full relative flex flex-col gap-4 p-4">
                         <p class="text-left leading-normal">Follow the instructions of the booklet and<br> build your Official Set !</p>
-                        <div :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet, false)}), url(${genesisStore.coverBookletRoute(booklet, true)}` }" class="p-4 w-full flex-1 h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain"/>
+                        <!-- Render only in high-quality to get the transparent version for briqmas/dark mode-->
+                        <div :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet, false)})` }" class="p-4 w-full flex-1 h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain"/>
                         <div class="flex justify-stretch gap-4">
                             <a class="flex-1" target="_blank" :href="backendManager.getRoute(`booklet/pdf/${getCurrentNetwork()}/${booklet}.pdf`)"><Btn secondary class="!text-sm w-full">PDF version</Btn></a>
                             <Btn class="!text-sm flex-1" @click="higherPage">Start building</Btn>
