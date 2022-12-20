@@ -571,7 +571,6 @@ const quality = ref(SceneQuality.HIGH);
                 </div>
                 <div class="mt-8 flex justify-between">
                     <RouterLink to="/profile?tab=GENESIS"><Btn secondary class="pointer-events-auto font-normal !text-sm" :disabled="disableButtons">Back to inventory</Btn></RouterLink>
-                    <Btn no-background class="pointer-events-auto !text-sm" @click="doFakeUnbox" :disabled="disableButtons || !termsBriq">Fake</Btn>
                     <Btn class="pointer-events-auto !text-sm" @click="doUnbox" :disabled="disableButtons || !termsBriq">Unbox</Btn>
                 </div>
             </div>
