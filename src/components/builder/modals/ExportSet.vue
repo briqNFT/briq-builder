@@ -125,7 +125,7 @@ const validationError = computed(() => {
     if (!hasEnoughBriqs.value)
         return {
             code: 'NOT_ENOUGH_BRIQS',
-            title: APP_ENV === 'prod' ? 'Briq is switching to Starknet Mainnet' : 'Cannot mint: You don\'t own enough briqs',
+            title: 'Cannot mint: You don\'t own enough briqs',
             message: 'You don’t have enough briqs to mint your set. Disassemble some of your other sets or buy new ones on the first (see our themes) or secondary markets (see on Aspect).',
         }
     return undefined;

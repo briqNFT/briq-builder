@@ -79,10 +79,17 @@ const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
         <template #default>
             <h1>{{ item?.name }}</h1>
             <h5 class="mt-1">Unopened Box<span class="font-normal"> - {{ genesisStore.themedata[route.params.theme as string]?._data?.name }}</span></h5>
-            <div class="mb-8">
+            <div v-if="route.params.theme === 'starknet_planet'" class="mb-8">
                 <p class="mt-6 mb-4 font-medium whitespace-pre-line">{{ description?.[0] ?? 'Loading' }}</p>
                 <p
                     v-for="par, i in description?.slice(1) || []" :key="i"
+                    class="whitespace-pre-line mb-2 text-justify">
+                    {{ par }}
+                </p>
+            </div>
+            <div v-else class="mb-8 mt-6">
+                <p
+                    v-for="par, i in description || []" :key="i"
                     class="whitespace-pre-line mb-2 text-justify">
                     {{ par }}
                 </p>
