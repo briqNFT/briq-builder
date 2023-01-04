@@ -11,12 +11,12 @@ import { setWalletInitComplete } from './WalletLoading';
 import { reactive } from 'vue';
 import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
-import { connect, disconnect, IStarknetWindowObject } from 'get-starknet';
+import { connect, disconnect, StarknetWindowObject } from '@argent/get-starknet';
 
 import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider } from './BlockchainProvider';
-import { addBreadCrumb, reportError } from '@/Monitoring';
+import { addBreadCrumb } from '@/Monitoring';
 
 export type UserID = string;
 
@@ -26,7 +26,7 @@ export class WalletStore {
     // See also user_id below.
     _userWalletAddress = '';
 
-    starknetObject?: IStarknetWindowObject;
+    starknetObject?: StarknetWindowObject;
 
     // Empty, because at this point we aren't a proxy to a reactive object.
     constructor() {}
@@ -53,10 +53,13 @@ export class WalletStore {
         watchEffect(() => {
             // TODO: switch to IDB
             logDebug('Writing address ', this.user_id);
-            window.localStorage.setItem('user_address', this.user_id || '');
+            if (!this.user_id)
+                window.localStorage.removeItem('user_address');
+            else
+                window.localStorage.setItem('user_address', this.user_id || '');
         });
 
-        connect({ showList: false }).then(cwo => {
+        connect({ modalMode: 'neverAsk' }).then(cwo => {
             if (!cwo)
                 return;
             cwo.isPreauthorized().then(yes => {
@@ -68,7 +71,7 @@ export class WalletStore {
     }
 
     async ensureEnabled(showList = false) {
-        const cwo = await connect({ showList });
+        const cwo = await connect({ modalMode: 'canAsk' });
         if (cwo)
             await this.enableWallet(cwo);
         else if (!showList)
@@ -79,13 +82,13 @@ export class WalletStore {
     }
 
     async openWalletSelector() {
-        const cwo = await connect({ showList: true });
+        const cwo = await connect({ modalMode: 'alwaysAsk' });
         if (cwo)
             // Don't await this, we don't care
             this.enableWallet(cwo);
     }
 
-    async enableWallet(starknetObj: IStarknetWindowObject) {
+    async enableWallet(starknetObj: StarknetWindowObject) {
         this.starknetObject = starknetObj;
         try {
             await this.starknetObject.enable();
@@ -111,8 +114,8 @@ export class WalletStore {
     disconnect() {
         disconnect({
             clearLastWallet: true,
-            clearDefaultWallet: true,
         });
+
         this.signer = undefined;
         this._userWalletAddress = '';
     }
