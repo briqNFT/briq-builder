@@ -18,6 +18,9 @@ import { APP_ENV } from '@/Meta';
 import { blockchainProvider } from './BlockchainProvider';
 import { addBreadCrumb } from '@/Monitoring';
 
+import { injectController } from '@cartridge/controller';
+injectController();
+
 export type UserID = string;
 
 export class WalletStore {
