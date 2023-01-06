@@ -11,7 +11,7 @@ import { setWalletInitComplete } from './WalletLoading';
 import { reactive } from 'vue';
 import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
-import { connect, disconnect, StarknetWindowObject } from '@argent/get-starknet';
+import { connect, disconnect, StarknetWindowObject } from 'get-starknet';
 
 import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
