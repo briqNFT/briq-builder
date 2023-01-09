@@ -3,7 +3,7 @@ import { computed, h, Ref, ref, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
 import { Bid, userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
-import { toBN } from 'starknet/utils/number';
+import * as starknet from 'starknet';
 import { useBids } from '@/components/BidComposable.js';
 import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { HashVue, pushPopup } from '@/Notifications';
@@ -35,7 +35,7 @@ const canMakeBid = computed(() => {
     if (!termsBriq.value || !termsSale.value)
         return false;
     return balance.value && bid.value !== undefined &&
-        weiBid.value.cmp(toBN(userBalance.current?.balance._data)) <= 0 &&
+        weiBid.value.cmp(starknet.number.toBN(userBalance.current?.balance._data)) <= 0 &&
         weiBid.value.cmp(currentBid.value) > 0;
 })
 
@@ -44,7 +44,7 @@ const canMakeBidReason = computed(() => {
         return undefined;
     if (!balance.value)
         return 'Unknown balance';
-    if (weiBid.value.cmp(toBN(userBalance.current?.balance._data)) > 0)
+    if (weiBid.value.cmp(starknet.number.toBN(userBalance.current?.balance._data)) > 0)
         return 'Bid is greater than your balance';
     if (weiBid.value.cmp(currentBid.value) <= 0)
         return 'Bid must be more than the current bid';

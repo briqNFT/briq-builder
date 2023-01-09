@@ -27,7 +27,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { pushPopup } from '@/Notifications';
 import DownloadSet from '../modals/DownloadSet.vue';
 import Tooltip from '@/components/generic/Tooltip.vue';
-import { toBN } from 'starknet/utils/number';
+import * as starknet from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 
 const route = useRoute();
@@ -211,7 +211,7 @@ const previewURL = computed(() => backendManager.getPreviewUrl(set.value?.id, ch
 
 const token_decimal = computed(() => {
     if (route.params.set_id)
-        return toBN(route.params.set_id as string).toString();
+        return starknet.number.toBN(route.params.set_id as string).toString();
     return bookletData.value?.token_id || '0';
 })
 

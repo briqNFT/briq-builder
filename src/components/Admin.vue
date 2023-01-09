@@ -47,7 +47,7 @@ const masterInit = async () => {
         contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '2', '40']),
         contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '3', '50']),
         contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '4', '20']),
-        contractStore.briq?.contract.populate('mintOneNFT', [walletStore.userWalletAddress, '6', toBN(hexUuid())]),
+        contractStore.briq?.contract.populate('mintOneNFT', [walletStore.userWalletAddress, '6', starknet.number.toBN(hexUuid())]),
     ];
     console.log(payload);
     await (walletStore.signer as AccountInterface).execute(payload);
@@ -149,8 +149,8 @@ h2 {
 import contractStore, { ADDRESSES } from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages';
 import type { AccountInterface, Provider, Signer } from 'starknet';
-import { getSelectorFromName } from 'starknet/utils/hash';
-import { toBN } from 'starknet/utils/number';
+import { hash as snHash } from 'starknet';
+import * as starknet from 'starknet';
 
 import { getProvider } from '@/chain/Provider';
 import { walletStore } from '@/chain/Wallet';
@@ -239,9 +239,9 @@ export default defineComponent({
                 pushMessage(JSON.stringify(tx));
             } else {
                 let tx = await (walletStore.signer as Signer).invokeFunction(
-                    toBN(contract.getAddress()).toString(),
-                    toBN(getSelectorFromName('upgradeImplementation_')).toString(),
-                    [toBN(address).toString()],
+                    starknet.number.toBN(contract.getAddress()).toString(),
+                    starknet.number.toBN(snHash.getSelectorFromName('upgradeImplementation_')).toString(),
+                    [starknet.number.toBN(address).toString()],
                 );
                 pushMessage(JSON.stringify(tx));
             }
@@ -267,17 +267,17 @@ export default defineComponent({
                         calldata: this.calldata
                             .split(',')
                             .filter((x) => x)
-                            .map((x: string) => toBN(x.trim()).toString()),
+                            .map((x: string) => starknet.number.toBN(x.trim()).toString()),
                     });
                     pushMessage(JSON.stringify(tx));
                 } else {
                     let tx = await (walletStore.signer as Signer).invokeFunction(
-                        toBN(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(),
-                        toBN(getSelectorFromName(this.selector)).toString(),
+                        starknet.number.toBN(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(),
+                        starknet.number.toBN(snHash.getSelectorFromName(this.selector)).toString(),
                         this.calldata
                             .split(',')
                             .filter((x) => x)
-                            .map((x: string) => toBN(x.trim()).toString()),
+                            .map((x: string) => starknet.number.toBN(x.trim()).toString()),
                     );
                     pushMessage(JSON.stringify(tx));
                 }

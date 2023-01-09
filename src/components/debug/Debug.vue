@@ -96,8 +96,8 @@ import contractStore from '@/chain/Contracts';
 
 import { ticketing, ignoreOutdated, OutdatedPromiseError } from '../../Async';
 
-import { toBN } from 'starknet/utils/number';
-import { getSelectorFromName } from 'starknet/utils/hash';
+import * as starknet from 'starknet';
+import { hash as snHash } from 'starknet';
 
 import { getProvider } from '@/chain/Provider';
 import { getCurrentNetwork } from '@/chain/Network';
@@ -117,7 +117,7 @@ const callContract = function (provider: Provider, address: string, entryPoint: 
     if (!provider.getTransactionTrace)
         return provider.callContract({
             contract_address: address,
-            entry_point_selector: getSelectorFromName(entryPoint),
+            entry_point_selector: snHash.getSelectorFromName(entryPoint),
             calldata: data,
         });
     return provider.callContract({
@@ -206,7 +206,7 @@ export default defineComponent({
                     this.calldata
                         .split(',')
                         .filter((x) => x)
-                        .map((x: string) => toBN(x.trim()).toString()),
+                        .map((x: string) => starknet.number.toBN(x.trim()).toString()),
                 );
                 this.customResult = tx;
             } catch (err) {
@@ -251,7 +251,7 @@ export default defineComponent({
         },
         getMint: ticketing(async function () {
             return await callContract(this.provider, this.mintContract.getAddress(), 'amountMinted', [
-                toBN(this.addr.substr(2), 'hex').toString(),
+                starknet.number.toBN(this.addr.substr(2), 'hex').toString(),
             ]);
         }),
         checkMint() {
@@ -268,7 +268,7 @@ export default defineComponent({
         },
         getBalance: ticketing(async function () {
             return await callContract(this.provider, this.briqContract!.getAddress(), 'balanceOf', [
-                toBN(this.addr.substr(2), 'hex').toString(),
+                starknet.number.toBN(this.addr.substr(2), 'hex').toString(),
                 '1',
             ]);
         }),
@@ -286,7 +286,7 @@ export default defineComponent({
         },
         getSets: ticketing(async function () {
             return await callContract(this.provider, this.setContract!.getAddress(), 'balanceOf_', [
-                toBN(this.addr.substr(2), 'hex').toString(),
+                starknet.number.toBN(this.addr.substr(2), 'hex').toString(),
             ]);
         }),
         checkBalanceSets() {

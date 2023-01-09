@@ -2,7 +2,7 @@
 import { backendManager } from '@/Backend';
 import { ADDRESSES } from '@/chain/Contracts';
 import { ExplorerTxUrl } from '@/chain/Explorer';
-import { toBN } from 'starknet/utils/number';
+import * as starknet from 'starknet';
 import { computed } from 'vue';
 
 
@@ -65,9 +65,9 @@ const actualData = computed(() => data.map((item: unknown) => {
             }
         */
     else if (props.type === 'box')
-        if (!user_wallet.value || !(toBN(item.from).cmp(toBN(user_wallet.value)) === 0 || toBN(item.to).cmp(toBN(user_wallet.value)) === 0))
+        if (!user_wallet.value || !(starknet.number.toBN(item.from).cmp(starknet.number.toBN(user_wallet.value)) === 0 || starknet.number.toBN(item.to).cmp(starknet.number.toBN(user_wallet.value)) === 0))
             return null;
-        else if (toBN(item.from).cmp(toBN(user_wallet.value)) === 0 && item.to === '0x0')
+        else if (starknet.number.toBN(item.from).cmp(starknet.number.toBN(user_wallet.value)) === 0 && item.to === '0x0')
             return {
                 kind: 'unboxed',
                 by: item.from.slice(0, 6) + '...' + item.from.slice(-3),
@@ -75,14 +75,14 @@ const actualData = computed(() => data.map((item: unknown) => {
                 date: new Date(item.timestamp),
                 tx_hash: item.tx_hash,
             }
-        else if (toBN(item.from).cmp(toBN(ADDRESSES[props.network].auction)) === 0 && toBN(item.to).cmp(toBN(user_wallet.value)) === 0)
+        else if (starknet.number.toBN(item.from).cmp(starknet.number.toBN(ADDRESSES[props.network].auction)) === 0 && starknet.number.toBN(item.to).cmp(starknet.number.toBN(user_wallet.value)) === 0)
             return {
                 kind: 'bought',
                 by: item.to.slice(0, 6) + '...' + item.to.slice(-3),
                 date: new Date(item.timestamp),
                 tx_hash: item.tx_hash,
             }
-        else if (toBN(item.to).cmp(toBN(user_wallet.value)) === 0)
+        else if (starknet.number.toBN(item.to).cmp(starknet.number.toBN(user_wallet.value)) === 0)
             return {
                 kind: 'obtained',
                 by: item.to.slice(0, 6) + '...' + item.to.slice(-3),

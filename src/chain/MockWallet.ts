@@ -1,4 +1,4 @@
-import { getKeyPair, getStarkKey } from 'starknet/utils/ellipticCurve';
+import { ec } from 'starknet';
 import { getProviderForNetwork } from './Provider';
 
 import { Account } from 'starknet';
@@ -9,8 +9,8 @@ export function setupMockWallet() {
     if (APP_ENV === 'prod')
         return;
 
-    const keypair = getKeyPair(0x123456)
-    getStarkKey(keypair);
+    const keypair = ec.getKeyPair(0x123456)
+    ec.getStarkKey(keypair);
     window.useDebugProvider = async () => {
         const wallet = (await import('@/Dispatch')).Wallet;
         fetch(getBaseUrl() + '/mock_chain/reset', { method: 'POST' });

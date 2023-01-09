@@ -2,10 +2,10 @@ import type { Provider, Signer } from 'starknet';
 import type { SetData } from '../../builder/SetData';
 import { Contract, FunctionAbi } from 'starknet';
 
-import { computeHashOnElements } from 'starknet/utils/hash';
+import { hash as snHash } from 'starknet';
 
 import SetABI from './starknet-testnet/set_nft.json';
-import { toBN } from 'starknet/utils/number';
+import * as starknet from 'starknet';
 import { maybeStore } from '../WalletLoading';
 
 const SHAPE_HASH_COLLECTION = 2;
@@ -26,7 +26,7 @@ export default class SetContract {
 
     // TODO: add URI
     precomputeTokenId(address: string, token_id_hint: string) {
-        let hash = computeHashOnElements([address, token_id_hint]);
+        let hash = snHash.computeHashOnElements([address, token_id_hint]);
         hash = hash.substring(2).padStart(63, '0');
         // Hash is 0x prefixed string. JS numbers are not big enough to parse this, and I'm lazy.
         // We need to 0 out the last 59 bits, which means zero out the last 14 chars (14*4 = 56), and bit-and the 15th last with b1000 == 8.
@@ -38,15 +38,15 @@ export default class SetContract {
     }
 
     _compress_shape_item(briq: any) {
-        const two = toBN(2);
+        const two = starknet.number.toBN(2);
         let colorHex = '0x';
         const colorHexCode = briq.data.color.toLowerCase();
         for (let i = 0; i < colorHexCode.length; ++i)
             colorHex += colorHexCode.charCodeAt(i).toString(16).padStart(2, '0');
-        const color_nft_material = toBN(briq.data.material).iadd(toBN(colorHex).imul(two.pow(toBN(136))))
-        const x_y_z = (toBN(briq.pos[2]).add(two.pow(toBN(63)))).iadd(
-            toBN(briq.pos[1]).add(two.pow(toBN(63))).mul(two.pow(toBN(64)))).iadd(
-            toBN(briq.pos[0]).add(two.pow(toBN(63))).mul(two.pow(toBN(128))),
+        const color_nft_material = starknet.number.toBN(briq.data.material).iadd(starknet.number.toBN(colorHex).imul(two.pow(starknet.number.toBN(136))))
+        const x_y_z = (starknet.number.toBN(briq.pos[2]).add(two.pow(starknet.number.toBN(63)))).iadd(
+            starknet.number.toBN(briq.pos[1]).add(two.pow(starknet.number.toBN(63))).mul(two.pow(starknet.number.toBN(64)))).iadd(
+            starknet.number.toBN(briq.pos[0]).add(two.pow(starknet.number.toBN(63))).mul(two.pow(starknet.number.toBN(128))),
         )
         return [color_nft_material.toString(10), x_y_z.toString(10)]
     }

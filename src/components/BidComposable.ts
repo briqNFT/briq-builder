@@ -1,13 +1,13 @@
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { productBidsStore } from '@/builder/BidStore';
-import { toBN } from 'starknet/utils/number';
+import * as starknet from 'starknet';
 import { computed } from 'vue';
 
 export function useBids(box_id: string) {
     const currentBid = computed(() => {
-        let max = toBN(0);
+        let max = starknet.number.toBN(0);
         for (const bid in productBidsStore.bids(box_id).bids) {
-            const bidAmnt = toBN(productBidsStore.bids(box_id).bids[bid].bid_amount);
+            const bidAmnt = starknet.number.toBN(productBidsStore.bids(box_id).bids[bid].bid_amount);
             if (bidAmnt.cmp(max) > 0)
                 max = bidAmnt;
         }

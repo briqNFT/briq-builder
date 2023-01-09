@@ -5,7 +5,7 @@ import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
 
 import contractStore from '@/chain/Contracts';
-import { BigNumberish, toFelt } from 'starknet/utils/number';
+import * as starknet from 'starknet';
 import { getCurrentNetwork } from '@/chain/Network';
 import { reactive } from 'vue';
 import { maybeStore } from '@/chain/WalletLoading';
@@ -111,7 +111,7 @@ class UserBidStore implements perUserStorable {
         this.lastConfirmedBlock = bidData.block;
     }
 
-    async makeBid(value: BigNumberish, box_id: string) {
+    async makeBid(value:number.BigNumberish, box_id: string) {
         const genesisStore = useGenesisStore();
         const itemData = genesisStore.metadata[box_id]._data!;
         const tx_response = await contractStore.auction?.approveAndBid(contractStore.eth_bridge_contract, itemData.token_id, itemData.auction_id, value)
@@ -119,7 +119,7 @@ class UserBidStore implements perUserStorable {
             bid_id: tx_response!.transaction_hash,
             tx_hash: tx_response!.transaction_hash,
             timestamp: Date.now(),
-            bid_amount: toFelt(value),
+            bid_amount: number.toFelt(value),
             box_id: box_id,
             status: 'TENTATIVE',
             block: -1,

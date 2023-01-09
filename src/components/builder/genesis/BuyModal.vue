@@ -5,7 +5,7 @@ import { computed, onUnmounted, ref, watch, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
 import { userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
-import { toBN } from 'starknet/utils/number';
+import * as starknet from 'starknet';
 import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { Purchase, userPurchaseStore } from '@/builder/UserPurchase';
 import { HashVue, pushPopup } from '@/Notifications';
@@ -36,16 +36,16 @@ const props = defineProps<{
 const termsSale = ref(false);
 const termsBriq = ref(false);
 
-const weiPrice = computed(() => toBN(Math.floor(saledata.value?.price || 100).toString()))
+const weiPrice = computed(() => starknet.number.toBN(Math.floor(saledata.value?.price || 100).toString()))
 
 const canMakeBid = computed(() => {
     if (!termsBriq.value || !termsSale.value)
         return false;
-    return userBalance.current?.balance?._status !== 'LOADED' || toBN(userBalance.current?.balance._data).cmp(weiPrice) >= 0;
+    return userBalance.current?.balance?._status !== 'LOADED' || starknet.number.toBN(userBalance.current?.balance._data).cmp(weiPrice) >= 0;
 })
 
 const canMakeBidReason = computed(() => {
-    if (userBalance.current?.balance?._status == 'LOADED' && toBN(userBalance.current?.balance?._data).cmp(weiPrice) < 0)
+    if (userBalance.current?.balance?._status == 'LOADED' && starknet.number.toBN(userBalance.current?.balance?._data).cmp(weiPrice) < 0)
         return 'Insufficient balance';
     return undefined;
 })

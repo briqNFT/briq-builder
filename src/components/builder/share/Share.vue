@@ -3,7 +3,7 @@ import WebGLCanvas from './../WebGLCanvas.vue';
 import Modals from '../../Modals.vue';
 import SplashScreen from './../SplashScreen.vue';
 import AlphaBanner from '../../AlphaBanner.vue';
-import { toBN } from 'starknet/utils/number';
+import * as starknet from 'starknet';
 import { backendManager } from '@/Backend';
 </script>
 
@@ -187,7 +187,7 @@ export default defineComponent({
                 return '';
             const addr = contractStore.set?.getAddress();
             const token_id = this?.setData?.id || '';
-            return `https://mintsquare.io/asset/StarkNet-Testnet/0x${toBN(addr).toString(16)}/${toBN(token_id).toString(10)}`;
+            return `https://mintsquare.io/asset/StarkNet-Testnet/0x${starknet.number.toBN(addr).toString(16)}/${starknet.number.toBN(token_id).toString(10)}`;
         },
     },
     methods: {

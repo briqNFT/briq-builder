@@ -1,6 +1,6 @@
 import SetContract from './set';
 import { Signer } from 'starknet';
-import { toBN } from 'starknet/utils/number';
+import * as starknet from 'starknet';
 
 describe('Test Export', () => {
     it('should compute token ID correctly', () => {
@@ -50,18 +50,18 @@ describe('Test Export with booklet', () => {
         const contract = new SetContract('0xcafe', new Signer());
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#faafaa' }, pos: [1, 2, 3],
-        })).toEqual([toBN('0x236661616661610000000000000000000000000000000024').toString(10), toBN('0x800000000000000180000000000000028000000000000003').toString(10)])
+        })).toEqual([starknet.number.toBN('0x236661616661610000000000000000000000000000000024').toString(10), starknet.number.toBN('0x800000000000000180000000000000028000000000000003').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x242424', color: '#faafaa' }, pos: [1, -20000, 3],
-        })).toEqual([toBN('0x236661616661610000000000000000000000000000242424').toString(10), toBN('0x80000000000000017fffffffffffb1e08000000000000003').toString(10)])
+        })).toEqual([starknet.number.toBN('0x236661616661610000000000000000000000000000242424').toString(10), starknet.number.toBN('0x80000000000000017fffffffffffb1e08000000000000003').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#faafaa' }, pos: [1, 2, -3],
-        })).toEqual([toBN('0x236661616661610000000000000000000000000000000024').toString(10), toBN('0x800000000000000180000000000000027ffffffffffffffd').toString(10)])
+        })).toEqual([starknet.number.toBN('0x236661616661610000000000000000000000000000000024').toString(10), starknet.number.toBN('0x800000000000000180000000000000027ffffffffffffffd').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#afafaf' }, pos: [-1, 2, 3],
-        })).toEqual([toBN('0x236166616661660000000000000000000000000000000024').toString(10), toBN('0x7fffffffffffffff80000000000000028000000000000003').toString(10)])
+        })).toEqual([starknet.number.toBN('0x236166616661660000000000000000000000000000000024').toString(10), starknet.number.toBN('0x7fffffffffffffff80000000000000028000000000000003').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x24994', color: '#347873' }, pos: [1, 2, 3000000],
-        })).toEqual([toBN('0x233334373837330000000000000000000000000000024994').toString(10), toBN('0x8000000000000001800000000000000280000000002dc6c0').toString(10)])
+        })).toEqual([starknet.number.toBN('0x233334373837330000000000000000000000000000024994').toString(10), starknet.number.toBN('0x8000000000000001800000000000000280000000002dc6c0').toString(10)])
     });
 });
