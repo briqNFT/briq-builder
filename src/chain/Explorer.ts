@@ -2,6 +2,7 @@ import { getCurrentNetwork } from './Network';
 
 const EXPLORER_URL_BY_NETWORK = {
     'starknet-testnet': 'testnet.starkscan.co',
+    'starknet-testnet2': 'testnet-2.starkscan.co',
     'starknet-testnet-legacy': 'testnet.starkscan.co',
     'starknet-mainnet': 'starkscan.co',
 };

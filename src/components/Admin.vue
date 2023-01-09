@@ -124,7 +124,7 @@ const masterInit = async () => {
             <div class="border-l-4 border-grad-darker mr-4">
                 <div>
                     <h2>Wallet</h2>
-                    <p>Current address: {{ wallet.userWalletAddress }}</p>
+                    <p>Current address: {{ wallet.user_id }}</p>
                     <Btn @click="wallet.disconnect(); wallet.openWalletSelector();">Connect Wallet</Btn>
                 </div>
                 <div>

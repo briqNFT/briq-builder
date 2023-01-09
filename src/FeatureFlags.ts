@@ -37,6 +37,8 @@ async function checkOnStore() {
     const wallet = (await import('@/Dispatch')).Wallet;
     logDebug('FEATURE_FLAGS - Loaded');
     watchEffect(() => {
+        if (!wallet.walletStore || !wallet.walletStore.userWalletAddress)
+            return;
         if (admins.indexOf(wallet.walletStore.userWalletAddress) !== -1)
             // Admin-only.
             featureFlags.adminOnly = true;

@@ -5,7 +5,7 @@ import type BriqContract from './contracts/briq';
 import type SetContract from './contracts/set';
 import type AuctionContract from './contracts/auction';
 import type ERC20Contract from './contracts/erc20';
-import { DEV } from '@/Meta';
+import { APP_ENV, DEV } from '@/Meta';
 import type { CHAIN_NETWORKS } from './Network';
 
 export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
@@ -16,6 +16,7 @@ export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
     },
     localhost: {},
     'starknet-testnet': {},
+    'starknet-testnet2': {},
     'starknet-testnet-legacy': {},
     'starknet-mainnet': {
         briq: '0x00247444a11a98ee7896f9dec18020808249e8aad21662f2fa00402933dce402',
@@ -27,7 +28,7 @@ export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
     },
 };
 
-if (DEV) {
+if (APP_ENV !== 'prod') {
     ADDRESSES['localhost'] = {
         briq: '0x020b2a2baa5f0c679ba7647ed803e975bb6badfe9334b5944a547ac12ef4c099',
         set: '0x03ab0330cff177e3f154cc143b46e9ddac39041ba8ce201def9e3ca8e2aa921a',
@@ -35,6 +36,14 @@ if (DEV) {
         eth_bridge_contract: '0x62230ea046a9a5fbc261ac77d03c8d41e5d442db2284587570ab46455fd2488',
     };
     ADDRESSES['starknet-testnet'] = {
+        briq: '0x06f18ebcc76b6bd3560da141aeae53f9af3d80c2001415c963ecddbba4e8ba12',
+        set: '0x05f9e1c4975b0f71f0b1af2b837166d321af1cdba5c30c09b0d4822b493f1347',
+        box: '0x003b51e657e236e7085d1006e8ae6f955f09793b7f6dbdfad7a1a8abadad464a',
+        booklet: '0x05646ae11383a9994f958ee9cb29b3cf720b994733100ef7b8a00d6adcbe1c42',
+        auction: '0x033f840d4f7bfa20aaa128e5a69157355478d33182bea6039d55aae3ffb861e2',
+        eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+    };
+    ADDRESSES['starknet-testnet2'] = {
         briq: '0x029e1fb93825a116daf88902c8bbf1a386890e6a5cf7906b584a1e70e7023e28',
         set: '0x065ee60db9e38ecdf4afb9e070466b81984ffbcd06bc8650b1a21133310255c8',
         box: '0x0799b964cd6a32611fbd589ebae040ad18715ae5cd9b1a42226bb0b1db48c631',

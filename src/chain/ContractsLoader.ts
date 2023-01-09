@@ -31,6 +31,13 @@ const IMPL = {
         auction: AuctionContract,
         eth_bridge_contract: ERC20Contract,
     },
+    'starknet-testnet2': {
+        briq: BriqContract,
+        set: SetContract,
+        box: BoxContract,
+        auction: AuctionContract,
+        eth_bridge_contract: ERC20Contract,
+    },
     'starknet-mainnet': {
         briq: BriqContract,
         set: SetContract,

@@ -6,7 +6,7 @@ import { logDebug } from '@/Messages';
  * Sort of an abstraction around the idea of a chain + network.
  */
 
-export type CHAIN_NETWORKS = 'mock' | 'localhost' | 'starknet-testnet' | 'starknet-testnet-legacy' | 'starknet-mainnet';
+export type CHAIN_NETWORKS = 'mock' | 'localhost' | 'starknet-testnet' | 'starknet-testnet2' | 'starknet-testnet-legacy' | 'starknet-mainnet';
 
 const network = reactive({
     network: APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet' as CHAIN_NETWORKS,
@@ -17,6 +17,7 @@ export function getNetworkName(network: CHAIN_NETWORKS) {
         'mock': 'Mock',
         'localhost': 'Localhost',
         'starknet-testnet': 'Starknet Testnet',
+        'starknet-testnet2': 'Starknet Testnet 2',
         'starknet-testnet-legacy': 'Legacy testnet',
         'starknet-mainnet': 'Starknet Mainnet',
     }[network];

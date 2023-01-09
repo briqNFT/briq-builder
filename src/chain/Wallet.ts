@@ -74,6 +74,8 @@ export class WalletStore {
     }
 
     async ensureEnabled(showList = false) {
+        if (this.starknetObject?.isConnected)
+            return;
         const cwo = await connect({ modalMode: 'canAsk' });
         if (cwo)
             await this.enableWallet(cwo);
@@ -133,6 +135,8 @@ export class WalletStore {
             chooseDefaultNetwork();
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha-mainnet.starknet') !== -1)
             setNetwork('starknet-mainnet');
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha4-2') !== -1)
+            setNetwork('starknet-testnet2');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha4') !== -1)
             setNetwork('starknet-testnet');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('mock_chain') !== -1)
