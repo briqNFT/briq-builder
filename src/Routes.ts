@@ -90,6 +90,11 @@ export const routes = [
         component: ThemeMainPageVue,
     },
     {
+        path: '/product/ducks_everywhere',
+        name: 'Ducks Everywhere',
+        component: ThemePageDucks,
+    },
+    {
         path: '/product/:theme/:box',
         name: 'BoxSale',
         component: BoxSalePageVue,
@@ -173,6 +178,7 @@ if (CONF.theme === 'realms') {
 
 import { createWebHistory, createRouter } from 'vue-router';
 import { APP_ENV } from './Meta';
+import ThemePageDucks from './components/builder/genesis/ThemePageDucks.vue';
 export const router = createRouter({
     history: createWebHistory(),
     routes,
