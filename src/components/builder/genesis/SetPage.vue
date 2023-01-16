@@ -31,6 +31,10 @@ import Tooltip from '@/components/generic/Tooltip.vue';
 import * as starknet from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
+import { auctionDataStore, AuctionItemData, auctionSetsCache, setToAuctionMapping } from '@/builder/AuctionData';
+import { ExplorerTxUrl } from '@/chain/Explorer';
+import { readableNumber, readableUnit } from '@/BigNumberForHumans';
+import BidModal from './BidModal.vue';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -130,6 +134,16 @@ watchEffect(() => {
     })
 })
 
+
+// Auction stuff.
+// TODO: move this elsewhere by splitting this file into more componental chunks.
+const auctionData = computed<AuctionItemData>(() => {
+    return auctionDataStore['starknet-testnet']?.[setToAuctionMapping?.[route.params.set_id as string]]?._data;
+});
+
+const doBid = async () => {
+    await pushModal(BidModal, { item: setToAuctionMapping?.[route.params.set_id as string] })
+}
 
 const description = computed(() => {
     if (mode === 'CREATION' && set.value?.description)
@@ -371,34 +385,73 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                     ID: <span class="font-normal">{{ `${route.params.set_id.slice(0, 6)}...${route.params.set_id.slice(-4)}` }} <i class="far fa-copy"/></span>
                 </p>
                 <div class="rounded border border-grad-light overflow-hidden mb-10">
-                    <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
-                        <div>
-                            <h5 class="font-normal text-grad-dark">briqs used</h5>
-                            <p class="text-xl font-semibold pt-1">
-                                <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon :width="12"/></span> {{ set?.getNbBriqs?.() }}
-                            </p>
+                    <template v-if="auctionData">
+                        <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
+                            <div>
+                                <h5 class="font-normal text-grad-dark">Current bid</h5>
+                                <p class="text-xl font-semibold pt-1">
+                                    {{ readableNumber(auctionData.highest_bid) }} {{ readableUnit(auctionData.highest_bid) }}
+                                </p>
+                            </div>
+                            <div class="flex justify-between items-stretch gap-2">
+                                <Btn :disabled="hasPendingActivity" @click="doBid" class="!h-auto text-md px-6">Make a bid</Btn>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-stretch gap-2">
-                            <RouterLink :to="`/briqmas_next_day?token=${set.id}`"><Btn v-if="isOwned && booklet_id === 'briqmas/briqmas_tree'" class="!h-full text-md px-6 py-0">View in<br>living room</Btn></RouterLink>
-                            <Btn v-if="isOwned" :disabled="hasPendingActivity" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
+                        <div class="p-6 py-4 flex flex-col gap-4">
+                            <p><span class="font-medium">End of auction: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
+                            <div>
+                                <h5 class="font-normal text-grad-dark">briqs used</h5>
+                                <p class="text-xl font-semibold pt-1">
+                                    <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon :width="12"/></span> {{ set?.getNbBriqs?.() }}
+                                </p>
+                            </div>
+                            <div class="flex justify-between items-stretch gap-2">
+                                <RouterLink v-if="set?.id" :to="`/briqmas_next_day?token=${set.id}`"><Btn v-if="isOwned && booklet_id === 'briqmas/briqmas_tree'" class="!h-full text-md px-6 py-0">View in<br>living room</Btn></RouterLink>
+                                <Btn v-if="isOwned" :disabled="hasPendingActivity" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
+                            </div>
+                        </div>
+                        <div class="p-6 py-4 flex flex-col gap-4">
+                            <p><span class="font-medium">Created on: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
+                        </div>
+                    </template>
+                </div>
+                <template v-if="auctionData">
+                    <div>
+                        <h4>Latest bids</h4>
+                        <div class="mt-4 flex flex-col bg-grad-lightest rounded border border-grad-light">
+                            <p v-if="!auctionData?.bids || auctionData.bids?.length === 0" class="px-4 py-3 text-sm italic text-center">...There are currently no bids...</p>
+                            <a
+                                v-else
+                                v-for="bid, i in auctionData.bids.slice(0, 10)" :key="i"
+                                :href="ExplorerTxUrl(bid.tx_hash)" target="_blank"
+                                class="block border-b border-grad-light last:border-none px-4 py-3">
+                                <div class="flex justify-between">
+                                    <p class="text-primary">{{ bid.bidder.substring(0, 8) + "..." + bid.bidder.slice(-8) }}</p>
+                                    <p>{{ readableUnit(bid.bid) }} {{ readableNumber(bid.bid) }} <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
+                                </div>
+                            </a>
+                            <p v-if="auctionData?.bids?.length > 10" class="px-4 py-3 text-sm italic text-center">...Older bids are hidden...</p>
                         </div>
                     </div>
-                    <div class="p-6 py-4 flex flex-col gap-4">
-                        <p><span class="font-medium">Created on: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
+                </template>
+                <template v-else>
+                    <div>
+                        <h4>See on</h4>
+                        <p class="flex gap-3 mt-4 mb-10">
+                            <a :href="`https://aspect.co/asset/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
+                            <a :href="`https://mintsquare.io/asset/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
+                        </p>
                     </div>
-                </div>
-                <div>
-                    <h4>See on</h4>
-                    <p class="flex gap-3 mt-4 mb-10">
-                        <a :href="`https://aspect.co/asset/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
-                        <a :href="`https://mintsquare.io/asset/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
-                    </p>
-                </div>
-                <div v-if="set?.id">
-                    <Suspense>
-                        <ItemActivity type="set" :network="chain_id" :item="set.id"/>
-                    </Suspense>
-                </div>
+                    <div v-if="set?.id">
+                        <Suspense>
+                            <ItemActivity type="set" :network="chain_id" :item="set.id"/>
+                        </Suspense>
+                    </div>
+                </template>
             </template>
         </template>
     </GenericItemPage>

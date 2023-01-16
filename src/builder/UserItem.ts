@@ -46,7 +46,6 @@ export abstract class GeneralizedUserItem implements perUserStorable {
     }
 
     async _updateData(data: { lastBlock: number, data: any }) {
-        // Generalize the _updataData functionss in UserBooklets and UserBoxes
         const tokens = data.data.slice();
         let reprocess = false;
         const promises = new Map<any, Promise<any>>();

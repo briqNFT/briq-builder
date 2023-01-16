@@ -28,15 +28,25 @@ const highestBid = computed(() => props.auctionData.highest_bid);
         :image-src="image"
         :show-pending-marker="false">
         <template #content>
-            <p class="flex justify-between">
-                <span class="text-grad-dark">Last Bid</span><span class="font-medium">{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span>
-            </p>
-            <p v-if="hasHighestBid" class="flex justify-between">
-                <span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
-            </p>
-            <p v-else class="flex justify-between">
-                <span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
-            </p>
+            <template v-if="highestBid === '0'">
+                <p class="flex justify-between">
+                    <span class="text-grad-dark">No bids yet</span>
+                </p>
+                <p class="flex justify-between">
+                    <span class="text-grad-dark">Minimum bid</span><span class="font-medium">{{ readableUnit(auctionData.minimum_bid) }} {{ readableNumber(auctionData.minimum_bid) }}</span>
+                </p>
+            </template>
+            <template v-else>
+                <p class="flex justify-between">
+                    <span class="text-grad-dark">Last Bid</span><span class="font-medium">{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span>
+                </p>
+                <p v-if="hasHighestBid" class="flex justify-between">
+                    <span class="text-grad-dark"><i class="text-info-success fas fa-circle-check"/> Winning bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                </p>
+                <p v-else class="flex justify-between">
+                    <span class="text-grad-dark"><i class="text-info-warning fas fa-circle-exclamation"/> Higher bid at</span><span class="font-medium">{{ readableUnit(highestBid) }} {{ readableNumber(highestBid) }}</span>
+                </p>
+            </template>
         </template>
     </GenericCardVue>
 </template>

@@ -1,27 +1,33 @@
 <script setup lang="ts">
 import { computed, h, Ref, ref, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
-import { Bid, userBidsStore } from '@/builder/BidStore';
+import { Bid, userBidsStore2 as userBidsStore } from '@/builder/AuctionData';
 import { userBalance } from '@/builder/UserBalance.js';
 import * as starknet from 'starknet';
 import { useBids } from '@/components/BidComposable.js';
 import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { HashVue, pushPopup } from '@/Notifications';
 import { ExplorerTxUrl } from '@/chain/Explorer';
+import { auctionDataStore } from '@/builder/AuctionData';
+
 defineEmits(['close']);
 
 const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'PENDING' | 'BID_COMPLETE' | 'ERROR');
 
 const props = defineProps<{
-    metadata: {
-        item: string,
-    },
+    item: string,
 }>();
 
 const termsSale = ref(false);
 const termsBriq = ref(false);
 
-const { currentBid, currentBidString } = useBids(props.metadata.item);
+const auctionData = computed<AuctionItemData>(() => {
+    return auctionDataStore['starknet-testnet'][props.item]?._data;
+});
+
+//const { currentBid, currentBidString } =
+const currentBid = computed(() => starknet.number.toBN(auctionData.value.highest_bid));
+const currentBidString = computed(() => `${readableNumber(auctionData.value.highest_bid)} ${readableUnit(auctionData.value.highest_bid)}`);
 
 const bid = ref(readableNumber(currentBid.value) || undefined as undefined | string);
 
@@ -51,18 +57,14 @@ const canMakeBidReason = computed(() => {
     return undefined;
 })
 
-const ongoingBidData = ref(undefined as undefined | Bid);
 const ongoingBid = computed(() => {
-    return userBidsStore.current?.bids.filter(bid => {
-        return bid.box_id === ongoingBidData.value?.box_id && bid.tx_hash == ongoingBidData.value?.tx_hash;
-    })?.[0];
+    return userBidsStore.current?.metadata[props.item];
 });
 
 const makeBid = async () => {
     step.value = 'SIGNING';
     try {
-        let newBid = await userBidsStore.current?.makeBid(weiBid.value, props.metadata.item);
-        ongoingBidData.value = newBid;
+        let newBid = await userBidsStore.current!.makeBid(weiBid.value, props.item);
         step.value = 'PROCESSING';
         pushPopup('info', 'Transaction sent', HashVue(newBid!.tx_hash));
 
@@ -97,7 +99,7 @@ const makeBid = async () => {
             <div>
                 <p>
                     Make your bid<br>
-                    <input :disabled="step === 'SIGNING'" class="w-full my-2" type="number" min="0" :max="balance" step="0.1" v-model="bid" :placeholder="`Bid Ξ ${1.35} or more`">
+                    <input :disabled="step === 'SIGNING'" class="w-full my-2" type="number" min="0" :max="balance" step="0.01" v-model="bid" :placeholder="`Bid Ξ ${1.35} or more`">
                 </p>
                 <p class="text-right text-sm text-grad-darker">Available: {{ balance }} {{ readableUnit(userBalance.current?.balance._data) }}</p>
             </div>

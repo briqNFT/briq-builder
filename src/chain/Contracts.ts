@@ -7,6 +7,7 @@ import type AuctionContract from './contracts/auction';
 import type ERC20Contract from './contracts/erc20';
 import { APP_ENV, DEV } from '@/Meta';
 import type { CHAIN_NETWORKS } from './Network';
+import OnchainAuctionContract from './contracts/auction_onchain';
 
 export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
     mock: {
@@ -41,6 +42,7 @@ if (APP_ENV !== 'prod') {
         box: '0x003b51e657e236e7085d1006e8ae6f955f09793b7f6dbdfad7a1a8abadad464a',
         booklet: '0x05646ae11383a9994f958ee9cb29b3cf720b994733100ef7b8a00d6adcbe1c42',
         auction: '0x033f840d4f7bfa20aaa128e5a69157355478d33182bea6039d55aae3ffb861e2',
+        auction_ducks: '0x04ef0bd475fb101cc1b5dc2c4fc9d11b4fa233cfa1876924ec84b2f3dcf32f75',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
     };
     ADDRESSES['starknet-testnet2'] = {
@@ -58,6 +60,7 @@ const contractStore = shallowReactive({
     set: undefined as undefined | SetContract,
     box: undefined as undefined | BoxContract,
     auction: undefined as undefined | AuctionContract,
+    auction_ducks: undefined as undefined | OnchainAuctionContract,
     eth_bridge_contract: undefined as undefined | ERC20Contract,
 });
 

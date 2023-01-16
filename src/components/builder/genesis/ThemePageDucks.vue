@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect, watch } from 'vue';
+import { ref, computed, watchEffect, watch, reactive } from 'vue';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import { useRoute } from 'vue-router';
@@ -46,16 +46,16 @@ const isLive = true;
 
 const availableDucks = computed(() => themeBoxes.value?._data?.filter(x => auctionDataStore['starknet-testnet'][x]?._data?.token_id) || []);
 
-const setcache = {};
+const auctionSetsCache = reactive({});
 watchEffect(() => {
     for (const box of availableDucks.value) {
-        if (setcache[box])
+        if (auctionSetsCache[box])
             continue;
         let tk = auctionDataStore['starknet-testnet'][box]?._data?.token_id;
         if (tk) {
-            setcache[box] = true;
+            auctionSetsCache[box] = true;
             backendManager.fetch(`v1/metadata/${'starknet-testnet'}/${tk}.json`).then(data => {
-                setcache[box] = new SetData(tk).deserialize(data);
+                auctionSetsCache[box] = new SetData(tk).deserialize(data);
             });
         }
     }
@@ -131,14 +131,17 @@ watchEffect(() => {
                     <template v-if="themeStatus === 'LOADED'">
                         <div class="container m-auto mt-8">
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
-                                <p v-for="auction_id, i in availableDucks" :key="auction_id + i">
-                                    <AuctionItemCard
-                                        :auction-data="auctionDataStore['starknet-testnet'][auction_id]._data"
-                                        :title="setcache?.[auction_id]?.name ?? 'Loading'"
-                                        :subtitle="'' + i"
-                                        :image="'https://briq.construction/assets/landing_speeder_eclate-8510e57c.jpg'"
-                                        :status="'LOADED'"/>
-                                </p>
+                                <div v-for="auction_id, i in availableDucks" :key="auction_id + i">
+                                    <p v-if="!auctionSetsCache?.[auction_id] || auctionSetsCache[auction_id] === true">...Loading data...</p>
+                                    <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: auctionSetsCache?.[auction_id].id } }">
+                                        <AuctionItemCard
+                                            :auction-data="auctionDataStore['starknet-testnet'][auction_id]._data"
+                                            :title="auctionSetsCache?.[auction_id]?.name ?? 'Loading'"
+                                            :subtitle="'Set & Booklet'"
+                                            :image="auctionSetsCache?.[auction_id] && backendManager.getPreviewUrl(auctionSetsCache?.[auction_id].id, 'starknet-testnet')"
+                                            :status="'LOADED'"/>
+                                    </RouterLink>
+                                </div>
                             </div>
                         </div>
                     </template>
