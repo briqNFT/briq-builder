@@ -429,7 +429,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         </div>
                         <div class="p-6 py-4 flex flex-col gap-4">
                             <p v-if="hasHighestBid" class="text-grad-dark">You currently have the winning bid.</p>
-                            <p v-else-if="hasBid" class="text-grad-dark">You currently have the winning bid.</p>
+                            <p v-else-if="hasBid" class="text-grad-dark">You have been outbid by another user.</p>
                             <p><span class="font-medium">End of auction: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
                         </div>
                     </template>
