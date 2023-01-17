@@ -11,6 +11,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
 import { Notification } from '@/Notifications';
 import { defaultDict } from '@/ReactiveDefaultDict';
+import { externalSetCache } from './ExternalSets';
 
 // e.g. ducks_everywhere/10;
 export type auctionId = string;
@@ -256,6 +257,12 @@ class UserBidStore2 implements perUserStorable {
         return this.metadata[auction_id];
     }
 
+    getSetName(auctionId: auctionId) {
+        const network = this.user_id.split('/')[0];
+        const token = auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data!.token_id;
+        return externalSetCache[network][token]._data!.name || token;
+    }
+
     /** Notifications stuff */
 
     notifyBidPending(auctionId: auctionId, item: Bid) {
@@ -267,7 +274,7 @@ class UserBidStore2 implements perUserStorable {
             data: {
                 tx_hash: item.tx_hash,
                 auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
-                auction_name: auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id,
+                auction_name: this.getSetName(auctionId),
             },
             read: true,
         }).push(false);
@@ -282,7 +289,7 @@ class UserBidStore2 implements perUserStorable {
             data: {
                 tx_hash: item.tx_hash,
                 auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
-                auction_name: auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id,
+                auction_name: this.getSetName(auctionId),
             },
             read: false,
         }).push(true);
@@ -297,7 +304,7 @@ class UserBidStore2 implements perUserStorable {
             data: {
                 tx_hash: item.tx_hash,
                 auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
-                auction_name: auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id,
+                auction_name: this.getSetName(auctionId),
             },
             read: false,
         }).push(true);
@@ -312,7 +319,7 @@ class UserBidStore2 implements perUserStorable {
             data: {
                 tx_hash: item.tx_hash,
                 auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
-                auction_name: auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id,
+                auction_name: this.getSetName(auctionId),
             },
             read: false,
         }).push(true);

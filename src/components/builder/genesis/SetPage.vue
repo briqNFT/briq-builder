@@ -35,6 +35,7 @@ import { auctionDataStore, AuctionItemData, setToAuctionMapping } from '@/builde
 import { ExplorerTxUrl } from '@/chain/Explorer';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import BidModal from './BidModal.vue';
+import { externalSetCache } from '@/builder/ExternalSets';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -57,13 +58,15 @@ const chain_id = computed(() => (route.params.network as string) || getCurrentNe
 
 const mode = route.name === 'UserBooklet' ? 'BOOKLET' : 'CREATION';
 
-const externalSetData = ref();
+const useExternalData = ref(false);
+const externalSetDataFetchable = computed(() => useExternalData.value && externalSetCache[route.params.network as string][route.params.set_id as string]);
+const externalSetData = computed<SetData>(() => useExternalData.value && externalSetDataFetchable.value._data);
 
 const booklet_id = computed(() => {
     if (mode === 'BOOKLET')
         return `${route.params.theme}/${route.params.booklet}`;
     if (externalSetData.value)
-        return externalSetData.value.booklet;
+        return externalSetData.value.booklet_id;
     return userSetStore.current?.setData[route.params.set_id as string]?.booklet;
 });
 
@@ -75,7 +78,11 @@ const setData = computed(() => {
     if (mode === 'BOOKLET')
         return undefined;
     if (externalSetData.value)
-        return externalSetData.value;
+        return {
+            data: externalSetData.value,
+            booklet: externalSetData.value.booklet_id,
+            created_at: externalSetData.value.created_at,
+        }
     return userSetStore.current?.setData[route.params.set_id as string];
 });
 
@@ -84,7 +91,7 @@ const set = computed(() => {
     if (mode === 'BOOKLET')
         return setsManager.getBookletSet(booklet_id.value);
     if (externalSetData.value)
-        return externalSetData.value.data;
+        return externalSetData.value;
     return userSetStore.current?.setData[route.params.set_id as string]?.data;
 });
 
@@ -116,22 +123,14 @@ watchEffect(() => {
         if (userSetStore.current?.status === 'FETCHING')
             return;
         if (userSetStore.current?.sets.indexOf(route.params.set_id as string) !== -1) {
-            externalSetData.value = undefined;
+            useExternalData.value = false;
             return;
         }
     }
-    if (externalSetData.value)
+    if (useExternalData.value)
         return;
     // At this point, we assume the set is external and we must load its data explicitly.
-    backendManager.fetch(`v1/metadata/${chain_id.value}/${route.params.set_id as string}.json`).then(data => {
-        // in case it runs several times.
-        if (!externalSetData.value)
-            externalSetData.value = {
-                data: new SetData(route.params.set_id as string).deserialize(data),
-                booklet: data.booklet_id,
-                created_at: data.created_at * 1000, // JS timestamps are milliseconds
-            }
-    })
+    useExternalData.value = true;
 })
 
 
@@ -160,6 +159,12 @@ const hasBid = computed(() => {
 const doBid = async () => {
     await pushModal(BidModal, { item: auctionId.value })
 }
+
+// Hack: always use external data when using auction, so that my dev env (where I use sets I made) works.
+watchEffect(async () => {
+    if (auctionId.value)
+        useExternalData.value = true;
+});
 
 watchEffect(async () => {
     // Touch max bid to reload when that changes.
