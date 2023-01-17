@@ -31,7 +31,7 @@ import Tooltip from '@/components/generic/Tooltip.vue';
 import * as starknet from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
-import { auctionDataStore, AuctionItemData, setToAuctionMapping } from '@/builder/AuctionData';
+import { auctionDataStore, AuctionItemData, setToAuctionMapping, userBidsStore2 } from '@/builder/AuctionData';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import BidModal from './BidModal.vue';
@@ -153,7 +153,9 @@ const hasHighestBid = computed(() => {
 })
 
 const hasBid = computed(() => {
-    return auctionData.value?.bids.some(x => x.bidder === maybeStore.value?.userWalletAddress);
+    if (auctionData.value?.bids.some(x => x.bidder === maybeStore.value?.userWalletAddress))
+        return true;
+    return !!userBidsStore2.current?.getBid(auctionId.value);
 })
 
 const doBid = async () => {

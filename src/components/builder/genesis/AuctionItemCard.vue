@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
-import { AuctionItemData } from '@/builder/AuctionData';
+import { AuctionItemData, userBidsStore2 } from '@/builder/AuctionData';
 import { maybeStore } from '@/chain/WalletLoading';
 import { computed } from 'vue';
 import GenericCardVue from './GenericCard.vue';
@@ -20,7 +20,9 @@ const hasHighestBid = computed(() => {
 const highestBid = computed(() => props.auctionData.highest_bid || '0');
 
 const hasBid = computed(() => {
-    return props.auctionData.bids.some(x => x.bidder === maybeStore.value?.userWalletAddress);
+    if (props.auctionData?.bids.some(x => x.bidder === maybeStore.value?.userWalletAddress))
+        return true;
+    return !!userBidsStore2.current?.getBid(props.auctionData.auctionId);
 })
 
 

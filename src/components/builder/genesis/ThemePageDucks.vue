@@ -8,7 +8,7 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
-import { auctionDataStore, auctionId } from '@/builder/AuctionData';
+import { auctionDataStore, auctionId, userBidsStore2 } from '@/builder/AuctionData';
 import AuctionItemCard from './AuctionItemCard.vue';
 import { backendManager } from '@/Backend';
 import { SetData } from '@/builder/SetData';
@@ -47,7 +47,21 @@ const isLive = true;
 
 const availableDucks = computed(() => themeBoxes.value?._data?.filter(x => auctionDataStore['starknet-testnet'][x].auctionData(x)._data?.token_id) || []);
 
+const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore2.current?.getBid(x)) || []);
+const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore2.current?.getBid(x)) || []);
+
 const getSet = (auctionId: auctionId) => externalSetCache['starknet-testnet'][auctionDataStore['starknet-testnet'][auctionId].auctionData(auctionId)._data!.token_id]._data;
+
+const searchBar = ref<string>();
+
+const shouldShow = (auctionId: auctionId) => {
+    if (!searchBar.value)
+        return true;
+    const name = getSet(auctionId)?.name;
+    if (name && name.toLowerCase().indexOf(searchBar.value.toLowerCase()) !== -1)
+        return true;
+    return false;
+};
 
 </script>
 
@@ -118,8 +132,29 @@ const getSet = (auctionId: auctionId) => externalSetCache['starknet-testnet'][au
                 <div class="mb-8">
                     <template v-if="themeStatus === 'LOADED'">
                         <div class="container m-auto mt-8">
+                            <p class="text-center my-8">
+                                <input class="max-w-[40rem] w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
+                                <i class="fa-solid fa-magnifying-glass relative right-8"/>
+                            </p>
+                            <template v-if="bidOnDucks.length">
+                                <h3>Ducks you are bidding on</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
+                                    <div v-for="auction_id, i in bidOnDucks" :key="auction_id + i" v-show="shouldShow(auction_id)">
+                                        <p v-if="!getSet(auction_id)">...Loading data...</p>
+                                        <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(auction_id)!.id } }">
+                                            <AuctionItemCard
+                                                :auction-data="auctionDataStore['starknet-testnet'][auction_id].auctionData(auction_id)._data"
+                                                :title="getSet(auction_id)!.name ?? 'Loading'"
+                                                :subtitle="'Set & Booklet'"
+                                                :image="backendManager.getPreviewUrl(getSet(auction_id)!.id, 'starknet-testnet')"
+                                                :status="'LOADED'"/>
+                                        </RouterLink>
+                                    </div>
+                                </div>
+                                <h3>Other ducks</h3>
+                            </template>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
-                                <div v-for="auction_id, i in availableDucks" :key="auction_id + i">
+                                <div v-for="auction_id, i in notBidOnDucks" :key="auction_id + i" v-show="shouldShow(auction_id)">
                                     <p v-if="!getSet(auction_id)">...Loading data...</p>
                                     <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(auction_id)!.id } }">
                                         <AuctionItemCard

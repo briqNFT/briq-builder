@@ -181,6 +181,10 @@ class UserBidStore2 implements perUserStorable {
         this._deserialize(data);
     }
 
+    getBid(auctionId: auctionId) {
+        return this.metadata[auctionId] || this.bids[auctionId];
+    }
+
     async syncBids() {
         try {
             const network = this.user_id.split('/')[0];
