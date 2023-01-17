@@ -1,61 +1,61 @@
-import { computed, isReactive, markRaw, reactive, shallowReactive } from 'vue';
-import { getCurrentNetwork } from '@/chain/Network';
+import { markRaw, shallowReactive, watchEffect } from 'vue';
 import { backendManager } from '@/Backend';
-import { autoFetchable, makeAutoFetchable } from '@/DataFetching';
+import { Fetchable, makeAutoFetchable } from '@/DataFetching';
 
-// Returns existing object or creates a new one and returns it.
-const defaultDict = <T>(t: (prop: string) => T, ...args: any[]) => {
-    return new Proxy(shallowReactive({} as Record<string, T>), {
-        get: (target, prop: string, receiver): T => {
-            if (Reflect.has(target, prop))
-                return Reflect.get(target, prop, receiver);
-            target[prop] = t(prop, ...args);
-            return target[prop];
-        },
-        set: (target, prop, value) => {
-            return Reflect.set(target, prop, value);
-        },
-    });
-}
+import { perUserStorable, perUserStore } from './PerUserStore';
 
-// Creates a simple object indexing on network ID & object key.
-// The `query` data fetcher receives those as arguments and returns the data,
-// which is assumed to be POD (and thus marked raw).
-const perNetworkStaticData = (query: (network: string, prop: string) => Promise<any>) => {
-    return defaultDict((network: string) => makeAutoFetchable(async (prop: string) => {
-        return markRaw(await query(network, prop));
-    }));
-}
+import contractStore from '@/chain/Contracts';
+import * as starknet from 'starknet';
+import { reactive } from 'vue';
+import { maybeStore } from '@/chain/WalletLoading';
+import { APP_ENV } from '@/Meta';
+import { Notification } from '@/Notifications';
+import { defaultDict } from '@/ReactiveDefaultDict';
 
-
+// e.g. ducks_everywhere/10;
 export type auctionId = string;
 
 
-export interface AuctionItemData {
-    minimum_bid: string,
-    growth_factor: number,
-    start_date: number,
-    duration: number,
-    bids: {
+export class AuctionItemData {
+    token_id!: string;
+    minimum_bid!: string;
+    growth_factor!: number;
+    start_date!: number;
+    duration!: number;
+    _bids!: {
         bid: string, bidder: string, tx_hash: string, block: number, timestamp: number
-    }[],
-    highest_bid: string,
-    highest_bidder: string
+    }[];
+    highest_bid!: string;
+    highest_bidder!: string;
+
+    // Self-referential data
+    auctionId: string;
+    mainAuction: AuctionData;
+
+    constructor(mainAuction: AuctionData, auctionId: auctionId, data: any) {
+        this.mainAuction = mainAuction;
+        this.auctionId = auctionId;
+        // lazy but this works.
+        for (const key in data)
+            if (key !== 'bids')
+                this[key] = data[key];
+        this._bids = data.bids;
+    }
+
+    get bids() {
+        // TODO: return longest list?
+        if (this.mainAuction._bids[this.auctionId])
+            return this.mainAuction._bids[this.auctionId];
+        return this._bids;
+    }
 }
 
-export const setToAuctionMapping = reactive({});
+// Has to be global or sets need to know their auction and this loops back
+export const setToAuctionMapping = reactive({} as Record<string, auctionId>);
 
-let generalQuery;
-export const auctionDataStore = perNetworkStaticData(async (network: string, path: auctionId) => {
-    if (!generalQuery)
-        generalQuery = (async () => {
-            const ret = await backendManager.fetch(`v1/${network}/${path.split('/')[0]}/auction_data`);
-            for (const auction_id in ret.data)
-                setToAuctionMapping[ret.data[auction_id].token_id] = auction_id;
-            return ret;
-        })();
-    return ((await generalQuery)?.data?.[path] ?? {
-        token_id: '0xcafe',
+class AuctionData {
+    default = {
+        token_id: '',
         minimum_bid: '10000',
         growth_factor: 10,
         start_date: Date.now() / 1000,
@@ -63,24 +63,65 @@ export const auctionDataStore = perNetworkStaticData(async (network: string, pat
         highest_bid: '0',
         highest_bidder: '',
         bids: [],
-    }) as AuctionItemData;
+    };
+
+    _data = new Fetchable<Record<auctionId, any>>();
+    _items = {} as Record<auctionId, Fetchable<AuctionItemData>>;
+
+    _bids = {} as Record<auctionId, Bid[]>;
+
+    network: string;
+    auction_theme: string;
+
+    constructor(network: string, auction_theme: string) {
+        this.network = network;
+        this.auction_theme = auction_theme;
+    }
+
+    async fetchBids(auction: auctionId) {
+        this._bids[auction] = await backendManager.fetch(`v1/${this.network}/${auction}/bids`);
+    }
+
+    async fetchData() {
+        const fetchCall = backendManager.fetch(`v1/${this.network}/${this.auction_theme.split('/')[0]}/auction_data`);
+        this._data.fetch(async () => (await fetchCall).data);
+        await this._data._fetch;
+        for (const auction_id in this._data._data)
+            setToAuctionMapping[this._data._data![auction_id].token_id] = auction_id;
+        return fetchCall;
+    }
+
+    auctionData(index: auctionId) {
+        if (!this._items[index]) {
+            this._items[index] = new Fetchable<AuctionItemData>();
+            // Use a watchEffect to make sure that the item gets updated whenever the data is refeteched.
+            // This makes it convenient to reuse the Fetchable.
+            watchEffect(() => {
+                this._items[index].fetch(async () => {
+                    const tt = (await this._data._fetch);
+                    return new AuctionItemData(this, index, tt![index]);
+                });
+            });
+        }
+        return this._items[index];
+    }
+}
+
+const auctions = reactive({}) as Record<string, AuctionData>;
+
+export const auctionDataStore = defaultDict((network: string) => {
+    return defaultDict((path: auctionId) => {
+        const theme = path.split('/')[0];
+        if (!auctions[`${network}_${theme}`]) {
+            auctions[`${network}_${theme}`] = new AuctionData(network, theme);
+            setTimeout(() => auctions[`${network}_${theme}`].fetchData(), 0);
+        }
+        return auctions[`${network}_${theme}`];
+    });
 });
 
 // Load the ducks everywhere auction data on startup.
 auctionDataStore['starknet-testnet']['ducks_everywhere/10']
-
-import { backendManager } from '@/Backend';
-import { logDebug } from '@/Messages';
-import { Notification } from '@/Notifications';
-import { useGenesisStore } from './GenesisStore';
-import { perUserStorable, perUserStore } from './PerUserStore';
-
-import contractStore from '@/chain/Contracts';
-import * as starknet from 'starknet';
-import { getCurrentNetwork } from '@/chain/Network';
-import { reactive } from 'vue';
-import { maybeStore } from '@/chain/WalletLoading';
-import { APP_ENV } from '@/Meta';
 
 export interface Bid {
     status: 'CONFIRMED' | 'TENTATIVE' | 'PENDING' | 'REJECTED';
@@ -88,6 +129,7 @@ export interface Bid {
     block: number,
     date: number,
     bid_amount: string,
+    bidder: string,
 }
 
 const USER_SYNC_DELAY = 30000;
@@ -114,7 +156,7 @@ class UserBidStore2 implements perUserStorable {
 
     async onEnter() {
         await this.syncBids();
-        this.polling = setTimeout(() => this.syncBids(), 5000);
+        this.polling = setTimeout(() => this.syncBids(), 10000);
     }
 
     onLeave() {
@@ -140,18 +182,17 @@ class UserBidStore2 implements perUserStorable {
 
     async syncBids() {
         try {
-            // TODO centralize
             const network = this.user_id.split('/')[0];
-            const auction = 'ducks_everywhere';
-            const userBids = backendManager.fetch(`v1/user/bids/${network}/${auction}/${this.user_id.split('/')[1]}`);
-            const data = await backendManager.fetch(`v1/${network}/${auction}/auction_data`);
+            const theme = 'ducks_everywhere';
+            const userBids = backendManager.fetch(`v1/user/bids/${network}/${theme}/${this.user_id.split('/')[1]}`);
+            const data = await auctions[`${network}_${theme}`].fetchData();
             this._updateData(data);
             this.bids = await userBids;
-            this.polling = setTimeout(() => this.syncBids(), 5000);
         } catch(_) {
             if (APP_ENV === 'dev')
                 console.error(_)
         }
+        this.polling = setTimeout(() => this.syncBids(), 5000);
     }
 
     async _updateData(data: { lastBlock: number, data: any }) {
@@ -164,7 +205,13 @@ class UserBidStore2 implements perUserStorable {
             // Clear the metadata if we are now ahead of it.
             if (update.block && update.block <= data.lastBlock) {
                 delete this.metadata[bidAuctionId];
-                // TODO: inform the user that their bid has been outbid and/or successfully accepted.
+                update.status = 'CONFIRMED';
+                // Depending on the current highest bid, we'll want to show success or just skip straight to outbid.
+                // (this is a relevant place because it makes sure we don't spam this warning too many times)
+                if (update.bid_amount === data.data[bidAuctionId].highest_bid)
+                    this.notifyBidSuccess(bidAuctionId, update);
+                else
+                    this.notifyBidOutbid(bidAuctionId, update);
                 continue;
             }
             // Try to fetch some updated data if we don't know the block, but don't block the optimistic processing.
@@ -176,11 +223,14 @@ class UserBidStore2 implements perUserStorable {
                         const block = data.block_number;
                         if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
                             delete this.metadata[bidAuctionId];
-                            // TODO: inform the user of the failure of their bid.
+                            update.status = 'REJECTED';
+                            this.notifyBidFailure(bidAuctionId, update);
                             return;
                         }
-                        if (block)
+                        if (block) {
                             update.block = block;
+                            update.status = 'PENDING';
+                        }
                     }).catch(() => {}));
             }
         }
@@ -195,19 +245,78 @@ class UserBidStore2 implements perUserStorable {
             status: 'TENTATIVE',
             tx_hash: tx_response!.transaction_hash,
             date: Date.now(),
-            block: -1,
+            block: undefined,
             bid_amount: starknet.number.toFelt(value),
         } as Bid;
         // TODO: ignore current bid ?
         if (this.metadata[auction_id]) {}
 
         this.metadata[auction_id] = newBid;
-        // TODO: push notification
+        this.notifyBidPending(auction_id, newBid);
         return this.metadata[auction_id];
     }
 
     /** Notifications stuff */
 
+    notifyBidPending(auctionId: auctionId, item: Bid) {
+        const network = this.user_id.split('/')[0];
+        new Notification({
+            type: 'bid_pending',
+            title: 'Bid was sent',
+            level: 'info',
+            data: {
+                tx_hash: item.tx_hash,
+                auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
+                auction_name: auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id,
+            },
+            read: true,
+        }).push(false);
+    }
+
+    notifyBidSuccess(auctionId: auctionId, item: Bid) {
+        const network = this.user_id.split('/')[0];
+        new Notification({
+            type: 'bid_confirmed',
+            title: 'Successful bid',
+            level: 'success',
+            data: {
+                tx_hash: item.tx_hash,
+                auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
+                auction_name: auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id,
+            },
+            read: false,
+        }).push(true);
+    }
+
+    notifyBidOutbid(auctionId: auctionId, item: Bid) {
+        const network = this.user_id.split('/')[0];
+        new Notification({
+            type: 'bid_outbid',
+            title: 'Your have been outbid',
+            level: 'error',
+            data: {
+                tx_hash: item.tx_hash,
+                auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
+                auction_name: auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id,
+            },
+            read: false,
+        }).push(true);
+    }
+
+    notifyBidFailure(auctionId: auctionId, item: Bid) {
+        const network = this.user_id.split('/')[0];
+        new Notification({
+            type: 'bid_failure',
+            title: 'Bidding transaction failed',
+            level: 'error',
+            data: {
+                tx_hash: item.tx_hash,
+                auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
+                auction_name: auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id,
+            },
+            read: false,
+        }).push(true);
+    }
 }
 
 export const userBidsStore2 = perUserStore('UserBidStore2', UserBidStore2);

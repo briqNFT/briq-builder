@@ -8,10 +8,11 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
-import { auctionDataStore } from '@/builder/AuctionData';
+import { auctionDataStore, auctionId } from '@/builder/AuctionData';
 import AuctionItemCard from './AuctionItemCard.vue';
 import { backendManager } from '@/Backend';
 import { SetData } from '@/builder/SetData';
+import { externalSetCache } from '@/builder/ExternalSets';
 
 const route = useRoute();
 
@@ -22,7 +23,7 @@ const genesisStore = useGenesisStore();
 const themeData = computed(() => genesisStore.themedata[themeName.value]?._data );
 const themeBoxes = computed(() => genesisStore.boxes[themeName.value]);
 
-watchEffect(() => themeBoxes.value?._data?.map((x: string) => auctionDataStore['starknet-testnet'][x]._data ));
+watchEffect(() => themeBoxes.value?._data?.map((x: string) => auctionDataStore['starknet-testnet'][x] ));
 
 const themeStatus = computed(() => {
     if (themeBoxes.value?._status !== 'LOADED')
@@ -44,22 +45,9 @@ const coverUrl = computed(() => {
 
 const isLive = true;
 
-const availableDucks = computed(() => themeBoxes.value?._data?.filter(x => auctionDataStore['starknet-testnet'][x]?._data?.token_id) || []);
+const availableDucks = computed(() => themeBoxes.value?._data?.filter(x => auctionDataStore['starknet-testnet'][x].auctionData(x)._data?.token_id) || []);
 
-const auctionSetsCache = reactive({});
-watchEffect(() => {
-    for (const box of availableDucks.value) {
-        if (auctionSetsCache[box])
-            continue;
-        let tk = auctionDataStore['starknet-testnet'][box]?._data?.token_id;
-        if (tk) {
-            auctionSetsCache[box] = true;
-            backendManager.fetch(`v1/metadata/${'starknet-testnet'}/${tk}.json`).then(data => {
-                auctionSetsCache[box] = new SetData(tk).deserialize(data);
-            });
-        }
-    }
-})
+const getSet = (auctionId: auctionId) => externalSetCache['starknet-testnet'][auctionDataStore['starknet-testnet'][auctionId].auctionData(auctionId)._data!.token_id]._data;
 
 </script>
 
@@ -132,13 +120,13 @@ watchEffect(() => {
                         <div class="container m-auto mt-8">
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
                                 <div v-for="auction_id, i in availableDucks" :key="auction_id + i">
-                                    <p v-if="!auctionSetsCache?.[auction_id] || auctionSetsCache[auction_id] === true">...Loading data...</p>
-                                    <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: auctionSetsCache?.[auction_id].id } }">
+                                    <p v-if="!getSet(auction_id)">...Loading data...</p>
+                                    <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(auction_id)!.id } }">
                                         <AuctionItemCard
-                                            :auction-data="auctionDataStore['starknet-testnet'][auction_id]._data"
-                                            :title="auctionSetsCache?.[auction_id]?.name ?? 'Loading'"
+                                            :auction-data="auctionDataStore['starknet-testnet'][auction_id].auctionData(auction_id)._data"
+                                            :title="getSet(auction_id)!.name ?? 'Loading'"
                                             :subtitle="'Set & Booklet'"
-                                            :image="auctionSetsCache?.[auction_id] && backendManager.getPreviewUrl(auctionSetsCache?.[auction_id].id, 'starknet-testnet')"
+                                            :image="backendManager.getPreviewUrl(getSet(auction_id)!.id, 'starknet-testnet')"
                                             :status="'LOADED'"/>
                                     </RouterLink>
                                 </div>

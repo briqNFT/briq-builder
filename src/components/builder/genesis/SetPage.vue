@@ -31,7 +31,7 @@ import Tooltip from '@/components/generic/Tooltip.vue';
 import * as starknet from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
-import { auctionDataStore, AuctionItemData, auctionSetsCache, setToAuctionMapping } from '@/builder/AuctionData';
+import { auctionDataStore, AuctionItemData, setToAuctionMapping } from '@/builder/AuctionData';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import BidModal from './BidModal.vue';
@@ -137,13 +137,37 @@ watchEffect(() => {
 
 // Auction stuff.
 // TODO: move this elsewhere by splitting this file into more componental chunks.
-const auctionData = computed<AuctionItemData>(() => {
-    return auctionDataStore['starknet-testnet']?.[setToAuctionMapping?.[route.params.set_id as string]]?._data;
+const auctionId = computed(() => {
+    return setToAuctionMapping[route.params.set_id as string];
 });
 
+const auctionData = computed<AuctionItemData | undefined>(() => {
+    if (!auctionId.value)
+        return undefined;
+    return auctionDataStore['starknet-testnet'][auctionId.value]?.auctionData(auctionId.value)?._data;
+});
+
+const hasHighestBid = computed(() => {
+    if (!auctionData.value)
+        return false;
+    return auctionData.value.highest_bid != '0' && auctionData.value.highest_bidder == maybeStore.value?.userWalletAddress;
+})
+
+const hasBid = computed(() => {
+    return auctionData.value?.bids.some(x => x.bidder === maybeStore.value?.userWalletAddress);
+})
+
 const doBid = async () => {
-    await pushModal(BidModal, { item: setToAuctionMapping?.[route.params.set_id as string] })
+    await pushModal(BidModal, { item: auctionId.value })
 }
+
+watchEffect(async () => {
+    // Touch max bid to reload when that changes.
+    auctionData.value?.highest_bidder;
+    auctionDataStore['starknet-testnet'][auctionId.value].fetchBids(auctionId.value);
+})
+
+// End of acution stuff
 
 const description = computed(() => {
     if (mode === 'CREATION' && set.value?.description)
@@ -386,6 +410,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 </p>
                 <div class="rounded border border-grad-light overflow-hidden mb-10">
                     <template v-if="auctionData">
+                        <!-- Auction -->
                         <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                             <div>
                                 <h5 class="font-normal text-grad-dark">Current bid</h5>
@@ -394,10 +419,12 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                                 </p>
                             </div>
                             <div class="flex justify-between items-stretch gap-2">
-                                <Btn :disabled="hasPendingActivity" @click="doBid" class="!h-auto text-md px-6">Make a bid</Btn>
+                                <Btn :disabled="hasPendingActivity" @click="doBid" :secondary="hasHighestBid" class="!h-auto text-md px-6">Make a {{ hasHighestBid ? 'larger ' : '' }} bid</Btn>
                             </div>
                         </div>
                         <div class="p-6 py-4 flex flex-col gap-4">
+                            <p v-if="hasHighestBid" class="text-grad-dark">You currently have the winning bid.</p>
+                            <p v-else-if="hasBid" class="text-grad-dark">You currently have the winning bid.</p>
                             <p><span class="font-medium">End of auction: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
                         </div>
                     </template>

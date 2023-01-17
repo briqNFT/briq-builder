@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, Ref, ref, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
-import { Bid, userBidsStore2 as userBidsStore } from '@/builder/AuctionData';
+import { AuctionItemData, Bid, userBidsStore2 as userBidsStore } from '@/builder/AuctionData';
 import { userBalance } from '@/builder/UserBalance.js';
 import * as starknet from 'starknet';
 import { useBids } from '@/components/BidComposable.js';
@@ -21,16 +21,23 @@ const props = defineProps<{
 const termsSale = ref(false);
 const termsBriq = ref(false);
 
-const auctionData = computed<AuctionItemData>(() => {
-    return auctionDataStore['starknet-testnet'][props.item]?._data;
+const auctionData = computed(() => {
+    return auctionDataStore['starknet-testnet'][props.item].auctionData(props.item)._data;
 });
 
-//const { currentBid, currentBidString } =
-const currentBid = computed(() => starknet.number.toBN(auctionData.value.highest_bid));
-const currentBidString = computed(() => `${readableNumber(auctionData.value.highest_bid)} ${readableUnit(auctionData.value.highest_bid)}`);
+const currentBid = computed(() => starknet.number.toBN(auctionData.value?.highest_bid || '0'));
+const currentBidString = computed(() => `${readableNumber(auctionData.value?.highest_bid || '0')} ${readableUnit(auctionData.value?.highest_bid || '0')}`);
 
-const bid = ref(readableNumber(currentBid.value) || undefined as undefined | string);
+const minNewBid = computed(() => {
+    const mb = currentBid.value || starknet.number.toBN(auctionData.value?.minimum_bid || '0')
+    const gr = mb.mul(starknet.number.toBN(auctionData.value?.growth_factor || 10)).idivn(starknet.number.toBN(1000));
+    return mb.add(gr);
+});
 
+// Actual current bid, as a string. Set by the input.
+const bid = ref(readableNumber(minNewBid.value) || undefined as undefined | string);
+
+// Use this for actual calculations
 const weiBid = computed(() => {
     return fromETH(bid.value?.toString() || '0');
 })
@@ -40,31 +47,28 @@ const balance = computed(() => userBalance.current?.asEth());
 const canMakeBid = computed(() => {
     if (!termsBriq.value || !termsSale.value)
         return false;
-    return balance.value && bid.value !== undefined &&
-        weiBid.value.cmp(starknet.number.toBN(userBalance.current?.balance._data)) <= 0 &&
-        weiBid.value.cmp(currentBid.value) > 0;
+    return !canMakeBidReason.value;
 })
 
 const canMakeBidReason = computed(() => {
     if (bid.value === undefined)
         return undefined;
-    if (!balance.value)
-        return 'Unknown balance';
-    if (weiBid.value.cmp(starknet.number.toBN(userBalance.current?.balance._data)) > 0)
+    if (balance.value && weiBid.value.cmp(starknet.number.toBN(userBalance.current?.balance._data)) > 0)
         return 'Bid is greater than your balance';
-    if (weiBid.value.cmp(currentBid.value) <= 0)
-        return 'Bid must be more than the current bid';
+    if (weiBid.value.cmp(minNewBid.value) < 0)
+        return 'Bid must be more than the current bid + 1%';
     return undefined;
 })
 
+let newBid;
 const ongoingBid = computed(() => {
-    return userBidsStore.current?.metadata[props.item];
+    return userBidsStore.current?.metadata[props.item] || newBid;
 });
 
 const makeBid = async () => {
     step.value = 'SIGNING';
     try {
-        let newBid = await userBidsStore.current!.makeBid(weiBid.value, props.item);
+        newBid = await userBidsStore.current!.makeBid(weiBid.value, props.item);
         step.value = 'PROCESSING';
         pushPopup('info', 'Transaction sent', HashVue(newBid!.tx_hash));
 
@@ -90,7 +94,7 @@ const makeBid = async () => {
 
 <template>
     <WindowVue v-if="step === 'MAKE_BID' || step === 'SIGNING'" :size="'md:w-[40rem]'">
-        <template #big-title>Place a bid</template>
+        <template #title>Place a bid</template>
         <div class="flex flex-col gap-8">
             <div class="flex flex-col items-center gap-2">
                 <p class="text-md">Current winning bid</p>
@@ -98,10 +102,9 @@ const makeBid = async () => {
             </div>
             <div>
                 <p>
-                    Make your bid<br>
-                    <input :disabled="step === 'SIGNING'" class="w-full my-2" type="number" min="0" :max="balance" step="0.01" v-model="bid" :placeholder="`Bid Ξ ${1.35} or more`">
+                    <input :disabled="step === 'SIGNING'" class="w-full my-2" type="number" :min="readableNumber(minNewBid)" step="0.01" v-model="bid" :placeholder="`Bid ${readableNumber(minNewBid)} ${readableUnit(minNewBid)} or more`">
                 </p>
-                <p class="text-right text-sm text-grad-darker">Available: {{ balance }} {{ readableUnit(userBalance.current?.balance._data) }}</p>
+                <p v-show="balance" class="text-right text-sm text-grad-darker">Available: {{ balance }} {{ readableUnit(userBalance.current?.balance._data) }}</p>
             </div>
             <div class="text-sm flex flex-col gap-4">
                 <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
@@ -109,13 +112,13 @@ const makeBid = async () => {
             </div>
             <div class="flex justify-end items-center gap-4">
                 <p v-if="canMakeBidReason" class="text-red-300 text-sm">{{ canMakeBidReason }}</p>
-                <Btn secondary @click="$emit('close')">Cancel</Btn>
-                <Btn :disabled="!canMakeBid || step === 'SIGNING'" @click="makeBid">Place a bid</Btn>
+                <Btn secondary class="font-normal" @click="$emit('close')">Cancel</Btn>
+                <Btn :disabled="!canMakeBid || step === 'SIGNING'" @click="makeBid">Bid {{ readableNumber(weiBid) }} {{ readableUnit(weiBid) }}</Btn>
             </div>
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'PROCESSING'" :size="'md:w-[40rem]'">
-        <template #big-title>Transaction processing</template>
+        <template #title>Transaction processing</template>
         <div class="flex flex-col gap-8">
             <p>
                 Your transaction has been sent and should be confirmed shortly.
@@ -127,23 +130,21 @@ const makeBid = async () => {
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'PENDING'" :size="'md:w-[40rem]'">
-        <template #big-title>Transaction pending <i class="far fa-circle-check text-info-success"/></template>
+        <template #title>Transaction pending <i class="mx-2 far fa-circle-check text-info-success"/></template>
         <div class="flex flex-col gap-8">
             <p>
-                Your bid of {{ 3.24 }} <i class="fa-brands fa-ethereum"/> is confirmed.<br>
+                Your bid of {{ readableNumber(weiBid) }} {{ readableUnit(weiBid) }} will be confirmed soon.<br>
                 In a few more seconds, it will appear in the list of bids.
             </p>
-            <p>Come back in X hours and check if you've won!</p>
             <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)" target="_blank">Starkscan</a></p>
 
             <p>You can now close this pop-up.</p>
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'BID_COMPLETE'" :size="'md:w-[40rem]'">
-        <template #big-title>Transaction complete <i class="far fa-circle-check text-info-success"/></template>
+        <template #title>Transaction complete <i class="mx-2 far fa-circle-check text-info-success"/></template>
         <div class="flex flex-col gap-8">
-            <p>Your bid of {{ 3.24 }} <i class="fa-brands fa-ethereum"/> is confirmed.</p>
-            <p>Come back in X hours and check if you've won!</p>
+            <p>Your bid of {{ readableNumber(weiBid) }} {{ readableUnit(weiBid) }} is confirmed.</p>
             <p>See transaction on <a class="text-primary" :href="ExplorerTxUrl(ongoingBid!.tx_hash)" target="_blank">Starkscan</a></p>
 
             <p>You can now close this pop-up.</p>

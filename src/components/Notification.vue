@@ -57,6 +57,22 @@ p {
         <template v-else-if="notif.type === 'set_delete_rejected'">
             <p>Set '{{ notif.data.name }}' failed to disassemble.<br>There was an error with the transaction.</p>
         </template>
+        <template v-else-if="notif.type === 'bid_pending'">
+            <p>Your bidding transaction was sent.</p>
+        </template>
+        <template v-else-if="notif.type === 'bid_confirmed'">
+            <p>Your bidding transaction went through<br>and you now have the winning bid.</p>
+            <p>Item: <RouterLink class="text-primary" :to="notif.data.auction_link">{{ notif.data.auction_name }}</RouterLink></p>
+        </template>
+        <template v-else-if="notif.type === 'bid_outbid'">
+            <p>Another user now has the winning bid.</p>
+            <p>Item: <RouterLink class="text-primary" :to="notif.data.auction_link">{{ notif.data.auction_name }}</RouterLink></p>
+        </template>
+        <template v-else-if="notif.type === 'bid_failure'">
+            <p>There was an error with the bidding transaction.</p>
+            <p v-if="toast"><a :href="ExplorerTxUrl(notif.data.tx_hash)" target="_blank" class="text-primary">See details on StarkScan</a></p>
+            <p>Item: <RouterLink class="text-primary" :to="notif.data.auction_link">{{ notif.data.auction_name }}</RouterLink></p>
+        </template>
         <template v-else-if="notif.type === 'box_purchase_started'">
             <p>The transaction to purchase your box was sent.</p>
             <p>Box: <RouterLink class="text-primary" :to="`/box/${notif.data.box_id}`">{{ genesisStore.metadata[notif.data.box_id]?._data?.name ?? notif.data.box_id }}</RouterLink></p>
