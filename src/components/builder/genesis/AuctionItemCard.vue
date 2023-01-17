@@ -19,7 +19,10 @@ const hasHighestBid = computed(() => {
 
 const highestBid = computed(() => props.auctionData.highest_bid || '0');
 
-//props.auctionData.highest_bid
+const hasBid = computed(() => {
+    return props.auctionData.bids.some(x => x.bidder === maybeStore.value?.userWalletAddress);
+})
+
 
 </script>
 
@@ -44,9 +47,10 @@ const highestBid = computed(() => props.auctionData.highest_bid || '0');
                 <p v-if="hasHighestBid" class="flex justify-between">
                     <span class="text-grad-dark">Your bid is the winning bid</span><span><i class="text-info-success fas fa-circle-check"/></span>
                 </p>
-                <p v-else class="flex justify-between">
+                <p v-else-if="hasBid" class="flex justify-between">
                     <span class="text-grad-dark">You have been outbid</span><span><i class="text-info-error fas fa-circle-exclamation"/></span>
                 </p>
+                <p v-else><span class="text-grad-dark">Make a bid and win this duck!</span></p>
             </template>
         </template>
     </GenericCardVue>
