@@ -29,12 +29,15 @@ const currentBid = computed(() => starknet.number.toBN(auctionData.value?.highes
 const currentBidString = computed(() => `${readableNumber(auctionData.value?.highest_bid || '0')} ${readableUnit(auctionData.value?.highest_bid || '0')}`);
 
 const minNewBid = computed(() => {
-    const mb = currentBid.value || starknet.number.toBN(auctionData.value?.minimum_bid || '0')
+    if (auctionData.value?.highest_bid === '0')
+        return starknet.number.toBN(auctionData.value?.minimum_bid || '0');
+    const mb = currentBid.value;
     const gr = mb.mul(starknet.number.toBN(auctionData.value?.growth_factor || 10)).idivn(starknet.number.toBN(1000));
     return mb.add(gr);
 });
 
 // Actual current bid, as a string. Set by the input.
+// This should convert to ETH and not WEI/GWEI, but for practical values it won't matter since everything will be ETH.
 const bid = ref(readableNumber(minNewBid.value) || undefined as undefined | string);
 
 // Use this for actual calculations
@@ -96,9 +99,13 @@ const makeBid = async () => {
     <WindowVue v-if="step === 'MAKE_BID' || step === 'SIGNING'" :size="'md:w-[40rem]'">
         <template #title>Place a bid</template>
         <div class="flex flex-col gap-8">
-            <div class="flex flex-col items-center gap-2">
+            <div v-if="auctionData?.highest_bid !== '0'" class="flex flex-col items-center gap-2">
                 <p class="text-md">Current winning bid</p>
                 <p class="text-lg font-semibold">{{ currentBidString }}</p>
+            </div>
+            <div v-else class="flex flex-col items-center gap-2">
+                <p class="text-md">Set the first bid !</p>
+                <p class="text-sm">Minimum bid is {{ readableNumber(auctionData.minimum_bid) }} {{ readableUnit(auctionData.minimum_bid) }}</p>
             </div>
             <div>
                 <p>

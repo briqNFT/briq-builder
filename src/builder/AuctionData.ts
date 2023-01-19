@@ -18,16 +18,16 @@ export type auctionId = string;
 
 
 export class AuctionItemData {
-    token_id!: string;
-    minimum_bid!: string;
-    growth_factor!: number;
-    start_date!: number;
-    duration!: number;
-    _bids!: {
+    token_id = '';
+    minimum_bid = '0';
+    growth_factor = 10;
+    start_date = 0;
+    duration = 0;
+    highest_bid = '0';
+    highest_bidder = '0';
+    _bids = [] as {
         bid: string, bidder: string, tx_hash: string, block: number, timestamp: number
     }[];
-    highest_bid!: string;
-    highest_bidder!: string;
 
     // Self-referential data
     auctionId: string;

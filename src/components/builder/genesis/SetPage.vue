@@ -146,6 +146,16 @@ const auctionData = computed<AuctionItemData | undefined>(() => {
     return auctionDataStore['starknet-testnet'][auctionId.value]?.auctionData(auctionId.value)?._data;
 });
 
+const showAuctionInterface = computed(() => {
+    if (!auctionData.value)
+        return false;
+    if (auctionData.value.start_date > Date.now() / 1000)
+        return false;
+    if (auctionData.value.start_date + auctionData.value.duration < Date.now() / 1000)
+        return false;
+    return true;
+})
+
 const hasHighestBid = computed(() => {
     if (!auctionData.value)
         return false;
@@ -431,13 +441,20 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                     ID: <span class="font-normal">{{ `${route.params.set_id.slice(0, 6)}...${route.params.set_id.slice(-4)}` }} <i class="far fa-copy"/></span>
                 </p>
                 <div class="rounded border border-grad-light overflow-hidden mb-10">
-                    <template v-if="auctionData">
+                    <!-- latter part just for VSCode to understand things -->
+                    <template v-if="showAuctionInterface && auctionData">
                         <!-- Auction -->
                         <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
-                            <div>
+                            <div v-if="auctionData.highest_bid !== '0'">
                                 <h5 class="font-normal text-grad-dark">Winning bid</h5>
                                 <p class="text-xl font-semibold pt-1">
                                     {{ readableNumber(auctionData.highest_bid) }} {{ readableUnit(auctionData.highest_bid) }}
+                                </p>
+                            </div>
+                            <div v-else>
+                                <h5 class="font-normal text-grad-dark">Minimum Bid</h5>
+                                <p class="text-xl font-semibold pt-1">
+                                    {{ readableNumber(auctionData.minimum_bid) }} {{ readableUnit(auctionData.minimum_bid) }}
                                 </p>
                             </div>
                             <div class="flex justify-between items-stretch gap-2">
@@ -453,7 +470,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                             <p v-if="hasHighestBid" class="text-grad-dark">You currently have the winning bid.</p>
                             <p v-else-if="hasPendingBid" class="text-grad-dark"><i class="text-info-info far fa-circle-exclamation"/> You have a pending winning bid at {{ pendingBidString }}.</p>
                             <p v-else-if="hasBid" class="text-grad-dark"><i class="text-info-error far fa-circle-exclamation"/> You have been outbid by another user.</p>
-                            <p><span class="font-medium">End of auction: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
+                            <p><span class="font-medium">End of auction: </span> {{ new Date((auctionData.start_date + auctionData.duration)*1000).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
                         </div>
                     </template>
                     <template v-else>
