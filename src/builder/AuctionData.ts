@@ -47,7 +47,7 @@ export class AuctionItemData {
         // TODO: return longest list?
         if (this.mainAuction._bids[this.auctionId])
             return this.mainAuction._bids[this.auctionId];
-        return this._bids;
+        return this._bids || [];
     }
 }
 
@@ -190,6 +190,15 @@ class UserBidStore2 implements perUserStorable {
 
     getBid(auctionId: auctionId) {
         return this.metadata[auctionId] || this.bids[auctionId];
+    }
+
+    getNbBids() {
+        const ct = {} as Record<string, boolean>;
+        for (const auctionId in this.bids)
+            ct[auctionId] = true;
+        for (const auctionId in this.metadata)
+            ct[auctionId] = true;
+        return Object.keys(ct).length;
     }
 
     async syncBids() {

@@ -183,6 +183,9 @@ const pendingBidString = computed(() => {
     return `${readableNumber(bid?.bid_amount)} ${readableUnit(bid?.bid_amount)}`;
 })
 
+const cannotBid = computed(() => {
+    return userBidsStore2.current.getNbBids() >= 5 && !hasBid.value;
+})
 const doBid = async () => {
     await pushModal(BidModal, { item: auctionId.value })
 }
@@ -458,16 +461,17 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                                 </p>
                             </div>
                             <div class="flex justify-between items-stretch gap-2">
-                                <Btn v-if="!hasPendingBid" :disabled="hasPendingActivity" @click="doBid" :secondary="hasHighestBid" class="!h-auto text-md px-6">Make a {{ hasHighestBid ? 'higher ' : '' }} bid</Btn>
+                                <Btn v-if="!hasPendingBid" :disabled="hasPendingActivity || cannotBid" @click="doBid" :secondary="hasHighestBid" class="!h-auto text-md px-6">Make a {{ hasHighestBid ? 'higher ' : '' }} bid</Btn>
                                 <template v-else>
-                                    <Btn secondary @click="doBid" class="!h-auto text-md px-4 font-normal">
+                                    <Btn secondary :disabled="hasPendingActivity || cannotBid" @click="doBid" class="!h-auto text-md px-4 font-normal">
                                         <i class="text-md far fa-loader animate-spin mr-3"/>  Make a higher bid
                                     </Btn>
                                 </template>
                             </div>
                         </div>
                         <div class="p-6 py-4 flex flex-col gap-4">
-                            <p v-if="hasHighestBid" class="text-grad-dark">You currently have the winning bid.</p>
+                            <p v-if="cannotBid">You have already bid on 5 other ducks and so cannot bid on this one.<br>Wait for the raffle phase or check out the secondary market!</p>
+                            <p v-else-if="hasHighestBid" class="text-grad-dark">You currently have the winning bid.</p>
                             <p v-else-if="hasPendingBid" class="text-grad-dark"><i class="text-info-info far fa-circle-exclamation"/> You have a pending winning bid at {{ pendingBidString }}.</p>
                             <p v-else-if="hasBid" class="text-grad-dark"><i class="text-info-error far fa-circle-exclamation"/> You have been outbid by another user.</p>
                             <p><span class="font-medium">End of auction: </span> {{ new Date((auctionData.start_date + auctionData.duration)*1000).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>

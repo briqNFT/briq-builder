@@ -138,7 +138,8 @@ const shouldShow = (auctionId: auctionId) => {
                             </p>
                             <template v-if="bidOnDucks.length">
                                 <h3>My active bids ({{ bidOnDucks.length }}/{{ 5 }})</h3>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 my-4">
+                                <p>You can bid on a maximum of 5 ducks, even if you are outbid.</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 xl:gap-4 my-4">
                                     <div v-for="auction_id, i in bidOnDucks" :key="auction_id + i" v-show="shouldShow(auction_id)">
                                         <p v-if="!getSet(auction_id)">...Loading data...</p>
                                         <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(auction_id)!.id } }">
