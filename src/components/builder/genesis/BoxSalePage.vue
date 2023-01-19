@@ -4,16 +4,11 @@ import { useRoute } from 'vue-router';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import { pushModal } from '@/components/Modals.vue';
-import BidModalVue from './BidModal.vue';
 import BuyModalVue from './BuyModal.vue';
 import { useBoxData } from '@/builder/BoxData';
 import { maybeStore } from '@/chain/WalletLoading';
-import { userBalance } from '@/builder/UserBalance';
-import { productBidsStore, userBidsStore } from '@/builder/BidStore';
-import { useBids } from '@/components/BidComposable';
 
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
-import { ExplorerTxUrl } from '@/chain/Explorer';
 
 import BriqsImg from '@/assets/genesis/briqs.png';
 
@@ -25,10 +20,7 @@ const {
     genesisStore,
     itemQuery,
     item,
-    saleQuery,
     saledata,
-    getActualMode,
-    durationLeft,
     nbOwned,
     description,
 } = useBoxData(token_id.value);
@@ -51,31 +43,6 @@ const attributes = computed(() => {
         { name: '# of briqs', value: nbSetBriqs.value + (item.value?.nb_briqs_extra ? ` + ${item.value?.nb_briqs_extra} extra` : '') },
     ]
 });
-
-productBidsStore.fetch(token_id.value);
-
-const previousBids = computed(() => Object.values(productBidsStore.bids(token_id.value).bids).sort((a, b) => b.timestamp - a.timestamp));
-const hasBids = computed(() => previousBids.value.length);
-
-const { currentBid, currentBidString } = useBids(token_id.value);
-
-const userBids = computed(() => userBidsStore.current?.bids ?? []);
-
-const hasHighestBid = computed(() => {
-    return userBids.value.some(x => x.bid_id === productBidsStore.bids(token_id.value).highest_bid)
-})
-
-const canBid = computed(() => {
-    if (!maybeStore.value?.userWalletAddress || userBalance.current?.balance?._status !== 'LOADED')
-        return false;
-    return itemQuery._status !== 'ERROR';
-})
-
-const placeBid = () => {
-    pushModal(BidModalVue, {
-        item: token_id.value,
-    });
-}
 
 const canBuy = computed(() => {
     if (!maybeStore.value?.userWalletAddress)
@@ -186,51 +153,6 @@ p {
                             </div>
                         </div>
                         <p v-if="nbOwned" class="mb-0">You already own <span class="text-primary">{{ nbOwned }}</span> {{ nbOwned > 1 ? 'such boxes' : 'such box' }}</p>
-                        <template v-if="saledata?.isLive() && saledata?.total_quantity === 1">
-                            <h4>Auction</h4>
-                            <div class="rounded border border-grad-light overflow-hidden">
-                                <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
-                                    <div>
-                                        <h5 class="font-normal text-grad-dark">Winning bid</h5>
-                                        <p v-if="hasBids" class="text-xl font-semibold pt-1">{{ currentBidString }}</p>
-                                        <p v-else class="text-xl font-semibold pt-1">-</p>
-                                        <p v-if="hasHighestBid" class="text-sm text-grad-dark">You currently have the highest bid.</p>
-                                    </div>
-                                    <Btn
-                                        :secondary="hasHighestBid"
-                                        :disabled="!canBid"
-                                        @click="placeBid"
-                                        class="h-full text-md px-6">
-                                        Place bid
-                                    </Btn>
-                                </div>
-                                <div class="p-6 py-4 flex flex-col gap-4">
-                                    <div class="w-full flex justify-between items-baseline">
-                                        <p><span class="font-medium">Sale starts on: </span> (TODO) July 1, 2022 at 11:32 AM GMT+1</p>
-                                        <p>
-                                            <template v-for="i in [['d', 2], ['h', 1], ['m', 24], ['s', 43]]" :key="i[0]">
-                                                <span class="pl-1">{{ i[1] }}{{ i[0] }}</span>
-                                            </template>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <template v-if="productBidsStore.status === 'OK' && hasBids">
-                                <h2>Previous bids</h2>
-                                <div class="flex flex-col bg-grad-lightest rounded border border-grad-light">
-                                    <a
-                                        v-for="i in previousBids.slice(0, 10)" :key="i.bid_id"
-                                        :href="ExplorerTxUrl(i.tx_hash)" target="_blank"
-                                        class="block border-b border-grad-light last:border-none px-4 py-3">
-                                        <div class="flex justify-between">
-                                            <p class="text-primary">{{ i.bidder.substring(0, 8) + "..." + i.bidder.slice(-8) }}</p>
-                                            <p>{{ readableUnit(i.bid_amount) }} {{ readableNumber(i.bid_amount) }} <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
-                                        </div>
-                                    </a>
-                                    <p v-if="previousBids.length > 10" class="px-4 py-3 text-sm italic text-center">...Older bids are hidden...</p>
-                                </div>
-                            </template>
-                        </template>
                         <template v-else-if="saledata?.isLive()">
                             <!--<h4>Instant Purchase</h4>-->
                             <div class="rounded border border-grad-light overflow-hidden">

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
-import { userBidsStore } from '@/builder/BidStore';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { onMounted, ref } from 'vue';
 
@@ -26,7 +25,6 @@ const connectWallet = () => {
 const header = ref(null);
 
 onMounted(() => {
-    userBidsStore.setup();
     userPurchaseStore.setup();
     const observer = new IntersectionObserver(
         ([e]) => {

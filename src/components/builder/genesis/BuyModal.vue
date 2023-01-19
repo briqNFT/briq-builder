@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { useBoxData, CARD_MODES } from '@/builder/BoxData';
 
-import { computed, onUnmounted, ref, watch, watchEffect } from 'vue';
+import { computed, onUnmounted, ref, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
-import { userBidsStore } from '@/builder/BidStore';
 import { userBalance } from '@/builder/UserBalance.js';
 import * as starknet from 'starknet';
 import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';

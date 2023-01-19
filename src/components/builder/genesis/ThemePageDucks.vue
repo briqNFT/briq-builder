@@ -137,7 +137,7 @@ const shouldShow = (auctionId: auctionId) => {
                                 <i class="fa-solid fa-magnifying-glass relative right-8"/>
                             </p>
                             <template v-if="bidOnDucks.length">
-                                <h3>Ducks you are bidding on</h3>
+                                <h3>My active bids</h3>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-4">
                                     <div v-for="auction_id, i in bidOnDucks" :key="auction_id + i" v-show="shouldShow(auction_id)">
                                         <p v-if="!getSet(auction_id)">...Loading data...</p>

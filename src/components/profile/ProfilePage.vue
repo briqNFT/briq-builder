@@ -10,7 +10,7 @@ import { computed, ref, watch, watchEffect } from 'vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBookletsStore } from '@/builder/UserBooklets';
 import { userSetStore } from '@/builder/UserSets';
-import { userBidsStore, productBidsStore, Bid } from '@/builder/BidStore';
+import { userBidsStore2 as userBidsStore } from '@/builder/AuctionData';
 import BoxListing from '../builder/genesis/BoxListing.vue';
 import { setsManager } from '@/builder/SetsManager';
 import MenuDropdown from '../generic/MenuDropdown.vue';
