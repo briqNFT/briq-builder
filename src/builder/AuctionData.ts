@@ -175,6 +175,13 @@ class UserBidStore2 implements perUserStorable {
     _deserialize(data: ReturnType<UserBidStore['_serialize']>) {
         this.bids = data.bids;
         this.metadata = data.metadata;
+        /*this.metadata['ducks_everywhere/1'] = {
+            status: 'TENTATIVE',
+            tx_hash: '0xcafe',
+            block: undefined,
+            date: Date.now() - 847298347982,
+            bid_amount: '100000000000000000',
+        }*/
     }
 
     _onStorageChange(data: any) {
@@ -203,9 +210,6 @@ class UserBidStore2 implements perUserStorable {
     async _updateData(data: { lastBlock: number, data: any }) {
         const promises = new Map<any, Promise<any>>();
         for (const bidAuctionId in this.metadata) {
-            // TODO: handle this as an error?
-            if (!data.data[bidAuctionId])
-                continue;
             const update = this.metadata[bidAuctionId];
             // Clear the metadata if we are now ahead of it.
             if (update.block && update.block <= data.lastBlock) {
@@ -213,7 +217,7 @@ class UserBidStore2 implements perUserStorable {
                 update.status = 'CONFIRMED';
                 // Depending on the current highest bid, we'll want to show success or just skip straight to outbid.
                 // (this is a relevant place because it makes sure we don't spam this warning too many times)
-                if (update.bid_amount === data.data[bidAuctionId].highest_bid)
+                if (update.bid_amount === data.data[bidAuctionId]?.highest_bid)
                     this.notifyBidSuccess(bidAuctionId, update);
                 else
                     this.notifyBidOutbid(bidAuctionId, update);

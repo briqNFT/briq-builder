@@ -158,12 +158,27 @@ const hasBid = computed(() => {
     return !!userBidsStore2.current?.getBid(auctionId.value);
 })
 
+const hasPendingBid = computed(() => {
+    const bid = userBidsStore2.current?.getBid(auctionId.value);
+    if (!bid)
+        return false;
+    // If the pending bid is lower than the current highest known bid, don't show it.
+    return starknet.number.toBN(bid.bid_amount).cmp(starknet.number.toBN(auctionData.value!.highest_bid)) > 0;
+});
+
+const pendingBidString = computed(() => {
+    if (!hasPendingBid.value)
+        return '';
+    const bid = userBidsStore2.current?.getBid(auctionId.value);
+    return `${readableNumber(bid?.bid_amount)} ${readableUnit(bid?.bid_amount)}`;
+})
+
 const doBid = async () => {
     await pushModal(BidModal, { item: auctionId.value })
 }
 
-// Hack: always use external data when using auction, so that my dev env (where I use sets I made) works.
 watchEffect(async () => {
+    // Hack: always use external data when using auction, so that my dev env (where I use sets I made) works.
     if (auctionId.value)
         useExternalData.value = true;
 });
@@ -420,18 +435,24 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         <!-- Auction -->
                         <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
                             <div>
-                                <h5 class="font-normal text-grad-dark">Current bid</h5>
+                                <h5 class="font-normal text-grad-dark">Winning bid</h5>
                                 <p class="text-xl font-semibold pt-1">
                                     {{ readableNumber(auctionData.highest_bid) }} {{ readableUnit(auctionData.highest_bid) }}
                                 </p>
                             </div>
                             <div class="flex justify-between items-stretch gap-2">
-                                <Btn :disabled="hasPendingActivity" @click="doBid" :secondary="hasHighestBid" class="!h-auto text-md px-6">Make a {{ hasHighestBid ? 'larger ' : '' }} bid</Btn>
+                                <Btn v-if="!hasPendingBid" :disabled="hasPendingActivity" @click="doBid" :secondary="hasHighestBid" class="!h-auto text-md px-6">Make a {{ hasHighestBid ? 'higher ' : '' }} bid</Btn>
+                                <template v-else>
+                                    <Btn secondary @click="doBid" class="!h-auto text-md px-4 font-normal">
+                                        <i class="text-md far fa-loader animate-spin mr-3"/>  Make a higher bid
+                                    </Btn>
+                                </template>
                             </div>
                         </div>
                         <div class="p-6 py-4 flex flex-col gap-4">
                             <p v-if="hasHighestBid" class="text-grad-dark">You currently have the winning bid.</p>
-                            <p v-else-if="hasBid" class="text-grad-dark">You have been outbid by another user.</p>
+                            <p v-else-if="hasPendingBid" class="text-grad-dark"><i class="text-info-info far fa-circle-exclamation"/> You have a pending winning bid at {{ pendingBidString }}.</p>
+                            <p v-else-if="hasBid" class="text-grad-dark"><i class="text-info-error far fa-circle-exclamation"/> You have been outbid by another user.</p>
                             <p><span class="font-medium">End of auction: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
                         </div>
                     </template>

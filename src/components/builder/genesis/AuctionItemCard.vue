@@ -4,6 +4,7 @@ import { AuctionItemData, userBidsStore2 } from '@/builder/AuctionData';
 import { maybeStore } from '@/chain/WalletLoading';
 import { computed } from 'vue';
 import GenericCardVue from './GenericCard.vue';
+import * as starknet from 'starknet';
 
 const props = defineProps<{
     title: string,
@@ -25,6 +26,13 @@ const hasBid = computed(() => {
     return !!userBidsStore2.current?.getBid(props.auctionData.auctionId);
 })
 
+const hasPendingBid = computed(() => {
+    const bid = userBidsStore2.current?.getBid(props.auctionData.auctionId);
+    if (!bid)
+        return false;
+    // If the pending bid is lower than the current highest known bid, don't show it.
+    return starknet.number.toBN(bid.bid_amount).cmp(starknet.number.toBN(props.auctionData.highest_bid)) > 0;
+});
 
 </script>
 
@@ -48,6 +56,9 @@ const hasBid = computed(() => {
                 </p>
                 <p v-if="hasHighestBid" class="flex justify-between">
                     <span class="text-grad-dark">Your bid is the winning bid</span><span><i class="text-info-success fas fa-circle-check"/></span>
+                </p>
+                <p v-else-if="hasPendingBid" class="flex justify-between">
+                    <span class="text-grad-dark">You have a pending bid</span><span><i class="text-info-info fas fa-spinner animate-spin-slow"/></span>
                 </p>
                 <p v-else-if="hasBid" class="flex justify-between">
                     <span class="text-grad-dark">You have been outbid</span><span><i class="text-info-error fas fa-circle-exclamation"/></span>
