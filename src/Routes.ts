@@ -8,7 +8,7 @@ import RealmsComplete from '@/components/realms/Complete.vue';
 import ProfilePageVue from '@/components/profile/ProfilePage.vue';
 
 import ThemesListingVue from './components/builder/genesis/ThemesListing.vue';
-import ThemeMainPageVue from './components/builder/genesis/ThemeMainPage.vue';
+import ThemeRouter from './components/builder/genesis/ThemeRouter.vue';
 import BoxSalePageVue from './components/builder/genesis/BoxSalePage.vue';
 import BoxPageVue from './components/builder/genesis/BoxPage.vue';
 
@@ -87,12 +87,7 @@ export const routes = [
     {
         path: '/product/:theme',
         name: 'Theme',
-        component: ThemeMainPageVue,
-    },
-    {
-        path: '/product/ducks_everywhere',
-        name: 'Ducks Everywhere',
-        component: ThemePageDucks,
+        component: ThemeRouter,
     },
     {
         path: '/product/:theme/:box',
