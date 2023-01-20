@@ -199,38 +199,48 @@ const timerCountdown = computed(() => {
                     <h3 class="text-center mb-6">FAQ</h3>
                     <div class="faq flex flex-col gap-4">
                         <ToggleParagraph>
-                            <template #title>What is Starknet Planet?</template>
-                            <p>StarkNet Planet is the first official theme created for briq. It’s a composition of many different sets on the theme of venturing into the unknown.</p>
-                            <p>It celebrates the diversity of the StarkNet ecosystem and the playfulness of playing with spaceships and rockets as a kid. You will find spacemen, rocket ships, and different modules representing projects from the StarkNet ecosystem.</p>
+                            <template #title>What is Ducks Everywhere?</template>
+                            <div>
+                                <p>The <a href="https://twitter.com/DucksEverywher2" target="_blank">Ducks Everywhere</a> collection is waddling into town, and it's bringing a whole flock of adorable NFT duckies with it.</p>
+                                <p>These tiny, briq-built ducks are the perfect addition to any collection that's in need of some quackers. With only 200 available, each one is a unique creation of artist <a href="https://twitter.com/outsmth" target="_blank">OutSmth</a></p>
+                            </div>
                         </ToggleParagraph>
                         <ToggleParagraph>
-                            <template #title>What’s a briq box?</template>
-                            <p>A briq box is an NFT which holds briqs and instructions on how to build an official briq set. If you follow the instructions in the booklet and mint the set, we will verify it on the blockchain and give you a seal of authenticity.</p>
-                            <p>You can choose to keep the briq box like a collectioner or you can choose to open up the box. All our NFT’s are tradable.</p>
-                            <p>Unboxing your box is a one-time action that can’t be undone: once a box is opened, it will be burned and you’ll get the briqs and the booklet NFT in your wallet in exchange. Once you have your briqs and the instruction booklet, you can start building your official set.</p>
+                            <template #title>How does the sale work?</template>
+                            <div>
+                                <p>The sale happens in two steps: First an allowlist auction where all whitelisted addresses can bid on a maximum of 5 different ducks.</p>
+                                <p>Then, the ducks that haven’t been sold will be sold in a blind raffle open to everyone. You’ll be able to buy one of the remaining ducks, but you won’t know which one until the raffle is over and we reveal the ducks!</p>
+                            </div>
                         </ToggleParagraph>
                         <ToggleParagraph>
-                            <template #title>How does the instruction booklet work?</template>
-                            <p>The instruction booklet details how to build an official set. It’s represented as a little booklet, in the form of an NFT. You can trade the booklet or use it to create an official set. </p>
-                            <p>To build an official set you need to build the correct set by following the instructions and hold the corresponding booklet in your wallet. If you build the correct shape without the booklet, you can still mint it your set, but it will not be an official one.</p>
+                            <template #title>Which addresses are in the auction allowlist?</template>
+                            <div>
+                                <p> - Addresses which own a Duck on StarkNet Testnet Goerli 1 on the date of the snapshot (will be announced via our <a href="https://twitter.com/briqNFT" target="_blank">Twitter</a>)</p>
+                                <p> - Addresses which own a box, a booklet or an official briq set on StarkNet Mainnet.</p>
+                                <p>Custom creations do not qualify for the allowlist.</p>
+                            </div>
                         </ToggleParagraph>
                         <ToggleParagraph>
-                            <template #title>What happens when I’ve finished building my official set?</template>
-                            <p>Once you have built the correct shape in the briq builder, the system will tell you that you can now mint it. Minting an official set will transfer the required briqs and the booklet to the newly minted set. They don’t disappear, they’re just part of the set. You can get them back by disassembling your set.</p>
+                            <template #title>What do I get when I buy a Ducks Everywhere set?</template>
+                            <p>You will get a fully built out briq Official Set. This Official Set will contain a Ducks Everywhere Booklet, that can be used to identify this NFT amongs all other briq sets and ensure it remains unique forever.</p>
                         </ToggleParagraph>
                         <ToggleParagraph>
-                            <template #title>What happens if I disassemble an official set?</template>
-                            <p>Disassembling an official set will burn it, and you will receive the corresponding booklet NFT and the briqs.</p>
+                            <template #title>Do I need to build the Ducks Everywhere set?</template>
+                            <p>Nope! The set is already fully built out by OutSmth.</p>
                         </ToggleParagraph>
                         <ToggleParagraph>
-                            <template #title>On which blockchain is briq available?</template>
-                            <p>Briq is available on StarkNet, a validity rollup working on Ethereum (more information <a href="https://starkware.co/starknet/" target="_blank">here</a>). </p>
-                            <p>In terms of wallet you can use <a href="https://www.argent.xyz/argent-x/" target="_blank">Argent X</a> and <a href="https://braavos.app/" target="_blank">Braavos</a>. Metamask doesn’t yet work on StarkNet. We recommend using the Chrome browser.</p>
+                            <template #title>What happens if I disassemble my Ducks Everywhere set?</template>
+                            <div>
+                                <p>You will receive briqs and the booklet NFT inside the Ducks Everywhere. You will be able to build anything you want with the briqs you receive.</p>
+                                <p>If you want to rebuild your Ducks Everywhere set you will be able to do so by following the instructions in the booklet.</p>
+                            </div>
                         </ToggleParagraph>
                         <ToggleParagraph>
-                            <template #title>How do I build a set presented in a box?</template>
-                            <p>Get the box, unbox it, then select it in your user profile to start building it in the <router-link :to="{ name: 'Builder' }" target="_blank">briq builder</router-link> and follow the instructions.</p>
-                            <p>If you need help using the builder, go to the <a href="https://www.notion.so/4a4958337970483dbfc2c1184290b42f" target="_blank">help center</a>.</p>
+                            <template #title>On which blockchain is this available?</template>
+                            <div>
+                                <p>Briq is available on StarkNet, a validity rollup working on Ethereum (more information <a href="https://starkware.co/starknet/" target="_blank">here</a>). </p>
+                                <p>In terms of wallet you can use <a href="https://www.argent.xyz/argent-x/" target="_blank">Argent X</a> and <a href="https://braavos.app/" target="_blank">Braavos</a>. Metamask doesn’t yet work on StarkNet. We recommend using the Chrome browser.</p>
+                            </div>
                         </ToggleParagraph>
                         <ToggleParagraph>
                             <template #title>Something doesn’t work, what should I do?</template>
