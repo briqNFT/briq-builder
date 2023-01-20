@@ -63,7 +63,7 @@ const shouldShow = (auctionId: auctionId) => {
 
 const hoveredAuction = ref(undefined);
 
-const releaseDate = Date.now() + 10000;
+const releaseDate = Date.now() - 10000;
 
 const isLive = computed(() => releaseDate < Date.now());
 
@@ -156,12 +156,12 @@ const timerCountdown = computed(() => {
                                 <h3>Other ducks</h3>
                             </template>
                             <div class="grid grid-cols-5 gap-4">
-                                <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 col-span-4">
-                                    <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)">
+                                <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 col-span-4 gap-4">
+                                    <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)" class="w-[10rem] h-[10rem]">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
                                             <div
-                                                class="p-2 w-[10rem] h-[10rem] bg-grad-lightest rounded-md border-grad-lighter border flex justify-center items-center"
+                                                class="p-2 max-h-full max-w-full bg-grad-lightest rounded-md border-grad-lighter hover:border-grad-light border flex justify-center items-center"
                                                 @mouseenter="hoveredAuction = duckId">
                                                 <img :src="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')">
                                             </div>
