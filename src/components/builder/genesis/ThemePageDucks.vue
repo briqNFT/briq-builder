@@ -126,7 +126,7 @@ const timerCountdown = computed(() => {
             <template v-if="isLive">
                 <div class="mb-8">
                     <template v-if="themeStatus === 'LOADED'">
-                        <div class="container m-auto mt-8">
+                        <div class="max-w-[1700px] px-8 m-auto mt-8">
                             <p class="text-center my-8">
                                 <input class="max-w-[40rem] w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
                                 <i class="fa-solid fa-magnifying-glass relative right-8"/>
@@ -152,12 +152,12 @@ const timerCountdown = computed(() => {
                                 <h3>Other ducks</h3>
                             </template>
                             <div class="grid grid-cols-5 gap-4">
-                                <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 col-span-4 gap-4">
-                                    <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)" class="w-[10rem] h-[10rem]">
+                                <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 col-span-4 gap-4">
+                                    <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)" class="w-[10.5rem] h-[10.5rem]">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
                                             <div
-                                                class="p-2 h-[10rem] w-[10rem] bg-grad-lightest rounded-md border-grad-lighter hover:border-grad-light border flex justify-center items-center"
+                                                class="overflow-hidden h-[10.5rem] w-[10.5rem] bg-grad-lightest rounded border-grad-lighter hover:border-grad-light border flex justify-center items-center"
                                                 @mouseenter="hoveredAuction = duckId">
                                                 <img :src="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')">
                                             </div>
