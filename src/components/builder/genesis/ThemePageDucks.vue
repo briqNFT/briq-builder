@@ -164,9 +164,10 @@ const timerCountdown = computed(() => {
                                         </RouterLink>
                                     </div>
                                 </div>
-                                <div>
+                                <div class="relative">
                                     <AuctionItemCard
                                         v-if="auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
+                                        class="sticky top-[80px]"
                                         :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
                                         :title="getSet(hoveredAuction)!.name ?? 'Loading'"
                                         :subtitle="'Set & Booklet'"
