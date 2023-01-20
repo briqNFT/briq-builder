@@ -161,7 +161,7 @@ const timerCountdown = computed(() => {
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
                                             <div
-                                                class="p-2 max-h-full max-w-full bg-grad-lightest rounded-md border-grad-lighter hover:border-grad-light border flex justify-center items-center"
+                                                class="p-2 h-[10rem] w--[10rem] bg-grad-lightest rounded-md border-grad-lighter hover:border-grad-light border flex justify-center items-center"
                                                 @mouseenter="hoveredAuction = duckId">
                                                 <img :src="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')">
                                             </div>
