@@ -43,8 +43,6 @@ const coverUrl = computed(() => {
     }
 })
 
-const isLive = true;
-
 const availableDucks = computed(() => themeBoxes.value?._data?.filter(x => auctionDataStore['starknet-testnet'][x].auctionData(x)._data?.token_id) || []);
 
 const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore2.current?.getBid(x)) || []);
@@ -62,6 +60,25 @@ const shouldShow = (auctionId: auctionId) => {
         return true;
     return false;
 };
+
+const hoveredAuction = ref(undefined);
+
+const releaseDate = Date.now() + 10000;
+
+const isLive = computed(() => releaseDate < Date.now());
+
+const timerCountdown = computed(() => {
+    let tl = Math.max(releaseDate - Date.now(), 0) / 1000;
+    const days = Math.floor(tl / 24 / 3600);
+    tl -= days * 24 * 3600;
+    const hours = Math.floor(tl / 3600);
+    tl -= hours * 3600;
+    const minutes = Math.floor(tl / 60);
+    tl -= minutes * 60;
+    const seconds = Math.floor(tl);
+    return [[days !== 1 ? 'Days' : 'Day', days], [hours !== 1 ? 'Hours' : 'Hour', hours], [minutes !== 1 ? 'Minutes' : 'Minute', minutes], [seconds !== 1 ? 'Seconds' : 'seconds', seconds]];
+});
+
 
 </script>
 
@@ -85,46 +102,28 @@ const shouldShow = (auctionId: auctionId) => {
                         <img :src="coverUrl('low')" alt="logo" class="invisible absolute h-full 2xl:h-auto 2xl:w-full max-w-none max-h-none top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]">
                         <div class="h-full w-full bg-cover bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${coverUrl('high')}), url(${coverUrl('low')})` }"/>
                     </div>
-                    <div class="min-h-[500px] container py-[3.375rem] m-auto px-2 md:px-8 lg:px-[3.375rem] relative z-1">
+                    <div class="min-h-[585px] container py-[3.375rem] m-auto px-2 md:px-8 lg:px-[3.375rem] relative z-1">
                         <!--<h1 class="text-left font-black uppercase my-16">{{ themeData.name || route.params.theme }}</h1>-->
                         <h1><img class="min-h-[7rem]" :srcset="themeLogoSrcSet(themeName)" :alt="themeData?.name || (route.params.theme as string)"></h1>
                         <div class="mt-12 mb-8">
                             <h3 class="mb-3">{{ themeData?.tagline ?? "Loading theme name " }}</h3>
                             <p class="whitespace-pre-line">{{ themeData?.description ?? 'Loading description' }}</p>
                         </div>
-                        <template v-if="!isLive && hasDate">
-                            <div class="w-[340px] my-8 px-2 py-2 border border-primary rounded backdrop-blur-md backdrop-brightness-50">
-                                <p class="text-sm">Sale starting soon</p>
-                                <div class="mt-2 grid grid-cols-4 gap-2 auction-countdown">
-                                    <div
-                                        v-for="i in timerCountdown" :key="i[0]"
-                                        class=" h-full w-full bg-white bg-opacity-10 rounded text-center py-2">
-                                        <p class="text-xl">{{ i?.[1] ?? '??' }}</p>
-                                        <p class="text-xs capitalize">{{ i[0] }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                        <template v-else-if="false">
-                            <div class="text-[55%] sm:text-sm md:text-md">
-                                <svg viewBox="0 0 600 150" height="9.375em" xmlns="http://www.w3.org/2000/svg">
-                                    <mask id="myMask">
-                                        <text x="0" y="64" font-size="4rem" stroke-width="2.5px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                            LAUNCH DATE
-                                        </text>
-                                        <text x="0" y="140" font-size="4rem" stroke-width="2.5px" font-weight="900" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                            DROPPING SOON
-                                        </text>
-                                    </mask>
-                                    <text x="0" y="64" mask="url(#myMask)" stroke-width="2.5px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                        LAUNCH DATE
+                        <div v-if="!isLive" class="text-[55%] sm:text-sm md:text-md absolute bottom-[-15px] right-[2rem]">
+                            <svg viewBox="0 0 1000 100" height="120px" xmlns="http://www.w3.org/2000/svg">
+                                <text x="1000" y="64" font-size="4rem" font-weight="900" text-anchor="end" font-family="Work Sans" fill-opacity="0.3" fill="#000000" paint-order="stroke" letter-spacing="2px">
+                                    AUCTION FEB 08-13
+                                </text>
+                                <mask id="myMask">
+                                    <text x="1000" y="64" font-size="4rem" stroke-width="5px" font-weight="900" text-anchor="end" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
+                                        AUCTION FEB 08-13
                                     </text>
-                                    <text x="0" y="140" mask="url(#myMask)" stroke-width="2.5px" font-size="4rem" font-weight="900" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                        DROPPING SOON
-                                    </text>
-                                </svg>
-                            </div>
-                        </template>
+                                </mask>
+                                <text x="1000" y="64" mask="url(#myMask)" stroke-width="5px" font-size="4rem" font-weight="900" text-anchor="end" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#ffffff" paint-order="stroke" letter-spacing="2px">
+                                    AUCTION FEB 08-13
+                                </text>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -138,33 +137,45 @@ const shouldShow = (auctionId: auctionId) => {
                             </p>
                             <template v-if="bidOnDucks.length">
                                 <h3>My active bids ({{ bidOnDucks.length }}/{{ 5 }})</h3>
-                                <p>You can bid on a maximum of 5 ducks, even if you are outbid.</p>
+                                <p>
+                                    You can bid on a maximum of 5 ducks, even if you are outbid.<br>If you want more, wait for the raffle phase and/or check out Mintsquare.
+                                </p>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 xl:gap-4 my-4">
-                                    <div v-for="auction_id, i in bidOnDucks" :key="auction_id + i" v-show="shouldShow(auction_id)">
-                                        <p v-if="!getSet(auction_id)">...Loading data...</p>
-                                        <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(auction_id)!.id } }">
+                                    <div v-for="duckId, i in bidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)">
+                                        <p v-if="!getSet(duckId)">...Loading data...</p>
+                                        <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
                                             <AuctionItemCard
-                                                :auction-data="auctionDataStore['starknet-testnet'][auction_id].auctionData(auction_id)._data"
-                                                :title="getSet(auction_id)!.name ?? 'Loading'"
-                                                :subtitle="'Set & Booklet'"
-                                                :image="backendManager.getPreviewUrl(getSet(auction_id)!.id, 'starknet-testnet')"
+                                                :auction-data="auctionDataStore['starknet-testnet'][duckId].auctionData(duckId)._data"
+                                                :title="getSet(duckId)!.name ?? 'Loading'"
+                                                :subtitle="'Official Set & Booklet'"
+                                                :image="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')"
                                                 :status="'LOADED'"/>
                                         </RouterLink>
                                     </div>
                                 </div>
                                 <h3>Other ducks</h3>
                             </template>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 my-4">
-                                <div v-for="auction_id, i in notBidOnDucks" :key="auction_id + i" v-show="shouldShow(auction_id)">
-                                    <p v-if="!getSet(auction_id)">...Loading data...</p>
-                                    <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(auction_id)!.id } }">
-                                        <AuctionItemCard
-                                            :auction-data="auctionDataStore['starknet-testnet'][auction_id].auctionData(auction_id)._data"
-                                            :title="getSet(auction_id)!.name ?? 'Loading'"
-                                            :subtitle="'Set & Booklet'"
-                                            :image="backendManager.getPreviewUrl(getSet(auction_id)!.id, 'starknet-testnet')"
-                                            :status="'LOADED'"/>
-                                    </RouterLink>
+                            <div class="grid grid-cols-5 gap-4">
+                                <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 col-span-4">
+                                    <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)">
+                                        <p v-if="!getSet(duckId)">...Loading data...</p>
+                                        <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
+                                            <div
+                                                class="p-2 w-[10rem] h-[10rem] bg-grad-lightest rounded-md border-grad-lighter border flex justify-center items-center"
+                                                @mouseenter="hoveredAuction = duckId">
+                                                <img :src="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')">
+                                            </div>
+                                        </RouterLink>
+                                    </div>
+                                </div>
+                                <div>
+                                    <AuctionItemCard
+                                        v-if="auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
+                                        :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
+                                        :title="getSet(hoveredAuction)!.name ?? 'Loading'"
+                                        :subtitle="'Set & Booklet'"
+                                        :image="backendManager.getPreviewUrl(getSet(hoveredAuction)!.id, 'starknet-testnet')"
+                                        :status="'LOADED'"/>
                                 </div>
                             </div>
                         </div>
