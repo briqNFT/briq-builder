@@ -506,7 +506,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                                 :href="ExplorerTxUrl(bid.tx_hash)" target="_blank"
                                 class="block border-b border-grad-light last:border-none px-4 py-3">
                                 <div class="flex justify-between">
-                                    <p class="text-primary">{{ bid.bidder.substring(0, 8) + "..." + bid.bidder.slice(-8) }}</p>
+                                    <a :href="ExplorerTxUrl(bid.bidder)" target="_blank"><p>By <span class="text-primary">{{ bid.bidder.substring(0, 8) + "..." + bid.bidder.slice(-8) }}</span></p></a>
                                     <p>{{ readableUnit(bid.bid) }} {{ readableNumber(bid.bid) }} <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
                                 </div>
                             </a>
