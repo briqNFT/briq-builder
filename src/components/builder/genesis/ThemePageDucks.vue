@@ -21,14 +21,10 @@ const themeName = computed(() => 'ducks_everywhere');
 const genesisStore = useGenesisStore();
 
 const themeData = computed(() => genesisStore.themedata[themeName.value]?._data );
-const themeBoxes = computed(() => genesisStore.boxes[themeName.value]);
-
-watchEffect(() => themeBoxes.value?._data?.map((x: string) => auctionDataStore['starknet-testnet'][x] ));
+const themeBoxes = computed(() => Object.keys(auctionDataStore['starknet-testnet']['ducks_everywhere/1']._data?._data || {}));
 
 const themeStatus = computed(() => {
-    if (themeBoxes.value?._status !== 'LOADED')
-        return themeBoxes.value?._status;
-    return themeBoxes.value?._data?.some((x: string) => genesisStore.saledata[x]._status === 'LOADED') ? 'LOADED' : 'FETCHING';
+    return auctionDataStore['starknet-testnet']['ducks_everywhere/1']._data?._status;
 });
 
 const {
@@ -43,7 +39,7 @@ const coverUrl = computed(() => {
     }
 })
 
-const availableDucks = computed(() => themeBoxes.value?._data?.filter(x => auctionDataStore['starknet-testnet'][x].auctionData(x)._data?.token_id) || []);
+const availableDucks = computed(() => themeBoxes.value?.filter(x => auctionDataStore['starknet-testnet'][x].auctionData(x)._data?.token_id) || []);
 
 const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore2.current?.getBid(x)) || []);
 const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore2.current?.getBid(x)) || []);
@@ -161,7 +157,7 @@ const timerCountdown = computed(() => {
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
                                             <div
-                                                class="p-2 h-[10rem] w--[10rem] bg-grad-lightest rounded-md border-grad-lighter hover:border-grad-light border flex justify-center items-center"
+                                                class="p-2 h-[10rem] w-[10rem] bg-grad-lightest rounded-md border-grad-lighter hover:border-grad-light border flex justify-center items-center"
                                                 @mouseenter="hoveredAuction = duckId">
                                                 <img :src="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')">
                                             </div>
