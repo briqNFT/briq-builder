@@ -103,7 +103,7 @@ popScroll();
     opacity: 0%;
 }
 .fade-enter-active, .fade-leave-active {
-    transition: all 0.1s ease !important;
+    transition: all 0.3s ease !important;
 }
 .fade-hoverlock-leave-active {
     transition: all 0.2s ease !important;
@@ -209,9 +209,17 @@ popScroll();
                                                 :expand="true"
                                                 :title="getSet(hoverLock)!.name"
                                                 :subtitle="getSet(hoverLock)!.description"
-                                                :image="backendManager.getPreviewUrl(getSet(hoverLock)!.id, 'starknet-testnet')"
                                                 :status="'LOADED'"/>
                                         </Transition>
+                                        <!-- This item exists solely so that the opacity transition doesn't reveal the background but stays on a card,
+                                            since that looks better -->
+                                        <AuctionDetailCard
+                                            v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
+                                            :class="`!absolute top-0`"
+                                            :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
+                                            :title="getSet(hoveredAuction)!.name"
+                                            :subtitle="getSet(hoveredAuction)!.description"
+                                            :status="'LOADED'"/>
                                         <Transition name="fade">
                                             <AuctionDetailCard
                                                 :key="hoveredAuction"
@@ -220,7 +228,6 @@ popScroll();
                                                 :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
                                                 :title="getSet(hoveredAuction)!.name"
                                                 :subtitle="getSet(hoveredAuction)!.description"
-                                                :image="backendManager.getPreviewUrl(getSet(hoveredAuction)!.id, 'starknet-testnet')"
                                                 :status="'LOADED'"/>
                                         </Transition>
                                     </div>

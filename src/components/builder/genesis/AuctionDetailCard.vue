@@ -13,7 +13,6 @@ const props = defineProps<{
     title: string,
     subtitle: string,
     status: 'LOADED' | 'FETCHING' | 'ERROR',
-    image: string,
     auctionData: AuctionItemData,
     expand?: boolean,
 }>();
@@ -50,6 +49,8 @@ const cannotBidReason = computed(() => {
     return '';
 })
 
+const highImage = computed(() => backendManager.getPreviewUrl(props.auctionData.token_id, 'starknet-testnet'));
+const lowImage = computed(() => backendManager.getRoute(`set/${'starknet-testnet'}/${props.auctionData.token_id}/small_preview.jpg`))
 </script>
 
 <style scoped>
@@ -62,14 +63,14 @@ const cannotBidReason = computed(() => {
 </style>
 
 <template>
-    <div class="bg-white rounded-md shadow-sm item-card">
+    <div class="bg-white rounded-md shadow-sm item-card w-full">
         <div class="flex flex-col gap-2 h-full">
             <template v-if="status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
                 <p
                     :class="`rounded-md overflow-hidden min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-max bg-cover bg-origin-content bg-center bg-no-repeat`"
-                    :style="{ backgroundImage: `url(${backendManager.getRoute(`set/${'starknet-testnet'}/${auctionData.token_id}/small_preview.jpg`)})` }">
-                    <img class="min-h-0 min-w-0 max-h-full max-w-full" :src="image">
+                    :style="{ backgroundImage: `url(${highImage}), url(${lowImage})` }">
+                    <img class="min-h-0 min-w-0 max-h-full max-w-full invisible" :src="lowImage">
                 </p>
                 <h3 class="font-semibold text-lg px-4 overflow-x-auto">{{ title }} </h3>
                 <p class="px-4 flex justify-between text-md py-[1px]">{{ subtitle }}</p>
