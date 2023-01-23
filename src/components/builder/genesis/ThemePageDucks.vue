@@ -14,6 +14,7 @@ import { backendManager } from '@/Backend';
 import { SetData } from '@/builder/SetData';
 import { externalSetCache } from '@/builder/ExternalSets';
 import AuctionDetailCard from './AuctionDetailCard.vue';
+import { APP_ENV } from '@/Meta';
 
 const route = useRoute();
 
@@ -82,7 +83,7 @@ const iScroll = ref(20);
 const popScroll = () => setTimeout(() => {
     iScroll.value += 10;
     popScroll();
-}, 2000);
+}, APP_ENV === 'dev' ? 200 : 8000);
 popScroll();
 
 </script>
