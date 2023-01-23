@@ -15,7 +15,7 @@ const props = defineProps<{
     status: 'LOADED' | 'FETCHING' | 'ERROR',
     image: string,
     auctionData: AuctionItemData,
-    expand: boolean,
+    expand?: boolean,
 }>();
 
 const hasHighestBid = computed(() => {

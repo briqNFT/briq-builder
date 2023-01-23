@@ -96,14 +96,23 @@ popScroll();
     @apply text-primary;
 }
 
-.fade-enter-to, .fade-leave-from {
+.fade-enter-to, .fade-leave-from, .fade-hoverlock-leave-from {
     opacity: 100%;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from, .fade-leave-to, .fade-hoverlock-leave-to {
     opacity: 0%;
 }
 .fade-enter-active, .fade-leave-active {
     transition: all 0.1s ease !important;
+}
+.fade-hoverlock-leave-active {
+    transition: all 0.2s ease !important;
+}
+.fade-hoverlock-leave-from {
+    @apply !rotate-[3deg];
+}
+.fade-hoverlock-leave-to {
+    @apply !rotate-[6deg];
 }
 
 </style>
@@ -191,15 +200,18 @@ popScroll();
                                 </div>
                                 <div class="relative">
                                     <div class="sticky top-[80px]">
-                                        <AuctionDetailCard
-                                            v-if="auctionDataStore['starknet-testnet']?.[hoverLock]?.auctionData(hoverLock)?._data"
-                                            :class="`transition-all duration-500 !absolute top-0 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
-                                            :auction-data="auctionDataStore['starknet-testnet'][hoverLock].auctionData(hoverLock)._data"
-                                            :expand="true"
-                                            :title="getSet(hoverLock)!.name"
-                                            :subtitle="getSet(hoverLock)!.description"
-                                            :image="backendManager.getPreviewUrl(getSet(hoverLock)!.id, 'starknet-testnet')"
-                                            :status="'LOADED'"/>
+                                        <Transition name="fade-hoverlock">
+                                            <AuctionDetailCard
+                                                :key="hoverLock"
+                                                v-if="auctionDataStore['starknet-testnet']?.[hoverLock]?.auctionData(hoverLock)?._data"
+                                                :class="`transition-all duration-500 !absolute top-0 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
+                                                :auction-data="auctionDataStore['starknet-testnet'][hoverLock].auctionData(hoverLock)._data"
+                                                :expand="true"
+                                                :title="getSet(hoverLock)!.name"
+                                                :subtitle="getSet(hoverLock)!.description"
+                                                :image="backendManager.getPreviewUrl(getSet(hoverLock)!.id, 'starknet-testnet')"
+                                                :status="'LOADED'"/>
+                                        </Transition>
                                         <Transition name="fade">
                                             <AuctionDetailCard
                                                 :key="hoveredAuction"
