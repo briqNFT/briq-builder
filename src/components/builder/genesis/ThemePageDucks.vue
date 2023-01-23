@@ -43,7 +43,7 @@ const coverUrl = computed(() => {
 const availableDucks = computed(() => themeBoxes.value?.filter(x => auctionDataStore['starknet-testnet'][x].auctionData(x)._data?.token_id) || []);
 
 const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore2.current?.getBid(x)) || []);
-const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore2.current?.getBid(x)) || []);
+const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore2.current?.getBid(x)).slice(0, iScroll.value) || []);
 
 const getSet = (auctionId: auctionId) => externalSetCache['starknet-testnet'][auctionDataStore['starknet-testnet'][auctionId].auctionData(auctionId)._data!.token_id]._data;
 
@@ -77,6 +77,13 @@ const timerCountdown = computed(() => {
     return [[days !== 1 ? 'Days' : 'Day', days], [hours !== 1 ? 'Hours' : 'Hour', hours], [minutes !== 1 ? 'Minutes' : 'Minute', minutes], [seconds !== 1 ? 'Seconds' : 'seconds', seconds]];
 });
 
+
+const iScroll = ref(20);
+const popScroll = () => setTimeout(() => {
+    iScroll.value += 10;
+    popScroll();
+}, 2000);
+popScroll();
 
 </script>
 
@@ -179,6 +186,7 @@ const timerCountdown = computed(() => {
                                         :image="backendManager.getPreviewUrl(getSet(hoveredAuction)!.id, 'starknet-testnet')"
                                         :status="'LOADED'"/>
                                 </div>
+                                <p v-if="iScroll < 200">(loading more)</p>
                             </div>
                         </div>
                     </template>
