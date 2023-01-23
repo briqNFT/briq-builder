@@ -13,6 +13,7 @@ import AuctionItemCard from './AuctionItemCard.vue';
 import { backendManager } from '@/Backend';
 import { SetData } from '@/builder/SetData';
 import { externalSetCache } from '@/builder/ExternalSets';
+import AuctionDetailCard from './AuctionDetailCard.vue';
 
 const route = useRoute();
 
@@ -58,6 +59,7 @@ const shouldShow = (auctionId: auctionId) => {
 };
 
 const hoveredAuction = ref(undefined);
+const hoverLock = ref(false);
 
 const releaseDate = Date.now() - 10000;
 
@@ -153,21 +155,24 @@ const timerCountdown = computed(() => {
                             </template>
                             <div class="grid grid-cols-5 gap-4">
                                 <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 col-span-4 gap-4">
-                                    <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)" class="w-[10.5rem] h-[10.5rem]">
+                                    <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)" class="w-[10rem] h-[10rem]">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
-                                        <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
-                                            <div
-                                                class="overflow-hidden h-[10.5rem] w-[10.5rem] bg-grad-lightest rounded border-grad-lighter hover:border-grad-light border flex justify-center items-center"
-                                                @mouseenter="hoveredAuction = duckId">
-                                                <img :src="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')">
-                                            </div>
-                                        </RouterLink>
+                                        <!--
+                                            <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
+                                                -->
+                                        <div
+                                            :class="`h-[10rem] w-[10rem] cursor-pointer overflow-hidden rounded ${hoverLock && hoveredAuction == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
+                                            @mouseenter="hoveredAuction = !hoverLock ? duckId : hoveredAuction"
+                                            @click="hoverLock = hoveredAuction === duckId ? !hoverLock : true; hoveredAuction = duckId">
+                                            <img :src="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')">
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <AuctionItemCard
+                                    <AuctionDetailCard
                                         v-if="auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
                                         class="sticky top-[80px]"
+                                        :expand="hoverLock"
                                         :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
                                         :title="getSet(hoveredAuction)!.name ?? 'Loading'"
                                         :subtitle="'Set & Booklet'"

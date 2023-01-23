@@ -16,6 +16,7 @@ const step = ref('MAKE_BID' as 'MAKE_BID' | 'SIGNING' | 'PROCESSING' | 'PENDING'
 
 const props = defineProps<{
     item: string,
+    name: string,
 }>();
 
 const termsSale = ref(false);
@@ -97,7 +98,7 @@ const makeBid = async () => {
 
 <template>
     <WindowVue v-if="step === 'MAKE_BID' || step === 'SIGNING'" :size="'md:w-[40rem]'">
-        <template #title>Place a bid</template>
+        <template #title>Place a bid {{ name ? `on ${name}` : '' }}</template>
         <div class="flex flex-col gap-8">
             <div v-if="auctionData?.highest_bid !== '0'" class="flex flex-col items-center gap-2">
                 <p class="text-md">Current winning bid</p>
