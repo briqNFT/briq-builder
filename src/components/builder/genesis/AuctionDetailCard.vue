@@ -70,7 +70,9 @@ const doBid = async () => {
             </p>
             <template v-else>
                 <p v-if="expand" class="flex justify-between">
-                    <Btn secondary>See details</Btn>
+                    <RouterLink :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: auctionData.token_id } }">
+                        <Btn secondary>See details</Btn>
+                    </RouterLink>
                     <Btn @click="doBid">Make a bid</Btn>
                 </p>
                 <p v-else class="flex justify-center text-grad-dark italic text-xs">

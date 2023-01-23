@@ -164,10 +164,8 @@ popScroll();
                                 <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 col-span-4 gap-4">
                                     <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)" class="w-[10rem] h-[10rem]">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
-                                        <!--
-                                            <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
-                                                -->
                                         <div
+                                            v-else
                                             :class="`h-[10rem] w-[10rem] cursor-pointer overflow-hidden rounded ${hoverLock && hoveredAuction == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
                                             @mouseenter="hoveredAuction = !hoverLock ? duckId : hoveredAuction"
                                             @click="hoverLock = hoveredAuction === duckId ? !hoverLock : true; hoveredAuction = duckId">
