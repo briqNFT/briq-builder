@@ -83,7 +83,7 @@ const iScroll = ref(20);
 const popScroll = () => setTimeout(() => {
     iScroll.value += 10;
     popScroll();
-}, APP_ENV === 'dev' ? 200 : 8000);
+}, APP_ENV === 'dev' ? 200 : 2000);
 popScroll();
 
 </script>
