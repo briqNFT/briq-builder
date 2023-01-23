@@ -53,9 +53,6 @@ const cannotBidReason = computed(() => {
 </script>
 
 <style scoped>
-.item-card > div {
-    @apply flex flex-col;
-}
 .item-card p, .item-card :slotted(p) {
     @apply text-copy;
 }
@@ -65,8 +62,8 @@ const cannotBidReason = computed(() => {
 </style>
 
 <template>
-    <div :class="'item-card relative h-full' + status">
-        <div class="bg-white rounded-md gap-2 shadow-sm h-full">
+    <div class="bg-white rounded-md shadow-sm item-card">
+        <div class="flex flex-col gap-2 h-full">
             <template v-if="status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
                 <p

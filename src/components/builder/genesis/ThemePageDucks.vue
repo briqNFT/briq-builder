@@ -59,8 +59,8 @@ const shouldShow = (auctionId: auctionId) => {
     return false;
 };
 
-const hoveredAuction = ref(undefined);
-const hoverLock = ref(false);
+const hoveredAuction = ref(undefined as undefined | string);
+const hoverLock = ref(undefined as undefined | string);
 
 const releaseDate = Date.now() - 10000;
 
@@ -94,6 +94,16 @@ popScroll();
 }
 .faq p a {
     @apply text-primary;
+}
+
+.fade-enter-to, .fade-leave-from {
+    opacity: 100%;
+}
+.fade-enter-from, .fade-leave-to {
+    opacity: 0%;
+}
+.fade-enter-active, .fade-leave-active {
+    transition: all 0.1s ease !important;
 }
 
 </style>
@@ -162,28 +172,46 @@ popScroll();
                                 <h3>Other ducks</h3>
                             </template>
                             <div class="grid grid-cols-[auto_20rem] xl:grid-cols-[auto_26rem] gap-4">
-                                <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4">
-                                    <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)" class="w-[10rem] h-[10rem]">
+                                <div
+                                    class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4"
+                                    @pointerleave="hoveredAuction = undefined">
+                                    <div
+                                        v-for="duckId, i in notBidOnDucks" :key="duckId + i"
+                                        v-show="shouldShow(duckId)"
+                                        class="w-[10rem] h-[10rem]">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <div
                                             v-else
-                                            :class="`h-[10rem] w-[10rem] cursor-pointer overflow-hidden rounded ${hoverLock && hoveredAuction == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
-                                            @mouseenter="hoveredAuction = !hoverLock ? duckId : hoveredAuction"
-                                            @click="hoverLock = hoveredAuction === duckId ? !hoverLock : true; hoveredAuction = duckId">
+                                            :class="`h-[10rem] w-[10rem] cursor-pointer overflow-hidden rounded ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
+                                            @mouseenter="hoveredAuction = duckId"
+                                            @click="hoverLock = duckId">
                                             <img :src="backendManager.getRoute(`set/${'starknet-testnet'}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <AuctionDetailCard
-                                        v-if="auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
-                                        class="sticky top-[80px]"
-                                        :expand="hoverLock"
-                                        :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
-                                        :title="getSet(hoveredAuction)!.name"
-                                        :subtitle="getSet(hoveredAuction)!.description"
-                                        :image="backendManager.getPreviewUrl(getSet(hoveredAuction)!.id, 'starknet-testnet')"
-                                        :status="'LOADED'"/>
+                                    <div class="sticky top-[80px]">
+                                        <AuctionDetailCard
+                                            v-if="auctionDataStore['starknet-testnet']?.[hoverLock]?.auctionData(hoverLock)?._data"
+                                            :class="`transition-all duration-500 !absolute top-0 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
+                                            :auction-data="auctionDataStore['starknet-testnet'][hoverLock].auctionData(hoverLock)._data"
+                                            :expand="true"
+                                            :title="getSet(hoverLock)!.name"
+                                            :subtitle="getSet(hoverLock)!.description"
+                                            :image="backendManager.getPreviewUrl(getSet(hoverLock)!.id, 'starknet-testnet')"
+                                            :status="'LOADED'"/>
+                                        <Transition name="fade">
+                                            <AuctionDetailCard
+                                                :key="hoveredAuction"
+                                                v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
+                                                :class="`!absolute top-0 ${hoverLock ? '!shadow-xl' : ''}`"
+                                                :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
+                                                :title="getSet(hoveredAuction)!.name"
+                                                :subtitle="getSet(hoveredAuction)!.description"
+                                                :image="backendManager.getPreviewUrl(getSet(hoveredAuction)!.id, 'starknet-testnet')"
+                                                :status="'LOADED'"/>
+                                        </Transition>
+                                    </div>
                                 </div>
                                 <p v-if="iScroll < 200">(loading more)</p>
                             </div>
