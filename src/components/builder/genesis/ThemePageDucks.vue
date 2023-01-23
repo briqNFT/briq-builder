@@ -161,8 +161,8 @@ popScroll();
                                 </div>
                                 <h3>Other ducks</h3>
                             </template>
-                            <div class="grid grid-cols-5 gap-4">
-                                <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 col-span-4 gap-4">
+                            <div class="grid grid-cols-[auto_20rem] xl:grid-cols-[auto_26rem] gap-4">
+                                <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4">
                                     <div v-for="duckId, i in notBidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)" class="w-[10rem] h-[10rem]">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <div
@@ -180,8 +180,8 @@ popScroll();
                                         class="sticky top-[80px]"
                                         :expand="hoverLock"
                                         :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
-                                        :title="getSet(hoveredAuction)!.name ?? 'Loading'"
-                                        :subtitle="'Set & Booklet'"
+                                        :title="getSet(hoveredAuction)!.name"
+                                        :subtitle="getSet(hoveredAuction)!.description"
                                         :image="backendManager.getPreviewUrl(getSet(hoveredAuction)!.id, 'starknet-testnet')"
                                         :status="'LOADED'"/>
                                 </div>
