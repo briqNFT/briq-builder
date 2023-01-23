@@ -41,6 +41,14 @@ const doBid = async () => {
     await pushModal(BidModal, { item: props.auctionData.auctionId, name: props.title })
 }
 
+const cannotBidReason = computed(() => {
+    if (!userBidsStore2.current)
+        return 'You must connect a wallet to bid';
+    if (userBidsStore2.current.getNbBids() >= 5 && !hasBid.value)
+        return 'You have already bid on 5 ducks so you cannot bid on this one.';
+    return '';
+})
+
 </script>
 
 <template>
@@ -73,7 +81,7 @@ const doBid = async () => {
                     <RouterLink :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: auctionData.token_id } }">
                         <Btn secondary>See details</Btn>
                     </RouterLink>
-                    <Btn @click="doBid">Make a bid</Btn>
+                    <Btn :disabled="!!cannotBidReason" :tooltip="cannotBidReason" @click="doBid">Make a bid</Btn>
                 </p>
                 <p v-else class="flex justify-center text-grad-dark italic text-xs">
                     Click on the card to see more
