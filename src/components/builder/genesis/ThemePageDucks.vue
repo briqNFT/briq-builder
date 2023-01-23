@@ -170,7 +170,7 @@ popScroll();
                                             :class="`h-[10rem] w-[10rem] cursor-pointer overflow-hidden rounded ${hoverLock && hoveredAuction == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
                                             @mouseenter="hoveredAuction = !hoverLock ? duckId : hoveredAuction"
                                             @click="hoverLock = hoveredAuction === duckId ? !hoverLock : true; hoveredAuction = duckId">
-                                            <img :src="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')">
+                                            <img :src="backendManager.getRoute(`set/${'starknet-testnet'}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                         </div>
                                     </div>
                                 </div>
