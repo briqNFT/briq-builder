@@ -85,16 +85,19 @@ const shouldShow = (auctionId: auctionId) => {
 const hoveredAuction = ref(undefined as undefined | string);
 const hoverLock = ref(undefined as undefined | string);
 
-// Have some debouncing so that clicking -> hover on the right doesn't flash cards for a short while
-// if you go fast enough (AKA UI magic).
+// Have some debouncing so that clicking to lock a card -> hover on the right to bid
+// doesn't flash cards for a short while if you go fast enough (AKA UI magic).
 let upcomingHover = undefined as auctionId | undefined;
+let timeout: unknown;
 const setHoveredDuck = (auctionId: auctionId | undefined) => {
     upcomingHover = auctionId;
-    if (hoverLock.value === hoveredAuction.value)
-        setTimeout(() => {
+    if (hoverLock.value === hoveredAuction.value) {
+        if (timeout)
+            clearTimeout(timeout);
+        timeout = setTimeout(() => {
             hoveredAuction.value = upcomingHover;
         }, 100);
-    else
+    } else
         hoveredAuction.value = upcomingHover;
 };
 
@@ -132,13 +135,20 @@ popScroll();
     @apply text-primary;
 }
 
-.fade-enter-to, .fade-leave-from, .fade-hoverlock-leave-from {
+.fade-enter-to, .fade-leave-from, .fade-hoverlock-leave-from
+{
     opacity: 100%;
 }
-.fade-enter-from, .fade-leave-to, .fade-hoverlock-leave-to {
+
+.fade-enter-from, .fade-leave-to, .fade-hoverlock-leave-to,
+    .fake-fadeout-leave-from, .fake-fadeout-leave-to,
+    .fake-fadeout-enter-to, .fake-fadeout-enter-from {
     opacity: 0%;
 }
-.fade-enter-active, .fade-leave-active {
+.fake-fadeout-leave-active {
+    transition: all 0s;
+}
+.fade-enter-active, .fade-leave-active, .fake-fadeout-enter-active {
     transition: all 0.3s ease !important;
 }
 .fade-hoverlock-leave-active {
@@ -237,7 +247,7 @@ popScroll();
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <div
                                             v-else
-                                            :class="`h-[10rem] w-[10rem] cursor-pointer overflow-hidden rounded ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
+                                            :class="`h-[10rem] w-[10rem] cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
                                             @mouseenter="setHoveredDuck(duckId)"
                                             @click="hoverLock = duckId">
                                             <img :src="backendManager.getRoute(`set/${'starknet-testnet'}/${getSet(duckId)!.id}/small_preview.jpg`)">
@@ -259,13 +269,15 @@ popScroll();
                                         </Transition>
                                         <!-- This item exists solely so that the opacity transition doesn't reveal the background but stays on a card,
                                             since that looks better -->
-                                        <AuctionDetailCard
-                                            v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
-                                            :class="`!absolute top-0`"
-                                            :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
-                                            :title="getSet(hoveredAuction)!.name"
-                                            :subtitle="getSet(hoveredAuction)!.description"
-                                            :status="'LOADED'"/>
+                                        <Transition name="fake-fadeout">
+                                            <AuctionDetailCard
+                                                v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
+                                                :class="`!absolute top-0`"
+                                                :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
+                                                :title="getSet(hoveredAuction)!.name"
+                                                :subtitle="getSet(hoveredAuction)!.description"
+                                                :status="'LOADED'"/>
+                                        </Transition>
                                         <Transition name="fade">
                                             <AuctionDetailCard
                                                 :key="hoveredAuction"
