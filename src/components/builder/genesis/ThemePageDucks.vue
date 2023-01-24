@@ -71,7 +71,7 @@ const sortDucks = (a: auctionId, b: auctionId) => {
 }
 
 const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore2.current?.getBid(x)).sort(sortDucks) || []);
-const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore2.current?.getBid(x)).slice(0, iScroll.value).sort(sortDucks) || []);
+const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore2.current?.getBid(x)).sort(sortDucks).slice(0, iScroll.value) || []);
 
 const shouldShow = (auctionId: auctionId) => {
     if (!searchBar.value)
@@ -218,11 +218,13 @@ popScroll();
                                 </p>
                             </div>
                         </div>
-                        <div class="max-w-[1700px] px-8 m-auto mt-8">
+                        <div class="max-w-[1600px] px-8 m-auto mt-8">
                             <template v-if="bidOnDucks.length">
                                 <h2>My bids</h2>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 xl:gap-4 my-4">
-                                    <div v-for="duckId, i in bidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 xl:gap-4 my-4 justify-items-center">
+                                    <div
+                                        v-for="duckId, i in bidOnDucks" :key="duckId + i"
+                                        class="w-fit" v-show="shouldShow(duckId)">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
                                             <AuctionItemCard
@@ -236,61 +238,66 @@ popScroll();
                                 </div>
                                 <h2 class="mt-8 mb-4">Other ducks</h2>
                             </template>
-                            <div class="grid grid-cols-[auto_20rem] xl:grid-cols-[auto_26rem] gap-4">
+                            <div
+                                class="grid gap-4 grid-cols-[min-content_minmax(20rem,auto)]">
                                 <div
-                                    class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4"
+                                    class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
+                                    md:grid-cols-[repeat(3,9rem)]
+                                    lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
                                     @pointerleave="setHoveredDuck(undefined)">
                                     <div
                                         v-for="duckId, i in notBidOnDucks" :key="duckId + i"
                                         v-show="shouldShow(duckId)"
-                                        class="w-[10rem] h-[10rem]">
+                                        class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <div
                                             v-else
-                                            :class="`h-[10rem] w-[10rem] cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
+                                            :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
                                             @mouseenter="setHoveredDuck(duckId)"
                                             @click="hoverLock = duckId">
                                             <img :src="backendManager.getRoute(`set/${'starknet-testnet'}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                         </div>
                                     </div>
+                                    <p v-if="iScroll < 200">(loading more)</p>
                                 </div>
                                 <div class="relative">
-                                    <div class="sticky top-[80px] z-20">
-                                        <Transition name="fade-hoverlock">
-                                            <AuctionDetailCard
-                                                :key="hoverLock"
-                                                v-if="auctionDataStore['starknet-testnet']?.[hoverLock]?.auctionData(hoverLock)?._data"
-                                                :class="`transition-all duration-500 !absolute top-0 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
-                                                :auction-data="auctionDataStore['starknet-testnet'][hoverLock].auctionData(hoverLock)._data"
-                                                :expand="true"
-                                                :title="getSet(hoverLock)!.name"
-                                                :subtitle="getSet(hoverLock)!.description"
-                                                :status="'LOADED'"/>
-                                        </Transition>
-                                        <!-- This item exists solely so that the opacity transition doesn't reveal the background but stays on a card,
+                                    <div class="sticky top-[8.4rem] z-20 flex justify-center w-full">
+                                        <div class="max-w-[26rem] relative w-full">
+                                            <Transition name="fade-hoverlock">
+                                                <AuctionDetailCard
+                                                    :key="hoverLock"
+                                                    v-if="auctionDataStore['starknet-testnet']?.[hoverLock]?.auctionData(hoverLock)?._data"
+                                                    :class="`transition-all duration-500 !absolute top-0 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
+                                                    :auction-data="auctionDataStore['starknet-testnet'][hoverLock].auctionData(hoverLock)._data"
+                                                    :expand="true"
+                                                    :title="getSet(hoverLock)!.name"
+                                                    :subtitle="getSet(hoverLock)!.description"
+                                                    :status="'LOADED'"/>
+                                            </Transition>
+                                            <!-- This item exists solely so that the opacity transition doesn't reveal the background but stays on a card,
                                             since that looks better -->
-                                        <Transition name="fake-fadeout">
-                                            <AuctionDetailCard
-                                                v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
-                                                :class="`!absolute top-0`"
-                                                :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
-                                                :title="getSet(hoveredAuction)!.name"
-                                                :subtitle="getSet(hoveredAuction)!.description"
-                                                :status="'LOADED'"/>
-                                        </Transition>
-                                        <Transition name="fade">
-                                            <AuctionDetailCard
-                                                :key="hoveredAuction"
-                                                v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
-                                                :class="`!absolute top-0 ${hoverLock ? '!shadow-xl' : ''}`"
-                                                :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
-                                                :title="getSet(hoveredAuction)!.name"
-                                                :subtitle="getSet(hoveredAuction)!.description"
-                                                :status="'LOADED'"/>
-                                        </Transition>
+                                            <Transition name="fake-fadeout">
+                                                <AuctionDetailCard
+                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
+                                                    :class="`!absolute top-0`"
+                                                    :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
+                                                    :title="getSet(hoveredAuction)!.name"
+                                                    :subtitle="getSet(hoveredAuction)!.description"
+                                                    :status="'LOADED'"/>
+                                            </Transition>
+                                            <Transition name="fade">
+                                                <AuctionDetailCard
+                                                    :key="hoveredAuction"
+                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
+                                                    :class="`!absolute top-0 ${hoverLock ? '!shadow-xl' : ''}`"
+                                                    :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
+                                                    :title="getSet(hoveredAuction)!.name"
+                                                    :subtitle="getSet(hoveredAuction)!.description"
+                                                    :status="'LOADED'"/>
+                                            </Transition>
+                                        </div>
                                     </div>
                                 </div>
-                                <p v-if="iScroll < 200">(loading more)</p>
                             </div>
                         </div>
                     </template>

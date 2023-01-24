@@ -50,8 +50,12 @@ const doBid = async () => {
 <template>
     <GenericCardVue
         :title="title" :subtitle="subtitle" :status="status"
-        :image-src="image"
         :show-pending-marker="false">
+        <template #image>
+            <p :class="`min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-full max-h-[18rem]`">
+                <img class="min-h-0 min-w-0 max-h-[18rem] max-w-full rounded overflow-hidden" :src="image">
+            </p>
+        </template>
         <template #content>
             <template v-if="highestBid === '0'">
                 <p class="flex justify-between">

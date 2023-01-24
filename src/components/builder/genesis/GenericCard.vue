@@ -5,7 +5,7 @@ defineProps<{
     title: string | undefined,
     subtitle?: string,
     status: 'LOADED' | 'ERROR' | 'FETCHING',
-    imageSrc: string | undefined,
+    imageSrc?: string | undefined,
     imageBg?: string,
     showPendingMarker?: boolean
 }>();
@@ -44,9 +44,12 @@ defineProps<{
             </template>
             <template v-if="status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
-                <p :class="`rounded-md overflow-hidden min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-[13rem] ${imageBg ?? ''}`">
-                    <img class="min-h-0 min-w-0 max-h-full max-w-full" :src="imageSrc">
-                </p>
+                <slot name="image"/>
+                <template v-if="!$slots.image">
+                    <p :class="`rounded-md overflow-hidden min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-[13rem] ${imageBg ?? ''}`">
+                        <img class="min-h-0 min-w-0 max-h-full max-w-full" :src="imageSrc">
+                    </p>
+                </template>
                 <h3 class="font-semibold text-md px-4 overflow-x-auto">{{ title }} </h3>
 
                 <div v-if="!$slots.subtitle" class="px-4 flex justify-between text-sm leading-none py-[1px]">{{ subtitle }}</div>
