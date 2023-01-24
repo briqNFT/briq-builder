@@ -37,7 +37,7 @@ p, :slotted(p), /deep/ p {
         <Header/>
         <div>
             <div class="container m-auto min-h-[calc(100vh-4rem)]">
-                <div class="flex flex-col-reverse md:grid md:grid-cols-[7fr_5fr] gap-6 my-6">
+                <div class="flex flex-col-reverse md:grid md:grid-cols-[7fr_5fr] gap-6 py-6">
                     <div class="flex flex-col gap-6">
                         <slot name="full-image" :status="status"/>
                         <div v-if="!$slots['full-image']" class="flex justify-center items-center h-[24rem] md:h-[36rem] bg-grad-lightest rounded-lg overflow-hidden border-grad-light border">
