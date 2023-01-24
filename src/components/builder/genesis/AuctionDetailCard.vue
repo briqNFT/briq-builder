@@ -44,8 +44,6 @@ const doBid = async () => {
 const cannotBidReason = computed(() => {
     if (!userBidsStore2.current)
         return 'You must connect a wallet to bid';
-    if (userBidsStore2.current.getNbBids() >= 5 && !hasBid.value)
-        return 'You have already bid on 5 ducks so you cannot bid on this one.';
     return '';
 })
 

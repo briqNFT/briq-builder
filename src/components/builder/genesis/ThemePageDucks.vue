@@ -57,6 +57,16 @@ const sortDucks = (a: auctionId, b: auctionId) => {
         if (cmp !== 0)
             return sortOrder.value === 'bids_desc' ? cmp : -cmp;
     }
+    if (sortOrder.value === 'dates_desc' || sortOrder.value === 'dates_asc') {
+        let ba = auctionDataStore['starknet-testnet'][a].auctionData(a)._data?.bids[0]?.timestamp;
+        let bb = auctionDataStore['starknet-testnet'][b].auctionData(b)._data?.bids[0]?.timestamp;
+        if (ba && bb)
+            return sortOrder.value === 'dates_desc' ? -ba.localeCompare(bb) : ba.localeCompare(bb);
+        else if (ba)
+            return -1;
+        else if (bb)
+            return 1;
+    }
     return (getSet(a)?.name || a).localeCompare(getSet(b)?.name || b);
 }
 
@@ -74,6 +84,19 @@ const shouldShow = (auctionId: auctionId) => {
 
 const hoveredAuction = ref(undefined as undefined | string);
 const hoverLock = ref(undefined as undefined | string);
+
+// Have some debouncing so that clicking -> hover on the right doesn't flash cards for a short while
+// if you go fast enough (AKA UI magic).
+let upcomingHover = undefined as auctionId | undefined;
+const setHoveredDuck = (auctionId: auctionId | undefined) => {
+    upcomingHover = auctionId;
+    if (hoverLock.value === hoveredAuction.value)
+        setTimeout(() => {
+            hoveredAuction.value = upcomingHover;
+        }, 100);
+    else
+        hoveredAuction.value = upcomingHover;
+};
 
 const releaseDate = Date.now() - 10000;
 
@@ -174,13 +197,11 @@ popScroll();
                                     <input class="w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
                                     <i class="fa-solid fa-magnifying-glass absolute right-3"/>
                                 </p>
-                                <p class="relative w-[10rem]">
+                                <p class="relative w-[14rem]">
                                     <select class="relative w-full" v-model="sortOrder">
-                                        <option value="a_z">Sort A-Z</option>
-                                        <!--
+                                        <option value="a_z">Sort alphabetically</option>
                                         <option value="dates_desc">Sort by latest bids</option>
-                                        <option value="dates_desc">Sort by oldest bids</option>
-                                        -->
+                                        <option value="dates_asc">Sort by oldest bids</option>
                                         <option value="bids_desc">Sort by highest bids</option>
                                         <option value="bids_asc">Sort by lowest bids</option>
                                     </select>
@@ -208,7 +229,7 @@ popScroll();
                             <div class="grid grid-cols-[auto_20rem] xl:grid-cols-[auto_26rem] gap-4">
                                 <div
                                     class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4"
-                                    @pointerleave="hoveredAuction = undefined">
+                                    @pointerleave="setHoveredDuck(undefined)">
                                     <div
                                         v-for="duckId, i in notBidOnDucks" :key="duckId + i"
                                         v-show="shouldShow(duckId)"
@@ -217,7 +238,7 @@ popScroll();
                                         <div
                                             v-else
                                             :class="`h-[10rem] w-[10rem] cursor-pointer overflow-hidden rounded ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
-                                            @mouseenter="hoveredAuction = duckId"
+                                            @mouseenter="setHoveredDuck(duckId)"
                                             @click="hoverLock = duckId">
                                             <img :src="backendManager.getRoute(`set/${'starknet-testnet'}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                         </div>
