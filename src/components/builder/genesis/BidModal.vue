@@ -48,8 +48,12 @@ const weiBid = computed(() => {
 
 const balance = computed(() => userBalance.current?.asEth());
 
-const yourCurrentBid = computed(() => userBidsStore2.current?.getBid(props.item)?.bid_amount);
-const yourMaxBid = computed(() => starknet.number.toBN(userBalance.current?.balance._data).add(starknet.number.toBN(yourCurrentBid.value)))
+const yourCurrentBid = computed(() => starknet.number.toBN(userBidsStore2.current?.getBid(props.item)?.bid_amount));
+const yourMaxBid = computed(() => {
+    if (currentBid.value.cmp(yourCurrentBid.value) === 0)
+        return starknet.number.toBN(userBalance.current?.balance._data).add(yourCurrentBid.value);
+    return starknet.number.toBN(userBalance.current?.balance._data);
+});
 
 const canMakeBid = computed(() => {
     if (!termsBriq.value || !termsSale.value)
@@ -117,7 +121,7 @@ const makeBid = async () => {
                 </p>
                 <p class="flex justify-between text-sm text-grad-dark gap-2">
                     <span v-if="!!yourCurrentBid">Your last bid: {{ readableNumber(yourCurrentBid) }} {{ readableUnit(yourCurrentBid) }}</span>
-                    <span v-if="balance">You can bid up to: {{ readableNumber(yourMaxBid) }} {{ readableUnit(yourMaxBid) }}</span>
+                    <span v-if="balance">You can bid up to {{ readableNumber(yourMaxBid) }} {{ readableUnit(yourMaxBid) }}</span>
                 </p>
             </div>
             <div class="text-sm flex flex-col gap-4">

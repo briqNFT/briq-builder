@@ -63,16 +63,19 @@ const doBid = async () => {
                     <span class="text-grad-dark">Winning Bid</span><span class="font-medium">{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span>
                 </p>
             </template>
-            <p v-if="hasHighestBid" class="flex justify-between">
-                <span class="text-grad-dark">Your bid is the winning bid</span><span><i class="text-info-success fas fa-circle-check"/></span>
-            </p>
+            <template v-if="hasHighestBid">
+                <p class="flex justify-between">
+                    <span class="text-grad-dark">Your bid is the winning bid</span><span><i class="text-info-success fas fa-circle-check"/></span>
+                </p>
+                <Btn secondary @click.prevent="doBid">Make a new bid</Btn>
+            </template>
             <p v-else-if="hasPendingBid" class="flex justify-between">
                 <span class="text-grad-dark">You have a pending bid</span><span><i class="text-info-info fas fa-spinner animate-spin-slow"/></span>
             </p>
             <template v-else-if="hasBid">
                 <p class="flex justify-between">
-                    <span class="text-grad-dark">Your bid</span>
-                    <span><i class="text-info-error far fa-circle-exclamation"/> {{ readableNumber(currentBid!.bid_amount) }} {{ readableUnit(currentBid!.bid_amount) }}</span>
+                    <span class="text-grad-dark">You have been outbid!</span>
+                    <span><i class="text-info-error far fa-circle-exclamation"/></span>
                 </p>
                 <Btn @click.prevent="doBid">Make a new bid</Btn>
             </template>
