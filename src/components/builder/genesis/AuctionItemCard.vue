@@ -5,6 +5,8 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { computed } from 'vue';
 import GenericCardVue from './GenericCard.vue';
 import * as starknet from 'starknet';
+import { pushModal } from '@/components/Modals.vue';
+import BidModal from './BidModal.vue';
 
 const props = defineProps<{
     title: string,
@@ -26,6 +28,10 @@ const hasBid = computed(() => {
     return !!userBidsStore2.current?.getBid(props.auctionData.auctionId);
 })
 
+const currentBid = computed(() => {
+    return userBidsStore2.current?.getBid(props.auctionData.auctionId);
+})
+
 const hasPendingBid = computed(() => {
     const bid = userBidsStore2.current?.getBid(props.auctionData.auctionId);
     if (!bid)
@@ -33,6 +39,11 @@ const hasPendingBid = computed(() => {
     // If the pending bid is lower than the current highest known bid, don't show it.
     return props.auctionData.highest_bid === '0' || starknet.number.toBN(bid.bid_amount).cmp(starknet.number.toBN(props.auctionData.highest_bid)) > 0;
 });
+
+const doBid = async () => {
+    await pushModal(BidModal, { item: props.auctionData.auctionId, name: props.title })
+}
+
 
 </script>
 
@@ -58,9 +69,13 @@ const hasPendingBid = computed(() => {
             <p v-else-if="hasPendingBid" class="flex justify-between">
                 <span class="text-grad-dark">You have a pending bid</span><span><i class="text-info-info fas fa-spinner animate-spin-slow"/></span>
             </p>
-            <p v-else-if="hasBid" class="flex justify-between">
-                <span class="text-grad-dark">You have been outbid</span><span><i class="text-info-error fas fa-circle-exclamation"/></span>
-            </p>
+            <template v-else-if="hasBid">
+                <p class="flex justify-between">
+                    <span class="text-grad-dark">Your bid</span>
+                    <span><i class="text-info-error far fa-circle-exclamation"/> {{ readableNumber(currentBid!.bid_amount) }} {{ readableUnit(currentBid!.bid_amount) }}</span>
+                </p>
+                <Btn @click.prevent="doBid">Make a new bid</Btn>
+            </template>
             <p v-else><span class="text-grad-dark">Make a bid and win this duck!</span></p>
         </template>
     </genericcardvue>

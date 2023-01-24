@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, Ref, ref, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
-import { AuctionItemData, Bid, userBidsStore2 as userBidsStore } from '@/builder/AuctionData';
+import { AuctionItemData, Bid, userBidsStore2 as userBidsStore, userBidsStore2 } from '@/builder/AuctionData';
 import { userBalance } from '@/builder/UserBalance.js';
 import * as starknet from 'starknet';
 import { useBids } from '@/components/BidComposable.js';
@@ -48,6 +48,9 @@ const weiBid = computed(() => {
 
 const balance = computed(() => userBalance.current?.asEth());
 
+const yourCurrentBid = computed(() => userBidsStore2.current?.getBid(props.item)?.bid_amount);
+const yourMaxBid = computed(() => starknet.number.toBN(userBalance.current?.balance._data).add(starknet.number.toBN(yourCurrentBid.value)))
+
 const canMakeBid = computed(() => {
     if (!termsBriq.value || !termsSale.value)
         return false;
@@ -57,7 +60,7 @@ const canMakeBid = computed(() => {
 const canMakeBidReason = computed(() => {
     if (bid.value === undefined)
         return undefined;
-    if (balance.value && weiBid.value.cmp(starknet.number.toBN(userBalance.current?.balance._data)) > 0)
+    if (balance.value && weiBid.value.cmp(yourMaxBid.value) > 0)
         return 'Bid is greater than your balance';
     if (weiBid.value.cmp(minNewBid.value) < 0)
         return 'Bid must be more than the current bid + 1%';
@@ -112,7 +115,10 @@ const makeBid = async () => {
                 <p>
                     <input :disabled="step === 'SIGNING'" class="w-full my-2" type="number" :min="readableNumber(minNewBid)" step="0.01" v-model="bid" :placeholder="`Bid ${readableNumber(minNewBid)} ${readableUnit(minNewBid)} or more`">
                 </p>
-                <p v-show="balance" class="text-right text-sm text-grad-darker">Available: {{ balance }} {{ readableUnit(userBalance.current?.balance._data) }}</p>
+                <p class="flex justify-between text-sm text-grad-dark gap-2">
+                    <span v-if="!!yourCurrentBid">Your last bid: {{ readableNumber(yourCurrentBid) }} {{ readableUnit(yourCurrentBid) }}</span>
+                    <span v-if="balance">You can bid up to: {{ readableNumber(yourMaxBid) }} {{ readableUnit(yourMaxBid) }}</span>
+                </p>
             </div>
             <div class="text-sm flex flex-col gap-4">
                 <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
