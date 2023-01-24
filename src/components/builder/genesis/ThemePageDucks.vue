@@ -11,7 +11,6 @@ import { useThemeURLs } from './ThemeUrlComposable';
 import { auctionDataStore, auctionId, userBidsStore2 } from '@/builder/AuctionData';
 import AuctionItemCard from './AuctionItemCard.vue';
 import { backendManager } from '@/Backend';
-import { SetData } from '@/builder/SetData';
 import { externalSetCache } from '@/builder/ExternalSets';
 import AuctionDetailCard from './AuctionDetailCard.vue';
 import { APP_ENV } from '@/Meta';
@@ -202,8 +201,8 @@ popScroll();
                 <div class="mb-8">
                     <template v-if="themeStatus === 'LOADED'">
                         <div class="sticky top-[calc(4rem-1px)] z-10 my-2 bg-background py-6 w-full">
-                            <div class="max-w-[1700px] px-8 m-auto flex gap-2">
-                                <p class="relative flex items-center flex-1 max-w-[40rem]">
+                            <div class="max-w-[1600px] px-8 m-auto flex gap-2">
+                                <p class="relative flex items-center flex-1 max-w-[38rem]">
                                     <input class="w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
                                     <i class="fa-solid fa-magnifying-glass absolute right-3"/>
                                 </p>
@@ -218,7 +217,7 @@ popScroll();
                                 </p>
                             </div>
                         </div>
-                        <div class="max-w-[1600px] px-8 m-auto mt-8">
+                        <div class="max-w-[1600px] px-8 m-auto mt-3">
                             <template v-if="bidOnDucks.length">
                                 <h2>My bids</h2>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 xl:gap-4 my-4 justify-items-center">

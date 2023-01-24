@@ -44,6 +44,8 @@ const doBid = async () => {
 const cannotBidReason = computed(() => {
     if (!userBidsStore2.current)
         return 'You must connect a wallet to bid';
+    if (maybeStore.value?.userWalletAddress === 'toto')
+        return 'You are not part of the allowlist, and cannot bid until the general auction starts.';
     return '';
 })
 
