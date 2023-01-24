@@ -15,6 +15,7 @@ import { SetData } from '@/builder/SetData';
 import { externalSetCache } from '@/builder/ExternalSets';
 import AuctionDetailCard from './AuctionDetailCard.vue';
 import { APP_ENV } from '@/Meta';
+import * as starknet from 'starknet';
 
 const route = useRoute();
 
@@ -43,12 +44,24 @@ const coverUrl = computed(() => {
 
 const availableDucks = computed(() => themeBoxes.value?.filter(x => auctionDataStore['starknet-testnet'][x].auctionData(x)._data?.token_id) || []);
 
-const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore2.current?.getBid(x)) || []);
-const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore2.current?.getBid(x)).slice(0, iScroll.value) || []);
-
 const getSet = (auctionId: auctionId) => externalSetCache['starknet-testnet'][auctionDataStore['starknet-testnet'][auctionId].auctionData(auctionId)._data!.token_id]._data;
 
 const searchBar = ref<string>();
+const sortOrder = ref('a_z');
+
+const sortDucks = (a: auctionId, b: auctionId) => {
+    if (sortOrder.value === 'bids_desc' || sortOrder.value === 'bids_asc') {
+        let cmp = starknet.number.toBN(auctionDataStore['starknet-testnet'][b].auctionData(b)._data?.highest_bid).cmp(
+            starknet.number.toBN(auctionDataStore['starknet-testnet'][a].auctionData(a)._data?.highest_bid),
+        );
+        if (cmp !== 0)
+            return sortOrder.value === 'bids_desc' ? cmp : -cmp;
+    }
+    return (getSet(a)?.name || a).localeCompare(getSet(b)?.name || b);
+}
+
+const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore2.current?.getBid(x)).sort(sortDucks) || []);
+const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore2.current?.getBid(x)).slice(0, iScroll.value).sort(sortDucks) || []);
 
 const shouldShow = (auctionId: auctionId) => {
     if (!searchBar.value)
@@ -155,16 +168,28 @@ popScroll();
             <template v-if="isLive">
                 <div class="mb-8">
                     <template v-if="themeStatus === 'LOADED'">
-                        <div class="max-w-[1700px] px-8 m-auto mt-8">
-                            <p class="text-center my-8">
-                                <input class="max-w-[40rem] w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
-                                <i class="fa-solid fa-magnifying-glass relative right-8"/>
-                            </p>
-                            <template v-if="bidOnDucks.length">
-                                <h3>My active bids ({{ bidOnDucks.length }}/{{ 5 }})</h3>
-                                <p>
-                                    You can bid on a maximum of 5 ducks, even if you are outbid.<br>If you want more, wait for the raffle phase and/or check out Mintsquare.
+                        <div class="sticky top-[calc(4rem-1px)] z-10 my-2 bg-background py-6 w-full">
+                            <div class="max-w-[1700px] px-8 m-auto flex gap-2">
+                                <p class="relative flex items-center flex-1 max-w-[40rem]">
+                                    <input class="w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
+                                    <i class="fa-solid fa-magnifying-glass absolute right-3"/>
                                 </p>
+                                <p class="relative w-[10rem]">
+                                    <select class="relative w-full" v-model="sortOrder">
+                                        <option value="a_z">Sort A-Z</option>
+                                        <!--
+                                        <option value="dates_desc">Sort by latest bids</option>
+                                        <option value="dates_desc">Sort by oldest bids</option>
+                                        -->
+                                        <option value="bids_desc">Sort by highest bids</option>
+                                        <option value="bids_asc">Sort by lowest bids</option>
+                                    </select>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="max-w-[1700px] px-8 m-auto mt-8">
+                            <template v-if="bidOnDucks.length">
+                                <h2>My bids</h2>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 xl:gap-4 my-4">
                                     <div v-for="duckId, i in bidOnDucks" :key="duckId + i" v-show="shouldShow(duckId)">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
@@ -178,7 +203,7 @@ popScroll();
                                         </RouterLink>
                                     </div>
                                 </div>
-                                <h3>Other ducks</h3>
+                                <h2 class="mt-8 mb-4">Other ducks</h2>
                             </template>
                             <div class="grid grid-cols-[auto_20rem] xl:grid-cols-[auto_26rem] gap-4">
                                 <div
@@ -199,7 +224,7 @@ popScroll();
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <div class="sticky top-[80px]">
+                                    <div class="sticky top-[80px] z-20">
                                         <Transition name="fade-hoverlock">
                                             <AuctionDetailCard
                                                 :key="hoverLock"
