@@ -259,14 +259,14 @@ popScroll();
                                     </div>
                                     <p v-if="iScroll < 200">(loading more)</p>
                                 </div>
-                                <div class="relative">
-                                    <div class="sticky top-[8.4rem] z-20 flex justify-center w-full">
+                                <div class="relative min-h-[30rem]">
+                                    <div class="sticky top-[9.2rem] z-5 flex justify-center w-full">
                                         <div class="max-w-[26rem] relative w-full">
                                             <Transition name="fade-hoverlock">
                                                 <AuctionDetailCard
                                                     :key="hoverLock"
                                                     v-if="auctionDataStore['starknet-testnet']?.[hoverLock]?.auctionData(hoverLock)?._data"
-                                                    :class="`transition-all duration-500 !absolute top-0 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
+                                                    :class="`transition-all duration-500 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
                                                     :auction-data="auctionDataStore['starknet-testnet'][hoverLock].auctionData(hoverLock)._data"
                                                     :expand="true"
                                                     :title="getSet(hoverLock)!.name"
