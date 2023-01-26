@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect, watch, reactive } from 'vue';
+import { ref, computed, watchEffect, onMounted, onUnmounted } from 'vue';
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import { useRoute } from 'vue-router';
@@ -100,10 +100,20 @@ const selectFirstDuck = () => {
         if (!availableDucks.value.length)
             return;
         setHoveredDuck(availableDucks.value[0]);
-        stopHandle();
-    })
+        // Timeout to make sure stopHandle is defined.
+        setTimeout(() => stopHandle(), 0);
+    });
+    return stopHandle;
 }
-selectFirstDuck();
+
+let stopSFD : any;
+onMounted(() => {
+    stopSFD = selectFirstDuck();
+});
+
+onUnmounted(() => {
+    stopSFD();
+});
 
 // Have some debouncing so that clicking to lock a card -> hover on the right to bid
 // doesn't flash cards for a short while if you go fast enough (AKA UI magic).
@@ -264,7 +274,7 @@ popScroll();
                                     class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
                                     md:grid-cols-[repeat(3,9rem)]
                                     lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
-                                    @pointerleave="setHoveredDuck(undefined)">
+                                    @pointerleave="hoverLock && setHoveredDuck(undefined)">
                                     <div
                                         v-for="duckId, i in notBidOnDucks" :key="duckId + i"
                                         v-show="shouldShow(duckId)"
@@ -301,8 +311,8 @@ popScroll();
                                                     v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
                                                     :class="`!absolute top-0`"
                                                     :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
-                                                    :title="getSet(hoveredAuction)!.name"
-                                                    :subtitle="getSet(hoveredAuction)!.description"
+                                                    :title="getSet(hoveredAuction)?.name"
+                                                    :subtitle="getSet(hoveredAuction)?.description"
                                                     :status="'LOADED'"/>
                                             </Transition>
                                             <Transition name="fade">
@@ -311,8 +321,8 @@ popScroll();
                                                     v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
                                                     :class="`!absolute top-0 ${hoverLock ? '!shadow-xl' : ''}`"
                                                     :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
-                                                    :title="getSet(hoveredAuction)!.name"
-                                                    :subtitle="getSet(hoveredAuction)!.description"
+                                                    :title="getSet(hoveredAuction)?.name"
+                                                    :subtitle="getSet(hoveredAuction)?.description"
                                                     :status="'LOADED'"/>
                                             </Transition>
                                         </div>

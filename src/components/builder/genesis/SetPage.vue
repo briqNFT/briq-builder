@@ -195,6 +195,25 @@ const doBid = async () => {
     await pushModal(BidModal, { item: auctionId.value })
 }
 
+const timerCountdown = (date: number) => {
+    let tl = Math.max(date - Date.now(), 0) / 1000;
+    const days = Math.floor(tl / 24 / 3600);
+    if (days > 0)
+        return days > 1 ? `${days} days` : `${days} day`;
+    tl -= days * 24 * 3600;
+    const hours = Math.floor(tl / 3600);
+    if (hours > 0)
+        return hours > 1 ? `${hours} days` : `${hours} day`;
+    tl -= hours * 3600;
+    const minutes = Math.floor(tl / 60);
+    if (minutes > 0)
+        return minutes > 1 ? `${minutes} days` : `${minutes} day`;
+    tl -= minutes * 60;
+    const seconds = Math.floor(tl);
+    if (seconds > 0)
+        return seconds > 1 ? `${seconds} days` : `${seconds} day`;
+};
+
 watchEffect(async () => {
     // Hack: always use external data when using auction, so that my dev env (where I use sets I made) works.
     if (auctionId.value)
@@ -207,7 +226,7 @@ watchEffect(async () => {
     auctionDataStore['starknet-testnet'][auctionId.value].fetchBids(auctionId.value);
 })
 
-// End of acution stuff
+// End of auction stuff
 
 const description = computed(() => {
     if (mode === 'CREATION' && set.value?.description)
@@ -482,7 +501,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                             <p v-if="hasHighestBid" class="text-grad-dark">You currently have the winning bid.</p>
                             <p v-else-if="hasPendingBid" class="text-grad-dark"><i class="text-info-info far fa-circle-exclamation"/> You have a pending winning bid at {{ pendingBidString }}.</p>
                             <p v-else-if="hasBid" class="text-grad-dark"><i class="text-info-error far fa-circle-exclamation"/> You have been outbid by another user.</p>
-                            <p><span class="font-medium">End of auction: </span> {{ new Date((auctionData.start_date + auctionData.duration)*1000).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
+                            <p>Auction ends in <span class="font-medium">{{ timerCountdown(auctionData.end_date) }}</span></p>
                         </div>
                     </template>
                     <template v-else>
