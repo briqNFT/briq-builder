@@ -48,6 +48,16 @@ const getSet = (auctionId: auctionId) => externalSetCache['starknet-testnet'][au
 const searchBar = ref<string>();
 const sortOrder = ref('a_z');
 
+// Make sure to scroll up when searching or behaviour gets a bit weird.
+const ducksListing = ref(null as unknown as HTMLElement);
+watchEffect(() => {
+    if (!ducksListing.value)
+        return;
+    searchBar.value;
+    if (ducksListing.value.getBoundingClientRect().top < -100)
+        window.scrollTo(0, ducksListing.value.getBoundingClientRect().top + window.scrollY - 200);
+})
+
 const sortDucks = (a: auctionId, b: auctionId) => {
     if (sortOrder.value === 'bids_desc' || sortOrder.value === 'bids_asc') {
         let cmp = starknet.number.toBN(auctionDataStore['starknet-testnet'][b].auctionData(b)._data?.highest_bid).cmp(
@@ -83,6 +93,17 @@ const shouldShow = (auctionId: auctionId) => {
 
 const hoveredAuction = ref(undefined as undefined | string);
 const hoverLock = ref(undefined as undefined | string);
+
+// Select a duck when we've loaded the data.
+const selectFirstDuck = () => {
+    const stopHandle = watchEffect(() => {
+        if (!availableDucks.value.length)
+            return;
+        setHoveredDuck(availableDucks.value[0]);
+        stopHandle();
+    })
+}
+selectFirstDuck();
 
 // Have some debouncing so that clicking to lock a card -> hover on the right to bid
 // doesn't flash cards for a short while if you go fast enough (AKA UI magic).
@@ -217,7 +238,7 @@ popScroll();
                                 </p>
                             </div>
                         </div>
-                        <div class="max-w-[1600px] px-8 m-auto mt-3">
+                        <div class="max-w-[1600px] px-8 m-auto mt-3" ref="ducksListing">
                             <template v-if="bidOnDucks.length">
                                 <h2>My bids</h2>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 xl:gap-4 my-4 justify-items-center">

@@ -43,6 +43,10 @@ export class AuctionItemData {
         this._bids = data.bids;
     }
 
+    get end_date() {
+        return (this.start_date + this.duration) * 1000;
+    }
+
     get bids() {
         // TODO: return longest list?
         if (this.mainAuction._bids[this.auctionId])

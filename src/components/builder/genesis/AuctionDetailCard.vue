@@ -49,6 +49,26 @@ const cannotBidReason = computed(() => {
     return '';
 })
 
+const timerCountdown = (date: number) => {
+    let tl = Math.max(date - Date.now(), 0) / 1000;
+    const days = Math.floor(tl / 24 / 3600);
+    if (days > 0)
+        return days > 1 ? `${days} days` : `${days} day`;
+    tl -= days * 24 * 3600;
+    const hours = Math.floor(tl / 3600);
+    if (hours > 0)
+        return hours > 1 ? `${hours} days` : `${hours} day`;
+    tl -= hours * 3600;
+    const minutes = Math.floor(tl / 60);
+    if (minutes > 0)
+        return minutes > 1 ? `${minutes} days` : `${minutes} day`;
+    tl -= minutes * 60;
+    const seconds = Math.floor(tl);
+    if (seconds > 0)
+        return seconds > 1 ? `${seconds} days` : `${seconds} day`;
+};
+
+
 const highImage = computed(() => backendManager.getPreviewUrl(props.auctionData.token_id, 'starknet-testnet'));
 const lowImage = computed(() => backendManager.getRoute(`set/${'starknet-testnet'}/${props.auctionData.token_id}/small_preview.jpg`))
 </script>
@@ -77,6 +97,10 @@ const lowImage = computed(() => backendManager.getRoute(`set/${'starknet-testnet
                 <hr class="my-2">
 
                 <div class="p-4 pt-0 flex flex-col gap-2">
+                    <p class="flex justify-between">
+                        <span class="text-grad-dark">Auction ends in</span>
+                        <span>{{ timerCountdown(props.auctionData.end_date) }}</span>
+                    </p>
                     <template v-if="highestBid === '0'">
                         <p class="flex justify-between">
                             <span class="text-grad-dark">No confirmed bids yet.</span>
