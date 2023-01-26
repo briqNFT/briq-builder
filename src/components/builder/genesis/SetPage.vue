@@ -128,6 +128,7 @@ watchEffect(() => {
     })
 })
 
+
 const description = computed(() => {
     if (mode === 'CREATION' && set.value?.description)
         return set.value.description.split('\n\n');

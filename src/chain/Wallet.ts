@@ -1,6 +1,7 @@
 import { watchEffect, markRaw } from 'vue';
 
 import type { AccountInterface } from 'starknet';
+import * as starknet from 'starknet';
 
 import { logDebug, logDebugDelay } from '../Messages';
 
@@ -25,6 +26,8 @@ export class WalletStore {
 
     // See also user_id below.
     _userWalletAddress = '';
+
+    _starknetIdDomain = '';
 
     starknetObject?: StarknetWindowObject;
 
@@ -109,6 +112,10 @@ export class WalletStore {
         if (this.starknetObject?.isConnected) {
             this.signer = markRaw(this.starknetObject.account);
             this._userWalletAddress = this.starknetObject.account.address;
+            fetch('https://app.starknet.id/api/indexer/addr_to_domain?addr=' + starknet.number.toBN(this._userWalletAddress).toString()).then(r => r.json()).then(r => {
+                if (r.domain)
+                    this._starknetIdDomain = r.domain;
+            });
             this.setProviderFromSigner();
         }
     }
@@ -152,6 +159,10 @@ export class WalletStore {
         if (APP_ENV === 'prod' && getCurrentNetwork(true) !== 'starknet-mainnet')
             return undefined;
         return this._userWalletAddress;
+    }
+
+    get starknetIdDomain(): string {
+        return this._starknetIdDomain;
     }
 
     get user_id(): UserID | undefined {

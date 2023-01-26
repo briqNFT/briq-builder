@@ -10,3 +10,7 @@ const EXPLORER_URL_BY_NETWORK = {
 export function ExplorerTxUrl(transaction_hash: string, network = getCurrentNetwork()) {
     return `https://${EXPLORER_URL_BY_NETWORK[network] ?? 'testnet.starkscan.co'}/tx/${transaction_hash}#overview`;
 }
+
+export function ExplorerContractUrl(contractAddress: string, network = getCurrentNetwork()) {
+    return `https://${EXPLORER_URL_BY_NETWORK[network] ?? 'testnet.starkscan.co'}/contract/${contractAddress}#overview`;
+}

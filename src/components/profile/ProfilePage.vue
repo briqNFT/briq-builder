@@ -229,7 +229,8 @@ div[data-name='menu'] button {
                 <div class="p-4 flex flex-col gap-2">
                     <h5 class="font-normal text-grad-dark">Account</h5>
                     <template v-if="userAddress">
-                        <p class="font-medium">{{ userAddress ? `${userAddress.slice(0, 6)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
+                        <p v-if="maybeStore?.starknetIdDomain" class="font-medium">{{ maybeStore.starknetIdDomain }}</p>
+                        <p v-else class="font-medium">{{ userAddress ? `${userAddress.slice(0, 6)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
                         <p class="">{{ getNetworkName(getCurrentNetwork()) }}</p>
                     </template>
                     <p v-else class="my-4">Connect your wallet to access more functionality.</p>
