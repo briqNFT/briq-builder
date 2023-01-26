@@ -50,6 +50,7 @@ onBeforeUnmount(() => {
 
 
 const {
+    themeCoverUrl,
     themeLogoSrcSet,
 } = useThemeURLs();
 
@@ -220,14 +221,14 @@ h4 {
     </div>
     <div class="container mx-auto mb-4 md:mb-20 px-4 md:px-20">
         <div class="text-center mt-20 mb-10">
-            <h1>Discover our Genesis Sale</h1>
+            <h1>Discover our latest sale</h1>
         </div>
-        <routerLink :to="{ name: 'Theme', params: { theme: 'starknet_planet' } }">
-            <div class="h-[400px] bg-black text-white rounded-lg relative overflow-hidden genesis-tab">
-                <img :src="StarknetCity" class="absolute max-w-none w-auto h-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
+        <routerLink :to="{ name: 'Theme', params: { theme: 'ducks_everywhere' } }">
+            <div class="h-[500px] bg-black text-white rounded-lg relative overflow-hidden genesis-tab">
+                <img :src="themeCoverUrl('ducks_everywhere', 'high')" class="absolute max-w-none w-auto h-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
                 <div class="z-1 p-8 relative h-full flex flex-col justify-between items-center xl:items-start w-full">
-                    <img :srcset="themeLogoSrcSet('starknet_planet')" class="w-auto h-auto m-8">
-                    <p>Discover the new theme <i class="fa-solid fa-arrow-right relative top-[1px]"/></p>
+                    <img :srcset="themeLogoSrcSet('ducks_everywhere')" class="w-auto h-auto m-8">
+                    <p class="text-right w-full"><i class="fa-solid fa-arrow-right relative top-[1px]"/> Discover the new theme</p>
                 </div>
             </div>
         </routerlink>
