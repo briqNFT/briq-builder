@@ -32,10 +32,11 @@ import * as starknet from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { auctionDataStore, AuctionItemData, setToAuctionMapping, userBidsStore2 } from '@/builder/AuctionData';
-import { ExplorerTxUrl } from '@/chain/Explorer';
+import { ExplorerContractUrl, ExplorerTxUrl } from '@/chain/Explorer';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import BidModal from './BidModal.vue';
 import { externalSetCache } from '@/builder/ExternalSets';
+import { Fetchable } from '@/DataFetching';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -224,6 +225,25 @@ watchEffect(async () => {
     // Touch max bid to reload when that changes.
     auctionData.value?.highest_bidder;
     auctionDataStore['starknet-testnet'][auctionId.value].fetchBids(auctionId.value);
+})
+
+// Bidding starknet.id stuff
+const bidderAddresses = ref({} as Record<string, Fetchable<string | false>>);
+watchEffect(() => {
+    if (!auctionData.value?.bids)
+        return;
+    for (const bid of auctionData.value.bids) {
+        if (bidderAddresses.value[bid.bidder] !== undefined)
+            continue;
+        bidderAddresses.value[bid.bidder] = new Fetchable<string>();
+        bidderAddresses.value[bid.bidder].fetch(async () => {
+            const response = await fetch('https://app.starknet.id/api/indexer/addr_to_domain?addr=' + starknet.number.toBN(bid.bidder).toString());
+            const json = await response.json()
+            if (json.domain)
+                return json.domain;
+            return false;
+        });
+    }
 })
 
 // End of auction stuff
@@ -533,7 +553,10 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                                 :href="ExplorerTxUrl(bid.tx_hash)" target="_blank"
                                 class="block border-b border-grad-light last:border-none px-4 py-3">
                                 <div class="flex justify-between">
-                                    <a :href="ExplorerTxUrl(bid.bidder)" target="_blank"><p>By <span class="text-primary">{{ bid.bidder.substring(0, 8) + "..." + bid.bidder.slice(-8) }}</span></p></a>
+                                    <a :href="ExplorerContractUrl(bid.bidder)" target="_blank">
+                                        <p v-if="bidderAddresses[bid.bidder]._data">By <span class="text-primary">{{ bidderAddresses[bid.bidder]._data }}</span></p>
+                                        <p v-else>By <span class="text-primary">{{ bid.bidder.substring(0, 8) + "..." + bid.bidder.slice(-8) }}</span></p>
+                                    </a>
                                     <p>{{ readableUnit(bid.bid) }} {{ readableNumber(bid.bid) }} <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
                                 </div>
                             </a>
