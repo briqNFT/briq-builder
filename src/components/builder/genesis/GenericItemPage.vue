@@ -2,10 +2,6 @@
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import { useRouter } from 'vue-router';
-import MenuDropdown from '@/components/generic/MenuDropdown.vue';
-
-import ShareIcon from '@/assets/share-nodes-light.svg';
-
 const router = useRouter();
 
 defineProps<{
@@ -71,18 +67,7 @@ p, :slotted(p), /deep/ p {
                                 <i class="fa-solid fa-chevron-left mr-2"/> Go back
                             </a>
                             <div class="flex gap-2">
-                                <MenuDropdown v-if="$slots.dropdown" icon no-background no-marker :must-click="true" class="!h-8 px-2 font-normal text-sm">
-                                    <template #button>
-                                        <ShareIcon class="mr-2"/> Share
-                                    </template>
-                                    <slot name="share"/>
-                                </MenuDropdown>
-                                <MenuDropdown v-if="$slots.dropdown" no-background :must-click="true" class="!h-8 !w-8 p-0">
-                                    <template #icon>
-                                        <i class="fa-regular fa-ellipsis text-lg"/>
-                                    </template>
-                                    <slot name="dropdown"/>
-                                </MenuDropdown>
+                                <slot name="quick_actions"/>
                             </div>
                         </div>
                         <slot/>
