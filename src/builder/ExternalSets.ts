@@ -12,7 +12,9 @@ export const externalSetCache = defaultDict((network: string) => defaultDict((se
     setF.fetch(async () => {
         const data = await backendManager.fetch(`v1/metadata/${network}/${setId}.json`);
         const set = new SetData(setId).deserialize(data);
-        // Hack.
+        // Hack some data that we don't really support in there.
+        if (data.background_color)
+            set.background_color = data.background_color;
         set.booklet_id = data.booklet_id;
         set.created_at = data.created_at * 1000; // JS timestamps are milliseconds-based.
         return set;

@@ -290,8 +290,8 @@ popScroll();
                                                     :class="`!absolute top-0 transition-all duration-500 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
                                                     :auction-data="auctionDataStore['starknet-testnet'][hoverLock].auctionData(hoverLock)._data"
                                                     :expand="true"
-                                                    :title="getSet(hoverLock)!.name"
-                                                    :subtitle="getSet(hoverLock)!.description"
+                                                    :title="getSet(hoverLock)?.name"
+                                                    :subtitle="getSet(hoverLock)?.description"
                                                     :status="'LOADED'"/>
                                             </Transition>
                                             <!-- This item exists solely so that the opacity transition doesn't reveal the background but stays on a card,
