@@ -12,6 +12,12 @@ describe('Test optimistic updates', () => {
         mockAgent = new MockAgent();
         mockAgent.disableNetConnect(); // prevent actual requests to Discord
         setGlobalDispatcher(mockAgent); // enabled the mock client to intercept requests
+        // Intercept starknet.id requests
+        mockAgent.get('https://app.starknet.id').intercept({
+            path: () => true,
+            method: 'GET',
+        }).reply(() => ({ data: {}, statusCode: 200 }));
+
         mockPool = mockAgent.get('http://localhost:5055');
     });
 
