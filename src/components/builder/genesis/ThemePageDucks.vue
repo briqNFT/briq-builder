@@ -269,7 +269,7 @@ popScroll();
                                 <h2 class="mt-8 mb-4">Other ducks</h2>
                             </template>
                             <div
-                                class="grid gap-4 grid-cols-[min-content_minmax(20rem,auto)]">
+                                class="grid gap-4 grid-cols-[min-content_20rem] tall-md:grid-cols-[min-content_minmax(20rem,auto)]">
                                 <div
                                     class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
                                     md:grid-cols-[repeat(3,9rem)]
