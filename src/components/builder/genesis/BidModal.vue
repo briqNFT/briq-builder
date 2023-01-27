@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { computed, h, Ref, ref, watchEffect } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import WindowVue from '@/components/generic/Window.vue';
-import { AuctionItemData, Bid, userBidsStore2 as userBidsStore, userBidsStore2 } from '@/builder/AuctionData';
+import { getAuctionData, userBidsStore } from '@/builder/AuctionData';
 import { userBalance } from '@/builder/UserBalance.js';
 import * as starknet from 'starknet';
-import { useBids } from '@/components/BidComposable.js';
 import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { HashVue, pushPopup } from '@/Notifications';
 import { ExplorerTxUrl } from '@/chain/Explorer';
-import { auctionDataStore } from '@/builder/AuctionData';
 
 defineEmits(['close']);
 
@@ -23,7 +21,7 @@ const termsSale = ref(false);
 const termsBriq = ref(false);
 
 const auctionData = computed(() => {
-    return auctionDataStore['starknet-testnet'][props.item].auctionData(props.item)._data;
+    return getAuctionData('starknet-testnet', props.item)!._data;
 });
 
 const currentBid = computed(() => starknet.number.toBN(auctionData.value?.highest_bid || '0'));
@@ -48,7 +46,7 @@ const weiBid = computed(() => {
 
 const balance = computed(() => userBalance.current?.asEth());
 
-const yourCurrentBid = computed(() => starknet.number.toBN(userBidsStore2.current?.getBid(props.item)?.bid_amount));
+const yourCurrentBid = computed(() => starknet.number.toBN(userBidsStore.current?.getBid(props.item)?.bid_amount));
 const yourMaxBid = computed(() => {
     if (currentBid.value.cmp(yourCurrentBid.value) === 0)
         return starknet.number.toBN(userBalance.current?.balance._data).add(yourCurrentBid.value);

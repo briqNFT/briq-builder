@@ -1,21 +1,21 @@
-import { markRaw, shallowReactive, watchEffect } from 'vue';
+import { reactive } from 'vue';
 import { backendManager } from '@/Backend';
-import { Fetchable, makeAutoFetchable } from '@/DataFetching';
+import { Fetchable } from '@/DataFetching';
 
 import { perUserStorable, perUserStore } from './PerUserStore';
 
 import contractStore from '@/chain/Contracts';
 import * as starknet from 'starknet';
-import { reactive } from 'vue';
 import { maybeStore } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
 import { Notification } from '@/Notifications';
 import { defaultDict } from '@/ReactiveDefaultDict';
 import { externalSetCache } from './ExternalSets';
 
+// e.g. ducks_everywhere
+export type auctionThemeId = string;
 // e.g. ducks_everywhere/10;
 export type auctionId = string;
-
 
 export class AuctionItemData {
     token_id = '';
@@ -30,7 +30,7 @@ export class AuctionItemData {
     }[];
 
     // Self-referential data
-    auctionId: string;
+    auctionId: auctionId;
     mainAuction: AuctionData;
 
     constructor(mainAuction: AuctionData, auctionId: auctionId, data: any) {
@@ -55,7 +55,10 @@ export class AuctionItemData {
     }
 }
 
-// Has to be global or sets need to know their auction and this loops back
+// Set ID to auctionID mapping, assumes that sets won't collide across networks.
+// (this is really not that safe but OK).
+// Not stored in AuctionData, because otherwise sets need to know which auction they might belong to,
+// making this self-referential.
 export const setToAuctionMapping = reactive({} as Record<string, auctionId>);
 
 class AuctionData {
@@ -76,11 +79,11 @@ class AuctionData {
     _bids = {} as Record<auctionId, Bid[]>;
 
     network: string;
-    auction_theme: string;
+    auctionTheme: auctionThemeId;
 
-    constructor(network: string, auction_theme: string) {
+    constructor(network: string, auctionTheme: auctionThemeId) {
         this.network = network;
-        this.auction_theme = auction_theme;
+        this.auctionTheme = auctionTheme;
     }
 
     async fetchBids(auction: auctionId) {
@@ -88,9 +91,15 @@ class AuctionData {
     }
 
     async fetchData() {
-        const fetchCall = backendManager.fetch(`v1/${this.network}/${this.auction_theme.split('/')[0]}/auction_data`);
+        const fetchCall = backendManager.fetch(`v1/${this.network}/${this.auctionTheme.split('/')[0]}/auction_data`);
         this._data.fetch(async () => (await fetchCall).data);
-        await this._data._fetch;
+        const globalData = await this._data._fetch;
+
+        // Update specific fetchables.
+        // TODO: might optimise this more by just updating the items.
+        for (const index in this._items)
+            this._items[index].fetch(async () => new AuctionItemData(this, index, globalData![index]));
+
         for (const auction_id in this._data._data)
             setToAuctionMapping[this._data._data![auction_id].token_id] = auction_id;
         return fetchCall;
@@ -99,34 +108,36 @@ class AuctionData {
     auctionData(index: auctionId) {
         if (!this._items[index]) {
             this._items[index] = new Fetchable<AuctionItemData>();
-            // Use a watchEffect to make sure that the item gets updated whenever the data is refeteched.
-            // This makes it convenient to reuse the Fetchable.
-            watchEffect(() => {
-                this._items[index].fetch(async () => {
-                    const tt = (await this._data._fetch);
-                    return new AuctionItemData(this, index, tt![index]);
-                });
-            });
+            // Setup the data, sometimes waiting on the global data fetch.
+            this._items[index].fetch(async () => new AuctionItemData(this, index, (await this._data._fetch)![index]));
         }
         return this._items[index];
     }
 }
 
-const auctions = reactive({}) as Record<string, AuctionData>;
-
 export const auctionDataStore = defaultDict((network: string) => {
-    return defaultDict((path: auctionId) => {
-        const theme = path.split('/')[0];
-        if (!auctions[`${network}_${theme}`]) {
-            auctions[`${network}_${theme}`] = new AuctionData(network, theme);
-            setTimeout(() => auctions[`${network}_${theme}`].fetchData(), 0);
-        }
-        return auctions[`${network}_${theme}`];
+    return defaultDict((auctionTheme: auctionThemeId) => {
+        const ret = reactive(new AuctionData(network, auctionTheme));
+        setTimeout(() => ret.fetchData(), 0);
+        return ret;
     });
 });
 
-// Load the ducks everywhere auction data on startup.
-auctionDataStore['starknet-testnet']['ducks_everywhere/10']
+export const getAuctionData = (network: string, auctionId: auctionId | undefined) => {
+    if (!auctionId)
+        return undefined;
+    try {
+        return auctionDataStore[network][auctionId.split('/')[0]].auctionData(auctionId);
+    } catch(_) {
+        return undefined;
+    }
+};
+
+// Load the ducks everywhere auction data on startup for now.
+// (This means loading a ducks-everywhere set will correctly show the auction data)
+// TODO: make sure the sets know when they belong to an auction and load that.
+auctionDataStore['starknet-testnet']['ducks_everywhere'];
+
 
 export interface Bid {
     status: 'CONFIRMED' | 'TENTATIVE' | 'PENDING' | 'REJECTED';
@@ -137,15 +148,13 @@ export interface Bid {
     bidder: string,
 }
 
-const USER_SYNC_DELAY = 30000;
-
 /**
  * This class stores the user bids for a given auction.
  * Unlike the other perUserStorable, it doesn't really store the general data,
  * since that's provided by the API directly (and isn't really per-user anyways).
  * To show the highest bid, we just have to account for the user optimistic bid.
  */
-class UserBidStore2 implements perUserStorable {
+class UserBidStore implements perUserStorable {
     user_id!: string;
 
     bids = {} as Record<auctionId, Bid>;
@@ -177,8 +186,8 @@ class UserBidStore2 implements perUserStorable {
     }
 
     _deserialize(data: ReturnType<UserBidStore['_serialize']>) {
-        this.bids = data.bids;
-        this.metadata = data.metadata;
+        this.bids = data.bids || {};
+        this.metadata = data.metadata || {};
         /*this.metadata['ducks_everywhere/1'] = {
             status: 'TENTATIVE',
             tx_hash: '0xcafe',
@@ -210,7 +219,7 @@ class UserBidStore2 implements perUserStorable {
             const network = this.user_id.split('/')[0];
             const theme = 'ducks_everywhere';
             const userBids = backendManager.fetch(`v1/user/bids/${network}/${theme}/${this.user_id.split('/')[1]}`);
-            const data = await auctions[`${network}_${theme}`].fetchData();
+            const data = await auctionDataStore[network][theme].fetchData();
             this._updateData(data);
             this.bids = await userBids;
         } catch(_) {
@@ -280,7 +289,7 @@ class UserBidStore2 implements perUserStorable {
 
     getSetName(auctionId: auctionId) {
         const network = this.user_id.split('/')[0];
-        const token = auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data!.token_id;
+        const token = getAuctionData(network, auctionId)._data!.token_id;
         return externalSetCache[network][token]._data!.name || token;
     }
 
@@ -294,7 +303,7 @@ class UserBidStore2 implements perUserStorable {
             level: 'info',
             data: {
                 tx_hash: item.tx_hash,
-                auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
+                auction_link: `/set/${network}/${getAuctionData(network, auctionId)._data?.token_id}`,
                 auction_name: this.getSetName(auctionId),
             },
             read: true,
@@ -309,7 +318,7 @@ class UserBidStore2 implements perUserStorable {
             level: 'success',
             data: {
                 tx_hash: item.tx_hash,
-                auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
+                auction_link: `/set/${network}/${getAuctionData(network, auctionId)._data?.token_id}`,
                 auction_name: this.getSetName(auctionId),
             },
             read: false,
@@ -324,7 +333,7 @@ class UserBidStore2 implements perUserStorable {
             level: 'error',
             data: {
                 tx_hash: item.tx_hash,
-                auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
+                auction_link: `/set/${network}/${getAuctionData(network, auctionId)._data?.token_id}`,
                 auction_name: this.getSetName(auctionId),
             },
             read: false,
@@ -339,7 +348,7 @@ class UserBidStore2 implements perUserStorable {
             level: 'error',
             data: {
                 tx_hash: item.tx_hash,
-                auction_link: `/set/${network}/${auctions[`${network}_${auctionId.split('/')[0]}`].auctionData(auctionId)._data?.token_id}`,
+                auction_link: `/set/${network}/${getAuctionData(network, auctionId)._data?.token_id}`,
                 auction_name: this.getSetName(auctionId),
             },
             read: false,
@@ -347,5 +356,5 @@ class UserBidStore2 implements perUserStorable {
     }
 }
 
-export const userBidsStore2 = perUserStore('UserBidStore2', UserBidStore2);
-userBidsStore2.setup();
+export const userBidsStore = perUserStore('UserBidStore', UserBidStore);
+userBidsStore.setup();

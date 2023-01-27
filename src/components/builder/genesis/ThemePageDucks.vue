@@ -8,7 +8,7 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
-import { auctionDataStore, auctionId, userBidsStore2 } from '@/builder/AuctionData';
+import { auctionDataStore, auctionId, getAuctionData, userBidsStore } from '@/builder/AuctionData';
 import AuctionItemCard from './AuctionItemCard.vue';
 import { backendManager } from '@/Backend';
 import { externalSetCache } from '@/builder/ExternalSets';
@@ -23,10 +23,10 @@ const themeName = computed(() => 'ducks_everywhere');
 const genesisStore = useGenesisStore();
 
 const themeData = computed(() => genesisStore.themedata[themeName.value]?._data );
-const themeBoxes = computed(() => Object.keys(auctionDataStore['starknet-testnet']['ducks_everywhere/1']._data?._data || {}));
+const themeBoxes = computed(() => Object.keys(auctionDataStore['starknet-testnet']['ducks_everywhere']._data?._data || {}));
 
 const themeStatus = computed(() => {
-    return auctionDataStore['starknet-testnet']['ducks_everywhere/1']._data?._status;
+    return auctionDataStore['starknet-testnet']['ducks_everywhere']._data?._status;
 });
 
 const {
@@ -41,9 +41,9 @@ const coverUrl = computed(() => {
     }
 })
 
-const availableDucks = computed(() => themeBoxes.value?.filter(x => auctionDataStore['starknet-testnet'][x].auctionData(x)._data?.token_id) || []);
+const availableDucks = computed(() => themeBoxes.value?.filter(x => getAuctionData('starknet-testnet', x)!._data?.token_id) || []);
 
-const getSet = (auctionId: auctionId) => externalSetCache['starknet-testnet'][auctionDataStore['starknet-testnet'][auctionId].auctionData(auctionId)._data!.token_id]._data;
+const getSet = (auctionId: auctionId) => externalSetCache['starknet-testnet'][getAuctionData('starknet-testnet', auctionId)!._data!.token_id]._data;
 
 const searchBar = ref<string>();
 const sortOrder = ref('a_z');
@@ -60,15 +60,15 @@ watchEffect(() => {
 
 const sortDucks = (a: auctionId, b: auctionId) => {
     if (sortOrder.value === 'bids_desc' || sortOrder.value === 'bids_asc') {
-        let cmp = starknet.number.toBN(auctionDataStore['starknet-testnet'][b].auctionData(b)._data?.highest_bid).cmp(
-            starknet.number.toBN(auctionDataStore['starknet-testnet'][a].auctionData(a)._data?.highest_bid),
+        let cmp = starknet.number.toBN(getAuctionData('starknet-testnet', b)._data?.highest_bid).cmp(
+            starknet.number.toBN(getAuctionData('starknet-testnet', a)._data?.highest_bid),
         );
         if (cmp !== 0)
             return sortOrder.value === 'bids_desc' ? cmp : -cmp;
     }
     if (sortOrder.value === 'dates_desc' || sortOrder.value === 'dates_asc') {
-        let ba = auctionDataStore['starknet-testnet'][a].auctionData(a)._data?.bids[0]?.timestamp;
-        let bb = auctionDataStore['starknet-testnet'][b].auctionData(b)._data?.bids[0]?.timestamp;
+        let ba = getAuctionData('starknet-testnet', a)._data?.bids[0]?.timestamp;
+        let bb = getAuctionData('starknet-testnet', b)._data?.bids[0]?.timestamp;
         if (ba && bb)
             return sortOrder.value === 'dates_desc' ? -ba.localeCompare(bb) : ba.localeCompare(bb);
         else if (ba)
@@ -79,8 +79,8 @@ const sortDucks = (a: auctionId, b: auctionId) => {
     return (getSet(a)?.name || a).localeCompare(getSet(b)?.name || b);
 }
 
-const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore2.current?.getBid(x)).sort(sortDucks) || []);
-const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore2.current?.getBid(x)).sort(sortDucks).slice(0, iScroll.value) || []);
+const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore.current?.getBid(x)).sort(sortDucks) || []);
+const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore.current?.getBid(x)).sort(sortDucks).slice(0, iScroll.value) || []);
 
 const shouldShow = (auctionId: auctionId) => {
     if (!searchBar.value)
@@ -258,7 +258,7 @@ popScroll();
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
                                             <AuctionItemCard
-                                                :auction-data="auctionDataStore['starknet-testnet'][duckId].auctionData(duckId)._data"
+                                                :auction-data="getAuctionData('starknet-testnet', duckId)._data"
                                                 :title="getSet(duckId)!.name ?? 'Loading'"
                                                 :subtitle="'Official Set & Booklet'"
                                                 :image="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')"
@@ -296,9 +296,9 @@ popScroll();
                                             <Transition name="fade-hoverlock">
                                                 <AuctionDetailCard
                                                     :key="hoverLock"
-                                                    v-if="auctionDataStore['starknet-testnet']?.[hoverLock]?.auctionData(hoverLock)?._data"
+                                                    v-if="getAuctionData('starknet-testnet', hoverLock)?._data"
                                                     :class="`!absolute top-0 transition-all duration-500 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
-                                                    :auction-data="auctionDataStore['starknet-testnet'][hoverLock].auctionData(hoverLock)._data"
+                                                    :auction-data="getAuctionData('starknet-testnet', hoverLock)._data"
                                                     :expand="true"
                                                     :title="getSet(hoverLock)?.name"
                                                     :subtitle="getSet(hoverLock)?.description"
@@ -308,9 +308,9 @@ popScroll();
                                             since that looks better -->
                                             <Transition name="fake-fadeout">
                                                 <AuctionDetailCard
-                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
+                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData('starknet-testnet', hoveredAuction)?._data"
                                                     :class="`!absolute top-0`"
-                                                    :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
+                                                    :auction-data="getAuctionData('starknet-testnet', hoveredAuction)._data"
                                                     :title="getSet(hoveredAuction)?.name"
                                                     :subtitle="getSet(hoveredAuction)?.description"
                                                     :status="'LOADED'"/>
@@ -318,9 +318,9 @@ popScroll();
                                             <Transition name="fade">
                                                 <AuctionDetailCard
                                                     :key="hoveredAuction"
-                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && auctionDataStore['starknet-testnet']?.[hoveredAuction]?.auctionData(hoveredAuction)?._data"
+                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData('starknet-testnet', hoveredAuction)?._data"
                                                     :class="`!absolute top-0 ${hoverLock ? '!shadow-xl' : ''}`"
-                                                    :auction-data="auctionDataStore['starknet-testnet'][hoveredAuction].auctionData(hoveredAuction)._data"
+                                                    :auction-data="getAuctionData('starknet-testnet', hoveredAuction)._data"
                                                     :title="getSet(hoveredAuction)?.name"
                                                     :subtitle="getSet(hoveredAuction)?.description"
                                                     :status="'LOADED'"/>

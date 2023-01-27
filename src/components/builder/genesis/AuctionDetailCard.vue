@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
-import { AuctionItemData, userBidsStore2 } from '@/builder/AuctionData';
+import { AuctionItemData, userBidsStore } from '@/builder/AuctionData';
 import { maybeStore } from '@/chain/WalletLoading';
 import { computed } from 'vue';
 import GenericCardVue from './GenericCard.vue';
@@ -26,11 +26,11 @@ const highestBid = computed(() => props.auctionData.highest_bid || '0');
 const hasBid = computed(() => {
     if (props.auctionData?.bids?.some(x => x.bidder === maybeStore.value?.userWalletAddress))
         return true;
-    return !!userBidsStore2.current?.getBid(props.auctionData.auctionId);
+    return !!userBidsStore.current?.getBid(props.auctionData.auctionId);
 })
 
 const hasPendingBid = computed(() => {
-    const bid = userBidsStore2.current?.getBid(props.auctionData.auctionId);
+    const bid = userBidsStore.current?.getBid(props.auctionData.auctionId);
     if (!bid)
         return false;
     // If the pending bid is lower than the current highest known bid, don't show it.
@@ -42,7 +42,7 @@ const doBid = async () => {
 }
 
 const cannotBidReason = computed(() => {
-    if (!userBidsStore2.current)
+    if (!userBidsStore.current)
         return 'You must connect a wallet to bid';
     if (maybeStore.value?.userWalletAddress === 'toto')
         return 'You are not part of the allowlist, and cannot bid until the general auction starts.';

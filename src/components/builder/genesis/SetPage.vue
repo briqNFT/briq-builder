@@ -31,7 +31,7 @@ import Tooltip from '@/components/generic/Tooltip.vue';
 import * as starknet from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
-import { auctionDataStore, AuctionItemData, setToAuctionMapping, userBidsStore2 } from '@/builder/AuctionData';
+import { auctionDataStore, AuctionItemData, getAuctionData, setToAuctionMapping, userBidsStore } from '@/builder/AuctionData';
 import { ExplorerContractUrl, ExplorerTxUrl } from '@/chain/Explorer';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import BidModal from './BidModal.vue';
@@ -144,7 +144,7 @@ const auctionId = computed(() => {
 const auctionData = computed<AuctionItemData | undefined>(() => {
     if (!auctionId.value)
         return undefined;
-    return auctionDataStore['starknet-testnet'][auctionId.value]?.auctionData(auctionId.value)?._data;
+    return getAuctionData(route.params.network as string, auctionId.value)?._data;
 });
 
 const showAuctionInterface = computed(() => {
@@ -166,11 +166,11 @@ const hasHighestBid = computed(() => {
 const hasBid = computed(() => {
     if (auctionData.value?.bids.some(x => x.bidder === maybeStore.value?.userWalletAddress))
         return true;
-    return !!userBidsStore2.current?.getBid(auctionId.value);
+    return !!userBidsStore.current?.getBid(auctionId.value);
 })
 
 const hasPendingBid = computed(() => {
-    const bid = userBidsStore2.current?.getBid(auctionId.value);
+    const bid = userBidsStore.current?.getBid(auctionId.value);
     if (!bid)
         return false;
     // If the pending bid is lower than the current highest known bid, don't show it.
@@ -180,12 +180,12 @@ const hasPendingBid = computed(() => {
 const pendingBidString = computed(() => {
     if (!hasPendingBid.value)
         return '';
-    const bid = userBidsStore2.current?.getBid(auctionId.value);
+    const bid = userBidsStore.current?.getBid(auctionId.value);
     return `${readableNumber(bid?.bid_amount)} ${readableUnit(bid?.bid_amount)}`;
 })
 
 const cannotBidReason = computed(() => {
-    if (!userBidsStore2.current)
+    if (!userBidsStore.current)
         return 'You must connect a wallet to bid';
     if (maybeStore.value?.userWalletAddress === 'toto')
         return 'You are not part of the allowlist, and cannot bid until the general auction starts.';
@@ -224,7 +224,7 @@ watchEffect(async () => {
 watchEffect(async () => {
     // Touch max bid to reload when that changes.
     auctionData.value?.highest_bidder;
-    auctionDataStore['starknet-testnet'][auctionId.value].fetchBids(auctionId.value);
+    auctionDataStore['starknet-testnet'][auctionId.value.split('/')[0]].fetchBids(auctionId.value);
 })
 
 // Bidding starknet.id stuff

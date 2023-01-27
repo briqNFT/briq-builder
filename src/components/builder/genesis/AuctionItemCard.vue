@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
-import { AuctionItemData, userBidsStore2 } from '@/builder/AuctionData';
+import { AuctionItemData, userBidsStore } from '@/builder/AuctionData';
 import { maybeStore } from '@/chain/WalletLoading';
 import { computed } from 'vue';
 import GenericCardVue from './GenericCard.vue';
@@ -25,15 +25,15 @@ const highestBid = computed(() => props.auctionData.highest_bid || '0');
 const hasBid = computed(() => {
     if (props.auctionData?.bids?.some(x => x.bidder === maybeStore.value?.userWalletAddress))
         return true;
-    return !!userBidsStore2.current?.getBid(props.auctionData.auctionId);
+    return !!userBidsStore.current?.getBid(props.auctionData.auctionId);
 })
 
 const currentBid = computed(() => {
-    return userBidsStore2.current?.getBid(props.auctionData.auctionId);
+    return userBidsStore.current?.getBid(props.auctionData.auctionId);
 })
 
 const hasPendingBid = computed(() => {
-    const bid = userBidsStore2.current?.getBid(props.auctionData.auctionId);
+    const bid = userBidsStore.current?.getBid(props.auctionData.auctionId);
     if (!bid)
         return false;
     // If the pending bid is lower than the current highest known bid, don't show it.
