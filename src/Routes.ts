@@ -138,6 +138,11 @@ export const routes = [
             return loader.BriqmasNextDay;
         },
     },
+    {
+        path: '/briqmas/forest',
+        name: 'BriqMas Forest',
+        component: () => import('@/components/builder/briqmas_forest/Forest.vue'),
+    },
 ];
 
 if (CONF.theme === 'realms') {

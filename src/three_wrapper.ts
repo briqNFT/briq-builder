@@ -3,6 +3,7 @@ export * as ALL_THREE from 'three';
 export * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 export { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+export { FlyControls } from 'three/examples/jsm/controls/FlyControls.js';
 export { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox.js';
 export * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 

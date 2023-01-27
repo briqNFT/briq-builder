@@ -33,7 +33,6 @@ export async function updateScene(scene: THREE.Scene, userSet: string) {
     newCT.rotateY(Math.PI/12);
     newCT.traverse(m => m.castShadow = true);
     newCT.traverse(m => {
-        console.log(m)
         m.receiveShadow = true;
         if (m.geometry)
             m.geometry.computeVertexNormals();

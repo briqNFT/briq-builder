@@ -14,6 +14,7 @@ export let THREE: typeof three_wrapper.ALL_THREE;
 
 export let SkeletonUtils: typeof three_wrapper.SkeletonUtils;
 export let OrbitControls: typeof three_wrapper.OrbitControls;
+export let FlyControls: typeof three_wrapper.FlyControls;
 export let SelectionBox: typeof three_wrapper.SelectionBox;
 export let BufferGeometryUtils: typeof three_wrapper.BufferGeometryUtils;
 
@@ -38,6 +39,7 @@ async function setup() {
 
     SkeletonUtils = wrapper.SkeletonUtils;
     OrbitControls = wrapper.OrbitControls;
+    FlyControls = wrapper.FlyControls;
     SelectionBox = wrapper.SelectionBox;
     BufferGeometryUtils = wrapper.BufferGeometryUtils;
     GLTFLoader = wrapper.GLTFLoader;
