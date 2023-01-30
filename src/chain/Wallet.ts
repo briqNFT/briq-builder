@@ -19,6 +19,12 @@ import { APP_ENV } from '@/Meta';
 import { blockchainProvider } from './BlockchainProvider';
 import { addBreadCrumb } from '@/Monitoring';
 
+import { injectController, SupportedChainIds } from '@cartridge/controller';
+
+injectController(undefined, {
+    chainId: SupportedChainIds.MAINNET, //APP_ENV === 'prod' ? SupportedChainIds.MAINNET : SupportedChainIds.TESTNET,
+});
+
 export type UserID = string;
 
 export class WalletStore {
@@ -135,15 +141,16 @@ export class WalletStore {
     }
 
     setProviderFromSigner() {
+        console.log('totoro', this.signer);
         if (!this.signer)
             chooseDefaultNetwork();
-        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha-mainnet.starknet') !== -1)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1)
             setNetwork('starknet-mainnet');
-        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha4-2') !== -1)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4-2') !== -1)
             setNetwork('starknet-testnet2');
-        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('alpha4') !== -1)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4') !== -1 || this.signer?.provider?.chainId === '0x534e5f474f45524c49')
             setNetwork('starknet-testnet');
-        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl).indexOf('mock_chain') !== -1)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('mock_chain') !== -1)
             setNetwork('mock');
         else
             setNetwork('localhost');

@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@argent/get-starknet": "^6.0.1",
-    "@cartridge/controller": "^0.2.14",
+    "@cartridge/controller": "^0.3.14",
     "@google/model-viewer": "^2.0",
     "@jaames/iro": "^5.5",
     "@sentry/tracing": "^6.16",
