@@ -144,7 +144,7 @@ export class WalletStore {
         console.log('totoro', this.signer);
         if (!this.signer)
             chooseDefaultNetwork();
-        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1 || this.signer?.provider?.chainId === SupportedChainIds.MAINNET)
             setNetwork('starknet-mainnet');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4-2') !== -1)
             setNetwork('starknet-testnet2');
