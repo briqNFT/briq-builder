@@ -48,7 +48,7 @@ export default defineConfig(({ mode }) => ({
     build: {
         target: 'es2020',
         sourcemap: true,
-        minify: true,
+        minify: false,
     },
     test: {
         globals: true,

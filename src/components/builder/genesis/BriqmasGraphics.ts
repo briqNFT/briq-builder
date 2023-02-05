@@ -1019,8 +1019,10 @@ const fireSource = async function(useSimplex: boolean) {
     return obj;
 }
 
-const og_fragment = THREE.ShaderChunk.shadowmap_pars_fragment;
+let og_fragment = undefined;
 const updateThreeShadowMapShader = () => {
+    if (!og_fragment)
+        og_fragment = THREE.ShaderChunk.shadowmap_pars_fragment;
     THREE.ShaderChunk.shadowmap_pars_fragment = og_fragment;
     THREE.ShaderChunk.shadowmap_pars_fragment = THREE.ShaderChunk.shadowmap_pars_fragment.replace('float getPointShadow', 'float getPointShadow2');
     THREE.ShaderChunk.shadowmap_pars_fragment += `
