@@ -34,7 +34,6 @@ const starBuilders = [
 ];
 
 async function checkOnStore() {
-    /*
     const wallet = (await import('@/Dispatch')).Wallet;
     logDebug('FEATURE_FLAGS - Loaded');
     watchEffect(() => {
@@ -50,6 +49,5 @@ async function checkOnStore() {
         if (wallet.walletStore.userWalletAddress === Stefan || admins.indexOf(wallet.walletStore.userWalletAddress) !== -1)
             featureFlags.bigBuilder = true;
     });
-    */
 }
 checkOnStore();
