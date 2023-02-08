@@ -17,16 +17,17 @@ import { APP_ENV } from '@/Meta';
 import * as starknet from 'starknet';
 
 const route = useRoute();
+const network = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet';
 
 const themeName = computed(() => 'ducks_everywhere');
 
 const genesisStore = useGenesisStore();
 
 const themeData = computed(() => genesisStore.themedata[themeName.value]?._data );
-const themeBoxes = computed(() => Object.keys(auctionDataStore['starknet-testnet']['ducks_everywhere']._data?._data || {}));
+const themeBoxes = computed(() => Object.keys(auctionDataStore[network]['ducks_everywhere']._data?._data || {}));
 
 const themeStatus = computed(() => {
-    return themeData.value && auctionDataStore['starknet-testnet']['ducks_everywhere']._data?._status;
+    return themeData.value && auctionDataStore[network]['ducks_everywhere']._data?._status;
 });
 
 const {
@@ -41,9 +42,9 @@ const coverUrl = computed(() => {
     }
 })
 
-const availableDucks = computed(() => themeBoxes.value?.filter(x => getAuctionData('starknet-testnet', x)!._data?.token_id) || []);
+const availableDucks = computed(() => themeBoxes.value?.filter(x => getAuctionData(network, x)!._data?.token_id) || []);
 
-const getSet = (auctionId: auctionId) => externalSetCache['starknet-testnet'][getAuctionData('starknet-testnet', auctionId)!._data!.token_id]._data;
+const getSet = (auctionId: auctionId) => externalSetCache[network][getAuctionData(network, auctionId)!._data!.token_id]._data;
 
 const searchBar = ref<string>();
 const sortOrder = ref('a_z');
@@ -60,15 +61,15 @@ watchEffect(() => {
 
 const sortDucks = (a: auctionId, b: auctionId) => {
     if (sortOrder.value === 'bids_desc' || sortOrder.value === 'bids_asc') {
-        let cmp = starknet.number.toBN(getAuctionData('starknet-testnet', b)._data?.highest_bid).cmp(
-            starknet.number.toBN(getAuctionData('starknet-testnet', a)._data?.highest_bid),
+        let cmp = starknet.number.toBN(getAuctionData(network, b)._data?.highest_bid).cmp(
+            starknet.number.toBN(getAuctionData(network, a)._data?.highest_bid),
         );
         if (cmp !== 0)
             return sortOrder.value === 'bids_desc' ? cmp : -cmp;
     }
     if (sortOrder.value === 'dates_desc' || sortOrder.value === 'dates_asc') {
-        let ba = getAuctionData('starknet-testnet', a)._data?.bids[0]?.timestamp;
-        let bb = getAuctionData('starknet-testnet', b)._data?.bids[0]?.timestamp;
+        let ba = getAuctionData(network, a)._data?.bids[0]?.timestamp;
+        let bb = getAuctionData(network, b)._data?.bids[0]?.timestamp;
         if (ba && bb)
             return sortOrder.value === 'dates_desc' ? -ba.localeCompare(bb) : ba.localeCompare(bb);
         else if (ba)
@@ -212,15 +213,15 @@ popScroll();
                         <div v-if="themeStatus === 'LOADED' && !isLive" class="text-[55%] sm:text-sm md:text-md absolute bottom-[-15px] right-[2rem]">
                             <svg viewBox="0 0 1000 100" height="120px" xmlns="http://www.w3.org/2000/svg">
                                 <text x="1000" y="64" font-size="4rem" font-weight="900" text-anchor="end" font-family="Work Sans" fill-opacity="0.3" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                    AUCTION FEB 13-14
+                                    AUCTIONS FEB 13-14
                                 </text>
                                 <mask id="myMask">
                                     <text x="1000" y="64" font-size="4rem" stroke-width="5px" font-weight="900" text-anchor="end" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                        AUCTION FEB 13-14
+                                        AUCTIONS FEB 13-14
                                     </text>
                                 </mask>
                                 <text x="1000" y="64" mask="url(#myMask)" stroke-width="5px" font-size="4rem" font-weight="900" text-anchor="end" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#ffffff" paint-order="stroke" letter-spacing="2px">
-                                    AUCTION FEB 13-14
+                                    AUCTIONS FEB 13-14
                                 </text>
                             </svg>
                         </div>
@@ -255,12 +256,12 @@ popScroll();
                                         v-for="duckId, i in bidOnDucks" :key="duckId + i"
                                         class="w-fit" v-show="shouldShow(duckId)">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
-                                        <RouterLink v-else :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: getSet(duckId)!.id } }">
+                                        <RouterLink v-else :to="{ name: 'UserCreation', params: { network: network, set_id: getSet(duckId)!.id } }">
                                             <AuctionItemCard
-                                                :auction-data="getAuctionData('starknet-testnet', duckId)._data"
+                                                :auction-data="getAuctionData(network, duckId)._data"
                                                 :title="getSet(duckId)!.name ?? 'Loading'"
                                                 :subtitle="'Official Set & Booklet'"
-                                                :image="backendManager.getPreviewUrl(getSet(duckId)!.id, 'starknet-testnet')"
+                                                :image="backendManager.getPreviewUrl(getSet(duckId)!.id, network)"
                                                 :status="'LOADED'"/>
                                         </RouterLink>
                                     </div>
@@ -284,7 +285,7 @@ popScroll();
                                             :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
                                             @mouseenter="setHoveredDuck(duckId)"
                                             @click="hoverLock = duckId">
-                                            <img :src="backendManager.getRoute(`set/${'starknet-testnet'}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                            <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                         </div>
                                     </div>
                                     <p v-if="iScroll < 200">(loading more)</p>
@@ -295,9 +296,9 @@ popScroll();
                                             <Transition name="fade-hoverlock">
                                                 <AuctionDetailCard
                                                     :key="hoverLock"
-                                                    v-if="getAuctionData('starknet-testnet', hoverLock)?._data"
+                                                    v-if="getAuctionData(network, hoverLock)?._data"
                                                     :class="`!absolute top-0 transition-all duration-500 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
-                                                    :auction-data="getAuctionData('starknet-testnet', hoverLock)._data"
+                                                    :auction-data="getAuctionData(network, hoverLock)._data"
                                                     :expand="true"
                                                     :title="getSet(hoverLock)?.name"
                                                     :subtitle="getSet(hoverLock)?.description"
@@ -307,9 +308,9 @@ popScroll();
                                             since that looks better -->
                                             <Transition name="fake-fadeout">
                                                 <AuctionDetailCard
-                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData('starknet-testnet', hoveredAuction)?._data"
+                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData(network, hoveredAuction)?._data"
                                                     :class="`!absolute top-0`"
-                                                    :auction-data="getAuctionData('starknet-testnet', hoveredAuction)._data"
+                                                    :auction-data="getAuctionData(network, hoveredAuction)._data"
                                                     :title="getSet(hoveredAuction)?.name"
                                                     :subtitle="getSet(hoveredAuction)?.description"
                                                     :status="'LOADED'"/>
@@ -317,9 +318,9 @@ popScroll();
                                             <Transition name="fade">
                                                 <AuctionDetailCard
                                                     :key="hoveredAuction"
-                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData('starknet-testnet', hoveredAuction)?._data"
+                                                    v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData(network, hoveredAuction)?._data"
                                                     :class="`!absolute top-0 ${hoverLock ? '!shadow-xl' : ''}`"
-                                                    :auction-data="getAuctionData('starknet-testnet', hoveredAuction)._data"
+                                                    :auction-data="getAuctionData(network, hoveredAuction)._data"
                                                     :title="getSet(hoveredAuction)?.name"
                                                     :subtitle="getSet(hoveredAuction)?.description"
                                                     :status="'LOADED'"/>
