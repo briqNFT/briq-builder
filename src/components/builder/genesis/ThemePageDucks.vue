@@ -26,7 +26,7 @@ const themeData = computed(() => genesisStore.themedata[themeName.value]?._data 
 const themeBoxes = computed(() => Object.keys(auctionDataStore['starknet-testnet']['ducks_everywhere']._data?._data || {}));
 
 const themeStatus = computed(() => {
-    return auctionDataStore['starknet-testnet']['ducks_everywhere']._data?._status;
+    return themeData.value && auctionDataStore['starknet-testnet']['ducks_everywhere']._data?._status;
 });
 
 const {
@@ -131,12 +131,11 @@ const setHoveredDuck = (auctionId: auctionId | undefined) => {
         hoveredAuction.value = upcomingHover;
 };
 
-const releaseDate = Date.now() - 10000;
-
-const isLive = computed(() => releaseDate < Date.now());
+const releaseDate = computed(() => (themeData.value?.sale_start || 0) * 1000)
+const isLive = computed(() => releaseDate.value && releaseDate.value < Date.now());
 
 const timerCountdown = computed(() => {
-    let tl = Math.max(releaseDate - Date.now(), 0) / 1000;
+    let tl = Math.max(releaseDate.value - Date.now(), 0) / 1000;
     const days = Math.floor(tl / 24 / 3600);
     tl -= days * 24 * 3600;
     const hours = Math.floor(tl / 3600);
@@ -210,18 +209,18 @@ popScroll();
                             <h3 class="mb-3">{{ themeData?.tagline ?? "Loading theme name " }}</h3>
                             <p class="whitespace-pre-line">{{ themeData?.description ?? 'Loading description' }}</p>
                         </div>
-                        <div v-if="!isLive" class="text-[55%] sm:text-sm md:text-md absolute bottom-[-15px] right-[2rem]">
+                        <div v-if="themeStatus === 'LOADED' && !isLive" class="text-[55%] sm:text-sm md:text-md absolute bottom-[-15px] right-[2rem]">
                             <svg viewBox="0 0 1000 100" height="120px" xmlns="http://www.w3.org/2000/svg">
                                 <text x="1000" y="64" font-size="4rem" font-weight="900" text-anchor="end" font-family="Work Sans" fill-opacity="0.3" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                    AUCTION FEB 08-13
+                                    AUCTION FEB 13-14
                                 </text>
                                 <mask id="myMask">
                                     <text x="1000" y="64" font-size="4rem" stroke-width="5px" font-weight="900" text-anchor="end" font-family="Work Sans" stroke="#ffffff" fill="#000000" paint-order="stroke" letter-spacing="2px">
-                                        AUCTION FEB 08-13
+                                        AUCTION FEB 13-14
                                     </text>
                                 </mask>
                                 <text x="1000" y="64" mask="url(#myMask)" stroke-width="5px" font-size="4rem" font-weight="900" text-anchor="end" font-family="Work Sans" stroke-opacity="0.8" stroke="#ffffff" fill="#ffffff" paint-order="stroke" letter-spacing="2px">
-                                    AUCTION FEB 08-13
+                                    AUCTION FEB 13-14
                                 </text>
                             </svg>
                         </div>

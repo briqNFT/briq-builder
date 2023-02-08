@@ -77,6 +77,7 @@ export class ThemeData {
     name!: string;
     tagline!: string;
     description!: string;
+    sale_start?: number;
 
     constructor(themeData: any) {
         for (const key in themeData)
