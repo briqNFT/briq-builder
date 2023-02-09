@@ -224,7 +224,7 @@ watchEffect(async () => {
 watchEffect(async () => {
     // Touch max bid to reload when that changes.
     auctionData.value?.highest_bidder;
-    auctionDataStore['starknet-testnet'][auctionId.value.split('/')[0]].fetchBids(auctionId.value);
+    auctionDataStore[chain_id.value][auctionId.value.split('/')[0]].fetchBids(auctionId.value);
 })
 
 // Bidding starknet.id stuff

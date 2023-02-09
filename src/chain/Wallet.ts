@@ -22,7 +22,7 @@ import { addBreadCrumb } from '@/Monitoring';
 import { injectController, SupportedChainIds } from '@cartridge/controller';
 
 injectController(undefined, {
-    chainId: SupportedChainIds.MAINNET, //APP_ENV === 'prod' ? SupportedChainIds.MAINNET : SupportedChainIds.TESTNET,
+    chainId: APP_ENV === 'prod' ? SupportedChainIds.MAINNET : SupportedChainIds.TESTNET,
 });
 
 export type UserID = string;
@@ -144,7 +144,7 @@ export class WalletStore {
         console.log('totoro', this.signer);
         if (!this.signer)
             chooseDefaultNetwork();
-        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1 || this.signer?.provider?.chainId === SupportedChainIds.MAINNET)
+        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1 || this.signer?.provider?.chainId === '0x534e5f4d41494e')
             setNetwork('starknet-mainnet');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4-2') !== -1)
             setNetwork('starknet-testnet2');

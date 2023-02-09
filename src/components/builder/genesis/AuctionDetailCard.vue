@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
-import { AuctionItemData, userBidsStore } from '@/builder/AuctionData';
+import { auctionDataStore, AuctionItemData, userBidsStore } from '@/builder/AuctionData';
 import { maybeStore } from '@/chain/WalletLoading';
 import { computed } from 'vue';
-import GenericCardVue from './GenericCard.vue';
 import * as starknet from 'starknet';
 import { pushModal } from '@/components/Modals.vue';
 import BidModal from './BidModal.vue';
@@ -16,6 +15,8 @@ const props = defineProps<{
     auctionData: AuctionItemData,
     expand?: boolean,
 }>();
+
+const network = computed(() => props.auctionData.mainAuction.network);
 
 const hasHighestBid = computed(() => {
     return props.auctionData.highest_bid != '0' && props.auctionData.highest_bidder == maybeStore.value?.userWalletAddress;
@@ -69,8 +70,8 @@ const timerCountdown = (date: number) => {
 };
 
 
-const highImage = computed(() => backendManager.getPreviewUrl(props.auctionData.token_id, 'starknet-testnet'));
-const lowImage = computed(() => backendManager.getRoute(`set/${'starknet-testnet'}/${props.auctionData.token_id}/small_preview.jpg`))
+const highImage = computed(() => backendManager.getPreviewUrl(props.auctionData.token_id, network.value));
+const lowImage = computed(() => backendManager.getRoute(`set/${network.value}/${props.auctionData.token_id}/small_preview.jpg`))
 </script>
 
 <style scoped>
@@ -122,7 +123,7 @@ const lowImage = computed(() => backendManager.getRoute(`set/${'starknet-testnet
                     </p>
                     <template v-else>
                         <p v-if="expand" class="flex justify-between">
-                            <RouterLink :to="{ name: 'UserCreation', params: { network: 'starknet-testnet', set_id: auctionData.token_id } }">
+                            <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: auctionData.token_id } }">
                                 <Btn secondary>See details</Btn>
                             </RouterLink>
                             <Btn :disabled="!!cannotBidReason" :tooltip="cannotBidReason" @click="doBid">Make a bid</Btn>
