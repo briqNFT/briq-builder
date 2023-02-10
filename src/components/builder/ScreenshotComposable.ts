@@ -26,6 +26,11 @@ export function useScreenshotHelpers(screenshot?: string, ogImage?: string) {
         previewImage.value = await imageProcessing.value;
     }
 
+    const forceImage = async(image: HTMLImageElement) => {
+        await image.decode();
+        originalImage.value = image.src;
+        previewImage.value = image.src;
+    }
     const prepareImage = async(img: HTMLImageElement): Promise<string> => {
         const c = document.createElement('canvas');
         const ctx = c.getContext('2d')!;
@@ -70,6 +75,6 @@ export function useScreenshotHelpers(screenshot?: string, ogImage?: string) {
     };
     return {
         previewImage, originalImage, imageProcessing,
-        takeScreenshot, updateImage, prepareImage, retakeScreenshot, cropScreenshot,
+        takeScreenshot, updateImage, forceImage, prepareImage, retakeScreenshot, cropScreenshot,
     }
 }

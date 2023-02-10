@@ -45,22 +45,28 @@ const bookletData = computed(() => booklet.value && bookletDataStore[getCurrentN
 // Reload the briqs on-chain in case there was an update.
 chainBriqs.value?.loadFromChain();
 
-const { previewImage, imageProcessing, takeScreenshot, updateImage, retakeScreenshot, cropScreenshot } = useScreenshotHelpers(props.screenshot, props.originalImage);
+const { previewImage, imageProcessing, takeScreenshot, updateImage, forceImage, retakeScreenshot, cropScreenshot } = useScreenshotHelpers(props.screenshot, props.originalImage);
 
 if (!previewImage.value) {
     let object = getSetObject();
-    if (booklet.value) {
-        const rot = bookletStore.shapeValidityOffset[booklet.value][0];
-        object = object.clone();
-        if (rot === 1)
-            object.rotateY(-Math.PI/2);
-        else if (rot === 2)
-            object.rotateY(-Math.PI);
-        else if (rot === 3)
-            object.rotateY(-3 * Math.PI/2);
+    if (booklet.value && booklet.value.includes('ducks_everywhere')) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = genesisStore.coverItemRoute(booklet.value) + '?no-cache-please-2';
+        forceImage(img);
+    } else {
+        if (booklet.value) {
+            const rot = bookletStore.shapeValidityOffset[booklet.value][0];
+            object = object.clone();
+            if (rot === 1)
+                object.rotateY(-Math.PI/2);
+            else if (rot === 2)
+                object.rotateY(-Math.PI);
+            else if (rot === 3)
+                object.rotateY(-3 * Math.PI/2);
+        }
+        takeScreenshot(object, !!booklet.value).then(img => updateImage(img, true))
     }
-
-    takeScreenshot(object, !!booklet.value).then(img => updateImage(img, true))
 }
 
 const downloadSet = () => {
