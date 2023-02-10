@@ -304,7 +304,7 @@ popScroll();
                                 <div>
                                     <h2 class="mt-8">Exclusive ducks for briq holders</h2>
                                     <p class="mt-2 mb-6">
-                                        Auction start Feb 13 at 12:00UTC and ends 24 hours later.
+                                        Auction start Feb 13 at 12:00 UTC and ends 24 hours later.
                                         <br>
                                         <span v-if="isAllowListedForDucks(maybeStore?.userWalletAddress)">
                                             <i class="fas fa-circle-check text-info-success"/> Your current wallet is part of the allowlist.
@@ -334,7 +334,7 @@ popScroll();
                                         <h5 class="col-span-full" v-show="!filteredAllowedDucks.length">There are no ducks matching the filters you've entered</h5>
                                     </div>
                                     <h2 class="mt-8 mb-4">Public Sale Ducks</h2>
-                                    <p class="my-4">Auction start Feb 14 at 15:00UTC and ends 24 hours later.</p>
+                                    <p class="my-4">Auction start Feb 14 at 14:00 UTC and ends 24 hours later.</p>
                                     <div
                                         class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
                                     md:grid-cols-[repeat(3,9rem)]

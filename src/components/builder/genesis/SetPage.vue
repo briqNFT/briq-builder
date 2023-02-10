@@ -205,15 +205,15 @@ const timerCountdown = (date: number) => {
     tl -= days * 24 * 3600;
     const hours = Math.floor(tl / 3600);
     if (hours > 0)
-        return hours > 1 ? `${hours} days` : `${hours} day`;
+        return hours > 1 ? `${hours} hours` : `${hours} hour`;
     tl -= hours * 3600;
     const minutes = Math.floor(tl / 60);
     if (minutes > 0)
-        return minutes > 1 ? `${minutes} days` : `${minutes} day`;
+        return minutes > 1 ? `${minutes} minutes` : `${minutes} minute`;
     tl -= minutes * 60;
     const seconds = Math.floor(tl);
     if (seconds > 0)
-        return seconds > 1 ? `${seconds} days` : `${seconds} day`;
+        return seconds > 1 ? `${seconds} seconds` : `${seconds} second`;
 };
 
 watchEffect(async () => {
