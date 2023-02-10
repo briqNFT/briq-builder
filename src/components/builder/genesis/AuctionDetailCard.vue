@@ -51,6 +51,8 @@ const cannotBidReason = computed(() => {
     return '';
 })
 
+const isLive = computed(() => props.auctionData.end_date - Date.now() >= 0);
+
 const timerCountdown = (date: number) => {
     let tl = Math.max(date - Date.now(), 0) / 1000;
     const days = Math.floor(tl / 24 / 3600);
@@ -99,9 +101,12 @@ const lowImage = computed(() => backendManager.getRoute(`set/${network.value}/${
                 <hr class="my-2">
 
                 <div class="p-4 pt-0 flex flex-col gap-2">
-                    <p class="flex justify-between">
+                    <p v-if="isLive" class="flex justify-between">
                         <span class="text-grad-dark">Auction ends in</span>
                         <span>{{ timerCountdown(props.auctionData.end_date) }}</span>
+                    </p>
+                    <p v-else>
+                        <span class="text-grad-dark">Auction has ended</span>
                     </p>
                     <template v-if="highestBid === '0'">
                         <p class="flex justify-between">
@@ -113,25 +118,37 @@ const lowImage = computed(() => backendManager.getRoute(`set/${network.value}/${
                             <span class="text-grad-dark">Winning Bid</span><span class="font-medium">{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span>
                         </p>
                     </template>
-                    <p v-if="hasHighestBid" class="flex justify-between">
-                        <span class="text-grad-dark">Your bid is the winning bid</span><span><i class="text-info-success fas fa-circle-check"/></span>
-                    </p>
-                    <p v-else-if="hasPendingBid" class="flex justify-between">
-                        <span class="text-grad-dark">You have a pending bid</span><span><i class="text-info-info fas fa-spinner animate-spin-slow"/></span>
-                    </p>
-                    <p v-else-if="hasBid" class="flex justify-between">
-                        <span class="text-grad-dark">You have been outbid</span><span><i class="text-info-error fas fa-circle-exclamation"/></span>
-                    </p>
-                    <template v-else>
+                    <template v-if="!isLive">
                         <p v-if="expand" class="flex justify-between">
                             <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: auctionData.token_id } }">
                                 <Btn secondary>See details</Btn>
                             </RouterLink>
-                            <Btn :disabled="!!cannotBidReason" :tooltip="cannotBidReason" @click="doBid">Make a bid</Btn>
                         </p>
                         <p v-else class="flex justify-center text-grad-dark italic text-xs">
                             Click on the card to see more
                         </p>
+                    </template>
+                    <template v-else>
+                        <p v-if="hasHighestBid" class="flex justify-between">
+                            <span class="text-grad-dark">Your bid is the winning bid</span><span><i class="text-info-success fas fa-circle-check"/></span>
+                        </p>
+                        <p v-else-if="hasPendingBid" class="flex justify-between">
+                            <span class="text-grad-dark">You have a pending bid</span><span><i class="text-info-info fas fa-spinner animate-spin-slow"/></span>
+                        </p>
+                        <p v-else-if="hasBid" class="flex justify-between">
+                            <span class="text-grad-dark">You have been outbid</span><span><i class="text-info-error fas fa-circle-exclamation"/></span>
+                        </p>
+                        <template v-else>
+                            <p v-if="expand" class="flex justify-between">
+                                <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: auctionData.token_id } }">
+                                    <Btn secondary>See details</Btn>
+                                </RouterLink>
+                                <Btn :disabled="!!cannotBidReason" :tooltip="cannotBidReason" @click="doBid">Make a bid</Btn>
+                            </p>
+                            <p v-else class="flex justify-center text-grad-dark italic text-xs">
+                                Click on the card to see more
+                            </p>
+                        </template>
                     </template>
                 </div>
             </template>

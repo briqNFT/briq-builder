@@ -284,7 +284,6 @@ button:not(.btn):not(.nostyle)::before {
             <div class="relative flex justify-center items-center bg-background rounded-md p-4">
                 <img v-show="previewImage" class="max-h-[24rem] bg-background rounded-md" :src="previewImage">
                 <div v-if="!previewImage" class="h-[12rem] bg-background rounded-md flex items-center justify-center text-sm"><p class="p-4">...Taking HD Screenshot...</p></div>
-                <!--<img class="max-h-[28rem]" :src="genesisStore.coverItemRoute(booklet)">-->
             </div>
             <div class="mt-3 mb-2">
                 <h3>{{ bookletData!.name }}</h3>

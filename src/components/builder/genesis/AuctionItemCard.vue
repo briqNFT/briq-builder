@@ -40,6 +40,8 @@ const hasPendingBid = computed(() => {
     return props.auctionData.highest_bid === '0' || starknet.number.toBN(bid.bid_amount).cmp(starknet.number.toBN(props.auctionData.highest_bid)) > 0;
 });
 
+const isLive = computed(() => props.auctionData.end_date - Date.now() >= 0);
+
 const doBid = async () => {
     await pushModal(BidModal, { item: props.auctionData.auctionId, name: props.title })
 }
@@ -71,7 +73,7 @@ const doBid = async () => {
                 <p class="flex justify-between">
                     <span class="text-grad-dark">Your bid is the winning bid</span><span><i class="text-info-success fas fa-circle-check"/></span>
                 </p>
-                <Btn secondary @click.prevent="doBid">Make a new bid</Btn>
+                <Btn v-if="isLive" secondary @click.prevent="doBid">Make a new bid</Btn>
             </template>
             <p v-else-if="hasPendingBid" class="flex justify-between">
                 <span class="text-grad-dark">You have a pending bid</span><span><i class="text-info-info fas fa-spinner animate-spin-slow"/></span>
@@ -81,9 +83,10 @@ const doBid = async () => {
                     <span class="text-grad-dark">You have been outbid!</span>
                     <span><i class="text-info-error far fa-circle-exclamation"/></span>
                 </p>
-                <Btn @click.prevent="doBid">Make a new bid</Btn>
+                <Btn v-if="isLive" @click.prevent="doBid">Make a new bid</Btn>
             </template>
             <p v-else><span class="text-grad-dark">Make a bid and win this duck!</span></p>
+            <p v-if="!isLive" class="text-center text-md text-grad-dark mt-3 mb-2">Auction has ended !</p>
         </template>
     </genericcardvue>
 </template>
