@@ -148,11 +148,11 @@ const timerCountdown = computed(() => {
 });
 
 
-const iScroll = ref(20);
+const iScroll = ref(25);
 const popScroll = () => setTimeout(() => {
-    iScroll.value += 10;
+    iScroll.value += 25;
     popScroll();
-}, APP_ENV === 'dev' ? 200 : 2000);
+}, APP_ENV === 'dev' ? 200 : 500);
 popScroll();
 
 </script>
