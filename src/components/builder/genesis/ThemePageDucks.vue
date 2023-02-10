@@ -17,6 +17,8 @@ import { APP_ENV } from '@/Meta';
 import * as starknet from 'starknet';
 import { isAllowListedForDucks, allowlistedDucks } from '@/builder/DucksSale';
 import { maybeStore } from '@/chain/WalletLoading';
+import Toggle from '@/components/generic/Toggle.vue';
+import Button from '@/components/generic/Button.vue';
 
 const route = useRoute();
 const network = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet';
@@ -46,10 +48,31 @@ const coverUrl = computed(() => {
 
 const availableDucks = computed(() => themeBoxes.value?.filter(x => getAuctionData(network, x)!._data?.token_id) || []);
 
+const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore.current?.getBid(x)).sort(sortDucks) || []);
+
+const allowlistDucks = computed(() => {
+    return availableDucks.value?.filter(
+        x => !userBidsStore.current?.getBid(x)
+            && allowlistedDucks.includes(x),
+    ).sort(sortDucks) || []
+});
+
+const notBidOnDucks = computed(() => {
+    return availableDucks.value?.filter(
+        x => !userBidsStore.current?.getBid(x)
+            && !allowlistedDucks.includes(x),
+    ).sort(sortDucks) || []
+});
+
+const filteredBidDucks = computed(() => bidOnDucks.value?.filter(shouldShow) || []);
+const filteredAllowedDucks = computed(() => allowlistDucks.value?.filter(shouldShow) || []);
+const filteredOtherDucks = computed(() => notBidOnDucks.value?.filter(shouldShow) || []);
+
 const getSet = (auctionId: auctionId) => externalSetCache[network][getAuctionData(network, auctionId)!._data!.token_id]._data;
 
 const searchBar = ref<string>();
 const sortOrder = ref('a_z');
+const onlyNoBids = ref(false);
 
 // Make sure to scroll up when searching or behaviour gets a bit weird.
 const ducksListing = ref(null as unknown as HTMLElement);
@@ -57,6 +80,7 @@ watchEffect(() => {
     if (!ducksListing.value)
         return;
     searchBar.value;
+    onlyNoBids.value;
     if (ducksListing.value.getBoundingClientRect().top < -100)
         window.scrollTo(0, ducksListing.value.getBoundingClientRect().top + window.scrollY - 200);
 })
@@ -82,24 +106,9 @@ const sortDucks = (a: auctionId, b: auctionId) => {
     return (getSet(a)?.name || a).localeCompare(getSet(b)?.name || b);
 }
 
-const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore.current?.getBid(x)).sort(sortDucks) || []);
-
-const allowlistDucks = computed(() => {
-    return availableDucks.value?.filter(
-        x => !userBidsStore.current?.getBid(x)
-            && allowlistedDucks.includes(x),
-    ).sort(sortDucks) || []
-});
-
-const notBidOnDucks = computed(() => {
-    return availableDucks.value?.filter(
-        x => !userBidsStore.current?.getBid(x)
-            && !allowlistedDucks.includes(x),
-    ).sort(sortDucks) || []
-});
-
-
 const shouldShow = (auctionId: auctionId) => {
+    if (onlyNoBids.value && getAuctionData(network, auctionId)?._data?.highest_bid != '0')
+        return false;
     if (!searchBar.value)
         return true;
     const name = getSet(auctionId)?.name;
@@ -262,6 +271,12 @@ popScroll();
                                         <option value="bids_asc">Sort by lowest bids</option>
                                     </select>
                                 </p>
+                                <p>
+                                    <Button secondary class="font-sm font-normal px-2" @click="onlyNoBids = !onlyNoBids">
+                                        <Toggle v-model="onlyNoBids" class="w-10 mr-2 pointer-events-none"/>
+                                        Show ducks without bids only
+                                    </Button>
+                                </p>
                             </div>
                         </div>
                         <div class="max-w-[1600px] px-8 m-auto mt-3" ref="ducksListing">
@@ -282,6 +297,7 @@ popScroll();
                                         </RouterLink>
                                     </div>
                                 </div>
+                                <h5 v-show="!filteredBidDucks.length">There are no ducks matching the filters you've entered</h5>
                             </template>
                             <div
                                 class="grid gap-4 grid-cols-[min-content_20rem] tall-md:grid-cols-[min-content_minmax(20rem,auto)]">
@@ -315,6 +331,7 @@ popScroll();
                                                 <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                             </div>
                                         </div>
+                                        <h5 class="col-span-full" v-show="!filteredAllowedDucks.length">There are no ducks matching the filters you've entered</h5>
                                     </div>
                                     <h2 class="mt-8 mb-4">Public Sale Ducks</h2>
                                     <p class="my-4">Auction start Feb 14 at 15:00UTC and ends 24 hours later.</p>
@@ -336,6 +353,7 @@ popScroll();
                                                 <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                             </div>
                                         </div>
+                                        <h5 class="col-span-full" v-show="!filteredOtherDucks.length">There are no ducks matching the filters you've entered</h5>
                                     </div>
                                 </div>
                                 <div class="relative min-h-[30rem]">
