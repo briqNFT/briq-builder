@@ -21,10 +21,6 @@ import { addBreadCrumb } from '@/Monitoring';
 
 import { injectController, SupportedChainIds } from '@cartridge/controller';
 
-injectController(undefined, {
-    chainId: APP_ENV === 'prod' ? SupportedChainIds.MAINNET : SupportedChainIds.TESTNET,
-});
-
 export type UserID = string;
 
 export class WalletStore {
@@ -41,6 +37,16 @@ export class WalletStore {
     constructor() {}
 
     async init() {
+        try {
+            injectController(undefined, {
+                chainId: APP_ENV === 'prod' ? SupportedChainIds.MAINNET : SupportedChainIds.TESTNET,
+            });
+        } catch(_) {
+            // Ignore
+            if (APP_ENV === 'dev')
+                console.log(_);
+        }
+
         const storedAddress = window.localStorage.getItem('user_address');
         logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
 

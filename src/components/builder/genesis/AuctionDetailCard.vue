@@ -7,6 +7,7 @@ import * as starknet from 'starknet';
 import { pushModal } from '@/components/Modals.vue';
 import BidModal from './BidModal.vue';
 import { backendManager } from '@/Backend';
+import { isAllowListedForDucks } from '@/builder/DucksSale';
 
 const props = defineProps<{
     title: string,
@@ -45,7 +46,7 @@ const doBid = async () => {
 const cannotBidReason = computed(() => {
     if (!userBidsStore.current)
         return 'You must connect a wallet to bid';
-    if (maybeStore.value?.userWalletAddress === 'toto')
+    if (!isAllowListedForDucks(maybeStore.value?.userWalletAddress))
         return 'You are not part of the allowlist, and cannot bid until the general auction starts.';
     return '';
 })

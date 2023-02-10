@@ -37,6 +37,7 @@ import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import BidModal from './BidModal.vue';
 import { externalSetCache } from '@/builder/ExternalSets';
 import { Fetchable } from '@/DataFetching';
+import { isAllowListedForDucks } from '@/builder/DucksSale';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -187,7 +188,7 @@ const pendingBidString = computed(() => {
 const cannotBidReason = computed(() => {
     if (!userBidsStore.current)
         return 'You must connect a wallet to bid';
-    if (maybeStore.value?.userWalletAddress === 'toto')
+    if (!isAllowListedForDucks(maybeStore.value?.userWalletAddress))
         return 'You are not part of the allowlist, and cannot bid until the general auction starts.';
     return '';
 })

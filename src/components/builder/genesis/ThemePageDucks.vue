@@ -15,6 +15,8 @@ import { externalSetCache } from '@/builder/ExternalSets';
 import AuctionDetailCard from './AuctionDetailCard.vue';
 import { APP_ENV } from '@/Meta';
 import * as starknet from 'starknet';
+import { isAllowListedForDucks, allowlistedDucks } from '@/builder/DucksSale';
+import { maybeStore } from '@/chain/WalletLoading';
 
 const route = useRoute();
 const network = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet';
@@ -81,7 +83,21 @@ const sortDucks = (a: auctionId, b: auctionId) => {
 }
 
 const bidOnDucks = computed(() => availableDucks.value?.filter(x => userBidsStore.current?.getBid(x)).sort(sortDucks) || []);
-const notBidOnDucks = computed(() => availableDucks.value?.filter(x => !userBidsStore.current?.getBid(x)).sort(sortDucks).slice(0, iScroll.value) || []);
+
+const allowlistDucks = computed(() => {
+    return availableDucks.value?.filter(
+        x => !userBidsStore.current?.getBid(x)
+            && allowlistedDucks.includes(x),
+    ).sort(sortDucks) || []
+});
+
+const notBidOnDucks = computed(() => {
+    return availableDucks.value?.filter(
+        x => !userBidsStore.current?.getBid(x)
+            && !allowlistedDucks.includes(x),
+    ).sort(sortDucks) || []
+});
+
 
 const shouldShow = (auctionId: auctionId) => {
     if (!searchBar.value)
@@ -152,7 +168,7 @@ const iScroll = ref(25);
 const popScroll = () => setTimeout(() => {
     iScroll.value += 25;
     popScroll();
-}, APP_ENV === 'dev' ? 200 : 500);
+}, APP_ENV === 'dev' ? 200 : 1000);
 popScroll();
 
 </script>
@@ -266,29 +282,61 @@ popScroll();
                                         </RouterLink>
                                     </div>
                                 </div>
-                                <h2 class="mt-8 mb-4">Other ducks</h2>
                             </template>
                             <div
                                 class="grid gap-4 grid-cols-[min-content_20rem] tall-md:grid-cols-[min-content_minmax(20rem,auto)]">
-                                <div
-                                    class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
+                                <div>
+                                    <h2 class="mt-8">Exclusive ducks for briq holders</h2>
+                                    <p class="mt-2 mb-6">
+                                        Auction start Feb 13 at 12:00UTC and ends 24 hours later.
+                                        <br>
+                                        <span v-if="isAllowListedForDucks(maybeStore?.userWalletAddress)">
+                                            <i class="fas fa-circle-check text-info-success"/> Your current wallet is part of the allowlist.
+                                        </span>
+                                        <span v-else>
+                                            <i class="fas fa-circle-exclamation text-info-error"/> Your current wallet is not part of the allowlist.
+                                        </span>
+                                    </p>
+                                    <div
+                                        class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
                                     md:grid-cols-[repeat(3,9rem)]
                                     lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
-                                    @pointerleave="hoverLock && setHoveredDuck(undefined)">
-                                    <div
-                                        v-for="duckId, i in notBidOnDucks" :key="duckId + i"
-                                        v-show="shouldShow(duckId)"
-                                        class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
-                                        <p v-if="!getSet(duckId)">...Loading data...</p>
+                                        @pointerleave="hoverLock && setHoveredDuck(undefined)">
                                         <div
-                                            v-else
-                                            :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
-                                            @mouseenter="setHoveredDuck(duckId)"
-                                            @click="hoverLock = duckId">
-                                            <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                            v-for="duckId, i in allowlistDucks" :key="duckId + i"
+                                            v-show="shouldShow(duckId)"
+                                            class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
+                                            <p v-if="!getSet(duckId) || iScroll < i">...Loading data...</p>
+                                            <div
+                                                v-else
+                                                :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
+                                                @mouseenter="setHoveredDuck(duckId)"
+                                                @click="hoverLock = duckId">
+                                                <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                            </div>
                                         </div>
                                     </div>
-                                    <p v-if="iScroll < 200">(loading more)</p>
+                                    <h2 class="mt-8 mb-4">Public Sale Ducks</h2>
+                                    <p class="my-4">Auction start Feb 14 at 15:00UTC and ends 24 hours later.</p>
+                                    <div
+                                        class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
+                                    md:grid-cols-[repeat(3,9rem)]
+                                    lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
+                                        @pointerleave="hoverLock && setHoveredDuck(undefined)">
+                                        <div
+                                            v-for="duckId, i in notBidOnDucks" :key="duckId + i"
+                                            v-show="shouldShow(duckId)"
+                                            class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
+                                            <p v-if="!getSet(duckId) || iScroll < i">...Loading data...</p>
+                                            <div
+                                                v-else
+                                                :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
+                                                @mouseenter="setHoveredDuck(duckId)"
+                                                @click="hoverLock = duckId">
+                                                <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="relative min-h-[30rem]">
                                     <div class="sticky top-[9.2rem] z-5 flex justify-center w-full">
