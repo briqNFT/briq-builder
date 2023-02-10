@@ -18,7 +18,6 @@ import * as starknet from 'starknet';
 import { isAllowListedForDucks, allowlistedDucks } from '@/builder/DucksSale';
 import { maybeStore } from '@/chain/WalletLoading';
 import Toggle from '@/components/generic/Toggle.vue';
-import Button from '@/components/generic/Button.vue';
 
 const route = useRoute();
 const network = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet';
@@ -272,10 +271,10 @@ popScroll();
                                     </select>
                                 </p>
                                 <p>
-                                    <Button secondary class="font-sm font-normal px-2" @click="onlyNoBids = !onlyNoBids">
+                                    <Btn secondary class="font-sm font-normal px-2" @click="onlyNoBids = !onlyNoBids">
                                         <Toggle v-model="onlyNoBids" class="w-10 mr-2 pointer-events-none"/>
                                         Show ducks without bids only
-                                    </Button>
+                                    </Btn>
                                 </p>
                             </div>
                         </div>
