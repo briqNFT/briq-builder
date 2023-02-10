@@ -28,12 +28,12 @@ Global javascript files, such as the main entry point (`App.vue`), configuration
  - `components/`
 
 Vue3 SFC components. These are then subdivided in hopefully explicit subfolders.  
-Those are the only components that actually get renderered onto HTML.
+Those are the only components that actually get rendered onto HTML.
 
  - `builder/`
 
 All files related to the builder data & rendering (under `graphics/`). Intended to not really contain much blockchain-specific code.  
-Input modes use a FSM that's under `inputs/` here.
+Input modes use an FSM that's under `inputs/` here.
 
  - `chain/`
 
