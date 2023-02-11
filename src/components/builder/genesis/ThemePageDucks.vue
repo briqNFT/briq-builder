@@ -352,7 +352,8 @@ popScroll();
                                                 <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                             </div>
                                         </div>
-                                        <h5 class="col-span-full" v-show="!filteredOtherDucks.length">There are no ducks matching the filters you've entered</h5>
+                                        <h5 v-if="Date.now() < 1676383200000" class="col-span-full">150 ducks will be revealed soon !</h5>
+                                        <h5 v-else class="col-span-full" v-show="!filteredOtherDucks.length">There are no ducks matching the filters you've entered</h5>
                                     </div>
                                 </div>
                                 <div class="relative min-h-[30rem]">
