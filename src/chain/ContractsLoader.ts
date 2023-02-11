@@ -45,6 +45,7 @@ const IMPL = {
         set: SetContract,
         box: BoxContract,
         auction: AuctionContract,
+        auction_ducks: OnchainAuctionContract,
         eth_bridge_contract: ERC20Contract,
     },
 };
