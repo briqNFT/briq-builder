@@ -411,6 +411,19 @@ popScroll();
                 </div>
             </template>
             <div class="bg-black text-white pb-8">
+                <div v-if="!isLive && themeStatus === 'LOADED'" class="container m-auto max-w-[42rem] py-8">
+                    <h4>Allowlist Sale: Feb 13 at 12 UTC</h4>
+                    <h4>Public Sale: Feb 14 at 14 UTC</h4>
+                    <p>Each sale will be live for 24 hours.</p>
+                    <p class="mt-4">
+                        <span v-if="isAllowListedForDucks(maybeStore?.userWalletAddress)">
+                            <i class="fas fa-circle-check text-info-success"/> Your current wallet is part of the allowlist.
+                        </span>
+                        <span v-else>
+                            <i class="fas fa-circle-exclamation text-info-error"/> Your current wallet is not part of the allowlist.
+                        </span>
+                    </p>
+                </div>
                 <div class="container max-w-[42rem] m-auto py-8">
                     <h3 class="text-center mb-6">FAQ</h3>
                     <div class="faq flex flex-col gap-4">
