@@ -223,6 +223,8 @@ watchEffect(async () => {
 });
 
 watchEffect(async () => {
+    if (!auctionId.value)
+        return;
     // Touch max bid to reload when that changes.
     auctionData.value?.highest_bidder;
     auctionDataStore[chain_id.value][auctionId.value.split('/')[0]].fetchBids(auctionId.value);
