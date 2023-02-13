@@ -8,16 +8,21 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
-import { auctionDataStore, auctionId, getAuctionData, userBidsStore } from '@/builder/AuctionData';
+import { auctionDataStore, getAuctionData, userBidsStore } from '@/builder/AuctionData';
+import type { auctionId } from '@/builder/AuctionData';
 import AuctionItemCard from './AuctionItemCard.vue';
 import { backendManager } from '@/Backend';
 import { externalSetCache } from '@/builder/ExternalSets';
 import AuctionDetailCard from './AuctionDetailCard.vue';
 import { APP_ENV } from '@/Meta';
 import * as starknet from 'starknet';
-import { isAllowListedForDucks, allowlistedDucks } from '@/builder/DucksSale';
+import { isAllowListedForDucks, allowlistedDucks, useSearch } from '@/builder/DucksSale';
 import { maybeStore } from '@/chain/WalletLoading';
 import Toggle from '@/components/generic/Toggle.vue';
+import { ExplorerContractUrl, ExplorerTxUrl } from '@/chain/Explorer';
+import { readableNumber, readableUnit } from '@/BigNumberForHumans';
+import { router } from '@/Routes';
+import { Fetchable } from '@/DataFetching';
 
 const route = useRoute();
 const network = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet';
@@ -69,9 +74,33 @@ const filteredOtherDucks = computed(() => notBidOnDucks.value?.filter(shouldShow
 
 const getSet = (auctionId: auctionId) => externalSetCache[network][getAuctionData(network, auctionId)!._data!.token_id]._data;
 
-const searchBar = ref<string>();
-const sortOrder = ref('a_z');
-const onlyNoBids = ref(false);
+const { searchBar, sortOrder, onlyNoBids } = useSearch();
+
+
+const sortDucks = (a: auctionId, b: auctionId) => {
+    return _sortDucks(sortOrder.value)(a, b);
+}
+
+const _sortDucks = (sorting: any) => (a: auctionId, b: auctionId) => {
+    if (sorting === 'bids_desc' || sorting === 'bids_asc') {
+        let cmp = starknet.number.toBN(getAuctionData(network, b)._data?.highest_bid).cmp(
+            starknet.number.toBN(getAuctionData(network, a)._data?.highest_bid),
+        );
+        if (cmp !== 0)
+            return sorting === 'bids_desc' ? cmp : -cmp;
+    }
+    if (sorting === 'dates_desc' || sorting === 'dates_asc') {
+        let ba = getAuctionData(network, a)._data?.bids[0]?.timestamp;
+        let bb = getAuctionData(network, b)._data?.bids[0]?.timestamp;
+        if (ba && bb)
+            return sorting === 'dates_desc' ? -ba.localeCompare(bb) : ba.localeCompare(bb);
+        else if (ba)
+            return -1;
+        else if (bb)
+            return 1;
+    }
+    return (getSet(a)?.name || a).localeCompare(getSet(b)?.name || b);
+}
 
 // Make sure to scroll up when searching or behaviour gets a bit weird.
 const ducksListing = ref(null as unknown as HTMLElement);
@@ -84,27 +113,6 @@ watchEffect(() => {
         window.scrollTo(0, ducksListing.value.getBoundingClientRect().top + window.scrollY - 200);
 })
 
-const sortDucks = (a: auctionId, b: auctionId) => {
-    if (sortOrder.value === 'bids_desc' || sortOrder.value === 'bids_asc') {
-        let cmp = starknet.number.toBN(getAuctionData(network, b)._data?.highest_bid).cmp(
-            starknet.number.toBN(getAuctionData(network, a)._data?.highest_bid),
-        );
-        if (cmp !== 0)
-            return sortOrder.value === 'bids_desc' ? cmp : -cmp;
-    }
-    if (sortOrder.value === 'dates_desc' || sortOrder.value === 'dates_asc') {
-        let ba = getAuctionData(network, a)._data?.bids[0]?.timestamp;
-        let bb = getAuctionData(network, b)._data?.bids[0]?.timestamp;
-        if (ba && bb)
-            return sortOrder.value === 'dates_desc' ? -ba.localeCompare(bb) : ba.localeCompare(bb);
-        else if (ba)
-            return -1;
-        else if (bb)
-            return 1;
-    }
-    return (getSet(a)?.name || a).localeCompare(getSet(b)?.name || b);
-}
-
 const shouldShow = (auctionId: auctionId) => {
     if (onlyNoBids.value && getAuctionData(network, auctionId)?._data?.highest_bid != '0')
         return false;
@@ -115,6 +123,28 @@ const shouldShow = (auctionId: auctionId) => {
         return true;
     return false;
 };
+
+
+const latestBids = computed(() => {
+    return availableDucks.value.slice().sort(_sortDucks('dates_desc')).slice(0, 5).map(x => getAuctionData(network, x)?._data!).filter(x => !!x);
+})
+
+// Bidding starknet.id stuff
+const bidderAddresses = ref({} as Record<string, Fetchable<string | false>>);
+watchEffect(() => {
+    for (const bid of latestBids.value) {
+        if (bidderAddresses.value[bid.highest_bidder] !== undefined)
+            continue;
+        bidderAddresses.value[bid.highest_bidder] = new Fetchable<string>();
+        bidderAddresses.value[bid.highest_bidder].fetch(async () => {
+            const response = await fetch('https://app.starknet.id/api/indexer/addr_to_domain?addr=' + starknet.number.toBN(bid.highest_bidder).toString());
+            const json = await response.json()
+            if (json.domain)
+                return json.domain;
+            return false;
+        });
+    }
+})
 
 const hoveredAuction = ref(undefined as undefined | string);
 const hoverLock = ref(undefined as undefined | string);
@@ -250,6 +280,27 @@ popScroll();
                                     AUCTIONS FEB 13-14
                                 </text>
                             </svg>
+                        </div>
+                        <div v-if="isLive" class="hidden lg:flex absolute right-0 top-0 h-full items-center text-text-on-background text-sm">
+                            <div class="rounded-md bg-grad-lightest bg-opacity-50 backdrop-blur-md min-w-[250px] w-max">
+                                <h4 class="px-4 pt-3 pb-0 font-medium text-md text-right">Latest bids</h4>
+                                <a
+                                    v-for="bid, i in latestBids"
+                                    :key="bid.token_id || '' + i"
+                                    :href="ExplorerTxUrl(bid.token_id)" target="_blank"
+                                    class="block border-b border-grad-light last:border-none px-4 py-3">
+                                    <div class="flex justify-end">
+                                        <p>{{ readableUnit(bid.highest_bid) }} {{ readableNumber(bid.highest_bid) }} on
+                                            <a class="text-primary" @click.prevent="router.push(`/set/${network}/${bid.token_id}`)">{{ getSet(bid.auctionId)?.name || bid.auctionId }}</a>
+                                            by <a :href="ExplorerContractUrl(bid.highest_bidder)" target="_blank">
+                                                <span class="text-primary" v-if="bidderAddresses[bid.highest_bidder]._data">{{ bidderAddresses[bid.highest_bidder]._data }}</span>
+                                                <span class="text-primary" v-else>{{ bid.highest_bidder.substring(0, 6) + "..." + bid.highest_bidder.slice(-4) }}</span>
+                                            </a>
+                                            <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/>
+                                        </p>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

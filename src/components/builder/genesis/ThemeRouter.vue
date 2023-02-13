@@ -14,5 +14,7 @@ const comp = computed(() => components?.[route.params.theme as string] ?? ThemeM
 </script>
 
 <template>
-    <Component :is="comp"/>
+    <KeepAlive>
+        <component :is="comp"/>
+    </KeepAlive>
 </template>

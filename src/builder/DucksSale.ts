@@ -1,6 +1,20 @@
 // Some data about the ducks sale
 
 import { number as nb } from 'starknet';
+import { ref } from 'vue';
+
+const searchBar = ref<string>();
+const sortOrder = ref('a_z');
+const onlyNoBids = ref(false);
+
+export const useSearch = function() {
+    return {
+        searchBar,
+        sortOrder,
+        onlyNoBids,
+    }
+}
+
 
 // These must be stored as non-0x lowercased prefixed hex strings
 const allowList: string[] = [
