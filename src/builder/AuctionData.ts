@@ -88,6 +88,7 @@ class AuctionData {
 
     async fetchBids(auction: auctionId) {
         this._bids[auction] = await backendManager.fetch(`v1/${this.network}/${auction}/bids`);
+        this._bids[auction].sort((a, b) => starknet.number.toBN(b.bid).cmp(starknet.number.toBN(a.bid)));
     }
 
     async fetchData() {

@@ -7,6 +7,7 @@ import * as starknet from 'starknet';
 import { fromETH, readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { HashVue, pushPopup } from '@/Notifications';
 import { ExplorerTxUrl } from '@/chain/Explorer';
+import { getCurrentNetwork } from '@/chain/Network';
 
 defineEmits(['close']);
 
@@ -21,7 +22,7 @@ const termsSale = ref(false);
 const termsBriq = ref(false);
 
 const auctionData = computed(() => {
-    return getAuctionData('starknet-testnet', props.item)!._data;
+    return getAuctionData(getCurrentNetwork(), props.item)!._data;
 });
 
 const currentBid = computed(() => starknet.number.toBN(auctionData.value?.highest_bid || '0'));
