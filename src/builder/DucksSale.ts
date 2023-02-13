@@ -659,6 +659,7 @@ const allowList: string[] = [
     '1f271944a16198b8602a7d5c838e586a8a181ffe50c5f09b7eb743cfc85ded4',
     '102e8c4bcb5505e098d9259dccf6e7c29d049d35b31cb3f23ed7dbf39bd982',
     '1002bfe4d330aeee10d35205bdf4db5f25a779271f07c4baf51c9efc87769cd',
+    '15b382333f71b69fb5534abbfde006b2b7f2af861be8c0ccf23c710fc1d2d7b',
 ];
 
 export function isAllowListedForDucks(address: string | undefined) {
