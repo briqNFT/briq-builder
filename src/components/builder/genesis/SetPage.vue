@@ -188,7 +188,7 @@ const pendingBidString = computed(() => {
 const cannotBidReason = computed(() => {
     if (!userBidsStore.current)
         return 'You must connect a wallet to bid';
-    if (!isAllowListedForDucks(maybeStore.value?.userWalletAddress))
+    if (!isAllowListedForDucks(maybeStore.value?.userWalletAddress, auctionId.value))
         return 'You are not part of the allowlist, and cannot bid until the general auction starts.';
     return '';
 })

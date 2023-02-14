@@ -2,6 +2,7 @@
 
 import { number as nb } from 'starknet';
 import { ref } from 'vue';
+import type { auctionId } from './AuctionData';
 
 const searchBar = ref<string>();
 const sortOrder = ref('a_z');
@@ -677,9 +678,11 @@ const allowList: string[] = [
     'a713449621a87918438c335880a49681413a86a679dda44a6f184b08b24f4f',
 ];
 
-export function isAllowListedForDucks(address: string | undefined) {
-    console.log('toto', address, nb.toBN(address).toString(16))
-    return address && allowList.includes(nb.toBN(address).toString(16));
+export function isAllowListedForDucks(address: string | undefined, auctionId?: auctionId) {
+    if (address && allowList.includes(nb.toBN(address).toString(16)))
+        return true;
+    // Not allowlisted, so allow if the duck isn't part of the allowlist.
+    return !!auctionId && !allowlistedDucks.includes(auctionId);
 }
 
 export const allowlistedDucks = [

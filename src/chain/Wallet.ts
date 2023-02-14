@@ -147,7 +147,6 @@ export class WalletStore {
     }
 
     setProviderFromSigner() {
-        console.log('totoro', this.signer);
         if (!this.signer)
             chooseDefaultNetwork();
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1 || this.signer?.provider?.chainId === '0x534e5f4d41494e')
