@@ -287,11 +287,11 @@ popScroll();
                                 <a
                                     v-for="bid, i in latestBids"
                                     :key="bid.token_id || '' + i"
-                                    :href="ExplorerTxUrl(bid.token_id)" target="_blank"
+                                    :href="`/set/${network}/${bid.token_id}`"
                                     class="block border-b border-grad-light last:border-none px-4 py-3">
                                     <div class="flex justify-end">
                                         <p>{{ readableUnit(bid.highest_bid) }} {{ readableNumber(bid.highest_bid) }} on
-                                            <a class="text-primary" @click.prevent="router.push(`/set/${network}/${bid.token_id}`)">{{ getSet(bid.auctionId)?.name || bid.auctionId }}</a>
+                                            <a class="text-primary">{{ getSet(bid.auctionId)?.name || bid.auctionId }}</a>
                                             by <a :href="ExplorerContractUrl(bid.highest_bidder)" target="_blank">
                                                 <span class="text-primary" v-if="bidderAddresses[bid.highest_bidder]._data">{{ bidderAddresses[bid.highest_bidder]._data }}</span>
                                                 <span class="text-primary" v-else>{{ bid.highest_bidder.substring(0, 6) + "..." + bid.highest_bidder.slice(-4) }}</span>
