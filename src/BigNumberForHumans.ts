@@ -12,7 +12,11 @@ export function readableNumber(number: starknet.number.BigNumberish) {
         // Big enough to be shown in ETH.
         // Since the lib doesn't allow decimals, I'll just divide and print.
         try {
-            return (Math.ceil(nb.div(GWEI_THRESHOLD_DIV).toNumber())/1000000).toString();
+            // Some fanciness for rounding up.
+            const { div, mod } = nb.divmod(GWEI_THRESHOLD_DIV);
+            if (mod.cmp(starknet.number.toBN(0)) > 0)
+                return (Math.ceil(div.toNumber() + 1)/1000000).toString();
+            return (Math.ceil(div.toNumber())/1000000).toString();
         } catch(_) {
             // Number can't be represented in JS -> just print and cut the end.
             return nb.toString().slice(0, -18);

@@ -1,4 +1,5 @@
 import { readableNumber, readableUnit, fromETH } from './BigNumberForHumans';
+import * as starknet from 'starknet';
 
 describe('Test human readable representations of wei values', () => {
     it('should convert 1.23 ETH correctly', () => {
@@ -22,10 +23,20 @@ describe('Test human readable representations of wei values', () => {
         expect(readableNumber('1000000000')).toEqual('1');
     });
 
+    it('should round up', () => {
+        const growBid = (bid: any) => {
+            const mb = starknet.number.toBN(bid);
+            const gr = mb.mul(starknet.number.toBN(50)).idivn(starknet.number.toBN(1000));
+            return mb.add(gr);
+        };
+        expect(+growBid(5512500000).toString()).toEqual(5788125000);
+        expect(readableNumber(growBid('55125000000000000'))).toEqual('0.057882');
+    })
 
     it('should show numbers too big for javascript', () => {
         expect(readableNumber('123000000000000000000000000000000000')).toEqual('123000000000000000');
     });
+
     it('should show decimals when it makes sense', () => {
         expect(readableNumber('1000000000000000000')).toEqual('1');
         expect(readableNumber('1100000000000000000')).toEqual('1.1');
