@@ -205,7 +205,7 @@ const timerCountdown = (date: number) => {
     tl -= days * 24 * 3600;
     const hours = Math.floor(tl / 3600);
     if (hours > 0)
-        return hours > 1 ? `${hours} hours` : `${hours} hour`;
+        return hours > 1 ? `${hours} hours` : `${hours} hour ${Math.floor((tl - hours * 3600) / 60)} minute${tl > 3660 ? 's' : ''}`;
     tl -= hours * 3600;
     const minutes = Math.floor(tl / 60);
     if (minutes > 0)
