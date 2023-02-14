@@ -101,7 +101,6 @@ const lowImage = computed(() => backendManager.getRoute(`set/${network.value}/${
                 <hr class="my-2">
 
                 <div class="p-4 pt-0 flex flex-col gap-2">
-                    {{ secondsRemaining }}
                     <p v-if="secondsRemaining > 60 * 1000" class="flex justify-between">
                         <span class="text-grad-dark">Auction ends in</span>
                         <span>{{ timerCountdown(props.auctionData.end_date) }}</span>
