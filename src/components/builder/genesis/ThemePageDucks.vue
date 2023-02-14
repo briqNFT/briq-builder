@@ -189,8 +189,6 @@ const setHoveredDuck = (auctionId: auctionId | undefined) => {
 const releaseDate = computed(() => (themeData.value?.sale_start || 0) * 1000)
 const hasStarted = computed(() => releaseDate.value && releaseDate.value < Date.now());
 
-const secondPhase = computed(() => Date.now() > 1676379600000);
-
 const timerCountdown = computed(() => {
     let tl = Math.max(releaseDate.value - Date.now(), 0) / 1000;
     const days = Math.floor(tl / 24 / 3600);
@@ -353,88 +351,34 @@ popScroll();
                             </template>
                             <div
                                 class="grid gap-4 grid-cols-[min-content_20rem] tall-md:grid-cols-[min-content_minmax(20rem,auto)]">
-                                <div v-if="!secondPhase">
+                                <div>
+                                    <h2 class="mt-8 mb-4">Public Sale Ducks</h2>
+                                    <p class="my-4">Auction start Feb 14 at 14:00 UTC and ends 24 hours later.</p>
+                                    <div
+                                        class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
+                                    md:grid-cols-[repeat(3,9rem)]
+                                    lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
+                                        @pointerleave="hoverLock && setHoveredDuck(undefined)">
+                                        <div
+                                            v-for="duckId, i in notBidOnDucks" :key="duckId + i"
+                                            v-show="shouldShow(duckId)"
+                                            class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
+                                            <p v-if="!getSet(duckId) || iScroll < i">...Loading data...</p>
+                                            <div
+                                                v-else
+                                                :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
+                                                @mouseenter="setHoveredDuck(duckId)"
+                                                @click="hoverLock = duckId">
+                                                <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                            </div>
+                                        </div>
+                                        <h5 v-if="Date.now() < 1676383200000" class="col-span-full">150 ducks will be revealed soon !</h5>
+                                        <h5 v-else class="col-span-full" v-show="!filteredOtherDucks.length">There are no ducks matching the filters you've entered</h5>
+                                    </div>
                                     <h2 class="mt-8">Exclusive ducks for briq holders</h2>
                                     <p class="mt-2 mb-6">
-                                        Auction start Feb 13 at 12:00 UTC and ends 24 hours later.
-                                        <br>
-                                        <span v-if="isAllowListedForDucks(maybeStore?.userWalletAddress)">
-                                            <i class="fas fa-circle-check text-info-success"/> Your current wallet is part of the allowlist.
-                                        </span>
-                                        <span v-else>
-                                            <i class="fas fa-circle-exclamation text-info-error"/> Your current wallet is not part of the allowlist.
-                                        </span>
+                                        Auction has ended ! Ducks will be transferred when the public sale is over.
                                     </p>
-                                    <div
-                                        class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
-                                    md:grid-cols-[repeat(3,9rem)]
-                                    lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
-                                        @pointerleave="hoverLock && setHoveredDuck(undefined)">
-                                        <div
-                                            v-for="duckId, i in allowlistDucks" :key="duckId + i"
-                                            v-show="shouldShow(duckId)"
-                                            class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
-                                            <p v-if="!getSet(duckId) || iScroll < i">...Loading data...</p>
-                                            <div
-                                                v-else
-                                                :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
-                                                @mouseenter="setHoveredDuck(duckId)"
-                                                @click="hoverLock = duckId">
-                                                <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
-                                            </div>
-                                        </div>
-                                        <h5 class="col-span-full" v-show="!filteredAllowedDucks.length">There are no ducks matching the filters you've entered</h5>
-                                    </div>
-                                    <h2 class="mt-8 mb-4">Public Sale Ducks</h2>
-                                    <p class="my-4">Auction start Feb 14 at 14:00 UTC and ends 24 hours later.</p>
-                                    <div
-                                        class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
-                                    md:grid-cols-[repeat(3,9rem)]
-                                    lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
-                                        @pointerleave="hoverLock && setHoveredDuck(undefined)">
-                                        <div
-                                            v-for="duckId, i in notBidOnDucks" :key="duckId + i"
-                                            v-show="shouldShow(duckId)"
-                                            class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
-                                            <p v-if="!getSet(duckId) || iScroll < i">...Loading data...</p>
-                                            <div
-                                                v-else
-                                                :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
-                                                @mouseenter="setHoveredDuck(duckId)"
-                                                @click="hoverLock = duckId">
-                                                <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
-                                            </div>
-                                        </div>
-                                        <h5 v-if="Date.now() < 1676383200000" class="col-span-full">150 ducks will be revealed soon !</h5>
-                                        <h5 v-else class="col-span-full" v-show="!filteredOtherDucks.length">There are no ducks matching the filters you've entered</h5>
-                                    </div>
-                                </div>
-                                <div v-else>
-                                    <h2 class="mt-8 mb-4">Public Sale Ducks</h2>
-                                    <p class="my-4">Auction start Feb 14 at 14:00 UTC and ends 24 hours later.</p>
-                                    <div
-                                        class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
-                                    md:grid-cols-[repeat(3,9rem)]
-                                    lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
-                                        @pointerleave="hoverLock && setHoveredDuck(undefined)">
-                                        <div
-                                            v-for="duckId, i in notBidOnDucks" :key="duckId + i"
-                                            v-show="shouldShow(duckId)"
-                                            class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
-                                            <p v-if="!getSet(duckId) || iScroll < i">...Loading data...</p>
-                                            <div
-                                                v-else
-                                                :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
-                                                @mouseenter="setHoveredDuck(duckId)"
-                                                @click="hoverLock = duckId">
-                                                <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
-                                            </div>
-                                        </div>
-                                        <h5 v-if="Date.now() < 1676383200000" class="col-span-full">150 ducks will be revealed soon !</h5>
-                                        <h5 v-else class="col-span-full" v-show="!filteredOtherDucks.length">There are no ducks matching the filters you've entered</h5>
-                                    </div>
-                                    <h2 class="mt-8">Exclusive ducks for briq holders</h2>
-                                    <p class="mt-2 mb-6">Auction has ended !</p>
                                     <div
                                         class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
                                     md:grid-cols-[repeat(3,9rem)]
