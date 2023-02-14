@@ -153,7 +153,7 @@ const showAuctionInterface = computed(() => {
         return false;
     if (auctionData.value.start_date > Date.now() / 1000)
         return false;
-    if (auctionData.value.start_date + auctionData.value.duration < Date.now() / 1000)
+    if (auctionData.value.end_date + 150 * 1000 < Date.now())
         return false;
     return true;
 })

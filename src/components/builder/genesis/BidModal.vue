@@ -132,6 +132,7 @@ const makeBid = async () => {
                 <Btn secondary class="font-normal" @click="$emit('close')">Cancel</Btn>
                 <Btn :disabled="!canMakeBid || step === 'SIGNING'" @click="makeBid">Bid {{ readableNumber(weiBid) }} {{ readableUnit(weiBid) }}</Btn>
             </div>
+            <p v-if="(auctionData?.end_date - Date.now()) < 5*60*1000" class="text-center font-medium"><i class="fas fa-circle-exclamation text-info-info"/> Auction is ending soon - try and get your last bid in !</p>
         </div>
     </WindowVue>
     <WindowVue v-else-if="step === 'PROCESSING'" :size="'md:w-[40rem]'">

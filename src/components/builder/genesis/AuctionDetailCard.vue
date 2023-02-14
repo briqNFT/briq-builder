@@ -51,7 +51,7 @@ const cannotBidReason = computed(() => {
     return '';
 })
 
-const isLive = computed(() => props.auctionData.end_date - Date.now() >= 0);
+const secondsRemaining = computed(() => props.auctionData.end_date - Date.now());
 
 const timerCountdown = (date: number) => {
     let tl = Math.max(date - Date.now(), 0) / 1000;
@@ -101,9 +101,16 @@ const lowImage = computed(() => backendManager.getRoute(`set/${network.value}/${
                 <hr class="my-2">
 
                 <div class="p-4 pt-0 flex flex-col gap-2">
-                    <p v-if="isLive" class="flex justify-between">
+                    {{ secondsRemaining }}
+                    <p v-if="secondsRemaining > 60 * 1000" class="flex justify-between">
                         <span class="text-grad-dark">Auction ends in</span>
                         <span>{{ timerCountdown(props.auctionData.end_date) }}</span>
+                    </p>
+                    <p v-else-if="secondsRemaining > 0" class="flex justify-between">
+                        <span class="text-grad-dark">Auction ending in the coming seconds</span>
+                    </p>
+                    <p v-else-if="secondsRemaining > -150 * 1000" class="flex justify-between">
+                        <span class="text-grad-dark">Auction is ending soon</span>
                     </p>
                     <p v-else>
                         <span class="text-grad-dark">Auction has ended</span>
@@ -118,7 +125,7 @@ const lowImage = computed(() => backendManager.getRoute(`set/${network.value}/${
                             <span class="text-grad-dark">Winning Bid</span><span class="font-medium">{{ readableNumber(highestBid) }} {{ readableUnit(highestBid) }}</span>
                         </p>
                     </template>
-                    <template v-if="!isLive">
+                    <template v-if="secondsRemaining < -150 * 1000">
                         <p v-if="expand" class="flex justify-between">
                             <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: auctionData.token_id } }">
                                 <Btn secondary>See details</Btn>

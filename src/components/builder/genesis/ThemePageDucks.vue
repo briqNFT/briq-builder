@@ -187,7 +187,7 @@ const setHoveredDuck = (auctionId: auctionId | undefined) => {
 };
 
 const releaseDate = computed(() => (themeData.value?.sale_start || 0) * 1000)
-const isLive = computed(() => releaseDate.value && releaseDate.value < Date.now());
+const hasStarted = computed(() => releaseDate.value && releaseDate.value < Date.now());
 
 const secondPhase = computed(() => Date.now() > 1676379600000);
 
@@ -266,7 +266,7 @@ popScroll();
                             <h3 class="mb-3">{{ themeData?.tagline ?? "Loading theme name " }}</h3>
                             <p class="whitespace-pre-line">{{ themeData?.description ?? 'Loading description' }}</p>
                         </div>
-                        <div v-if="themeStatus === 'LOADED' && !isLive" class="text-[55%] sm:text-sm md:text-md absolute bottom-[-15px] right-[2rem]">
+                        <div v-if="themeStatus === 'LOADED' && !hasStarted" class="text-[55%] sm:text-sm md:text-md absolute bottom-[-15px] right-[2rem]">
                             <svg viewBox="0 0 1000 100" height="120px" xmlns="http://www.w3.org/2000/svg">
                                 <text x="1000" y="64" font-size="4rem" font-weight="900" text-anchor="end" font-family="Work Sans" fill-opacity="0.3" fill="#000000" paint-order="stroke" letter-spacing="2px">
                                     AUCTIONS FEB 13-14
@@ -281,7 +281,7 @@ popScroll();
                                 </text>
                             </svg>
                         </div>
-                        <div v-if="isLive" class="hidden lg:flex absolute right-0 top-0 h-full items-center text-text-on-background text-sm">
+                        <div v-if="hasStarted" class="hidden lg:flex absolute right-0 top-0 h-full items-center text-text-on-background text-sm">
                             <div class="rounded-md bg-grad-lightest bg-opacity-50 backdrop-blur-md min-w-[250px] w-max">
                                 <h4 class="px-4 pt-3 pb-0 font-medium text-md text-right">Latest bids</h4>
                                 <a
@@ -305,7 +305,7 @@ popScroll();
                     </div>
                 </div>
             </div>
-            <template v-if="isLive">
+            <template v-if="hasStarted">
                 <div class="mb-8">
                     <template v-if="themeStatus === 'LOADED'">
                         <div class="sticky top-[calc(4rem-1px)] z-10 my-2 bg-background py-6 w-full">
@@ -512,7 +512,7 @@ popScroll();
                 </div>
             </template>
             <div class="bg-black text-white pb-8">
-                <div v-if="!isLive && themeStatus === 'LOADED'" class="container m-auto max-w-[42rem] py-8">
+                <div v-if="!hasStarted && themeStatus === 'LOADED'" class="container m-auto max-w-[42rem] py-8">
                     <h4>Allowlist Sale: Feb 13 at 12 UTC</h4>
                     <h4>Public Sale: Feb 14 at 14 UTC</h4>
                     <p>Each sale will be live for 24 hours.</p>
