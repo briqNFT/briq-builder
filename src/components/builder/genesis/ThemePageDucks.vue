@@ -307,26 +307,28 @@ popScroll();
                 <div class="mb-8">
                     <template v-if="themeStatus === 'LOADED'">
                         <div class="sticky top-[calc(4rem-1px)] z-10 my-2 bg-background py-6 w-full">
-                            <div class="max-w-[1600px] px-8 m-auto flex gap-2">
-                                <p class="relative flex items-center flex-1 max-w-[38rem]">
+                            <div class="max-w-[1600px] px-8 m-auto flex gap-2 md:flex-nowrap flex-wrap">
+                                <p class="relative flex items-center flex-1 min-w-[16rem] max-w-[38rem]">
                                     <input class="w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
                                     <i class="fa-solid fa-magnifying-glass absolute right-3"/>
                                 </p>
-                                <p class="relative w-[14rem]">
-                                    <select class="relative w-full" v-model="sortOrder">
-                                        <option value="a_z">Sort alphabetically</option>
-                                        <option value="dates_desc">Sort by latest bids</option>
-                                        <option value="dates_asc">Sort by oldest bids</option>
-                                        <option value="bids_desc">Sort by highest bids</option>
-                                        <option value="bids_asc">Sort by lowest bids</option>
-                                    </select>
-                                </p>
-                                <p>
-                                    <Btn secondary class="font-sm font-normal px-2" @click="onlyNoBids = !onlyNoBids">
-                                        <Toggle v-model="onlyNoBids" class="w-10 mr-2 pointer-events-none"/>
-                                        Show ducks without bids only
-                                    </Btn>
-                                </p>
+                                <div class="flex gap-2">
+                                    <p class="relative w-[14rem]">
+                                        <select class="relative w-full h-full" v-model="sortOrder">
+                                            <option value="a_z">Sort alphabetically</option>
+                                            <option value="dates_desc">Sort by latest bids</option>
+                                            <option value="dates_asc">Sort by oldest bids</option>
+                                            <option value="bids_desc">Sort by highest bids</option>
+                                            <option value="bids_asc">Sort by lowest bids</option>
+                                        </select>
+                                    </p>
+                                    <p>
+                                        <Btn secondary class="font-sm font-normal px-2 py-2 h-auto" @click="onlyNoBids = !onlyNoBids">
+                                            <Toggle v-model="onlyNoBids" class="w-10 mr-2 pointer-events-none"/>
+                                            Show ducks without bids only
+                                        </Btn>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                         <div class="max-w-[1600px] px-8 m-auto mt-3" ref="ducksListing">
@@ -350,7 +352,7 @@ popScroll();
                                 <h5 v-show="!filteredBidDucks.length">There are no ducks matching the filters you've entered</h5>
                             </template>
                             <div
-                                class="grid gap-4 grid-cols-[min-content_20rem] tall-md:grid-cols-[min-content_minmax(20rem,auto)]">
+                                class="grid gap-4 grid-cols-[min-content_20rem] tall-md:grid-cols-[min-content_minmax(16rem,auto)]">
                                 <div>
                                     <h2 class="mt-8 mb-4">Public Sale Ducks</h2>
                                     <p class="my-4">Auction start Feb 14 at 14:00 UTC and ends 24 hours later.</p>
