@@ -545,7 +545,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         </div>
                     </template>
                 </div>
-                <template v-if="auctionData">
+                <template v-if="auctionData && showAuctionInterface">
                     <div>
                         <h4>Latest bids</h4>
                         <div class="mt-4 flex flex-col bg-grad-lightest rounded border border-grad-light">
