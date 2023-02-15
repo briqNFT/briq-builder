@@ -126,7 +126,8 @@ const shouldShow = (auctionId: auctionId) => {
 
 
 const latestBids = computed(() => {
-    return availableDucks.value.slice().sort(_sortDucks('dates_desc')).slice(0, 5).map(x => getAuctionData(network, x)?._data!).filter(x => !!x);
+    const latest = Math.max(...availableDucks.value.map(x => new Date(getAuctionData(network, x)?._data.bids[0]?.timestamp ?? 0).getTime()));
+    return availableDucks.value.sort(_sortDucks('bids_desc')).map(x => getAuctionData(network, x)?._data!).filter(x => !!x && new Date(x.bids[0]?.timestamp).getTime() === latest);
 })
 
 // Bidding starknet.id stuff
@@ -294,22 +295,24 @@ popScroll();
                             <div class="rounded-md bg-grad-lightest bg-opacity-50 backdrop-blur-md min-w-[250px] w-max">
                                 <h4 class="px-4 pt-3 pb-0 font-medium text-md text-right">Latest bids</h4>
                                 <p class="text-right px-4 pt-1">Join the Live on our <a class="text-primary" target="_blank" href="https://discord.gg/jqSAg26">Discord at #briq-radio</a></p>
-                                <a
-                                    v-for="bid, i in latestBids"
-                                    :key="bid.token_id || '' + i"
-                                    :href="`/set/${network}/${bid.token_id}`"
-                                    class="block border-b border-grad-light last:border-none px-4 py-3">
-                                    <div class="flex justify-end">
-                                        <p>{{ readableUnit(bid.highest_bid) }} {{ readableNumber(bid.highest_bid) }} on
-                                            <a class="text-primary">{{ getSet(bid.auctionId)?.name || bid.auctionId }}</a>
-                                            by <a :href="ExplorerContractUrl(bid.highest_bidder)" target="_blank">
-                                                <span class="text-primary" v-if="bidderAddresses[bid.highest_bidder]._data">{{ bidderAddresses[bid.highest_bidder]._data }}</span>
-                                                <span class="text-primary" v-else>{{ bid.highest_bidder.substring(0, 6) + "..." + bid.highest_bidder.slice(-4) }}</span>
-                                            </a>
-                                            <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/>
-                                        </p>
-                                    </div>
-                                </a>
+                                <div class="max-h-[20rem] overflow-y-auto my-2">
+                                    <a
+                                        v-for="bid, i in latestBids"
+                                        :key="bid.token_id || '' + i"
+                                        :href="`/set/${network}/${bid.token_id}`"
+                                        class="block border-b border-grad-light last:border-none px-4 py-3">
+                                        <div class="flex justify-end">
+                                            <p>{{ readableUnit(bid.highest_bid) }} {{ readableNumber(bid.highest_bid) }} on
+                                                <a class="text-primary">{{ getSet(bid.auctionId)?.name || bid.auctionId }}</a>
+                                                by <a :href="ExplorerContractUrl(bid.highest_bidder)" target="_blank">
+                                                    <span class="text-primary" v-if="bidderAddresses[bid.highest_bidder]._data">{{ bidderAddresses[bid.highest_bidder]._data }}</span>
+                                                    <span class="text-primary" v-else>{{ bid.highest_bidder.substring(0, 6) + "..." + bid.highest_bidder.slice(-4) }}</span>
+                                                </a>
+                                                <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/>
+                                            </p>
+                                        </div>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
