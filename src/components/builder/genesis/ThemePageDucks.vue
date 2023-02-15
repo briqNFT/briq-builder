@@ -190,30 +190,6 @@ const setHoveredDuck = (auctionId: auctionId | undefined) => {
 const releaseDate = computed(() => (themeData.value?.sale_start || 0) * 1000)
 const hasStarted = computed(() => releaseDate.value && releaseDate.value < Date.now());
 
-
-const timerCountdown = (date: number, target: number) => {
-    let tl = Math.max(target - date, 0) / 1000;
-    const days = Math.floor(tl / 24 / 3600);
-    if (days > 0)
-        return days > 1 ? `${days} days` : `${days} day`;
-    tl -= days * 24 * 3600;
-    let ret = '';
-    const hours = Math.floor(tl / 3600);
-    if (hours > 0)
-        ret += hours > 1 ? `${hours} hours` : `${hours} hour ${Math.floor((tl - hours * 3600) / 60)} minute${tl > 3660 ? 's' : ''}`;
-    tl -= hours * 3600;
-    const minutes = Math.ceil(tl / 60);
-    if (hours == 0)
-        ret += minutes > 1 ? `${minutes} minutes` : `${minutes} minute`;
-    if (hours === 0 && minutes < 1)
-        return 'Auction ending soon';
-    if (hours === 0 && minutes < 5)
-        return 'Less than 5 minutes';
-    tl -= Math.floor(tl / 60) * 60;
-    const seconds = Math.round(tl);
-    return ret + ' ' + (seconds > 1 ? `${seconds} seconds` : `${seconds} second`);
-};
-
 const iScroll = ref(25);
 const popScroll = () => setTimeout(() => {
     iScroll.value += 25;
@@ -342,10 +318,6 @@ popScroll();
                                             <Toggle v-model="onlyNoBids" class="w-10 mr-2 pointer-events-none"/>
                                             Show ducks without bids only
                                         </Btn>
-                                    </p>
-                                    <p class="flex justify-center flex-col">
-                                        <span class="text-sm font-semibold">AUCTION ENDS IN</span>
-                                        {{ timerCountdown(Date.now(), 1676469600000) }}
                                     </p>
                                 </div>
                             </div>
