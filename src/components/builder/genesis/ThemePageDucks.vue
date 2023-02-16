@@ -8,21 +8,14 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
-import { auctionDataStore, getAuctionData, userBidsStore } from '@/builder/AuctionData';
+import { auctionDataStore, getAuctionData } from '@/builder/AuctionData';
 import type { auctionId } from '@/builder/AuctionData';
-import AuctionItemCard from './AuctionItemCard.vue';
 import { backendManager } from '@/Backend';
 import { externalSetCache } from '@/builder/ExternalSets';
-import AuctionDetailCard from './AuctionDetailCard.vue';
 import { APP_ENV } from '@/Meta';
 import * as starknet from 'starknet';
-import { isAllowListedForDucks, allowlistedDucks, useSearch } from '@/builder/DucksSale';
-import { maybeStore } from '@/chain/WalletLoading';
-import Toggle from '@/components/generic/Toggle.vue';
-import { ExplorerContractUrl, ExplorerTxUrl } from '@/chain/Explorer';
-import { readableNumber, readableUnit } from '@/BigNumberForHumans';
-import { router } from '@/Routes';
-import { Fetchable } from '@/DataFetching';
+import { useSearch } from '@/builder/DucksSale';
+import DuckDetailCard from './DuckDetailCard.vue';
 
 const route = useRoute();
 const network = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet';
@@ -55,11 +48,9 @@ const filteredDucks = computed(() => duckTokens.value?.filter(shouldShow) || [])
 
 const getSet = (auctionId: auctionId) => externalSetCache[network][getAuctionData(network, auctionId)!._data!.token_id]._data;
 
-const { searchBar, sortOrder, onlyNoBids } = useSearch();
+const { searchBar, sortOrder } = useSearch();
 
 const shouldShow = (auctionId: auctionId) => {
-    if (onlyNoBids.value && getAuctionData(network, auctionId)?._data?.highest_bid != '0')
-        return false;
     if (!searchBar.value)
         return true;
     const name = getSet(auctionId)?.name;
@@ -99,7 +90,6 @@ watchEffect(() => {
     if (!ducksListing.value)
         return;
     searchBar.value;
-    onlyNoBids.value;
     if (ducksListing.value.getBoundingClientRect().top < -100)
         window.scrollTo(0, ducksListing.value.getBoundingClientRect().top + window.scrollY - 200);
 })
@@ -162,9 +152,6 @@ const setHoveredDuck = (auctionId: auctionId | undefined) => {
     } else
         hoveredAuction.value = upcomingHover;
 };
-
-const releaseDate = computed(() => (themeData.value?.sale_start || 0) * 1000)
-const hasStarted = computed(() => releaseDate.value && releaseDate.value < Date.now());
 
 const iScroll = ref(25);
 const popScroll = () => setTimeout(() => {
@@ -249,12 +236,6 @@ popScroll();
                                         <option value="bids_asc">Sort by lowest bids</option>
                                     </select>
                                 </p>
-                                <p>
-                                    <Btn secondary class="font-sm font-normal px-2 py-2 h-auto" @click="onlyNoBids = !onlyNoBids">
-                                        <Toggle v-model="onlyNoBids" class="w-10 mr-2 pointer-events-none"/>
-                                        Show ducks without bids only
-                                    </Btn>
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -285,7 +266,7 @@ popScroll();
                                 <div class="sticky top-[9.2rem] z-5 flex justify-center w-full">
                                     <div class="max-w-[26rem] min-h-[38rem] relative w-full">
                                         <Transition name="fade-hoverlock">
-                                            <AuctionDetailCard
+                                            <DuckDetailCard
                                                 :key="hoverLock"
                                                 v-if="getAuctionData(network, hoverLock)?._data"
                                                 :class="`!absolute top-0 transition-all duration-500 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
@@ -298,7 +279,7 @@ popScroll();
                                         <!-- This item exists solely so that the opacity transition doesn't reveal the background but stays on a card,
                                         since that looks better -->
                                         <Transition name="fake-fadeout">
-                                            <AuctionDetailCard
+                                            <DuckDetailCard
                                                 v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData(network, hoveredAuction)?._data"
                                                 :class="`!absolute top-0`"
                                                 :auction-data="getAuctionData(network, hoveredAuction)._data"
@@ -307,7 +288,7 @@ popScroll();
                                                 :status="'LOADED'"/>
                                         </Transition>
                                         <Transition name="fade">
-                                            <AuctionDetailCard
+                                            <DuckDetailCard
                                                 :key="hoveredAuction"
                                                 v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData(network, hoveredAuction)?._data"
                                                 :class="`!absolute top-0 ${hoverLock ? '!shadow-xl' : ''}`"

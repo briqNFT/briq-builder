@@ -31,13 +31,7 @@ import Tooltip from '@/components/generic/Tooltip.vue';
 import * as starknet from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
-import { auctionDataStore, AuctionItemData, getAuctionData, setToAuctionMapping, userBidsStore } from '@/builder/AuctionData';
-import { ExplorerContractUrl, ExplorerTxUrl } from '@/chain/Explorer';
-import { readableNumber, readableUnit } from '@/BigNumberForHumans';
-import BidModal from './BidModal.vue';
 import { externalSetCache } from '@/builder/ExternalSets';
-import { Fetchable } from '@/DataFetching';
-import { isAllowListedForDucks } from '@/builder/DucksSale';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -134,122 +128,6 @@ watchEffect(() => {
     // At this point, we assume the set is external and we must load its data explicitly.
     useExternalData.value = true;
 })
-
-
-// Auction stuff.
-// TODO: move this elsewhere by splitting this file into more componental chunks.
-const auctionId = computed(() => {
-    return setToAuctionMapping[route.params.set_id as string];
-});
-
-const auctionData = computed<AuctionItemData | undefined>(() => {
-    if (!auctionId.value)
-        return undefined;
-    return getAuctionData(route.params.network as string, auctionId.value)?._data;
-});
-
-const showAuctionInterface = computed(() => {
-    if (!auctionData.value)
-        return false;
-    if (auctionData.value.start_date > Date.now() / 1000)
-        return false;
-    if (auctionData.value.end_date + 150 * 1000 < Date.now())
-        return false;
-    return true;
-})
-
-const hasHighestBid = computed(() => {
-    if (!auctionData.value)
-        return false;
-    return auctionData.value.highest_bid != '0' && auctionData.value.highest_bidder == maybeStore.value?.userWalletAddress;
-})
-
-const hasBid = computed(() => {
-    if (auctionData.value?.bids.some(x => x.bidder === maybeStore.value?.userWalletAddress))
-        return true;
-    return !!userBidsStore.current?.getBid(auctionId.value);
-})
-
-const hasPendingBid = computed(() => {
-    const bid = userBidsStore.current?.getBid(auctionId.value);
-    if (!bid)
-        return false;
-    // If the pending bid is lower than the current highest known bid, don't show it.
-    return starknet.number.toBN(bid.bid_amount).cmp(starknet.number.toBN(auctionData.value!.highest_bid)) > 0;
-});
-
-const pendingBidString = computed(() => {
-    if (!hasPendingBid.value)
-        return '';
-    const bid = userBidsStore.current?.getBid(auctionId.value);
-    return `${readableNumber(bid?.bid_amount)} ${readableUnit(bid?.bid_amount)}`;
-})
-
-const cannotBidReason = computed(() => {
-    if (!userBidsStore.current)
-        return 'You must connect a wallet to bid';
-    if (!isAllowListedForDucks(maybeStore.value?.userWalletAddress, auctionId.value))
-        return 'You are not part of the allowlist, and cannot bid until the general auction starts.';
-    return '';
-})
-
-const doBid = async () => {
-    await pushModal(BidModal, { item: auctionId.value })
-}
-
-const timerCountdown = (date: number) => {
-    let tl = Math.max(date - Date.now(), 0) / 1000;
-    const days = Math.floor(tl / 24 / 3600);
-    if (days > 0)
-        return days > 1 ? `${days} days` : `${days} day`;
-    tl -= days * 24 * 3600;
-    const hours = Math.floor(tl / 3600);
-    if (hours > 0)
-        return hours > 1 ? `${hours} hours` : `${hours} hour ${Math.floor((tl - hours * 3600) / 60)} minute${tl > 3660 ? 's' : ''}`;
-    tl -= hours * 3600;
-    const minutes = Math.floor(tl / 60);
-    if (minutes > 0)
-        return minutes > 1 ? `${minutes} minutes` : `${minutes} minute`;
-    tl -= minutes * 60;
-    const seconds = Math.floor(tl);
-    if (seconds > 0)
-        return seconds > 1 ? `${seconds} seconds` : `${seconds} second`;
-};
-
-watchEffect(async () => {
-    // Hack: always use external data when using auction, so that my dev env (where I use sets I made) works.
-    if (auctionId.value)
-        useExternalData.value = true;
-});
-
-watchEffect(async () => {
-    if (!auctionId.value)
-        return;
-    // Touch max bid to reload when that changes.
-    auctionData.value?.highest_bidder;
-    auctionDataStore[chain_id.value][auctionId.value.split('/')[0]].fetchBids(auctionId.value);
-})
-
-// Bidding starknet.id stuff
-const bidderAddresses = ref({} as Record<string, Fetchable<string | false>>);
-watchEffect(() => {
-    if (!auctionData.value?.bids)
-        return;
-    for (const bid of auctionData.value.bids) {
-        if (bidderAddresses.value[bid.bidder] !== undefined)
-            continue;
-        bidderAddresses.value[bid.bidder] = new Fetchable<string>();
-        bidderAddresses.value[bid.bidder].fetch(async () => {
-            const response = await fetch('https://app.starknet.id/api/indexer/addr_to_domain?addr=' + starknet.number.toBN(bid.bidder).toString());
-            const json = await response.json()
-            if (json.domain)
-                return json.domain;
-            return false;
-        });
-    }
-})
-
-// End of auction stuff
 
 const description = computed(() => {
     if (mode === 'CREATION' && set.value?.description)
@@ -496,91 +374,34 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 </p>
                 <div class="rounded border border-grad-light overflow-hidden mb-10">
                     <!-- latter part just for VSCode to understand things -->
-                    <template v-if="showAuctionInterface && auctionData">
-                        <!-- Auction -->
-                        <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
-                            <div v-if="auctionData.highest_bid !== '0'">
-                                <h5 class="font-normal text-grad-dark">Winning bid</h5>
-                                <p class="text-xl font-semibold pt-1">
-                                    {{ readableNumber(auctionData.highest_bid) }} {{ readableUnit(auctionData.highest_bid) }}
-                                </p>
-                            </div>
-                            <div v-else>
-                                <h5 class="font-normal text-grad-dark">Minimum Bid</h5>
-                                <p class="text-xl font-semibold pt-1">
-                                    {{ readableNumber(auctionData.minimum_bid) }} {{ readableUnit(auctionData.minimum_bid) }}
-                                </p>
-                            </div>
-                            <div class="flex justify-between items-stretch gap-2">
-                                <Btn v-if="!hasPendingBid" :disabled="hasPendingActivity || !!cannotBidReason" @click="doBid" :secondary="hasHighestBid" class="!h-auto text-md px-6">Make a {{ hasHighestBid ? 'higher ' : '' }} bid</Btn>
-                                <template v-else>
-                                    <Btn secondary :disabled="hasPendingActivity || !!cannotBidReason" @click="doBid" class="!h-auto text-md px-4 font-normal">
-                                        <i class="text-md far fa-loader animate-spin mr-3"/>  Make a higher bid
-                                    </Btn>
-                                </template>
-                            </div>
+                    <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
+                        <div>
+                            <h5 class="font-normal text-grad-dark">briqs used</h5>
+                            <p class="text-xl font-semibold pt-1">
+                                <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon :width="12"/></span> {{ set?.getNbBriqs?.() }}
+                            </p>
                         </div>
-                        <div class="p-6 py-4 flex flex-col gap-4">
-                            <p v-if="hasHighestBid" class="text-grad-dark">You currently have the winning bid.</p>
-                            <p v-else-if="hasPendingBid" class="text-grad-dark"><i class="text-info-info far fa-circle-exclamation"/> You have a pending winning bid at {{ pendingBidString }}.</p>
-                            <p v-else-if="hasBid" class="text-grad-dark"><i class="text-info-error far fa-circle-exclamation"/> You have been outbid by another user.</p>
-                            <p>Auction ends in <span class="font-medium">{{ timerCountdown(auctionData.end_date) }}</span></p>
+                        <div class="flex justify-between items-stretch gap-2">
+                            <RouterLink v-if="set?.id" :to="`/briqmas_next_day?token=${set.id}`"><Btn v-if="isOwned && booklet_id === 'briqmas/briqmas_tree'" class="!h-full text-md px-6 py-0">View in<br>living room</Btn></RouterLink>
+                            <Btn v-if="isOwned" :disabled="hasPendingActivity" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
                         </div>
-                    </template>
-                    <template v-else>
-                        <div class="p-6 flex justify-between items-stretch bg-grad-lightest">
-                            <div>
-                                <h5 class="font-normal text-grad-dark">briqs used</h5>
-                                <p class="text-xl font-semibold pt-1">
-                                    <span class="w-6 h-6 inline-flex justify-center items-center bg-primary-lightest bg-opacity-50 rounded-[50%]"><briqIcon :width="12"/></span> {{ set?.getNbBriqs?.() }}
-                                </p>
-                            </div>
-                            <div class="flex justify-between items-stretch gap-2">
-                                <RouterLink v-if="set?.id" :to="`/briqmas_next_day?token=${set.id}`"><Btn v-if="isOwned && booklet_id === 'briqmas/briqmas_tree'" class="!h-full text-md px-6 py-0">View in<br>living room</Btn></RouterLink>
-                                <Btn v-if="isOwned" :disabled="hasPendingActivity" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
-                            </div>
-                        </div>
-                        <div class="p-6 py-4 flex flex-col gap-4">
-                            <p><span class="font-medium">Created on: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
-                        </div>
-                    </template>
+                    </div>
+                    <div class="p-6 py-4 flex flex-col gap-4">
+                        <p><span class="font-medium">Created on: </span> {{ new Date(setData?.created_at).toLocaleString("en-uk", { dateStyle: "full", timeStyle: "short" }) }}</p>
+                    </div>
                 </div>
-                <template v-if="auctionData && showAuctionInterface">
-                    <div>
-                        <h4>Latest bids</h4>
-                        <div class="mt-4 flex flex-col bg-grad-lightest rounded border border-grad-light">
-                            <p v-if="!auctionData?.bids || auctionData.bids?.length === 0" class="px-4 py-3 text-sm italic text-center">...There are currently no bids...</p>
-                            <a
-                                v-else
-                                v-for="bid, i in auctionData.bids.slice(0, 10)" :key="i"
-                                :href="ExplorerTxUrl(bid.tx_hash)" target="_blank"
-                                class="block border-b border-grad-light last:border-none px-4 py-3">
-                                <div class="flex justify-between">
-                                    <a :href="ExplorerContractUrl(bid.bidder)" target="_blank">
-                                        <p v-if="bidderAddresses[bid.bidder]._data">By <span class="text-primary">{{ bidderAddresses[bid.bidder]._data }}</span></p>
-                                        <p v-else>By <span class="text-primary">{{ bid.bidder.substring(0, 8) + "..." + bid.bidder.slice(-8) }}</span></p>
-                                    </a>
-                                    <p>{{ readableUnit(bid.bid) }} {{ readableNumber(bid.bid) }} <i class="pl-2 fa-solid fa-arrow-up-right-from-square"/></p>
-                                </div>
-                            </a>
-                            <p v-if="auctionData?.bids?.length > 10" class="px-4 py-3 text-sm italic text-center">...Older bids are hidden...</p>
-                        </div>
-                    </div>
-                </template>
-                <template v-else>
-                    <div>
-                        <h4>See on</h4>
-                        <p class="flex gap-3 mt-4 mb-10">
-                            <a :href="`https://aspect.co/asset/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
-                            <a :href="`https://mintsquare.io/asset/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
-                        </p>
-                    </div>
-                    <div v-if="set?.id">
-                        <Suspense>
-                            <ItemActivity type="set" :network="chain_id" :item="set.id"/>
-                        </Suspense>
-                    </div>
-                </template>
+                <div>
+                    <h4>See on</h4>
+                    <p class="flex gap-3 mt-4 mb-10">
+                        <a :href="`https://aspect.co/asset/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
+                        <a :href="`https://mintsquare.io/asset/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
+                    </p>
+                </div>
+                <div v-if="set?.id">
+                    <Suspense>
+                        <ItemActivity type="set" :network="chain_id" :item="set.id"/>
+                    </Suspense>
+                </div>
             </template>
         </template>
     </GenericItemPage>
