@@ -8,13 +8,9 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
-import { auctionDataStore, getAuctionData } from '@/builder/AuctionData';
-import type { auctionId } from '@/builder/AuctionData';
 import { backendManager } from '@/Backend';
-import { externalSetCache } from '@/builder/ExternalSets';
 import { APP_ENV } from '@/Meta';
-import * as starknet from 'starknet';
-import { useSearch } from '@/builder/DucksSale';
+import { themeSetsDataStore, useSearch } from '@/builder/DucksSale';
 import DuckDetailCard from './DuckDetailCard.vue';
 
 const route = useRoute();
@@ -25,10 +21,13 @@ const themeName = computed(() => 'ducks_everywhere');
 const genesisStore = useGenesisStore();
 
 const themeData = computed(() => genesisStore.themedata[themeName.value]?._data );
-const themeBoxes = computed(() => Object.keys(auctionDataStore[network]['ducks_everywhere']._data?._data || {}));
+
+const themeSets = computed(() => themeSetsDataStore[network][themeName.value]);
 
 const themeStatus = computed(() => {
-    return themeData.value && auctionDataStore[network]['ducks_everywhere']._data?._status;
+    if (genesisStore.themedata[themeName.value]?._status !== 'LOADED')
+        return genesisStore.themedata[themeName.value]?._status;
+    return themeSets.value._status;
 });
 
 const {
@@ -43,44 +42,27 @@ const coverUrl = computed(() => {
     }
 })
 
-const duckTokens = computed(() => themeBoxes.value?.filter(x => getAuctionData(network, x)!._data?.token_id).sort(sortDucks) || []);
-const filteredDucks = computed(() => duckTokens.value?.filter(shouldShow) || []);
+const themeTokens = computed(() => Object.keys(themeSets.value._data || {}).sort(sortDucks));
+const filteredTokens = computed(() => themeTokens.value?.filter(shouldShow) || []);
 
-const getSet = (auctionId: auctionId) => externalSetCache[network][getAuctionData(network, auctionId)!._data!.token_id]._data;
+const getSet = (tokenId: string) => themeSets.value._data?.[tokenId];
 
 const { searchBar, sortOrder } = useSearch();
 
-const shouldShow = (auctionId: auctionId) => {
+const shouldShow = (tokenId: string) => {
     if (!searchBar.value)
         return true;
-    const name = getSet(auctionId)?.name;
+    const name = getSet(tokenId)?.name;
     if (name && name.toLowerCase().indexOf(searchBar.value.toLowerCase()) !== -1)
         return true;
     return false;
 };
 
-const sortDucks = (a: auctionId, b: auctionId) => {
+const sortDucks = (a: string, b: string) => {
     return _sortDucks(sortOrder.value)(a, b);
 }
 
-const _sortDucks = (sorting: any) => (a: auctionId, b: auctionId) => {
-    if (sorting === 'bids_desc' || sorting === 'bids_asc') {
-        let cmp = starknet.number.toBN(getAuctionData(network, b)._data?.highest_bid).cmp(
-            starknet.number.toBN(getAuctionData(network, a)._data?.highest_bid),
-        );
-        if (cmp !== 0)
-            return sorting === 'bids_desc' ? cmp : -cmp;
-    }
-    if (sorting === 'dates_desc' || sorting === 'dates_asc') {
-        let ba = getAuctionData(network, a)._data?.bids[0]?.timestamp;
-        let bb = getAuctionData(network, b)._data?.bids[0]?.timestamp;
-        if (ba && bb)
-            return sorting === 'dates_desc' ? -ba.localeCompare(bb) : ba.localeCompare(bb);
-        else if (ba)
-            return -1;
-        else if (bb)
-            return 1;
-    }
+const _sortDucks = (sorting: any) => (a: string, b: string) => {
     return (getSet(a)?.name || a).localeCompare(getSet(b)?.name || b);
 }
 
@@ -94,34 +76,16 @@ watchEffect(() => {
         window.scrollTo(0, ducksListing.value.getBoundingClientRect().top + window.scrollY - 200);
 })
 
-// Bidding starknet.id stuff
-/*
-const bidderAddresses = ref({} as Record<string, Fetchable<string | false>>);
-watchEffect(() => {
-    for (const bid of latestBids.value) {
-        if (bidderAddresses.value[bid.highest_bidder] !== undefined)
-            continue;
-        bidderAddresses.value[bid.highest_bidder] = new Fetchable<string>();
-        bidderAddresses.value[bid.highest_bidder].fetch(async () => {
-            const response = await fetch('https://app.starknet.id/api/indexer/addr_to_domain?addr=' + starknet.number.toBN(bid.highest_bidder).toString());
-            const json = await response.json()
-            if (json.domain)
-                return json.domain;
-            return false;
-        });
-    }
-})
-*/
 
 const hoveredAuction = ref(undefined as undefined | string);
 const hoverLock = ref(undefined as undefined | string);
 
-// Select a duck when we've loaded the data.
+// Select an NFT when we've loaded the data.
 const selectFirstDuck = () => {
     const stopHandle = watchEffect(() => {
-        if (!duckTokens.value.length)
+        if (!themeTokens.value.length)
             return;
-        setHoveredDuck(duckTokens.value[0]);
+        setHoveredDuck(themeTokens.value[0]);
         // Timeout to make sure stopHandle is defined.
         setTimeout(() => stopHandle(), 0);
     });
@@ -139,10 +103,10 @@ onUnmounted(() => {
 
 // Have some debouncing so that clicking to lock a card -> hover on the right to bid
 // doesn't flash cards for a short while if you go fast enough (AKA UI magic).
-let upcomingHover = undefined as auctionId | undefined;
+let upcomingHover = undefined as string | undefined;
 let timeout: unknown;
-const setHoveredDuck = (auctionId: auctionId | undefined) => {
-    upcomingHover = auctionId;
+const setHoveredDuck = (tokenId: string | undefined) => {
+    upcomingHover = tokenId;
     if (hoverLock.value === hoveredAuction.value) {
         if (timeout)
             clearTimeout(timeout);
@@ -152,13 +116,6 @@ const setHoveredDuck = (auctionId: auctionId | undefined) => {
     } else
         hoveredAuction.value = upcomingHover;
 };
-
-const iScroll = ref(25);
-const popScroll = () => setTimeout(() => {
-    iScroll.value += 25;
-    popScroll();
-}, APP_ENV === 'dev' ? 200 : 1000);
-popScroll();
 
 </script>
 
@@ -226,17 +183,15 @@ popScroll();
                                 <input class="w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
                                 <i class="fa-solid fa-magnifying-glass absolute right-3"/>
                             </p>
+                            <!--
                             <div class="flex gap-2">
                                 <p class="relative w-[14rem]">
                                     <select class="relative w-full h-full" v-model="sortOrder">
                                         <option value="a_z">Sort alphabetically</option>
-                                        <option value="dates_desc">Sort by latest bids</option>
-                                        <option value="dates_asc">Sort by oldest bids</option>
-                                        <option value="bids_desc">Sort by highest bids</option>
-                                        <option value="bids_asc">Sort by lowest bids</option>
                                     </select>
                                 </p>
                             </div>
+                            -->
                         </div>
                     </div>
                     <div class="max-w-[1600px] px-8 m-auto mt-3" ref="ducksListing">
@@ -248,10 +203,10 @@ popScroll();
                                 lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
                                 @pointerleave="hoverLock && setHoveredDuck(undefined)">
                                 <div
-                                    v-for="duckId, i in duckTokens" :key="duckId + i"
+                                    v-for="duckId, i in themeTokens" :key="duckId + i"
                                     v-show="shouldShow(duckId)"
                                     class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
-                                    <p v-if="!getSet(duckId) || iScroll < i">...Loading data...</p>
+                                    <p v-if="!getSet(duckId)">...Loading data...</p>
                                     <div
                                         v-else
                                         :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
@@ -260,42 +215,39 @@ popScroll();
                                         <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                     </div>
                                 </div>
-                                <h5 class="col-span-full" v-show="!filteredDucks.length">There are no ducks matching the filters you've entered</h5>
+                                <h5 class="col-span-full" v-show="!filteredTokens.length">There are no ducks matching the filters you've entered</h5>
                             </div>
                             <div class="relative min-h-[30rem]">
                                 <div class="sticky top-[9.2rem] z-5 flex justify-center w-full">
-                                    <div class="max-w-[26rem] min-h-[38rem] relative w-full">
+                                    <div v-if="!!themeSets._data" class="max-w-[26rem] min-h-[38rem] relative w-full">
                                         <Transition name="fade-hoverlock">
                                             <DuckDetailCard
+                                                v-if="hoverLock"
                                                 :key="hoverLock"
-                                                v-if="getAuctionData(network, hoverLock)?._data"
                                                 :class="`!absolute top-0 transition-all duration-500 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
-                                                :auction-data="getAuctionData(network, hoverLock)._data"
                                                 :expand="true"
-                                                :title="getSet(hoverLock)?.name"
-                                                :subtitle="getSet(hoverLock)?.description"
-                                                :status="'LOADED'"/>
+                                                :network="network"
+                                                :theme="themeName"
+                                                :token-id="hoverLock"/>
                                         </Transition>
                                         <!-- This item exists solely so that the opacity transition doesn't reveal the background but stays on a card,
                                         since that looks better -->
                                         <Transition name="fake-fadeout">
                                             <DuckDetailCard
-                                                v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData(network, hoveredAuction)?._data"
+                                                v-if="hoveredAuction && hoveredAuction !== hoverLock"
                                                 :class="`!absolute top-0`"
-                                                :auction-data="getAuctionData(network, hoveredAuction)._data"
-                                                :title="getSet(hoveredAuction)?.name"
-                                                :subtitle="getSet(hoveredAuction)?.description"
-                                                :status="'LOADED'"/>
+                                                :network="network"
+                                                :theme="themeName"
+                                                :token-id="hoveredAuction"/>
                                         </Transition>
                                         <Transition name="fade">
                                             <DuckDetailCard
                                                 :key="hoveredAuction"
-                                                v-if="hoveredAuction && hoveredAuction !== hoverLock && getAuctionData(network, hoveredAuction)?._data"
+                                                v-if="hoveredAuction && hoveredAuction !== hoverLock"
                                                 :class="`!absolute top-0 ${hoverLock ? '!shadow-xl' : ''}`"
-                                                :auction-data="getAuctionData(network, hoveredAuction)._data"
-                                                :title="getSet(hoveredAuction)?.name"
-                                                :subtitle="getSet(hoveredAuction)?.description"
-                                                :status="'LOADED'"/>
+                                                :network="network"
+                                                :theme="themeName"
+                                                :token-id="hoveredAuction"/>
                                         </Transition>
                                     </div>
                                 </div>
