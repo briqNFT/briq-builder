@@ -79,7 +79,7 @@ const shouldShow = (tokenId: string) => {
     const name = getSet(tokenId)?.name;
     if (name && name.toLowerCase().indexOf(searchBar.value.toLowerCase()) !== -1)
         return true;
-    return false;
+    return ownerName(getOwner(tokenId))?.toLowerCase().indexOf(searchBar.value.toLowerCase()) !== -1;
 };
 
 const sortDucks = (a: string, b: string) => {
@@ -219,8 +219,7 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                         <div
                             class="grid gap-4 grid-cols-[min-content_20rem] tall-md:grid-cols-[min-content_minmax(16rem,auto)]">
                             <div
-                                class="grid gap-2 lg:gap-4 sm:grid-cols-[repeat(2,9rem)]
-                                md:grid-cols-[repeat(3,9rem)]
+                                class="grid gap-2 lg:gap-4 content-start sm:grid-cols-[repeat(2,9rem)] md:grid-cols-[repeat(3,9rem)]
                                 lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
                                 @pointerleave="hoverLock && setHoveredDuck(undefined)">
                                 <template v-if="isGroupedByOwner">
