@@ -10,11 +10,14 @@ import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 import { useThemeURLs } from './ThemeUrlComposable';
 import { backendManager } from '@/Backend';
 import { APP_ENV } from '@/Meta';
-import { themeSetsDataStore, useSearch } from '@/builder/DucksSale';
+import { themeSetsDataStore, themeSetsOwnerStore, useSearch } from '@/builder/DucksSale';
 import DuckDetailCard from './DuckDetailCard.vue';
+import type { CHAIN_NETWORKS } from '@/chain/Network';
+import Toggle from '@/components/generic/Toggle.vue';
+import { addressToStarknetId } from '@/chain/StarknetId';
 
 const route = useRoute();
-const network = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet';
+const network: CHAIN_NETWORKS = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet';
 
 const themeName = computed(() => 'ducks_everywhere');
 
@@ -45,9 +48,30 @@ const coverUrl = computed(() => {
 const themeTokens = computed(() => Object.keys(themeSets.value._data || {}).sort(sortDucks));
 const filteredTokens = computed(() => themeTokens.value?.filter(shouldShow) || []);
 
-const getSet = (tokenId: string) => themeSets.value._data?.[tokenId];
+const tokensByOwner = computed(() => {
+    const ret: Record<string, string[]> = {};
+    for (const tokenId of filteredTokens.value) {
+        const owner = getOwner(tokenId);
+        if (!owner)
+            continue;
+        if (!ret[owner])
+            ret[owner] = [];
+        ret[owner].push(tokenId);
+    }
+    return ret;
+});
 
-const { searchBar, sortOrder } = useSearch();
+const ownerName = (address: string) => {
+    if (addressToStarknetId[network][address]._data)
+        return addressToStarknetId[network][address]._data;
+    return address;
+}
+
+const getSet = (tokenId: string) => themeSets.value._data?.[tokenId];
+const getOwner = (tokenId: string) => themeSetsOwnerStore[network][themeName.value]._data?.[tokenId];
+
+const { searchBar, sortOrder, groupBy } = useSearch();
+const isGroupedByOwner = computed(() => groupBy.value === 'owner');
 
 const shouldShow = (tokenId: string) => {
     if (!searchBar.value)
@@ -183,15 +207,12 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                 <input class="w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
                                 <i class="fa-solid fa-magnifying-glass absolute right-3"/>
                             </p>
-                            <!--
                             <div class="flex gap-2">
-                                <p class="relative w-[14rem]">
-                                    <select class="relative w-full h-full" v-model="sortOrder">
-                                        <option value="a_z">Sort alphabetically</option>
-                                    </select>
-                                </p>
+                                <Btn secondary class="px-2 font-normal text-sm" @click="groupBy ? groupBy = undefined : groupBy = 'owner'">
+                                    <Toggle v-model="isGroupedByOwner" class="mr-2 w-8 pointer-events-none"/>
+                                    Group by owner
+                                </Btn>
                             </div>
-                            -->
                         </div>
                     </div>
                     <div class="max-w-[1600px] px-8 m-auto mt-3" ref="ducksListing">
@@ -202,19 +223,39 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                 md:grid-cols-[repeat(3,9rem)]
                                 lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
                                 @pointerleave="hoverLock && setHoveredDuck(undefined)">
-                                <div
-                                    v-for="duckId, i in themeTokens" :key="duckId + i"
-                                    v-show="shouldShow(duckId)"
-                                    class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
-                                    <p v-if="!getSet(duckId)">...Loading data...</p>
+                                <template v-if="isGroupedByOwner">
+                                    <template v-for="tokens, owner in tokensByOwner" :key="owner">
+                                        <h4 class="col-span-full break-all font-normal">Owned by {{ ownerName(owner) }}</h4>
+                                        <div
+                                            v-for="duckId, i in tokensByOwner[owner]" :key="duckId + i"
+                                            v-show="shouldShow(duckId)"
+                                            class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
+                                            <p v-if="!getSet(duckId)">...Loading data...</p>
+                                            <div
+                                                v-else
+                                                :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
+                                                @mouseenter="setHoveredDuck(duckId)"
+                                                @click="hoverLock = duckId">
+                                                <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                            </div>
+                                        </div>
+                                    </template>
+                                </template>
+                                <template v-else>
                                     <div
-                                        v-else
-                                        :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
-                                        @mouseenter="setHoveredDuck(duckId)"
-                                        @click="hoverLock = duckId">
-                                        <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                        v-for="duckId, i in themeTokens" :key="duckId + i"
+                                        v-show="shouldShow(duckId)"
+                                        class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
+                                        <p v-if="!getSet(duckId)">...Loading data...</p>
+                                        <div
+                                            v-else
+                                            :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
+                                            @mouseenter="setHoveredDuck(duckId)"
+                                            @click="hoverLock = duckId">
+                                            <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                        </div>
                                     </div>
-                                </div>
+                                </template>
                                 <h5 class="col-span-full" v-show="!filteredTokens.length">There are no ducks matching the filters you've entered</h5>
                             </div>
                             <div class="relative min-h-[30rem]">

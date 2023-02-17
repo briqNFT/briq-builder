@@ -5,11 +5,13 @@ import { reactive, ref } from 'vue';
 
 const searchBar = ref<string>();
 const sortOrder = ref('a_z');
+const groupBy = ref(undefined as undefined | 'owner');
 
 export const useSearch = function() {
     return {
         searchBar,
         sortOrder,
+        groupBy,
     }
 }
 
