@@ -52,6 +52,11 @@ export const routes = [
         },
     },
     {
+        path: '/collections/manage',
+        name: 'ManageCollection',
+        component: import('@/components/collections/ManageCollection.vue'),
+    },
+    {
         path: '/debug/:address?',
         name: 'Debug',
         component: async () => {
