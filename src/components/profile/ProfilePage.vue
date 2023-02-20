@@ -10,7 +10,6 @@ import { computed, ref, watch, watchEffect } from 'vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { userBookletsStore } from '@/builder/UserBooklets';
 import { userSetStore } from '@/builder/UserSets';
-import { userBidsStore } from '@/builder/AuctionData';
 import BoxListing from '../builder/genesis/BoxListing.vue';
 import { setsManager } from '@/builder/SetsManager';
 import MenuDropdown from '../generic/MenuDropdown.vue';
@@ -41,30 +40,12 @@ const getPreview = (id: string) => {
     return window.localStorage.getItem('set_preview_' + id);
 }
 
-const bids = computed(() => {
-    const bids = {} as { [key: string]: Bid }
-    for (const bid of userBidsStore.current?.bids ?? [])
-        if (!(bid.bid_id in bids))
-            bids[bid.box_id] = bid;
-        else if (bids[bid.box_id])
-            bids[bid.box_id] = bid;
-    return Object.values(bids);
-});
-
 const winningBids = computed(() => {
-    const boxes = [];
-    for (let bid of bids.value)
-        if (productBidsStore.bids(bid.box_id).highest_bid === bid.bid_id)
-            boxes.push(bid.box_id);
-    return boxes;
+    return [];
 })
 
 const losingBids = computed(() => {
-    const boxes = [];
-    for (let bid of bids.value)
-        if (productBidsStore.bids(bid.box_id).highest_bid !== bid.bid_id)
-            boxes.push(bid.box_id);
-    return boxes;
+    return [];
 })
 
 const inventoryBoxes = computed(() => {

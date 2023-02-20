@@ -134,15 +134,6 @@ export const getAuctionData = (network: string, auctionId: auctionId | undefined
     }
 };
 
-// Load the ducks everywhere auction data on startup for now.
-// (This means loading a ducks-everywhere set will correctly show the auction data)
-// TODO: make sure the sets know when they belong to an auction and load that.
-if (APP_ENV === 'prod')
-    auctionDataStore['starknet-mainnet']['ducks_everywhere'];
-else
-    auctionDataStore['starknet-testnet']['ducks_everywhere'];
-
-
 export interface Bid {
     status: 'CONFIRMED' | 'TENTATIVE' | 'PENDING' | 'REJECTED';
     tx_hash: string,
