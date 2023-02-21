@@ -47,7 +47,10 @@ export const routes = [
     {
         path: '/collections/manage',
         name: 'ManageCollection',
-        component: import('@/components/collections/ManageCollection.vue'),
+        component: async () => {
+            await loadExtraPages();
+            return loader.Collections;
+        },
     },
     {
         path: '/debug/:address?',

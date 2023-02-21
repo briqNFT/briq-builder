@@ -24,6 +24,8 @@ import BoxSalePageVue_ from './components/builder/genesis/BoxSalePage.vue';
 import BoxPageVue_ from './components/builder/genesis/BoxPage.vue';
 import SetPageVue_ from './components/builder/genesis/SetPage.vue';
 import ImageLoaderVue_ from '@/components/ImageLoader.vue';
+import Collections_ from '@/components/collections/ManageCollection.vue';
+
 
 import { userPurchaseStore } from '@/builder/UserPurchase';
 
@@ -46,4 +48,6 @@ export const BoxSalePageVue = BoxSalePageVue_;
 export const BoxPageVue = BoxPageVue_;
 export const SetPageVue = SetPageVue_;
 export const ImageLoaderVue = ImageLoaderVue_;
+export const Collections = Collections_;
+
 userPurchaseStore.setup();

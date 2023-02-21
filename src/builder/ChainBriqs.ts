@@ -6,6 +6,7 @@ import { reportError } from '../Monitoring';
 import { backendManager } from '@/Backend';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { maybeStore } from '@/chain/WalletLoading';
+import { setChainBriqsStoreComplete } from './ChainBriqsAsync';
 
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number; nft_ids: string[] };
@@ -212,4 +213,6 @@ export class ChainBriqs implements perUserStorable {
 
 const _chainBriqs = perUserStore('ChainBriqs', ChainBriqs);
 _chainBriqs.setup();
+
 export const chainBriqs = toRef(_chainBriqs, 'current');
+setChainBriqsStoreComplete(_chainBriqs);

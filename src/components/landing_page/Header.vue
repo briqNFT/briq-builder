@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref } from 'vue';
+import { maybeChainBriqs } from '@/builder/ChainBriqsAsync';
 
 import SmallProfileIcon from '@/assets/profile/profile_small.svg';
 import briqLogo from '@/assets/briq.svg';
@@ -21,17 +22,6 @@ const connectWallet = () => {
 
 let NotificationsMenu = ref();
 import('@/Dispatch').then(x => NotificationsMenu.value = x.NotificationsMenu);
-
-let chainBriqs_ = ref();
-let cb;
-import('@/builder/ChainBriqs').then(x => {
-    cb = x.chainBriqs;
-    chainBriqs_.value = x.chainBriqs.value;
-});
-const chainBriqs = computed(() => {
-    chainBriqs_.value;
-    return cb?.value;
-})
 
 const header = ref(null);
 
@@ -74,7 +64,7 @@ onMounted(() => {
             <div class="flex items-stretch gap-2">
                 <template v-if="walletStore?.userWalletAddress">
                     <div class="border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
-                        <briqIcon width="0.9rem" class="inline-block"/> {{ chainBriqs?.getNbBriqs() }}
+                        <briqIcon width="0.9rem" class="inline-block"/> {{ maybeChainBriqs?.getNbBriqs() }}
                     </div>
                     <div class="flex-none">
                         <MenuDropdown no-background icon class="text-xs roundedButton">
