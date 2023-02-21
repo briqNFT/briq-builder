@@ -70,7 +70,7 @@ const collection_name = computed(() => {
     if (booklet_id.value)
         return genesisStore.themedata[booklet_id.value.split('/')[0]]._data?.name;
     if (externalSetData.value)
-        return externalSetData.value.properties?.collections.value[0];
+        return externalSetData.value.properties?.collections?.value[0];
     return undefined;
 });
 
