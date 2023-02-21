@@ -19,6 +19,7 @@ export let SelectionBox: typeof three_wrapper.SelectionBox;
 export let BufferGeometryUtils: typeof three_wrapper.BufferGeometryUtils;
 
 export let GLTFLoader: typeof three_wrapper.GLTFLoader;
+export let EXRLoader: typeof three_wrapper.EXRLoader;
 
 export let EffectComposer: typeof three_wrapper.EffectComposer;
 export let RenderPass: typeof three_wrapper.RenderPass;
@@ -42,7 +43,9 @@ async function setup() {
     FlyControls = wrapper.FlyControls;
     SelectionBox = wrapper.SelectionBox;
     BufferGeometryUtils = wrapper.BufferGeometryUtils;
+
     GLTFLoader = wrapper.GLTFLoader;
+    EXRLoader = wrapper.EXRLoader;
 
     EffectComposer = wrapper.EffectComposer;
     RenderPass = wrapper.RenderPass;

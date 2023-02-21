@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { readableNumber, readableUnit } from '@/BigNumberForHumans';
-import { useGenesisStore } from '@/builder/GenesisStore';
-import { ExplorerTxUrl } from '@/chain/Explorer';
 import type { Notification } from '@/Notifications';
+import { readableNumber, readableUnit } from '@/BigNumberForHumans';
+import { ExplorerTxUrl } from '@/chain/Explorer';
+import { useGenesisStore } from '@/builder/GenesisStore';
 import { useSetHelpers } from './builder/SetComposable';
 
 defineProps<{

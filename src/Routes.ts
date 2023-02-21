@@ -1,21 +1,9 @@
-import Legal from './components/Legal.vue';
+import { createWebHistory, createRouter } from 'vue-router';
+import { APP_ENV } from './Meta';
+
 import GenesisMint from '@/components/builder/genesis/GenesisMint.vue';
-
+import Legal from './components/Legal.vue';
 import BuilderLoader from './components/builder/BuilderLoader.vue';
-
-import RealmsComplete from '@/components/realms/Complete.vue';
-
-import ProfilePageVue from '@/components/profile/ProfilePage.vue';
-
-import ThemesListingVue from './components/builder/genesis/ThemesListing.vue';
-import ThemeRouter from './components/builder/genesis/ThemeRouter.vue';
-import BoxSalePageVue from './components/builder/genesis/BoxSalePage.vue';
-import BoxPageVue from './components/builder/genesis/BoxPage.vue';
-
-import ImageLoaderVue from '@/components/ImageLoader.vue';
-
-import { CONF } from './Conf';
-import SetPageVue from './components/builder/genesis/SetPage.vue';
 
 let loader;
 async function loadExtraPages() {
@@ -29,6 +17,16 @@ setTimeout(loadExtraPages, 5000);
 
 export const routes = [
     {
+        path: '/',
+        name: 'Landing',
+        component: GenesisMint,
+    },
+    {
+        path: '/builder',
+        name: 'Builder',
+        component: BuilderLoader,
+    },
+    {
         path: '/legal',
         name: 'Legal',
         component: Legal,
@@ -37,12 +35,7 @@ export const routes = [
         path: '/legal/:doc',
         name: 'Legal Doc',
         component: () => import('@/components/legal/Doc.vue'),
-    },/*
-    {
-        path: '/team',
-        name: 'Team',
-        component: Team,
-    },*/
+    },
     {
         path: '/admin',
         name: 'Admin',
@@ -77,47 +70,74 @@ export const routes = [
     {
         path: '/profile/:address?',
         name: 'Profile',
-        component: ProfilePageVue,
+        component: async () => {
+            await loadExtraPages();
+            return loader.ProfilePageVue;
+        },
     },
     {
         path: '/genesis',
         name: 'Genesis Mint',
-        component: GenesisMint,
+        component: async () => {
+            await loadExtraPages();
+            return loader.GenesisMint;
+        },
     },
     {
         path: '/themes',
         name: 'ThemesListing',
-        component: ThemesListingVue,
+        component: async () => {
+            await loadExtraPages();
+            return loader.ThemesListingVue;
+        },
     },
     {
         path: '/product/:theme',
         name: 'Theme',
-        component: ThemeRouter,
+        component: async () => {
+            await loadExtraPages();
+            return loader.ThemeRouter;
+        },
     },
     {
         path: '/product/:theme/:box',
         name: 'BoxSale',
-        component: BoxSalePageVue,
+        component: async () => {
+            await loadExtraPages();
+            return loader.BoxSalePageVue;
+        },
     },
     {
         path: '/box/:theme/:box',
         name: 'UserBox',
-        component: BoxPageVue,
+        component: async () => {
+            await loadExtraPages();
+            return loader.BoxPageVue;
+        },
     },
     {
         path: '/booklet/:theme/:booklet',
         name: 'UserBooklet',
-        component: SetPageVue,
+        component: async () => {
+            await loadExtraPages();
+            return loader.SetPageVue;
+        },
     },
     {
         path: '/set/:network/:set_id',
         name: 'UserCreation',
-        component: SetPageVue,
+        component: async () => {
+            await loadExtraPages();
+            return loader.SetPageVue;
+        },
     },
     {
         path: '/image',
         name: 'Image loader',
-        component: ImageLoaderVue,
+        component: async () => {
+            await loadExtraPages();
+            return loader.ImageLoaderVue;
+        },
     },
     {
         path: '/unboxing/:theme/:box',
@@ -146,39 +166,13 @@ export const routes = [
     {
         path: '/briqmas/forest',
         name: 'BriqMas Forest',
-        component: () => import('@/components/builder/briqmas_forest/Forest.vue'),
+        component: async () => {
+            await loadExtraPages();
+            return loader.BriqmasForest;
+        },
     },
 ];
 
-if (CONF.theme === 'realms') {
-    routes.push({
-        path: '/',
-        name: 'RealmsComplete',
-        component: RealmsComplete,
-    });
-    routes.push({
-        path: '/builder',
-        name: 'Builder',
-        beforeEnter() {
-            location.href = 'https://briq.construction/builder'
-        },
-    });
-} else {
-    routes.push({
-        path: '/',
-        name: 'Landing',
-        component: GenesisMint,
-    });
-    routes.push({
-        path: '/builder',
-        name: 'Builder',
-        component: BuilderLoader,
-    });
-}
-
-import { createWebHistory, createRouter } from 'vue-router';
-import { APP_ENV } from './Meta';
-import ThemePageDucks from './components/builder/genesis/ThemePageDucks.vue';
 export const router = createRouter({
     history: createWebHistory(),
     routes,

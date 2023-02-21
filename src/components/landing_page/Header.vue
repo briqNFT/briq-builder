@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 
 import SmallProfileIcon from '@/assets/profile/profile_small.svg';
 import briqLogo from '@/assets/briq.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
-import NotificationsMenu from '../NotificationsMenu.vue';
-import { userPurchaseStore } from '@/builder/UserPurchase';
-import { chainBriqs } from '@/builder/ChainBriqs';
 import { APP_ENV } from '@/Meta';
 
 let _clicked = false;
@@ -22,10 +19,23 @@ const connectWallet = () => {
     }
 }
 
+let NotificationsMenu = ref();
+import('@/Dispatch').then(x => NotificationsMenu.value = x.NotificationsMenu);
+
+let chainBriqs_ = ref();
+let cb;
+import('@/builder/ChainBriqs').then(x => {
+    cb = x.chainBriqs;
+    chainBriqs_.value = x.chainBriqs.value;
+});
+const chainBriqs = computed(() => {
+    chainBriqs_.value;
+    return cb?.value;
+})
+
 const header = ref(null);
 
 onMounted(() => {
-    userPurchaseStore.setup();
     const observer = new IntersectionObserver(
         ([e]) => {
             e.target.classList.toggle('isSticky', e.intersectionRatio < 1)
@@ -74,7 +84,7 @@ onMounted(() => {
                             <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                         </MenuDropdown>
                     </div>
-                    <NotificationsMenu class="hidden sm:block"/>
+                    <component v-if="NotificationsMenu" :is="NotificationsMenu" class="hidden sm:block"/>
                 </template>
                 <template v-else-if="!walletStore?.userWalletAddress && walletStore?._userWalletAddress">
                     <MenuDropdown no-background icon class="text-xs py-0 px-1 roundedButton">

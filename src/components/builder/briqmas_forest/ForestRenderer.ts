@@ -11,10 +11,8 @@ import {
     SMAAPass,
 } from '@/three';
 
-import { GLTFLoader } from '@/three';
-import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
+import { GLTFLoader, EXRLoader } from '@/three';
 
-import EnvMapImg from '@/assets/genesis/WhiteRoom.png';
 import EnvMapImg2 from '@/assets/industrial_sunset_02_puresky_1k.exr';
 import { backendManager } from '@/Backend';
 import { APP_ENV } from '@/Meta';

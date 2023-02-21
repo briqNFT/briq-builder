@@ -17,17 +17,14 @@ import CollectImage from '@/assets/landing/landing_box_cover.jpg';
 import PlayImage from '@/assets/landing/landing_full_speeder.jpg';
 import BuildImage from '@/assets/landing/landing_speeder_eclate.jpg';
 
-import StarknetCity from '@/assets/landing/starknet_city_upcoming.jpg';
 
 //import InlinedRocketCover from '@/assets/landing/rocket.jpg';
 import InlinedRocketCover from './InlinedRocketCover';
 import RocketGlb from '@/assets/landing/rocket.glb?url';
-import { nextTick } from 'vue';
 
-import { h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
+import { nextTick, h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
-import { doDownload } from '@/url';
 
 const modelViewerLoading = ref(true);
 const modelViewerLoadingPromise = import('@google/model-viewer');

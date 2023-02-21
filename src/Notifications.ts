@@ -5,7 +5,6 @@ import { logDebug } from './Messages';
 import { hexUuid } from '@/Uuid';
 import { ExplorerTxUrl } from './chain/Explorer';
 import { APP_ENV } from './Meta';
-import NotificationVue from './components/Notification.vue';
 
 export type NotificationLevel = 'info' | 'warning' | 'success' | 'error';
 
@@ -90,7 +89,7 @@ export class Notification {
 
 // TODO: redo this all Toast system, it should use the same logic as the actual notifications, this is braindead.
 function dispatchPopup(notif: Notification) {
-    pushPopup(notif.level, notif.title, h(NotificationVue, { notif, toast: true }))
+    pushPopup(notif.level, notif.title, h(async () => (await import('@/Dispatch')).NotificationsVue, { notif, toast: true }))
 }
 
 class NotificationManager {
