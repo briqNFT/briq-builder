@@ -68,14 +68,14 @@ const loadingState = new class implements FsmState {
         await sceneReady;
         let userSet = route.query['token'] ?
             userSetStore.current?.sets.find(x => x === route.query['token'])
-            : userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
+            : userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet_id === 'briqmas/briqmas_tree');
         if (!userSet) {
             // We have a data race here, because the sets are fetching data independently after the wallet has loaded.
             // So if we haven't found a set, try again in a second, then fail.
             // This should generally be OK, because we can sorta assume that the frontend has cached the data.
             // TODO: improve on this.
             await new Promise(res => setTimeout(() => res(null), 1500));
-            userSet = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet === 'briqmas/briqmas_tree');
+            userSet = userSetStore.current?.sets.find(x => userSetStore.current?.setData[x]?.booklet_id === 'briqmas/briqmas_tree');
             if (!userSet)
                 return fsm.switchTo('NO_BOX');
         }

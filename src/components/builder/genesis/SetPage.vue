@@ -56,17 +56,25 @@ const mode = route.name === 'UserBooklet' ? 'BOOKLET' : 'CREATION';
 
 const useExternalData = ref(false);
 const externalSetDataFetchable = computed(() => useExternalData.value && externalSetCache[route.params.network as string][route.params.set_id as string]);
-const externalSetData = computed<SetData>(() => useExternalData.value && externalSetDataFetchable.value._data);
+const externalSetData = computed(() => externalSetDataFetchable.value ? externalSetDataFetchable.value._data : undefined);
 
 const booklet_id = computed(() => {
     if (mode === 'BOOKLET')
         return `${route.params.theme}/${route.params.booklet}`;
     if (externalSetData.value)
         return externalSetData.value.booklet_id;
-    return userSetStore.current?.setData[route.params.set_id as string]?.booklet;
+    return userSetStore.current?.setData[route.params.set_id as string]?.booklet_id;
 });
 
-const setKind = computed(() => booklet_id.value ? 'OFFICIAL' : 'PERSONAL');
+const collection_name = computed(() => {
+    if (booklet_id.value)
+        return genesisStore.themedata[booklet_id.value.split('/')[0]]._data?.name;
+    if (externalSetData.value)
+        return externalSetData.value.properties?.collections.value[0];
+    return undefined;
+});
+
+const setKind = computed(() => collection_name.value ? 'OFFICIAL' : 'PERSONAL');
 
 const isOwned = computed(() => !!userSetStore.current?.setData[route.params.set_id as string]);
 
@@ -87,7 +95,7 @@ const set = computed(() => {
     if (mode === 'BOOKLET')
         return setsManager.getBookletSet(booklet_id.value);
     if (externalSetData.value)
-        return externalSetData.value;
+        return externalSetData.value.data;
     return userSetStore.current?.setData[route.params.set_id as string]?.data;
 });
 
@@ -152,17 +160,24 @@ const attributes = computed(() => {
             { name: '# of briqs', value: bookletData!.value.briqs.length },
         ]
     } else if (setKind.value === 'OFFICIAL') {
-        const setmetadata = bookletData.value;
+        const setmetadata = bookletData.value || externalSetData.value!;
         if (!setmetadata)
             return [];
         const props = setmetadata.properties;
-        return [
-            { name: 'Serial Number', value: `#${setmetadata.serial_number}` },
-            { name: 'Theme', value: genesisStore.themedata[setmetadata.booklet_id.split('/')[0]]._data?.name },
-            { name: 'Artist', value: props.artist.value },
-            { name: 'Year', value: new Date(props.date.value).getFullYear() },
-            { name: '# of briqs', value: bookletData.value!.briqs.length },
-        ]
+        if (!props)
+            return [];
+        const ret = [];
+        if (props.artist)
+            ret.push({ name: 'Artist', value: props.artist.value });
+        if (props.date)
+            ret.push({ name: 'Year', value: new Date(props.date.value).getFullYear() });
+        if (bookletData.value?.briqs)
+            ret.push({ name: '# of briqs', value: bookletData.value.briqs.length });
+        if ('serial_number' in setmetadata)
+            ret.push({ name: 'Serial Number', value: `#${setmetadata.serial_number}` });
+        if (collection_name.value)
+            ret.push({ name: 'Collection', value: collection_name.value });
+        return ret;
     } else
         return [
             { name: 'Year', value: new Date(userSetStore.current?.setData?.[route.params.set_id as string]?.created_at ?? Date.now()).getFullYear() },

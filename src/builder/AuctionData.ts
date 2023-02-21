@@ -285,7 +285,7 @@ class UserBidStore implements perUserStorable {
     getSetName(auctionId: auctionId) {
         const network = this.user_id.split('/')[0];
         const token = getAuctionData(network, auctionId)._data!.token_id;
-        return externalSetCache[network][token]._data!.name || token;
+        return externalSetCache[network][token]._data!.data.name || token;
     }
 
     /** Notifications stuff */

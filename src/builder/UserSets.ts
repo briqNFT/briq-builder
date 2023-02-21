@@ -10,6 +10,8 @@ import { userBookletsStore } from './UserBooklets';
 import { maybeStore } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
 import { setsManager } from './SetsManager';
+import type { ExternalSetData } from './ExternalSets';
+
 
 
 class UserSetStore implements perUserStorable {
@@ -24,11 +26,7 @@ class UserSetStore implements perUserStorable {
 
     _status = 'FETCHING' as 'FETCHING' | 'LOADED' | 'ERROR';
 
-    _setData = {} as { [setId: string]: {
-            data?: SetData,
-            booklet: string | undefined,
-            created_at: number,
-        }
+    _setData = {} as { [setId: string]: Omit<ExternalSetData, 'data'> & { data?: SetData }
     };
 
     polling!: number;
@@ -48,18 +46,18 @@ class UserSetStore implements perUserStorable {
     }
 
     _serialize() {
-        const setData = {} as UserSetStore['setData'];
+        const setData = {} as Record<string, Omit<ExternalSetData, 'data'> & { data?: SetData }>;
         for (const setId in this._setData)
             // For now only save data for temp sets, otherwise it's too heavy
             if (setId in this.metadata)
                 setData[setId] = {
                     data: this._setData[setId].data!.serialize(),
-                    booklet: this._setData[setId].booklet,
+                    booklet_id: this._setData[setId].booklet_id,
                     created_at: this._setData[setId].created_at,
                 }
             else
                 setData[setId] = {
-                    booklet: this._setData[setId].booklet,
+                    booklet_id: this._setData[setId].booklet_id,
                     created_at: this._setData[setId].created_at,
                 }
         // TODO: find a way to serialise set data maybe.
@@ -77,7 +75,7 @@ class UserSetStore implements perUserStorable {
         for (const setId in data.setData)
             this._setData[setId] = {
                 data: data.setData[setId].data ? new SetData(setId).deserialize(data.setData[setId].data) : undefined,
-                booklet: data.setData[setId].booklet,
+                booklet_id: data.setData[setId].booklet_id,
                 created_at: data.setData[setId].created_at,
             }
     }
@@ -127,8 +125,10 @@ class UserSetStore implements perUserStorable {
                     const data = await backendManager.fetch(`v1/metadata/${network}/${setId}.json`);
                     this._setData[setId] = {
                         data: new SetData(setId).deserialize(data),
-                        booklet: data.booklet_id,
+                        booklet_id: data.booklet_id,
                         created_at: data.created_at * 1000, // JS timestamps are milliseconds
+                        properties: data.properties,
+                        background_color: data.background_color,
                     }
                 } catch(_) {
                     if (APP_ENV === 'dev')
@@ -148,8 +148,10 @@ class UserSetStore implements perUserStorable {
                     backendManager.fetch(`v1/metadata/${network}/${setId}.json`).then(data => {
                         this._setData[setId] = {
                             data: new SetData(setId).deserialize(data),
-                            booklet: data.booklet_id,
+                            booklet_id: data.booklet_id,
                             created_at: data.created_at * 1000,
+                            properties: data.properties,
+                            background_color: data.background_color,
                         }
                     });
                 } catch(_)  {
@@ -258,7 +260,7 @@ class UserSetStore implements perUserStorable {
 
             this._setData[data.id] = {
                 data: new SetData(data.id).deserialize(data),
-                booklet: booklet,
+                booklet_id: booklet,
                 created_at: Date.now(),
             }
             this.metadata[data.id] = {
@@ -279,20 +281,20 @@ class UserSetStore implements perUserStorable {
     async disassemble(token_id: string) {
         let booklet_token_id;
         const [network, wallet_address] = this.user_id.split('/');
-        if (this.setData[token_id].booklet)
-            booklet_token_id = (await bookletDataStore[network][this.setData[token_id].booklet!]._fetch)!.token_id;
+        if (this.setData[token_id].booklet_id)
+            booklet_token_id = (await bookletDataStore[network][this.setData[token_id].booklet_id!]._fetch)!.token_id;
         const TX = await contractStore.set!.disassemble(
             wallet_address,
             token_id,
-            this.setData[token_id].data,
+            this.setData[token_id].data!,
             booklet_token_id,
         );
 
-        if (this.setData[token_id].booklet)
-            userBookletsStore.current!.showOne(this.setData[token_id].booklet!, TX.transaction_hash);
+        if (this.setData[token_id].booklet_id)
+            userBookletsStore.current!.showOne(this.setData[token_id].booklet_id!, TX.transaction_hash);
 
-        for (const mat in this.setData[token_id].data.usedByMaterial)
-            chainBriqs.value?.show(mat, this.setData[token_id].data.usedByMaterial[mat], TX.transaction_hash);
+        for (const mat in this.setData[token_id].data!.usedByMaterial)
+            chainBriqs.value?.show(mat, this.setData[token_id].data!.usedByMaterial[mat], TX.transaction_hash);
 
         this.metadata[token_id] = {
             set_id: token_id,
@@ -310,7 +312,7 @@ class UserSetStore implements perUserStorable {
             data: {
                 tx_hash: setData.tx_hash,
                 set_id: setData.set_id,
-                name: this.setData[setData.set_id]?.data.name || `${setData.set_id.slice(0, 10)}...`,
+                name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
             },
             read: false,
@@ -325,7 +327,7 @@ class UserSetStore implements perUserStorable {
             data: {
                 tx_hash: setData.tx_hash,
                 set_id: setData.set_id,
-                name: this.setData[setData.set_id]?.data.name || `${setData.set_id.slice(0, 10)}...`,
+                name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
                 local_set_restored: localSetRestored,
             },
@@ -341,7 +343,7 @@ class UserSetStore implements perUserStorable {
             data: {
                 tx_hash: setData.tx_hash,
                 set_id: setData.set_id,
-                name: this.setData[setData.set_id]?.data.name || `${setData.set_id.slice(0, 10)}...`,
+                name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
             },
             read: false,
@@ -356,7 +358,7 @@ class UserSetStore implements perUserStorable {
             data: {
                 tx_hash: setData.tx_hash,
                 set_id: setData.set_id,
-                name: this.setData[setData.set_id]?.data.name || `${setData.set_id.slice(0, 10)}...`,
+                name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
             },
             read: false,

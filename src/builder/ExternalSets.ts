@@ -7,17 +7,29 @@ import { defaultDict } from '@/ReactiveDefaultDict';
 import { reactive } from 'vue';
 import { SetData } from './SetData';
 
+// Shared format between UserSets and ExternalSets
+export interface ExternalSetData {
+    data: SetData,
+    created_at: number,
+
+    booklet_id?: string,
+    properties?: Record<string, any>,
+    background_color?: string,
+}
+
+
 export const externalSetCache = defaultDict((network: string) => defaultDict((setId: string) => {
-    const setF = reactive(new Fetchable<SetData>());
+    const setF = reactive(new Fetchable<ExternalSetData>());
     setF.fetch(async () => {
         const data = await backendManager.fetch(`v1/metadata/${network}/${setId}.json`);
         const set = new SetData(setId).deserialize(data);
-        // Hack some data that we don't really support in there.
-        if (data.background_color)
-            set.background_color = data.background_color;
-        set.booklet_id = data.booklet_id;
-        set.created_at = data.created_at * 1000; // JS timestamps are milliseconds-based.
-        return set;
+        return  {
+            data: set,
+            created_at: data.created_at * 1000, // JS timestamps are milliseconds-based.
+            properties: data.properties,
+            booklet_id: data.booklet_id,
+            background_color: data?.background_color,
+        }
     });
     return setF;
 }),

@@ -90,7 +90,7 @@ const draftBooklets = computed(() => {
 
 const creations = computed(() => {
     return userSetStore.current?.sets.map(setId => {
-        if (userSetStore.current?.setData[setId]?.booklet)
+        if (userSetStore.current?.setData[setId]?.booklet_id)
             return undefined;
         const data = userSetStore.current?.setData[setId];
         return {
@@ -106,7 +106,7 @@ const creations = computed(() => {
 
 const officialCreations = computed(() => {
     return userSetStore.current?.sets.map(setId => {
-        if (!userSetStore.current?.setData[setId]?.booklet)
+        if (!userSetStore.current?.setData[setId]?.booklet_id)
             return undefined;
         const data = userSetStore.current?.setData[setId];
         return {

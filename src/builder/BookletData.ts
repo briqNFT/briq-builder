@@ -34,13 +34,13 @@ const defaultDict = <T>(t: (prop: string) => T, ...args: any[]) => {
 // Creates a simple object indexing on network ID & object key.
 // The `query` data fetcher receives those as arguments and returns the data,
 // which is assumed to be static (and thus marked raw).
-const perNetworkStaticData = (query: (network: string, prop: string) => Promise<any>) => {
+const perNetworkStaticData = <T extends object>(query: (network: string, prop: string) => Promise<T>) => {
     return defaultDict((network: string) => makeAutoFetchable(async (prop: string) => {
         return markRaw(await query(network, prop));
     }));
 }
 
-export const bookletDataStore = perNetworkStaticData(async (network: string, booklet: bookletId) => {
+export const bookletDataStore = perNetworkStaticData(async (network: string, booklet: bookletId): Promise<BookletData> => {
     return backendManager.fetch(`v1/booklet/data/${network}/${booklet}.json`);
 });
 

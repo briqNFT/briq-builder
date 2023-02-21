@@ -10,7 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['close']);
 
-const booklet = computed(() => userSetStore.current!.setData[props.setId].booklet);
+const booklet = computed(() => userSetStore.current!.setData[props.setId].booklet_id);
 const set = computed(() => userSetStore.current!.setData[props.setId].data!)
 
 onBeforeMount(() => {
