@@ -79,14 +79,6 @@ export const routes = [
         },
     },
     {
-        path: '/genesis',
-        name: 'Genesis Mint',
-        component: async () => {
-            await loadExtraPages();
-            return loader.GenesisMint;
-        },
-    },
-    {
         path: '/themes',
         name: 'ThemesListing',
         component: async () => {

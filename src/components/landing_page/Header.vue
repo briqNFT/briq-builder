@@ -51,7 +51,7 @@ onMounted(() => {
         <div
             class="relative top-[1px] header container m-auto py-3 flex justify-between items-center text-center alternate-buttons">
             <div class="flex items-center gap-4 md:gap-12">
-                <routerLink to="/genesis"><briqLogo height="1.5rem"/></routerLink>
+                <routerLink to="/"><briqLogo height="1.5rem"/></routerLink>
                 <routerLink to="/themes">
                     <p class="hover:text-primary text-sm md:text-md font-medium">Themes</p>
                 </routerLink>
