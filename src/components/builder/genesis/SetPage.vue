@@ -168,8 +168,6 @@ const attributes = computed(() => {
         ] as { name: string, value: string | number }[];
         if (props.artist)
             ret.push({ name: 'Artist', value: props.artist.value });
-        if (props.date)
-            ret.push({ name: 'Year', value: new Date(props.date.value).getFullYear() });
         if ('serial_number' in setmetadata)
             ret.push({ name: 'Serial Number', value: `#${setmetadata.serial_number}` });
         if (collection_name.value)
