@@ -166,13 +166,14 @@ const attributes = computed(() => {
         const props = setmetadata.properties;
         if (!props)
             return [];
-        const ret = [];
+        const ret = [
+            { name: 'Year', value: props.date ? new Date(props.date.value).getFullYear() : new Date(externalSetData.value!.created_at).getFullYear() },
+            { name: '# of briqs', value: set.value?.getNbBriqs() },
+        ] as { name: string, value: string | number }[];
         if (props.artist)
             ret.push({ name: 'Artist', value: props.artist.value });
         if (props.date)
             ret.push({ name: 'Year', value: new Date(props.date.value).getFullYear() });
-        if (bookletData.value?.briqs)
-            ret.push({ name: '# of briqs', value: bookletData.value.briqs.length });
         if ('serial_number' in setmetadata)
             ret.push({ name: 'Serial Number', value: `#${setmetadata.serial_number}` });
         if (collection_name.value)
