@@ -82,11 +82,7 @@ const setData = computed(() => {
     if (mode === 'BOOKLET')
         return undefined;
     if (externalSetData.value)
-        return {
-            data: externalSetData.value,
-            booklet: externalSetData.value.booklet_id,
-            created_at: externalSetData.value.created_at,
-        }
+        return externalSetData.value;
     return userSetStore.current?.setData[route.params.set_id as string];
 });
 
@@ -264,7 +260,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         <div v-if="booklet_id" v-show="view === 'BOOKLET'" class="w-full h-full  p-4 xl:p-8 xl:pb-10 bg-contain bg-origin-content bg-center bg-no-repeat" :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet_id!)}), url(${genesisStore.coverBookletRoute(booklet_id!, true)})` }"/>
                         <div
                             v-if="mode === 'CREATION'" v-show="view === 'PREVIEW'" class="w-full h-full p-4 lg:p-12 xl:p-16 bg-contain bg-origin-content bg-center bg-no-repeat"
-                            :style="{ backgroundImage: `url(${previewURL})`, backgroundColor: set?.background_color ? `#${set.background_color}` : undefined }"
+                            :style="{ backgroundImage: `url(${previewURL})`, backgroundColor: setData?.background_color ? `#${setData.background_color}` : undefined }"
                             :src="previewURL"/>
                         <!-- Buttons to switch views -->
                         <div class="absolute top-4 left-4 flex flex-col gap-4" v-if="mode === 'CREATION'">
