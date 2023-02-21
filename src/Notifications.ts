@@ -88,8 +88,9 @@ export class Notification {
 }
 
 // TODO: redo this all Toast system, it should use the same logic as the actual notifications, this is braindead.
-function dispatchPopup(notif: Notification) {
-    pushPopup(notif.level, notif.title, h(async () => (await import('@/Dispatch')).NotificationsVue, { notif, toast: true }))
+async function dispatchPopup(notif: Notification) {
+    const nv = (await import('@/Dispatch')).NotificationVue;
+    pushPopup(notif.level, notif.title, h(nv, { notif, toast: true }))
 }
 
 class NotificationManager {
