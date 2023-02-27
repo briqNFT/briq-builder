@@ -20,6 +20,7 @@ import { getCurrentNetwork } from '@/chain/Network';
 import { getSetObject } from '@/builder/graphics/SetRendering';
 import { userBookletsStore } from '@/builder/UserBooklets';
 import { bookletDataStore } from '@/builder/BookletData';
+import { hexUuid } from '@/Uuid';
 
 const { chainBriqs } = useBuilder();
 
@@ -153,7 +154,7 @@ const startMinting = async () => {
         if (exportSet.value.name.length > 200)
             throw new Error('Set name too long, max length is 200 characters.');
 
-        let token_hint = setData.value.id;
+        let token_hint = hexUuid();
         exportSet.value.id = contractStore.set.precomputeTokenId(maybeStore.value!.userWalletAddress, token_hint);
 
         let data = exportSet.value.serialize();
