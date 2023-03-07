@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { backendManager } from '@/Backend';
 import { SetData } from '@/builder/SetData';
+import { maybeStore } from '@/chain/WalletLoading';
 import { Fetchable } from '@/DataFetching';
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
+import { Account, DeclareSignerDetails } from 'starknet';
 import { computed, ref } from 'vue';
 import Footer from '../landing_page/Footer.vue';
 import Header from '../landing_page/Header.vue';
@@ -18,7 +20,7 @@ const bookletImage = ref<Fetchable<string>|undefined>(undefined);
 const backgroundColor = ref('#000000');
 
 const validatedData = ref<Fetchable<Record<string, any>>|undefined>(undefined);
-
+const compiledShape = ref<Fetchable<Record<string, any>>|undefined>(undefined);
 const mintResult = ref<Fetchable<Record<string, any>>|undefined>(undefined);
 
 const getFile = async (): Promise<File> => {
@@ -86,8 +88,26 @@ const validate = async () => {
     }));
 }
 
+const compileShape = async () => {
+    compiledShape.value = new Fetchable();
+    compiledShape.value.fetch(() => backendManager.post('v1/admin/starknet-testnet/ducks_everywhere/compile_shape', {
+        token_id: tokenId.value,
+        data: getSetData(),
+        preview_base64: tokenImage.value?._data,
+        booklet_base64: bookletImage.value?._data,
+        background_color: backgroundColor.value.slice(1),
+    }));
+}
+
 const mintToken = async () => {
-    mintResult.value  = new Fetchable();
+    //console.log(maybeStore.value!.signer)
+    //const acc = new Account(maybeStore.value!.signer, maybeStore.value?.userWalletAddress, maybeStore.value!.signer)
+    const declareResponse = await maybeStore.value!.signer.declare({
+        contract: compiledShape.value?._data.contract_json,
+        classHash: compiledShape.value?._data.class_hash,
+    });
+
+    mintResult.value = new Fetchable();
     mintResult.value.fetch(() => backendManager.post('v1/admin/starknet-testnet/ducks_everywhere/mint_new_nft', {
         token_id: tokenId.value,
         data: getSetData(),
@@ -143,7 +163,8 @@ const mintToken = async () => {
             </div>
             <p>
                 <Btn @click="validate">Validate</Btn>
-                <Btn :disabled="!validatedData?._data" @click="mintToken">Mint token</Btn>
+                <Btn @click="compileShape" :disabled="compiledShape?._fetch && !compiledShape?._data">Compile Cairo contract</Btn>
+                <Btn :disabled="false && (!validatedData?._data || !compiledShape?._data)" @click="mintToken">Mint token</Btn>
             </p>
         </div>
     </div>
