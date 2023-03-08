@@ -108,7 +108,7 @@ export class WalletStore {
     async enableWallet(starknetObj: StarknetWindowObject) {
         this.starknetObject = starknetObj;
         try {
-            await this.starknetObject.enable();
+            await this.starknetObject.enable({ starknetVersion: 'v4' })
         } catch(_) {
             addBreadCrumb('object ' + !!this.starknetObject);
             addBreadCrumb('name ' + this.starknetObject?.name);

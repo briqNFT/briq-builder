@@ -1,17 +1,28 @@
 <script setup lang="ts">
 import { backendManager } from '@/Backend';
 import { SetData } from '@/builder/SetData';
+import contractStore, { ADDRESSES } from '@/chain/Contracts';
+import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
 import { Fetchable } from '@/DataFetching';
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
-import { Account, DeclareSignerDetails } from 'starknet';
-import { computed, ref } from 'vue';
+import { HEARTBEAT_INTERVAL } from '@sentry/tracing/types/idletransaction';
+import { number as num } from 'starknet';
+import { computed, ref, reactive } from 'vue';
 import Footer from '../landing_page/Footer.vue';
 import Header from '../landing_page/Header.vue';
 
 const collectionName = ref('ducks_everywhere');
 
-const tokenId = computed(() => '0xcafe');
+function toHex(str: string) {
+    var result = '';
+    for (var i=0; i<str.length; i++)
+        result += str.charCodeAt(i).toString(16);
+
+    return '0x' + result;
+}
+
+const tokenId = computed(() => contractStore.set?.precomputeTokenId(maybeStore.value!.userWalletAddress!, toHex(tokenName.value)) || '0x0');
 const tokenName = ref('');
 const tokenDescription = ref('');
 const jsonData = ref<Fetchable<SetData>|undefined>(undefined);
@@ -91,30 +102,43 @@ const validate = async () => {
 const compileShape = async () => {
     compiledShape.value = new Fetchable();
     compiledShape.value.fetch(() => backendManager.post('v1/admin/starknet-testnet/ducks_everywhere/compile_shape', {
-        token_id: tokenId.value,
         data: getSetData(),
-        preview_base64: tokenImage.value?._data,
-        booklet_base64: bookletImage.value?._data,
-        background_color: backgroundColor.value.slice(1),
+        serial_number: validatedData.value!._data!.serial_number,
     }));
 }
 
+const mintTokenState = ref(undefined);
 const mintToken = async () => {
-    //console.log(maybeStore.value!.signer)
-    //const acc = new Account(maybeStore.value!.signer, maybeStore.value?.userWalletAddress, maybeStore.value!.signer)
-    const declareResponse = await maybeStore.value!.signer.declare({
-        contract: compiledShape.value?._data.contract_json,
-        classHash: compiledShape.value?._data.class_hash,
+    await maybeStore.value!.ensureEnabled();
+    mintTokenState.value = reactive(new Fetchable());
+    mintTokenState.value.fetch(async () => {
+        mintResult.value = new Fetchable();
+        await mintResult.value.fetch(() => backendManager.post('v1/admin/starknet-testnet/ducks_everywhere/mint_new_nft', {
+            token_id: tokenId.value,
+            data: getSetData(),
+            preview_base64: tokenImage.value?._data,
+            booklet_base64: bookletImage.value?._data,
+            background_color: backgroundColor.value.slice(1),
+        }));
+        const declareResponse = await maybeStore.value!.signer.declare({
+            contract: compiledShape.value?._data.contract_json,
+            classHash: compiledShape.value?._data.class_hash,
+        });
+        const bookletTokenId = '0x' + num.toBN('3').add(num.toBN(validatedData.value?._data?.serial_number).mul(num.toBN('0x1000000000000000000000000000000000000000000000000'))).toString(16);
+        let tx = await maybeStore.value!.signer!.execute([
+            {
+                contractAddress: ADDRESSES[getCurrentNetwork()].booklet,
+                entrypoint: 'mint_',
+                calldata: [maybeStore.value!.userWalletAddress, bookletTokenId, compiledShape.value!._data!.class_hash],
+            },
+            contractStore.set!.prepareAssemble(
+                maybeStore.value!.userWalletAddress!,
+                toHex(tokenName.value),
+                jsonData.value!._data?.serialize(),
+                bookletTokenId,
+            ),
+        ]);
     });
-
-    mintResult.value = new Fetchable();
-    mintResult.value.fetch(() => backendManager.post('v1/admin/starknet-testnet/ducks_everywhere/mint_new_nft', {
-        token_id: tokenId.value,
-        data: getSetData(),
-        preview_base64: tokenImage.value?._data,
-        booklet_base64: bookletImage.value?._data,
-        background_color: backgroundColor.value.slice(1),
-    }));
 }
 </script>
 
@@ -153,18 +177,25 @@ const mintToken = async () => {
                 Background color: <input type="color" class="w-12 h-8 mx-2" v-model="backgroundColor">
             </p>
             <div>
-                Attribute validation:
+                Validation:
                 <template v-if="jsonData?._status === 'LOADED'">
                     <p># of briqs: {{ jsonData._data!.getNbBriqs() }}</p>
                     <p>Artist: {{ validatedData?._data?.booklet_meta.properties.artist.value || 'Validate to see' }}</p>
                     <p>Date: {{ validatedData?._data?.booklet_meta.properties.date.value || 'Validate to see' }}</p>
                     <p>Serial Number: {{ validatedData?._data?.serial_number || 'Validate to see' }}</p>
                 </template>
+                <template v-if="compiledShape?._status === 'LOADED'">
+                    <h3>Cairo contract</h3>
+                    <p>Class Hash: {{ compiledShape._data!.class_hash }}</p>
+                </template>
             </div>
             <p>
                 <Btn @click="validate">Validate</Btn>
                 <Btn @click="compileShape" :disabled="compiledShape?._fetch && !compiledShape?._data">Compile Cairo contract</Btn>
                 <Btn :disabled="false && (!validatedData?._data || !compiledShape?._data)" @click="mintToken">Mint token</Btn>
+            </p>
+            <p>
+                {{ mintTokenState?._error }}
             </p>
         </div>
     </div>

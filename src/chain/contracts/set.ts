@@ -64,7 +64,7 @@ export default class SetContract {
         return out;
     }
 
-    async assemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
+    _prepareForAssemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
         const fungibles = {} as { [mat: string]: number };
         const nfts = [] as string[];
         const shapes = [];
@@ -85,8 +85,18 @@ export default class SetContract {
 
         const setName = this._string_to_felt_string(data.name);
         const setDescription = this._string_to_felt_string(data.description);
+        return { setName, setDescription, fts, nfts, shapes };
+    }
+
+    async assemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
+        const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
         await maybeStore.value!.ensureEnabled();
         return await this.contract.assemble_(owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet, SHAPE_HASH_COLLECTION] : [SHAPE_HASH_COLLECTION]);
+    }
+
+    prepareAssemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
+        const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
+        return this.contract.populate('assemble_', [owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet, SHAPE_HASH_COLLECTION] : [SHAPE_HASH_COLLECTION]]);
     }
 
     async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
