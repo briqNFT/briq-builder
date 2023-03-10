@@ -230,12 +230,17 @@ h4 {
             </div>
         </routerlink>
     </div>
-    <div class="bg-grad-darkest py-20 px-1">
+    <div class="bg-grad-darkest py-16 px-1">
         <h1 class="text-center text-grad-lightest">A prolific community of builders</h1>
-        <div class="flex flex-wrap justify-center gap-6 mt-14">
+        <div class="flex flex-wrap justify-center gap-6 mt-8">
             <a href="https://aspect.co/project/briq" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><img class="w-6 mr-3" :src="AspectLogo"> Aspect</Btn></a>
             <a href="https://mintsquare.io/starknet/briq/created" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><MintsquareLogo class="mr-3" height="1.5rem" width="1.5rem"/> Mintsquare</Btn></a>
             <a href="https://discord.gg/kpvbDCw5pr" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><i class="fab fa-discord text-xl mr-3"/> Discord</Btn></a>
+        </div>
+        <div class="flex items-center justify-center mt-6">
+            <a href="https://www.dappland.com/briq" rel="noopener" target="_blank">
+                <iframe src="https://www.dappland.com/widgets/rating?dappname=briq" width="260" height="176" frameBorder="0" title="Dappland Widget" class="rounded-md pointer-events-none"/>
+            </a>
         </div>
     </div>
     <div class="bg-info-warning w-full border-t-2 border-b-2 border-black">
