@@ -53,6 +53,11 @@ export const routes = [
         },
     },
     {
+        path: '/collections/test',
+        name: 'Test',
+        component: () => import('@/components/collections/Test.vue'),
+    },
+    {
         path: '/debug/:address?',
         name: 'Debug',
         component: async () => {
