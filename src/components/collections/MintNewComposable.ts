@@ -130,6 +130,9 @@ const compileShape = async () => {
     await compiledShape.value.fetch(() => backendManager.post('v1/admin/starknet-testnet/ducks_everywhere/compile_shape', {
         data: getSetData(),
         serial_number: validatedData.value!._data!.serial_number,
+        token_id: tokenId.value,
+        owner: maybeStore.value!.userWalletAddress!,
+        signature: signature.value?._data || [0, 0],
     }));
 }
 
