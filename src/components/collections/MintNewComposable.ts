@@ -135,11 +135,14 @@ const compileShape = async () => {
 
 
 const mintToken = async () => {
-    // Revalidate just in case
-    await doValidate();
     await maybeStore.value!.ensureEnabled();
     mintResult.value = new Fetchable();
     await mintResult.value.fetch(async () => {
+        // Revalidate just in case
+        await doValidate();
+        if (validatedData.value?._error)
+            throw new Error('Error while validating data\n' + validatedData.value?._error);
+
         const declareResponse = await maybeStore.value!.signer.declare({
             contract: compiledShape.value?._data.contract_json,
             classHash: compiledShape.value?._data.class_hash,
