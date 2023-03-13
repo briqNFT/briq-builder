@@ -137,9 +137,12 @@ watchEffect(() => {
                     <h4>Instructions</h4>
                     <ol class="list-decimal list-inside font-medium">
                         <li>Upload the JSON, NFT preview & booklet covers, and pick the background color of the NFT preview (should match the background color of the image)</li>
-                        <li>Click the 'validate' button to verify that your information is correct, and check the attributes from the backend.</li>
+                        <li>
+                            Click the 'validate' button to verify that your information is correct, and check the attributes from the backend.<br>
+                            Note that this step can take over ten seconds to complete
+                        </li>
                         <li>Click 'Review and Mint' to review the data.</li>
-                        <li>If everything is correct, click 'Mint' to mint the NFT. Note that you cannot go back once minting has started.</li>
+                        <li>If everything is correct, click 'Start Minting' to switch to the minting screen.</li>
                     </ol>
                 </div>
                 <div class="grid grid-cols-[16rem,auto] gap-8 my-4">
