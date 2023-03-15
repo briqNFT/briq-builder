@@ -160,7 +160,7 @@ const mintToken = async () => {
             contractStore.set!.prepareAssemble(
                 maybeStore.value!.userWalletAddress!,
                 toHex(tokenName.value),
-                jsonData.value!._data?.serialize(),
+                getSetData(),
                 bookletTokenId,
             ),
         ]);
