@@ -1,6 +1,7 @@
 import { reactive } from 'vue';
 import { APP_ENV } from '@/Meta';
 import { logDebug } from '@/Messages';
+import { constants } from 'starknet';
 
 /**
  * Sort of an abstraction around the idea of a chain + network.
@@ -27,6 +28,18 @@ export function getCurrentNetwork(nohack = false) {
     if (!nohack && APP_ENV === 'prod')
         return 'starknet-mainnet';
     return network.network;
+}
+
+
+export function getChainIdFromNetwork(network: CHAIN_NETWORKS): string {
+    return {
+        'mock': '0xdead',
+        'localhost': '0xdead',
+        'starknet-testnet': constants.StarknetChainId.TESTNET,
+        'starknet-testnet2': constants.StarknetChainId.TESTNET2,
+        'starknet-testnet-legacy': '0xdead',
+        'starknet-mainnet': constants.StarknetChainId.MAINNET,
+    }[network];
 }
 
 export function setNetwork(networkName: CHAIN_NETWORKS) {

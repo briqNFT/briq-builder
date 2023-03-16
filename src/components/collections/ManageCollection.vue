@@ -27,6 +27,7 @@ const {
     uploadBooklet,
     sign,
     doValidate,
+    estimateFee,
     compileShape,
     mintToken,
 } = useMintNew();
@@ -48,11 +49,16 @@ const shouldValidate = computed(() => {
 
 const validate = async () => {
     actionIsPending.value = true;
-    if (signature.value?._error)
-        signature.value = undefined;
-    await sign();
-    await doValidate();
-    await compileShape();
+    try {
+        if (signature.value?._error)
+            signature.value = undefined;
+        await sign();
+        await doValidate();
+        await compileShape();
+        await estimateFee();
+    } catch(e) {
+        console.error(e);
+    }
     actionIsPending.value = false;
 }
 
@@ -147,9 +153,9 @@ watchEffect(() => {
                 </div>
                 <div class="grid grid-cols-[16rem,auto] gap-8 my-4">
                     <div class="flex flex-col gap-1 break-all">
-                        <Btn :disabled="disableBtns" :secondary="jsonData?._data" @click="uploadJson">Upload jsonData</Btn>
-                        <Btn :disabled="disableBtns || !jsonData?._data" :secondary="tokenImage?._data" @click="uploadImage">Upload NFT image</Btn>
-                        <Btn :disabled="disableBtns || !jsonData?._data" :secondary="bookletImage?._data" @click="uploadBooklet">Upload booklet image</Btn>
+                        <Btn :disabled="disableBtns" :secondary="!!jsonData?._data" @click="uploadJson">Upload jsonData</Btn>
+                        <Btn :disabled="disableBtns || !jsonData?._data" :secondary="!!tokenImage?._data" @click="uploadImage">Upload NFT image</Btn>
+                        <Btn :disabled="disableBtns || !jsonData?._data" :secondary="!!bookletImage?._data" @click="uploadBooklet">Upload booklet image</Btn>
                         <p>Select background color:<br><input type="color" class="w-full h-8" v-model="backgroundColor"></p>
                         <Btn :disabled="disableBtns || !canValidate" :secondary="!shouldValidate" @click="validate">Validate</Btn>
                         <Btn

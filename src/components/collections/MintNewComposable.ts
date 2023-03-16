@@ -1,7 +1,8 @@
 import { backendManager } from '@/Backend';
+import { chainBriqs } from '@/builder/ChainBriqs';
 import { SetData } from '@/builder/SetData';
 import contractStore, { ADDRESSES } from '@/chain/Contracts';
-import { getCurrentNetwork } from '@/chain/Network';
+import { getChainIdFromNetwork, getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
 import { Fetchable } from '@/DataFetching';
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
@@ -101,7 +102,7 @@ const sign = async () => {
             ],
         },
         domain: {
-            'name': 'briq', 'version': '1', 'chainId': constants.StarknetChainId.TESTNET,
+            'name': 'briq', 'version': '1', 'chainId': getChainIdFromNetwork(getCurrentNetwork()),
         },
         primaryType: 'Message',
         message: {
@@ -112,22 +113,37 @@ const sign = async () => {
 
 const doValidate = async () => {
     validatedData.value = new Fetchable();
-    await validatedData.value.fetch(() => backendManager.post('v1/admin/starknet-testnet/ducks_everywhere/validate_new_nft', {
-        token_id: tokenId.value,
-        data: getSetData(),
-        owner: maybeStore.value!.userWalletAddress!,
-        signature: signature.value?._data || [0, 0],
-        preview_base64: tokenImage.value?._data,
-        booklet_base64: bookletImage.value?._data,
-        background_color: backgroundColor.value.slice(1),
-    }));
+    await validatedData.value.fetch(async () => {
+        if (chainBriqs.value!.getNbBriqs() < jsonData.value!._data!.getNbBriqs())
+            throw new Error('Not enough briqs to mint the set');
+        return await backendManager.post(`v1/admin/${getCurrentNetwork()}/ducks_everywhere/validate_new_nft`, {
+            token_id: tokenId.value,
+            data: getSetData(),
+            owner: maybeStore.value!.userWalletAddress!,
+            signature: signature.value?._data || [0, 0],
+            preview_base64: tokenImage.value?._data,
+            booklet_base64: bookletImage.value?._data,
+            background_color: backgroundColor.value.slice(1),
+        })
+    });
     if (validatedData.value._error && validatedData.value._error?.message.indexOf('Invalid signature') !== -1)
         signature.value = undefined;
 }
 
+const estimateFee = async () => {
+    return;
+    const bookletTokenId = '0x' + num.toBN('3').add(num.toBN(validatedData.value?._data?.serial_number).mul(num.toBN('0x1000000000000000000000000000000000000000000000000'))).toString(16);
+    const tx = await maybeStore.value!.signer!.estimateInvokeFee({
+        contractAddress: ADDRESSES[getCurrentNetwork()].booklet,
+        entrypoint: 'mint_',
+        calldata: [maybeStore.value!.userWalletAddress, bookletTokenId, compiledShape.value!._data!.class_hash],
+    });
+    console.log('toto', tx);
+}
+
 const compileShape = async () => {
     compiledShape.value = new Fetchable();
-    await compiledShape.value.fetch(() => backendManager.post('v1/admin/starknet-testnet/ducks_everywhere/compile_shape', {
+    await compiledShape.value.fetch(async () => await backendManager.post(`v1/admin/${getCurrentNetwork()}/ducks_everywhere/compile_shape`, {
         data: getSetData(),
         serial_number: validatedData.value!._data!.serial_number,
         token_id: tokenId.value,
@@ -164,7 +180,7 @@ const mintToken = async () => {
                 bookletTokenId,
             ),
         ]);
-        backendManager.post('v1/admin/starknet-testnet/ducks_everywhere/mint_new_nft', {
+        backendManager.post(`v1/admin/${getCurrentNetwork()}/ducks_everywhere/mint_new_nft`, {
             token_id: tokenId.value,
             data: getSetData(),
             owner: maybeStore.value!.userWalletAddress!,
@@ -204,6 +220,7 @@ export function useMintNew() {
 
         signature,
         validatedData,
+        estimateFee,
         compiledShape,
         mintResult,
 
