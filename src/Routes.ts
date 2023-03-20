@@ -53,11 +53,6 @@ export const routes = [
         },
     },
     {
-        path: '/collections/test',
-        name: 'Test',
-        component: () => import('@/components/collections/Test.vue'),
-    },
-    {
         path: '/debug/:address?',
         name: 'Debug',
         component: async () => {
@@ -129,14 +124,6 @@ export const routes = [
         component: async () => {
             await loadExtraPages();
             return loader.SetPageVue;
-        },
-    },
-    {
-        path: '/image',
-        name: 'Image loader',
-        component: async () => {
-            await loadExtraPages();
-            return loader.ImageLoaderVue;
         },
     },
     {
