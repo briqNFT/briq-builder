@@ -77,7 +77,7 @@ class BackendManager {
         if (body)
             dat.body = JSON.stringify(body);
 
-        const req = await fetch(`${this.url}/${endpoint}`, dat);
+        const req = await fetch(encodeURI(`${this.url}/${endpoint}`), dat);
         if (!req.ok)
             throw new Error('HTTP error: ' + (await req.json())?.detail ?? 'unknown error');
         return req.json();

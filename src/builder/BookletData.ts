@@ -41,7 +41,7 @@ const perNetworkStaticData = <T extends object>(query: (network: string, prop: s
 }
 
 export const bookletDataStore = perNetworkStaticData(async (network: string, booklet: bookletId): Promise<BookletData> => {
-    return backendManager.fetch(`v1/booklet/data/${network}/${booklet}.json`);
+    return backendManager.fetch(`v1/booklet/data/${network}/${encodeURIComponent(booklet)}.json`);
 });
 
 export function getStepImgSrc(booklet: bookletId, page: number) {

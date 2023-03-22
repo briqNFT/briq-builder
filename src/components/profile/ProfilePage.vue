@@ -272,7 +272,7 @@ div[data-name='menu'] button {
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <RouterLink :to="`box/${token_id}`" v-for="token_id, i of inventoryBoxes" :key="`${token_id}_${i}`">
+                        <RouterLink :to="`box/${token_id.split('/').map(encodeURIComponent).join('/')}`" v-for="token_id, i of inventoryBoxes" :key="`${token_id}_${i}`">
                             <BoxCard mode="INVENTORY" :token-name="token_id"/>
                         </routerlink>
                     </div>
@@ -288,7 +288,7 @@ div[data-name='menu'] button {
                     </div>
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
                         <div v-for="booklet of inventoryBooklets" :key="booklet">
-                            <RouterLink :to="`booklet/${booklet}`">
+                            <RouterLink :to="`booklet/${booklet.split('/').map(encodeURIComponent).join('/')}`">
                                 <BookletCard :box-id="booklet"/>
                             </RouterLink>
                         </div>

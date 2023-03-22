@@ -133,28 +133,28 @@ let initialCall = () => {
                 );
             },
             coverItemRoute() {
-                return (token_id: string, lowQuality = false) => computed(() => {
-                    return backendManager.getRoute(`box/cover_item/${this.network}/${token_id}.${lowQuality ? 'jpg' : 'png'}`)
+                return (booklet_id: string, lowQuality = false) => computed(() => {
+                    return backendManager.getRoute(`box/cover_item/${this.network}/${encodeURIComponent(booklet_id)}.${lowQuality ? 'jpg' : 'png'}`)
                 }).value;
             },
             coverBoxRoute() {
-                return (token_id: string, lowQuality = false) => computed(() => {
-                    return backendManager.getRoute(`box/cover_box/${this.network}/${token_id}.${lowQuality ? 'jpg' : 'png'}`)
+                return (booklet_id: string, lowQuality = false) => computed(() => {
+                    return backendManager.getRoute(`box/cover_box/${this.network}/${encodeURIComponent(booklet_id)}.${lowQuality ? 'jpg' : 'png'}`)
                 }).value;
             },
             coverBookletRoute() {
-                return (token_id: string, lowQuality = false) => computed(() => {
-                    return backendManager.getRoute(`box/cover_booklet/${this.network}/${token_id}.${lowQuality ? 'jpg' : 'png'}`)
+                return (booklet_id: string, lowQuality = false) => computed(() => {
+                    return backendManager.getRoute(`box/cover_booklet/${this.network}/${encodeURIComponent(booklet_id)}.${lowQuality ? 'jpg' : 'png'}`)
                 }).value;
             },
             boxTexture() {
-                return (token_id: string) => computed(() => {
-                    return backendManager.getRoute(`box/texture/${this.network}/${token_id}.png`)
+                return (booklet_id: string) => computed(() => {
+                    return backendManager.getRoute(`box/texture/${this.network}/${encodeURIComponent(booklet_id)}.png`)
                 }).value;
             },
             bookletTexture() {
-                return (token_id: string) => computed(() => {
-                    return backendManager.getRoute(`booklet/texture/${this.network}/${token_id}.png`)
+                return (booklet_id: string) => computed(() => {
+                    return backendManager.getRoute(`booklet/texture/${this.network}/${encodeURIComponent(booklet_id)}.png`)
                 }).value;
             },
         },
