@@ -22,6 +22,7 @@ import { canCopyPaste } from '@/builder/inputs/input_states/CopyPaste';
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { builderHistory } from '@/builder/BuilderHistory';
 import { PlaceOrRemoveBriqs } from '@/builder/BuilderActions';
+import ImageLoader from './modals/ImageLoader.vue';
 
 const props = withDefaults(defineProps<{
     open?: boolean,
@@ -59,6 +60,8 @@ const importSetFromFile = async () => {
             let file = await fileHandle.getFile();
             if ((file.name as string).endsWith('.vox'))
                 await pushModal(ImportVoxModalVue, { file: file, data: file.arrayBuffer() });
+            else if (file.type.startsWith('image'))
+                await pushModal(ImageLoader, { file: file, data: file.arrayBuffer() });
             else {
                 let contents = JSON.parse(await file.text());
                 // For now, overwrite briqs in Realms/default
