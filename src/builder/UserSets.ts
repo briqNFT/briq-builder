@@ -100,6 +100,7 @@ class UserSetStore implements perUserStorable {
     }
 
     async fetchData() {
+        let success = true;
         try {
             this._sets = (await backendManager.fetch(`v1/user/data/${this.user_id}`)).sets;
             this._status = 'LOADED';
@@ -108,6 +109,7 @@ class UserSetStore implements perUserStorable {
             // If we were loading, we've already loaded once, so keep on trucking.
             if (this._status === 'FETCHING')
                 this._status = 'ERROR';
+            success = false;
         }
         // Clean up all hidden sets that we have succesfully minted
         for (const setId of this.sets) {
@@ -133,11 +135,13 @@ class UserSetStore implements perUserStorable {
                 } catch(_) {
                     if (APP_ENV === 'dev')
                         console.error(_);
+                    success = false;
                 }
+        return success;
     }
 
     async poll() {
-        await this.fetchData();
+        const success = await this.fetchData();
         const network = this.user_id.split('/')[0];
         for (const setId in this.metadata)
             if (this.metadata[setId].status === 'TENTATIVE' && this._sets.indexOf(setId) !== -1)  {
@@ -186,7 +190,7 @@ class UserSetStore implements perUserStorable {
                 delete this.metadata[setId];
             }
         }
-        setTimeout(() => this.poll(), 10000);
+        setTimeout(() => this.poll(), success ? 10000 : 60000);
     }
 
     async mintSet(token_hint: string, data: any, image: string | undefined) {

@@ -38,11 +38,13 @@ class UserBookletsStore extends GeneralizedUserItem {
                 const booklet_id = setsManager.setsInfo[setId].booklet;
                 if (booklet_id && this.booklets.indexOf(booklet_id) === -1)
                     setsManager.deleteLocalSet(setId);
-
             }
         } catch(ex) {
             console.error(ex);
+            this.polling = setTimeout(() => this._fetchData(), 60000);
+            return;
         }
+        this.polling = setTimeout(() => this._fetchData(), 10000);
     }
 
     get booklets() {
@@ -63,7 +65,7 @@ class UserBookletsStore extends GeneralizedUserItem {
         }
         */
         super.onEnter();
-        this.polling = setInterval(() => this._fetchData(), 10000);
+        this.polling = setTimeout(() => this._fetchData(), 10000);
     }
 
     onLeave() {
