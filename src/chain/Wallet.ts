@@ -12,7 +12,8 @@ import { setWalletInitComplete } from './WalletLoading';
 import { reactive } from 'vue';
 import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
-import { connect, disconnect, StarknetWindowObject } from 'get-starknet';
+import type { StarknetWindowObject } from 'get-starknet';
+import { connect, disconnect } from '@argent/get-starknet'
 
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider';
@@ -20,6 +21,12 @@ import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider'
 import { injectController, SupportedChainIds } from '@cartridge/controller';
 
 export type UserID = string;
+
+const WEB_WALLET_URL = {
+    'prod': 'https://web.argent.xyz',
+    'test': 'https://web.hydrogen.argent47.net',
+    'dev': 'https://web.hydrogen.argent47.net',
+}[APP_ENV];
 
 export class WalletStore {
     signer: undefined | AccountInterface = undefined;
@@ -59,7 +66,7 @@ export class WalletStore {
                 window.localStorage.setItem('user_address', this.user_id || '');
         });
 
-        connect({ modalMode: 'neverAsk' }).then(cwo => {
+        connect({ modalMode: 'neverAsk', webWalletUrl: WEB_WALLET_URL }).then(cwo => {
             if (!cwo)
                 return;
             cwo.isPreauthorized().then(yes => {
@@ -89,7 +96,7 @@ export class WalletStore {
     async ensureEnabled(showList = false) {
         if (this.starknetObject?.isConnected)
             return;
-        const cwo = await connect({ modalMode: 'canAsk' });
+        const cwo = await connect({ modalMode: 'canAsk', webWalletUrl: WEB_WALLET_URL });
         if (cwo)
             await this.enableWallet(cwo);
         else if (!showList)
@@ -100,7 +107,7 @@ export class WalletStore {
     }
 
     async openWalletSelector() {
-        const cwo = await connect({ modalMode: 'alwaysAsk' });
+        const cwo = await connect({ modalMode: 'alwaysAsk', webWalletUrl: WEB_WALLET_URL });
         if (cwo)
             // Don't await this, we don't care
             this.enableWallet(cwo);
@@ -108,7 +115,8 @@ export class WalletStore {
 
     async enableWallet(starknetObj: StarknetWindowObject) {
         this.starknetObject = starknetObj;
-        await this.starknetObject.enable({ starknetVersion: 'v4' })
+        if (!this.starknetObject?.isConnected)
+            await this.starknetObject.enable({ starknetVersion: 'v4' })
         await this.setSignerFromGSW();
         this.starknetObject.on('accountsChanged', () => this.setSignerFromGSW());
     }
