@@ -15,6 +15,7 @@
     "lint-fix": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"
   },
   "dependencies": {
+    "@argent/get-starknet": "^6.0.3",
     "@cartridge/controller": "^0.3.14",
     "@google/model-viewer": "^3.0",
     "@jaames/iro": "^5.5",

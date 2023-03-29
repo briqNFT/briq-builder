@@ -12,7 +12,9 @@ import { setWalletInitComplete } from './WalletLoading';
 import { reactive } from 'vue';
 import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
-import { connect, disconnect, StarknetWindowObject } from 'get-starknet';
+//import { connect, disconnect, StarknetWindowObject } from 'get-starknet';
+import type { StarknetWindowObject } from 'get-starknet';
+import { connect, disconnect } from '@argent/get-starknet'
 
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider';
