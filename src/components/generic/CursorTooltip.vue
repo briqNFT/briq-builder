@@ -1,6 +1,6 @@
 <template>
     <div
-        class="fixed z-[100] bg-grad-darker text-grad-lighter rounded pointer-events-none px-4 py-2 leading-normal shadow font-normal text-sm w-max whitespace-pre-line"
+        class="fixed z-[100000] bg-grad-darker text-grad-lighter rounded pointer-events-none px-4 py-2 leading-normal shadow font-normal text-sm w-max whitespace-pre-line"
         :style="getPositionCSS"
         ref="tooltipDiv">
         {{ tooltip }}

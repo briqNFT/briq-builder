@@ -6,6 +6,7 @@ import { hexUuid } from '@/Uuid';
 import { watchEffect, ref } from 'vue';
 import { useSetHelpers } from '@/components/builder/SetComposable';
 import { setsManager } from '@/builder/SetsManager';
+import Tooltip from '@/components/generic/Tooltip.vue';
 
 const { saveSetAndOpen } = useSetHelpers();
 
@@ -103,7 +104,7 @@ const toBriq = () => {
             const b = imageData[idx + 2];
             const a = imageData[idx + 3];
             if (a > 0.1)
-                data.placeBriq(x, height-y, 0, new Briq('0x1', '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')))
+                data.placeBriq(x, height - y - 1, 0, new Briq('0x1', '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')))
         }
     setsManager.registerLocalSet(data);
     saveSetAndOpen(data);
@@ -127,16 +128,22 @@ const toBriq = () => {
             <div>
                 <div class="flex flex-1 items-center flex-col mt-2">
                     Downscale factor
-                    <Slider class="mb-1" :min="1" :max="Math.min((rawImageData?.width || 32) / 4, (rawImageData?.height || 32) / 4)" v-model="pixelSize"/>
+                    <Tooltip tooltip="Generate one briq for each N pixel of the original image">
+                        <Slider class="mb-1" :min="1" :max="Math.min((rawImageData?.width || 32) / 4, (rawImageData?.height || 32) / 4)" v-model="pixelSize"/>
+                    </Tooltip>
                 </div>
                 <div class="flex">
                     <div class="flex flex-1 items-center flex-col">
                         Horizontal shift
-                        <Slider :min="Math.min(0, -Math.ceil(pixelSize/2) + 1)" :max="Math.floor(pixelSize/2)" v-model="pixelShiftX"/>
+                        <Tooltip tooltip="Shift the image horizontally to generate different pixels">
+                            <Slider :min="Math.min(0, -Math.ceil(pixelSize/2) + 1)" :max="Math.floor(pixelSize/2)" v-model="pixelShiftX"/>
+                        </Tooltip>
                     </div>
                     <div class="flex flex-1 items-center flex-col">
                         Vertical shift
-                        <Slider :min="Math.min(0, -Math.ceil(pixelSize/2) + 1)" :max="Math.floor(pixelSize/2)" v-model="pixelShiftY"/>
+                        <Tooltip tooltip="Shift the image vertically to generate different pixels">
+                            <Slider :min="Math.min(0, -Math.ceil(pixelSize/2) + 1)" :max="Math.floor(pixelSize/2)" v-model="pixelShiftY"/>
+                        </Tooltip>
                     </div>
                 </div>
             </div>
