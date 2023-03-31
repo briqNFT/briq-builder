@@ -3,32 +3,31 @@
 
 import { bookletDataStore } from './BookletData';
 
-import { MockAgent, setGlobalDispatcher } from 'undici';
-import type { Interceptable } from 'undici/types/mock-interceptor';
+import { backendManager as bm2 } from '@/Backend';
 
-let mockAgent: MockAgent;
-let mockPool: Interceptable;
+const mockBackendManager = (() => {
+    const ret = bm2;
+    ret.fetch = vitest.fn();
+    return ret;
+})()
 
 describe('Test Booklet data setup', () => {
     beforeEach(() => {
-        mockAgent = new MockAgent();
-        mockAgent.disableNetConnect(); // prevent actual requests to Discord
-        setGlobalDispatcher(mockAgent); // enabled the mock client to intercept requests
-        mockPool = mockAgent.get('http://localhost:5055');
-    });
-
-    afterEach(async () => {
-        await mockAgent.close();
+        vitest.clearAllMocks();
+        vitest.doMock('@/Backend', () => ({
+            backendManager: mockBackendManager,
+        }));
     });
 
     test('should create new fetchables and work correctly on success', async () => {
-        mockPool.intercept({
-            path: '/v1/booklet/data/test_network/test.json',
-            method: 'GET',
-        }).reply(() => ({
-            data: { test: true },
-            statusCode: 200,
-        }));
+        vitest.mocked(mockBackendManager.fetch).mockImplementation(async (path) => {
+            if (path === 'v1/booklet/data/test_network/test.json')
+                return {
+                    test: true,
+                }
+            throw new Error();
+        });
+
         const data = bookletDataStore['test_network']['test'];
         expect(data._data).toEqual(undefined);
         expect(data._fetch).toBeInstanceOf(Promise);
@@ -41,12 +40,14 @@ describe('Test Booklet data setup', () => {
     });
 
     test('should fail on error', async () => {
-        mockPool.intercept({
-            path: '/v1/booklet/data/test_network/test2.json',
-            method: 'GET',
-        }).reply(() => ({
-            statusCode: 500,
-        }));
+        vitest.mocked(mockBackendManager.fetch).mockImplementation(async (path) => {
+            if (path === '/v1/booklet/data/test_network/test2.json')
+                return {
+                    statusCode: 500,
+                }
+            throw new Error();
+        });
+
         const data = bookletDataStore['test_network']['test2'];
         expect(data._data).toEqual(undefined);
         expect(data._fetch).toBeInstanceOf(Promise);
@@ -63,12 +64,14 @@ describe('Test Booklet data setup', () => {
     });
 
     test('should fail on error (no explicit _fetch await)', async () => {
-        mockPool.intercept({
-            path: '/v1/booklet/data/test_network/test3.json',
-            method: 'GET',
-        }).reply(() => ({
-            statusCode: 500,
-        }));
+        vitest.mocked(mockBackendManager.fetch).mockImplementation(async (path) => {
+            if (path === '/v1/booklet/data/test_network/test3.json')
+                return {
+                    statusCode: 500,
+                }
+            throw new Error();
+        });
+
         const data = bookletDataStore['test_network']['test3'];
         expect(data._data).toEqual(undefined);
         expect(data._fetch).toBeInstanceOf(Promise);

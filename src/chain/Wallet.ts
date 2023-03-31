@@ -17,7 +17,6 @@ import { connect, disconnect, StarknetWindowObject } from 'get-starknet';
 import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider } from './BlockchainProvider';
-import { addBreadCrumb } from '@/Monitoring';
 
 import { injectController, SupportedChainIds } from '@cartridge/controller';
 
