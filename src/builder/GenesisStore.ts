@@ -1,6 +1,5 @@
-import { computed, watchEffect } from 'vue';
+import { shallowReactive, reactive, watchEffect } from 'vue';
 
-import { defineStore } from 'pinia'
 import { backendManager } from '@/Backend';
 import { CHAIN_NETWORKS, getCurrentNetwork } from '@/chain/Network';
 import { APP_ENV } from '@/Meta';
@@ -97,95 +96,78 @@ export interface BoxMetadata {
 }
 
 
-let initialCall = () => {
-    const useStore = defineStore('genesis_data', {
-        state: () => {
-            return {
-                network: { dev: 'mock', test: 'starknet-testnet', prod: 'starknet' }[APP_ENV],
-                _metadata: {} as { [box_uid: string]: Fetchable<BoxMetadata> },
-                _saledata: {} as { [box_uid: string]: Fetchable<SaleData> },
-                _boxes: {} as { [theme_uid: string]: Fetchable<string[]> },
-                _themedata: {} as { [theme_uid: string]: Fetchable<ThemeData> },
-            }
-        },
-        getters: {
-            metadata(state) {
-                return autoMultiFetchable(
-                    state._metadata,
-                    async (data: Promise<any>) => await data as BoxMetadata,
-                    // This leverages backend cache, so if we make the same request a lot (such as when loading the theme page) it only goes through once.
-                    async (prop) => await backendManager.fetch(`v1/box/data_all/${state.network}/${prop.split('/')[0]}`),
-                );
-                return autoFetchable<BoxMetadata>(state._metadata, (prop) => backendManager.fetch(`v1/box/data/${state.network}/${prop}.json`));
-            },
-            themedata(state) {
-                return autoFetchable(state._themedata, async (theme_id) => new ThemeData(await backendManager.fetch(`v1/${state.network}/${theme_id}/data`)));
-            },
-            boxes(state) {
-                return autoFetchable(state._boxes as any, (theme_id) => backendManager.fetch(`v1/${state.network}/${theme_id}/boxes`));
-            },
-            saledata(state) {
-                return autoMultiFetchable(
-                    state._saledata,
-                    async (data: Promise<any>) => new SaleData(await data),
-                    // This leverages backend cache, so if we make the same request a lot (such as when loading the theme page) it only goes through once.
-                    async (prop) => await backendManager.fetch(`v1/${state.network}/${prop.split('/')[0]}/saledata`),
-                );
-            },
-            coverItemRoute() {
-                return (booklet_id: string, lowQuality = false) => computed(() => {
-                    return backendManager.getRoute(`box/cover_item/${this.network}/${encodeURIComponent(booklet_id)}.${lowQuality ? 'jpg' : 'png'}`)
-                }).value;
-            },
-            coverBoxRoute() {
-                return (booklet_id: string, lowQuality = false) => computed(() => {
-                    return backendManager.getRoute(`box/cover_box/${this.network}/${encodeURIComponent(booklet_id)}.${lowQuality ? 'jpg' : 'png'}`)
-                }).value;
-            },
-            coverBookletRoute() {
-                return (booklet_id: string, lowQuality = false) => computed(() => {
-                    return backendManager.getRoute(`box/cover_booklet/${this.network}/${encodeURIComponent(booklet_id)}.${lowQuality ? 'jpg' : 'png'}`)
-                }).value;
-            },
-            boxTexture() {
-                return (booklet_id: string) => computed(() => {
-                    return backendManager.getRoute(`box/texture/${this.network}/${encodeURIComponent(booklet_id)}.png`)
-                }).value;
-            },
-            bookletTexture() {
-                return (booklet_id: string) => computed(() => {
-                    return backendManager.getRoute(`booklet/texture/${this.network}/${encodeURIComponent(booklet_id)}.png`)
-                }).value;
-            },
-        },
-        actions: {
-            setNetwork(network: CHAIN_NETWORKS) {
-                this.network = network;
-                this.refreshBoxes();
-            },
-            refreshBoxes() {
-                for (const key in this._themedata)
-                    delete this._themedata[key];
-                for (const key in this._boxes)
-                    delete this._boxes[key];
-                for (const key in this._saledata)
-                    delete this._saledata[key];
-                for (const key in this._metadata)
-                    delete this._metadata[key];
-                for (const key in this._boxes)
-                    delete this._boxes[key];
-                //autoFetchable(this._boxes as any, (theme_id) => backendManager.fetch(`v1/${this.network}/${theme_id}/boxes`));
-            },
-        },
-    })
-    watchEffect(() => {
-        const store = useStore();
-        const ntwk = getCurrentNetwork();
-        if (store.network !== ntwk)
-            store.setNetwork(ntwk);
-    })
-    initialCall = useStore;
-    return useStore();
+class GenesisStore {
+    network = { dev: 'mock', test: 'starknet-testnet', prod: 'starknet' }[APP_ENV];
+    _metadata = reactive({}) as { [box_uid: string]: Fetchable<BoxMetadata> };
+    _saledata = reactive({}) as { [box_uid: string]: Fetchable<SaleData> };
+    _boxes = reactive({}) as { [theme_uid: string]: Fetchable<string[]> };
+    _themedata = reactive({}) as { [theme_uid: string]: Fetchable<ThemeData> };
+
+    metadata!: { [box_uid: string]: Fetchable<BoxMetadata> };
+    saledata!: { [box_uid: string]: Fetchable<SaleData> };
+    boxes!: { [theme_uid: string]: Fetchable<string[]> };
+    themedata!: { [theme_uid: string]: Fetchable<ThemeData> };
+
+
+    init() {
+        this.metadata = autoMultiFetchable(
+            this._metadata,
+            async (data: Promise<any>) => await data as BoxMetadata,
+            // This leverages backend cache, so if we make the same request a lot (such as when loading the theme page) it only goes through once.
+            async (prop) => await backendManager.fetch(`v1/box/data_all/${this.network}/${prop.split('/')[0]}`),
+        );
+        this.themedata = autoFetchable(this._themedata, async (theme_id) => new ThemeData(await backendManager.fetch(`v1/${this.network}/${theme_id}/data`)));
+        this.boxes = autoFetchable(this._boxes as any, (theme_id) => backendManager.fetch(`v1/${this.network}/${theme_id}/boxes`));
+        this.saledata = autoMultiFetchable(
+            this._saledata,
+            async (data: Promise<any>) => new SaleData(await data),
+            // This leverages backend cache, so if we make the same request a lot (such as when loading the theme page) it only goes through once.
+            async (prop) => await backendManager.fetch(`v1/${this.network}/${prop.split('/')[0]}/saledata`),
+        );
+    }
+
+    coverItemRoute(booklet_id: string, lowQuality = false) {
+        return backendManager.getRoute(`box/cover_item/${this.network}/${encodeURIComponent(booklet_id)}.${lowQuality ? 'jpg' : 'png'}`)
+    }
+    coverBoxRoute(booklet_id: string, lowQuality = false) {
+        return backendManager.getRoute(`box/cover_box/${this.network}/${encodeURIComponent(booklet_id)}.${lowQuality ? 'jpg' : 'png'}`)
+    }
+    coverBookletRoute(booklet_id: string, lowQuality = false) {
+        return backendManager.getRoute(`box/cover_booklet/${this.network}/${encodeURIComponent(booklet_id)}.${lowQuality ? 'jpg' : 'png'}`)
+    }
+    boxTexture(booklet_id: string) {
+        return backendManager.getRoute(`box/texture/${this.network}/${encodeURIComponent(booklet_id)}.png`)
+    }
+    bookletTexture(booklet_id: string) {
+        return backendManager.getRoute(`booklet/texture/${this.network}/${encodeURIComponent(booklet_id)}.png`)
+    }
+
+    setNetwork(network: CHAIN_NETWORKS) {
+        this.network = network;
+        this.refreshBoxes();
+    }
+
+    refreshBoxes() {
+        for (const key in this._themedata)
+            delete this._themedata[key];
+        for (const key in this._boxes)
+            delete this._boxes[key];
+        for (const key in this._saledata)
+            delete this._saledata[key];
+        for (const key in this._metadata)
+            delete this._metadata[key];
+        for (const key in this._boxes)
+            delete this._boxes[key];
+    }
 }
 
-export const useGenesisStore = initialCall;
+const genesisStore = shallowReactive(new GenesisStore());
+genesisStore.init();
+
+watchEffect(() => {
+    const ntwk = getCurrentNetwork();
+    if (genesisStore.network !== ntwk)
+        genesisStore.setNetwork(ntwk);
+})
+
+export const useGenesisStore = () => genesisStore;

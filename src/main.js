@@ -11,10 +11,6 @@ window.gsw = true;
 import App from './App.vue';
 export var app = createApp(App);
 
-// Global pinia store
-import { createPinia } from 'pinia'
-app.use(createPinia())
-
 // Routing
 import { router } from './Routes';
 app.use(router);
