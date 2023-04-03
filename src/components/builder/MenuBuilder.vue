@@ -134,7 +134,7 @@ const onCloseMenu = () => {
                 <template v-if="mode === 'MENU'">
                     <div class="max-h-[80vh] tall-md:max-h-[90vh] overflow-auto flex flex-col">
                         <Btn @click="renameSet" no-background>Rename set</Btn>
-                        <Btn @click="importSetFromFile()" no-background>Import from file</Btn>
+                        <Btn @click="importSetFromFile()" no-background>Import json&ThinSpace;/&ThinSpace;vox&ThinSpace;/&ThinSpace;image</Btn>
                         <Btn @click="downloadSet(currentSet)" no-background>Save to computer</Btn>
                         <hr>
                         <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>

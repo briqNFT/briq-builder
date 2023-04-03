@@ -3,7 +3,7 @@ import { Briq } from '@/builder/Briq';
 import { SetData } from '@/builder/SetData';
 import Slider from '@/components/generic/Slider.vue';
 import { hexUuid } from '@/Uuid';
-import { watchEffect, ref } from 'vue';
+import { watchEffect, ref, computed } from 'vue';
 import { useSetHelpers } from '@/components/builder/SetComposable';
 import { setsManager } from '@/builder/SetsManager';
 import Tooltip from '@/components/generic/Tooltip.vue';
@@ -42,6 +42,7 @@ const pixelSize = ref(1);
 const pixelShiftX = ref(0);
 const pixelShiftY = ref(0);
 
+const outputBriqs = computed(() => pixelSize.value && (canvas.value?.width * canvas.value?.height || 0))
 
 watchEffect(() => {
     if (!rawImageData.value || !canvas.value || !canvas2.value)
@@ -72,17 +73,6 @@ watchEffect(() => {
     ctx2.drawImage(canvas.value,
                    0, 0, scaledWidth, scaledHeight,
                    0, 0, width, height);
-    /*
-    const circleSize = Math.floor(Math.min(width, height) / 2);
-    const imageData = ctx2.getImageData(0, 0, width, height);
-    for (let x = 0; x < width; x++)
-        for (let y = 0; y < height; y++) {
-            const dist = (width / 2 - x) ** 2 + (height / 2 - y) ** 2;
-            if (dist > circleSize * circleSize)
-                imageData.data[y * width * 4 + x * 4 + 3] = 0.0;
-        }
-    ctx2.putImageData(imageData, 0, 0, 0, 0, width, height);
-    */
 })
 
 const toBriq = () => {
@@ -136,21 +126,21 @@ const toBriq = () => {
                     <div class="flex flex-1 items-center flex-col">
                         Horizontal shift
                         <Tooltip tooltip="Shift the image horizontally to generate different pixels">
-                            <Slider :min="Math.min(0, -Math.ceil(pixelSize/2) + 1)" :max="Math.floor(pixelSize/2)" v-model="pixelShiftX"/>
+                            <Slider :min="-Math.floor(pixelSize/2)" :max="Math.floor(pixelSize/2)" v-model="pixelShiftX"/>
                         </Tooltip>
                     </div>
                     <div class="flex flex-1 items-center flex-col">
                         Vertical shift
                         <Tooltip tooltip="Shift the image vertically to generate different pixels">
-                            <Slider :min="Math.min(0, -Math.ceil(pixelSize/2) + 1)" :max="Math.floor(pixelSize/2)" v-model="pixelShiftY"/>
+                            <Slider :min="-Math.floor(pixelSize/2)" :max="Math.floor(pixelSize/2)" v-model="pixelShiftY"/>
                         </Tooltip>
                     </div>
                 </div>
             </div>
             <div class="mt-4 flex justify-between items-center gap-8">
                 <p>
-                    Total number of briqs: {{ canvas?.width * canvas?.height || 0 }}
-                    <span v-if="(canvas?.width * canvas?.height || 0) > 5000" class="text-xs"><br>
+                    Total number of briqs: {{ outputBriqs }}
+                    <span v-if="outputBriqs > 5000" class="text-xs"><br>
                         <i class="fas fa-exclamation-triangle text-info-error"/>
                         Importing such a large image may be very slow
                     </span>

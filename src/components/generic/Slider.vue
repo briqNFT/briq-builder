@@ -29,6 +29,12 @@ const relativeValue = ref(0);
 const actualValue = ref(0);
 
 const setValue = (value: any) => {
+    if (props.max === props.min) {
+        relativeValue.value = 0.5;
+        actualValue.value = props.min;
+        emit('update:modelValue', props.min);
+        return;
+    }
     value = Math.max(props.min, Math.min(props.max, value));
     actualValue.value = value;
     relativeValue.value = (value - props.min) / (props.max - props.min);
@@ -98,7 +104,7 @@ div[data-test="slider"]:hover [data-test="slider-toggle"], [data-test="slider-to
                     <p v-for="i in Array((max - min) / step + 1)" class="h-auto my-1 ring-[1px] ring-darker"/>
                 </div>
                 <!-- When not showing steps, show a 'progress bar'. -->
-                <div v-else="" class="visible absolute left-0 top-[calc(50%-2px)] h-[3px] bg-grad-light w-full"/>
+                <div v-else class="visible absolute left-0 top-[calc(50%-2px)] h-[3px] bg-grad-light w-full"/>
 
                 <!-- show how far along we are -->
                 <div class="visible absolute left-0 top-[calc(50%-2px)] h-[3px] bg-primary" :style="{ width: `${relativeValue*100}%`}"/>
