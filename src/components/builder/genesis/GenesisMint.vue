@@ -239,7 +239,7 @@ h4 {
         </div>
         <div class="flex items-center justify-center mt-6">
             <a href="https://www.dappland.com/briq" rel="noopener" target="_blank">
-                <iframe src="https://www.dappland.com/widgets/rating?dappname=briq" width="260" height="176" frameBorder="0" title="Dappland Widget" class="rounded-md pointer-events-none"/>
+                <iframe src="https://www.dappland.com/widgets/rating?dappname=briq" width="260" height="176" frameBorder="0" title="Dappland Widget" class="rounded-md pointer-events-none overflow-hidden"/>
             </a>
         </div>
     </div>
