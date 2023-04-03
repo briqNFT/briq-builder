@@ -28,6 +28,10 @@ const loadImage = async () => {
     image.onload = () => {
         URL.revokeObjectURL(url);
         rawImageData.value = image;
+        if (image.width > 400 || image.height > 400)
+            pixelSize.value = 16;
+        else if (image.width > 200 || image.height > 200)
+            pixelSize.value = 4;
     };
     image.src = url;
 }
