@@ -61,7 +61,7 @@ export class WalletStore {
                 window.localStorage.setItem('user_address', this.user_id || '');
         });
 
-        connect({ modalMode: 'neverAsk' }).then(cwo => {
+        connect({ modalMode: 'neverAsk', webWalletUrl: 'https://web.hydrogen.argent47.net' }).then(cwo => {
             if (!cwo)
                 return;
             cwo.isPreauthorized().then(yes => {
@@ -91,7 +91,7 @@ export class WalletStore {
     async ensureEnabled(showList = false) {
         if (this.starknetObject?.isConnected)
             return;
-        const cwo = await connect({ modalMode: 'canAsk' });
+        const cwo = await connect({ modalMode: 'canAsk', webWalletUrl: 'https://web.hydrogen.argent47.net' });
         if (cwo)
             await this.enableWallet(cwo);
         else if (!showList)
@@ -102,7 +102,7 @@ export class WalletStore {
     }
 
     async openWalletSelector() {
-        const cwo = await connect({ modalMode: 'alwaysAsk' });
+        const cwo = await connect({ modalMode: 'alwaysAsk', webWalletUrl: 'https://web.hydrogen.argent47.net' });
         if (cwo)
             // Don't await this, we don't care
             this.enableWallet(cwo);
