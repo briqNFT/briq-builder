@@ -1,7 +1,6 @@
 import { Briq } from './Briq';
 import { toRef } from 'vue';
 import { logDebug, pushMessage } from '../Messages';
-import { reportError } from '../Monitoring';
 
 import { backendManager } from '@/Backend';
 import { perUserStorable, perUserStore } from './PerUserStore';
@@ -133,7 +132,7 @@ export class ChainBriqs implements perUserStorable {
                 }
                 if (update.status === 'DELETING_SOON') {
                     if (byMaterial[material])
-                        byMaterial[material].ft_balance = Math.max(0, this.byMaterial[material].ft_balance - update.quantity);
+                        byMaterial[material].ft_balance = Math.max(0, byMaterial[material].ft_balance - update.quantity);
                 } else {
                     if (!byMaterial[material])
                         byMaterial[material] = { ft_balance: 0, nft_ids: [] };
