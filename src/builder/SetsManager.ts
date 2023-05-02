@@ -144,11 +144,11 @@ export class SetsManager {
                 return this.setsInfo[sid].setData;
     }
 
-    createLocalSet() {
+    createLocalSet(): SetData {
         const set = new SetData(hexUuid());
         set.name = 'New Set';
-        this.registerLocalSet(set);
-        return set;
+        // Return from the set info so that the object is the reactive proxy.
+        return this.registerLocalSet(set).setData
     }
 
     /**
@@ -159,7 +159,7 @@ export class SetsManager {
             throw new Error('Set with ID ' + set.id + ' already exists');
         this.setsInfo[set.id] = new SetInfo(set.id, set);
         this.setList.push(set.id);
-        return this.setsInfo[set.id];
+        return this.setsInfo[set.id]
     }
 
     /**
@@ -258,37 +258,36 @@ export function checkForInitialGMSet() {
             CONF.theme === 'realms'
                 ? defaultModel
                 : [
-                    { pos: [4, 0, 0], color: '#c5ac73' },
-                    { pos: [3, 0, 0], color: '#c5ac73' },
-                    { pos: [2, 0, 0], color: '#c5ac73' },
-                    { pos: [1, 0, 0], color: '#c5ac73' },
-                    { pos: [1, 1, 0], color: '#e6de83' },
-                    { pos: [1, 2, 0], color: '#e6de83' },
-                    { pos: [2, 2, 0], color: '#e6de83' },
-                    { pos: [4, 1, 0], color: '#62bdf6' },
-                    { pos: [4, 2, 0], color: '#62bdf6' },
-                    { pos: [4, 3, 0], color: '#62bdf6' },
-                    { pos: [4, 4, 0], color: '#e6de83' },
-                    { pos: [3, 4, 0], color: '#416aac' },
-                    { pos: [2, 4, 0], color: '#416aac' },
-                    { pos: [1, 4, 0], color: '#416aac' },
-                    { pos: [-1, 0, 0], color: '#394183' },
-                    { pos: [-5, 0, 0], color: '#416aac' },
-                    { pos: [-5, 1, 0], color: '#416aac' },
-                    { pos: [-5, 2, 0], color: '#416aac' },
-                    { pos: [-5, 3, 0], color: '#416aac' },
-                    { pos: [-5, 4, 0], color: '#416aac' },
-                    { pos: [-1, 1, 0], color: '#394183' },
-                    { pos: [-1, 2, 0], color: '#394183' },
-                    { pos: [-1, 3, 0], color: '#394183' },
-                    { pos: [-1, 4, 0], color: '#394183' },
-                    { pos: [-2, 4, 0], color: '#e6de83' },
+                    { pos: [-4, 0, 0], color: '#c5ac73' },
+                    { pos: [-3, 0, 0], color: '#c5ac73' },
+                    { pos: [-2, 0, 0], color: '#c5ac73' },
+                    { pos: [-1, 0, 0], color: '#c5ac73' },
+                    { pos: [-1, 1, 0], color: '#e6de83' },
+                    { pos: [-1, 2, 0], color: '#e6de83' },
+                    { pos: [-2, 2, 0], color: '#e6de83' },
+                    { pos: [-4, 1, 0], color: '#62bdf6' },
+                    { pos: [-4, 2, 0], color: '#62bdf6' },
+                    { pos: [-4, 3, 0], color: '#62bdf6' },
                     { pos: [-4, 4, 0], color: '#e6de83' },
-                    { pos: [-3, 3, 0], color: '#c5ac73' },
+                    { pos: [-3, 4, 0], color: '#416aac' },
+                    { pos: [-2, 4, 0], color: '#416aac' },
+                    { pos: [-1, 4, 0], color: '#416aac' },
+                    { pos: [1, 0, 0], color: '#394183' },
+                    { pos: [5, 0, 0], color: '#416aac' },
+                    { pos: [5, 1, 0], color: '#416aac' },
+                    { pos: [5, 2, 0], color: '#416aac' },
+                    { pos: [5, 3, 0], color: '#416aac' },
+                    { pos: [5, 4, 0], color: '#416aac' },
+                    { pos: [1, 1, 0], color: '#394183' },
+                    { pos: [1, 2, 0], color: '#394183' },
+                    { pos: [1, 3, 0], color: '#394183' },
+                    { pos: [1, 4, 0], color: '#394183' },
+                    { pos: [2, 4, 0], color: '#e6de83' },
+                    { pos: [4, 4, 0], color: '#e6de83' },
+                    { pos: [3, 3, 0], color: '#c5ac73' },
                 ];
         for (const briqData of data)
             set.placeBriq(...briqData.pos, new Briq(CONF.defaultMaterial, briqData.color));
-        setsManager.registerLocalSet(set);
-        return set;
+        return setsManager.registerLocalSet(set).setData;
     }
 }
