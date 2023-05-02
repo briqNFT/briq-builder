@@ -201,7 +201,12 @@ export function synchronizeSetsLocally(force = false) {
     for (const sid in setsManager.setsInfo) {
         if (storageHandlers[sid])
             continue;
-        storageHandlers[sid] = watch([toRef(setsManager.setsInfo[sid], 'booklet'), toRef(setsManager.setsInfo[sid], 'setData')], () => {
+        storageHandlers[sid] = watch([
+            // Explicitly don't reserialize on lastUpdate change, since this is updated inside.
+            toRef(setsManager.setsInfo[sid], 'booklet'),
+            toRef(setsManager.setsInfo[sid], 'setData'),
+            toRef(setsManager.setsInfo[sid], 'onchainId'),
+        ], () => {
             const info = setsManager.setsInfo[sid];
             logDebug('SET STORAGE HANDLER - Serializing set ', sid);
             if (!info) {
@@ -244,6 +249,7 @@ import { defaultModel } from '@/conf/realms';
 export function checkForInitialGMSet() {
     if (setsManager.setList.length)
         return;
+    logDebug(('BUILDER - INITIALIZING GM SET'));
     if (!window.localStorage.getItem('has_initial_gm_set')) {
         window.localStorage.setItem('has_initial_gm_set', 'true');
         const set = new SetData(hexUuid());

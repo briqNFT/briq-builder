@@ -112,7 +112,8 @@ class UserSetStore implements perUserStorable {
             success = false;
         }
         // Clean up all hidden sets that we have succesfully minted
-        for (const setId of this.sets) {
+        // (this needs to be _sets or we'll delete temporary sets)
+        for (const setId of this._sets) {
             const hiddenSet = setsManager.getHiddenSetInfo(setId);
             if (hiddenSet)
                 setsManager.deleteLocalSet(hiddenSet.id);
@@ -120,7 +121,8 @@ class UserSetStore implements perUserStorable {
         // Tell the set manager to reveal any other hidden set that's old enough, to prevent data loss.
         setsManager.revealHiddenSetsMaybe();
         const network = this.user_id.split('/')[0];
-        // Attempt to reload all active sets
+        // Attempt to reload all active sets, including sets that we don't know for sure are minted
+        // (there's a decent chance we'll get the metadata from the backend anyways).
         for (const setId of this.sets)
             if (!this._setData[setId]?.data)
                 try {

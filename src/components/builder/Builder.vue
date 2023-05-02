@@ -45,6 +45,7 @@ const { booklet, bookletData } = useBooklet();
 async function initializeStartSet() {
     if (route.query['set'])
         try {
+            logDebug('BUILDER - attempting to load set ' + route.query['set']);
             const setId = route.query['set'] as string;
             const info = setsManager.getInfo(setId);
             if (info && !info.onchainId)
@@ -59,10 +60,10 @@ async function initializeStartSet() {
         } catch(_) {
             if (APP_ENV === 'dev')
                 console.error(_)
+            logDebug('BUILDER - failed to load specified set');
         }
 
     if (!currentSet.value) {
-        logDebug(('BUILDER - INITIALIZING GM SET'));
         const set = checkForInitialGMSet();
         if (set)
             await selectSet(set);
@@ -70,6 +71,7 @@ async function initializeStartSet() {
 
     // Must have a local set.
     if (!currentSet.value) {
+        logDebug('BUILDER - No set specified/found, loading non-specified local set');
         let set = setsManager.getLocalSet();
         if (!set)
             set = setsManager.createLocalSet();
