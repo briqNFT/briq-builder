@@ -115,6 +115,7 @@ export class WalletStore {
         if (this.starknetObject?.isConnected) {
             this.signer = markRaw(this.starknetObject.account);
             this._userWalletAddress = this.starknetObject.account.address;
+            this._starknetIdDomain = '';
             fetch('https://app.starknet.id/api/indexer/addr_to_domain?addr=' + starknet.number.toBN(this._userWalletAddress).toString()).then(r => r.json()).then(r => {
                 if (r.domain)
                     this._starknetIdDomain = r.domain;
@@ -130,6 +131,7 @@ export class WalletStore {
 
         this.signer = undefined;
         this._userWalletAddress = '';
+        this._starknetIdDomain = '';
     }
 
     // Return the provider for the current network, even if we aren't signed.
