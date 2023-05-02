@@ -56,7 +56,7 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
                             this._perWallet[wallet] = new classType();
                             this._perWallet[wallet].user_id = wallet;
                             this._perWallet[wallet]?._init?.();
-                            logDebug(storeName, 'INIT COMPLETE');
+                            logDebug(storeName, 'INIT COMPLETE FOR', wallet);
                         }
                         this._perWallet[wallet]._deserialize(serializedData.data[wallet])
                     }
@@ -90,7 +90,7 @@ export const perUserStore = <T extends perUserStorable>(storeName: string, class
                         this._perWallet[this.currentWallet] = new classType();
                         this._perWallet[this.currentWallet].user_id = this.currentWallet;
                         this._perWallet[this.currentWallet]?._init?.();
-                        logDebug(storeName, 'INIT COMPLETE');
+                        logDebug(storeName, 'INIT COMPLETE FOR ', this.currentWallet);
                     }
                     if (old)
                         this._perWallet[old].onLeave?.(old, this.currentWallet);
