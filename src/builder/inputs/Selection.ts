@@ -34,6 +34,7 @@ class SelectionRender {
 
         const mesh = new THREE.InstancedMesh(geometry, material, selMgr.selectedBriqs.length);
         mesh.renderOrder = 1;
+        mesh.frustumCulled = false;
         let i = 0;
         for (const briq of selMgr.selectedBriqs)
             mesh.setMatrixAt(

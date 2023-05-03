@@ -27,6 +27,7 @@ export class MaterialByColor {
         this.lightMapTexture = lightMapLoader.load(lightMapTex);
         this.lightMapTexture.minFilter = THREE.NearestFilter;
         this.lightMapTexture.magFilter = THREE.NearestFilter;
+        this.lightMapTexture.channel = 1; // uv2
 
         this.material = new THREE.MeshStandardMaterial({
             alphaTest: 0.1,

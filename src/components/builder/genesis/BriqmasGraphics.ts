@@ -467,7 +467,7 @@ async function setupHomeScene(quality: SceneQuality) {
     // Lighting setup
     let light: THREE.Light;
     if (true) {
-        light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), quality >= SceneQuality.HIGH ? 0.7 : 0.8, 10.0);
+        light = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), quality >= SceneQuality.HIGH ? 0.7 : 0.8, 10.0, 1);
         light.position.set(-0.53, 1.02 + 2.05, -2.47 - 9);
         light.shadow.radius = 4;
         const qual = quality > SceneQuality.LOW ? 256 : 512;
@@ -504,7 +504,7 @@ async function setupHomeScene(quality: SceneQuality) {
 
     // Add a secondary support light for the lamp stand.
     if (quality >= SceneQuality.HIGH) {
-        const lightSupport = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.1, 10.0);
+        const lightSupport = new THREE.PointLight(new THREE.Color('#ffffff').convertSRGBToLinear(), 0.1, 10.0, 1);
         lightSupport.position.set(-0.53, 1 + 2.05, -2.47 - 9);
         lightSupport.shadow.bias = -0.02;
         lightSupport.shadow.normalBias = -0.02;
@@ -544,7 +544,7 @@ async function setupHomeScene(quality: SceneQuality) {
     }
     */
 
-    chimneyLight = new THREE.PointLight(new THREE.Color('#ffaa22').convertSRGBToLinear(), 1.2, 5.0);
+    chimneyLight = new THREE.PointLight(new THREE.Color('#ffaa22').convertSRGBToLinear(), 1.2, 5.0, 1);
     chimneyLight.position.set(-2.5, 0.4 + 2.05, -0.6 -9);
     chimneyLight.shadow.bias = -0.02;
     chimneyLight.shadow.normalBias = 0.02;

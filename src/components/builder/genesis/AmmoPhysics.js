@@ -1,3 +1,5 @@
+// Heavily modified from THREE's AmmoPhysics.js example.
+
 let AmmoLib;
 async function AmmoPhysics(THREE) {
 
@@ -263,6 +265,7 @@ function createPhysicsWorld() {
                 }
 
                 mesh.instanceMatrix.needsUpdate = true;
+                mesh.computeBoundingSphere();
 
             } else {
 
