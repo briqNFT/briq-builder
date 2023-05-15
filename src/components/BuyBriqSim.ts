@@ -7,7 +7,7 @@ class BriqFactory {
     private static readonly lowerFloor = BigInt(3 * 10 ** 13);
     private static readonly lowerSlope = BigInt(333333333);
     private static readonly decayPerSecond = BigInt(10 ** 10);
-    private static readonly surgeSlope = BigInt(10 ** 14);
+    private static readonly surgeSlope = BigInt(10 ** 12);
     private static readonly minimalSurge = BigInt(10000 * 10 ** 18);
     private static readonly surgeDecayPerSecond = BigInt(2315 * 10 ** 14);
 
@@ -73,7 +73,7 @@ class BriqFactory {
 
     private getLinIntegral(slope: bigint, floor: bigint, t2: bigint, t1: bigint): bigint {
         if (t2 >= t1)
-            throw new Error('t2 must be less than t1');
+            throw new Error(`t2 ${t2} must be less than t1 ${t1}`);
 
         if (t2 >= BigInt(10 ** 30) || (t1 - t2) >= BigInt(10 ** 28))
             throw new Error('briq machine broke above 10^12 bricks of demand.');
@@ -97,9 +97,8 @@ class BriqFactory {
         if (BriqFactory.inflectionPoint <= t)
             return this.getLinIntegral(BriqFactory.slope, BriqFactory.rawFloor, t, t + amount);
 
-
         return this.getLinIntegral(BriqFactory.lowerSlope, BriqFactory.lowerFloor, t, BriqFactory.inflectionPoint) +
-            this.getLinIntegral(BriqFactory.slope, BriqFactory.rawFloor, BriqFactory.inflectionPoint, t + amount - BriqFactory.inflectionPoint);
+            this.getLinIntegral(BriqFactory.slope, BriqFactory.rawFloor, BriqFactory.inflectionPoint, t + amount);
     }
 }
 
