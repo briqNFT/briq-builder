@@ -8,7 +8,7 @@ import BuyBriqsWidget from './BuyBriqsWidget.vue';
 <template>
     <Header/>
     <div class="container m-auto max-w-[50rem] flex flex-col align-center min-h-screen gap-4">
-        <h1 class="text-center">Buy briqs</h1>
+        <h1 class="text-center">briq Factory</h1>
         <p>Buy briqs directly and get building! briqs are tokens used to build NFTs called sets. Build anything you want with your briqs!</p>
         <div class="flex justify-center">
             <BuyBriqsWidget class="w-[32rem] max-w-[32rem]"/>

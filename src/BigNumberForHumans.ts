@@ -1,8 +1,8 @@
 import * as starknet from 'starknet';
 
 const ONE_ETH = starknet.number.toBN('1000000000000000000');
-const GWEI_THRESHOLD = starknet.number.toBN('100000000000000'); // 100K GWEI
-const GWEI_THRESHOLD_DIV = starknet.number.toBN('1000000000000'); // 1K GWEI to get some remainders
+const GWEI_THRESHOLD = starknet.number.toBN('10000000000000'); // 100K GWEI
+const GWEI_THRESHOLD_DIV = starknet.number.toBN('100000000000'); // 1K GWEI to get some remainders
 const WEI_THRESHOLD = starknet.number.toBN('1000000000'); // 1 GWEI
 
 // TODO: support limited precision, which is a much harder problem in general.
@@ -15,8 +15,8 @@ export function readableNumber(number: starknet.number.BigNumberish) {
             // Some fanciness for rounding up.
             const { div, mod } = nb.divmod(GWEI_THRESHOLD_DIV);
             if (mod.cmp(starknet.number.toBN(0)) > 0)
-                return (Math.ceil(div.toNumber() + 1)/1000000).toString();
-            return (Math.ceil(div.toNumber())/1000000).toString();
+                return (Math.ceil(div.toNumber() + 1)/10000000).toString();
+            return (Math.ceil(div.toNumber())/10000000).toString();
         } catch(_) {
             // Number can't be represented in JS -> just print and cut the end.
             return nb.toString().slice(0, -18);

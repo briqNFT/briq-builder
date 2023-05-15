@@ -11,6 +11,7 @@ import AuctionContract from './contracts/auction';
 import ERC20Contract from './contracts/erc20';
 import BoxContract from './contracts/box';
 import OnchainAuctionContract from './contracts/auction_onchain';
+import BriqFactoryContract from './contracts/briq_factory';
 
 
 const IMPL = {
@@ -32,6 +33,7 @@ const IMPL = {
         auction: AuctionContract,
         auction_ducks: OnchainAuctionContract,
         eth_bridge_contract: ERC20Contract,
+        briq_factory: BriqFactoryContract,
     },
     'starknet-testnet2': {
         briq: BriqContract,

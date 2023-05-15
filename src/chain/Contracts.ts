@@ -5,9 +5,11 @@ import type BriqContract from './contracts/briq';
 import type SetContract from './contracts/set';
 import type AuctionContract from './contracts/auction';
 import type ERC20Contract from './contracts/erc20';
-import { APP_ENV, DEV } from '@/Meta';
+import type OnchainAuctionContract from './contracts/auction_onchain';
+import type BriqFactoryContract from './contracts/briq_factory';
+
 import type { CHAIN_NETWORKS } from './Network';
-import OnchainAuctionContract from './contracts/auction_onchain';
+import { APP_ENV, DEV } from '@/Meta';
 
 export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
     mock: {
@@ -45,6 +47,7 @@ if (APP_ENV !== 'prod') {
         auction: '0x033f840d4f7bfa20aaa128e5a69157355478d33182bea6039d55aae3ffb861e2',
         auction_ducks: '0x04ef0bd475fb101cc1b5dc2c4fc9d11b4fa233cfa1876924ec84b2f3dcf32f75',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+        briq_factory: '0x0011ff172f1a9f3af71e77ef67036e81dcdb4c4d294d74bf5440d0d4c6ae61b7',
     };
     ADDRESSES['starknet-testnet2'] = {
         briq: '0x029e1fb93825a116daf88902c8bbf1a386890e6a5cf7906b584a1e70e7023e28',
@@ -63,6 +66,7 @@ const contractStore = shallowReactive({
     auction: undefined as undefined | AuctionContract,
     auction_ducks: undefined as undefined | OnchainAuctionContract,
     eth_bridge_contract: undefined as undefined | ERC20Contract,
+    briq_factory: undefined as undefined | BriqFactoryContract,
 });
 
 export default contractStore;
