@@ -16,6 +16,7 @@ describe('Test human readable representations of wei values', () => {
         expect(readableUnit('1230000000000000000')).toEqual('ETH');
         expect(readableUnit('123000000000')).toEqual('GWEI');
         expect(readableUnit('123')).toEqual('WEI');
+        expect(readableUnit('0')).toEqual('ETH');
     });
 
     it('should handle threshold values right', () => {
@@ -23,14 +24,18 @@ describe('Test human readable representations of wei values', () => {
         expect(readableNumber('1000000000')).toEqual('1');
     });
 
-    it('should round up', () => {
+    it('should round up with good significant digits', () => {
         const growBid = (bid: any) => {
             const mb = starknet.number.toBN(bid);
             const gr = mb.mul(starknet.number.toBN(50)).idivn(starknet.number.toBN(1000));
             return mb.add(gr);
         };
         expect(+growBid(5512500000).toString()).toEqual(5788125000);
-        expect(readableNumber(growBid('55125000000000000'))).toEqual('0.057882');
+        // We try to maintain significant digits.
+        expect(readableNumber(growBid('55125000000000000000'))).toEqual('57.89');
+        expect(readableNumber(growBid('55125000000000000'))).toEqual('0.05789');
+        expect(readableNumber(growBid('5512500000000000'))).toEqual('0.005789');
+        expect(readableNumber(growBid('551250000000000'))).toEqual('0.0005789');
     })
 
     it('should show numbers too big for javascript', () => {
@@ -41,7 +46,8 @@ describe('Test human readable representations of wei values', () => {
         expect(readableNumber('1000000000000000000')).toEqual('1');
         expect(readableNumber('1100000000000000000')).toEqual('1.1');
         expect(readableNumber('1010000000000000000')).toEqual('1.01');
-        expect(readableNumber('10000010000000000000000')).toEqual('10000.01');
+        // This gets rounded up.
+        expect(readableNumber('10000010000000000000000')).toEqual('10001');
     });
 });
 

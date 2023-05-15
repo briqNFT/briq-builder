@@ -2,7 +2,6 @@ import * as starknet from 'starknet';
 
 const ONE_ETH = starknet.number.toBN('1000000000000000000');
 const GWEI_THRESHOLD = starknet.number.toBN('10000000000000'); // 100K GWEI
-const GWEI_THRESHOLD_DIV = starknet.number.toBN('100000000000'); // 1K GWEI to get some remainders
 const WEI_THRESHOLD = starknet.number.toBN('1000000000'); // 1 GWEI
 
 // TODO: support limited precision, which is a much harder problem in general.
@@ -13,10 +12,16 @@ export function readableNumber(number: starknet.number.BigNumberish) {
         // Since the lib doesn't allow decimals, I'll just divide and print.
         try {
             // Some fanciness for rounding up.
-            const { div, mod } = nb.divmod(GWEI_THRESHOLD_DIV);
+            const fullDecimals = nb.div(starknet.number.toBN('100000000000000')).toString();
+
+            const divisor = Math.max(1, Math.pow(10, 8 - fullDecimals.length));
+            const divisor_bn = ONE_ETH.div(starknet.number.toBN(divisor));
+
+            const { div, mod } = nb.divmod(divisor_bn);
+            // Make sure we do _not_ round down even post-division.
             if (mod.cmp(starknet.number.toBN(0)) > 0)
-                return (Math.ceil(div.toNumber() + 1)/10000000).toString();
-            return (Math.ceil(div.toNumber())/10000000).toString();
+                return (Math.ceil(div.toNumber() + 1)/divisor).toString();
+            return (Math.ceil(div.toNumber())/divisor).toString();
         } catch(_) {
             // Number can't be represented in JS -> just print and cut the end.
             return nb.toString().slice(0, -18);
@@ -28,7 +33,7 @@ export function readableNumber(number: starknet.number.BigNumberish) {
 
 export function readableUnit(number: starknet.number.BigNumberish) {
     const nb = starknet.number.toBN(number);
-    if (GWEI_THRESHOLD.cmp(nb) <= 0)
+    if (nb.isZero() || GWEI_THRESHOLD.cmp(nb) <= 0)
         return 'ETH';
     if (WEI_THRESHOLD.cmp(nb) <= 0)
         return 'GWEI';

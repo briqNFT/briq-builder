@@ -7,6 +7,8 @@ import { Fetchable } from '@/DataFetching';
 
 import { briqFactory } from './BuyBriqSim';
 import contractStore from '@/chain/Contracts';
+import MenuDropdown from './generic/MenuDropdown.vue';
+import Toggle from './generic/Toggle.vue';
 
 const briqs_wanted = ref(300);
 
@@ -15,6 +17,7 @@ const slippage = ref(2); // as a per-mille.
 const EthUsdPrice = reactive(new Fetchable());
 
 const toggledDetails = ref(false);
+const toggledSettings = ref(false);
 
 const termsSale = ref(false);
 const termsBriq = ref(false);
@@ -43,6 +46,14 @@ const surgePart = computed(() => {
 
 const regularPart = computed(() => {
     return get_price_eth(briqs_wanted.value).sub(surgePart.value);
+})
+
+const impactOnPrice = computed(() => {
+    let price = get_price_eth(1);
+    let delta = starknet.number.toBN(briqFactory.getPriceAfter(briqs_wanted.value)).sub(price);
+    if (delta.cmp(starknet.number.toBN('100000000000000')) < 0)
+        return starknet.number.toBN(0);
+    return delta;
 })
 
 const shareOfSurge = computed(() => {
@@ -87,10 +98,26 @@ const buyBriqs = async () => {
 
 <template>
     <div class="bg-grad-lighter rounded-md p-6">
-        <div class="w-[24rem] m-auto">
-            <div class="flex gap-0 text-sm">
-                <p class="relative px-2 py-1 activeTab z-10">Buy</p>
-                <p class="relative px-2 py-1 z-10 text-grad-dark">Sell (coming soon)</p>
+        <div class="w-[26rem] m-auto relative">
+            <div class="flex justify-between">
+                <div class="flex gap-0 font-medium relative">
+                    <p class="relative px-2 py-1 activeTab z-10">Buy</p>
+                    <!--<p class="relative px-2 py-1 z-10 text-grad-dark">Sell</p>-->
+                </div>
+                <div class="flex items-center">
+                    <Btn secondary @click="toggledSettings = !toggledSettings" class="p-1 h-auto w-auto text-xs"><i class="far fa-gear"/></Btn>
+                </div>
+            </div>
+            <div v-show="toggledSettings" class="absolute top-8 right-2 z-10 p-4 rounded shadow-md bg-grad-lightest border border-grad-lighter">
+                <p class="leading-normal">
+                    Max price slippage:<br>
+                    <span class="flex justify-between items-center">
+                        <span><input class="mr-1 w-20" type="number" v-model="slippage">‰</span>
+                        <Btn :disabled="slippage === 2" @click="slippage = 2" no-background class="ml-2 p-2 h-auto">
+                            <i class="text-sm p-0 fa-solid fa-arrows-rotate"/>
+                        </Btn>
+                    </span>
+                </p>
             </div>
             <div class="bg-grad-lightest rounded-md">
                 <div class="p-6">
@@ -109,7 +136,7 @@ const buyBriqs = async () => {
                 </div>
                 <div class="p-6">
                     <p class="flex flex-1 justify-between gap-4">
-                        <input class="text-max text-grad-darkest font-medium px-2 py-1 w-full" type="text" v-model="briqs_wanted">
+                        <input class="text-max text-grad-darkest font-medium px-2 py-1 w-full" type="number" :min="200" :max="1000000" v-model="briqs_wanted">
                         <span class="text-max font-medium">briqs</span>
                     </p>
                 </div>
@@ -118,13 +145,13 @@ const buyBriqs = async () => {
         <div class="my-4 text-sm flex justify-between items-center gap-8">
             <div>
                 <p>The price shown is the maximum, but you may end up paying less depending on actual slippage.</p>
-                <p class="mt-1">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }} ({{ shareOfSurge }}‰ due to surge costs)</p>
             </div>
             <i @click.stop.prevent="toggledDetails=!toggledDetails" :class="`p-2 cursor-pointer hover:bg-grad-light rounded fa-solid fa-chevron-${toggledDetails ? 'up' : 'down'}`"/>
         </div>
         <div class="text-sm" v-show="toggledDetails">
-            <p>Impact on price: {{ readableNumber(briqFactory.getPriceAfter(briqs_wanted)) }}</p>
-            <p>Max slippage on price: <input type="number" class="text-xs p-1 px-2 m-0 w-14" v-model="slippage"></p>
+            <p class="mt-1">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
+            <p>Additional cost due to surge demand: {{ readableNumber(surgePart) }} {{ readableUnit(surgePart) }}</p>
+            <p>Impact on price: {{ readableNumber(impactOnPrice) }} {{ readableUnit(impactOnPrice) }}</p>
         </div>
         <div v-show="shareOfSurge > 10" class="my-4 bg-grad-lightest border-2 border-info-error rounded p-4">
             <p>Warning: prices are exceptionally high because of unexpected demand.<br>Come back in a few hours for lower prices.</p>
