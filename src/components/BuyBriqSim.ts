@@ -73,11 +73,10 @@ class BriqFactory {
 
     private getLinIntegral(slope: bigint, floor: bigint, t2: bigint, t1: bigint): bigint {
         if (t2 >= t1)
-            throw new Error(`t2 ${t2} must be less than t1 ${t1}`);
+            return BigInt(0);
 
         if (t2 >= BigInt(10 ** 30) || (t1 - t2) >= BigInt(10 ** 28))
-            throw new Error('briq machine broke above 10^12 bricks of demand.');
-
+            return BigInt(0);
 
         const aInterm = slope * (t1 + t2);
         const aIntermDivided = aInterm / BriqFactory.decimals;
