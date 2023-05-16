@@ -58,7 +58,10 @@ const impactOnPrice = computed(() => {
 })
 
 const shareOfSurge = computed(() => {
-    return surgePart.value.mul(starknet.number.toBN(1000)).div(get_price_eth(briqs_wanted.value)).toNumber() / 10;
+    const price = get_price_eth(briqs_wanted.value);
+    if (price.isZero())
+        return 0;
+    return surgePart.value.mul(starknet.number.toBN(1000)).div(price).toNumber() / 10;
 })
 
 const as_dollars = computed(() => {
@@ -172,7 +175,7 @@ const cancelBuy = () => {
         </div>
         <div v-show="shareOfSurge > 10" class="my-4 bg-grad-lightest border-2 border-info-error rounded p-4">
             <p>Warning: prices are exceptionally high because of unexpected demand.<br>Come back in a few hours for lower prices.</p>
-            <p>Surge amount: {{ readableNumber(surgePart) }} {{ readableUnit(surgePart) }} ({{ surgePart.mul(starknet.number.toBN(1000)).div(get_price_eth(briqs_wanted)).toNumber() / 10 }}%)</p>
+            <p>Surge amount: {{ readableNumber(surgePart) }} {{ readableUnit(surgePart) }} ({{ shareOfSurge }}%)</p>
         </div>
         <div class="text-sm flex flex-col gap-1 my-4">
             <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
