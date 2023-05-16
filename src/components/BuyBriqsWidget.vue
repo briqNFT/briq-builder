@@ -10,6 +10,7 @@ import contractStore from '@/chain/Contracts';
 import Toggle from './generic/Toggle.vue';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 import { chainBriqs } from '@/builder/ChainBriqs';
+import MenuLike from './generic/MenuLike.vue';
 
 const briqs_wanted = ref(300);
 
@@ -124,20 +125,22 @@ const cancelBuy = () => {
                     <p class="relative px-2 py-1 activeTab z-10">Buy</p>
                     <!--<p class="relative px-2 py-1 z-10 text-grad-dark">Sell</p>-->
                 </div>
-                <div class="flex items-center">
-                    <Btn secondary @click="toggledSettings = !toggledSettings" class="p-1 h-auto w-auto text-xs"><i class="far fa-gear"/></Btn>
-                </div>
-            </div>
-            <div v-show="toggledSettings" class="absolute top-8 right-2 z-10 p-4 rounded shadow-md bg-grad-lightest border border-grad-lighter">
-                <p class="leading-normal">
-                    Max price slippage:<br>
-                    <span class="flex justify-between items-center">
-                        <span><input class="mr-1 w-20" type="number" v-model="slippage">‰</span>
-                        <Btn :disabled="slippage === 2" @click="slippage = 2" no-background class="ml-2 p-2 h-auto">
-                            <i class="text-sm p-0 fa-solid fa-arrows-rotate"/>
-                        </Btn>
-                    </span>
-                </p>
+                <MenuLike :close-on-click="false" :delay="false" position="br" class="flex items-center">
+                    <template #button="{ open }">
+                        <Btn secondary @click.stop="open" class="p-1 h-auto w-auto text-xs"><i class="far fa-gear"/></Btn>
+                    </template>
+                    <div class="m-2 p-4 rounded shadow-md bg-grad-lightest border border-grad-lighter">
+                        <p class="leading-normal">
+                            Max price slippage:<br>
+                            <span class="flex justify-between items-center">
+                                <span><input class="mr-1 w-20" type="number" v-model="slippage">‰</span>
+                                <Btn :disabled="slippage === 2" @click="slippage = 2" no-background class="ml-2 p-2 h-auto">
+                                    <i class="text-sm p-0 fa-solid fa-arrows-rotate"/>
+                                </Btn>
+                            </span>
+                        </p>
+                    </div>
+                </MenuLike>
             </div>
             <div class="bg-grad-lightest rounded-md">
                 <div class="p-6">
