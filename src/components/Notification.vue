@@ -73,6 +73,18 @@ p {
             <p v-if="toast"><a :href="ExplorerTxUrl(notif.data.tx_hash)" target="_blank" class="text-primary">See details on StarkScan</a></p>
             <p>Item: <RouterLink class="text-primary" :to="notif.data.auction_link">{{ notif.data.auction_name }}</RouterLink></p>
         </template>
+        <template v-else-if="notif.type === 'briq_purchase_pending'">
+            <p>{{ notif.data.amount }} briqs are being bought.</p>
+            <p v-if="toast"><a :href="ExplorerTxUrl(notif.data.tx_hash)" target="_blank" class="text-primary">See details on StarkScan</a></p>
+        </template>
+        <template v-else-if="notif.type === 'briq_purchase_confirmed'">
+            <p>You bought {{ notif.data.amount }} briqs.</p>
+            <p v-if="toast"><a :href="ExplorerTxUrl(notif.data.tx_hash)" target="_blank" class="text-primary">See details on StarkScan</a></p>
+        </template>
+        <template v-else-if="notif.type === 'briq_purchase_rejected'">
+            <p>There was an error with the briq purchase transaction.</p>
+            <p v-if="toast"><a :href="ExplorerTxUrl(notif.data.tx_hash)" target="_blank" class="text-primary">See details on StarkScan</a></p>
+        </template>
         <template v-else-if="notif.type === 'box_purchase_started'">
             <p>The transaction to purchase your box was sent.</p>
             <p>Box: <RouterLink class="text-primary" :to="`/box/${notif.data.box_id}`">{{ genesisStore.metadata[notif.data.box_id]?._data?.name ?? notif.data.box_id }}</RouterLink></p>

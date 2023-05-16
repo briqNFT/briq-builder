@@ -6,6 +6,7 @@ import { backendManager } from '@/Backend';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { maybeStore } from '@/chain/WalletLoading';
 import { setChainBriqsStoreComplete } from './ChainBriqsAsync';
+import { Notification } from '@/Notifications';
 
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number; nft_ids: string[] };
@@ -42,6 +43,7 @@ export class ChainBriqs implements perUserStorable {
             status: 'TENTATIVE' | 'DELETING_SOON',
             tx_hash: string,
             quantity: number,
+            shouldNotify: boolean, // If true, this assumes we're buying briqs.
             block: number | undefined,
             date: number,
         }[],
@@ -109,6 +111,8 @@ export class ChainBriqs implements perUserStorable {
                 const update = this.metadata[material][i];
                 // Clear the metadata if we are now ahead of it.
                 if (update.block && update.block <= chainData.last_block) {
+                    if (update.status === 'TENTATIVE' && update.shouldNotify)
+                        this.notifyPurchaseConfirmed(update);
                     this.metadata[material].splice(i--, 1);
                     continue;
                 }
@@ -120,7 +124,10 @@ export class ChainBriqs implements perUserStorable {
                             const status = data.status;
                             const block = data.block_number;
                             if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
+                                if (update.status === 'TENTATIVE' && update.shouldNotify)
+                                    this.notifyMintingRejected(update);
                                 this.metadata[material].splice(i--, 1);
+                                reprocess = true;
                                 return;
                             }
                             if (block) {
@@ -157,25 +164,30 @@ export class ChainBriqs implements perUserStorable {
         return ret;
     }
 
-    show(material: string, quantity: number, tx_hash: string, date?: number) {
-        this._add('TENTATIVE', material, quantity, tx_hash, date);
+    show(material: string, quantity: number, tx_hash: string, shouldNotify?: boolean, date?: number) {
+        const newMeta = this._add('TENTATIVE', material, quantity, tx_hash, shouldNotify || false, date);
+        if (shouldNotify)
+            this.notifyPurchasePending(newMeta);
     }
 
     hide(material: string, quantity: number, tx_hash: string, date?: number) {
-        this._add('DELETING_SOON', material, quantity, tx_hash, date);
+        this._add('DELETING_SOON', material, quantity, tx_hash, false, date);
     }
 
-    _add(status: 'TENTATIVE' | 'DELETING_SOON', material: string, quantity: number, tx_hash: string, date?: number) {
+    _add(status: 'TENTATIVE' | 'DELETING_SOON', material: string, quantity: number, tx_hash: string, shouldNotify: boolean, date?: number) {
         if (!this.metadata[material])
             this.metadata[material] = [];
-        this.metadata[material].push({
+        const newMeta = {
             quantity: quantity,
             status: status,
             tx_hash: tx_hash,
+            shouldNotify: shouldNotify,
             block: undefined,
             date: date || Date.now(),
-        })
+        };
+        this.metadata[material].push(newMeta);
         this._parseChainData(this._lastDataFetch);
+        return newMeta;
     }
 
     /**
@@ -207,6 +219,48 @@ export class ChainBriqs implements perUserStorable {
                 swaps.push(new Briq(mat).setNFTid(chainBalance.nft_ids.pop()!));
         }
         return swaps;
+    }
+
+    notifyPurchasePending(data: ChainBriqs['metadata']['any'][0]) {
+        new Notification({
+            type: 'briq_purchase_pending',
+            title: 'Buying briqs',
+            level: 'info',
+            data: {
+                tx_hash: data.tx_hash,
+                amount: data.quantity,
+                network: this.user_id.split('/')[0],
+            },
+            read: true,
+        }).push(false);
+    }
+
+    notifyPurchaseConfirmed(data: ChainBriqs['metadata']['any'][0]) {
+        new Notification({
+            type: 'briq_purchase_confirmed',
+            title: 'briqs bought',
+            level: 'success',
+            data: {
+                tx_hash: data.tx_hash,
+                amount: data.quantity,
+                network: this.user_id.split('/')[0],
+            },
+            read: true,
+        }).push(false);
+    }
+
+    notifyMintingRejected(data: ChainBriqs['metadata']['any'][0]) {
+        new Notification({
+            type: 'briq_purchase_rejected',
+            title: 'briqs purchase failed',
+            level: 'error',
+            data: {
+                tx_hash: data.tx_hash,
+                amount: data.quantity,
+                network: this.user_id.split('/')[0],
+            },
+            read: false,
+        }).push(true);
     }
 }
 

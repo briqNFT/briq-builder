@@ -9,6 +9,7 @@ import { briqFactory } from './BuyBriqSim';
 import contractStore from '@/chain/Contracts';
 import Toggle from './generic/Toggle.vue';
 import { ExplorerTxUrl } from '@/chain/Explorer';
+import { chainBriqs } from '@/builder/ChainBriqs';
 
 const briqs_wanted = ref(300);
 
@@ -88,6 +89,7 @@ const buyBriqs = async () => {
     transaction.value.clear();
     await transaction.value.fetch(async () => {
         let tx = await contractStore.briq_factory?.buy(contractStore.eth_bridge_contract!, briqs_wanted.value, get_price_eth(briqs_wanted.value));
+        chainBriqs.value?.show('0x1', briqs_wanted.value, tx!.transaction_hash, true);
         return tx!.transaction_hash;
     });
 }

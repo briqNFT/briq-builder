@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { maybeChainBriqs } from '@/builder/ChainBriqsAsync';
 
 import SmallProfileIcon from '@/assets/profile/profile_small.svg';
 import briqLogo from '@/assets/briq.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import { APP_ENV } from '@/Meta';
+import Tooltip from '../generic/Tooltip.vue';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -35,6 +36,12 @@ onMounted(() => {
     observer.observe(header.value);
 });
 
+const pendingBriqs = computed(() => {
+    if (!maybeChainBriqs.value)
+        return false;
+    return Object.keys(maybeChainBriqs.value!.metadata).length;
+});
+
 </script>
 
 <style scoped>
@@ -43,6 +50,10 @@ onMounted(() => {
 }
 ::v-deep(button.roundedButton)::before {
     @apply !rounded;
+}
+.pendingBriqs::before {
+    content:' ';
+    @apply absolute top-0 left-0 w-full h-full bg-red-100;
 }
 </style>
 
@@ -66,9 +77,19 @@ onMounted(() => {
             </div>
             <div class="flex items-stretch gap-2">
                 <template v-if="walletStore?.userWalletAddress">
-                    <div class="hidden sm:flex border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
-                        <briqIcon width="0.9rem" class="inline-block"/> {{ maybeChainBriqs?.getNbBriqs() }}
-                    </div>
+                    <template v-if="pendingBriqs">
+                        <Tooltip tooltip="Some transactions are pending that might change your briq count.">
+                            <div class="hidden sm:flex border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
+                                <briqIcon width="0.9rem" class="inline-block hue-rotate-180 brightness-[1.3] saturate-[0.8]"/>
+                                <span class="text-info-info"> {{ maybeChainBriqs?.getNbBriqs() }}</span>
+                            </div>
+                        </Tooltip>
+                    </template>
+                    <template v-else>
+                        <div class="hidden sm:flex border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
+                            <briqIcon width="0.9rem" class="inline-block"/> {{ maybeChainBriqs?.getNbBriqs() }}
+                        </div>
+                    </template>
                     <div class="flex-none">
                         <MenuDropdown no-background icon class="text-xs roundedButton">
                             <template #button><SmallProfileIcon width="1rem" height="1rem" class="inline-block !mr-2"/></template>
