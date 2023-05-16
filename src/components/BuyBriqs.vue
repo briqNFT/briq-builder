@@ -2,6 +2,8 @@
 import Header from '@/components/landing_page/Header.vue';
 import Footer from '@/components/landing_page/Footer.vue';
 import BuyBriqsWidget from './BuyBriqsWidget.vue';
+import Window from './generic/Window.vue';
+import Flyout from './generic/Flyout.vue';
 </script>
 
 <style scoped>
@@ -17,7 +19,9 @@ import BuyBriqsWidget from './BuyBriqsWidget.vue';
     <Header/>
     <div class="container m-auto max-w-[50rem] flex flex-col align-center min-h-screen gap-4">
         <div class="flex justify-center mt-6">
-            <BuyBriqsWidget class="w-[32rem] max-w-[32rem]"/>
+            <Flyout size="w-auto" class="p-8 rounded-md">
+                <BuyBriqsWidget class="w-[32rem] max-w-[32rem]"/>
+            </Flyout>
         </div>
         <h1 class="text-center mt-6 mb-4">FAQ</h1>
         <div class="flex flex-col gap-4 faq">

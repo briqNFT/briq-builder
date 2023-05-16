@@ -6,7 +6,7 @@ import Booklet from './Booklet.vue';
 
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
 
-import { onBeforeMount, onBeforeUnmount, provide, ref, toRef, watch } from 'vue';
+import { onBeforeMount, provide, ref, toRef, watch } from 'vue';
 import { featureFlags } from '@/FeatureFlags';
 import { logDebug, pushMessage, setTooltip } from '../../Messages';
 import { useBuilder } from '@/components/builder/BuilderComposable';

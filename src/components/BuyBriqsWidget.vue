@@ -19,7 +19,7 @@ const slippage = ref(2); // as a per-mille.
 const EthUsdPrice = reactive(new Fetchable());
 
 const toggledDetails = ref(false);
-const toggledSettings = ref(false);
+const ToggleBuySell = ref(false);
 
 const termsSale = ref(false);
 const termsBriq = ref(false);
@@ -104,10 +104,6 @@ const cancelBuy = () => {
 </script>
 
 <style scoped>
-.activeTab::before {
-    content:' ';
-    @apply bg-grad-lightest absolute top-0 left-0 w-full h-12 z-[-1] rounded-tl rounded-tr;
-}
 .overlay::before {
     content: ' ';
     @apply z-[-1] absolute top-0 left-0 w-full h-full bg-grad-lighter opacity-50 rounded-md border border-grad-light;
@@ -118,18 +114,24 @@ const cancelBuy = () => {
 </style>
 
 <template>
-    <div class="bg-grad-lighter rounded-md px-7 py-6 relative">
+    <div class="relative">
         <div class="m-auto relative">
-            <div class="flex justify-between">
-                <div class="flex gap-0 font-medium relative">
-                    <p class="relative px-2 py-1 activeTab z-10">Buy</p>
-                    <!--<p class="relative px-2 py-1 z-10 text-grad-dark">Sell</p>-->
+            <!--
+            <div class="flex justify-between items-center mb-2">
+                <div class="flex gap-0 font-medium relative items-center">
+                    <p>Buy</p>
+                    <Toggle class="w-12 mx-2" v-model="ToggleBuySell"/>
+                    <p class="text-grad-dark">Sell</p>
                 </div>
-                <MenuLike :close-on-click="false" :delay="false" position="br" class="flex items-center">
+                <Btn no-background class=" p-1"><i class="far fa-gear"/></Btn>
+            </div>
+            -->
+            <div class="relative rounded-md border-grad-lighter border-2 ">
+                <MenuLike :close-on-click="false" :delay="false" position="br" class="flex items-center absolute right-0 top-0 mr-2 mt-2">
                     <template #button="{ open }">
-                        <Btn secondary @click.stop="open" class="p-1 h-auto w-auto text-xs"><i class="far fa-gear"/></Btn>
+                        <Btn no-background @click.stop="open" class="text-grad-dark relative left-2 bottom-2 rounded-md p-1 mb-1"><i class="far fa-gear"/></Btn>
                     </template>
-                    <div class="m-2 p-4 rounded shadow-md bg-grad-lightest border border-grad-lighter">
+                    <div class="p-4 rounded shadow-md bg-grad-lightest border border-grad-lighter">
                         <p class="leading-normal">
                             Max price slippage:<br>
                             <span class="flex justify-between items-center">
@@ -141,8 +143,6 @@ const cancelBuy = () => {
                         </p>
                     </div>
                 </MenuLike>
-            </div>
-            <div class="bg-grad-lightest rounded-md">
                 <div class="p-6">
                     <p class="flex flex-1 justify-between items-center gap-4">
                         <span class="text-2xl font-medium">{{ readableNumber(get_price_eth(briqs_wanted)) }}</span>
@@ -154,8 +154,8 @@ const cancelBuy = () => {
                     </p>
                 </div>
                 <div class="relative">
-                    <hr class="my-2 h-[2px] bg-grad-lighter">
-                    <i class="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] fas fa-arrow-down bg-grad-lightest p-1 border border-grad-light rounded"/>
+                    <hr class="my-2 rounded border border-grad-lighter">
+                    <i class="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] fas fa-arrow-down bg-grad-lightest p-1 border-2 border-grad-lighter rounded"/>
                 </div>
                 <div class="p-6">
                     <p class="flex flex-1 justify-between items-center gap-4">
@@ -168,7 +168,7 @@ const cancelBuy = () => {
         <div class="my-4 text-sm flex justify-between items-center gap-8">
             <div>
                 <p class="mt-1">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
-                <p>The price shown is the maximum, but you may end up paying less depending on actual slippage.</p>
+            <!--<p>The price shown is the maximum, but you may end up paying less depending on actual slippage.</p>-->
             </div>
             <i @click.stop.prevent="toggledDetails=!toggledDetails" :class="`p-2 cursor-pointer hover:bg-grad-light rounded fa-solid fa-chevron-${toggledDetails ? 'up' : 'down'}`"/>
         </div>
@@ -181,6 +181,7 @@ const cancelBuy = () => {
             <p>Surge amount: {{ readableNumber(surgePart) }} {{ readableUnit(surgePart) }} ({{ shareOfSurge }}%)</p>
         </div>
         <div class="text-sm flex flex-col gap-1 my-4">
+            <hr class="mb-4 rounded border border-grad-lighter">
             <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
             <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
         </div>

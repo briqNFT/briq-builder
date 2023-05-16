@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
+/**
+ * The purpose of this file is to a be slightly simpler / more usable than MenuDropdown.vue
+ * The main difference is that this teleports the menu, taking it out of the DOM tree
+ * and allowing the menu to go outside the boundaries of the container.
+ */
+
 const props = withDefaults(defineProps<{
     closeOnClick?: boolean,
     position?: 'auto' | 'bl' | 'br' | ((el: HTMLElement) => Record<string, any>),
