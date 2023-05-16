@@ -159,12 +159,12 @@ const cancelBuy = () => {
         </div>
         <div class="my-4 text-sm flex justify-between items-center gap-8">
             <div>
+                <p class="mt-1">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
                 <p>The price shown is the maximum, but you may end up paying less depending on actual slippage.</p>
             </div>
             <i @click.stop.prevent="toggledDetails=!toggledDetails" :class="`p-2 cursor-pointer hover:bg-grad-light rounded fa-solid fa-chevron-${toggledDetails ? 'up' : 'down'}`"/>
         </div>
         <div class="text-sm" v-show="toggledDetails">
-            <p class="mt-1">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
             <p>Additional cost due to surge demand: {{ readableNumber(surgePart) }} {{ readableUnit(surgePart) }}</p>
             <p>Impact on price: {{ readableNumber(impactOnPrice) }} {{ readableUnit(impactOnPrice) }}</p>
         </div>
