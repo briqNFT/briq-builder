@@ -194,14 +194,14 @@ const cancelBuy = () => {
                 <Btn class="mt-6" @click="cancelBuy">Close</Btn>
             </div>
         </div>
-        <div v-else-if="transaction._error" class="overlay">
+        <div v-else-if="transaction._error" class="overlay" @click="cancelBuy">
             <div class="bg-grad-lightest shadow-md rounded p-8 text-center">
                 <h4>An error occured</h4>
                 <p class="mt-4 mb-2 text-justify bg-grad-lighter rounded-sm p-2 text-sm font-mono">{{ transaction._error }}</p>
                 <Btn class="mt-4" @click="cancelBuy">Close</Btn>
             </div>
         </div>
-        <div v-else-if="transaction._fetch" class="overlay">
+        <div v-else-if="transaction._fetch" class="overlay" @click="cancelBuy">
             <div class="bg-grad-lightest shadow-md rounded p-8 text-center">
                 <h4>Waiting for wallet confirmation</h4>
                 <p class="text-center mt-6"><i class="far fa-spinner animate-spin-slow text-xl"/></p>
