@@ -279,7 +279,11 @@ class UserSetStore implements perUserStorable {
             // Wait on the backend to be done before returning.
             await new Promise<void>(resolve => {
                 // Don't fail on this - we probably want to proceed anyways as the blockchain TX is gone through.
-                backendHint.then(() => resolve()).catch(() => resolve());
+                // (and we will either recover from on-chain data or fail anyways).
+                backendHint.then(() => resolve()).catch(err => {
+                    console.error('Error while sending data to backend - proceeding anyways', err);
+                    resolve();
+                });
                 setTimeout(resolve, 5000);
             });
             return TX;
