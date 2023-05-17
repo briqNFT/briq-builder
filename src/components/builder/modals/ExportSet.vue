@@ -23,6 +23,7 @@ import { bookletDataStore } from '@/builder/BookletData';
 import { hexUuid } from '@/Uuid';
 import BuyBriqsWidget from '@/components/BuyBriqsWidget.vue';
 import { Call } from 'starknet';
+import { ExplorerTxUrl } from '@/chain/Explorer';
 
 const { chainBriqs } = useBuilder();
 
@@ -136,6 +137,7 @@ const validationError = computed(() => {
 
 const mintingError = ref('');
 const exportStep = ref('' as '' | 'PREPARING' | 'BUY_BRIQS' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE');
+const TX = ref();
 
 const briqTransaction = ref(undefined as undefined | Array<Call>);
 const briqPendingObject = ref(undefined as undefined | unknown);
@@ -202,18 +204,17 @@ const startMinting = async () => {
 
         exportStep.value = 'SENDING_TRANSACTION';
 
-        let TX;
         if (booklet.value) {
-            TX = await userSetStore.current!.mintBookletSet(briqTransaction.value || [], token_hint, data, (await imageProcessing.value)!, booklet.value);
+            TX.value = await userSetStore.current!.mintBookletSet(briqTransaction.value || [], token_hint, data, (await imageProcessing.value)!, booklet.value);
             window.sessionStorage.removeItem(`booklet_${booklet.value}`);
         } else
-            TX = await userSetStore.current!.mintSet(briqTransaction.value || [], token_hint, data, await imageProcessing.value);
+            TX.value = await userSetStore.current!.mintSet(briqTransaction.value || [], token_hint, data, await imageProcessing.value);
 
         if (briqPendingObject.value) {
             // Remove and re-add to get the notifications.
             const briqsBought = briqPendingObject.value.quantity;
             chainBriqs.value!.removeMetadataItem(briqPendingObject.value);
-            briqPendingObject.value = chainBriqs.value!.show('0x1', briqsBought, TX.transaction_hash, true);
+            briqPendingObject.value = chainBriqs.value!.show('0x1', briqsBought, TX.value.transaction_hash, true);
         }
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
@@ -224,7 +225,7 @@ const startMinting = async () => {
             level: 'info',
             timestamp: Date.now(),
             data: {
-                tx_hash: TX.transaction_hash,
+                tx_hash: TX.value.transaction_hash,
                 name: data.name,
                 set_id: data.id,
                 network: getCurrentNetwork(),
@@ -236,7 +237,6 @@ const startMinting = async () => {
         setTimeout(() => {
             router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: data.id } })
             setsManager.hideLocalSet(setData.value.id, data.id);
-            emit('close');
         }, 0);
     } catch (err: any) {
         // Reset the briqs if we bought some.
@@ -355,6 +355,22 @@ button:not(.btn):not(.nostyle)::before {
                     </div>
                 </template>
             </BuyBriqsWidget>
+        </Window>
+    </template>
+    <template v-else-if="exportStep === 'DONE'">
+        <Window size="w-[34rem]">
+            <template #title>Transaction sent</template>
+            <p class="mb-2">
+                The minting transaction was sent.<br>
+                You can track its progress on <a :href="ExplorerTxUrl(TX?.transaction_hash || '')" class="text-primary">Starkscan</a>.
+            </p>
+            <p>
+                You set is now shown in your profile with a 'pending' status, which will go away once the transaction is confirmed.<br>
+                You will be notified if an error occurs and may retry minting.
+            </p>
+            <div class="flex justify-end mt-4">
+                <Btn @click="emit('close')">Close</Btn>
+            </div>
         </Window>
     </template>
     <template v-else>
