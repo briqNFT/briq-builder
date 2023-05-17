@@ -19,10 +19,18 @@ class BlockchainProvider {
     }
 
     async getTransactionBlock(tx_hash: string) {
-        const data = (await (await fetch(`${this.provider.provider.feederGatewayUrl}/get_transaction?transactionHash=${tx_hash}`)).json());
-        return {
-            block_number: data.block_number,
-            status: data.status,
+        try {
+            const data = (await (await fetch(`${this.provider.provider.feederGatewayUrl}/get_transaction?transactionHash=${tx_hash}`)).json());
+            return {
+                block_number: data.block_number,
+                status: data.status,
+            }
+        } catch (_) {
+            // Fail in a safe-way for calling code.
+            return {
+                block_number: undefined,
+                status: 'NOT_RECEIVED',
+            };
         }
     }
 

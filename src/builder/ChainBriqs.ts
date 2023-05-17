@@ -168,10 +168,11 @@ export class ChainBriqs implements perUserStorable {
         const newMeta = this._add('TENTATIVE', material, quantity, tx_hash, shouldNotify || false, date);
         if (shouldNotify)
             this.notifyPurchasePending(newMeta);
+        return newMeta;
     }
 
     hide(material: string, quantity: number, tx_hash: string, date?: number) {
-        this._add('DELETING_SOON', material, quantity, tx_hash, false, date);
+        return this._add('DELETING_SOON', material, quantity, tx_hash, false, date);
     }
 
     _add(status: 'TENTATIVE' | 'DELETING_SOON', material: string, quantity: number, tx_hash: string, shouldNotify: boolean, date?: number) {

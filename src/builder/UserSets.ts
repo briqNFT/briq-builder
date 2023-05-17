@@ -11,6 +11,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
 import { setsManager } from './SetsManager';
 import type { ExternalSetData } from './ExternalSets';
+import type { Call } from 'starknet';
 
 
 
@@ -195,10 +196,10 @@ class UserSetStore implements perUserStorable {
         setTimeout(() => this.poll(), success ? 10000 : 60000);
     }
 
-    async mintSet(token_hint: string, data: any, image: string | undefined) {
+    async mintSet(otherCalls: Array<Call>, token_hint: string, data: any, image: string | undefined) {
         // Debug
         //downloadJSON(data, data.id + ".json")
-        const TX = contractStore.set!.assemble(
+        const TX = contractStore.set!.callAndAssemble(otherCalls,
             this.user_id.split('/')[1],
             token_hint,
             data,
@@ -206,7 +207,7 @@ class UserSetStore implements perUserStorable {
         return this._mintSet(TX, data, image);
     }
 
-    async mintBookletSet(token_hint: string, data: any, image: string, booklet: string) {
+    async mintBookletSet(otherCalls: Array<Call>, token_hint: string, data: any, image: string, booklet: string) {
         // Debug
         //downloadJSON(data, data.id + ".json")
         const genesisStore = useGenesisStore();
@@ -214,7 +215,7 @@ class UserSetStore implements perUserStorable {
         const bookletData = await bookletDataStore[network][booklet]._fetch!;
         data.name = bookletData.name;
         data.descriptioon = bookletData.description;
-        const TX = contractStore.set!.assemble(
+        const TX = contractStore.set!.callAndAssemble(otherCalls,
             wallet_address,
             token_hint,
             data,

@@ -168,11 +168,11 @@ const cancelBuy = () => {
         <div class="my-4 text-sm flex justify-between items-center gap-8">
             <div>
                 <p class="mt-1">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
-            <!--<p>The price shown is the maximum, but you may end up paying less depending on actual slippage.</p>-->
             </div>
             <i @click.stop.prevent="toggledDetails=!toggledDetails" :class="`p-2 cursor-pointer hover:bg-grad-light rounded fa-solid fa-chevron-${toggledDetails ? 'up' : 'down'}`"/>
         </div>
         <div class="text-sm" v-show="toggledDetails">
+            <p>The price shown is the maximum, but you may end up paying less depending on actual slippage.</p>
             <p>Additional cost due to surge demand: {{ readableNumber(surgePart) }} {{ readableUnit(surgePart) }}</p>
             <p>Impact on price: {{ readableNumber(impactOnPrice) }} {{ readableUnit(impactOnPrice) }}</p>
         </div>
@@ -185,7 +185,10 @@ const cancelBuy = () => {
             <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
             <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
         </div>
-        <Btn class="w-full" :disabled="!termsSale || !termsBriq" @click="buyBriqs">Buy</Btn>
+        <!-- Slotted to allow the export flow to do different things -->
+        <slot name="button" :disabled="!termsSale || !termsBriq" :data="{ briqs: briqs_wanted, price: get_price_eth(briqs_wanted) }">
+            <Btn class="w-full" :disabled="!termsSale || !termsBriq" @click="buyBriqs">Buy</Btn>
+        </slot>
         <div v-if="transaction._data" class="overlay">
             <div class="bg-grad-lightest shadow-md rounded p-8 text-center">
                 <h4>Transaction submitted</h4>

@@ -23,8 +23,7 @@ import Flyout from './generic/Flyout.vue';
                 <BuyBriqsWidget class="w-[32rem] max-w-[32rem]"/>
             </Flyout>
         </div>
-        <h1 class="text-center mt-6 mb-4">FAQ</h1>
-        <div class="flex flex-col gap-4 faq">
+        <div class="flex flex-col gap-4 faq mt-8">
             <div>
                 <h2>How does the briq token work?</h2>
                 <p>briqs are building blocks stored on the blockchain with which you can build NFTs!  If you disassemble your NFT built with briq, you get your briqs back and can build something new! Technically, briqs are ERC-1155 compliant tokens.</p>

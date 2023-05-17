@@ -7,6 +7,7 @@ import { hash as snHash } from 'starknet';
 import SetABI from './starknet-testnet/set_nft.json';
 import * as starknet from 'starknet';
 import { maybeStore } from '../WalletLoading';
+import { toRaw } from 'vue';
 
 const SHAPE_HASH_COLLECTION = 2;
 
@@ -91,7 +92,13 @@ export default class SetContract {
     async assemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
         const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
         await maybeStore.value!.ensureEnabled();
-        return await this.contract.assemble_(owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet, SHAPE_HASH_COLLECTION] : [SHAPE_HASH_COLLECTION]);
+        return toRaw(await this.contract.assemble_(owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet, SHAPE_HASH_COLLECTION] : [SHAPE_HASH_COLLECTION]));
+    }
+
+    async callAndAssemble(otherCalls: Array<starknet.Call>, owner: string, token_id_hint: string, data: any, booklet?: string) {
+        await maybeStore.value!.ensureEnabled();
+        const calls = toRaw(otherCalls).concat([this.prepareAssemble(owner, token_id_hint, data, booklet)]);
+        return await (this.contract.providerOrAccount as starknet.AccountInterface).execute(calls);
     }
 
     prepareAssemble(owner: string, token_id_hint: string, data: any, booklet?: string) {

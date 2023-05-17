@@ -8,7 +8,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 import Window from '@/components/generic/Window.vue';
 import { Notification, pushPopup } from '@/Notifications';
 import { downloadJSON } from '@/url';
-import { computed, ref, toRef, watch } from 'vue';
+import { computed, nextTick, ref, toRef, watch } from 'vue';
 import { useScreenshotHelpers } from '../ScreenshotComposable';
 import { userSetStore } from '@/builder/UserSets';
 import { bookletStore } from '../BookletComposable';
@@ -21,6 +21,7 @@ import { getSetObject } from '@/builder/graphics/SetRendering';
 import { userBookletsStore } from '@/builder/UserBooklets';
 import { bookletDataStore } from '@/builder/BookletData';
 import { hexUuid } from '@/Uuid';
+import BuyBriqsWidget from '@/components/BuyBriqsWidget.vue';
 
 const { chainBriqs } = useBuilder();
 
@@ -129,17 +130,25 @@ const validationError = computed(() => {
             title: 'Briqs are not loaded yet',
             message: 'Please wait until briqs are loaded to mint this set.',
         }
-    if (!hasEnoughBriqs.value)
-        return {
-            code: 'NOT_ENOUGH_BRIQS',
-            title: 'Cannot mint: You don\'t own enough briqs',
-            message: 'You don’t have enough briqs to mint your set. Disassemble some of your other sets or buy new ones on the first (see our themes) or secondary markets (see on Aspect).',
-        }
     return undefined;
 })
 
 const mintingError = ref('');
-const exportStep = ref('' as '' | 'PREPARING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE');
+const exportStep = ref('' as '' | 'PREPARING' | 'BUY_BRIQS' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE');
+
+const briqTransaction = ref(undefined as unknown);
+const briqPendingObject = ref(undefined as undefined | Record<string, unknown>);
+
+const buyBriqsAndMint = async (data: unknown) => {
+    briqTransaction.value = contractStore.briq_factory?.buyTransaction(contractStore.eth_bridge_contract!, data.briqs, data.price);
+    briqPendingObject.value = chainBriqs.value?.show('0x1', data.briqs, '', true);
+    // In principle here we'll update the exportSet
+    console.log('Here we gooo 1 ');
+    nextTick(() => {
+        console.log('Here we gooo 2');
+        startMinting();
+    })
+}
 
 const startMinting = async () => {
     exportStep.value = 'PREPARING';
@@ -147,6 +156,11 @@ const startMinting = async () => {
         return;
     if (validationError.value)
         return;
+
+    if (!hasEnoughBriqs.value) {
+        exportStep.value = 'BUY_BRIQS';
+        return;
+    }
     try {
         if (!exportSet.value)
             throw new Error('The set could not be minted');
@@ -185,10 +199,13 @@ const startMinting = async () => {
 
         let TX;
         if (booklet.value) {
-            TX = await userSetStore.current!.mintBookletSet(token_hint, data, await imageProcessing.value, booklet.value);
+            TX = await userSetStore.current!.mintBookletSet(briqTransaction.value, token_hint, data, await imageProcessing.value, booklet.value);
             window.sessionStorage.removeItem(`booklet_${booklet.value}`);
         } else
-            TX = await userSetStore.current!.mintSet(token_hint, data, await imageProcessing.value);
+            TX = await userSetStore.current!.mintSet(briqTransaction.value, token_hint, data, await imageProcessing.value);
+
+        if (briqPendingObject.value)
+            briqPendingObject.value.tx_hash = TX.transaction_hash;
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
 
@@ -308,6 +325,20 @@ button:not(.btn):not(.nostyle)::before {
                     <i class="text-lg far fa-loader animate-spin mr-3"/> Pending unboxing
                 </Btn>
             </div>
+        </Window>
+    </template>
+    <template v-else-if="exportStep === 'BUY_BRIQS'">
+        <Window size="w-[40rem]">
+            <template #title>You need more briqs</template>
+            <div class="[&>p]:mb-2">
+                <p>You have {{}} briqs in your wallet and the set you’re trying to mint requires {{}} briqs. You need {{}} additional briqs to mint your set.</p>
+                <p>Click on <b class="font-semibold">buy and mint</b> to get your briqs and mint your set in the same transaction!</p>
+            </div>
+            <BuyBriqsWidget class="w-[32rem] m-auto">
+                <template #button="{ disabled, data }">
+                    <Btn :disabled="disabled" @click="buyBriqsAndMint(data)">Buy and mint</Btn>
+                </template>
+            </BuyBriqsWidget>
         </Window>
     </template>
     <template v-else>

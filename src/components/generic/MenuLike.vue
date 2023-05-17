@@ -93,7 +93,7 @@ onUnmounted(() => {
         </slot>
     </div>
     <Teleport to="#app">
-        <div ref="menuItem" v-show="opened" @click="closeOnClick ? opened = false : ''" @mouseleave="willClose" @mouseenter="dropClose" :style="menuPosition">
+        <div ref="menuItem" class="z-[10000]" v-show="opened" @click="closeOnClick ? opened = false : ''" @mouseleave="willClose" @mouseenter="dropClose" :style="menuPosition">
             <slot/>
         </div>
     </Teleport>

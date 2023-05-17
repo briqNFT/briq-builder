@@ -19,12 +19,16 @@ export default class BriqContract {
         return this.contract.address;
     }
 
-    async buy(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
-        await maybeStore.value!.ensureEnabled();
-        return await (this.contract.providerOrAccount as AccountInterface).execute([
+    buyTransaction(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
+        return [
             erc20_contract.contract.populateTransaction['approve'](this.contract.address, uint256.bnToUint256(number.toBN(approval))),
             this.contract.populateTransaction.buy(`${amount}`),
             erc20_contract.contract.populateTransaction['approve'](this.contract.address, uint256.bnToUint256(number.toBN(0))),
-        ]);
+        ]
+    }
+
+    async buy(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
+        await maybeStore.value!.ensureEnabled();
+        return await (this.contract.providerOrAccount as AccountInterface).execute(this.buyTransaction(erc20_contract, amount, approval));
     }
 }
