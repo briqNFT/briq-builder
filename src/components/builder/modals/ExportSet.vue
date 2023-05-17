@@ -22,6 +22,7 @@ import { userBookletsStore } from '@/builder/UserBooklets';
 import { bookletDataStore } from '@/builder/BookletData';
 import { hexUuid } from '@/Uuid';
 import BuyBriqsWidget from '@/components/BuyBriqsWidget.vue';
+import { Call } from 'starknet';
 
 const { chainBriqs } = useBuilder();
 
@@ -136,19 +137,23 @@ const validationError = computed(() => {
 const mintingError = ref('');
 const exportStep = ref('' as '' | 'PREPARING' | 'BUY_BRIQS' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE');
 
-const briqTransaction = ref(undefined as unknown);
-const briqPendingObject = ref(undefined as undefined | Record<string, unknown>);
+const briqTransaction = ref(undefined as undefined | Array<Call>);
+const briqPendingObject = ref(undefined as undefined | unknown);
 
 const buyBriqsAndMint = async (data: unknown) => {
     briqTransaction.value = contractStore.briq_factory?.buyTransaction(contractStore.eth_bridge_contract!, data.briqs, data.price);
-    briqPendingObject.value = chainBriqs.value?.show('0x1', data.briqs, '', true);
-    // In principle here we'll update the exportSet
-    console.log('Here we gooo 1 ');
+    // Don't notify in case we stop.
+    briqPendingObject.value = chainBriqs.value?.show('0x1', data.briqs, '');
+    // This will update ExportSet through watchers, but might take some time, so nextTick.
     nextTick(() => {
-        console.log('Here we gooo 2');
         startMinting();
-    })
+    });
 }
+
+const briqsNeeded = computed(() => {
+    // TODO -> this only works so far as we have one type of briq.
+    return setData.value.getNbBriqs() - chainBriqs.value?.getNbBriqs() || 0;
+})
 
 const startMinting = async () => {
     exportStep.value = 'PREPARING';
@@ -199,13 +204,17 @@ const startMinting = async () => {
 
         let TX;
         if (booklet.value) {
-            TX = await userSetStore.current!.mintBookletSet(briqTransaction.value, token_hint, data, await imageProcessing.value, booklet.value);
+            TX = await userSetStore.current!.mintBookletSet(briqTransaction.value || [], token_hint, data, (await imageProcessing.value)!, booklet.value);
             window.sessionStorage.removeItem(`booklet_${booklet.value}`);
         } else
-            TX = await userSetStore.current!.mintSet(briqTransaction.value, token_hint, data, await imageProcessing.value);
+            TX = await userSetStore.current!.mintSet(briqTransaction.value || [], token_hint, data, await imageProcessing.value);
 
-        if (briqPendingObject.value)
-            briqPendingObject.value.tx_hash = TX.transaction_hash;
+        if (briqPendingObject.value) {
+            // Remove and re-add to get the notifications.
+            const briqsBought = briqPendingObject.value.quantity;
+            chainBriqs.value!.removeMetadataItem(briqPendingObject.value);
+            briqPendingObject.value = chainBriqs.value!.show('0x1', briqsBought, TX.transaction_hash, true);
+        }
 
         exportStep.value = 'WAITING_FOR_CONFIRMATION';
 
@@ -230,6 +239,11 @@ const startMinting = async () => {
             emit('close');
         }, 0);
     } catch (err: any) {
+        // Reset the briqs if we bought some.
+        // TODO: this is fairly hacky.
+        if (briqPendingObject.value)
+            chainBriqs.value!.removeMetadataItem(briqPendingObject.value);
+
         if (err?.message === 'User abort') {
             pushPopup('error', 'Mint error', 'Minting transaction aborted.');
             mintingError.value = 'Aborted by user';
@@ -328,15 +342,17 @@ button:not(.btn):not(.nostyle)::before {
         </Window>
     </template>
     <template v-else-if="exportStep === 'BUY_BRIQS'">
-        <Window size="w-[40rem]">
+        <Window size="w-[34rem]">
             <template #title>You need more briqs</template>
-            <div class="[&>p]:mb-2">
-                <p>You have {{}} briqs in your wallet and the set you’re trying to mint requires {{}} briqs. You need {{}} additional briqs to mint your set.</p>
-                <p>Click on <b class="font-semibold">buy and mint</b> to get your briqs and mint your set in the same transaction!</p>
+            <div class="mb-4 [&>p>b]:font-semibold">
+                <p>You have <b>{{ chainBriqs?.getNbBriqs() || 0 }}</b> briqs in your wallet and the set you’re trying to mint requires <b>{{ setData.getNbBriqs() }}</b> briqs.<br>You need at least <b>{{ briqsNeeded }}</b> additional briqs to mint your set.</p>
             </div>
-            <BuyBriqsWidget class="w-[32rem] m-auto">
+            <BuyBriqsWidget class="w-full" :minimum="briqsNeeded">
                 <template #button="{ disabled, data }">
-                    <Btn :disabled="disabled" @click="buyBriqsAndMint(data)">Buy and mint</Btn>
+                    <div class="flex justify-between">
+                        <Btn secondary @click="mintingError = ''; exportStep = ''" class="mr-2 !font-normal">Go back</Btn>
+                        <Btn :disabled="disabled" @click="buyBriqsAndMint(data)">Buy and mint</Btn>
+                    </div>
                 </template>
             </BuyBriqsWidget>
         </Window>
@@ -350,7 +366,7 @@ button:not(.btn):not(.nostyle)::before {
                 <div class="flex justify-between pt-4">
                     <Btn secondary @click="$emit('close')">Close</Btn>
                     <div>
-                        <Btn no-background @click="exportStep = ''" class="mr-2">Go back</Btn>
+                        <Btn no-background @click="mintingError = ''; exportStep = ''" class="mr-2">Go back</Btn>
                         <Btn @click="startMinting">Try again</Btn>
                     </div>
                 </div>

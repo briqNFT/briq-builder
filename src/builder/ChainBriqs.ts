@@ -139,7 +139,7 @@ export class ChainBriqs implements perUserStorable {
                 }
                 if (update.status === 'DELETING_SOON') {
                     if (byMaterial[material])
-                        byMaterial[material].ft_balance = Math.max(0, byMaterial[material].ft_balance - update.quantity);
+                        byMaterial[material].ft_balance = byMaterial[material].ft_balance - update.quantity;
                 } else {
                     if (!byMaterial[material])
                         byMaterial[material] = { ft_balance: 0, nft_ids: [] };
@@ -189,6 +189,14 @@ export class ChainBriqs implements perUserStorable {
         this.metadata[material].push(newMeta);
         this._parseChainData(this._lastDataFetch);
         return newMeta;
+    }
+
+    removeMetadataItem(item: ChainBriqs['metadata']['any'][0]) {
+        const idx = this.metadata['0x1'].findIndex(x => x === item)
+        if (idx !== undefined && idx !== -1) {
+            this.metadata['0x1'].splice(idx, 1);
+            this._parseChainData(this._lastDataFetch);
+        }
     }
 
     /**

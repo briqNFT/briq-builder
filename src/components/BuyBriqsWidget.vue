@@ -12,14 +12,20 @@ import { ExplorerTxUrl } from '@/chain/Explorer';
 import { chainBriqs } from '@/builder/ChainBriqs';
 import MenuLike from './generic/MenuLike.vue';
 
-const briqs_wanted = ref(300);
+
+const props = defineProps<{
+    minimum: number,
+}>();
+
+const minimum = computed(() => props.minimum || 100);
+
+const briqs_wanted = ref(minimum.value);
 
 const slippage = ref(2); // as a per-mille.
 
 const EthUsdPrice = reactive(new Fetchable());
 
 const toggledDetails = ref(false);
-const ToggleBuySell = ref(false);
 
 const termsSale = ref(false);
 const termsBriq = ref(false);
@@ -126,7 +132,7 @@ const cancelBuy = () => {
                 <Btn no-background class=" p-1"><i class="far fa-gear"/></Btn>
             </div>
             -->
-            <div class="relative rounded-md border-grad-lighter border-2 ">
+            <div class="relative m-auto rounded-md border-grad-lighter border-2 ">
                 <MenuLike :close-on-click="false" :delay="false" position="br" class="flex items-center absolute right-0 top-0 mr-2 mt-2">
                     <template #button="{ open }">
                         <Btn no-background @click.stop="open" class="text-grad-dark relative left-2 bottom-2 rounded-md p-1 mb-1"><i class="far fa-gear"/></Btn>
@@ -135,7 +141,7 @@ const cancelBuy = () => {
                         <p class="leading-normal">
                             Max price slippage:<br>
                             <span class="flex justify-between items-center">
-                                <span><input class="mr-1 w-20" type="number" v-model="slippage">‰</span>
+                                <span><input class="mr-1 w-20" type="number" min="0" v-model="slippage">‰</span>
                                 <Btn :disabled="slippage === 2" @click="slippage = 2" no-background class="ml-2 p-2 h-auto">
                                     <i class="text-sm p-0 fa-solid fa-arrows-rotate"/>
                                 </Btn>
@@ -159,7 +165,7 @@ const cancelBuy = () => {
                 </div>
                 <div class="p-6">
                     <p class="flex flex-1 justify-between items-center gap-4">
-                        <input class="text-2xl text-grad-darkest font-medium px-2 py-1 w-full" type="number" :min="200" :max="1000000" v-model="briqs_wanted">
+                        <input class="text-2xl text-grad-darkest font-medium px-2 py-1 w-full" type="number" :min="minimum" :max="1000000" v-model="briqs_wanted">
                         <span class="text-2xl font-medium">briqs</span>
                     </p>
                 </div>

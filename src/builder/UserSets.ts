@@ -277,7 +277,11 @@ class UserSetStore implements perUserStorable {
             }
             window.removeEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
             // Wait on the backend to be done before returning.
-            await backendHint;
+            await new Promise<void>(resolve => {
+                // Don't fail on this - we probably want to proceed anyways as the blockchain TX is gone through.
+                backendHint.then(() => resolve()).catch(() => resolve());
+                setTimeout(resolve, 5000);
+            });
             return TX;
         } catch(_) {
             window.removeEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
