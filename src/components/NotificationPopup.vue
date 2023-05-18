@@ -53,7 +53,7 @@ const resumeTimer = () => {
 </style>
 
 <template>
-    <Flyout class="p-4 flyout text-sm overflow-hidden min-w-[11rem]" @pointerenter="pauseTimer" @pointerleave="resumeTimer">
+    <Flyout class="p-4 flyout text-sm overflow-hidden sm:min-w-[11rem]" @pointerenter="pauseTimer" @pointerleave="resumeTimer">
         <div>
             <div class="flex justify-between items-center pb-1">
                 <h5 class="font-medium py-1 flex items-center gap-2"><i :style="{ color: `rgb(var(--color-info-${level}))` }" :class="`text-md ${icon}`"/> <slot name="title"/></h5>

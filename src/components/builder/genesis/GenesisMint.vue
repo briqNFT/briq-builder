@@ -126,7 +126,7 @@ h4 {
                         <p class="text-lg font-normal">Collect, build and play with briqs,<br>the building blocks of the metaverse.</p>
                     </div>
                 </div>
-                <div class="max-w-[24rem] lg:max-w-[1000rem] min-w-[14rem] self-stretch flex-1 w-full flex flex-col items-center justify-center relative">
+                <div class="max-w-[24rem] lg:max-w-[1000rem] sm:min-w-[14rem] self-stretch flex-1 w-full flex flex-col items-center justify-center relative">
                     <component
                         v-if="!modelViewerLoading"
                         :is="modelViewer" class="w-full h-full absolute"
@@ -185,13 +185,13 @@ h4 {
                     <p class="my-4"><RouterLink to="/themes" class="text-primary">Check out our briq boxes <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
                 </div>
                 <div class="flex-1 min-w-[300px]">
-                    <img :src="CollectImage" class="max-w-none max-h-none w-full h-auto">
+                    <img :src="CollectImage" class="min-w-0 max-w-none max-h-none w-full h-auto">
                 </div>
             </div>
             <div class="flex flex-row flex-wrap items-center gap-[4rem] mb-16">
                 <div class="flex-1 min-w-[300px]">
                     <!-- No drop shadow for the production JPGs -->
-                    <img :src="BuildImage" class="max-w-none max-h-none w-full h-auto">
+                    <img :src="BuildImage" class="min-w-0 max-w-none max-h-none w-full h-auto">
                 </div>
                 <div class="flex-1 md:px-[2rem] xl:px-[8rem]">
                     <h3>Build</h3>
@@ -201,7 +201,7 @@ h4 {
                     <p class="my-4"><RouterLink to="/builder" class="text-primary">Start building <i class="fa-solid fa-arrow-right relative top-[1px]"/></RouterLink></p>
                 </div>
             </div>
-            <div class="flex flex-row flex-wrap-reverse items-center gap-[4rem] my-16">
+            <div class="flex sm:flex-row flex-wrap-reverse items-center gap-[4rem] my-16">
                 <div class="flex-1 md:px-[2rem] xl:px-[8rem]">
                     <h3>Play</h3>
                     <p>Sets are highly interoperable NFTs. Carry them around with you to the nearest metaverse. </p>
@@ -224,7 +224,7 @@ h4 {
             <div class="h-[500px] bg-black text-white rounded-lg relative overflow-hidden genesis-tab">
                 <img :src="themeCoverUrl('ducks_everywhere', 'high')" class="absolute max-w-none w-auto h-full top-[50%] translate-y-[-50%] translate-x-[-50%] left-[50%]">
                 <div class="z-1 p-8 relative h-full flex flex-col justify-between items-center xl:items-start w-full">
-                    <img :srcset="themeLogoSrcSet('ducks_everywhere')" class="w-auto h-auto m-8">
+                    <img :srcset="themeLogoSrcSet('ducks_everywhere')" class="min-w-0 w-auto h-auto m-8">
                     <p class="text-right w-full"><i class="fa-solid fa-arrow-right relative top-[1px]"/> Discover the new theme</p>
                 </div>
             </div>

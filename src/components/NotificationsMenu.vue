@@ -18,7 +18,7 @@ const hasUnreadNotifications = computed(() => notificationsManager.notifications
                 Notifications
                 <span><Btn no-background @click="close" class="w-6 h-6 p-0 text-lg inline-flex justify-center items-center"><i class="fas fa-xmark"/></Btn></span>
             </h4>
-            <NotificationsList class="mx-4 my-2 mt-0 min-w-[26rem]"/>
+            <NotificationsList class="mx-4 my-2 mt-0 sm:min-w-[26rem]"/>
         </template>
     </MenuDropdown>
 </template>

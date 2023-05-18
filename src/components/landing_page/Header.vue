@@ -69,7 +69,7 @@ const pendingBriqs = computed(() => {
                 <a class="hidden sm:block" href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank">
                     <p class="hover:text-primary text-sm md:text-md font-medium">Resources</p>
                 </a>
-                <routerLink to="/buy_briqs">
+                <routerLink class="hidden sm:block" to="/buy_briqs">
                     <p class="hover:text-primary text-sm md:text-md font-medium">Get briqed</p>
                 </routerLink>
                 <div v-if="APP_ENV === 'dev'" class="hidden lg:block text-info-info font-semibold px-2 py-1">DEV ENV - FOR TESTING ONLY</div>
