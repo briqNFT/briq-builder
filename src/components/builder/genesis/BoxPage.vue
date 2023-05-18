@@ -131,7 +131,6 @@ const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
                     </div>
                     <div class="p-6 py-4 flex flex-col gap-4">
                         <p class="text-grad-dark font-medium text-xs">Your box is under blister. Once you open it, you can't go back.</p>
-                        <!--<p class="text-grad-dark">Currently owned: <span class="text-grad-darkest">{{ nbOwned }}</span></p>-->
                     </div>
                 </div>
             </template>

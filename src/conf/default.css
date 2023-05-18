@@ -19,7 +19,7 @@ html, ::before, ::after {
     --color-info-error: 245 34 45;
 
     --color-text-on-background: var(--color-grad-darker);
-    --color-text-on-primary: var(--color-grad-lightest);
+    --color-text-on-primary: 255 255 255;
 }
 
 html.dark, .dark *::before, .dark *::after {
@@ -29,7 +29,7 @@ html.dark, .dark *::before, .dark *::after {
     --color-primary-lighter: 255 113 31;
     --color-primary-lightest: 245 170 128;
 
-    --color-grad-darkest: 5 5 5;
+    --color-grad-darkest: 255 255 255;
     --color-grad-darker: 255 255 255;
     --color-grad-dark: 229 232 235;
     --color-grad-light: 51 51 116;
@@ -42,5 +42,5 @@ html.dark, .dark *::before, .dark *::after {
     --color-info-error: 245 34 45;
 
     --color-text-on-background: var(--color-grad-darker);
-    --color-text-on-primary: var(--color-grad-darkest);
+    --color-text-on-primary: 255 255 255;
 }
