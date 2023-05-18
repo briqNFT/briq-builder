@@ -17,11 +17,11 @@ const props = defineProps<{
     minimum: number,
 }>();
 
-const minimum = computed(() => props.minimum || 100);
+const minimum = computed(() => Math.max(201, props.minimum || 0));
 
 const briqs_wanted = ref(minimum.value);
 
-const slippage = ref(2); // as a per-mille.
+const slippage = ref(20); // as a per-mille.
 
 const EthUsdPrice = reactive(new Fetchable());
 

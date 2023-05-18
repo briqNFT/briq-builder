@@ -60,6 +60,13 @@ const { chainBriqs } = useBuilder();
 const { activeInputButton, switchToState } = useBuilderInput();
 
 const menuOpen = ref(false);
+
+const pendingBriqs = computed(() => {
+    if (!chainBriqs?.value)
+        return false;
+    return Object.keys(chainBriqs?.value!.metadata).length;
+});
+
 </script>
 
 <style scoped>
@@ -117,8 +124,9 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                 <template v-if="maybeStore?.userWalletAddress">
                     <Tooltip :tooltip="`${ getNbBriqs } briqs used out of ${ chainBriqs?.getNbBriqs() } in wallet`">
                         <div class="flex items-center justify-left font-medium gap-2 pl-3 pr-4 cursor-help" :style="{ minWidth: `${getNbBriqs.toString().length * 0.6 + 5.7}rem`}">
-                            <briqIcon width="0.9rem" class="inline-block"/>
-                            {{ getNbBriqs }}/{{ chainBriqs?.getNbBriqs() }}
+                            <briqIcon v-if="pendingBriqs" width="0.9rem" class="inline-block hue-rotate-180 brightness-[1.3] saturate-[0.8]"/>
+                            <briqIcon v-else width="0.9rem" class="inline-block"/>
+                            <span :class="pendingBriqs ? 'text-info-info' : ''">{{ getNbBriqs }}/{{ chainBriqs?.getNbBriqs() }}</span>
                         </div>
                     </Tooltip>
                     <div>

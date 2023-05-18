@@ -289,7 +289,7 @@ button:not(.btn):not(.nostyle)::before {
     </template>
     <template v-else-if="!exportStep && !booklet">
         <Window size="w-[38rem]">
-            <template #title>Export set</template>
+            <template #title>Mint set</template>
             <div class="relative flex justify-center items-center">
                 <div class="absolute top-2 right-2 flex gap-2">
                     <Btn secondary @click="cropScreenshot"><i class="far fa-crop-simple"/></Btn>
@@ -358,15 +358,19 @@ button:not(.btn):not(.nostyle)::before {
         </Window>
     </template>
     <template v-else-if="exportStep === 'DONE'">
-        <Window size="w-[34rem]">
-            <template #title>Transaction sent</template>
+        <Window size="w-[40rem]">
+            <template #title>Transaction sent <i class="pl-2 far fa-circle-check text-info-success"/></template>
             <p class="mb-2">
-                The minting transaction was sent.<br>
+                The mint<template v-if="briqPendingObject">-and-buy</template> transaction was sent.<br>
                 You can track its progress on <a :href="ExplorerTxUrl(TX?.transaction_hash || '')" class="text-primary">Starkscan</a>.
             </p>
             <p>
                 You set is now shown in your profile with a 'pending' status, which will go away once the transaction is confirmed.<br>
                 You will be notified if an error occurs and may retry minting.
+            </p>
+            <p class="my-4" v-if="briqPendingObject">
+                You have bought {{ briqPendingObject.quantity }} briqs, and {{ exportSet?.getNbBriqs() }} briqs have been used in the set.<br>
+                You now have {{ chainBriqs?.getNbBriqs() }} briqs.
             </p>
             <div class="flex justify-end mt-4">
                 <Btn @click="emit('close')">Close</Btn>
