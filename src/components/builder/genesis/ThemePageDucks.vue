@@ -201,13 +201,13 @@ const setHoveredDuck = (tokenId: string | undefined) => {
             </div>
             <div class="mb-8">
                 <template v-if="themeStatus === 'LOADED'">
-                    <div class="sticky top-[calc(4rem-1px)] z-10 my-2 bg-background py-6 w-full">
-                        <div class="max-w-[1600px] px-8 m-auto flex gap-2 md:flex-nowrap flex-wrap">
+                    <div class="tall-sm:sticky top-[calc(3.5rem-1px)] md:top-[calc(4rem-1px)] z-10 my-2 bg-background py-3 md:py-6 w-full">
+                        <div class="max-w-[1600px] px-2 md:px-8 m-auto flex gap-2 md:flex-nowrap flex-wrap">
                             <p class="relative flex items-center flex-1 min-w-[16rem] max-w-[38rem]">
                                 <input class="w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
                                 <i class="fa-solid fa-magnifying-glass absolute right-3"/>
                             </p>
-                            <div class="flex gap-2">
+                            <div class="hidden sm:flex gap-2">
                                 <Btn secondary class="px-2 font-normal text-sm" @click="groupBy ? groupBy = undefined : groupBy = 'owner'">
                                     <Toggle v-model="isGroupedByOwner" class="mr-2 w-8 pointer-events-none"/>
                                     Group by owner
@@ -215,11 +215,12 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                             </div>
                         </div>
                     </div>
-                    <div class="max-w-[1600px] px-8 m-auto mt-3" ref="ducksListing">
+                    <div class="max-w-[1600px] px-2 md:px-8 m-auto mt-3" ref="ducksListing">
                         <div
                             class="grid gap-4 grid-cols-[min-content_20rem] tall-md:grid-cols-[min-content_minmax(16rem,auto)]">
                             <div
-                                class="grid gap-2 lg:gap-4 content-start sm:grid-cols-[repeat(2,9rem)] md:grid-cols-[repeat(3,9rem)]
+                                class="grid sm:gap-2 lg:gap-4 content-start
+                                grid-cols-[repeat(1,5rem)] sm:grid-cols-[repeat(2,9rem)] md:grid-cols-[repeat(3,9rem)]
                                 lg:grid-cols-[repeat(4,10rem)] xl:grid-cols-[repeat(5,10rem)] 2xl:grid-cols-[repeat(6,10rem)]"
                                 @pointerleave="hoverLock && setHoveredDuck(undefined)">
                                 <template v-if="isGroupedByOwner">
@@ -228,7 +229,7 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                         <div
                                             v-for="duckId, i in tokensByOwner[owner]" :key="duckId + i"
                                             v-show="shouldShow(duckId)"
-                                            class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
+                                            class="w-[5rem] h-[5rem] sm:w-[9rem] sm:h-[9rem] lg:w-[10rem] lg:h-[10rem]">
                                             <p v-if="!getSet(duckId)">...Loading data...</p>
                                             <div
                                                 v-else
@@ -244,7 +245,7 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                     <div
                                         v-for="duckId, i in themeTokens" :key="duckId + i"
                                         v-show="shouldShow(duckId)"
-                                        class="w-[9rem] h-[9rem] lg:w-[10rem] lg:h-[10rem]">
+                                        class="w-[5rem] h-[5rem] sm:w-[9rem] sm:h-[9rem] lg:w-[10rem] lg:h-[10rem]">
                                         <p v-if="!getSet(duckId)">...Loading data...</p>
                                         <div
                                             v-else
@@ -257,9 +258,9 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                 </template>
                                 <h5 class="col-span-full" v-show="!filteredTokens.length">There are no ducks matching the filters you've entered</h5>
                             </div>
-                            <div class="relative min-h-[30rem]">
-                                <div class="sticky top-[9.2rem] z-5 flex justify-center w-full">
-                                    <div v-if="!!themeSets._data" class="max-w-[26rem] min-h-[38rem] relative w-full">
+                            <div class="relative tall-sm:min-h-[30rem]">
+                                <div class="sticky top-[4.3rem] tall-sm:top-[7.3rem] tall-sm:md:top-[9.2rem] z-5 flex justify-center w-full">
+                                    <div v-if="!!themeSets._data" class="tall-sm:max-w-[26rem] tall-sm:min-h-[38rem] relative w-full">
                                         <Transition name="fade-hoverlock">
                                             <DuckDetailCard
                                                 v-if="hoverLock"

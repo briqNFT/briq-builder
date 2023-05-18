@@ -63,15 +63,15 @@ const currentOwner = computed(() => {
             <template v-if="data._status === 'LOADED'">
                 <!-- Because we have gap-2 we need to remove 8px from bottom margin -->
                 <p
-                    :class="`rounded-md overflow-hidden min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-max bg-cover bg-origin-content bg-center bg-no-repeat`"
+                    :class="`rounded-md overflow-hidden min-h-0 min-w-0 flex justify-center items-center m-4 mb-2 h-max bg-contain bg-origin-content bg-center bg-no-repeat`"
                     :style="{ backgroundImage: `url(${highImage}), url(${lowImage})` }">
-                    <img class="min-h-0 min-w-0 max-h-full max-w-full invisible" :src="lowImage">
+                    <img class="min-h-0 min-w-0 max-h-[8rem] tall-sm:max-h-full max-w-full invisible" :src="lowImage">
                 </p>
-                <h3 class="font-semibold text-lg px-4 overflow-x-auto">{{ data._data!.name }} </h3>
-                <p class="px-4 flex justify-between text-md py-[1px]">{{ data._data!.description }}</p>
+                <h3 class="font-semibold text-md tall-sm:text-lg px-4 overflow-x-auto">{{ data._data!.name }} </h3>
+                <p class="px-4 flex justify-between text-sm tall-sm:text-md py-[1px]">{{ data._data!.description }}</p>
                 <hr class="my-2">
 
-                <div class="p-4 pt-0 flex flex-col gap-2">
+                <div class="px-4 py-2 tall-sm:p-4 pt-0 flex flex-col gap-2">
                     <p class="flex justify-between">
                         <span class="text-grad-dark">Owner</span>
                         <span class="font-medium">{{ currentOwner }}</span>
@@ -80,7 +80,7 @@ const currentOwner = computed(() => {
                         <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: tokenId } }">
                             <Btn secondary>See details</Btn>
                         </RouterLink>
-                        <a :href="getSetLink(network, tokenId)" target="_blank">
+                        <a class="hidden tall-sm:visible" :href="getSetLink(network, tokenId)" target="_blank">
                             <Btn secondary>See on Mintsquare</Btn>
                         </a>
                     </p>
