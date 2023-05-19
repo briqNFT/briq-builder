@@ -51,7 +51,7 @@ class BlockchainProvider {
 function getProviderForNetwork(network: CHAIN_NETWORKS): Provider {
     // Forward calls to the backend, itself a proxy for our node provider.
     const testnetProvider = APP_ENV !== 'prod' ?
-        new Provider({ rpc: { nodeUrl: `http://localhost:5055/v1/node/${network}/rpc`, retries: 2 } }) :
+        new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/${network}/rpc`, retries: 2 } }) :
         new Provider({ sequencer: { network: 'goerli-alpha' } });
 
     return {
