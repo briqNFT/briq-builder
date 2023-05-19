@@ -3,6 +3,7 @@ import type { FunctionAbi } from 'starknet';
 import { Contract } from 'starknet';
 import { uint256 } from 'starknet';
 import { maybeStore } from '../WalletLoading';
+import { getProvider } from '../BlockchainProvider';
 
 import ABI from './starknet-testnet/erc20.json';
 
@@ -21,7 +22,7 @@ export default class ERC20Contract {
     }
 
     async getBalance(): Promise<string> {
-        const result = await this.contract.balanceOf(maybeStore.value?.userWalletAddress);
-        return uint256.uint256ToBN(result.balance).toString();
+        const result = (await getProvider().value.provider?.callContract(this.contract.populateTransaction.balanceOf(maybeStore.value?.userWalletAddress))).result;
+        return uint256.uint256ToBN({ low: result[0], high: result[1] }).toString();
     }
 }

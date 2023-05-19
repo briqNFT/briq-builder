@@ -28,6 +28,7 @@ export class Fetchable<T> {
     clear() {
         this._data = undefined;
         this._fetch = undefined;
+        this._error = undefined;
     }
 }
 

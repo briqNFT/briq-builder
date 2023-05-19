@@ -21,6 +21,11 @@ class BriqFactory {
         this.surgeT = BigInt(0);
     }
 
+    setParams(t: string, surge_t: string) {
+        this.lastStoredT = BigInt(t);
+        this.surgeT = BigInt(surge_t);
+    }
+
     private getBlockTimestamp(): bigint {
         // Here, replace with the actual way to get the blockchain timestamp
         return BigInt(Date.now());
@@ -28,6 +33,8 @@ class BriqFactory {
 
     private getCurrentT(): bigint {
         const t = this.lastStoredT;
+        return t;
+        // TODO: implement timestamp stuff
         const timestamp = this.getBlockTimestamp();
         const timeSinceLastPurchase = timestamp - this.lastPurchaseTime;
         const decay = timeSinceLastPurchase * BriqFactory.decayPerSecond;
@@ -37,6 +44,8 @@ class BriqFactory {
 
     private getSurgeT(): bigint {
         const t = this.surgeT;
+        return t;
+        // TODO: implement timestamp stuff
         const timestamp = this.getBlockTimestamp();
         const timeSinceLastPurchase = timestamp - this.lastPurchaseTime;
         const decay = timeSinceLastPurchase * BriqFactory.surgeDecayPerSecond;

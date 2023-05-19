@@ -21,7 +21,8 @@ const minimum = computed(() => Math.max(201, props.minimum || 0));
 
 const briqs_wanted = ref(minimum.value);
 
-const slippage = ref(20); // as a per-mille.
+const parameters = ref(new Fetchable<unknown>());
+const slippage = ref(3); // as a per-mille.
 
 const EthUsdPrice = reactive(new Fetchable());
 
@@ -35,12 +36,18 @@ onMounted(async () => {
     EthUsdPrice.fetch(
         async () => 1 / +(await (await fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD')).json())?.data?.rates?.ETH,
     )
-
-/*let price = await contractStore.briq_factory?.get_price(1);
-    if (price)
-        last_know_price.value = starknet.number.toBN(price);
-    */
+    fetchPrices();
 })
+
+const fetchPrices = () => {
+    if (parameters.value._error)
+        parameters.value.clear();
+    parameters.value.fetch(async () => {
+        const params = await contractStore.briq_factory!.getParameters();
+        briqFactory.setParams(params.current_t, params.surge_t);
+        return params;
+    });
+}
 
 const get_price_eth = (briqs: number) => {
     let price = starknet.number.toBN(briqFactory.getPrice(briqs));
@@ -72,6 +79,8 @@ const shareOfSurge = computed(() => {
 })
 
 const as_dollars = computed(() => {
+    if (!parameters.value._data)
+        return '...';
     let price = get_price_eth(briqs_wanted.value).mul(
         starknet.number.toBN(EthUsdPrice._data * 10000000000|| 10000000000),
     ).div(starknet.number.toBN(10000000000));
@@ -151,7 +160,8 @@ const cancelBuy = () => {
                 </MenuLike>
                 <div class="p-6">
                     <p class="flex flex-1 justify-between items-center gap-4">
-                        <span class="text-2xl font-medium">{{ readableNumber(get_price_eth(briqs_wanted)) }}</span>
+                        <span class="text-2xl font-medium" v-if="parameters._data">{{ readableNumber(get_price_eth(briqs_wanted)) }}</span>
+                        <span class="text-2xl font-medium" v-else>...</span>
                         <span class="text-2xl font-medium">ETH</span>
                     </p>
                     <p class="flex flex-1 items-center justify-between gap-4 mt-2 text-sm">
@@ -192,8 +202,8 @@ const cancelBuy = () => {
             <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
         </div>
         <!-- Slotted to allow the export flow to do different things -->
-        <slot name="button" :disabled="!termsSale || !termsBriq" :data="{ briqs: briqs_wanted, price: get_price_eth(briqs_wanted) }">
-            <Btn class="w-full" :disabled="!termsSale || !termsBriq" @click="buyBriqs">Buy</Btn>
+        <slot name="button" :disabled="!termsSale || !termsBriq || !parameters._data" :data="{ briqs: briqs_wanted, price: get_price_eth(briqs_wanted) }">
+            <Btn class="w-full" :disabled="!termsSale || !termsBriq || !parameters._data" @click="buyBriqs">Buy</Btn>
         </slot>
         <div v-if="transaction._data" class="overlay">
             <div class="bg-grad-lightest shadow-md rounded p-8 text-center">
@@ -215,6 +225,14 @@ const cancelBuy = () => {
             <div class="bg-grad-lightest shadow-md rounded p-8 text-center">
                 <h4>Waiting for wallet confirmation</h4>
                 <p class="text-center mt-6"><i class="far fa-spinner animate-spin-slow text-xl"/></p>
+            </div>
+        </div>
+        <!-- Error overlay on top of everything -->
+        <div v-if="parameters._error" class="overlay">
+            <div class="bg-grad-lightest shadow-md rounded p-8 text-center border-4 border-info-error">
+                <h4>Error fetching prices</h4>
+                <p>There was an error fetch briq prices.</p>
+                <Btn class="mt-6" @click="fetchPrices">Retry</Btn>
             </div>
         </div>
     </div>

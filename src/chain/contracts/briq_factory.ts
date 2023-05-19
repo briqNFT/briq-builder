@@ -5,6 +5,7 @@ import { number, uint256 } from 'starknet';
 import BriqFactoryABI from './starknet-testnet/briq_factory.json';
 import { maybeStore } from '../WalletLoading';
 import type ERC20Contract from './erc20';
+import { getProvider } from '../BlockchainProvider';
 
 export default class BriqContract {
     contract!: Contract;
@@ -17,6 +18,18 @@ export default class BriqContract {
     }
     getAddress() {
         return this.contract.address;
+    }
+
+    async getParameters() {
+        const provider = getProvider().value!;
+
+        const current_t = (await provider.provider!.callContract(this.contract.populateTransaction.get_current_t())).result[0] as string;
+        const surge_t = (await provider.provider!.callContract(this.contract.populateTransaction.get_surge_t())).result[0] as string;
+
+        return {
+            current_t,
+            surge_t,
+        }
     }
 
     buyTransaction(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
