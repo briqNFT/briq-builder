@@ -153,7 +153,7 @@ import type { AccountInterface, Provider, Signer } from 'starknet';
 import { hash as snHash } from 'starknet';
 import * as starknet from 'starknet';
 
-import { getProvider } from '@/chain/Provider';
+import { getProvider } from '@/chain/BlockchainProvider';
 import { walletStore } from '@/chain/Wallet';
 
 const callContract = function (provider: Provider, address: string, entryPoint: string, data: any[]) {

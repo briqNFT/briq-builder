@@ -482,11 +482,6 @@ const doFakeUnbox = async () => {
 const openBuilder = async () => {
     fsm.switchTo('OPEN_BUILDER')
 }
-
-const useMockWallet = () => {
-    window.useDebugProvider();
-}
-
 </script>
 
 <template>

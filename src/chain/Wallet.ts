@@ -14,7 +14,6 @@ import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
 import { connect, disconnect, StarknetWindowObject } from 'get-starknet';
 
-import { setupMockWallet } from './MockWallet';
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider } from './BlockchainProvider';
 
@@ -53,9 +52,6 @@ export class WalletStore {
             this._userWalletAddress = storedAddress.split('/')[1];
             setNetwork(storedAddress.split('/')[0]);
         }
-
-        if (APP_ENV !== 'prod')
-            setupMockWallet();
 
         // Mark the promise as complete - we've either succeeded at connecting or we don't have a default wallet/some other issue.
         setWalletInitComplete(this);

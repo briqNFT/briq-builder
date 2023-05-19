@@ -1,8 +1,17 @@
 /**
  * Generic, chain-independent abstraction of some things.
  */
+import { logDebug } from '@/Messages';
+import { ref, watchEffect } from 'vue';
+
+import { Provider } from 'starknet';
+import getBaseUrl from '@/url';
+
+import { CHAIN_NETWORKS, getCurrentNetwork } from './Network';
+import { TEST_ENV, DEV, APP_ENV } from '@/Meta';
+
 class BlockchainProvider {
-    provider: any;
+    provider: Provider | undefined;
 
     alive = true;
 
@@ -15,15 +24,15 @@ class BlockchainProvider {
     }
 
     async getTransactionStatus(tx_hash: string): Promise<'NOT_RECEIVED' | 'RECEIVED' | 'PENDING' | 'ACCEPTED_ON_L2' | 'ACCEPTED_ON_L1' | 'REJECTED'> {
-        return (await this.provider.getTransactionReceipt(tx_hash))?.status || 'NOT_RECEIVED';
+        return (await this.provider?.getTransactionReceipt(tx_hash))?.status || 'NOT_RECEIVED';
     }
 
     async getTransactionBlock(tx_hash: string) {
         try {
-            const data = (await (await fetch(`${this.provider.provider.feederGatewayUrl}/get_transaction?transactionHash=${tx_hash}`)).json());
+            const data = await this.provider?.getTransactionReceipt(tx_hash);
             return {
-                block_number: data.block_number,
-                status: data.status,
+                block_number: data!.block_number,
+                status: data!.status,
             }
         } catch (_) {
             // Fail in a safe-way for calling code.
@@ -35,18 +44,32 @@ class BlockchainProvider {
     }
 
     getTransaction(tx_hash: string) {
-        return this.provider.getTransaction(tx_hash);
+        return this.provider?.getTransaction(tx_hash);
     }
 }
 
-import { logDebug } from '@/Messages';
-import { ref, watchEffect } from 'vue';
-import { getCurrentNetwork } from './Network';
-import { getProvider } from './Provider';
+function getProviderForNetwork(network: CHAIN_NETWORKS): Provider {
+    // Forward calls to the backend, itself a proxy for our node provider.
+    const testnetProvider = APP_ENV !== 'prod' ?
+        new Provider({ rpc: { nodeUrl: `http://localhost:5055/v1/node/${network}/rpc`, retries: 2 } }) :
+        new Provider({ sequencer: { network: 'goerli-alpha' } });
 
-export const blockchainProvider = ref(undefined as undefined | BlockchainProvider);
+    return {
+        'localhost': new Provider({ sequencer: { baseUrl: 'http://localhost:5050/' } }),
+        'starknet-testnet': testnetProvider,
+        'starknet-testnet2': new Provider({ sequencer: { baseUrl: 'https://alpha4-2.starknet.io/' } }), //({ network: 'goerli-alpha' }),
+        'starknet-mainnet': new Provider({ sequencer: { network: 'mainnet-alpha' } }),
+    }[network];
+}
 
-watchEffect(() => {
-    blockchainProvider.value = new BlockchainProvider(getProvider());
-    logDebug('SWITCHING BLOCKCHAIN PROVIDER TO ', getCurrentNetwork());
-});
+export const blockchainProvider = ref(new BlockchainProvider(undefined));
+
+export function getProvider() {
+    return blockchainProvider;
+}
+
+if (!TEST_ENV)
+    watchEffect(() => {
+        blockchainProvider.value.provider = getProviderForNetwork(getCurrentNetwork());
+        logDebug('SWITCHING BLOCKCHAIN PROVIDER TO ', getCurrentNetwork());
+    });

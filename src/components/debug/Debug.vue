@@ -99,7 +99,7 @@ import { ticketing, ignoreOutdated, OutdatedPromiseError } from '../../Async';
 import * as starknet from 'starknet';
 import { hash as snHash } from 'starknet';
 
-import { getProvider } from '@/chain/Provider';
+import { getProvider } from '@/chain/BlockchainProvider';
 import { getCurrentNetwork } from '@/chain/Network';
 import { walletStore } from '@/chain/Wallet';
 

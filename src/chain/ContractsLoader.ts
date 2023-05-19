@@ -1,7 +1,7 @@
 import { watchEffect, toRef, ref } from 'vue';
 import { logDebug } from '../Messages';
 import { CHAIN_NETWORKS, getCurrentNetwork } from './Network';
-import { getProvider } from './Provider';
+import { getProvider } from './BlockchainProvider';
 
 import contractStore, { ADDRESSES } from './Contracts';
 

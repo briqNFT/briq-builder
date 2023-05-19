@@ -7,7 +7,7 @@ import { constants } from 'starknet';
  * Sort of an abstraction around the idea of a chain + network.
  */
 
-export type CHAIN_NETWORKS = 'mock' | 'localhost' | 'starknet-testnet' | 'starknet-testnet2' | 'starknet-testnet-legacy' | 'starknet-mainnet';
+export type CHAIN_NETWORKS = 'localhost' | 'starknet-testnet' | 'starknet-testnet2' | 'starknet-mainnet';
 
 const network = reactive({
     network: APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet' as CHAIN_NETWORKS,
@@ -15,11 +15,9 @@ const network = reactive({
 
 export function getNetworkName(network: CHAIN_NETWORKS) {
     return {
-        'mock': 'Mock',
         'localhost': 'Localhost',
         'starknet-testnet': 'Starknet Testnet',
         'starknet-testnet2': 'Starknet Testnet 2',
-        'starknet-testnet-legacy': 'Legacy testnet',
         'starknet-mainnet': 'Starknet Mainnet',
     }[network];
 }
@@ -33,11 +31,9 @@ export function getCurrentNetwork(nohack = false) {
 
 export function getChainIdFromNetwork(network: CHAIN_NETWORKS): string {
     return {
-        'mock': '0xdead',
         'localhost': '0xdead',
         'starknet-testnet': constants.StarknetChainId.TESTNET,
         'starknet-testnet2': constants.StarknetChainId.TESTNET2,
-        'starknet-testnet-legacy': '0xdead',
         'starknet-mainnet': constants.StarknetChainId.MAINNET,
     }[network];
 }
