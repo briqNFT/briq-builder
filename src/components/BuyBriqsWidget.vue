@@ -11,6 +11,7 @@ import Toggle from './generic/Toggle.vue';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 import { chainBriqs } from '@/builder/ChainBriqs';
 import MenuLike from './generic/MenuLike.vue';
+import Tooltip from './generic/Tooltip.vue';
 
 
 const props = defineProps<{
@@ -94,7 +95,7 @@ const price_ber_briq = computed(() => {
     if (briqs_wanted.value == 0)
         return starknet.number.toBN(0);
     let price = get_price_eth(briqs_wanted.value);
-    return price.div(starknet.number.toBN(briqs_wanted.value));
+    return price.div(starknet.number.toBN(BigInt(briqs_wanted.value).toString()));
 })
 
 const balance = computed(() => {
@@ -141,22 +142,24 @@ const cancelBuy = () => {
                 <Btn no-background class=" p-1"><i class="far fa-gear"/></Btn>
             </div>
             -->
-            <div class="relative m-auto rounded-md border-grad-lighter border-2 ">
+            <div class="relative m-auto rounded-md border-grad-lighter border-2">
                 <MenuLike :close-on-click="false" :delay="false" position="br" class="flex items-center absolute right-0 top-0 mr-2 mt-2">
                     <template #button="{ open }">
                         <Btn no-background @click.stop="open" class="text-grad-dark relative left-2 bottom-2 rounded-md p-1 mb-1"><i class="far fa-gear"/></Btn>
                     </template>
-                    <div class="p-4 rounded shadow-md bg-grad-lightest border border-grad-lighter">
-                        <p class="leading-normal">
-                            Max price slippage:<br>
-                            <span class="flex justify-between items-center">
-                                <span><input class="mr-1 w-20" type="number" min="0" v-model="slippage">‰</span>
-                                <Btn :disabled="slippage === 2" @click="slippage = 2" no-background class="ml-2 p-2 h-auto">
-                                    <i class="text-sm p-0 fa-solid fa-arrows-rotate"/>
-                                </Btn>
-                            </span>
-                        </p>
-                    </div>
+                    <template #default="{ open }">
+                        <div class="p-4 rounded shadow-md bg-grad-lightest border border-grad-lighter" @keydown.enter="open">
+                            <p class="leading-normal">
+                                Max price slippage:<br>
+                                <span class="flex justify-between items-center">
+                                    <span><input class="mr-1 w-20" type="number" min="0" v-model="slippage">‰</span>
+                                    <Btn :disabled="slippage === 2" @click="slippage = 2" no-background class="ml-2 p-2 h-auto">
+                                        <i class="text-sm p-0 fa-solid fa-arrows-rotate"/>
+                                    </Btn>
+                                </span>
+                            </p>
+                        </div>
+                    </template>
                 </MenuLike>
                 <div class="p-6">
                     <p class="flex flex-1 justify-between items-center gap-4">
@@ -189,8 +192,12 @@ const cancelBuy = () => {
         </div>
         <div class="text-sm" v-show="toggledDetails">
             <p>The price shown is the maximum, but you may end up paying less depending on actual slippage.</p>
-            <p>Additional cost due to surge demand: {{ readableNumber(surgePart) }} {{ readableUnit(surgePart) }}</p>
-            <p>Impact on price: {{ readableNumber(impactOnPrice) }} {{ readableUnit(impactOnPrice) }}</p>
+            <Tooltip tooltip="Surge demand: The price increase due to the current demand surge.">
+                <p>Additional cost due to surge demand: {{ readableNumber(surgePart) }} {{ readableUnit(surgePart) }}</p>
+            </Tooltip>
+            <Tooltip tooltip="Impact price: The price increase due to your purchase of briqs.">
+                <p>Impact on price: {{ readableNumber(impactOnPrice) }} {{ readableUnit(impactOnPrice) }}</p>
+            </Tooltip>
         </div>
         <div v-show="shareOfSurge > 10" class="my-4 bg-grad-lightest border-2 border-info-error rounded p-4">
             <p>Warning: prices are exceptionally high because of unexpected demand.<br>Come back in a few hours for lower prices.</p>
@@ -206,30 +213,38 @@ const cancelBuy = () => {
             <Btn class="w-full" :disabled="!termsSale || !termsBriq || !parameters._data" @click="buyBriqs">Buy</Btn>
         </slot>
         <div v-if="transaction._data" class="overlay">
-            <div class="bg-grad-lightest shadow-md rounded p-8 text-center">
-                <h4>Transaction submitted</h4>
+            <div class="bg-grad-lightest shadow-md rounded p-8 relative">
+                <Btn no-background @click="cancelBuy" class="text-center absolute top-1 right-1 h-6 w-6 p-2"><i class="far fa-xmark"/></Btn>
+                <h4 class="text-center">Transaction submitted</h4>
                 <p class="mt-2 text-primary text-sm"><a :href="ExplorerTxUrl(transaction._data)" target="_blank">View on Starkscan</a></p>
-                <p class="mt-4 mb-2">Your briq balance is already updated,<br>assuming the transaction will go through.</p>
-                <p>You will be notified in case it fails.</p>
-                <Btn class="mt-6" @click="cancelBuy">Close</Btn>
+                <p class="mt-4 mb-2">Your transaction will be confirmed on the blockchain shortly. Your balance has already been updated with {{ briqs_wanted }} additional briqs.</p>
+                <p>You can now go on the builder and create something!</p>
+                <div class="flex justify-between mt-6">
+                    <Btn secondary @click="cancelBuy">Close</Btn>
+                    <routerLink to="/builder"><Btn @click="cancelBuy">Create</Btn></routerlink>
+                </div>
             </div>
         </div>
         <div v-else-if="transaction._error" class="overlay" @click="cancelBuy">
-            <div class="bg-grad-lightest shadow-md rounded p-8 text-center">
+            <div class="bg-grad-lightest shadow-md rounded p-8 text-center relative">
+                <Btn no-background @click="cancelBuy" class="absolute top-1 right-1 h-6 w-6 p-2"><i class="far fa-xmark"/></Btn>
                 <h4>An error occured</h4>
-                <p class="mt-4 mb-2 text-justify bg-grad-lighter rounded-sm p-2 text-sm font-mono">{{ transaction._error }}</p>
+                <p class="mt-4 mb-2 text-justify bg-grad-lighter rounded-sm p-2 text-sm font-mono">
+                    {{ transaction._error }}
+                </p>
                 <Btn class="mt-4" @click="cancelBuy">Close</Btn>
             </div>
         </div>
         <div v-else-if="transaction._fetch" class="overlay" @click="cancelBuy">
-            <div class="bg-grad-lightest shadow-md rounded p-8 text-center">
+            <div class="bg-grad-lightest shadow-md rounded p-8 text-center relative">
                 <h4>Waiting for wallet confirmation</h4>
                 <p class="text-center mt-6"><i class="far fa-spinner animate-spin-slow text-xl"/></p>
             </div>
         </div>
         <!-- Error overlay on top of everything -->
         <div v-if="parameters._error" class="overlay">
-            <div class="bg-grad-lightest shadow-md rounded p-8 text-center border-4 border-info-error">
+            <div class="bg-grad-lightest shadow-md rounded p-8 text-center border-4 border-info-error relative">
+                <Btn no-background @click="fetchPrices" class="absolute top-1 right-1 h-6 w-6 p-2"><i class="far fa-xmark"/></Btn>
                 <h4>Error fetching prices</h4>
                 <p>There was an error fetch briq prices.</p>
                 <Btn class="mt-6" @click="fetchPrices">Retry</Btn>

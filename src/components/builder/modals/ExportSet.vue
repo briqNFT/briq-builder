@@ -364,13 +364,10 @@ button:not(.btn):not(.nostyle)::before {
                 The mint<template v-if="briqPendingObject">-and-buy</template> transaction was sent.<br>
                 You can track its progress on <a :href="ExplorerTxUrl(TX?.transaction_hash || '')" class="text-primary">Starkscan</a>.
             </p>
-            <p>
-                You set is now shown in your profile with a 'pending' status, which will go away once the transaction is confirmed.<br>
-                You will be notified if an error occurs and may retry minting.
-            </p>
-            <p class="my-4" v-if="briqPendingObject">
-                You have bought {{ briqPendingObject.quantity }} briqs, and {{ exportSet?.getNbBriqs() }} briqs have been used in the set.<br>
-                You now have {{ chainBriqs?.getNbBriqs() }} briqs.
+            <p>You have been redirected to the set page.</p>
+            <p class="my-4 [&>b]:font-semibold" v-if="briqPendingObject">
+                You have bought <b>{{ briqPendingObject.quantity }}</b> briqs, and <b>{{ setData?.getNbBriqs() }}</b> briqs have been used in the set.<br>
+                You now have <b>{{ chainBriqs?.getNbBriqs() }}</b> briqs.
             </p>
             <div class="flex justify-end mt-4">
                 <Btn @click="emit('close')">Close</Btn>
