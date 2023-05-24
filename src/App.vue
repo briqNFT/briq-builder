@@ -97,6 +97,9 @@ html button, a {
     @apply focus-visible:outline-none focus-visible:ring focus-visible:ring-primary;
 }
 
+b {
+    @apply font-semibold;
+}
 
 input:not([type='color']), textarea, select {
     @apply bg-grad-lightest rounded px-4 py-2 border border-grad-light;

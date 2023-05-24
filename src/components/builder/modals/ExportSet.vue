@@ -24,6 +24,7 @@ import { hexUuid } from '@/Uuid';
 import BuyBriqsWidget from '@/components/BuyBriqsWidget.vue';
 import { Call } from 'starknet';
 import { ExplorerTxUrl } from '@/chain/Explorer';
+import ShareOnTwitter from '../ShareOnTwitter.vue';
 
 const { chainBriqs } = useBuilder();
 
@@ -360,17 +361,19 @@ button:not(.btn):not(.nostyle)::before {
     <template v-else-if="exportStep === 'DONE'">
         <Window size="w-[40rem]">
             <template #title>Transaction sent <i class="pl-2 far fa-circle-check text-info-success"/></template>
-            <p class="mb-2">
-                The mint<template v-if="briqPendingObject">-and-buy</template> transaction was sent.<br>
-                You can track its progress on <a :href="ExplorerTxUrl(TX?.transaction_hash || '')" class="text-primary">Starkscan</a>.
+            <p class="mb-6">
+                See it on <a :href="ExplorerTxUrl(TX?.transaction_hash || '')" class="text-primary">Starkscan</a>.
             </p>
-            <p>You have been redirected to the set page.</p>
-            <p class="my-4 [&>b]:font-semibold" v-if="briqPendingObject">
+            <p class="my-4" v-if="briqPendingObject">
                 You have bought <b>{{ briqPendingObject.quantity }}</b> briqs, and <b>{{ setData?.getNbBriqs() }}</b> briqs have been used in the set.<br>
                 You now have <b>{{ chainBriqs?.getNbBriqs() }}</b> briqs.
             </p>
-            <div class="flex justify-end mt-4">
-                <Btn @click="emit('close')">Close</Btn>
+            <p v-else>
+                You were redirected to the NFT page in the meantime.
+            </p>
+            <div class="flex justify-end mt-4 gap-4">
+                <Btn secondary @click="emit('close')">Close</Btn>
+                <ShareOnTwitter :owned="true"/>
             </div>
         </Window>
     </template>

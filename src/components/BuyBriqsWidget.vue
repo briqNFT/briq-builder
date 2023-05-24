@@ -216,8 +216,8 @@ const cancelBuy = () => {
             <div class="bg-grad-lightest shadow-md rounded p-8 relative">
                 <Btn no-background @click="cancelBuy" class="text-center absolute top-1 right-1 h-6 w-6 p-2"><i class="far fa-xmark"/></Btn>
                 <h4 class="text-center">Transaction submitted</h4>
-                <p class="mt-2 text-primary text-sm"><a :href="ExplorerTxUrl(transaction._data)" target="_blank">View on Starkscan</a></p>
-                <p class="mt-4 mb-2">Your transaction will be confirmed on the blockchain shortly. Your balance has already been updated with {{ briqs_wanted }} additional briqs.</p>
+                <p class="mt-2 text-primary text-sm text-center"><a :href="ExplorerTxUrl(transaction._data)" target="_blank">View on Starkscan</a></p>
+                <p class="mt-4 mb-2">Your transaction will be confirmed on the blockchain shortly. Your balance has already been updated with <b>{{ briqs_wanted }}</b> additional briqs.</p>
                 <p>You can now go on the builder and create something!</p>
                 <div class="flex justify-between mt-6">
                     <Btn secondary @click="cancelBuy">Close</Btn>

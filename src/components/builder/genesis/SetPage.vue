@@ -32,6 +32,7 @@ import * as starknet from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { externalSetCache } from '@/builder/ExternalSets';
+import ShareOnTwitter from '../ShareOnTwitter.vue';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -204,12 +205,6 @@ const downloadPng = () => {
 
 const shareUrl = computed(() => `https://${window.location.hostname}${route.path}`);
 
-const encodedTweet = computed(() => {
-    if (externalSetData.value)
-        return encodeURIComponent('Check out this cool NFT built with @briqNFT!🧱');
-    return encodeURIComponent('I\'ve built this with @briqNFT and you can too!🧱');
-});
-
 const copyShareLink = () => {
     navigator.clipboard.writeText(shareUrl.value);
 };
@@ -280,11 +275,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                     <i class="fa-regular fa-share-nodes text-lg"/> <span class="font-medium">Share</span>
                 </template>
                 <Btn no-background ico class="text-sm justify-start font-normal" @click="copyShareLink"><i class="far fa-copy mr-2"/> Copy link</Btn>
-                <a
-                    target="_blank"
-                    :href="`https://twitter.com/intent/tweet?text=${encodedTweet}&url=${encodeURIComponent(shareUrl)}`">
-                    <Btn no-background ico class="text-sm justify-start font-normal"><i class="fa-brands fa-twitter text-md mr-2"/> Share on Twitter</Btn>
-                </a>
+                <ShareOnTwitter no-background :owned="!externalSetData"/>
             </MenuDropdown>
             <MenuDropdown v-if="mode === 'CREATION'" icon no-background no-marker :must-click="true" class="!h-8 px-2 font-normal text-sm">
                 <template #button>
