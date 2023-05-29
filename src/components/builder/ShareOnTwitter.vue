@@ -10,8 +10,8 @@ const props = defineProps<{
 
 const encodedTweet = computed(() => {
     if (!props.owned)
-        return encodeURIComponent('Check out this cool NFT built with @briqNFT!🧱\n');
-    return encodeURIComponent('I\'ve built this with @briqNFT and you can too!🧱\nGo on https://briq.construction/, get some briqs and build the dream!\n');
+        return encodeURIComponent('Check out this cool NFT built with @briqNFT!🧱\n\n');
+    return encodeURIComponent('I\'ve built this with @briqNFT and you can too!🧱\n\nGo on https://briq.construction/, get some briqs and build the dream!\n\n');
 });
 
 const shareUrl = computed(() => `https://${window.location.hostname}${route.path}`);
