@@ -140,8 +140,8 @@ const onCloseMenu = () => {
                         <Btn @click="pushModal(NewSetModalVue, { title: 'New Set' })" no-background>New creation</Btn>
                         <RouterLink class="block mx-2" :to="{ name: 'Profile', query: { tab: 'WIP' } }"><Btn class="w-full !mx-0" no-background>Manage my sets</Btn></RouterLink>
                         <hr>
-                        <Btn @click="builderHistory.undo()" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;U</span></Btn>
-                        <Btn @click="builderHistory.redo()" no-background>Redo <span>Ctrl&ThinSpace;+&ThinSpace;Shift&ThinSpace;+&ThinSpace;U</span></Btn>
+                        <Btn @click="builderHistory.undo()" no-background>Undo <span>Ctrl&ThinSpace;+&ThinSpace;Z</span></Btn>
+                        <Btn @click="builderHistory.redo()" no-background>Redo <span>Ctrl&ThinSpace;+&ThinSpace;Shift&ThinSpace;+&ThinSpace;Z</span></Btn>
                         <hr>
                         <Btn no-background @click="selectCopy">Copy <span>Ctrl&ThinSpace;+&ThinSpace;C</span></Btn>
                         <Btn no-background :disabled="currentInput !== 'copy_paste'">Paste <span>Ctrl&ThinSpace;+&ThinSpace;V</span></Btn>
