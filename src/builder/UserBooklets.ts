@@ -5,7 +5,7 @@ import { GeneralizedUserItem } from './UserItem';
 class UserBookletsStore extends GeneralizedUserItem {
     polling!: number;
 
-    _serialize(){
+    _serialize() {
         const meta = {};
         for (const id in this.metadata)
             if (this.metadata[id].updates.length)
@@ -22,7 +22,7 @@ class UserBookletsStore extends GeneralizedUserItem {
     }
 
     async fetchData() {
-        const data = (await backendManager.fetch(`v1/user/data/${this.user_id}`));
+        const data = (await backendManager.fetch(`v1/user/data/${this.user_id}`, 5000));
         return {
             lastBlock: data.last_block,
             data: data.booklets,
@@ -40,7 +40,7 @@ class UserBookletsStore extends GeneralizedUserItem {
                     setsManager.deleteLocalSet(setId);
             }
         } catch(ex) {
-            console.error(ex);
+            console.error(ex.message);
             this.polling = setTimeout(() => this._fetchData(), 60000);
             return;
         }

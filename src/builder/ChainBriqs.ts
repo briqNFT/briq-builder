@@ -36,6 +36,8 @@ export class ChainBriqs implements perUserStorable {
     byMaterial: { [material: string]: BALANCE } = {};
     status = 'NOT_LOADED' as 'NOT_LOADED' | 'OK' | 'ERROR';
 
+    polling!: number;
+
     _lastDataFetch: any;
     // Only store metadata on sets where something is happening. Rest are assumed live.
     metadata = {} as {
@@ -74,8 +76,20 @@ export class ChainBriqs implements perUserStorable {
         this.byMaterial = {};
     }
 
-    onEnter(_old: string, n: string) {
+    onEnter(_old: string, _n: string) {
         this.loadFromChain();
+        this.polling = setInterval(() => this.maybePoll(), 20000);
+
+        //this._add('TENTATIVE', '0x1', 1234, '0xcafe', false);
+    }
+
+    onLeave(_: string, __: string | undefined): void {
+        clearInterval(this.polling);
+    }
+
+    async maybePoll() {
+        if (Object.keys(this.metadata).length)
+            await this.loadFromChain();
     }
 
     async loadFromChain() {
@@ -91,7 +105,7 @@ export class ChainBriqs implements perUserStorable {
             this.status = 'OK';
             logDebug('CHAIN BRIQS - LOADED ');
         } catch (err) {
-            console.error(err);
+            console.error(err.message);
             this.status = 'ERROR';
         }
         this.fetchingBriqs = false;

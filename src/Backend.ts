@@ -40,10 +40,10 @@ class BackendManager {
         return  `${this.url}/v1/${endpoint}`;
     }
 
-    async fetch(endpoint: string): Promise<any> {
+    async fetch(endpoint: string, cacheTime = 1000): Promise<any> {
         const url = `${this.url}/${endpoint}`;
         // Automatically grab the latest query if it's been sent recently enough.
-        if (this.last_requests[url] && Date.now() - this.last_requests[url].timestamp < 1000)
+        if (this.last_requests[url] && Date.now() - this.last_requests[url].timestamp < cacheTime)
             return await this.last_requests[url].request;
 
         const headers = new Headers();

@@ -41,7 +41,7 @@ export abstract class GeneralizedUserItem implements perUserStorable {
             this._lastDataFetch = await this.fetchData();
             this._updateData(this._lastDataFetch);
         } catch(ex) {
-            console.error(ex);
+            console.error(ex.message);
         }
     }
 

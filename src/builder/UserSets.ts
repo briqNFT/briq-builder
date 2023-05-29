@@ -38,7 +38,7 @@ class UserSetStore implements perUserStorable {
 
     onEnter() {
         this.fetchData();
-        this.polling = setTimeout(() => this.poll(), 5000);
+        this.polling = setTimeout(() => this.poll(), 10000);
     }
 
     onLeave() {
@@ -103,10 +103,10 @@ class UserSetStore implements perUserStorable {
     async fetchData() {
         let success = true;
         try {
-            this._sets = (await backendManager.fetch(`v1/user/data/${this.user_id}`)).sets;
+            this._sets = (await backendManager.fetch(`v1/user/data/${this.user_id}`, 5000)).sets;
             this._status = 'LOADED';
         } catch(ex) {
-            console.error(ex);
+            console.error(ex.message);
             // If we were loading, we've already loaded once, so keep on trucking.
             if (this._status === 'FETCHING')
                 this._status = 'ERROR';
@@ -137,7 +137,7 @@ class UserSetStore implements perUserStorable {
                     }
                 } catch(_) {
                     if (APP_ENV === 'dev')
-                        console.error(_);
+                        console.error(_.message);
                     success = false;
                 }
         return success;
