@@ -76,11 +76,11 @@ const inventoryBooklets = computed(() => {
 });
 
 const creationsWIP = computed(() => {
-    return Object.values(setsManager.setsInfo).filter(x => !x.booklet && !x.onchainId).map(x => x.getSet()) || [];
+    return Object.values(setsManager.setsInfo).filter(x => (!x.booklet || x.booklet.startsWith('tutorial')) && !x.onchainId).map(x => x.getSet()) || [];
 })
 
 const draftBooklets = computed(() => {
-    return Object.values(setsManager.setsInfo).filter(x => x.booklet).map(y => {
+    return Object.values(setsManager.setsInfo).filter(x => x.booklet && !x.booklet.startsWith('tutorial')).map(y => {
         const ret = y.getSet();
         ret.booklet = y.booklet;
         return ret;
@@ -299,7 +299,7 @@ div[data-name='menu'] button {
                 <div v-show="showSection('PERSONAL')">
                     <a id="personal" class="relative bottom-[80px]"/>
                     <h4>Custom Sets</h4>
-                    <p class="text-sm mt-1">Sets you have started but haven't minted yet. They are stored locally on this computed only.</p>
+                    <p class="text-sm mt-1">Sets you have started but haven't minted yet. They are stored locally on this computer only.</p>
                     <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                         <p class="font-semibold">You don't have work-in-progress sets.</p>
                         <p>Get some briqs and start building!</p>

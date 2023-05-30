@@ -44,7 +44,10 @@ watch(toRef(props, 'setId'), () => {
     setData.value = setsManager.getInfo(props.setId).getSet()!;
 })
 
-const booklet = computed(() => setsManager.getInfo(props.setId).booklet);
+const booklet = computed(() => {
+    const bk = setsManager.getInfo(props.setId).booklet;
+    return !bk?.startsWith('tutorial') && bk;
+});
 const bookletData = computed(() => booklet.value && bookletDataStore[getCurrentNetwork()][booklet.value]._data);
 
 // Reload the briqs on-chain in case there was an update.

@@ -22,7 +22,8 @@ export function useBooklet(forceBooklet?: string) {
     const { currentSet, currentSetInfo } = useBuilder();
 
     const booklet = computed(() => forceBooklet || currentSetInfo.value?.booklet as string);
-    const bookletRef = computed(() => booklet.value ? bookletDataStore[getCurrentNetwork()][booklet.value]._data : undefined);
+    const bookletFetch = computed(() => booklet.value ? bookletDataStore[getCurrentNetwork()][booklet.value] : undefined);
+    const bookletRef = computed(() => bookletFetch.value?._data);
 
     // Compute the progress
     // Do nothing if the calculator already exists.
@@ -133,5 +134,6 @@ export function useBooklet(forceBooklet?: string) {
         shapeValidity: computed(() => bookletStore.shapeValidity[booklet.value]),
         booklet,
         bookletData: bookletRef,
+        bookletFetch,
     };
 }

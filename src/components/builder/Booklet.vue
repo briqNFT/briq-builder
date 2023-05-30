@@ -16,8 +16,9 @@ const {
     shapeValidity,
     booklet,
     bookletData,
+    bookletFetch,
     minimized,
-} = useBooklet('tutorial/Xplorer');
+} = useBooklet();
 
 const genesisStore = useGenesisStore();
 
@@ -189,7 +190,11 @@ watch([shapeValidity], (nv, ov) => {
         badFetti();
 })
 
-const bookletMode = ref('Xplorer' as 'Xplorer' | 'booklet');
+const bookletMode = computed(() => {
+    if (booklet.value === 'tutorial/Xplorer')
+        return 'Xplorer';
+    return 'booklet';
+});
 const extraPages = computed(() => bookletMode.value === 'Xplorer' ? 2 : 1);
 const isFirstTime = ref(true);
 const currentPage = ref(0);

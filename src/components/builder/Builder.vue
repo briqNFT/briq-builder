@@ -28,8 +28,9 @@ import { APP_ENV } from '@/Meta';
 import { setupInputMap } from '@/builder/inputs/InputMapPopulate';
 import { walletInitComplete } from '@/chain/WalletLoading';
 import { builderHistory } from '@/builder/BuilderHistory';
+import { hexUuid } from '@/Uuid';
 
-const { setsManager, chainBriqs, currentSet, selectSet, resetBuilderState } = useBuilder();
+const { setsManager, chainBriqs, currentSet, currentSetInfo, selectSet, resetBuilderState } = useBuilder();
 
 provide('chainBriqs', chainBriqs);
 provide('messages', {
@@ -40,10 +41,24 @@ provide('featureFlags', featureFlags);
 
 const route = useRoute();
 
-const { booklet, bookletData } = useBooklet();
+const { booklet, bookletFetch, bookletData } = useBooklet();
 
 async function initializeStartSet() {
-    if (route.query['set'])
+    if (route.query.xplorer) {
+        if (!currentSet.value || currentSetInfo.value.booklet !== 'tutorial/Xplorer') {
+            const set = setsManager.getBookletSet('tutorial/Xplorer');
+            if (set)
+                await selectSet(set);
+            else {
+                const set = new SetData(hexUuid());
+                set.name = 'Xplorer';
+                const info = setsManager.registerLocalSet(set);
+                info.booklet = 'tutorial/Xplorer';
+                logDebug('BUILDER - creating Xplorer set');
+                await selectSet(info.setData);
+            }
+        }
+    } else if (route.query['set'])
         try {
             logDebug('BUILDER - attempting to load set ' + route.query['set']);
             const setId = route.query['set'] as string;
@@ -83,11 +98,13 @@ async function initializeStartSet() {
 
 const initializePalette = async () => {
     if (booklet.value) {
-        await bookletDataStore[getCurrentNetwork()][booklet.value]._fetch;
+        await bookletFetch.value!._fetch;
 
         const colors = [];
         let starter = undefined;
-        for (const briq of bookletData.value.briqs) {
+        // Use the fetch in case the computed data isn't up-to-date here.
+        // TODO: improve on this.
+        for (const briq of bookletFetch.value!._data!.briqs) {
             colors.push([packPaletteChoice(briq.data.material, briq.data.color), briq.data.color]);
             if (briq.pos[1] === 0)
                 starter = packPaletteChoice(briq.data.material, briq.data.color);
