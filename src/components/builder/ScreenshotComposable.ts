@@ -1,4 +1,4 @@
-import { camera, takeScreenshot as takeBuilderScreenshot } from '@/builder/graphics/Builder';
+import { camera } from '@/builder/graphics/Builder';
 import { ref } from 'vue';
 import { pushModal } from '../Modals.vue';
 

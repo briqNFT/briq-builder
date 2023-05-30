@@ -167,6 +167,7 @@ export class HighQualityScreenshot {
         this.object.traverse(mesh => {
             mesh.receiveShadow = true;
             if (mesh?.material) {
+                mesh.material = mesh.material.clone();
                 mesh.material.envMap = envMapTexture;
                 mesh.material.envMapIntensity = this.defaultCamera ? 0.5 : 0.2;
             }

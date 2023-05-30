@@ -17,7 +17,6 @@ import Flyout from '@/components/generic/Flyout.vue';
 </template>
 
 <script lang="ts">
-import { takeScreenshot } from '@/builder/graphics/Builder';
 import { inputStore } from '@/builder/inputs/InputStore';
 import { pushModal, setOnlyShowLast } from '@/components/Modals.vue';
 import SettingsVue from '@/components/builder/Settings.vue';
@@ -26,6 +25,9 @@ import builderSettings from '@/builder/graphics/Settings';
 
 import { builderInputFsm } from '@/builder/inputs/BuilderInput';
 import { dispatchBuilderAction } from '@/builder/graphics/Dispatch';
+
+import { getSetObject } from '@/builder/graphics/SetRendering';
+const { takeScreenshot } = useScreenshotHelpers();
 
 import { defineComponent, h } from 'vue';
 export default defineComponent({
@@ -70,10 +72,8 @@ export default defineComponent({
                 target: [this.fsmState.focusPos.x, this.fsmState.focusPos.y, this.fsmState.focusPos.z],
             });
         },
-        takeScreen() {
-            let uri = takeScreenshot();
-            let img = new Image();
-            img.src = uri;
+        async takeScreen() {
+            let img = await takeScreenshot(getSetObject(), false);
             this.screenshotPromise = new Promise((resolve: (data: string) => void) => {
                 img.decode().then(() => {
                     this.screenshot = img.src;
@@ -82,7 +82,7 @@ export default defineComponent({
             });
         },
         async returnScreen() {
-            this.takeScreen();
+            await this.takeScreen();
             this.$emit('close', await this.screenshotPromise!);
         },
         openSettings() {
@@ -90,5 +90,6 @@ export default defineComponent({
         },
     },
 });import ModalComponentVue from '@/components/generic/ModalComponent.vue';
+import { useScreenshotHelpers } from '../ScreenshotComposable';
 
 </script>
