@@ -34,6 +34,7 @@ export const builderStore = (() => {
     }
 
     const resetBuilderState = () => {
+        logDebug('BUILDER - RESETTING STATE');
         _currentSet.value = undefined;
     }
 

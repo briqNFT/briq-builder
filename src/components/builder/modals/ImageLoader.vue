@@ -22,7 +22,6 @@ const rawImageData = ref(null as unknown as HTMLImageElement);
 
 const loadImage = async () => {
     const blob = new Blob([await props.data], { type: props.file.type });
-    console.log('totoro', blob);
     const url = URL.createObjectURL(blob);
     const image = new Image();
     image.onload = () => {

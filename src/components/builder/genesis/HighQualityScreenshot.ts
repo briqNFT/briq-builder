@@ -9,7 +9,6 @@ import {
     SMAAPass,
 } from '@/three';
 import EnvMapImg from '@/assets/genesis/WhiteRoom.png';
-import { timeStamp } from 'console';
 
 export class HighQualityScreenshot {
     scene!: THREE.Scene;
@@ -52,13 +51,6 @@ export class HighQualityScreenshot {
             cam.lookAt(new THREE.Vector3(0, 0, 0))
             this.camera = cam;
         }
-        /*
-max
-:
-Vector3 {x: 0, y: 5, z: 4}
-min
-:
-Vector3 {x: -3, y: 0, z: -5}*/
         await this.setupScene();
         this.recreateRenderer();
         await this.render();
