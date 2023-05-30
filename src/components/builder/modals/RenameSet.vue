@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { setsManager } from '@/builder/SetsManager';
 import { computed, ref } from 'vue';
-import { useBooklet } from '../BookletComposable';
 import { useBuilder } from '../BuilderComposable';
 
 const { currentSet } = useBuilder();
@@ -15,7 +14,7 @@ const setData = setsManager.getInfo(props.set).getSet();
 const name = ref(setData.getName());
 const description = ref(setData.description);
 
-const hasBooklet = computed(() => !!setsManager.getInfo(props.set).booklet);
+const hasBooklet = computed(() => !!setsManager.getInfo(props.set).booklet && !setsManager.getInfo(props.set).booklet?.startsWith('tutorial'));
 
 const save = () => {
     currentSet.value.name = name.value;
