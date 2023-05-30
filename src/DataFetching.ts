@@ -17,12 +17,15 @@ export class Fetchable<T> {
     }
 
     async fetch(t: () => Promise<T>) {
-        try {
-            this._fetch = t();
-            this._data = await this._fetch;
-        } catch(err) {
-            this._error = err;
-        }
+        this._fetch = new Promise((res, rej) => {
+            t().then((data) => {
+                this._data = data;
+                res(data);
+            }).catch((err) => {
+                this._error = err;
+                rej();
+            });
+        });
     }
 
     clear() {
