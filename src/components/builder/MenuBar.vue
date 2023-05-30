@@ -71,13 +71,13 @@ const pendingBriqs = computed(() => {
 
 <style scoped>
 .divider {
-    @apply w-[1px] bg-grad-light h-[2.125rem];
+    @apply w-[1px] bg-grad-light h-[2rem] md:h-[2.125rem];
 }
 .btn::before {
     @apply rounded-[0.375rem];
 }
 div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
-    @apply w-10 h-10;
+    @apply w-8 h-8 md:w-10 md:h-10;
 }
 ::v-deep(button.roundedButton)::before {
     @apply !rounded;
@@ -88,11 +88,11 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
 <template>
     <div class="mx-1 mt-1 sm:mx-2 sm:mt-2 flex flex-wrap pointer-events-none" v-if="!inputStore.hideInput">
         <div class="flex-1 basis-1 min-w-max flex justify-stretch lg:justify-start">
-            <div class="flex flex-none items-center p-1 gap-1 border border-grad-light bg-grad-lightest rounded pointer-events-auto">
+            <div class="flex-auto sm:flex-none flex items-center justify-center p-1 gap-1 border border-grad-light bg-grad-lightest rounded pointer-events-auto">
                 <router-link :to="`/profile?tab=WIP`"><Btn no-background><i class="fa-solid fa-arrow-left"/></Btn></router-link>
                 <Btn no-background @click="menuOpen = !menuOpen" :force-active="menuOpen"><i class="fa-solid fa-bars"/></Btn>
                 <div class="divider"/>
-                <div class="flex flex-none px-2 gap-2 items-baseline">
+                <div class="flex-auto max-w-[16rem] flex px-2 gap-2 items-baseline">
                     <Btn no-style class="font-medium hover:text-primary active:text-primary" @click="pushModal(RenameSetVue, { set: currentSet.id })">
                         {{ currentSet.name }}
                     </btn>
@@ -100,11 +100,11 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                 <div class="divider"/>
                 <UndoRedo no-background secondary class="flex-none px-1"/>
                 <div class="divider"/>
-                <Btn no-background class="p-0" @click="pushModal(ShortcutModal)"><i class="text-lg far fa-circle-question"/></Btn>
+                <Btn no-background class="p-0" @click="pushModal(ShortcutModal)"><i class="md:text-lg far fa-circle-question"/></Btn>
                 <Hotkey name="help" :data="{ key: '?', shift: true }" :handler="() => pushModal(ShortcutModal)"/>
             </div>
         </div>
-        <div class="flex-1 basis-1 flex lg:justify-center">
+        <div class="flex-1 basis-1 flex justify-center order-3 md:order-none">
             <div class="border border-grad-light bg-grad-lightest rounded flex gap-1 p-1 pointer-events-auto">
                 <Btn no-background @click="switchToState('inspect')" tooltip="Select tool" :force-active="activeInputButton === 'select'"><i class="text-[1.1rem] far fa-mouse-pointer"/></Btn>
                 <Btn no-background @click="switchToState('place')" tooltip="Place tool" :force-active="activeInputButton === 'place'"><i class="text-[1.1rem] far fa-cube"/></Btn>
@@ -115,12 +115,15 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                 <Hotkey name="group-3" :data="{ code: 'Digit3', onDown: true }" :handler="() => switchToState('paint')"/>
                 <Hotkey name="group-4" :data="{ code: 'Digit4', onDown: true }" :handler="() => switchToState('erase')"/>
             </div>
+            <div v-if="booklet" class="ml-1 sm:hidden rounded border-grad-light bg-grad-lightest border md:mr-2 flex justify-center items-center p-1 pointer-events-auto">
+                <Btn no-background :force-active="!minimized" @click="minimized = !minimized"><i class="text-md far fa-book-open"/></Btn>
+            </div>
         </div>
-        <div class="flex-1 basis-1 flex lg:justify-end">
-            <div v-if="booklet" class="rounded border-grad-light bg-grad-lightest border mr-2 flex justify-center items-center p-1 pointer-events-auto">
+        <div class="flex-1 basis-1 flex justify-stretch sm:justify-end">
+            <div v-if="booklet" class="hidden sm:flex rounded border-grad-light bg-grad-lightest border md:mr-2 justify-center items-center p-1 pointer-events-auto">
                 <Btn no-background :force-active="!minimized" @click="minimized = !minimized"><i class="far fa-book-open"/></Btn>
             </div>
-            <div class="flex items-stretch gap-1 p-1 border border-grad-light bg-grad-lightest rounded pointer-events-auto">
+            <div class="flex-auto sm:flex-none flex items-center justify-between gap-1 p-1 border border-grad-light bg-grad-lightest rounded pointer-events-auto text-sm md:text-normal">
                 <template v-if="maybeStore?.userWalletAddress">
                     <Tooltip :tooltip="`${ getNbBriqs } briqs used out of ${ chainBriqs?.getNbBriqs() } in wallet`">
                         <div class="flex items-center justify-left font-medium gap-2 pl-3 pr-4 cursor-help" :style="{ minWidth: `${getNbBriqs.toString().length * 0.6 + 5.7}rem`}">
@@ -137,7 +140,7 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                             <Btn no-background class="justify-start" icon @click="maybeStore?.disconnect()"><i class="far fa-power-off"/> Disconnect</Btn>
                         </MenuDropdown>
                     </div>
-                    <NotificationsMenu/>
+                    <NotificationsMenu class="hidden sm:block"/>
                     <Btn @click="pushModal(ExportSetVue, { setId: currentSet.id })" :disabled="!canMintSet">Mint</Btn>
                 </template>
                 <template v-else-if="!maybeStore?.userWalletAddress && maybeStore?._userWalletAddress">
@@ -153,7 +156,7 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                         <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
                         <Btn no-background class="justify-start" icon @click="maybeStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                     </MenuDropdown>
-                    <Btn disabled="true" id="mintbutton">Mint</Btn>
+                    <Btn class="self-end" disabled="true" id="mintbutton">Mint</Btn>
                 </template>
                 <template v-else>
                     <Btn class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>

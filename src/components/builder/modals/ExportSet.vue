@@ -292,14 +292,14 @@ button:not(.btn):not(.nostyle)::before {
         </Window>
     </template>
     <template v-else-if="!exportStep && !booklet">
-        <Window size="w-[38rem]">
+        <Window size="md:w-[38rem]">
             <template #title>Mint set</template>
             <div class="relative flex justify-center items-center">
                 <div class="absolute top-2 right-2 flex gap-2">
                     <Btn secondary @click="cropScreenshot"><i class="far fa-crop-simple"/></Btn>
                     <Btn secondary @click="retakeScreenshot"><i class="far fa-camera"/></Btn>
                 </div>
-                <img v-show="previewImage" class="max-h-[24rem] bg-background rounded-md" :src="previewImage">
+                <img v-show="previewImage" class="max-h-[16rem] tall-md:max-h-[24rem] bg-background rounded-md" :src="previewImage">
                 <div v-if="!previewImage" class="h-[12rem] bg-background rounded-md flex items-center justify-center text-sm"><p class="p-4">...Taking HD Screenshot...</p></div>
             </div>
             <div class="my-4">
@@ -320,7 +320,7 @@ button:not(.btn):not(.nostyle)::before {
         </Window>
     </template>
     <template v-else-if="!exportStep && booklet">
-        <Window size="w-[40rem]">
+        <Window size="md:w-[40rem]">
             <template #title>Mint an official set</template>
             <p class="mb-4">Minting an official set will wrap the corresponding booklet inside the set.</p>
             <div class="relative flex justify-center items-center bg-background rounded-md p-4">
@@ -346,7 +346,7 @@ button:not(.btn):not(.nostyle)::before {
         </Window>
     </template>
     <template v-else-if="exportStep === 'BUY_BRIQS'">
-        <Window size="w-[34rem]">
+        <Window size="md:w-[34rem]">
             <template #title>You need more briqs</template>
             <div class="mb-4 [&>p>b]:font-semibold">
                 <p>You have <b>{{ chainBriqs?.getNbBriqs() || 0 }}</b> briqs in your wallet and the set you’re trying to mint requires <b>{{ setData.getNbBriqs() }}</b> briqs.<br>You need at least <b>{{ briqsNeeded }}</b> additional briqs to mint your set.</p>
@@ -362,7 +362,7 @@ button:not(.btn):not(.nostyle)::before {
         </Window>
     </template>
     <template v-else-if="exportStep === 'DONE'">
-        <Window size="w-[40rem]">
+        <Window size="md:w-[40rem]">
             <template #title>Transaction sent <i class="pl-2 far fa-circle-check text-info-success"/></template>
             <p class="mb-6">
                 See it on <a :href="ExplorerTxUrl(TX?.transaction_hash || '')" class="text-primary">Starkscan</a>.

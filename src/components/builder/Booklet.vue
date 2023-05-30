@@ -237,11 +237,12 @@ onBeforeUnmount(() => watcher());
 </script>
 
 <template>
-    <div v-if="booklet && !minimized" class="mx-1 sm:mx-2 sm:mt-2 w-fit sm:min-w-[16rem] float-right border border-grad-light !shadow-none !text-sm rounded-md bg-grad-lightest select-none">
-        <h6 class="font-semibold text-sm leading-figma bg-grad-lighter rounded-t-md px-4 py-3">
+    <div v-if="booklet && !minimized" class="sm:mt-1 sm:mx-2 mb-2 m-auto w-fit sm:min-w-[16rem] sm:float-right sm:block sm:relative absolute bottom-0 sm:bottom-auto sm:left-auto left-0 right-0 border border-grad-light shadow-lg sm:!shadow-none !text-sm rounded-md bg-grad-lightest select-none z-[10]">
+        <h6 class="font-semibold text-sm leading-figma bg-grad-lighter rounded-t-md px-4 py-3 flex justify-between items-center">
             {{ bookletMode === 'Xplorer' ? 'Xplorer quest' : 'Booklet' }}
+            <Btn no-background @click="minimized = true" class="w-6 h-6 p-0 m-0"><i class="text-lg far fa-times"/></Btn>
         </h6>
-        <div class="flex flex-col w-[400px] h-[500px]">
+        <div class="flex flex-col max-w-[400px] md:w-[400px] h-300px tall-md:h-[500px]">
             <template v-if="!!bookletData">
                 <div v-show="!isFirstTime" class="flex px-1 py-1 text-sm font-medium justify-between items-center border-b border-grad-light">
                     <Btn no-background class="w-10" @click="lowerPage"><i class="fas fa-chevron-left"/></Btn>

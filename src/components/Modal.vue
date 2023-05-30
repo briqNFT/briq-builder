@@ -11,7 +11,7 @@
             :style="modalBackground"
             @mousedown.self.stop="close()"/>
         <Hotkey name="escape" :handler="() => close()"/>
-        <div :class="'flex min-h-screen w-screen invisible ' + modalAlignment">
+        <div :class="'flex min-h-screen w-screen invisible p-2 ' + modalAlignment">
             <!-- metadata/vbind is duplicated as backwards compatibility -->
             <component
                 :metadata="data.metadata"
