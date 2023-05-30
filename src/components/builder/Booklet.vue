@@ -26,10 +26,13 @@ const particlesCanvas = ref(null as unknown as HTMLCanvasElement);
 const snowCanvas = ref(null as unknown as HTMLCanvasElement);
 const microCanvas = ref(null as unknown as HTMLCanvasElement);
 
+const isConfettiSetup = ref(false);
+
 let confettiGenerator: ReturnType<confetti.create>;
 let snowGenerator: ReturnType<confetti.create>;
 let microConfetti: ReturnType<confetti.create>;
 onMounted(async () => {
+    await bookletFetch.value?._fetch;
     confettiGenerator = await confetti.create(particlesCanvas.value, {
         resize: true,
         useWorker: true,
@@ -41,6 +44,7 @@ onMounted(async () => {
     microConfetti = await confetti.create(microCanvas.value, {
         resize: true,
     });
+    isConfettiSetup.value = true;
 });
 
 let snowInterval;
@@ -160,6 +164,8 @@ const badFetti = () => {
 }
 
 watch([shapeValidity], async () => {
+    if (!isConfettiSetup.value)
+        return;
     if (shapeValidity.value === 1) {
         fire();
         fire();
@@ -182,6 +188,8 @@ watch([shapeValidity], async () => {
 })
 
 watch([shapeValidity], (nv, ov) => {
+    if (!isConfettiSetup.value)
+        return;
     if (nv - ov >= 0.5 / bookletData.value?.briqs?.length)
         goodFetti();
     else if (nv > ov || ov - nv <= 0.5 / bookletData.value?.briqs?.length)
@@ -296,7 +304,7 @@ onBeforeUnmount(() => watcher());
                         <div
                             v-show="shapeValidity < 1 && currentPage >= extraPages" :style="{ left: `${(bookletData.steps_progress[currentPage - extraPages]) / bookletData.briqs.length*100}%` }"
                             class="w-1 h-4 absolute -bottom-0.5 rounded-sm bg-grad-dark"/>
-                        <canvas ref="microCanvas" class="absolute w-[200px] h-[200px] top-6 translate-x-[-50%] -translate-x-1/2 -translate-y-1/2 pointer-events-none" :style="{ left: `${shapeValidity*100}%` }"/>
+                        <canvas ref="microCanvas" class="absolute w-[200px] h-[200px] bottom-4 translate-x-[-50%] -translate-x-1/2 translate-y-1/2 pointer-events-none" :style="{ left: `${shapeValidity*100}%` }"/>
                     </div>
                 </div>
             </template>
