@@ -2,56 +2,9 @@
 import { ref, computed } from 'vue';
 import { hexUuid } from '@/Uuid';
 
-let _genF = (contract: any, method: string) => {
-    // Helper function to asynchronously fetch some data when needed & populate it.
-    const v = ref('');
-    const getV = computed(() => {
-        if (contract?.getAddress())
-    // eslint-disable-next-line vue/no-async-in-computed-properties
-            callContract(getProvider(), contract.getAddress(), method, []).then(
-                (rep) => (v.value = rep.result[0]),
-            );
-        return v.value;
-    })
-    return getV;
-}
-
-const newSetBriqAddr = ref('');
-const getSetBriqAddr = _genF(contractStore.set, 'getBriqAddress_');
-const getSetAdmin = _genF(contractStore.set, 'getAdmin_');
-
-const newBriqSetAddr = ref('');
-const getBriqSetAddr = _genF(contractStore.briq, 'getSetAddress_');
-const getBriqAdmin = _genF(contractStore.briq, 'getAdmin_');
-
-
 const canMasterInit = computed(() => {
     return contractStore.briq?.getAddress() && contractStore.set?.getAddress() && walletStore.userWalletAddress
 });
-
-const masterInit = async () => {
-    const payload = [
-    // Step 1: set the briq/set address in each respective contract.
-        {
-            contractAddress: contractStore.briq.getAddress(),
-            entrypoint: 'setSetAddress_',
-            calldata: [contractStore.set.getAddress()],
-        },
-        {
-            contractAddress: contractStore.set.getAddress(),
-            entrypoint: 'setBriqAddress_',
-            calldata: [contractStore.briq.getAddress()],
-        },
-    // Step 2: mint some briqs for the admin
-        contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '1', '250']),
-        contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '2', '40']),
-        contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '3', '50']),
-        contractStore.briq?.contract.populate('mintFT', [walletStore.userWalletAddress, '4', '20']),
-        contractStore.briq?.contract.populate('mintOneNFT', [walletStore.userWalletAddress, '6', starknet.number.toBN(hexUuid())]),
-    ];
-    console.log(payload);
-    await (walletStore.signer as AccountInterface).execute(payload);
-};
 </script>
 
 <template>
@@ -71,36 +24,6 @@ const masterInit = async () => {
                         Material
                     </p></label>
                     <Btn @click="mint(address, qty, material)">Mint</Btn>
-                </div>
-                <div>
-                    <h2>Contract setup</h2>
-                    <Btn @click="masterInit" :disabled="!canMasterInit">Master init program</Btn>
-                    <h3 class="font-mono">Briq</h3>
-                    <p>Proxy: {{ contractStore.briq?.getAddress() }}</p>
-                    <p>Admin: {{ getBriqAdmin }}</p>
-                    <p>Implementation: {{ getBriqImpl }}</p>
-                    <p>Set address: {{ getBriqSetAddr }}</p>
-                    <p>
-                        <input v-model="newBriqImpl" type="text" class="mr-2">
-                        <Btn @click="setImpl(contractStore.briq, newBriqImpl)">Upgrade implementation for briq</Btn>
-                    </p>
-                    <p>
-                        <input v-model="newBriqSetAddr" type="text" class="mr-2">
-                        <Btn @click="invoke(contractStore.briq, 'setSetAddress_', newBriqSetAddr)">Change set address for briq</Btn>
-                    </p>
-                    <h3 class="font-mono">Set</h3>
-                    <p>Proxy: {{ contractStore.set?.getAddress() }}</p>
-                    <p>Admin: {{ getSetAdmin }}</p>
-                    <p>Implementation: {{ getSetImpl }}</p>
-                    <p>Briq address: {{ getSetBriqAddr }}</p>
-                    <p>
-                        <input v-model="newSetImpl" type="text" class="mr-2">
-                        <Btn @click="setImpl(contractStore.set, newSetImpl)">Upgrade implementation for set</Btn>
-                    </p>
-                    <p>
-                        <input v-model="newSetBriqAddr" type="text" class="mr-2">
-                        <Btn @click="invoke(contractStore.set, 'setBriqAddress_', newSetBriqAddr)">Change briq address for set</Btn>
-                    </p>
                 </div>
                 <div class="my-4">
                     <h2>Custom Write Call:</h2>
@@ -202,20 +125,6 @@ export default defineComponent({
         },
         messages() {
             return messagesStore.messages;
-        },
-        getSetImpl() {
-            if (contractStore?.set?.getAddress())
-                callContract(getProvider(), contractStore.set.getAddress(), 'getImplementation_', []).then(
-                    (rep) => (this._setImpl = rep.result[0]),
-                );
-            return this._setImpl;
-        },
-        getBriqImpl() {
-            if (contractStore?.briq?.getAddress())
-                callContract(getProvider(), contractStore.briq.getAddress(), 'getImplementation_', []).then(
-                    (rep) => (this._briqImpl = rep.result[0]),
-                );
-            return this._briqImpl;
         },
     },
     methods: {
