@@ -9,6 +9,7 @@ import briqLogo from '@/assets/briq.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import { APP_ENV } from '@/Meta';
 import Tooltip from '../generic/Tooltip.vue';
+import XplorerBanner from '../builder/XplorerBanner.vue';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -120,6 +121,7 @@ const pendingBriqs = computed(() => {
                 <routerLink to="/builder"><Btn class="text-md">Create</Btn></routerLink>
             </div>
         </div>
+        <XplorerBanner/>
     </div>
 </template>
 

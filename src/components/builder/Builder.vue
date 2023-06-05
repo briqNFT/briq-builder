@@ -29,6 +29,7 @@ import { setupInputMap } from '@/builder/inputs/InputMapPopulate';
 import { walletInitComplete } from '@/chain/WalletLoading';
 import { builderHistory } from '@/builder/BuilderHistory';
 import { hexUuid } from '@/Uuid';
+import XplorerBanner from './XplorerBanner.vue';
 
 const { setsManager, chainBriqs, currentSet, currentSetInfo, selectSet, resetBuilderState } = useBuilder();
 
@@ -43,22 +44,26 @@ const route = useRoute();
 
 const { booklet, bookletFetch, bookletData } = useBooklet();
 
-async function initializeStartSet() {
-    if (route.query.xplorer) {
-        if (!currentSet.value || currentSetInfo.value.booklet !== 'tutorial/Xplorer') {
-            const set = setsManager.getBookletSet('tutorial/Xplorer');
-            if (set)
-                await selectSet(set);
-            else {
-                const set = new SetData(hexUuid());
-                set.name = 'Argent Xplorer';
-                const info = setsManager.registerLocalSet(set);
-                info.booklet = 'tutorial/Xplorer';
-                logDebug('BUILDER - creating Xplorer set');
-                await selectSet(info.setData);
-            }
+const createXplorerSet = async () => {
+    if (!currentSet.value || currentSetInfo.value.booklet !== 'tutorial/Xplorer') {
+        const set = setsManager.getBookletSet('tutorial/Xplorer');
+        if (set)
+            await selectSet(set);
+        else {
+            const set = new SetData(hexUuid());
+            set.name = 'Argent Xplorer';
+            const info = setsManager.registerLocalSet(set);
+            info.booklet = 'tutorial/Xplorer';
+            logDebug('BUILDER - creating Xplorer set');
+            await selectSet(info.setData);
         }
-    } else if (route.query['set'])
+    }
+}
+
+async function initializeStartSet() {
+    if (route.query.xplorer)
+        await createXplorerSet();
+    else if (route.query['set'])
         try {
             logDebug('BUILDER - attempting to load set ' + route.query['set']);
             const setId = route.query['set'] as string;
@@ -161,6 +166,10 @@ onBeforeMount(async () => {
     ready.value = true;
 });
 
+watch([toRef(route, 'query'), toRef(route.query, 'xplorer')], async () => {
+    await createXplorerSet();
+});
+
 watch([toRef(route, 'query'), toRef(route.query, 'set')], async () => {
     if (!route.query.set)
         return;
@@ -185,6 +194,7 @@ watch([toRef(route, 'query'), toRef(route.query, 'set')], async () => {
     <div class="fixed w-screen h-screen">
         <WebGLCanvas class="z-[-1]"/>
         <template v-if="ready">
+            <XplorerBanner/>
             <MenuBar/>
             <Booklet/>
             <SideBar/>
