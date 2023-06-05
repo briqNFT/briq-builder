@@ -150,7 +150,7 @@ h4 {
                     <BriqsOverlayT/>
                 </div>
                 <div class="absolute z-10 left-0" :style="{ bottom: `${-120 + briqParallax}px` }">
-                    <BriqsOverlayB class="w-[1432px] h-[780px] relative top-[150px] tall-md:top-[0px]"/>
+                    <BriqsOverlayB class="w-[1432px] h-[780px] relative top-[150px] tall-lg:top-[0px]"/>
                 </div>
                 <div class="absolute z-10 lg:right-[-600px] xl:right-[-250px] 2xl:right-[-100px]" :style="{ top: `${150 - briqParallax}px` }">
                     <BriqsOverlayR class="w-[1432px] h-[780px]"/>

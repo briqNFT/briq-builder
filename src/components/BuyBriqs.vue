@@ -8,10 +8,13 @@ import Flyout from './generic/Flyout.vue';
 
 <style scoped>
 .faq h2 {
-    @apply mb-1;
+    @apply mb-1 text-lg;
 }
 .faq p {
     @apply leading-snug mb-2;
+}
+.faq a {
+    @apply text-primary font-medium;
 }
 </style>
 
@@ -23,31 +26,20 @@ import Flyout from './generic/Flyout.vue';
                 <BuyBriqsWidget class="w-[32rem] max-w-[32rem]"/>
             </Flyout>
         </div>
-        <div class="flex flex-col gap-4 faq mt-8">
+        <div class="flex flex-col gap-4 faq mt-8 mb-12">
             <div>
-                <h2>How does the briq token work?</h2>
-                <p>briqs are building blocks stored on the blockchain with which you can build NFTs!  If you disassemble your NFT built with briq, you get your briqs back and can build something new! Technically, briqs are ERC-1155 compliant tokens.</p>
+                <h2>What are briqs? What can I do with them?</h2>
+                <p>briqs are building blocks stored on the blockchain with which you can build NFTs!<br>If you disassemble your NFT built with briqs, you get your briqs back and you can build something new!<br>On the technical side, briqs are ERC-1155 compliant tokens.</p>
             </div>
+
             <div>
                 <h2>How many briqs will there be?</h2>
-                <p>Similarly to construction blocks, briqs are not limited in supply, but the price will vary following demand.</p>
+                <p>The briq factory is always open: briqs are not limited in supply!<br>Our current target is to manufacture around 100&nbsp;000 new briqs per year.</p>
             </div>
+
             <div>
-                <h2>What’s the pricing for briqs?</h2>
-                <p>briqs are priced according to current demand.</p>
-                <p>
-                    If the demand increases, the price for briqs will increase, and vice-versa.<br>
-                    The price increases with each purchase and decreases over time. If we sell TODO briqs per year, the price should remain about constant.<br>
-                    There is also a daily surge price, which prevents flooding the market on a single day.
-                </p>
-                <p>
-                    The current price for 100 briqs is TODO. Every 100 briqs increases the price by TODO.<br>
-                    There is currently no extra cost from daily 'surge demand'.
-                </p>
-            </div>
-            <div>
-                <h2>What does the demand curve for briq look like?</h2>
-                <p>ICI GRAPHE</p>
+                <h2>How much does it cost to buy a briq?</h2>
+                <p>The briqs use a dynamic pricing algorithm: the protocol expects to sell a certain amount of briq every year. If the demand is lower than expected, the price will decrease, if the demand is higher, the price will increase.<br>Think of it as a “production capacity” of the briq factory. If you want to learn more about the pricing algorithm, check out the <a href="https://briqnft.notion.site/briq-factory-b1803578bcff4ad0a88fd6086e02b92f">briqipedia</a>.</p>
             </div>
         </div>
     </div>
