@@ -119,14 +119,15 @@ h4 {
     <div>
         <div class="container m-auto relative h-screen xl:p-[6rem] flex flex-col overflow-hidden">
             <div class="grow-[3]"/>
-            <div class="grow-[5] md:grow-[3] flex flex-wrap justify-around items-center">
-                <div class="relative p-4 md:p-10 lg:p-20 xl:mb-20 flex-initial self-start h-min">
+            <div class="md:grow-[3] flex flex-col justify-center md:flex-row md:justify-around md:items-center">
+                <div class="relative p-2 sm:p-4 lg:p-10 xl:p-20 xl:mb-20 flex-initial self-start h-min">
                     <div>
-                        <h1 class="text-[3rem] sm:text-[4.5rem] font-bold leading-[5rem] my-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
-                        <p class="text-lg font-normal">Collect, build and play with briqs,<br>the building blocks of the metaverse.</p>
+                        <h1 class="text-[2.6rem] sm:text-[3rem] lg:text-[4.5rem] font-bold leading-[3.5rem] md:leading-[5rem] mt-6">Seize the <span class="briq-logo !m-0 !font-extrabold">briqs</span><br>of creation</h1>
+                        <p class="mt-4 mb-6 text-md md:text-lg font-normal">Collect, build and play with briqs,<br>the building blocks of the metaverse.</p>
+                        <routerLink to="/builder"><Btn class="py-6">Start building <i class="fa-solid fa-arrow-right pl-2 relative top-[0.5px]"/></Btn></routerLink>
                     </div>
                 </div>
-                <div class="max-w-[24rem] lg:max-w-[1000rem] sm:min-w-[14rem] self-stretch flex-1 w-full flex flex-col items-center justify-center relative">
+                <div class="m-auto max-w-[24rem] lg:max-w-[1000rem] sm:min-w-[14rem] self-stretch flex-1 w-full flex flex-col items-center justify-center relative">
                     <component
                         v-if="!modelViewerLoading"
                         :is="modelViewer" class="w-full h-full absolute"
