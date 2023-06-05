@@ -49,16 +49,11 @@ class BlockchainProvider {
 }
 
 function getProviderForNetwork(network: CHAIN_NETWORKS): Provider {
-    // Forward calls to the backend, itself a proxy for our node provider.
-    const testnetProvider = APP_ENV !== 'prod' ?
-        new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/${network}/rpc`, retries: 2 } }) :
-        new Provider({ sequencer: { network: 'goerli-alpha' } });
-
     return {
         'localhost': new Provider({ sequencer: { baseUrl: 'http://localhost:5050/' } }),
-        'starknet-testnet': testnetProvider,
-        'starknet-testnet2': new Provider({ sequencer: { baseUrl: 'https://alpha4-2.starknet.io/' } }), //({ network: 'goerli-alpha' }),
-        'starknet-mainnet': new Provider({ sequencer: { network: 'mainnet-alpha' } }),
+        'starknet-testnet': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet/rpc`, retries: 2 } }),
+        'starknet-testnet2': new Provider({ sequencer: { baseUrl: 'https://alpha4-2.starknet.io/' } }),
+        'starknet-mainnet': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-mainnet/rpc`, retries: 3 } }),
     }[network];
 }
 
