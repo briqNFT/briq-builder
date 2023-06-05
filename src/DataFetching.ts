@@ -9,7 +9,7 @@ import { reactive } from 'vue';
 // Fetchable is basically equivalent to useSWR, but my API offers _fetch, so it can be awaited in non-GUI code.
 export class Fetchable<T> {
     _data = undefined as undefined | T;
-    _fetch = undefined as undefined | Promise<T>;
+    _fetch = undefined as undefined | Promise<T | void>;
     _error = undefined as any;
 
     get _status() {
@@ -17,14 +17,11 @@ export class Fetchable<T> {
     }
 
     async fetch(t: () => Promise<T>) {
-        this._fetch = new Promise((res, rej) => {
-            t().then((data) => {
-                this._data = data;
-                res(data);
-            }).catch((err) => {
-                this._error = err;
-                rej();
-            });
+        this._fetch = t().then((data) => {
+            this._data = data;
+            return data;
+        }).catch((err) => {
+            this._error = err;
         });
     }
 
