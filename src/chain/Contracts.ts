@@ -9,14 +9,9 @@ import type OnchainAuctionContract from './contracts/auction_onchain';
 import type BriqFactoryContract from './contracts/briq_factory';
 
 import type { CHAIN_NETWORKS } from './Network';
-import { APP_ENV, DEV } from '@/Meta';
+import { APP_ENV } from '@/Meta';
 
 export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
-    mock: {
-        briq: '0xA',
-        set: '0xB',
-        box: '0xD',
-    },
     localhost: {},
     'starknet-testnet': {},
     'starknet-testnet2': {},
@@ -29,6 +24,7 @@ export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
         auction: '0x01712e3e3f133b26d65a3c5aaae78e7405dfca0a3cfe725dd57c4941d9474620',
         auction_ducks: '0x00b9bb7650a88f7e375ae8d31d48b4d4f13c6c34344839837d7dae7ffcdd3df0',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+        briq_factory: '',
     },
 };
 

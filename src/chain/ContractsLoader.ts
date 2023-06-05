@@ -15,11 +15,6 @@ import BriqFactoryContract from './contracts/briq_factory';
 
 
 const IMPL = {
-    'mock': {
-        briq: BriqContract,
-        set: SetContract,
-        box: BoxContract,
-    },
     'localhost': {
         briq: BriqContract,
         set: SetContract,
@@ -49,6 +44,7 @@ const IMPL = {
         auction: AuctionContract,
         auction_ducks: OnchainAuctionContract,
         eth_bridge_contract: ERC20Contract,
+        briq_factory: BriqFactoryContract,
     },
 };
 
