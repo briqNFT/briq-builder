@@ -226,7 +226,7 @@ onMounted(() => {
         isFirstTime.value = false;
     } else if (shapeValidity.value > 0) {
         isFirstTime.value = false;
-        currentPage.value = 1;
+        currentPage.value = extraPages.value;
     }
     watcher = watchEffect(() => {
         window.sessionStorage.setItem(`booklet_${booklet.value}`, `${currentPage.value}`)
@@ -239,7 +239,7 @@ onBeforeUnmount(() => watcher());
 <template>
     <div v-if="booklet && !minimized" class="sm:mt-1 sm:mx-2 mb-2 m-auto w-fit sm:min-w-[16rem] sm:float-right sm:block sm:relative absolute bottom-0 sm:bottom-auto sm:left-auto left-0 right-0 border border-grad-light shadow-lg sm:!shadow-none !text-sm rounded-md bg-grad-lightest select-none z-[10]">
         <h6 class="font-semibold text-sm leading-figma bg-grad-lighter rounded-t-md px-4 py-3 flex justify-between items-center">
-            {{ bookletMode === 'Xplorer' ? 'Xplorer quest' : 'Booklet' }}
+            {{ bookletMode === 'Xplorer' ? 'Argent Xplorer quest' : 'Booklet' }}
             <Btn no-background @click="minimized = true" class="w-6 h-6 p-0 m-0"><i class="text-lg far fa-times"/></Btn>
         </h6>
         <div class="flex flex-col max-w-[400px] md:w-[400px] h-300px tall-md:h-[500px]">
@@ -254,11 +254,11 @@ onBeforeUnmount(() => watcher());
                     <div v-else :class="'w-full h-full relative flex flex-col gap-4 p-4' + (isFirstTime ? ' py-8' : '')">
                         <template v-if="currentPage === 0 && bookletMode === 'Xplorer'">
                             <h4 class="text-center">Welcome to the briq builder!</h4>
-                            <p>The Xplorer quest for briq requires to mint an NFT with at least 30 briqs.<br>Follow the steps to make your Xplorer, or do something else you'd like !</p>
+                            <p>The Argent Xplorer Quest for briq requires you to mint an NFT with at least 30 briqs, and post your creation on Twitter.<br>Follow the steps to build your Xplorer, or do something else you'd like !</p>
                             <!-- Render only in high-quality to get the transparent version for briqmas/dark mode-->
                             <div :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet, false)})` }" class="p-4 w-full flex-1 h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain"/>
                             <div class="flex justify-center gap-4">
-                                <Btn class="!text-sm px-8" @click="higherPage">Start Xploring</Btn>
+                                <Btn class="!text-sm px-8" @click="higherPage(); isFirstTime = true">Start Xploring</Btn>
                             </div>
                         </template>
                         <template v-else-if="bookletMode === 'Xplorer'">

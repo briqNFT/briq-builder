@@ -51,7 +51,7 @@ async function initializeStartSet() {
                 await selectSet(set);
             else {
                 const set = new SetData(hexUuid());
-                set.name = 'Xplorer';
+                set.name = 'Argent Xplorer';
                 const info = setsManager.registerLocalSet(set);
                 info.booklet = 'tutorial/Xplorer';
                 logDebug('BUILDER - creating Xplorer set');
