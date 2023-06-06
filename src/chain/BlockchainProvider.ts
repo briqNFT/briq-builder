@@ -24,7 +24,11 @@ class BlockchainProvider {
     }
 
     async getTransactionStatus(tx_hash: string): Promise<'NOT_RECEIVED' | 'RECEIVED' | 'PENDING' | 'ACCEPTED_ON_L2' | 'ACCEPTED_ON_L1' | 'REJECTED'> {
-        return (await this.provider?.getTransactionReceipt(tx_hash))?.status || 'NOT_RECEIVED';
+        try {
+            return (await this.provider!.getTransactionReceipt(tx_hash)).status!;
+        } catch(_) {
+            return 'NOT_RECEIVED';
+        }
     }
 
     async getTransactionBlock(tx_hash: string) {
