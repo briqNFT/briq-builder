@@ -23,7 +23,7 @@ import Flyout from './generic/Flyout.vue';
     <div class="container m-auto max-w-[50rem] flex flex-col align-center min-h-screen gap-4">
         <div class="flex justify-center mt-2 tall-sm:mt-10">
             <Flyout size="w-auto" class="p-8 rounded-md">
-                <BuyBriqsWidget class="w-[32rem] max-w-[32rem]"/>
+                <BuyBriqsWidget class="sm:w-[32rem] max-w-[32rem]"/>
             </Flyout>
         </div>
         <div class="flex flex-col gap-4 faq mt-8 mb-12">
