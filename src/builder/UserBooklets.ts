@@ -44,7 +44,7 @@ class UserBookletsStore extends GeneralizedUserItem {
             this.polling = setTimeout(() => this._fetchData(), 60000);
             return;
         }
-        this.polling = setTimeout(() => this._fetchData(), 10000);
+        this.polling = setTimeout(() => this._fetchData(), 20000);
     }
 
     get booklets() {

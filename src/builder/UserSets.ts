@@ -38,7 +38,7 @@ class UserSetStore implements perUserStorable {
 
     onEnter() {
         this.fetchData();
-        this.polling = setTimeout(() => this.poll(), 10000);
+        this.polling = setTimeout(() => this.poll(), 2000);
     }
 
     onLeave() {
@@ -193,7 +193,7 @@ class UserSetStore implements perUserStorable {
                 delete this.metadata[setId];
             }
         }
-        setTimeout(() => this.poll(), success ? 10000 : 60000);
+        setTimeout(() => this.poll(), success ? 20000 : 60000);
     }
 
     async mintSet(otherCalls: Array<Call>, token_hint: string, data: any, image: string | undefined) {

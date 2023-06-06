@@ -78,7 +78,7 @@ export class ChainBriqs implements perUserStorable {
 
     onEnter(_old: string, _n: string) {
         this.loadFromChain();
-        this.polling = setInterval(() => this.maybePoll(), 10000);
+        this.polling = setInterval(() => this.maybePoll(), 20000);
 
         //this._add('TENTATIVE', '0x1', 1234, '0xcafe', false);
     }

@@ -47,7 +47,7 @@ class UserBoxesStore extends GeneralizedUserItem {
         }, 6000);
         */
         super.onEnter();
-        this.polling = setInterval(() => this._fetchData(), 10000);
+        this.polling = setInterval(() => this._fetchData(), 20000);
     }
 
     onLeave() {
