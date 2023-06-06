@@ -15,7 +15,6 @@ export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
     localhost: {},
     'starknet-testnet': {},
     'starknet-testnet2': {},
-    'starknet-testnet-legacy': {},
     'starknet-mainnet': {
         briq: '0x00247444a11a98ee7896f9dec18020808249e8aad21662f2fa00402933dce402',
         set: '0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672',
@@ -24,7 +23,7 @@ export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
         auction: '0x01712e3e3f133b26d65a3c5aaae78e7405dfca0a3cfe725dd57c4941d9474620',
         auction_ducks: '0x00b9bb7650a88f7e375ae8d31d48b4d4f13c6c34344839837d7dae7ffcdd3df0',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
-        briq_factory: '',
+        briq_factory: '0x05b021b6743c4f420e20786baa7fb9add1d711302c267afbc171252a74687376',
     },
 };
 
