@@ -6,7 +6,7 @@
 import {
     AdditiveBlending,
     Color,
-    FloatType,
+    HalfFloatType,
     ShaderMaterial,
     UniformsUtils,
     WebGLRenderTarget,
@@ -121,7 +121,7 @@ class SSAARenderPass extends Pass {
         if ( ! this.sampleRenderTarget ) {
 
             this.sampleRenderTarget = new WebGLRenderTarget( readBuffer.width, readBuffer.height, {
-                type: FloatType,
+                type: HalfFloatType,
             });
             this.sampleRenderTarget.texture.name = 'SSAARenderPass.sample';
 

@@ -77,7 +77,7 @@ function recreateRenderer(quality: SceneQuality) {
             minFilter: THREE.LinearFilter,
             magFilter: THREE.LinearFilter,
             format: THREE.RGBAFormat,
-            type: THREE.FloatType,
+            type: THREE.HalfFloatType,
         };
         const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, parameters);
         renderTarget.texture.encoding = THREE.sRGBEncoding;

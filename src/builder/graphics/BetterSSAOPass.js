@@ -10,7 +10,7 @@ import {
     DepthTexture,
     DstAlphaFactor,
     DstColorFactor,
-    FloatType,
+    HalfFloatType,
     MathUtils,
     MeshNormalMaterial,
     NearestFilter,
@@ -404,7 +404,7 @@ class SSAOPass extends Pass {
 
         }
 
-        this.noiseTexture = new DataTexture( data, width, height, RedFormat, FloatType );
+        this.noiseTexture = new DataTexture( data, width, height, RedFormat, HalfFloatType );
         this.noiseTexture.wrapS = RepeatWrapping;
         this.noiseTexture.wrapT = RepeatWrapping;
         this.noiseTexture.needsUpdate = true;

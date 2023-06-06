@@ -74,7 +74,7 @@ export class HighQualityScreenshot {
             minFilter: THREE.LinearFilter,
             magFilter: THREE.LinearFilter,
             format: THREE.RGBAFormat,
-            type: THREE.FloatType,
+            type: THREE.HalfFloatType,
         };
         const renderTarget = new THREE.WebGLRenderTarget(this.width, this.height, parameters);
         renderTarget.texture.encoding = THREE.sRGBEncoding;
