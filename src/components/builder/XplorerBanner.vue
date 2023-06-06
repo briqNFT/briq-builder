@@ -2,10 +2,12 @@
 import { onBeforeMount, ref } from 'vue';
 
 const showXplorerBanner = ref(false);
-if (window.localStorage.getItem('showXplorerBanner') !== 'false') {
-    window.localStorage.setItem('showXplorerBanner', 'true');
-    showXplorerBanner.value = true;
-}
+if (window.localStorage.getItem('showXplorerBanner') !== 'false')
+    if (Date.now() > 1686196800000) {
+        window.localStorage.setItem('showXplorerBanner', 'true');
+        showXplorerBanner.value = true;
+    }
+
 const hideXplorerbanner = () => {
     showXplorerBanner.value = false;
     window.localStorage.setItem('showXplorerBanner', 'false');

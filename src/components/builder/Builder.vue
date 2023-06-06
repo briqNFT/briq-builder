@@ -167,7 +167,8 @@ onBeforeMount(async () => {
 });
 
 watch([toRef(route, 'query'), toRef(route.query, 'xplorer')], async () => {
-    await createXplorerSet();
+    if (route.query.xplorer)
+        await createXplorerSet();
 });
 
 watch([toRef(route, 'query'), toRef(route.query, 'set')], async () => {
