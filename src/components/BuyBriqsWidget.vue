@@ -18,7 +18,7 @@ const props = defineProps<{
     minimum: number,
 }>();
 
-const minimum = computed(() => Math.max(201, props.minimum || 0));
+const minimum = computed(() => Math.max(30, props.minimum || 0));
 
 const briqs_wanted = ref(minimum.value);
 

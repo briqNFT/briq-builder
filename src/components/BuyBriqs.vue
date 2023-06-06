@@ -34,7 +34,7 @@ import Flyout from './generic/Flyout.vue';
 
             <div>
                 <h2>How many briqs will there be?</h2>
-                <p>The briq factory is always open: briqs are not limited in supply!<br>Our current target is to manufacture around 100&nbsp;000 new briqs per year.</p>
+                <p>The briq factory is always open: briqs are not limited in supply!<br>Our current target is to manufacture around 200&nbsp;000 new briqs per year.</p>
             </div>
 
             <div>

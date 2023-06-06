@@ -27,8 +27,8 @@ export const routes = [
         component: BuilderLoader,
     },
     {
-        path: '/buy_briqs',
-        name: 'Buy Briqs',
+        path: '/get_briqs',
+        name: 'Get Briqs',
         component: async () => {
             await loadExtraPages();
             return loader.BuyBriqs;

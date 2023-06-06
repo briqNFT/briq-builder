@@ -1,15 +1,18 @@
 class BriqFactory {
     private static readonly decimals = BigInt(10 ** 18);
-    private static readonly estimatedFairPrice = BigInt(5 * 10 ** 13);
-    private static readonly slope = BigInt(5 * 10 ** 8);
-    private static readonly inflectionPoint = BigInt(60000 * 10 ** 18);
-    private static readonly rawFloor = BigInt(2 * 10 ** 13);
-    private static readonly lowerFloor = BigInt(3 * 10 ** 13);
-    private static readonly lowerSlope = BigInt(333333333);
-    private static readonly decayPerSecond = BigInt(10 ** 10);
-    private static readonly surgeSlope = BigInt(10 ** 12);
-    private static readonly minimalSurge = BigInt(10000 * 10 ** 18);
-    private static readonly surgeDecayPerSecond = BigInt(2315 * 10 ** 14);
+
+    private static readonly inflectionPoint = BigInt(400000 * 10 ** 18);
+
+    private static readonly slope = BigInt(1 * 10 ** 8);
+    private static readonly rawFloor = BigInt(-1 * 10 ** 13);
+
+    private static readonly lowerFloor = BigInt(1 * 10 ** 13);
+    private static readonly lowerSlope = BigInt(5 * 10 ** 7);
+
+    private static readonly decayPerSecond = BigInt(6337791082068820);
+    private static readonly surgeSlope = BigInt(1 * 10 ** 8);
+    private static readonly minimalSurge = BigInt(250000 * 10 ** 18);
+    private static readonly surgeDecayPerSecond = BigInt(4134 * 10 ** 14);
 
     private lastStoredT: bigint;
     private lastPurchaseTime: bigint;
