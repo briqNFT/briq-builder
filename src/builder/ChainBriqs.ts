@@ -78,7 +78,7 @@ export class ChainBriqs implements perUserStorable {
 
     onEnter(_old: string, _n: string) {
         this.loadFromChain();
-        this.polling = setInterval(() => this.maybePoll(), 20000);
+        this.polling = setInterval(() => this.maybePoll(), 10000);
 
         //this._add('TENTATIVE', '0x1', 1234, '0xcafe', false);
     }
@@ -128,6 +128,10 @@ export class ChainBriqs implements perUserStorable {
                     if (update.status === 'TENTATIVE' && update.shouldNotify)
                         this.notifyPurchaseConfirmed(update);
                     this.metadata[material].splice(i--, 1);
+                    if (this.metadata[material].length === 0) {
+                        delete this.metadata[material];
+                        break;
+                    }
                     continue;
                 }
                 // Try to fetch some updated data if we don't know the block, but don't block the optimistic processing.
