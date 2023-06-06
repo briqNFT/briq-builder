@@ -35,16 +35,6 @@ export class WalletStore {
     constructor() {}
 
     async init() {
-        try {
-            injectController(undefined, {
-                chainId: APP_ENV === 'prod' ? SupportedChainIds.MAINNET : SupportedChainIds.TESTNET,
-            });
-        } catch(_) {
-            // Ignore
-            if (APP_ENV === 'dev')
-                console.log(_);
-        }
-
         const storedAddress = window.localStorage.getItem('user_address');
         logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
 
@@ -77,7 +67,23 @@ export class WalletStore {
                     this.enableWallet(cwo);
             });
         });
+
+        // Deactivated temporarily, fails in private navigation.
+        // this.initCartridge();
+
         return this;
+    }
+
+    async initCartridge() {
+        try {
+            injectController(undefined, {
+                chainId: APP_ENV === 'prod' ? SupportedChainIds.MAINNET : SupportedChainIds.TESTNET,
+            });
+        } catch(_) {
+            // Ignore
+            if (APP_ENV === 'dev')
+                console.log(_);
+        }
     }
 
     async ensureEnabled(showList = false) {
