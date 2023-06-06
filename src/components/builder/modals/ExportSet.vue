@@ -14,8 +14,6 @@ import { userSetStore } from '@/builder/UserSets';
 import { bookletStore } from '../BookletComposable';
 import { router } from '@/Routes';
 import { useGenesisStore } from '@/builder/GenesisStore';
-import { useThemeURLs } from '../genesis/ThemeUrlComposable';
-import { APP_ENV } from '@/Meta';
 import { getCurrentNetwork } from '@/chain/Network';
 import { getSetObject } from '@/builder/graphics/SetRendering';
 import { userBookletsStore } from '@/builder/UserBooklets';
@@ -117,30 +115,22 @@ watch([setData, toRef(chainBriqs.value, 'byMaterial')], () => {
 maybeStore.value?.ensureEnabled();
 
 const hasSigner = computed(() => !!(maybeStore.value?.signer));
-const hasLoadedBriqs = computed(() => chainBriqs.value?.status !== 'NOT_LOADED');
+const hasLoadedBriqs = computed(() => chainBriqs.value?.status === 'OK');
 // If there is no exportSet, then we have an error in swapping for real briqs.
 const hasEnoughBriqs = computed(() => hasLoadedBriqs.value && exportSet.value);
 
 const validationError = computed(() => {
-    if (exportStep.value === 'DONE')
+    if (exportStep.value !== '')
         return undefined;
     if (!hasSigner.value)
-        return {
-            code: 'NO_SIGNER',
-            title: 'Wallet not connected',
-            message: 'You must connect a wallet before you can mint briqs',
-        }
+        return { code: 'no_wallet', title: 'Wallet not connected' };
     if (!hasLoadedBriqs.value)
-        return {
-            code: 'BRIQS_NOT_LOADED',
-            title: 'Briqs are not loaded yet',
-            message: 'Please wait until briqs are loaded to mint this set.',
-        }
+        return { code: 'briq_outdated', title: 'briq count is outdated' };
     return undefined;
 })
 
 const mintingError = ref('');
-const exportStep = ref('' as '' | 'PREPARING' | 'BUY_BRIQS' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE');
+const exportStep = ref('' as '' | 'BUY_BRIQS' | 'PREPARING' | 'SENDING_TRANSACTION' | 'WAITING_FOR_CONFIRMATION' | 'DONE');
 const TX = ref();
 
 const briqTransaction = ref(undefined as undefined | Array<Call>);
@@ -162,7 +152,6 @@ const briqsNeeded = computed(() => {
 })
 
 const startMinting = async () => {
-    exportStep.value = 'PREPARING';
     if (!contractStore.set)
         return;
     if (validationError.value)
@@ -172,6 +161,8 @@ const startMinting = async () => {
         exportStep.value = 'BUY_BRIQS';
         return;
     }
+
+    exportStep.value = 'PREPARING';
     try {
         if (!exportSet.value)
             throw new Error('The set could not be minted');
@@ -264,8 +255,6 @@ const startMinting = async () => {
     }
 }
 
-const { themeSplashSrcSet } = useThemeURLs();
-
 </script>
 
 <style scoped>
@@ -276,19 +265,22 @@ button:not(.btn):not(.nostyle)::before {
 <template>
     <template v-if="validationError">
         <Window>
-            <template #title>{{ validationError.title }}</template>
-            <div v-if="validationError.code !== 'NOT_ENOUGH_BRIQS' || APP_ENV !== 'dev'" class="whitespace-pre-line">
-                {{ validationError.message }}
-            </div>
-            <div v-else class="leading-snug">
-                <p class="mb-1">Briq has launched on StarkNet mainnet.</p>
-                <p class="mb-1">Check out our initial sale to get some briqs!</p>
-                <RouterLink :to="{ name: 'Theme', params: { theme: 'starknet_planet' } }" @click="emit('close')">
-                    <div class="flex flex-col items-center justify-center relative my-4">
-                        <img class="rounded-md h-[10rem] w-auto" :srcset="themeSplashSrcSet('starknet_planet', 'high', 'starknet-mainnet')" :alt="`Theme splash for Starknet Planet`">
-                    </div>
-                </RouterLink>
-            </div>
+            <template #title>Cannot mint: {{ validationError.title }}</template>
+            <template v-if="validationError.code === 'briq_outdated'">
+                <template v-if="chainBriqs?.status === 'ERROR'">
+                    <p>There was an error loading your briqs. Check the developer console for more information.</p>
+                    <Btn class="mt-4" @click="chainBriqs?.loadFromChain()">Retry</Btn>
+                    <Btn secondary class="ml-4 mt-4" @click="emit('close')">Cancel</Btn>
+                </template>
+                <template v-else>
+                    <p>briq is currently loading your briq count, please wait</p>
+                    <Btn secondary class="mt-4" @click="emit('close')">Cancel</Btn>
+                </template>
+            </template>
+            <template v-else-if="validationError.code === 'no_wallet'">
+                <p>Please connect your wallet and try again.</p>
+                <Btn secondary class="mt-4" @click="emit('close')">Cancel</Btn>
+            </template>
         </Window>
     </template>
     <template v-else-if="!exportStep && !booklet">
