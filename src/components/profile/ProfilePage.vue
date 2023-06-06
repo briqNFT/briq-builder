@@ -179,12 +179,13 @@ watch([activeTab], () => {
     );
 }
 
-.item-card ::v-deep(.cardContextualMenu) {
-    @apply invisible;
-}
-
-.item-card:hover ::v-deep(.cardContextualMenu) {
-    @apply visible;
+@media (hover: hover) {
+    .item-card ::v-deep(.cardContextualMenu) {
+        @apply invisible;
+    }
+    .item-card:hover ::v-deep(.cardContextualMenu) {
+        @apply visible;
+    }
 }
 
 .pastille {
