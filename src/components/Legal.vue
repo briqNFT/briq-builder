@@ -38,8 +38,8 @@ h3 {
             </div>
             <div class="my-4">
                 <h3>Legal Documents</h3>
-                <p>Terms of Sale: <router-link :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">HTML</router-link> / <a href="/legal/2022-08-16-terms-of-sale.pdf" target="blank_">PDF</a></p>
-                <p>Website Terms & Conditions: <router-link :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">HTML</router-link> / <a href="/legal/2022-09-23-terms-conditions.pdf" target="blank_">PDF</a></p>
+                <p>Terms of Sale: <router-link :to="{ name: 'Legal Doc', params: { doc: '2022-05-05-terms-of-sale' } }">HTML</router-link> / <a href="/legal/2022-05-05-terms-of-sale.pdf" target="blank_">PDF</a></p>
+                <p>Website Terms & Conditions: <router-link :to="{ name: 'Legal Doc', params: { doc: '2022-05-05-terms-conditions' } }">HTML</router-link> / <a href="/legal/2022-05-05-terms-conditions.pdf" target="blank_">PDF</a></p>
                 <p>Privacy Policy: <router-link :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-privacy-policy' } }">HTML</router-link> / <a href="/legal/2022-09-23-privacy-policy.pdf" target="blank_">PDF</a></p>
             </div>
         </div>
