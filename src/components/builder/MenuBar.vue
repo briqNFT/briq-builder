@@ -41,7 +41,7 @@ const {
 } = useBooklet();
 
 const canMintSet = computed(() => {
-    return currentSet.value.getNbBriqs() > 0 && (!booklet.value || shapeValidity.value === 1)
+    return currentSet.value.getNbBriqs() > 0 && (!booklet.value || booklet.value.startsWith('tutorial/') || shapeValidity.value === 1)
 })
 
 
@@ -156,11 +156,11 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                         <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
                         <Btn no-background class="justify-start" icon @click="maybeStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                     </MenuDropdown>
-                    <Btn class="self-end" disabled="true" id="mintbutton">Mint</Btn>
+                    <Btn class="self-end" disabled="true">Mint</Btn>
                 </template>
                 <template v-else>
                     <Btn class="flex-none" @click="connectWallet"><span class="px-2">Connect</span></Btn>
-                    <Btn disabled="true" id="mintbutton">Mint</Btn>
+                    <Btn disabled="true">Mint</Btn>
                 </template>
             </div>
         </div>
