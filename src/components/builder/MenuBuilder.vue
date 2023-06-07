@@ -64,13 +64,9 @@ const importSetFromFile = async () => {
                 await pushModal(ImageLoader, { file: file, data: file.arrayBuffer() });
             else {
                 let contents = JSON.parse(await file.text());
-                // For now, overwrite briqs in Realms/default
-                for (let briq of contents.briqs)
-                    briq.data.material = CONF.theme === 'realms' ? '0x2' : '0x1';
                 let set = new SetData(contents.id).deserialize(contents);
                 set.id = hexUuid();
                 pushModal(NewSetModalVue, { title: 'Import set', initialSet: set })
-
             }
         } catch (err) {
             pushPopup('error', 'Error loading file', `Error while loading file ${fileHandle.name}\n${err?.message}`);
