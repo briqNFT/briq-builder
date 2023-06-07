@@ -23,6 +23,7 @@ export class Fetchable<T> {
         }).catch((err) => {
             this._error = err;
         });
+        return this._fetch;
     }
 
     clear() {
