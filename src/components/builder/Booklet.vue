@@ -256,7 +256,7 @@ onBeforeUnmount(() => watcher());
                     <div v-else :class="'w-full h-full relative flex flex-col gap-4 p-4' + (isFirstTime ? ' py-8' : '')">
                         <template v-if="currentPage === 0 && bookletMode === 'Xplorer'">
                             <h4 class="text-center">Welcome to the briq builder!</h4>
-                            <p>The <a href="https://www.argent.xyz/blog/xplorer/" target="_blank">Argent Xplorer Quest</a> for briq requires you to mint an NFT with 30 briqs or more, and post your creation on Twitter.<br>Follow the steps to build your Xplorer, or do something else you'd like !</p>
+                            <p>The <a href="https://www.argent.xyz/blog/xplorer/" target="_blank">Argent Xplorer Quest</a> for briq requires you to mint an NFT with 30 briqs or more.<br>Follow the steps to build your Xplorer, or do something else you'd like !</p>
                             <!-- Render only in high-quality to get the transparent version for briqmas/dark mode-->
                             <div :style="{ backgroundImage: `url(${genesisStore.coverBookletRoute(booklet, false)})` }" class="p-4 w-full flex-1 h-full bg-contain bg-origin-content bg-center bg-no-repeat bg-contain"/>
                             <div class="flex justify-center gap-4">
