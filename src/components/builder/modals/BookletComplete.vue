@@ -9,11 +9,13 @@ const emit = defineEmits(['close']);
 const { currentSet } = useBuilder();
 
 const setModal = async () => {
-    pushModal(ExportSet, {
-        setId: currentSet.value.id,
-        background: 'rgba(0, 0, 0, 0.0)',
-    });
     emit('close');
+    setTimeout(() => {
+        pushModal(ExportSet, {
+            setId: currentSet.value.id,
+            background: 'rgba(0, 0, 0, 0.0)',
+        });
+    }, 0);
 }
 </script>
 
