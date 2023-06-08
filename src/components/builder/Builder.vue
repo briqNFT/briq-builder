@@ -52,6 +52,7 @@ const createXplorerSet = async () => {
         else {
             const set = new SetData(hexUuid());
             set.name = 'Argent Xplorer';
+            set.description = 'A proud Xplorer venturing into the unknown of the Starknet universe!';
             const info = setsManager.registerLocalSet(set);
             info.booklet = 'tutorial/Xplorer';
             logDebug('BUILDER - creating Xplorer set');
