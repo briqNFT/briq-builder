@@ -21,7 +21,7 @@ class BriqFactory {
     private surgeT: bigint;
 
     constructor() {
-        this.lastStoredT = BigInt('350000000000000000000000');
+        this.lastStoredT = BigInt('380000000000000000000000');
         this.lastPurchaseTime = BigInt(0);
         this.surgeT = BigInt(0);
     }

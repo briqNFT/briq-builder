@@ -44,7 +44,7 @@ const fetchPrices = async () => {
     if (parameters.value._error)
         parameters.value.clear();
     await parameters.value.fetch(async () => {
-        briqFactory.setParams('350000000000000000000000', '0');
+        briqFactory.setParams('380000000000000000000000', '0');
         return 'ok';
     });
     parameters.value.fetch(async () => {
