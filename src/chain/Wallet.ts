@@ -15,7 +15,7 @@ import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 import { connect, disconnect, StarknetWindowObject } from 'get-starknet';
 
 import { APP_ENV } from '@/Meta';
-import { blockchainProvider } from './BlockchainProvider';
+import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider';
 
 import { injectController, SupportedChainIds } from '@cartridge/controller';
 
@@ -111,6 +111,18 @@ export class WalletStore {
         await this.starknetObject.enable({ starknetVersion: 'v4' })
         await this.setSignerFromGSW();
         this.starknetObject.on('accountsChanged', () => this.setSignerFromGSW());
+    }
+
+    async enableExternalWallet(address: string) {
+        const obj = {
+            isConnected: true,
+            account: new starknet.Account(getProviderForNetwork('starknet-mainnet'), address, new starknet.Signer(null)),
+            enable: () => Promise.resolve(),
+            on: () => {},
+        } as unknown as StarknetWindowObject;
+        this.starknetObject = obj;
+        obj.account!.provider.chainId = await obj.account!.provider!.getChainId();
+        await this.setSignerFromGSW();
     }
 
     async setSignerFromGSW() {

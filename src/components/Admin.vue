@@ -5,9 +5,12 @@ import { hexUuid } from '@/Uuid';
 const canMasterInit = computed(() => {
     return contractStore.briq?.getAddress() && contractStore.set?.getAddress() && walletStore.userWalletAddress
 });
+
+const impersonate = ref('');
 </script>
 
 <template>
+    <Header/>
     <div class="alternate-buttons container px-8 py-4 m-auto main">
         <h1 class="text-center">Admin</h1>
         <div class="grid grid-cols-3">
@@ -19,7 +22,6 @@ const canMasterInit = computed(() => {
                     <label><p>
                         <select v-model="material">
                             <option value="1">Normal</option>
-                            <option value="2">Realms</option>
                         </select>
                         Material
                     </p></label>
@@ -50,6 +52,8 @@ const canMasterInit = computed(() => {
                     <h2>Wallet</h2>
                     <p>Current address: {{ wallet.user_id }}</p>
                     <Btn @click="wallet.disconnect(); wallet.openWalletSelector();">Connect Wallet</Btn>
+                    <p>Impersonate wallet:<br><input v-model="impersonate" size="64"></p>
+                    <Btn @click="wallet.enableExternalWallet(impersonate)" :disabled="!impersonate">Impersonate</Btn>
                 </div>
                 <div>
                     <h2>Messages</h2>
@@ -96,19 +100,17 @@ const callContract = function (provider: Provider, address: string, entryPoint: 
 
 import { defineComponent } from 'vue';
 import { getCurrentNetwork } from '@/chain/Network';
+import Header from './landing_page/Header.vue';
 export default defineComponent({
     data() {
         return {
             address: '',
             qty: 0,
             material: 1,
-
             _setImpl: '',
             _briqImpl: '',
-
             newSetImpl: '',
             newBriqImpl: '',
-
             cc_contract: 'set',
             selector: '',
             calldata: '',
@@ -134,10 +136,8 @@ export default defineComponent({
                 pushMessage('No address');
                 return;
             }
-            pushMessage(
-                JSON.stringify(await contractStore.briq?.mintFT(address, material, qty)) ??
-                    'Failed to mint, contract is unset',
-            );
+            pushMessage(JSON.stringify(await contractStore.briq?.mintFT(address, material, qty)) ??
+                'Failed to mint, contract is unset');
         },
         async setImpl(contract: any, address: string) {
             if (walletStore?.signer?.signer) {
@@ -148,11 +148,7 @@ export default defineComponent({
                 });
                 pushMessage(JSON.stringify(tx));
             } else {
-                let tx = await (walletStore.signer as Signer).invokeFunction(
-                    starknet.number.toBN(contract.getAddress()).toString(),
-                    starknet.number.toBN(snHash.getSelectorFromName('upgradeImplementation_')).toString(),
-                    [starknet.number.toBN(address).toString()],
-                );
+                let tx = await (walletStore.signer as Signer).invokeFunction(starknet.number.toBN(contract.getAddress()).toString(), starknet.number.toBN(snHash.getSelectorFromName('upgradeImplementation_')).toString(), [starknet.number.toBN(address).toString()]);
                 pushMessage(JSON.stringify(tx));
             }
         },
@@ -164,12 +160,10 @@ export default defineComponent({
             });
             pushMessage(JSON.stringify(tx));
         },
-
         async customCall() {
             this.cc_pending = true;
             try {
                 this.customResult = '';
-
                 if (walletStore?.signer?.signer) {
                     let tx = await (walletStore.signer as AccountInterface).execute({
                         contractAddress: ADDRESSES[getCurrentNetwork()][this.cc_contract],
@@ -181,14 +175,10 @@ export default defineComponent({
                     });
                     pushMessage(JSON.stringify(tx));
                 } else {
-                    let tx = await (walletStore.signer as Signer).invokeFunction(
-                        starknet.number.toBN(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(),
-                        starknet.number.toBN(snHash.getSelectorFromName(this.selector)).toString(),
-                        this.calldata
-                            .split(',')
-                            .filter((x) => x)
-                            .map((x: string) => starknet.number.toBN(x.trim()).toString()),
-                    );
+                    let tx = await (walletStore.signer as Signer).invokeFunction(starknet.number.toBN(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(), starknet.number.toBN(snHash.getSelectorFromName(this.selector)).toString(), this.calldata
+                        .split(',')
+                        .filter((x) => x)
+                        .map((x: string) => starknet.number.toBN(x.trim()).toString()));
                     pushMessage(JSON.stringify(tx));
                 }
                 this.customResult = `${tx.code} ${tx.transaction_hash}`;
@@ -198,5 +188,6 @@ export default defineComponent({
             this.cc_pending = false;
         },
     },
+    components: { Header },
 });
 </script>

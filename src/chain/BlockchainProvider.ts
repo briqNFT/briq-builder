@@ -52,7 +52,7 @@ class BlockchainProvider {
     }
 }
 
-function getProviderForNetwork(network: CHAIN_NETWORKS): Provider {
+export function getProviderForNetwork(network: CHAIN_NETWORKS): Provider {
     return {
         'localhost': new Provider({ sequencer: { baseUrl: 'http://localhost:5050/' } }),
         'starknet-testnet': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet/rpc`, retries: 2 } }),
