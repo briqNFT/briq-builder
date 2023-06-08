@@ -23,7 +23,7 @@ const minimum = computed(() => Math.max(30, props.minimum || 0));
 const briqs_wanted = ref(minimum.value);
 
 const parameters = ref(new Fetchable<unknown>());
-const slippage = ref(3); // as a per-mille.
+const slippage = ref(10); // as a per-mille.
 
 const EthUsdPrice = reactive(new Fetchable());
 
@@ -40,13 +40,21 @@ onMounted(async () => {
     fetchPrices();
 })
 
-const fetchPrices = () => {
+const fetchPrices = async () => {
     if (parameters.value._error)
         parameters.value.clear();
+    await parameters.value.fetch(async () => {
+        briqFactory.setParams('350000000000000000000000', '0');
+        return 'ok';
+    });
     parameters.value.fetch(async () => {
-        const params = await contractStore.briq_factory!.getParameters();
-        briqFactory.setParams(params.current_t, params.surge_t);
-        return params;
+        try {
+            const params = await contractStore.briq_factory!.getParameters();
+            briqFactory.setParams(params.current_t, params.surge_t);
+            return params;
+        } catch(_) {
+            return 'ok';
+        }
     });
 }
 
@@ -153,7 +161,7 @@ const cancelBuy = () => {
                                 Max price slippage:<br>
                                 <span class="flex justify-between items-center">
                                     <span><input class="mr-1 w-20" type="number" min="0" v-model="slippage">‰</span>
-                                    <Btn :disabled="slippage === 2" @click="slippage = 2" no-background class="ml-2 p-2 h-auto">
+                                    <Btn :disabled="slippage === 10" @click="slippage = 10" no-background class="ml-2 p-2 h-auto">
                                         <i class="text-sm p-0 fa-solid fa-arrows-rotate"/>
                                     </Btn>
                                 </span>
