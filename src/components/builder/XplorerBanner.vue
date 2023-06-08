@@ -3,7 +3,7 @@ import { onBeforeMount, ref } from 'vue';
 
 const showXplorerBanner = ref(false);
 if (window.localStorage.getItem('showXplorerBanner') !== 'false')
-    if (Date.now() > 1686196800000) {
+    if (Date.now() > 1686229200000) {
         window.localStorage.setItem('showXplorerBanner', 'true');
         showXplorerBanner.value = true;
     }
