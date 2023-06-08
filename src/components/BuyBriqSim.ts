@@ -1,3 +1,5 @@
+import { reactive } from 'vue';
+
 class BriqFactory {
     private static readonly decimals = BigInt(10 ** 18);
 
@@ -113,4 +115,4 @@ class BriqFactory {
     }
 }
 
-export const briqFactory = new BriqFactory();
+export const briqFactory = reactive(new BriqFactory());
