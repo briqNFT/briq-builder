@@ -40,7 +40,7 @@ class BriqFactory {
         const t = this.lastStoredT;
 
         const timestamp = BigInt(Date.now());
-        const timeSinceLastPurchase = timestamp - this.lastPurchaseTime;
+        const timeSinceLastPurchase = (timestamp - this.lastPurchaseTime) / BigInt(1000);
         const decay = timeSinceLastPurchase * BriqFactory.decayPerSecond;
 
         return t <= decay ? BigInt(0) : t - decay;
@@ -50,7 +50,7 @@ class BriqFactory {
         const t = this.surgeT;
 
         const timestamp = BigInt(Date.now());
-        const timeSinceLastPurchase = timestamp - this.lastPurchaseTime;
+        const timeSinceLastPurchase = (timestamp - this.lastPurchaseTime) / BigInt(1000);
         const decay = timeSinceLastPurchase * BriqFactory.surgeDecayPerSecond;
 
         return t <= decay ? BigInt(0) : t - decay;
