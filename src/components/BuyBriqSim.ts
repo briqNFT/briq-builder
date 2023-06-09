@@ -14,7 +14,7 @@ class BriqFactory {
     private static readonly decayPerSecond = BigInt(6337791082068820);
     private static readonly surgeSlope = BigInt(1 * 10 ** 8);
     private static readonly minimalSurge = BigInt(250000 * 10 ** 18);
-    private static readonly surgeDecayPerSecond = BigInt(4134 * 10 ** 14);
+    private static readonly surgeDecayPerSecond = BigInt(150 * 10**18);
 
     private lastStoredT: bigint;
     private lastPurchaseTime: bigint;
@@ -22,7 +22,7 @@ class BriqFactory {
 
     constructor() {
         this.lastStoredT = BigInt('420000000000000000000000');
-        this.lastPurchaseTime = BigInt(0);
+        this.lastPurchaseTime = BigInt(1686303989 * 1000);
         this.surgeT = BigInt(0);
     }
 
@@ -38,9 +38,8 @@ class BriqFactory {
 
     private getCurrentT(): bigint {
         const t = this.lastStoredT;
-        return t;
-        // TODO: implement timestamp stuff
-        const timestamp = this.getBlockTimestamp();
+
+        const timestamp = BigInt(Date.now());
         const timeSinceLastPurchase = timestamp - this.lastPurchaseTime;
         const decay = timeSinceLastPurchase * BriqFactory.decayPerSecond;
 
@@ -49,9 +48,8 @@ class BriqFactory {
 
     private getSurgeT(): bigint {
         const t = this.surgeT;
-        return t;
-        // TODO: implement timestamp stuff
-        const timestamp = this.getBlockTimestamp();
+
+        const timestamp = BigInt(Date.now());
         const timeSinceLastPurchase = timestamp - this.lastPurchaseTime;
         const decay = timeSinceLastPurchase * BriqFactory.surgeDecayPerSecond;
 
