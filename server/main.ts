@@ -109,8 +109,10 @@ async function runServer() {
                             reject(err);
                         }
                     });
-                    processedTemplate = processedTemplate.replace(
-                        '<!--<meta-replace>-->',
+                    const meta_start = processedTemplate.indexOf('<!--<meta-replace-start>-->');
+                    const meta_end = processedTemplate.indexOf('<!--<meta-replace-end>-->');
+                    processedTemplate =
+                        processedTemplate.slice(0, meta_start) +
                         [
                             '<meta property="og:title" content="' + (data.name || data.id) + '">',
                             '<meta property="og:type" content="article" />',
@@ -118,42 +120,46 @@ async function runServer() {
                             '<meta property="og:image" content="https://api.briq.construction/v1/preview/' + relevant_part + '.png">',
                             '<meta property="og:url" content="https://' + req.headers.host + req.url + '">',
                             '<meta name="twitter:card" content="summary_large_image">',
-                        ].join('\n'),
-                    );
+                        ].join('\n') +
+                        processedTemplate.slice(meta_end);
                 } catch (_) {
                     // Ignore error -> probably just a bad ID, will be handled by frontend.
                     // console.error(_);
                 }
             } else if (req.url?.indexOf('/starknet_planet') !== -1)
                 try {
-                    processedTemplate = processedTemplate.replace(
-                        '<!--<meta-replace>-->',
+                    const meta_start = processedTemplate.indexOf('<!--<meta-replace-start>-->');
+                    const meta_end = processedTemplate.indexOf('<!--<meta-replace-end>-->');
+                    processedTemplate =
+                        processedTemplate.slice(0, meta_start) +
                         [
-                            '<meta property="og:title" content="briq - Starknet Planet">',
+                            '<meta property="og:title" content="Starknet Planet - made with briq">',
                             '<meta property="og:type" content="article" />',
                             '<meta property="og:description" content="“A few briqs for a man, a giant leap for NFTs”. Get ready to build your first NFT collection, briq by briq.">',
                             '<meta property="og:image" content="https://api.briq.construction/v1/starknet-mainnet/starknet_planet/high/splash.jpg">',
                             '<meta property="og:url" content="https://briq.construction/product/starknet_planet">',
                             '<meta name="twitter:card" content="summary_large_image">',
-                        ].join('\n'),
-                    );
+                        ].join('\n') +
+                        processedTemplate.slice(meta_end);
                 } catch (_) {
                     // Ignore error -> probably just a bad ID, will be handled by frontend.
                     // console.error(_);
                 }
             else if (req.url?.indexOf('/product/ducks_everywhere') !== -1)
                 try {
-                    processedTemplate = processedTemplate.replace(
-                        '<!--<meta-replace>-->',
+                    const meta_start = processedTemplate.indexOf('<!--<meta-replace-start>-->');
+                    const meta_end = processedTemplate.indexOf('<!--<meta-replace-end>-->');
+                    processedTemplate =
+                        processedTemplate.slice(0, meta_start) +
                         [
-                            '<meta property="og:title" content="Ducks Everywhere ft briq">',
+                            '<meta property="og:title" content="Ducks Everywhere - made with briq">',
                             '<meta property="og:type" content="article" />',
                             '<meta property="og:description" content="“Quack quack” - heard on Starknet, 2023">',
                             '<meta property="og:image" content="https://api.briq.construction/v1/starknet-mainnet/ducks_everywhere/high/splash.jpg">',
                             '<meta property="og:url" content="https://briq.construction/product/ducks_everywhere">',
                             '<meta name="twitter:card" content="summary_large_image">',
-                        ].join('\n'),
-                    );
+                        ].join('\n') +
+                        processedTemplate.slice(meta_end);
                 } catch (_) {
                     // Ignore error -> probably just a bad ID, will be handled by frontend.
                     // console.error(_);
