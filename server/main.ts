@@ -141,6 +141,23 @@ async function runServer() {
                     // Ignore error -> probably just a bad ID, will be handled by frontend.
                     // console.error(_);
                 }
+            else if (req.url?.indexOf('/product/ducks_everywhere') !== -1)
+                try {
+                    processedTemplate = processedTemplate.replace(
+                        '<!--<meta-replace>-->',
+                        [
+                            '<meta property="og:title" content="Ducks Everywhere ft briq">',
+                            '<meta property="og:type" content="article" />',
+                            '<meta property="og:description" content="“Quack quack” - heard on Starknet, 2023">',
+                            '<meta property="og:image" content="https://api.briq.construction/v1/starknet-mainnet/ducks_everywhere/high/splash.jpg">',
+                            '<meta property="og:url" content="https://briq.construction/product/ducks_everywhere">',
+                            '<meta name="twitter:card" content="summary_large_image">',
+                        ].join('\n'),
+                    );
+                } catch (_) {
+                    // Ignore error -> probably just a bad ID, will be handled by frontend.
+                    // console.error(_);
+                }
 
 
             res.statusCode = 200;
