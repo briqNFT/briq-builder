@@ -188,6 +188,7 @@ const cancelBuy = () => {
             <div>
                 <p class="mt-1" v-if="parameters._data">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
                 <p>For details on the pricing, consult the <a class="text-primary" href="https://briqnft.notion.site/briq-factory-b1803578bcff4ad0a88fd6086e02b92f">briqipedia</a>.</p>
+                <p class="my-2 flex items-center"><i class="mr-2 far fa-circle-exclamation text-primary"/> Please be aware that the price of briq is currently very high, and the secondary markets are not yet available.</p>
             </div>
             <i @click.stop.prevent="toggledDetails=!toggledDetails" :class="`p-2 cursor-pointer hover:bg-grad-light rounded fa-solid fa-chevron-${toggledDetails ? 'up' : 'down'}`"/>
         </div>
