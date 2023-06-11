@@ -187,8 +187,9 @@ const cancelBuy = () => {
         <div class="my-4 text-sm flex justify-between items-center gap-8">
             <div>
                 <p class="mt-1" v-if="parameters._data">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
-                <p>For details on the pricing, consult the <a class="text-primary" href="https://briqnft.notion.site/briq-factory-b1803578bcff4ad0a88fd6086e02b92f">briqipedia</a>.</p>
-                <p class="my-2 flex items-center"><i class="mr-2 far fa-circle-exclamation text-primary"/> Please be aware that the price of briq is currently very high, and the secondary markets are not yet available.</p>
+                <p class="my-2 flex items-center">
+                    <i class="mr-2 far fa-circle-exclamation text-primary"/> <span>Please be aware that the price of briq is currently very high due to demand. You can also get briqs by buying sets from <a class="text-primary" href="https://mintsquare.io/collection/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672">Mintsquare</a> and disassembling them.</span>
+                </p>
             </div>
             <i @click.stop.prevent="toggledDetails=!toggledDetails" :class="`p-2 cursor-pointer hover:bg-grad-light rounded fa-solid fa-chevron-${toggledDetails ? 'up' : 'down'}`"/>
         </div>
