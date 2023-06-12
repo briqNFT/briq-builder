@@ -12,6 +12,7 @@ import { ExplorerTxUrl } from '@/chain/Explorer';
 import { chainBriqs } from '@/builder/ChainBriqs';
 import MenuLike from './generic/MenuLike.vue';
 import Tooltip from './generic/Tooltip.vue';
+import { APP_ENV } from '@/Meta';
 
 
 const props = defineProps<{
@@ -44,9 +45,13 @@ const fetchPrices = async () => {
     if (parameters.value._error)
         parameters.value.clear();
     parameters.value.fetch(async () => {
-        const params = await contractStore.briq_factory!.getParameters();
-        briqFactory.setParams(params.current_t, params.surge_t);
-        return params;
+        if (APP_ENV === 'prod')
+            briqFactory.setParams('2201831629382202264696000', '0');
+        else {
+            const params = await contractStore.briq_factory!.getParameters();
+            briqFactory.setParams(params.current_t, params.surge_t);
+        }
+        return {};
     });
 }
 
@@ -188,7 +193,7 @@ const cancelBuy = () => {
             <div>
                 <p class="mt-1" v-if="parameters._data">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
                 <p class="my-2 flex items-center">
-                    <i class="mr-2 far fa-circle-exclamation text-primary"/> <span>Please be aware that the price of briq is currently very high due to demand. You can also get briqs by buying sets from <a class="text-primary" href="https://mintsquare.io/collection/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672">Mintsquare</a> and disassembling them.</span>
+                    <i class="mr-2 farbr fa-circle-exclamation text-primary"/> <span>Please be aware that the price of briq is currently very high due to demand. You can also get briqs by buying sets from <a class="text-primary" href="https://mintsquare.io/collection/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672">Mintsquare</a> and disassembling them.</span>
                 </p>
             </div>
             <i @click.stop.prevent="toggledDetails=!toggledDetails" :class="`p-2 cursor-pointer hover:bg-grad-light rounded fa-solid fa-chevron-${toggledDetails ? 'up' : 'down'}`"/>
