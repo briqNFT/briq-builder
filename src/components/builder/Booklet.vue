@@ -199,8 +199,6 @@ watch([shapeValidity], (nv, ov) => {
 })
 
 const bookletMode = computed(() => {
-    if (booklet.value === 'tutorial/Xplorer')
-        return 'Xplorer';
     return 'booklet';
 });
 const extraPages = computed(() => bookletMode.value === 'Xplorer' ? 2 : 1);
@@ -298,7 +296,7 @@ onBeforeUnmount(() => watcher());
                 </div>
                 <div v-show="!isFirstTime" class="border-t border-grad-light">
                     <div class="mx-4 my-4 relative">
-                        <p class="mb-2">Xplorer quest: mint NFT with 10+ briqs</p>
+                        <p v-if="bookletMode === 'Xplorer'" class="mb-2">Xplorer quest: mint NFT with 10+ briqs</p>
                         <p class="flex justify-between mb-2"><span>Progress</span><span class="text-right font-medium">{{ Math.floor(shapeValidity*100) }}%</span></p>
                         <ProgressBar
                             class="!block !h-3 my-0"

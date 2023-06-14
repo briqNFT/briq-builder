@@ -62,9 +62,7 @@ const createXplorerSet = async () => {
 }
 
 async function initializeStartSet() {
-    if (route.query.xplorer)
-        await createXplorerSet();
-    else if (route.query['set'])
+    if (route.query['set'])
         try {
             logDebug('BUILDER - attempting to load set ' + route.query['set']);
             const setId = route.query['set'] as string;
@@ -167,11 +165,6 @@ onBeforeMount(async () => {
     ready.value = true;
 });
 
-watch([toRef(route, 'query'), toRef(route.query, 'xplorer')], async () => {
-    if (route.query.xplorer)
-        await createXplorerSet();
-});
-
 watch([toRef(route, 'query'), toRef(route.query, 'set')], async () => {
     if (!route.query.set)
         return;
@@ -196,7 +189,6 @@ watch([toRef(route, 'query'), toRef(route.query, 'set')], async () => {
     <div class="fixed w-screen h-screen">
         <WebGLCanvas class="z-[-1]"/>
         <template v-if="ready">
-            <XplorerBanner/>
             <MenuBar/>
             <Booklet/>
             <SideBar/>
