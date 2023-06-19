@@ -74,10 +74,10 @@ beforeUnloadTxPendingWarning(event: BeforeUnloadEvent) {
     async _mintSet(TXp: Promise<any>, data: any, image: string | undefined, booklet?: string) {
         window.addEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
         */
-const startMint = async () => {
+const startMint = async (skipDeclare: boolean) => {
     await maybeStore.value!.ensureEnabled();
     actionIsPending.value = true;
-    await mintToken();
+    await mintToken(skipDeclare);
     actionIsPending.value = false;
 }
 
@@ -247,7 +247,8 @@ watchEffect(() => {
                 <div class="flex flex-col items-center gap-2">
                     <h2 class="text-center">Minting</h2>
                     <p>You will be asked to sign two transactions. Do not cancel after the first transaction is signed.</p>
-                    <p><Btn @click="startMint" :disabled="actionIsPending || mintResult?._data || mintResult?._error">Mint</Btn></p>
+                    <p><Btn @click="startMint(false)" :disabled="actionIsPending || mintResult?._data || mintResult?._error">Mint</Btn></p>
+                    <p><Btn secondary @click="startMint(true)" :disabled="actionIsPending || mintResult?._data || mintResult?._error">Mint (no declare)</Btn></p>
                     <p v-show="actionIsPending"><i class="fas fa-spinner animate-spin-slow"/></p>
                     <div v-if="mintResult?._data" class="flex flex-col items-center">
                         <i class="fas fa-circle-check text-info-success"/>

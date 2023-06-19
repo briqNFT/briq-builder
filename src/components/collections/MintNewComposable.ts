@@ -153,7 +153,7 @@ const compileShape = async () => {
 }
 
 
-const mintToken = async () => {
+const mintToken = async (skipDeclare: boolean) => {
     await maybeStore.value!.ensureEnabled();
     mintResult.value = new Fetchable();
     await mintResult.value.fetch(async () => {
@@ -162,10 +162,11 @@ const mintToken = async () => {
         if (validatedData.value?._error)
             throw new Error('Error while validating data\n' + validatedData.value?._error);
 
-        const declareResponse = await maybeStore.value!.signer.declare({
-            contract: compiledShape.value?._data.contract_json,
-            classHash: compiledShape.value?._data.class_hash,
-        });
+        if (!skipDeclare)
+            await maybeStore.value!.signer.declare({
+                contract: compiledShape.value?._data.contract_json,
+                classHash: compiledShape.value?._data.class_hash,
+            });
         const bookletTokenId = '0x' + num.toBN('3').add(num.toBN(validatedData.value?._data?.serial_number).mul(num.toBN('0x1000000000000000000000000000000000000000000000000'))).toString(16);
         const tx = await maybeStore.value!.signer!.execute([
             {
