@@ -110,7 +110,8 @@ export class WalletStore {
 
     async enableWallet(starknetObj: StarknetWindowObject) {
         this.starknetObject = starknetObj;
-        await this.starknetObject.enable({ starknetVersion: 'v4' })
+        if (!this.starknetObject?.isConnected)
+            await this.starknetObject.enable({ starknetVersion: 'v4' })
         await this.setSignerFromGSW();
         this.starknetObject.on('accountsChanged', () => this.setSignerFromGSW());
     }
