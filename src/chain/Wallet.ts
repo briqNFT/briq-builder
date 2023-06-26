@@ -24,8 +24,8 @@ import { injectController, SupportedChainIds } from '@cartridge/controller';
 export type UserID = string;
 
 const WEB_WALLET_URL = {
-    'prod': 'https://web.argent.xyz/',
-    'test': 'https://web.argent.xyz/', //'https://web.hydrogen.argent47.net',
+    'prod': 'https://web.argent.xyz',
+    'test': 'https://web.argent.xyz', //'https://web.hydrogen.argent47.net',
     'dev': 'https://web.hydrogen.argent47.net',
 }[APP_ENV];
 
