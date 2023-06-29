@@ -10,6 +10,13 @@ async function loadExtraPages() {
     loader = await import('@/Dispatch');
 }
 
+let unboxingLoader;
+async function loadUnboxing() {
+    unboxingLoader = await import('@/DispatchUnboxing');
+    return unboxingLoader;
+}
+
+
 // Preload the rest of the javascript after a short while,
 // under the assumption that the user might want it soon anyways.
 // NB: this is generally done already anyways.
@@ -138,24 +145,21 @@ export const routes = [
         path: '/unboxing/:theme/:box',
         name: 'Unboxing',
         component: async () => {
-            await loadExtraPages();
-            return loader.UnboxingVue;
+            return (await loadUnboxing()).UnboxingVue;
         },
     },
     {
         path: '/briqmas',
         name: 'BriqMas',
         component: async () => {
-            await loadExtraPages();
-            return loader.Briqmas;
+            return (await loadUnboxing()).Briqmas;
         },
     },
     {
         path: '/briqmas_next_day',
         name: 'briqmas_next_day',
         component: async () => {
-            await loadExtraPages();
-            return loader.BriqmasNextDay;
+            return (await loadUnboxing()).BriqmasNextDay;
         },
     },
     {

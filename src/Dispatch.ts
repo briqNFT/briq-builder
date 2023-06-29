@@ -10,9 +10,6 @@ import AdminVue from '@/components/Admin.vue';
 import DebugVue from '@/components/debug/Debug.vue';
 import * as walletModule from '@/chain/Wallet';
 import _contractStore from '@/chain/Contracts';
-import UnboxingVue_ from '@/components/builder/genesis/UnboxingLight.vue';
-import Briqmas_ from '@/components/builder/genesis/Briqmas.vue';
-import BriqmasNextDay_ from '@/components/builder/genesis/BriqmasCompleted.vue';
 import BriqmasForest_ from '@/components/builder/briqmas_forest/Forest.vue';
 import NotificationVue_ from './components/Notification.vue';
 import NotificationsMenu_ from '@/components/NotificationsMenu.vue';
@@ -27,9 +24,6 @@ import BuyBriqsVue from '@/components/BuyBriqs.vue';
 
 import { userPurchaseStore } from '@/builder/UserPurchase';
 
-export const UnboxingVue = UnboxingVue_;
-export const Briqmas = Briqmas_;
-export const BriqmasNextDay = BriqmasNextDay_;
 export const BriqmasForest = BriqmasForest_;
 export const contractStore = _contractStore;
 export const Builder = BuilderVue;
