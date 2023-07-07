@@ -135,13 +135,14 @@ export class ChainBriqs implements perUserStorable {
                     continue;
                 }
                 // Try to fetch some updated data if we don't know the block, but don't block the optimistic processing.
-                if (!update.block && !promises.has(update)) {
+                // update.tx_hash can be empty if we're in the 'buy while mint' multicall hack.
+                if (!update.block && !promises.has(update) && update.tx_hash) {
                     const _block = maybeStore.value?.getProvider()?.getTransactionBlock(update.tx_hash);
                     if (_block)
                         promises.set(update, _block.then(data => {
                             const status = data.status;
                             const block = data.block_number;
-                            if (status === 'REJECTED' || ((Date.now() - update.date) > 20 * 60 && status === 'NOT_RECEIVED')) {
+                            if (status === 'REJECTED' || ((Date.now() - update.date) > 20 * 60 * 1000 && status === 'NOT_RECEIVED')) {
                                 if (update.status === 'TENTATIVE' && update.shouldNotify)
                                     this.notifyMintingRejected(update);
                                 this.metadata[material].splice(i--, 1);
