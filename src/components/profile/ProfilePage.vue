@@ -214,9 +214,9 @@ div[data-name='menu'] button {
                         <p v-else class="font-medium">{{ userAddress ? `${userAddress.slice(0, 6)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
                         <p class="">
                             {{ getNetworkName(getCurrentNetwork()) }}
-                            <span v-if="maybeStore?.isWebWallet()"><br>
-                                Manage your Argent Web Wallet <a class="text-primary font-medium" :href="WEB_WALLET_URL" target="_blank">here</a>
-                            </span>
+                        </p>
+                        <p v-if="maybeStore?.isWebWallet()">
+                            Manage your Argent Web Wallet <a class="text-primary font-medium" :href="WEB_WALLET_URL" target="_blank">here</a>
                         </p>
                     </template>
                     <p v-else class="my-4">Connect your wallet to access more functionality.</p>
