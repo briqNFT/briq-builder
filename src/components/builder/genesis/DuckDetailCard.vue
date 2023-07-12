@@ -80,9 +80,6 @@ const currentOwner = computed(() => {
                         <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: tokenId } }">
                             <Btn secondary>See details</Btn>
                         </RouterLink>
-                        <a class="hidden tall-sm:visible" :href="getSetLink(network, tokenId)" target="_blank">
-                            <Btn secondary>See on Mintsquare</Btn>
-                        </a>
                     </p>
                     <p v-else class="flex justify-center text-grad-dark italic text-xs">
                         Click on the card to see more

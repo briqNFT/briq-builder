@@ -138,7 +138,6 @@ const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
                 <h4>See on</h4>
                 <p class="flex gap-3 mt-4 mb-10">
                     <a :href="`https://aspect.co/asset/0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139/${item?.token_id}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
-                    <a :href="`https://mintsquare.io/asset/starknet/0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139/${item?.token_id}`" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
                 </p>
             </div>
             <div v-if="box_id && nbOwned > 0">

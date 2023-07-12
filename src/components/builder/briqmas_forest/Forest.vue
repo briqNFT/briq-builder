@@ -170,9 +170,6 @@ const getAge = (age: number) => {
                     This tree is owned by {{ getOwner(hoveredLock ? hoveredLock.userData.owner : hoveredObject.userData.owner) }}<br>
                     It has been minted {{ getAge(hoveredLock ? hoveredLock.userData.age : hoveredObject.userData.age) }} ago.
                 </p>
-                <a
-                    :href="`https://mintsquare.io/asset/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${starknet.number.toBN(hoveredLock?.userData?.id || '0').toString()}`"
-                    target="blank_"><Btn secondary>See on mintsquare</Btn></a>
             </div>
         </div>
     </div>

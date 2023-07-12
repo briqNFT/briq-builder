@@ -343,7 +343,6 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <p>Seeling your booklet means you will no longer be able to mint the authenticated officiel set.</p>
                 <div class="flex gap-2 mt-4 mb-10">
                     <a :href="`https://aspect.co/asset/0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
-                    <a :href="`https://mintsquare.io/asset/starknet/0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
                 </div>
                 <div v-if="booklet_id">
                     <Suspense>
@@ -395,7 +394,6 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                     <h4>See on</h4>
                     <p class="flex gap-3 mt-4 mb-10">
                         <a :href="`https://aspect.co/asset/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
-                        <a :href="`https://mintsquare.io/asset/starknet/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><MintsquareLogo class="mr-3" height="1rem" width="1rem"/> Mintsquare</Btn></a>
                     </p>
                 </div>
                 <div v-if="set?.id">

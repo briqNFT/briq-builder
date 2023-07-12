@@ -519,9 +519,6 @@ const quality = ref(SceneQuality.HIGH);
                     <a href="https://aspect.co/collection/0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139" rel="noopener" target="_blank">
                         <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><img class="w-6 mr-3" :src="AspectLogo"> Aspect</Btn>
                     </a>
-                    <a href="https://mintsquare.io/collection/starknet/0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139" rel="noopener" target="_blank">
-                        <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><MintsquareLogo class="mr-3" height="1.5rem" width="1.5rem"/> Mintsquare</Btn>
-                    </a>
                 </div>
             </template>
             <template v-else>
