@@ -7,7 +7,7 @@ WORKDIR /var/www/sltech/
 COPY package-lock.json /var/www/sltech/
 COPY package.json /var/www/sltech/
 
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 COPY infra/dist/server/ /var/www/sltech/
 COPY infra/dist/www/index.html /var/www/sltech/index.html
