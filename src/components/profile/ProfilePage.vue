@@ -4,7 +4,7 @@ import Footer from '../landing_page/Footer.vue';
 
 import ProfileIcon from '@/assets/profile/profile.svg?skipsvgo';
 
-import { maybeStore } from '@/chain/WalletLoading';
+import { WEB_WALLET_URL, maybeStore } from '@/chain/WalletLoading';
 
 import { computed, ref, watch, watchEffect } from 'vue';
 import { userBoxesStore } from '@/builder/UserBoxes';
@@ -212,7 +212,12 @@ div[data-name='menu'] button {
                     <template v-if="userAddress">
                         <p v-if="maybeStore?.starknetIdDomain" class="font-medium">{{ maybeStore.starknetIdDomain }}</p>
                         <p v-else class="font-medium">{{ userAddress ? `${userAddress.slice(0, 6)}...${userAddress.slice(-3)}` : 'No wallet selected' }}</p>
-                        <p class="">{{ getNetworkName(getCurrentNetwork()) }}</p>
+                        <p class="">
+                            {{ getNetworkName(getCurrentNetwork()) }}
+                            <span v-if="maybeStore?.isWebWallet()"><br>
+                                Manage your Argent Web Wallet <a class="text-primary font-medium" :href="WEB_WALLET_URL" target="_blank">here</a>
+                            </span>
+                        </p>
                     </template>
                     <p v-else class="my-4">Connect your wallet to access more functionality.</p>
                 </div>

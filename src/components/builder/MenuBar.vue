@@ -5,13 +5,14 @@ import UndoRedo from './UndoRedo.vue';
 import ShortcutModal from './modals/ShortcutModal.vue';
 import MenuDropdown from '../generic/MenuDropdown.vue';
 import NotificationsMenu from '../NotificationsMenu.vue';
-import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
+import { WEB_WALLET_URL, maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 
 import { inputStore } from '../../builder/inputs/InputStore';
 
 // TODO: remove redundancy with Header.vue
 import ProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
+import ArgentLogo from '@/assets/argent_logo.svg';
 import MenuBuilder from './MenuBuilder.vue';
 import { useBuilderInput } from './InputComposable';
 import { useBuilder } from '@/components/builder/BuilderComposable';
@@ -136,6 +137,7 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                         <MenuDropdown no-background icon class="text-xs">
                             <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
                             <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="far fa-circle-user"/> My profile</Btn></router-link>
+                            <a v-if="maybeStore?.isWebWallet()" :href="WEB_WALLET_URL" target="_blank"><Btn no-background class="w-full justify-start text-left py-1" icon><ArgentLogo width="1rem" height="1rem"/> Web wallet<br>dashboard</Btn></a>
                             <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="far fa-address-card"/> Change Wallet</Btn>
                             <Btn no-background class="justify-start" icon @click="maybeStore?.disconnect()"><i class="far fa-power-off"/> Disconnect</Btn>
                         </MenuDropdown>
@@ -153,6 +155,7 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                             <ProfileIcon width="1rem" height="1rem" class="inline-block !mx-2"/>
                         </template>
                         <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                        <a v-if="maybeStore?.isWebWallet()" :href="WEB_WALLET_URL" target="_blank"><Btn no-background class="w-full justify-start text-left py-1" icon><ArgentLogo width="1rem" height="1rem"/> Web wallet<br>dashboard</Btn></a>
                         <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
                         <Btn no-background class="justify-start" icon @click="maybeStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                     </MenuDropdown>

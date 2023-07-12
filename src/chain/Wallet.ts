@@ -7,7 +7,7 @@ import { logDebug, logDebugDelay } from '../Messages';
 
 import { watchSignerChanges } from '@/chain/ContractsLoader';
 
-import { setWalletInitComplete } from './WalletLoading';
+import { setWalletInitComplete, WEB_WALLET_URL } from './WalletLoading';
 
 import { reactive } from 'vue';
 import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
@@ -21,13 +21,6 @@ import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider'
 import { injectController, SupportedChainIds } from '@cartridge/controller';
 
 export type UserID = string;
-
-const WEB_WALLET_URL = {
-    'prod': 'https://web.argent.xyz',
-    'test': 'https://web.hydrogen.argent47.net',
-    'dev': 'https://web.hydrogen.argent47.net',
-}[APP_ENV];
-
 export class WalletStore {
     signer: undefined | AccountInterface = undefined;
 
@@ -44,6 +37,8 @@ export class WalletStore {
     async init() {
         const storedAddress = window.localStorage.getItem('user_address');
         logDebugDelay(() => ['STARTING WALLET CONNECT', storedAddress]);
+
+        const dontAutoloadWallet = window.localStorage.getItem('dontAutoloadWallet');
 
         if (storedAddress && storedAddress.indexOf('/')) {
             this._userWalletAddress = storedAddress.split('/')[1];
@@ -64,7 +59,12 @@ export class WalletStore {
                 window.localStorage.removeItem('user_address');
             else
                 window.localStorage.setItem('user_address', this.user_id || '');
+            // The web wallet is kind of broken when auto-enabling, as it tends to enable non-web-wallet things, which is annoying.
+            window.localStorage.setItem('dontAutoloadWallet', this.isWebWallet() ? '1' : '0')
         });
+
+        if (dontAutoloadWallet == '1')
+            return this;
 
         connect({ modalMode: 'neverAsk', webWalletUrl: WEB_WALLET_URL }).then(cwo => {
             if (!cwo)
@@ -196,6 +196,10 @@ export class WalletStore {
         if (!this._userWalletAddress || (APP_ENV === 'prod' && getCurrentNetwork(true) !== 'starknet-mainnet'))
             return undefined;
         return `${getCurrentNetwork(true)}/${this._userWalletAddress}`;
+    }
+
+    isWebWallet() {
+        return this.starknetObject?.id === 'argentWebWallet';
     }
 }
 

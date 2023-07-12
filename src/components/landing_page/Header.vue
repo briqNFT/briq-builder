@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
-import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
+import { WEB_WALLET_URL, maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { computed, onMounted, ref } from 'vue';
 import { maybeChainBriqs } from '@/builder/ChainBriqsAsync';
 
@@ -9,6 +9,7 @@ import briqLogo from '@/assets/briq.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import { APP_ENV } from '@/Meta';
 import Tooltip from '../generic/Tooltip.vue';
+import ArgentLogo from '@/assets/argent_logo.svg';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -94,6 +95,7 @@ const pendingBriqs = computed(() => {
                         <MenuDropdown no-background icon class="text-xs roundedButton">
                             <template #button><SmallProfileIcon width="1rem" height="1rem" class="inline-block !mr-2"/></template>
                             <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                            <a v-if="walletStore.isWebWallet()" :href="WEB_WALLET_URL" target="_blank"><Btn no-background class="w-full justify-start text-left py-1" icon><ArgentLogo width="1rem" height="1rem"/> Web wallet<br>dashboard</Btn></a>
                             <Btn no-background class="justify-start" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
                             <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                         </MenuDropdown>
@@ -110,6 +112,7 @@ const pendingBriqs = computed(() => {
                             <SmallProfileIcon width="1rem" height="1rem" class="inline-block !mx-2"/>
                         </template>
                         <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
+                        <a v-if="walletStore.isWebWallet()" :href="WEB_WALLET_URL" target="_blank"><Btn no-background class="w-full justify-start text-left py-1" icon><ArgentLogo width="1rem" height="1rem"/> Web wallet<br>dashboard</Btn></a>
                         <Btn no-background class="justify-start" icon @click="walletStore?.openWalletSelector()"><i class="fa-regular fa-id-card"/> Change Wallet</Btn>
                         <Btn no-background class="justify-start" icon @click="walletStore?.disconnect()"><i class="fa-solid fa-power-off"/> Disconnect</Btn>
                     </MenuDropdown>

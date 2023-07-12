@@ -128,9 +128,4 @@ body > div.s-dialog {
 body > div.s-overlay {
     z-index: 500 !important;
 }
-
-/* hack for Argent get-starknet CSS z-index */
-body > div.backdrop-blur-sm.fixed {
-    z-index: 10000 !important;
-}
 </style>
