@@ -13,6 +13,7 @@ import { chainBriqs } from '@/builder/ChainBriqs';
 import MenuLike from './generic/MenuLike.vue';
 import Tooltip from './generic/Tooltip.vue';
 import { APP_ENV } from '@/Meta';
+import { getSetMarketplaceUrl } from '@/chain/Marketplaces';
 
 
 const props = defineProps<{
@@ -193,7 +194,7 @@ const cancelBuy = () => {
             <div>
                 <p class="mt-1" v-if="parameters._data">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
                 <p class="my-2 flex items-center">
-                    <i class="mr-2 far fa-circle-exclamation text-primary"/> <span>Please be aware that the price of briq is currently very high due to demand.</span>
+                    <i class="mr-2 far fa-circle-exclamation text-primary"/> <span>Please be aware that the price of briq is currently very high due to demand. You can also get briqs by buying sets from <a class="text-primary" :href="getSetMarketplaceUrl()">Unframed</a> and disassembling them.</span>
                 </p>
             </div>
             <i @click.stop.prevent="toggledDetails=!toggledDetails" :class="`p-2 cursor-pointer hover:bg-grad-light rounded fa-solid fa-chevron-${toggledDetails ? 'up' : 'down'}`"/>

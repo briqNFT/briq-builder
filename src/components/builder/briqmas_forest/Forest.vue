@@ -7,6 +7,7 @@ import { getRaycast, loadTree, putTreeInScene, render, SceneQuality, setupScene,
 import * as starknet from 'starknet';
 import { APP_ENV } from '@/Meta';
 import { getCurrentNetwork } from '@/chain/Network';
+import { getSetLink } from '@/chain/Marketplaces';
 
 const forestCanvas = ref(null as unknown as HTMLCanvasElement);
 
@@ -170,6 +171,9 @@ const getAge = (age: number) => {
                     This tree is owned by {{ getOwner(hoveredLock ? hoveredLock.userData.owner : hoveredObject.userData.owner) }}<br>
                     It has been minted {{ getAge(hoveredLock ? hoveredLock.userData.age : hoveredObject.userData.age) }} ago.
                 </p>
+                <a
+                    :href="getSetLink('starknet-mainnet', hoveredLock ? hoveredLock.userData.id : '0')"
+                    target="blank_"><Btn secondary>See on Unframed</Btn></a>
             </div>
         </div>
     </div>

@@ -3,9 +3,9 @@ import { computed } from 'vue';
 import { backendManager } from '@/Backend';
 import { themeSetsDataStore, themeSetsOwnerStore } from '@/builder/DucksSale';
 import { Fetchable } from '@/DataFetching';
-import { getSetLink } from '@/chain/Mintsquare';
 import { addressToStarknetId } from '@/chain/StarknetId';
 import { CHAIN_NETWORKS } from '@/chain/Network';
+import { getSetLink } from '@/chain/Marketplaces';
 
 const props = defineProps<{
     network: CHAIN_NETWORKS,
@@ -80,6 +80,9 @@ const currentOwner = computed(() => {
                         <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: tokenId } }">
                             <Btn secondary>See details</Btn>
                         </RouterLink>
+                        <a class="hidden tall-sm:visible" :href="getSetLink(network, tokenId)" target="_blank">
+                            <Btn secondary>See on Unframed</Btn>
+                        </a>
                     </p>
                     <p v-else class="flex justify-center text-grad-dark italic text-xs">
                         Click on the card to see more

@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router';
 import GenericItemPage from './GenericItemPage.vue';
 
 import AspectLogo from '@/assets/landing/aspect.png';
-import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
+import UnframedLogo from '@/assets/logo-unframed-square.svg';
 import { useBoxData } from '@/builder/BoxData';
 import { userBoxesStore } from '@/builder/UserBoxes';
 import { getCurrentNetwork } from '@/chain/Network';
@@ -14,6 +14,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 
 import BriqsImg from '@/assets/genesis/briqs.png';
 import Tooltip from '@/components/generic/Tooltip.vue';
+import { getSetLink } from '@/chain/Marketplaces';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -137,6 +138,7 @@ const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
             <div>
                 <h4>See on</h4>
                 <p class="flex gap-3 mt-4 mb-10">
+                    <a :href="getSetLink(getCurrentNetwork(), item?.token_id)" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-4 mr-3"/> Unframed</Btn></a>
                     <a :href="`https://aspect.co/asset/0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139/${item?.token_id}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
                 </p>
             </div>

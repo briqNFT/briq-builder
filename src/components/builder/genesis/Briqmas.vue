@@ -23,8 +23,7 @@ import Toggle from '@/components/generic/Toggle.vue';
 import { bookletDataStore } from '@/builder/BookletData';
 import { userBoxesStore } from '@/builder/UserBoxes';
 
-import AspectLogo from '@/assets/landing/aspect.png';
-import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
+import UnframedLogo from '@/assets/logo-unframed-square.svg';
 
 //////////////////////////////
 //////////////////////////////
@@ -494,6 +493,7 @@ const openBuilder = async () => {
 
 
 import FireplaceAudio from './FireplaceAudio.vue';
+import { getSetMarketplaceUrl } from '@/chain/Marketplaces';
 const quality = ref(SceneQuality.HIGH);
 
 </script>
@@ -515,9 +515,9 @@ const quality = ref(SceneQuality.HIGH);
             <template v-if="step === 'NO_BOX'">
                 <p class="mt-12">Unfortunately, you don't own a briqmas box.</p>
                 <p>Try getting one on the secondary market!</p>
-                <div class="flex gap-4 mt-8 ">
-                    <a href="https://aspect.co/collection/0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139" rel="noopener" target="_blank">
-                        <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><img class="w-6 mr-3" :src="AspectLogo"> Aspect</Btn>
+                <div class="flex gap-4 mt-8">
+                    <a :href="getSetMarketplaceUrl()" rel="noopener" target="_blank">
+                        <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><UnframedLogo class="mr-3" height="1.5rem" width="1.5rem"/> Unframed</Btn>
                     </a>
                 </div>
             </template>

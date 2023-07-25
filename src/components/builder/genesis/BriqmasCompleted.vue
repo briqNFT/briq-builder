@@ -12,8 +12,7 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import BriqsOverlay from '@/assets/landing/briqs.svg?url';
 import { useRoute, useRouter } from 'vue-router';
 
-import AspectLogo from '@/assets/landing/aspect.png';
-import MintsquareLogo from '@/assets/landing/mintsquare.svg?skipsvgo';
+import UnframedLogo from '@/assets/logo-unframed-square.svg';
 import { userSetStore } from '@/builder/UserSets';
 
 //////////////////////////////
@@ -205,6 +204,7 @@ onUnmounted(() => {
 
 
 import FireplaceAudio from './FireplaceAudio.vue';
+import { getSetMarketplaceUrl } from '@/chain/Marketplaces';
 const quality = ref(SceneQuality.ULTRA);
 
 </script>
@@ -227,8 +227,8 @@ const quality = ref(SceneQuality.ULTRA);
                 <p class="mt-12">You need a minted briqmas tree set to access this page.</p>
                 <p>You can build one using an official briqmas tree booklet!</p>
                 <div class="flex gap-4 mt-8 ">
-                    <a href="https://aspect.co/collection/0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139" rel="noopener" target="_blank">
-                        <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><img class="w-6 mr-3" :src="AspectLogo"> Aspect</Btn>
+                    <a :href="getSetMarketplaceUrl()" rel="noopener" target="_blank">
+                        <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><UnframedLogo class="mr-3" height="1.5rem" width="1.5rem"/> Unframed</Btn>
                     </a>
                 </div>
             </template>
