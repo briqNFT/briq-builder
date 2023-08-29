@@ -173,7 +173,7 @@ export const routes = [
     {
         path: '/briqout',
         name: 'briqout',
-        component: import('@/components/briqout/Briqout.vue'),
+        component: () => import('@/components/briqout/Briqout.vue'),
     },
 ];
 
