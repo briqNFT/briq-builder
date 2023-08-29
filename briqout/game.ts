@@ -14,6 +14,7 @@ export class BriqoutBall {
     y = 200;
     radius = 10;
 
+    velocity = 1000;
     vX = 200.0;
     vY = 300.0;
 }
@@ -33,7 +34,7 @@ export class Game {
 
     ball = new BriqoutBall();
 
-    items = [] as Rectangle[];
+    items = [] as BriqoutBriq[];
 
     pendingEvents = [];
     gameTrace = [];
@@ -54,7 +55,7 @@ export class Game {
     pollEvents() {
         for (const event of this.pendingEvents) {
             if (event.type === 'mousemove') {
-                this.paddleX = event.x - 50;
+                this.paddleX = event.x * this.width;
             }
         }
         this.pendingEvents = [];
@@ -62,16 +63,19 @@ export class Game {
 
     update(delay: number) {
         if (this.status !== 'running') {
-            return;
+            return false;
         }
         
         this.pollEvents();
-
+        
         let turns = delay / this.TICK_LENGTH;
-        while (turns > 0) {
+        if (turns < 1)
+            return false;
+        while (turns >= 1) {
             this.tick();
             turns -= 1;
         }
+        return true;
     }
 
     tick() {
@@ -93,7 +97,7 @@ export class Game {
             this.ball.y = this.ball.radius;
             this.ball.vY *= -1;
         }
-        else if (this.ball.y > this.height - this.ball.radius) {
+        else if (this.ball.y > this.height + this.ball.radius) {
             this.trace({ type: "lost" });
             this.status = 'lost';
             return;
@@ -106,17 +110,18 @@ export class Game {
             this.trace({ type: "paddlebounce", x: this.ball.x, y: this.ball.y });
             this.trace({ type: "shutdownpaddle" }, this.time + this.TICK_LENGTH / 3);
             // Adjust velocity based on angle to center
-            const angle = (this.ball.x - this.paddleX) / 50;
+            const angle = (this.ball.x - this.paddleX) / 100;
             this.ball.y = this.height - 30 - this.ball.radius;
-            this.ball.vX = 300 * angle;
-            this.ball.vY = -300;
+            // Calculate the new velocities so they sum up to 500
+            this.ball.vX = this.ball.velocity * angle;
+            this.ball.vY = -this.ball.velocity * (1 - Math.abs(angle));
         }
         else {
             let drop = [];
             for (const item of this.items) {
                 if (checkBallBriqCollision(this.ball, item)) {
                     this.ball.vY *= -1;
-                    this.ball.vX *= -1;
+                    //this.ball.vX *= -1;
                     // Drop the briq from the lineup
                     drop.push(item);
                     // Record a trace for reproduction

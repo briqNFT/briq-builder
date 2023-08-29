@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Game, replay } from 'briqout';
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, onUnmounted, ref } from 'vue';
+import { SceneQuality, useRenderer, setupScene, updateScene, render } from './BriqoutGraphics';
+
+const gameCanvas = ref(null);
 
 const game = reactive(new Game());
 
@@ -8,16 +11,36 @@ let lastTime = undefined;
 
 const gameLoop = () => {
     const t = performance.now();
-    game.update((t - lastTime)/1000.0);
-    lastTime = t;
+    const delta = (t - lastTime)/1000.0;
+    
+    if (game.update(delta))
+        lastTime = t;
+
+    updateScene(game, delta);
+    render(delta);
     requestAnimationFrame(gameLoop);
 };
 
-onMounted(() => {
+const onMouseMove = (ev) => {
+    game.pushEvent({
+        type: 'mousemove',
+        x: ev.clientX / window.innerWidth,
+    });
+}
+
+onMounted(async () => {
+    window.addEventListener('mousemove', onMouseMove);
+    await useRenderer(gameCanvas.value);
+    setupScene(game, SceneQuality.ULTRA);
+
     if (!lastTime) {
         lastTime = performance.now();
     }
     requestAnimationFrame(gameLoop); 
+});
+
+onUnmounted(() => {
+    window.removeEventListener('mousemove', onMouseMove);
 });
 
 </script>
@@ -43,18 +66,9 @@ onMounted(() => {
 <template>
     <h1>briqout</h1>
 
-    <div class="gameZone"
-        :style="{ width: `${game.width}px`, height: `${game.height}px` }"
-        @mousemove="(ev) => game.pushEvent(ev)"
-        >
-        <div class="paddle" :style="{ left: `${game.paddleX}px` }"></div>
+    <div class="m-auto">
+        <canvas class="w-full h-full" ref="gameCanvas"></canvas>
 
-        <div v-for="item in game.items" :key="item.x" class="briqItem"
-            :style="{ left: `${item.x}px`, top: `${item.y}px`, width: `${item.width}px`, height: `${item.height}px` }">
-        </div>
-
-        <div class="ball" :style="{ left: `${game.ball.x}px`, top: `${game.ball.y}px`, width: `${game.ball.radius * 2}px`, height: `${game.ball.radius * 2}px` }">
-        </div>
         <div class="w-full h-full bg-white flex justify-center items-center absolute top-0 left-0" v-if="game.status === 'pregame'">
             <button @click="game.start()">Start game</button>
         </div>
@@ -67,6 +81,7 @@ onMounted(() => {
             <button @click="replay(game.exportTrace())">check trace</button>
         </div>
     </div>
+
     <div>
         Debug trace:
         <p v-for="trace in game.gameTrace">{{ trace }}</p>
