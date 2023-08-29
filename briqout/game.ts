@@ -42,6 +42,8 @@ export class Game {
 
     trace(event, time = undefined) {
         event.time = time || this.time;
+        // for stable sorting
+        event.id = this.gameTrace.length;
         this.gameTrace.push(event);
     }
 
@@ -98,9 +100,11 @@ export class Game {
         }
         else if (this.paddleActive && checkBallPaddleCollision(this.ball, { x: this.paddleX, y: this.height - 20, width: 100, height: 20 })) {
             // Record the position of the paddle as a phantom move, assuming it was literally anywhere else any other time.
+            this.trace({ type: "activatepaddle" }, this.time - this.TICK_LENGTH / 2);
             this.trace({ type: "mousemove", x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
             // Record a trace for reproduction
             this.trace({ type: "paddlebounce", x: this.ball.x, y: this.ball.y });
+            this.trace({ type: "shutdownpaddle" }, this.time + this.TICK_LENGTH / 3);
             // Adjust velocity based on angle to center
             const angle = (this.ball.x - this.paddleX) / 50;
             this.ball.y = this.height - 30 - this.ball.radius;
@@ -151,7 +155,14 @@ export class Game {
 
     exportTrace() {
         const data = this.gameTrace.slice();
-        data.sort((a, b) => a.time - b.time);
+        // Sort by time, then ID for stability
+        data.sort((a, b) => {
+            if (a.time < b.time) return -1;
+            if (a.time > b.time) return 1;
+            if (a.id < b.id) return -1;
+            if (a.id > b.id) return 1;
+            return 0;
+        });
         return data;
     }
 }
@@ -193,25 +204,26 @@ function checkBallBriqCollision(ball: BriqoutBall, square: Rectangle) {
 export function replay(trace: any[]) {
     let game = new Game();
     game.start();
-    // Replay mode, deactivate paddle unless we're on a collision turn.
-    game.paddleActive = false;
 
     let eventI = 0;
     while (game.status === 'running') {
         while (eventI < trace.length && trace[eventI].time <= game.time + game.TICK_LENGTH) {
-            if (trace[eventI].type === 'mousemove') {
+            if (trace[eventI].type === 'mousemove')
                 game.paddleX = trace[eventI].x;
+            else if (trace[eventI].type === 'activatepaddle')
                 game.paddleActive = true;
-            }
+            else if (trace[eventI].type === 'shutdownpaddle')
+                game.paddleActive = false;
             eventI++;
         }
         game.tick();
-        game.paddleActive = false;
     }
     let replayTrace = game.exportTrace();
     // Compare both traces by hashing.
     let traceHash = trace.map(e => JSON.stringify(e)).join('');
     let replayHash = replayTrace.map(e => JSON.stringify(e)).join('');
+    console.log("Trace hash:", traceHash);
+    console.log("Replay hash:", replayHash);
     console.log("Replay result:", traceHash === replayHash);
     return traceHash === replayHash;
 }
