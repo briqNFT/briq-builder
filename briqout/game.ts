@@ -14,7 +14,7 @@ export class BriqoutBall {
     y = 200;
     radius = 10;
 
-    velocity = 1000;
+    velocity = 800;
     vX = 200.0;
     vY = 300.0;
 }
@@ -111,16 +111,16 @@ export class Game {
             this.trace({ type: "shutdownpaddle" }, this.time + this.TICK_LENGTH / 3);
             // Adjust velocity based on angle to center
             const angle = (this.ball.x - this.paddleX) / 100;
-            // Calculate the new velocities so they sum up to 500
-            this.ball.vX = this.ball.velocity * angle;
-            this.ball.vY = -this.ball.velocity * (1 - Math.abs(angle));
+            //console.log("Angle:", angle, "cos", Math.cos(angle), "sin", Math.sin(angle));
+            this.ball.vX = this.ball.velocity * Math.sin(angle);
+            this.ball.vY = -this.ball.velocity * Math.cos(angle);
         }
         else {
             let drop = [];
             for (const item of this.items) {
                 if (checkBallBriqCollision(this.ball, item)) {
                     this.ball.vY *= -1;
-                    //this.ball.vX *= -1;
+                    this.ball.velocity *= 1.05;
                     // Drop the briq from the lineup
                     drop.push(item);
                     // Record a trace for reproduction
