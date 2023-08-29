@@ -170,6 +170,11 @@ export const routes = [
             return loader.BriqmasForest;
         },
     },
+    {
+        path: '/briqout',
+        name: 'briqout',
+        component: import('@/components/briqout/Briqout.vue'),
+    },
 ];
 
 export const router = createRouter({

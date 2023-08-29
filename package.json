@@ -3,6 +3,11 @@
   "version": "2.1.1",
   "description": "Frontend builder for the briq protocol",
   "homepage": "https://github.com/briqNFT/briq-builder/",
+  "private": true,
+  "workspaces": [
+    ".",
+    "briqout"
+  ],
   "scripts": {
     "dev": "vite",
     "stage": "vite build --ssr server/main.ts --outDir dist_server/ -m staging && vite build --outDir dist/ -m staging",
@@ -21,6 +26,7 @@
     "@jaames/iro": "^5.5",
     "@sentry/tracing": "^6.16",
     "@sentry/vue": "^6.16",
+    "briqout": "^0.1.0",
     "canvas-confetti": "^1.6.0",
     "connect": "^3.7",
     "fflate": "^0.7.3",

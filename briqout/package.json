@@ -1,0 +1,9 @@
+{
+    "name": "briqout",
+    "version": "0.1.0",
+    "description": "Game logic for the briqout game",
+    "homepage": "https://github.com/briqNFT/briq-builder/",
+    "exports": {
+        ".": "./game.ts"
+    }
+}

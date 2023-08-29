@@ -8,9 +8,9 @@
         "strict": true,
         "composite": true,
         "jsx": "preserve",
-        "types": ["vite/client", "@types/three", "@types/uuid", "vite-svg-loader", "vitest/globals"],
+        "types": ["@types/three", "vitest/globals"],
         "paths": {
-            "@/*": ["./src/*"],
+            "@/*": ["./*"]
         }
     }
 }
