@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Game } from 'briqout';
+import { Game, replay } from 'briqout';
 import { reactive, onMounted } from 'vue';
 
 const game = reactive(new Game());
@@ -60,6 +60,11 @@ onMounted(() => {
         </div>
         <div class="w-full h-full bg-info-error flex justify-center items-center absolute top-0 left-0" v-if="game.status === 'lost'">
             <button @click="game.start()">LOSER</button>
+            <button @click="replay(game.exportTrace())">check trace</button>
+        </div>
+        <div class="w-full h-full bg-info-success bg-opacity-50 flex justify-center items-center absolute top-0 left-0" v-if="game.status === 'won'">
+            <button @click="game.start()">replay</button>
+            <button @click="replay(game.exportTrace())">check trace</button>
         </div>
     </div>
     <div>
