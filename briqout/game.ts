@@ -102,7 +102,7 @@ export class Game {
             this.status = 'lost';
             return;
         }
-        else if (this.paddleActive && checkBallPaddleCollision(this.ball, { x: this.paddleX, y: this.height - 20, width: 100, height: 20 })) {
+        else if (this.paddleActive && this.ball.vY > 0 && checkBallPaddleCollision(this.ball, { x: this.paddleX, y: this.height - 20, width: 100, height: 20 })) {
             // Record the position of the paddle as a phantom move, assuming it was literally anywhere else any other time.
             this.trace({ type: "activatepaddle" }, this.time - this.TICK_LENGTH / 2);
             this.trace({ type: "mousemove", x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
@@ -111,7 +111,6 @@ export class Game {
             this.trace({ type: "shutdownpaddle" }, this.time + this.TICK_LENGTH / 3);
             // Adjust velocity based on angle to center
             const angle = (this.ball.x - this.paddleX) / 100;
-            this.ball.y = this.height - 30 - this.ball.radius;
             // Calculate the new velocities so they sum up to 500
             this.ball.vX = this.ball.velocity * angle;
             this.ball.vY = -this.ball.velocity * (1 - Math.abs(angle));

@@ -21,6 +21,11 @@ const gameLoop = () => {
     requestAnimationFrame(gameLoop);
 };
 
+const reset = () => {
+    lastTime = performance.now();
+    game.start();
+}
+
 const onMouseMove = (ev) => {
     game.pushEvent({
         type: 'mousemove',
@@ -73,11 +78,11 @@ onUnmounted(() => {
             <button @click="game.start()">Start game</button>
         </div>
         <div class="w-full h-full bg-info-error flex justify-center items-center absolute top-0 left-0" v-if="game.status === 'lost'">
-            <button @click="game.start()">LOSER</button>
+            <button @click="reset()">LOSER</button>
             <button @click="replay(game.exportTrace())">check trace</button>
         </div>
         <div class="w-full h-full bg-info-success bg-opacity-50 flex justify-center items-center absolute top-0 left-0" v-if="game.status === 'won'">
-            <button @click="game.start()">replay</button>
+            <button @click="reset()">replay</button>
             <button @click="replay(game.exportTrace())">check trace</button>
         </div>
     </div>
