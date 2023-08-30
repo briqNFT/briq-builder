@@ -6,7 +6,8 @@
   "private": true,
   "workspaces": [
     ".",
-    "briqout"
+    "briqout",
+    "briqout-server"
   ],
   "scripts": {
     "dev": "vite",

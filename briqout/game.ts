@@ -19,6 +19,15 @@ export class BriqoutBall {
     vY = 300.0;
 }
 
+/**
+ * These are used for setup, so that users cannot just re-use someone else's replay.
+ */
+export interface SetupParams {
+    migrator: string;
+    currentBriqs: number;
+    briqsToMigrate: number;
+    setToMigrate: string;
+}
 
 export class Game {
     paddleX = 0.0;
@@ -131,7 +140,7 @@ export class Game {
         }
 
         if (this.items.length === 0) {
-            this.trace({ type: "win" });
+            this.trace({ type: "won" });
             this.status = 'won';
             return;
         }
@@ -140,8 +149,13 @@ export class Game {
         this.ball.y += this.ball.vY * this.TICK_LENGTH;
     }
 
-    setup() {
+    start(params: SetupParams) {
+        this.gameTrace = [];
         this.ball = new BriqoutBall();
+        // Compute a random starting position for the ball based on the parameters.
+        // TODO: do this
+        // for convenience, emit setup params
+        this.trace({ type: "setup", ...params });
         for (let i = 0; i < this.width / 105 - 1; i++)
         {
             const briq = new BriqoutBriq();
@@ -150,10 +164,6 @@ export class Game {
             briq.y = 20;
             this.items.push(briq);
         }
-    }
-
-    start() {
-        this.setup();
         this.status = 'running';
     }
 
@@ -207,7 +217,9 @@ function checkBallBriqCollision(ball: BriqoutBall, square: Rectangle) {
 
 export function replay(trace: any[]) {
     let game = new Game();
-    game.start();
+    if (trace.length === 0)
+        return false;
+    game.start(trace[0]);
 
     let eventI = 0;
     while (game.status === 'running') {
@@ -226,8 +238,5 @@ export function replay(trace: any[]) {
     // Compare both traces by hashing.
     let traceHash = trace.map(e => JSON.stringify(e)).join('');
     let replayHash = replayTrace.map(e => JSON.stringify(e)).join('');
-    console.log("Trace hash:", traceHash);
-    console.log("Replay hash:", replayHash);
-    console.log("Replay result:", traceHash === replayHash);
     return traceHash === replayHash;
 }

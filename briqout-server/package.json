@@ -1,0 +1,26 @@
+{
+    "name": "briqout-server",
+    "version": "1.0.0",
+    "description": "Backend verifier server for briqout",
+    "homepage": "https://github.com/briqNFT/briqout-server/",
+    "private": true,
+    "scripts": {
+        "dev": "esbuild src/main.ts --bundle --outdir=dist --platform=node --watch",
+        "build": "rm -rf dist && esbuild src/main.ts --bundle --outdir=dist --platform=node --minify",
+        "serve": "node dist/main.js"
+    },
+    "dependencies": {
+        "@fastify/cors": "^8.3.0",
+        "briqout": "^0.1.0",
+        "fastify": "^4.22.0",
+        "starknet": "^5.14.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.5.7",
+        "@typescript-eslint/eslint-plugin": "^6.5.0",
+        "@typescript-eslint/parser": "^6.5.0",
+        "esbuild": "^0.19.2",
+        "eslint": "^8.48.0",
+        "typescript": "^5.2.2"
+    }
+}

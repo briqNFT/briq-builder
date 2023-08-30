@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "isolatedModules": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "composite": true,
+        "types": [],
+        "paths": {
+            "@/*": ["./src/*"],
+        }
+    }
+}
