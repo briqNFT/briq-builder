@@ -5,11 +5,18 @@ class Rectangle {
     height = 20;
 }
 
-export class BriqoutBriq extends Rectangle {
-    id: number;
+class Circle {
+    x = 0;
+    y = 0;
+    radius = 10;
 }
 
-export class BriqoutBall {
+interface BriqoutItem {
+    id: number;
+    readonly type: 'briq' | 'powerup';
+}
+
+export class BriqoutBall extends Circle {
     x = 400;
     y = 200;
     radius = 10;
@@ -17,6 +24,16 @@ export class BriqoutBall {
     velocity = 800;
     vX = 200.0;
     vY = 300.0;
+}
+
+export class BriqoutBriq extends Rectangle implements BriqoutItem {
+    id: number;
+    type = 'briq' as const;
+}
+
+export class Powerup extends Circle implements BriqoutItem {
+    id: number;
+    type = 'powerup' as const;
 }
 
 /**
@@ -43,7 +60,7 @@ export class Game {
 
     ball = new BriqoutBall();
 
-    items = [] as BriqoutBriq[];
+    items = [] as BriqoutItem[];
 
     pendingEvents = [];
     gameTrace = [];
@@ -127,13 +144,26 @@ export class Game {
         else {
             let drop = [];
             for (const item of this.items) {
-                if (checkBallBriqCollision(this.ball, item)) {
-                    this.ball.vY *= -1;
-                    this.ball.velocity *= 1.05;
-                    // Drop the briq from the lineup
-                    drop.push(item);
-                    // Record a trace for reproduction
-                    this.trace({ type: "briqcollision", x: this.ball.x, y: this.ball.y });
+                if (item.type === 'powerup')
+                {
+                    if (checkBallCircleCollision(this.ball, item as Powerup)) {
+                        this.trace({ type: "powerupcollision", x: this.ball.x, y: this.ball.y });
+                        this.ball.velocity *= 2;
+                        this.ball.vX *= 2;
+                        this.ball.vY *= 2;
+                        drop.push(item);
+                    }
+                }
+                else
+                {
+                    if (checkBallBriqCollision(this.ball, item as BriqoutBriq)) {
+                        this.ball.vY *= -1;
+                        this.ball.velocity *= 1.05;
+                        // Drop the briq from the lineup
+                        drop.push(item);
+                        // Record a trace for reproduction
+                        this.trace({ type: "briqcollision", x: this.ball.x, y: this.ball.y });
+                    }
                 }
             }
             this.items = this.items.filter(item => !drop.includes(item));
@@ -159,11 +189,17 @@ export class Game {
         for (let i = 0; i < this.width / 105 - 1; i++)
         {
             const briq = new BriqoutBriq();
-            briq.id = i;
+            briq.id = this.items.length;
             briq.x = i * 105 + 52;
             briq.y = 20;
             this.items.push(briq);
         }
+        const powerup = new Powerup();
+        powerup.id = this.items.length;
+        powerup.x = 600;
+        powerup.y = 200;
+        powerup.radius = 25;
+        this.items.push(powerup);
         this.status = 'running';
     }
 
@@ -213,6 +249,14 @@ function checkBallBriqCollision(ball: BriqoutBall, square: Rectangle) {
         return true;
     }
     return false;
+}
+
+function checkBallCircleCollision(ball: BriqoutBall, circle: Circle) {
+    const dx = ball.x - circle.x;
+    const dy = ball.y - circle.y;
+    const distanceSquared = dx * dx + dy * dy;
+    const radiusSquared = (ball.radius + circle.radius) * (ball.radius + circle.radius);
+    return distanceSquared < radiusSquared;
 }
 
 export function replay(trace: any[]) {

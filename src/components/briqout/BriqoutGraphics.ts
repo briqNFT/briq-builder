@@ -14,11 +14,10 @@ import { GLTFLoader, EXRLoader } from '@/three';
 
 import EnvMapImg2 from '@/assets/industrial_sunset_02_puresky_1k.exr';
 
-import { Game } from 'briqout';
+import type { Game, Powerup, BriqoutBriq } from 'briqout';
 
 import { backendManager } from '@/Backend';
 import { APP_ENV } from '@/Meta';
-import { BriqoutBriq } from 'briqout';
 
 let envMapTexture: THREE.Texture;
 
@@ -222,13 +221,20 @@ export function updateScene(game: Game, delta: number) {
     ballObject.position.z = game.ball.y + game.ball.vY * overdraw * game.TICK_LENGTH;
 
     for (const item of game.items) {
-        if (!gameItems[item.id])
-            gameItems[item.id] = generateBriq(item);
+        if (item.type === 'powerup') {
+            if (!gameItems[item.id])
+                gameItems[item.id] = generatePowerup(item);
+        }
+        else
+        {
+            if (!gameItems[item.id])
+                gameItems[item.id] = generateBriq(item);
+        }
         const obj = gameItems[item.id];
         obj.position.x = item.x;
         obj.position.y = 0;
         obj.position.z = item.y;
-    }
+}
     for (const id in gameItems) {
         if (!game.items.find(item => item.id === parseInt(id))) {
             scene.remove(gameItems[id]);
@@ -249,6 +255,15 @@ function generatePaddle(game: Game) {
 function generateBall(game: Game) {
     const geometry = new THREE.SphereGeometry(game.ball.radius);
     const ball = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x0000ff }));
+    ball.castShadow = true;
+    ball.receiveShadow = true;
+    scene.add(ball);
+    return ball;
+}
+
+function generatePowerup(item: Powerup) {
+    const geometry = new THREE.SphereGeometry(item.radius);
+    const ball = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xff00ff }));
     ball.castShadow = true;
     ball.receiveShadow = true;
     scene.add(ball);
