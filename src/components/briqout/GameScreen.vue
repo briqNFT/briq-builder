@@ -49,7 +49,7 @@ const gameLoop = () => {
 
 const reset = () => {
     lastTime = performance.now();
-    setupScene(game, SceneQuality.ULTRA);
+    setupScene(game, SceneQuality.MEDIUM);
     game.start({
         migrator: maybeStore.value!.userWalletAddress!,
         currentBriqs: chainBriqs.value?.getNbBriqs() ?? 0,

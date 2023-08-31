@@ -14,7 +14,7 @@ import { GLTFLoader, EXRLoader } from '@/three';
 
 import EnvMapImg2 from '@/assets/industrial_sunset_02_puresky_1k.exr';
 
-import type { Game, Powerup, BriqoutBriq } from 'briqout';
+import type { Game, Powerup, BriqoutBriq, BriqoutBall, BriqoutItem } from 'briqout';
 
 import { backendManager } from '@/Backend';
 import { APP_ENV } from '@/Meta';
@@ -155,13 +155,11 @@ export function render(delta: number) {
 }
 
 let paddleObject = undefined;
-let ballObject = undefined;
 
-let gameItems = {};
+let gameItems = {} as Record<number, BriqoutItem>;
 
 function resetScene(quality: SceneQuality) {
     paddleObject = undefined;
-    ballObject = undefined;
 
     gameItems = {};
 
@@ -178,6 +176,14 @@ function resetScene(quality: SceneQuality) {
 
 export function setupScene(game: Game, quality: SceneQuality) {
     resetScene(quality);
+
+    // SSAO
+    composer.passes[1].enabled = quality >= SceneQuality.ULTRA;
+    // FXAA
+    composer.passes[3].enabled = quality >= SceneQuality.MEDIUM && quality < SceneQuality.ULTRA;
+    // SMAA
+    composer.passes[4].enabled = quality >= SceneQuality.ULTRA;
+
 
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(game.width, game.height), new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
     floor.rotateX(-Math.PI / 2);
@@ -212,8 +218,6 @@ export function setupScene(game: Game, quality: SceneQuality) {
 export function updateScene(game: Game, delta: number) {
     if (!paddleObject)
         paddleObject = generatePaddle(game);
-    if (!ballObject)
-        ballObject = generateBall(game);
 
     // The "simulation" has fixed ticks which may differ from rendering rate.
     // Do some compensation on fast moving objects.
@@ -223,10 +227,14 @@ export function updateScene(game: Game, delta: number) {
     paddleObject.position.y = 0;
     paddleObject.position.z = game.height - 20;
 
-
-    ballObject.position.y = 0;
-    ballObject.position.x = game.ball.x + game.ball.vX * overdraw * game.TICK_LENGTH;
-    ballObject.position.z = game.ball.y + game.ball.vY * overdraw * game.TICK_LENGTH;
+    for (const item of game.balls) {
+        if (!gameItems[item.id])
+            gameItems[item.id] = generateBall(item);
+        const obj = gameItems[item.id];
+        obj.position.x = item.x + item.vX * overdraw * game.TICK_LENGTH;
+        obj.position.y = 0;
+        obj.position.z = item.y + item.vY * overdraw * game.TICK_LENGTH;
+    }
 
     for (const item of game.items) {
         if (item.type === 'powerup') {
@@ -241,11 +249,13 @@ export function updateScene(game: Game, delta: number) {
         obj.position.y = 0;
         obj.position.z = item.y;
     }
+
     for (const id in gameItems)
-        if (!game.items.find(item => item.id === parseInt(id))) {
-            scene.remove(gameItems[id]);
-            delete gameItems[id];
-        }
+        if (!game.items.find(item => item.id === parseInt(id)))
+            if (!game.balls.find(item => item.id === parseInt(id))) {
+                scene.remove(gameItems[id]);
+                delete gameItems[id];
+            }
 
 }
 
@@ -258,13 +268,13 @@ function generatePaddle(game: Game) {
     return paddle;
 }
 
-function generateBall(game: Game) {
-    const geometry = new THREE.SphereGeometry(game.ball.radius);
-    const ball = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x0000ff }));
-    ball.castShadow = true;
-    ball.receiveShadow = true;
-    scene.add(ball);
-    return ball;
+function generateBall(ball: BriqoutBall) {
+    const geometry = new THREE.SphereGeometry(ball.radius);
+    const ballMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x0000ff }));
+    ballMesh.castShadow = true;
+    ballMesh.receiveShadow = true;
+    scene.add(ballMesh);
+    return ballMesh;
 }
 
 function generatePowerup(item: Powerup) {

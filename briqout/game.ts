@@ -13,10 +13,13 @@ class Circle {
 
 interface BriqoutItem {
     id: number;
-    readonly type: 'briq' | 'powerup';
+    readonly type: 'briq' | 'powerup' | 'ball';
 }
 
-export class BriqoutBall extends Circle {
+export class BriqoutBall extends Circle implements BriqoutItem {
+    id: number;
+    type = 'ball' as const;
+
     x = 400;
     y = 200;
     radius = 10;
@@ -24,16 +27,31 @@ export class BriqoutBall extends Circle {
     velocity = 800;
     vX = 200.0;
     vY = 300.0;
+
+    constructor(game: Game) {
+        super();
+        this.id = game.nextId++;
+    }
 }
 
 export class BriqoutBriq extends Rectangle implements BriqoutItem {
     id: number;
     type = 'briq' as const;
+
+    constructor(game: Game) {
+        super();
+        this.id = game.nextId++;
+    }
 }
 
 export class Powerup extends Circle implements BriqoutItem {
     id: number;
     type = 'powerup' as const;
+
+    constructor(game: Game) {
+        super();
+        this.id = game.nextId++;
+    }
 }
 
 /**
@@ -58,8 +76,9 @@ export class Game {
 
     status = 'pregame' as 'pregame' | 'running' | 'paused' | 'lost' | 'won';
 
-    ball = new BriqoutBall();
+    nextId = 1;
 
+    balls = [] as BriqoutBall[];
     items = [] as BriqoutItem[];
 
     pendingEvents = [];
@@ -113,92 +132,114 @@ export class Game {
 
         this.time += this.TICK_LENGTH;
 
-        if (this.ball.x <= this.ball.radius) {
-            this.ball.x = this.ball.radius;
-            this.ball.vX *= -1;
-            tickEvents.push({ type: 'wallTonk' });
-        } else if (this.ball.x >= this.width - this.ball.radius) {
-            this.ball.x = this.width - this.ball.radius;
-            this.ball.vX *= -1;
-            tickEvents.push({ type: 'wallTonk' });
-        } else if (this.ball.y <= this.ball.radius) {
-            this.ball.y = this.ball.radius;
-            this.ball.vY *= -1;
-            tickEvents.push({ type: 'wallTonk' });
-        } else if (this.ball.y > this.height + this.ball.radius) {
-            this.trace({ type: 'lost' });
-            this.status = 'lost';
-            return tickEvents;
-        } else if (this.paddleActive && this.ball.vY > 0 && checkBallPaddleCollision(this.ball, { x: this.paddleX, y: this.height - 20, width: 100, height: 20 })) {
-            // Record the position of the paddle as a phantom move, assuming it was literally anywhere else any other time.
-            this.trace({ type: 'activatepaddle' }, this.time - this.TICK_LENGTH / 2);
-            this.trace({ type: 'mousemove', x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
-            // Record a trace for reproductions
-            this.trace({ type: 'paddlebounce', x: this.ball.x, y: this.ball.y });
-            this.trace({ type: 'shutdownpaddle' }, this.time + this.TICK_LENGTH / 3);
+        const ballsToDrop = [] as BriqoutBall[];
+        for (const ball of this.balls)
+            if (ball.x <= ball.radius) {
+                ball.x = ball.radius;
+                ball.vX *= -1;
+                tickEvents.push({ type: 'wallTonk' });
+            } else if (ball.x >= this.width - ball.radius) {
+                ball.x = this.width - ball.radius;
+                ball.vX *= -1;
+                tickEvents.push({ type: 'wallTonk' });
+            } else if (ball.y <= ball.radius) {
+                ball.y = ball.radius;
+                ball.vY *= -1;
+                tickEvents.push({ type: 'wallTonk' });
+            } else if (ball.y > this.height + ball.radius) {
+                ballsToDrop.push(ball);
+                continue;
+            } else if (this.paddleActive && ball.vY > 0 && checkBallPaddleCollision(ball, { x: this.paddleX, y: this.height - 20, width: 100, height: 20 })) {
+                // Record the position of the paddle as a phantom move, assuming it was literally anywhere else any other time.
+                this.trace({ type: 'activatepaddle' }, this.time - this.TICK_LENGTH / 2);
+                this.trace({ type: 'mousemove', x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
+                // Record a trace for reproductions
+                this.trace({ type: 'paddlebounce', x: ball.x, y: ball.y });
+                this.trace({ type: 'shutdownpaddle' }, this.time + this.TICK_LENGTH / 3);
 
-            tickEvents.push({ type: 'paddlebounce' });
+                tickEvents.push({ type: 'paddlebounce' });
 
-            // Adjust velocity based on angle to center
-            const angle = (this.ball.x - this.paddleX) / 100;
-            //console.log("Angle:", angle, "cos", Math.cos(angle), "sin", Math.sin(angle));
-            this.ball.vX = this.ball.velocity * Math.sin(angle);
-            this.ball.vY = -this.ball.velocity * Math.cos(angle);
-        } else {
-            const drop = [];
-            for (const item of this.items)
-                if (item.type === 'powerup') {
-                    if (checkBallCircleCollision(this.ball, item as Powerup)) {
-                        this.trace({ type: 'powerupcollision', x: this.ball.x, y: this.ball.y });
-                        this.ball.velocity *= 2;
-                        this.ball.vX *= 2;
-                        this.ball.vY *= 2;
-                        drop.push(item);
-                        tickEvents.push({ type: 'powerup' });
-                    }
-                } else
-                    if (checkBallBriqCollision(this.ball, item as BriqoutBriq)) {
-                        this.ball.vY *= -1;
-                        this.ball.velocity *= 1.05;
-                        // Drop the briq from the lineup
-                        drop.push(item);
-                        // Record a trace for reproduction
-                        this.trace({ type: 'briqcollision', x: this.ball.x, y: this.ball.y });
-                        tickEvents.push({ type: 'briqTonk' });
-                    }
+                // Adjust velocity based on angle to center
+                const angle = (ball.x - this.paddleX) / 100;
+                //console.log("Angle:", angle, "cos", Math.cos(angle), "sin", Math.sin(angle));
+                ball.vX = ball.velocity * Math.sin(angle);
+                ball.vY = -ball.velocity * Math.cos(angle);
+            } else {
+                const drop = [];
+                for (const item of this.items)
+                    if (item.type === 'powerup') {
+                        if (checkBallCircleCollision(ball, item as Powerup)) {
+                            this.trace({ type: 'powerupcollision', x: ball.x, y: ball.y });
+                            tickEvents.push({ type: 'powerup' });
+
+                            {
+                                const ball = new BriqoutBall(this);
+                                const r = Math.random();
+                                ball.vX = Math.cos(r) * ball.velocity;
+                                ball.vY = Math.sin(r) * ball.velocity;
+                                ball.x = Math.random() * this.width;
+                                ball.y = Math.random() * 200 + 50;
+                                this.balls.push(ball);
+                            }
+                            {
+                                const ball = new BriqoutBall(this);
+                                const r = Math.random();
+                                ball.vX = Math.cos(r) * ball.velocity;
+                                ball.vY = Math.sin(r) * ball.velocity;
+                                ball.x = Math.random() * this.width;
+                                ball.y = Math.random() * 200 + 50;
+                                this.balls.push(ball);
+                            }
+
+                            drop.push(item);
+                        }
+                    } else
+                        if (checkBallBriqCollision(ball, item as BriqoutBriq)) {
+                            ball.vY *= -1;
+                            ball.velocity *= 1.05;
+                            // Drop the briq from the lineup
+                            drop.push(item);
+                            // Record a trace for reproduction
+                            this.trace({ type: 'briqcollision', x: ball.x, y: ball.y });
+                            tickEvents.push({ type: 'briqTonk' });
+                        }
 
 
-            this.items = this.items.filter(item => !drop.includes(item));
+                this.items = this.items.filter(item => !drop.includes(item));
+            }
+
+        this.balls = this.balls.filter(ball => !ballsToDrop.includes(ball));
+
+        for (const ball of this.balls) {
+            ball.x += ball.vX * this.TICK_LENGTH;
+            ball.y += ball.vY * this.TICK_LENGTH;
         }
 
         if (this.items.length === 0) {
             this.trace({ type: 'won' });
             this.status = 'won';
-            return tickEvents;
+        } else if (this.balls.length === 0) {
+            this.trace({ type: 'lost' });
+            this.status = 'lost';
         }
-
-        this.ball.x += this.ball.vX * this.TICK_LENGTH;
-        this.ball.y += this.ball.vY * this.TICK_LENGTH;
 
         return tickEvents;
     }
 
     start(params: SetupParams) {
         this.gameTrace = [];
-        this.ball = new BriqoutBall();
+        this.balls = [new BriqoutBall(this)];
         // Compute a random starting position for the ball based on the parameters.
         // TODO: do this
         // for convenience, emit setup params
         this.trace({ type: 'setup', ...params });
         for (let i = 0; i < this.width / 105 - 1; i++) {
-            const briq = new BriqoutBriq();
-            briq.id = this.items.length;
+            const briq = new BriqoutBriq(this);
             briq.x = i * 105 + 52;
             briq.y = 20;
             this.items.push(briq);
         }
-        const powerup = new Powerup();
-        powerup.id = this.items.length;
+        const powerup = new Powerup(this);
         powerup.x = 600;
         powerup.y = 200;
         powerup.radius = 25;
