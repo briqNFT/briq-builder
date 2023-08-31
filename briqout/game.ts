@@ -346,12 +346,14 @@ export class Game {
                 this.items.push(briqObj);
             }
         } else
-            for (let i = 0; i < this.width / 105 - 1; i++) {
-                const briq = new BriqoutBriq(this);
-                briq.x = i * 105 + 52;
-                briq.y = 20;
-                this.items.push(briq);
-            }
+            for (let j = 0; j < 10; j++)
+                for (let i = 0; i < this.width / 60 - 1; i++) {
+                    const briq = new BriqoutBriq(this);
+                    briq.x = i * 65 + 30 + (j % 2) * 15;
+                    briq.y = 20 + 25 * j;
+                    briq.width = 60;
+                    this.items.push(briq);
+                }
 
         this.status = 'running';
     }

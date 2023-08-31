@@ -190,10 +190,5 @@ const setsToMigrate = computed(() => {
                 <button @click="checkReplay">check trace</button>
             </div>
         </div>
-
-        <div>
-            Debug trace:
-            <p v-for="trace in game.gameTrace">{{ trace }}</p>
-        </div>
     </template>
 </template>
