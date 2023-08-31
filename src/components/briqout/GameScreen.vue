@@ -12,6 +12,7 @@ import { chainBriqs } from '@/builder/ChainBriqs';
 import { userSetStore } from '@/builder/UserSets';
 import { backendManager } from '@/Backend';
 import GenericCard from '../builder/genesis/GenericCard.vue';
+import type { Briq } from './Briq';
 
 const game = reactive(new Game());
 
@@ -47,15 +48,15 @@ const gameLoop = () => {
     requestAnimationFrame(gameLoop);
 };
 
-const reset = () => {
+const reset = (briqs?: Briq[]) => {
     lastTime = performance.now();
     setupScene(game, SceneQuality.MEDIUM);
     game.start({
         migrator: maybeStore.value!.userWalletAddress!,
         currentBriqs: chainBriqs.value?.getNbBriqs() ?? 0,
         briqsToMigrate: 50,
-        setToMigrate: '0',
-    });
+        setToMigrate: '0x0',
+    }, briqs);
 }
 
 const checkReplay = async () => {
@@ -134,6 +135,7 @@ const setsToMigrate = computed(() => {
             nb_briqs: data?.data?.getNbBriqs?.() || 0,
             created_at: data?.created_at || Date.now(),
             pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
+            briqs: data?.data?.getAllBriqs() || undefined,
         }
     }).filter(x => !!x) || [];
 })
@@ -152,7 +154,7 @@ const setsToMigrate = computed(() => {
                         :title="briqset.name"
                         status="LOADED"
                         :image-src="backendManager.getPreviewUrl(briqset.id)"
-                        @click="reset()">
+                        @click="reset(briqset.briqs)">
                         <p>{{ briqset.nb_briqs }}</p>
                     </GenericCard>
                 </div>

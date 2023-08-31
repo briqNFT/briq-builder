@@ -1,3 +1,5 @@
+import { projectSet } from './set_projection';
+
 class Rectangle {
     x = 0;
     y = 0;
@@ -28,6 +30,9 @@ export class BriqoutBall extends Circle implements BriqoutItem {
     vX = 200.0;
     vY = 300.0;
 
+    // True if we already hit a briq this tick, to avoid double-hits that would make the ball go through the briq.
+    hitBriq = false;
+
     constructor(game: Game) {
         super();
         this.id = game.nextId++;
@@ -37,6 +42,8 @@ export class BriqoutBall extends Circle implements BriqoutItem {
 export class BriqoutBriq extends Rectangle implements BriqoutItem {
     id: number;
     type = 'briq' as const;
+
+    color = '#ff5500';
 
     constructor(game: Game) {
         super();
@@ -204,8 +211,12 @@ export class Game {
                         }
                     } else
                         if (checkBallBriqCollision(ball, item as BriqoutBriq)) {
-                            ball.vY *= -1;
-                            ball.velocity *= 1.05;
+                            if (!ball.hitBriq) {
+                                ball.vY *= -1;
+                                ball.hitBriq = true;
+                            }
+                            if (ball.velocity < 2000)
+                                ball.velocity += 1.05;
                             // Drop the briq from the lineup
                             drop.push(item);
                             // Record a trace for reproduction
@@ -222,6 +233,7 @@ export class Game {
         for (const ball of this.balls) {
             ball.x += ball.vX * this.TICK_LENGTH;
             ball.y += ball.vY * this.TICK_LENGTH;
+            ball.hitBriq = false;
         }
 
         if (this.items.length === 0) {
@@ -235,20 +247,44 @@ export class Game {
         return tickEvents;
     }
 
-    start(params: SetupParams) {
+    // All these parameters must be reconstructed identically (and assume trust)
+    // for replayability.
+    start(params: SetupParams, setBriqs?: unknown[]) {
+        if (params.setToMigrate !== '0x0' && !setBriqs)
+            throw new Error('setBriqs must be provided if setToMigrate is set');
+        else if (!params.setToMigrate === '0x0' && setBriqs)
+            throw new Error('setToMigrate must be provided if setBriqs is set');
+
         this.gameTrace = [];
         this.balls = [new BriqoutBall(this)];
+        this.balls[0].radius = 30;
         // Compute a random starting position for the ball based on the parameters.
         // TODO: do this
         // for convenience, emit setup params
         this.randomSeed = 20;
         this.trace({ type: 'setup', ...params });
-        for (let i = 0; i < this.width / 105 - 1; i++) {
-            const briq = new BriqoutBriq(this);
-            briq.x = i * 105 + 52;
-            briq.y = 20;
-            this.items.push(briq);
-        }
+        if (setBriqs) {
+            const { size, briqs } = projectSet(setBriqs);
+
+            const bsize = Math.min(this.width / (size[0] + 2), this.height * 0.7 / (size[1] + 2));
+
+            for (const briq of briqs) {
+                const briqObj = new BriqoutBriq(this);
+                briqObj.x = briq[0] * (bsize + 2) + this.width / 2 - size[0] * bsize / 2;
+                briqObj.y = briq[1] * (bsize + 2) + 20;
+                briqObj.color = briq[2];
+                briqObj.width = bsize;
+                briqObj.height = bsize;
+                this.items.push(briqObj);
+            }
+        } else
+            for (let i = 0; i < this.width / 105 - 1; i++) {
+                const briq = new BriqoutBriq(this);
+                briq.x = i * 105 + 52;
+                briq.y = 20;
+                this.items.push(briq);
+            }
+
         const powerup = new Powerup(this);
         powerup.x = 600;
         powerup.y = 200;

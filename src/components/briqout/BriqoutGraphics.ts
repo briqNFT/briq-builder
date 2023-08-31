@@ -288,7 +288,7 @@ function generatePowerup(item: Powerup) {
 
 function generateBriq(item: BriqoutBriq) {
     const geometry = new THREE.BoxGeometry(item.width, 20, item.height);
-    const briq = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xff1100 }));
+    const briq = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: new THREE.Color(item.color).convertSRGBToLinear() }));
     briq.castShadow = true;
     briq.receiveShadow = true;
     scene.add(briq);
