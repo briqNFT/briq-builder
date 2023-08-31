@@ -84,6 +84,8 @@ export class Game {
     pendingEvents = [];
     gameTrace = [];
 
+    randomSeed = 0;
+
     init() {}
 
     trace(event, time = undefined) {
@@ -104,6 +106,13 @@ export class Game {
 
 
         this.pendingEvents = [];
+    }
+
+    random() {
+        let t = this.randomSeed += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
     }
 
     update(delay: number) {
@@ -174,20 +183,20 @@ export class Game {
 
                             {
                                 const ball = new BriqoutBall(this);
-                                const r = Math.random();
+                                const r = this.random();
                                 ball.vX = Math.cos(r) * ball.velocity;
                                 ball.vY = Math.sin(r) * ball.velocity;
-                                ball.x = Math.random() * this.width;
-                                ball.y = Math.random() * 200 + 50;
+                                ball.x = this.random() * this.width;
+                                ball.y = this.random() * 200 + 50;
                                 this.balls.push(ball);
                             }
                             {
                                 const ball = new BriqoutBall(this);
-                                const r = Math.random();
+                                const r = this.random();
                                 ball.vX = Math.cos(r) * ball.velocity;
                                 ball.vY = Math.sin(r) * ball.velocity;
-                                ball.x = Math.random() * this.width;
-                                ball.y = Math.random() * 200 + 50;
+                                ball.x = this.random() * this.width;
+                                ball.y = this.random() * 200 + 50;
                                 this.balls.push(ball);
                             }
 
@@ -232,6 +241,7 @@ export class Game {
         // Compute a random starting position for the ball based on the parameters.
         // TODO: do this
         // for convenience, emit setup params
+        this.randomSeed = 20;
         this.trace({ type: 'setup', ...params });
         for (let i = 0; i < this.width / 105 - 1; i++) {
             const briq = new BriqoutBriq(this);
