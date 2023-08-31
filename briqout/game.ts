@@ -79,104 +79,108 @@ export class Game {
     }
 
     pollEvents() {
-        for (const event of this.pendingEvents) {
-            if (event.type === 'mousemove') {
+        for (const event of this.pendingEvents)
+            if (event.type === 'mousemove')
                 this.paddleX = event.x * this.width;
-            }
-        }
+
+
         this.pendingEvents = [];
     }
 
     update(delay: number) {
-        if (this.status !== 'running') {
-            return false;
-        }
-        
+        if (this.status !== 'running')
+            return { ticks: 0, events: [] };
+
         this.pollEvents();
-        
+
         let turns = delay / this.TICK_LENGTH;
         if (turns < 1)
-            return false;
+            return { ticks: 0, events: [] };
+        const updateEvents = [];
+        const ticks = Math.floor(turns);
         while (turns >= 1) {
-            this.tick();
+            updateEvents.push(...this.tick());
             turns -= 1;
         }
-        return true;
+        return { ticks, events: updateEvents };
     }
 
     tick() {
-        if (this.status !== 'running') {
-            return;
-        }
+        if (this.status !== 'running')
+            return [];
+
+        const tickEvents = [];
 
         this.time += this.TICK_LENGTH;
 
         if (this.ball.x <= this.ball.radius) {
             this.ball.x = this.ball.radius;
             this.ball.vX *= -1;
-        }
-        else if (this.ball.x >= this.width - this.ball.radius) {
+            tickEvents.push({ type: 'wallTonk' });
+        } else if (this.ball.x >= this.width - this.ball.radius) {
             this.ball.x = this.width - this.ball.radius;
             this.ball.vX *= -1;
-        }
-        else if (this.ball.y <= this.ball.radius) {
+            tickEvents.push({ type: 'wallTonk' });
+        } else if (this.ball.y <= this.ball.radius) {
             this.ball.y = this.ball.radius;
             this.ball.vY *= -1;
-        }
-        else if (this.ball.y > this.height + this.ball.radius) {
-            this.trace({ type: "lost" });
+            tickEvents.push({ type: 'wallTonk' });
+        } else if (this.ball.y > this.height + this.ball.radius) {
+            this.trace({ type: 'lost' });
             this.status = 'lost';
-            return;
-        }
-        else if (this.paddleActive && this.ball.vY > 0 && checkBallPaddleCollision(this.ball, { x: this.paddleX, y: this.height - 20, width: 100, height: 20 })) {
+            return tickEvents;
+        } else if (this.paddleActive && this.ball.vY > 0 && checkBallPaddleCollision(this.ball, { x: this.paddleX, y: this.height - 20, width: 100, height: 20 })) {
             // Record the position of the paddle as a phantom move, assuming it was literally anywhere else any other time.
-            this.trace({ type: "activatepaddle" }, this.time - this.TICK_LENGTH / 2);
-            this.trace({ type: "mousemove", x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
-            // Record a trace for reproduction
-            this.trace({ type: "paddlebounce", x: this.ball.x, y: this.ball.y });
-            this.trace({ type: "shutdownpaddle" }, this.time + this.TICK_LENGTH / 3);
+            this.trace({ type: 'activatepaddle' }, this.time - this.TICK_LENGTH / 2);
+            this.trace({ type: 'mousemove', x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
+            // Record a trace for reproductions
+            this.trace({ type: 'paddlebounce', x: this.ball.x, y: this.ball.y });
+            this.trace({ type: 'shutdownpaddle' }, this.time + this.TICK_LENGTH / 3);
+
+            tickEvents.push({ type: 'paddlebounce' });
+
             // Adjust velocity based on angle to center
             const angle = (this.ball.x - this.paddleX) / 100;
             //console.log("Angle:", angle, "cos", Math.cos(angle), "sin", Math.sin(angle));
             this.ball.vX = this.ball.velocity * Math.sin(angle);
             this.ball.vY = -this.ball.velocity * Math.cos(angle);
-        }
-        else {
-            let drop = [];
-            for (const item of this.items) {
-                if (item.type === 'powerup')
-                {
+        } else {
+            const drop = [];
+            for (const item of this.items)
+                if (item.type === 'powerup') {
                     if (checkBallCircleCollision(this.ball, item as Powerup)) {
-                        this.trace({ type: "powerupcollision", x: this.ball.x, y: this.ball.y });
+                        this.trace({ type: 'powerupcollision', x: this.ball.x, y: this.ball.y });
                         this.ball.velocity *= 2;
                         this.ball.vX *= 2;
                         this.ball.vY *= 2;
                         drop.push(item);
+                        tickEvents.push({ type: 'powerup' });
                     }
-                }
-                else
-                {
+                } else
                     if (checkBallBriqCollision(this.ball, item as BriqoutBriq)) {
                         this.ball.vY *= -1;
                         this.ball.velocity *= 1.05;
                         // Drop the briq from the lineup
                         drop.push(item);
                         // Record a trace for reproduction
-                        this.trace({ type: "briqcollision", x: this.ball.x, y: this.ball.y });
+                        this.trace({ type: 'briqcollision', x: this.ball.x, y: this.ball.y });
+                        tickEvents.push({ type: 'briqTonk' });
                     }
-                }
-            }
+
+
             this.items = this.items.filter(item => !drop.includes(item));
         }
 
         if (this.items.length === 0) {
-            this.trace({ type: "won" });
+            this.trace({ type: 'won' });
             this.status = 'won';
-            return;
+            return tickEvents;
         }
 
         this.ball.x += this.ball.vX * this.TICK_LENGTH;
         this.ball.y += this.ball.vY * this.TICK_LENGTH;
+
+        return tickEvents;
     }
 
     start(params: SetupParams) {
@@ -185,9 +189,8 @@ export class Game {
         // Compute a random starting position for the ball based on the parameters.
         // TODO: do this
         // for convenience, emit setup params
-        this.trace({ type: "setup", ...params });
-        for (let i = 0; i < this.width / 105 - 1; i++)
-        {
+        this.trace({ type: 'setup', ...params });
+        for (let i = 0; i < this.width / 105 - 1; i++) {
             const briq = new BriqoutBriq();
             briq.id = this.items.length;
             briq.x = i * 105 + 52;
@@ -207,10 +210,14 @@ export class Game {
         const data = this.gameTrace.slice();
         // Sort by time, then ID for stability
         data.sort((a, b) => {
-            if (a.time < b.time) return -1;
-            if (a.time > b.time) return 1;
-            if (a.id < b.id) return -1;
-            if (a.id > b.id) return 1;
+            if (a.time < b.time)
+                return -1;
+            if (a.time > b.time)
+                return 1;
+            if (a.id < b.id)
+                return -1;
+            if (a.id > b.id)
+                return 1;
             return 0;
         });
         return data;
@@ -228,9 +235,9 @@ function checkBallPaddleCollision(ball: BriqoutBall, square: Rectangle) {
     const squareTop = square.y - square.height / 2;
     const squareBottom = square.y + square.height / 2;
 
-    if (ballLeft < squareRight && ballRight > squareLeft && ballTop < squareBottom && ballBottom > squareTop) {
+    if (ballLeft < squareRight && ballRight > squareLeft && ballTop < squareBottom && ballBottom > squareTop)
         return true;
-    }
+
     return false;
 }
 
@@ -245,9 +252,9 @@ function checkBallBriqCollision(ball: BriqoutBall, square: Rectangle) {
     const squareTop = square.y - square.height / 2;
     const squareBottom = square.y + square.height / 2;
 
-    if (ballLeft < squareRight && ballRight > squareLeft && ballTop < squareBottom && ballBottom > squareTop) {
+    if (ballLeft < squareRight && ballRight > squareLeft && ballTop < squareBottom && ballBottom > squareTop)
         return true;
-    }
+
     return false;
 }
 
@@ -260,7 +267,7 @@ function checkBallCircleCollision(ball: BriqoutBall, circle: Circle) {
 }
 
 export function replay(trace: any[]) {
-    let game = new Game();
+    const game = new Game();
     if (trace.length === 0)
         return false;
     game.start(trace[0]);
@@ -278,9 +285,9 @@ export function replay(trace: any[]) {
         }
         game.tick();
     }
-    let replayTrace = game.exportTrace();
+    const replayTrace = game.exportTrace();
     // Compare both traces by hashing.
-    let traceHash = trace.map(e => JSON.stringify(e)).join('');
-    let replayHash = replayTrace.map(e => JSON.stringify(e)).join('');
+    const traceHash = trace.map(e => JSON.stringify(e)).join('');
+    const replayHash = replayTrace.map(e => JSON.stringify(e)).join('');
     return traceHash === replayHash;
 }

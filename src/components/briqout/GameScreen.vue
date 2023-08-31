@@ -1,23 +1,41 @@
+
 <script setup lang="ts">
 import { Game, replay } from 'briqout';
 import { reactive, onMounted, onUnmounted, ref } from 'vue';
 import { SceneQuality, setupScene, updateScene, render } from './BriqoutGraphics';
+import { useBriqoutAudio } from './Sound';
 import { WEB_WALLET_URL, maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
 
-import { hash, ec} from 'starknet';
+import { hash, ec } from 'starknet';
 import { chainBriqs } from '@/builder/ChainBriqs';
 
 const game = reactive(new Game());
 
 let lastTime = undefined;
 
+let audioSystem = undefined as Awaited<ReturnType<typeof useBriqoutAudio>> | undefined;
+useBriqoutAudio().then((audio) => {
+    audioSystem = audio;
+});
+
 const gameLoop = () => {
     const t = performance.now();
     const delta = (t - lastTime) / 1000.0;
 
-    if (game.update(delta))
+    const { ticks, events } = game.update(delta);
+    if (ticks) {
         lastTime = t;
+        for (const event of events)
+            if (event.type === 'paddlebounce')
+                audioSystem?.clap();
+            else if (event.type === 'briqTonk')
+                audioSystem?.briqTonk();
+            else if (event.type === 'wallTonk')
+                audioSystem?.wallTonk();
+            else if (event.type === 'powerup')
+                audioSystem?.powerup();
+    }
 
     updateScene(game, delta);
     render(delta);
@@ -43,14 +61,14 @@ const checkReplay = async () => {
         }),
     })
     const signedMessage = await res.json();
-    console.log("signedMessage", signedMessage);
+    console.log('signedMessage', signedMessage);
 
     const msgHash = hash.computeHashOnElements(signedMessage.message);
     // TODO change starknet.js v5
-    const privateKey = "0x1234567890987654321";
+    const privateKey = '0x1234567890987654321';
     const keyPair = ec.getKeyPair(privateKey);
     const result = ec.verify(keyPair, msgHash, signedMessage.signature);
-    console.log("Result (boolean) =", result);
+    console.log('Result (boolean) =', result);
 }
 
 const onMouseMove = (ev) => {
@@ -64,9 +82,9 @@ onMounted(async () => {
     window.addEventListener('mousemove', onMouseMove);
     setupScene(game, SceneQuality.ULTRA);
 
-    if (!lastTime) {
+    if (!lastTime)
         lastTime = performance.now();
-    }
+
     requestAnimationFrame(gameLoop);
 
     if (APP_ENV !== 'prod') {
@@ -132,12 +150,14 @@ const connectWallet = () => {
     </template>
     <template v-else>
         <div class="m-auto">
-            <div class="w-full h-full bg-info-error flex justify-center items-center absolute top-0 left-0"
+            <div
+                class="w-full h-full bg-info-error flex justify-center items-center absolute top-0 left-0"
                 v-if="game.status === 'lost'">
                 <button @click="reset()">LOSER</button>
                 <button @click="checkReplay">check trace</button>
             </div>
-            <div class="w-full h-full bg-info-success bg-opacity-50 flex justify-center items-center absolute top-0 left-0"
+            <div
+                class="w-full h-full bg-info-success bg-opacity-50 flex justify-center items-center absolute top-0 left-0"
                 v-if="game.status === 'won'">
                 <button @click="reset()">replay</button>
                 <button @click="checkReplay">check trace</button>

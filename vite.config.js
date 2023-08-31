@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => ({
             '@': path.resolve(__dirname, './src'),
         },
     },
-    assetsInclude: ['**/*.exr'],
+    assetsInclude: ['**/*.exr', '**/*.mp3'],
     build: {
         target: 'es2020',
         sourcemap: true,
