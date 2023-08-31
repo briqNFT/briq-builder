@@ -12,7 +12,9 @@ import {
 
 import { GLTFLoader, EXRLoader } from '@/three';
 
-import EnvMapImg2 from '@/assets/industrial_sunset_02_puresky_1k.exr';
+//import EnvMapImg2 from '@/assets/industrial_sunset_02_puresky_1k.exr';
+import StarknetLogo from '@/assets/briqout/starknet.png?url';
+import EnvMapImg from '@/assets/briqout/starfield.jpg';
 
 import type { Game, Powerup, BriqoutBriq, BriqoutBall, BriqoutItem } from 'briqout';
 
@@ -35,11 +37,10 @@ let composer: EffectComposer;
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 
-let initialised = false;
+let starkwareTexture: THREE.Texture;
 
 export async function useRenderer(_canvas: HTMLCanvasElement) {
     await threeSetupComplete;
-    initialised = true;
 
     canvas = _canvas;
 
@@ -53,12 +54,21 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
 
     // Conceptually, we don't really need to reload what's below, but it leads to a blank scene.
     // I guess the GLB loader keeps a reference to the renderer somehow.
-    const defaultLoader = new THREE.TextureLoader();
-
-    let envMapRawTexture: THREE.Texture;
-    const envMapPromise = new Promise<THREE.Texture>(resolve => new EXRLoader().load(EnvMapImg2, function ( texture, textureData ) {
-        resolve(texture);
+    //const envMapPromise = new Promise<THREE.Texture>(resolve => new EXRLoader().load(EnvMapImg2, function ( texture, _textureData ) {
+    //    resolve(texture);
+    //}));
+    const envMapPromise = new Promise<THREE.Texture>(resolve => new THREE.TextureLoader().load(EnvMapImg, tex => {
+        resolve(tex);
     }));
+
+    const defaultLoader = new THREE.TextureLoader();
+    new Promise<THREE.Texture>((resolve) =>
+        defaultLoader.load(StarknetLogo, tex => {
+            tex.encoding = THREE.sRGBEncoding;
+            tex.flipY = false;
+            resolve(tex);
+        }),
+    ).then(tex => starkwareTexture = tex);
 
     /* Create these early, they're needed to create the composer */
     scene = new THREE.Scene();
@@ -164,6 +174,7 @@ function resetScene(quality: SceneQuality) {
     gameItems = {};
 
     scene.clear();
+    scene.add(camera);
 
     recreateComposer(quality);
 
@@ -185,13 +196,13 @@ export function setupScene(game: Game, quality: SceneQuality) {
     composer.passes[4].enabled = quality >= SceneQuality.ULTRA;
 
 
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(game.width, game.height), new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
-    floor.rotateX(-Math.PI / 2);
-    floor.position.y = -20;
-    floor.position.x = game.width / 2;
-    floor.position.z = game.height / 2;
-    floor.receiveShadow = true;
-    scene.add(floor);
+    //const floor = new THREE.Mesh(new THREE.PlaneGeometry(game.width, game.height), new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+    //floor.rotateX(-Math.PI / 2);
+    //floor.position.y = -20;
+    //floor.position.x = game.width / 2;
+    //floor.position.z = game.height / 2;
+    //floor.receiveShadow = true;
+    //scene.add(floor);
 
     const light = new THREE.DirectionalLight(0xffffff, 2.0);
     light.position.set(game.width / 2, 1000, game.height / 2);
@@ -269,8 +280,9 @@ function generatePaddle(game: Game) {
 }
 
 function generateBall(ball: BriqoutBall) {
-    const geometry = new THREE.SphereGeometry(ball.radius);
-    const ballMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x0000ff }));
+    const geometry = new THREE.CylinderGeometry(ball.radius, ball.radius, 20, 32)
+    const ballMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({}));
+    ballMesh.material.map = starkwareTexture;
     ballMesh.castShadow = true;
     ballMesh.receiveShadow = true;
     scene.add(ballMesh);

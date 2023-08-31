@@ -148,13 +148,14 @@ const setsToMigrate = computed(() => {
             <h1 class="mb-12">briqout</h1>
             <template v-if="maybeStore?.userWalletAddress">
                 <h3>Choose an NFT to migrate, or play to migrate your briqs</h3>
-                <div>
+                <div class="flex justify-center gap-4">
                     <GenericCard
                         v-for="briqset of setsToMigrate" :key="briqset.id"
                         :title="briqset.name"
                         status="LOADED"
                         :image-src="backendManager.getPreviewUrl(briqset.id)"
-                        @click="reset(briqset.briqs)">
+                        @click="reset(briqset.briqs)"
+                        class="max-w-[20rem]">
                         <p>{{ briqset.nb_briqs }}</p>
                     </GenericCard>
                 </div>

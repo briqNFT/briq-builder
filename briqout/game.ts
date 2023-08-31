@@ -13,7 +13,7 @@ class Circle {
     radius = 10;
 }
 
-interface BriqoutItem {
+export interface BriqoutItem {
     id: number;
     readonly type: 'briq' | 'powerup' | 'ball';
 }
@@ -209,10 +209,17 @@ export class Game {
 
                             drop.push(item);
                         }
-                    } else
-                        if (checkBallBriqCollision(ball, item as BriqoutBriq)) {
+                    } else {
+                        const [coll, cx, cy] = checkBallBriqCollision(ball, item as BriqoutBriq);
+                        if (coll) {
                             if (!ball.hitBriq) {
-                                ball.vY *= -1;
+                                if (!cx) {
+                                    ball.vX *= -1;
+                                    ball.x += Math.sign(ball.vX) * 10;
+                                } else if (!cy) {
+                                    ball.vY *= -1;
+                                    ball.y += Math.sign(ball.vY) * 10;
+                                }
                                 ball.hitBriq = true;
                             }
                             if (ball.velocity < 2000)
@@ -223,6 +230,7 @@ export class Game {
                             this.trace({ type: 'briqcollision', x: ball.x, y: ball.y });
                             tickEvents.push({ type: 'briqTonk' });
                         }
+                    }
 
 
                 this.items = this.items.filter(item => !drop.includes(item));
@@ -339,10 +347,13 @@ function checkBallBriqCollision(ball: BriqoutBall, square: Rectangle) {
     const squareTop = square.y - square.height / 2;
     const squareBottom = square.y + square.height / 2;
 
-    if (ballLeft < squareRight && ballRight > squareLeft && ballTop < squareBottom && ballBottom > squareTop)
-        return true;
+    // Determine if we should flip X and/or Y velocity for the ball.
+    const collSide = ballLeft < squareRight && ballRight > squareLeft;
+    const collTop = ballTop < squareBottom && ballBottom > squareTop;
+    const lastcollSide = ballLeft - ball.vX < squareRight && ballRight - ball.vX > squareLeft;
+    const lastcollTop = ballTop - ball.vY < squareBottom && ballBottom - ball.vY > squareTop;
 
-    return false;
+    return [collSide && collTop, lastcollSide, lastcollTop];
 }
 
 function checkBallCircleCollision(ball: BriqoutBall, circle: Circle) {
