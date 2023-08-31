@@ -57,6 +57,11 @@ const reset = (briqs?: Briq[]) => {
         briqsToMigrate: 50,
         setToMigrate: '0x0',
     }, briqs);
+
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
 }
 
 const checkReplay = async () => {
@@ -85,9 +90,14 @@ const onMouseMove = (ev) => {
     });
 }
 
-onMounted(async () => {
-    window.addEventListener('mousemove', onMouseMove);
+const onMouseUp = (ev) => {
+    game.pushEvent({
+        type: 'mouseup',
+        x: ev.clientX / window.innerWidth,
+    });
+}
 
+onMounted(async () => {
     if (!lastTime)
         lastTime = performance.now();
 
@@ -112,6 +122,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
     window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
 });
 
 

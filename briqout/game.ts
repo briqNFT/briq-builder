@@ -26,7 +26,9 @@ export class BriqoutBall extends Circle implements BriqoutItem {
     y = 200;
     radius = 10;
 
-    velocity = 800;
+    isLaunching = false;
+
+    velocity = 500;
     vX = 200.0;
     vY = 300.0;
 
@@ -55,9 +57,12 @@ export class Powerup extends Circle implements BriqoutItem {
     id: number;
     type = 'powerup' as const;
 
-    constructor(game: Game) {
+    kind: 'multiball' | 'biggerpaddle' | 'metalballs';
+
+    constructor(game: Game, kind: Powerup['kind']) {
         super();
         this.id = game.nextId++;
+        this.kind = kind;
     }
 }
 
@@ -73,6 +78,7 @@ export interface SetupParams {
 
 export class Game {
     paddleX = 0.0;
+    paddleWidth = 100;
     paddleActive = true; // Used when replaying.
 
     width = 1000;
@@ -91,11 +97,15 @@ export class Game {
     pendingEvents = [];
     gameTrace = [];
 
+    powerups = {
+        metalballs: 0,
+    }
+
     randomSeed = 0;
 
     init() {}
 
-    trace(event, time = undefined) {
+    trace(event, time?: number) {
         event.time = time || this.time;
         // for stable sorting
         event.id = this.gameTrace.length;
@@ -107,9 +117,16 @@ export class Game {
     }
 
     pollEvents() {
+        if (this.status !== 'running') {
+            this.pendingEvents = [];
+            return;
+        }
         for (const event of this.pendingEvents)
             if (event.type === 'mousemove')
                 this.paddleX = event.x * this.width;
+            else if (event.type === 'mouseup')
+                for (const ball of this.balls)
+                    ball.isLaunching = false;
 
 
         this.pendingEvents = [];
@@ -149,7 +166,13 @@ export class Game {
         this.time += this.TICK_LENGTH;
 
         const ballsToDrop = [] as BriqoutBall[];
-        for (const ball of this.balls)
+        const itemsToDrop = [] as BriqoutItem[];
+        for (const ball of this.balls) {
+            if (ball.isLaunching) {
+                ball.x = this.paddleX;
+                continue;
+            }
+
             if (ball.x <= ball.radius) {
                 ball.x = ball.radius;
                 ball.vX *= -1;
@@ -165,7 +188,7 @@ export class Game {
             } else if (ball.y > this.height + ball.radius) {
                 ballsToDrop.push(ball);
                 continue;
-            } else if (this.paddleActive && ball.vY > 0 && checkBallPaddleCollision(ball, { x: this.paddleX, y: this.height - 20, width: 100, height: 20 })) {
+            } else if (this.paddleActive && ball.vY > 0 && checkBallPaddleCollision(ball, { x: this.paddleX, y: this.height - 20, width: this.paddleWidth, height: 20 })) {
                 // Record the position of the paddle as a phantom move, assuming it was literally anywhere else any other time.
                 this.trace({ type: 'activatepaddle' }, this.time - this.TICK_LENGTH / 2);
                 this.trace({ type: 'mousemove', x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
@@ -176,73 +199,79 @@ export class Game {
                 tickEvents.push({ type: 'paddlebounce' });
 
                 // Adjust velocity based on angle to center
-                const angle = (ball.x - this.paddleX) / 100;
+                const angle = (ball.x - this.paddleX) / this.paddleWidth;
                 //console.log("Angle:", angle, "cos", Math.cos(angle), "sin", Math.sin(angle));
                 ball.vX = ball.velocity * Math.sin(angle);
                 ball.vY = -ball.velocity * Math.cos(angle);
-            } else {
-                const drop = [];
-                for (const item of this.items)
-                    if (item.type === 'powerup') {
-                        if (checkBallCircleCollision(ball, item as Powerup)) {
-                            this.trace({ type: 'powerupcollision', x: ball.x, y: ball.y });
-                            tickEvents.push({ type: 'powerup' });
-
-                            {
-                                const ball = new BriqoutBall(this);
-                                const r = this.random();
-                                ball.vX = Math.cos(r) * ball.velocity;
-                                ball.vY = Math.sin(r) * ball.velocity;
-                                ball.x = this.random() * this.width;
-                                ball.y = this.random() * 200 + 50;
-                                this.balls.push(ball);
+            } else
+                for (const item of this.items) {
+                    if (item.type !== 'briq')
+                        continue;
+                    const [coll, cx, cy] = checkBallBriqCollision(ball, item as BriqoutBriq);
+                    if (coll) {
+                        if (!ball.hitBriq && !this.powerups.metalballs) {
+                            if (!cx) {
+                                ball.vX *= -1;
+                                ball.x += Math.sign(ball.vX) * 10;
                             }
-                            {
-                                const ball = new BriqoutBall(this);
-                                const r = this.random();
-                                ball.vX = Math.cos(r) * ball.velocity;
-                                ball.vY = Math.sin(r) * ball.velocity;
-                                ball.x = this.random() * this.width;
-                                ball.y = this.random() * 200 + 50;
-                                this.balls.push(ball);
+                            if (!cy) {
+                                ball.vY *= -1;
+                                ball.y += Math.sign(ball.vY) * 10;
                             }
-
-                            drop.push(item);
+                            ball.hitBriq = true;
                         }
-                    } else {
-                        const [coll, cx, cy] = checkBallBriqCollision(ball, item as BriqoutBriq);
-                        if (coll) {
-                            if (!ball.hitBriq) {
-                                if (!cx) {
-                                    ball.vX *= -1;
-                                    ball.x += Math.sign(ball.vX) * 10;
-                                } else if (!cy) {
-                                    ball.vY *= -1;
-                                    ball.y += Math.sign(ball.vY) * 10;
-                                }
-                                ball.hitBriq = true;
-                            }
-                            if (ball.velocity < 2000)
-                                ball.velocity += 1.05;
+                        if (ball.velocity < 1000)
+                            ball.velocity += 10;
                             // Drop the briq from the lineup
-                            drop.push(item);
-                            // Record a trace for reproduction
-                            this.trace({ type: 'briqcollision', x: ball.x, y: ball.y });
-                            tickEvents.push({ type: 'briqTonk' });
-                        }
+                        itemsToDrop.push(item);
+                        // Record a trace for reproduction
+                        this.trace({ type: 'briqcollision', x: ball.x, y: ball.y });
+                        tickEvents.push({ type: 'briqTonk' });
                     }
+                }
 
-
-                this.items = this.items.filter(item => !drop.includes(item));
-            }
+        }
 
         this.balls = this.balls.filter(ball => !ballsToDrop.includes(ball));
 
         for (const ball of this.balls) {
+            if (ball.isLaunching)
+                continue;
             ball.x += ball.vX * this.TICK_LENGTH;
             ball.y += ball.vY * this.TICK_LENGTH;
             ball.hitBriq = false;
         }
+
+        if (this.random() > 0.995) {
+            const powerup = new Powerup(this, ['multiball', 'biggerpaddle', 'metalballs'][Math.floor(this.random() * 3)] as Powerup['kind']);
+            powerup.x = Math.random() * this.width;
+            powerup.y = -50;
+            powerup.radius = 25;
+            this.items.push(powerup);
+        }
+
+        for (const item of this.items) {
+            if (item.type !== 'powerup')
+                continue;
+            item.y += 200 * this.TICK_LENGTH;
+
+            if (checkBallPaddleCollision(item as Powerup, { x: this.paddleX, y: this.height - 20, width: this.paddleWidth, height: 20 })) {
+
+                this.trace({ type: 'activatepaddle' }, this.time - this.TICK_LENGTH / 2);
+                this.trace({ type: 'mousemove', x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
+                this.trace({ type: 'powerupcollision', x: item.x, y: item.y, kind: (item as Powerup).kind });
+                this.trace({ type: 'shutdownpaddle' }, this.time + this.TICK_LENGTH / 3);
+
+                tickEvents.push({ type: 'powerup', kind: (item as Powerup).kind });
+
+                this.triggerPowerup((item as Powerup).kind);
+
+                itemsToDrop.push(item);
+            }
+        }
+        this.items = this.items.filter(item => !itemsToDrop.includes(item));
+
+        this.powerups.metalballs = Math.max(0, this.powerups.metalballs - this.TICK_LENGTH);
 
         if (this.items.length === 0) {
             this.trace({ type: 'won' });
@@ -255,6 +284,32 @@ export class Game {
         return tickEvents;
     }
 
+    triggerPowerup(kind: Powerup['kind']) {
+        if (kind === 'multiball') {
+            {
+                const ball = new BriqoutBall(this);
+                const r = this.random() * Math.PI / 2 + Math.PI / 4;
+                ball.vX = Math.cos(r) * ball.velocity;
+                ball.vY = -Math.sin(r) * ball.velocity;
+                ball.x = this.random() * this.width;
+                ball.y = this.random() * 200 + 50;
+                this.balls.push(ball);
+            }
+            {
+                const ball = new BriqoutBall(this);
+                const r = this.random() * Math.PI / 2 + Math.PI / 4;
+                ball.vX = Math.cos(r) * ball.velocity;
+                ball.vY = -Math.sin(r) * ball.velocity;
+                ball.x = this.random() * this.width;
+                ball.y = this.random() * 200 + 50;
+                this.balls.push(ball);
+            }
+        } else if (kind === 'biggerpaddle')
+            this.paddleWidth += 50;
+        else if (kind === 'metalballs')
+            this.powerups.metalballs += 2;
+    }
+
     // All these parameters must be reconstructed identically (and assume trust)
     // for replayability.
     start(params: SetupParams, setBriqs?: unknown[]) {
@@ -265,7 +320,12 @@ export class Game {
 
         this.gameTrace = [];
         this.balls = [new BriqoutBall(this)];
-        this.balls[0].radius = 30;
+        this.balls[0].isLaunching = true;
+
+        this.paddleX = this.width / 2;
+        this.balls[0].x = this.width / 2;
+        this.balls[0].y = this.height - 30 - this.balls[0].radius;
+
         // Compute a random starting position for the ball based on the parameters.
         // TODO: do this
         // for convenience, emit setup params
@@ -293,11 +353,6 @@ export class Game {
                 this.items.push(briq);
             }
 
-        const powerup = new Powerup(this);
-        powerup.x = 600;
-        powerup.y = 200;
-        powerup.radius = 25;
-        this.items.push(powerup);
         this.status = 'running';
     }
 
@@ -319,7 +374,7 @@ export class Game {
     }
 }
 
-function checkBallPaddleCollision(ball: BriqoutBall, square: Rectangle) {
+function checkBallPaddleCollision(ball: Circle, square: Rectangle) {
     const ballLeft = ball.x - ball.radius;
     const ballRight = ball.x + ball.radius;
     const ballTop = ball.y - ball.radius;

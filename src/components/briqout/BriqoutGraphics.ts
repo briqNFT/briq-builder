@@ -166,7 +166,7 @@ export function render(delta: number) {
 
 let paddleObject = undefined;
 
-let gameItems = {} as Record<number, BriqoutItem>;
+let gameItems = {} as Record<number, THREE.Object3D>;
 
 function resetScene(quality: SceneQuality) {
     paddleObject = undefined;
@@ -237,14 +237,20 @@ export function updateScene(game: Game, delta: number) {
     paddleObject.position.x = game.paddleX;
     paddleObject.position.y = 0;
     paddleObject.position.z = game.height - 20;
+    paddleObject.scale.x = game.paddleWidth / 100;
 
     for (const item of game.balls) {
         if (!gameItems[item.id])
             gameItems[item.id] = generateBall(item);
         const obj = gameItems[item.id];
-        obj.position.x = item.x + item.vX * overdraw * game.TICK_LENGTH;
+        obj.position.x = item.x + item.vX * overdraw * game.TICK_LENGTH * (1-item.isLaunching);
         obj.position.y = 0;
-        obj.position.z = item.y + item.vY * overdraw * game.TICK_LENGTH;
+        obj.position.z = item.y + item.vY * overdraw * game.TICK_LENGTH * (1-item.isLaunching);
+
+        if (game.powerups.metalballs)
+            obj.material.color.setHex(0xFF0000);
+        else
+            obj.material.color.setHex(0xFFFFFF);
     }
 
     for (const item of game.items) {
@@ -271,7 +277,7 @@ export function updateScene(game: Game, delta: number) {
 }
 
 function generatePaddle(game: Game) {
-    const geometry = new THREE.BoxGeometry(100, 20, 20);
+    const geometry = new THREE.BoxGeometry(game.paddleWidth, 20, 20);
     const paddle = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x00ff00 }));
     paddle.castShadow = true;
     paddle.receiveShadow = true;
@@ -289,9 +295,15 @@ function generateBall(ball: BriqoutBall) {
     return ballMesh;
 }
 
+const powerupCol = {
+    'metalballs': 0xff0000,
+    'multiball': 0x00ff00,
+    'biggerpaddle': 0x0000ff,
+} as Record<Powerup['kind'], number>;
+
 function generatePowerup(item: Powerup) {
     const geometry = new THREE.SphereGeometry(item.radius);
-    const ball = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xff00ff }));
+    const ball = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: new THREE.Color(powerupCol[item.kind]).convertSRGBToLinear() }));
     ball.castShadow = true;
     ball.receiveShadow = true;
     scene.add(ball);
