@@ -154,8 +154,17 @@ export function render(delta: number) {
     //renderer.info.reset();
 }
 
+let paddleObject = undefined;
+let ballObject = undefined;
 
-export function setupScene(game: Game, quality: SceneQuality) {
+let gameItems = {};
+
+function resetScene(quality: SceneQuality) {
+    paddleObject = undefined;
+    ballObject = undefined;
+
+    gameItems = {};
+
     scene.clear();
 
     recreateComposer(quality);
@@ -165,6 +174,10 @@ export function setupScene(game: Game, quality: SceneQuality) {
         renderer.shadowMap.type = THREE.PCFShadowMap;
     else
         renderer.shadowMap.type = THREE.PCFShadowMap;
+}
+
+export function setupScene(game: Game, quality: SceneQuality) {
+    resetScene(quality);
 
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(game.width, game.height), new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
     floor.rotateX(-Math.PI / 2);
@@ -173,7 +186,7 @@ export function setupScene(game: Game, quality: SceneQuality) {
     floor.position.z = game.height / 2;
     floor.receiveShadow = true;
     scene.add(floor);
-    
+
     const light = new THREE.DirectionalLight(0xffffff, 2.0);
     light.position.set(game.width / 2, 1000, game.height / 2);
     light.target.position.set(game.width / 2, 0, game.height / 2);
@@ -196,11 +209,6 @@ export function setupScene(game: Game, quality: SceneQuality) {
     scene.background = envMapTexture;
 }
 
-let paddleObject = undefined;
-let ballObject = undefined;
-
-let gameItems = {};
-
 export function updateScene(game: Game, delta: number) {
     if (!paddleObject)
         paddleObject = generatePaddle(game);
@@ -210,7 +218,7 @@ export function updateScene(game: Game, delta: number) {
     // The "simulation" has fixed ticks which may differ from rendering rate.
     // Do some compensation on fast moving objects.
     const overdraw = delta / game.TICK_LENGTH - Math.floor(delta / game.TICK_LENGTH);
-    
+
     paddleObject.position.x = game.paddleX;
     paddleObject.position.y = 0;
     paddleObject.position.z = game.height - 20;
@@ -224,23 +232,21 @@ export function updateScene(game: Game, delta: number) {
         if (item.type === 'powerup') {
             if (!gameItems[item.id])
                 gameItems[item.id] = generatePowerup(item);
-        }
-        else
-        {
+        } else
             if (!gameItems[item.id])
                 gameItems[item.id] = generateBriq(item);
-        }
+
         const obj = gameItems[item.id];
         obj.position.x = item.x;
         obj.position.y = 0;
         obj.position.z = item.y;
-}
-    for (const id in gameItems) {
+    }
+    for (const id in gameItems)
         if (!game.items.find(item => item.id === parseInt(id))) {
             scene.remove(gameItems[id]);
             delete gameItems[id];
         }
-    }
+
 }
 
 function generatePaddle(game: Game) {

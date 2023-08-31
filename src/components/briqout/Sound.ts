@@ -13,7 +13,10 @@ async function playSound(ctx: AudioContext, buffer: AudioBuffer) {
     const source = ctx.createBufferSource();
     source.buffer = buffer;
     source.connect(ctx.destination);
-    source.start(0);
+    // Add some light variation so that playing
+    // the same sound multiple times doesn't blow speakers.
+    source.detune.value = (Math.random() - 0.5) * 50;
+    source.start(Math.random() / 100);
 }
 
 export async function useBriqoutAudio() {

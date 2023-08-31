@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 import { Game, replay } from 'briqout';
-import { reactive, onMounted, onUnmounted, ref } from 'vue';
+import { reactive, onMounted, onUnmounted, ref, computed } from 'vue';
 import { SceneQuality, setupScene, updateScene, render } from './BriqoutGraphics';
 import { useBriqoutAudio } from './Sound';
 import { WEB_WALLET_URL, maybeStore, walletInitComplete } from '@/chain/WalletLoading';
@@ -9,6 +9,9 @@ import { APP_ENV } from '@/Meta';
 
 import { hash, ec } from 'starknet';
 import { chainBriqs } from '@/builder/ChainBriqs';
+import { userSetStore } from '@/builder/UserSets';
+import { backendManager } from '@/Backend';
+import GenericCard from '../builder/genesis/GenericCard.vue';
 
 const game = reactive(new Game());
 
@@ -36,14 +39,17 @@ const gameLoop = () => {
             else if (event.type === 'powerup')
                 audioSystem?.powerup();
     }
-
-    updateScene(game, delta);
-    render(delta);
+    // Save energy, cpu and gpu
+    if (game.status === 'running') {
+        updateScene(game, delta);
+        render(delta);
+    }
     requestAnimationFrame(gameLoop);
 };
 
 const reset = () => {
     lastTime = performance.now();
+    setupScene(game, SceneQuality.ULTRA);
     game.start({
         migrator: maybeStore.value!.userWalletAddress!,
         currentBriqs: chainBriqs.value?.getNbBriqs() ?? 0,
@@ -80,7 +86,6 @@ const onMouseMove = (ev) => {
 
 onMounted(async () => {
     window.addEventListener('mousemove', onMouseMove);
-    setupScene(game, SceneQuality.ULTRA);
 
     if (!lastTime)
         lastTime = performance.now();
@@ -119,33 +124,41 @@ const connectWallet = () => {
         walletInitComplete.then(() => walletStore.value!.openWalletSelector());
     }
 }
+
+const setsToMigrate = computed(() => {
+    return userSetStore.current?.sets.map(setId => {
+        const data = userSetStore.current?.setData[setId];
+        return {
+            id: setId,
+            name: data?.data?.name || setId,
+            nb_briqs: data?.data?.getNbBriqs?.() || 0,
+            created_at: data?.created_at || Date.now(),
+            pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
+        }
+    }).filter(x => !!x) || [];
+})
+
 </script>
-
-<style scoped>
-.paddle {
-    @apply w-[10rem] h-8 bg-red-500 translate-x-[-50%] translate-y-[50%] absolute bottom-[20px];
-}
-
-.briqItem {
-    @apply bg-blue-500 absolute;
-}
-
-.gameZone {
-    @apply relative border-2 border-black;
-}
-
-.ball {
-    @apply bg-green-500 absolute rounded-full translate-x-[-50%] translate-y-[-50%];
-}
-</style>
 
 <template>
     <template v-if="game.status === 'pregame'">
         <div class="w-full h-full bg-white flex flex-col justify-center items-center absolute top-0 left-0">
             <h1 class="mb-12">briqout</h1>
-            <p v-if="maybeStore?.userWalletAddress">{{ maybeStore.getShortAddress() }}</p>
+            <template v-if="maybeStore?.userWalletAddress">
+                <h3>Choose an NFT to migrate, or play to migrate your briqs</h3>
+                <div>
+                    <GenericCard
+                        v-for="briqset of setsToMigrate" :key="briqset.id"
+                        :title="briqset.name"
+                        status="LOADED"
+                        :image-src="backendManager.getPreviewUrl(briqset.id)"
+                        @click="reset()">
+                        <p>{{ briqset.nb_briqs }}</p>
+                    </GenericCard>
+                </div>
+                <Btn secondary @click="reset()">Migrate only my briqs</Btn>
+            </template>
             <Btn @click="connectWallet()" v-else>Connect wallet</Btn>
-            <Btn @click="reset()">Start game</Btn>
         </div>
     </template>
     <template v-else>
