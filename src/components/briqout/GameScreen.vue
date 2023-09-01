@@ -42,7 +42,7 @@ const gameLoop = () => {
     }
     // Save energy, cpu and gpu
     if (game.status === 'running') {
-        updateScene(game, delta);
+        updateScene(game, delta, events);
         render(delta);
     }
     requestAnimationFrame(gameLoop);

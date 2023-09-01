@@ -229,7 +229,7 @@ export class Game {
                         itemsToDrop.push(item);
                         // Record a trace for reproduction
                         this.trace({ type: 'briqcollision', x: ball.x, y: ball.y });
-                        tickEvents.push({ type: 'briqTonk' });
+                        tickEvents.push({ type: 'briqTonk', x: ball.x, y: ball.y });
                     }
                 }
 

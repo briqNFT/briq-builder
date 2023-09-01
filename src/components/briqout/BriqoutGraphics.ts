@@ -21,6 +21,7 @@ import type { Game, Powerup, BriqoutBriq, BriqoutBall, BriqoutItem } from 'briqo
 
 import { backendManager } from '@/Backend';
 import { APP_ENV } from '@/Meta';
+import { main } from '@/builder/graphics/Builder';
 
 let envMapTexture: THREE.Texture;
 
@@ -183,6 +184,8 @@ let hyperspace = undefined;
 
 let gameItems = {} as Record<number, THREE.Object3D>;
 
+const graphicsObjects = [] as THREE.Object3D[];
+
 function resetScene(quality: SceneQuality) {
     paddleObject = undefined;
 
@@ -306,7 +309,7 @@ export function setupScene(game: Game, quality: SceneQuality) {
     scene.background = envMapTexture;
 }
 
-export function updateScene(game: Game, delta: number) {
+export function updateScene(game: Game, delta: number, events: unknown[]) {
     if (!paddleObject)
         paddleObject = generatePaddle(game);
 
@@ -356,8 +359,32 @@ export function updateScene(game: Game, delta: number) {
         obj.position.y = 0;
         obj.position.z = item.y;
 
-        if (item.type === 'powerup')
-            obj.rotateY(delta);
+        if (item.type === 'powerup') {
+            obj.children[obj.children.length - 1].rotateY(delta);
+            updateTrailOfParticles(obj);
+        }
+    }
+
+    for (const event of events)
+        if (event.type === 'briqTonk') {
+            const obj = generateBriqPopParticles();
+            obj.position.x = event.x;
+            obj.position.y = 0;
+            obj.position.z = event.y;
+            scene.add(obj);
+            graphicsObjects.push(obj);
+        }
+
+
+    const drop = [];
+    for (const obj of graphicsObjects) {
+        updateBriqPopParticles(obj);
+        if (obj.material.opacity <= 0)
+            drop.push(obj);
+    }
+    for (const obj of drop) {
+        scene.remove(obj);
+        graphicsObjects.splice(graphicsObjects.indexOf(obj), 1);
     }
 
     for (const id in gameItems)
@@ -366,8 +393,70 @@ export function updateScene(game: Game, delta: number) {
                 scene.remove(gameItems[id]);
                 delete gameItems[id];
             }
-
 }
+
+function generateTrailOfParticles() {
+    const geometry = new THREE.BufferGeometry();
+    const vertices = [];
+    for (let i = 0; i < 10; i++)
+        vertices.push(Math.random() * 40 - 20, 0, Math.random() * -70 - 10);
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    const material = new THREE.PointsMaterial({ color: 0xFFCC11 });
+    material.transparent = true;
+    material.opacity = 1.0;
+    material.size = 15;
+    material.blending = THREE.AdditiveBlending;
+    const points = new THREE.Points(geometry, material);
+    return points;
+}
+
+function updateTrailOfParticles(obj: THREE.Object3D) {
+    const points = obj.children[0] as THREE.Points;
+    const positions = points.geometry.getAttribute('position') as THREE.BufferAttribute;
+    for (let i = 0; i < positions.count; ++i)
+        if (Math.random() < -positions.getZ(i) / 6000) {
+            positions.setZ(i, -10);
+            positions.setX(i, Math.random() * 40 - 20);
+        } else {
+            positions.setZ(i, positions.getZ(i) - 0.4);
+            positions.setX(i, positions.getX(i) + Math.random() * 0.1 - 0.05);
+        }
+    points.geometry.attributes.position.needsUpdate = true;
+}
+
+function generateBriqPopParticles() {
+    const geometry = new THREE.BufferGeometry();
+    const vertices = [];
+    const speeds = [];
+    for (let i = 0; i < 50; i++) {
+        const v = Math.random() + 0.5;
+        const r = Math.random() * Math.PI * 2;
+        vertices.push(Math.cos(r) * Math.random() * 10, 0, Math.sin(r) * Math.random() * 10);
+        speeds.push(v * Math.cos(r), v * Math.sin(r));
+    }
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setAttribute('velocity', new THREE.Float32BufferAttribute(vertices, 2));
+    const material = new THREE.PointsMaterial({ color: 0xFF5500 });
+    material.size = 10;
+    material.transparent = true;
+    const points = new THREE.Points(geometry, material);
+    return points;
+}
+
+function updateBriqPopParticles(points: THREE.Points) {
+    const positions = points.geometry.getAttribute('position') as THREE.BufferAttribute;
+    const speeds = points.geometry.getAttribute('velocity') as THREE.BufferAttribute;
+    for (let i = 0; i < positions.count; ++i) {
+        positions.setX(i, positions.getX(i) + speeds.getX(i) * 0.2);
+        positions.setZ(i, positions.getZ(i) + speeds.getY(i) * 0.2);
+        speeds.setX(i, speeds.getX(i) * 0.98);
+        speeds.setY(i, speeds.getY(i) * 0.98);
+    }
+
+    points.material.opacity -= 0.01;
+    points.geometry.attributes.position.needsUpdate = true;
+}
+
 
 function generatePaddle(game: Game) {
     const geometry = new THREE.BoxGeometry(game.paddleWidth, 20, 20);
@@ -379,7 +468,7 @@ function generatePaddle(game: Game) {
 }
 
 function generateBall(ball: BriqoutBall) {
-    const geometry = new THREE.CylinderGeometry(ball.radius, ball.radius, 20, 32)
+    const geometry = new THREE.CylinderGeometry(ball.radius, ball.radius, 10, 32)
     const ballMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({}));
     ballMesh.material.map = starkwareTexture;
     ballMesh.castShadow = true;
@@ -399,6 +488,7 @@ function generatePowerup(item: Powerup) {
     geometry.rotateX(Math.PI / 2);
     const mainObj = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff).convertSRGBToLinear() }));
 
+    mainObj.add(generateTrailOfParticles());
     const ball = (() => {
         if (item.kind === 'metalballs') {
             const geometry = new THREE.SphereGeometry(item.radius / 2);
