@@ -78,6 +78,8 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
             tex.flipY = false;
             tex.wrapS = THREE.RepeatWrapping;
             tex.wrapT = THREE.RepeatWrapping;
+            tex.anisotropy = 8;
+            tex.generateMipmaps = false;
             resolve(tex);
         }),
     ).then(tex => noiseTexture = tex);
@@ -211,6 +213,8 @@ function setupHyperspace(scene: THREE.Scene, game: Game) {
         uniforms: {
             tex: { value: noiseTexture },
             time: { value: 0 },
+            colA: { value: new THREE.Color(0x4400ff) },
+            colB: { value: new THREE.Color(0x0044ff) },
         },
         vertexShader: `
         varying vec2 uv1;
@@ -225,6 +229,10 @@ function setupHyperspace(scene: THREE.Scene, game: Game) {
         varying vec2 uv1;
         uniform sampler2D tex;
         uniform float time;
+
+        uniform vec3 colA;
+        uniform vec3 colB;
+
         #define PI 3.1415926538
 
         vec2 computeUV(vec2 xy, vec2 center, float rotateTime, float zoomTime) {
@@ -235,24 +243,28 @@ function setupHyperspace(scene: THREE.Scene, game: Game) {
                 theta = atan(dir.y, dir.x);
             else
                 theta = atan(dir.y, -dir.x);
+            
+            float s = sign(dir.x);
 
-            float u = (theta) / (PI) * sign(xy.x - center.x) + rotateTime;
+            float u = theta / PI * s + rotateTime;
             float v = 0.05 / d + zoomTime;  // or 1.0 - d, choose based on the effect you desire
         
             return vec2(u, v);
         }
 
         void main() {
-            vec2 toCenter = (uv1 - vec2(0.5)) * 2.0;
-            float distanceToCenter = length(toCenter) + 0.2;
+            vec2 center = vec2(0.5);
 
-            vec2 zoomA = computeUV(uv1, vec2(0.5), time * 0.2, time);
-            vec2 zoomB = computeUV(uv1, vec2(0.5), 0.2 - time * 0.11, time + 0.4);
+            //gl_FragColor = vec4(computeUV(uv1, center, 0.0, 0.0).rr, 0.0, 1.0);
+            //return;
+
+            vec2 zoomA = computeUV(uv1, center, time * 0.2, time);
+            vec2 zoomB = computeUV(uv1, center, 0.2 - time * 0.11, time + 0.4);
             float texA = texture2D(tex, zoomA).r;
             float texB = texture2D(tex, zoomB).r;
 
             // Mix between two blues depending on which texture dominates
-            vec3 color = mix(vec3(0.3, 0.0, 1.0), vec3(0.0, 0.4, 1.0), texA);
+            vec3 color = mix(colA, colB, texA);
             gl_FragColor = vec4(color * texA * texB, 1.0);
         }
         `,
@@ -309,6 +321,10 @@ export function updateScene(game: Game, delta: number) {
 
     hyperspace.material.uniforms['time'].value += delta;
 
+    // Update colors over time so things look good.
+    hyperspace.material.uniforms['colA'].value.r = 0.3 + Math.cos(hyperspace.material.uniforms['time'].value * 0.1) * 0.2;
+    hyperspace.material.uniforms['colB'].value.g = 0.4 + Math.cos(hyperspace.material.uniforms['time'].value * 0.1) * 0.14;
+
     for (const item of game.balls) {
         if (!gameItems[item.id])
             gameItems[item.id] = generateBall(item);
@@ -317,7 +333,8 @@ export function updateScene(game: Game, delta: number) {
         obj.position.y = 0;
         obj.position.z = item.y + item.vY * overdraw * game.TICK_LENGTH * (1-item.isLaunching);
 
-        obj.rotateY(delta * -Math.sign(item.vX) * Math.max(1, Math.abs(item.vX) / 50));
+        if (!item.isLaunching)
+            obj.rotateY(delta * -Math.sign(item.vX) * Math.max(1, Math.abs(item.vX) / 50));
 
         obj.scale.setScalar(item.radius / 10);
         if (game.powerups.metalballs)
