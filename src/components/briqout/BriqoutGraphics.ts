@@ -15,6 +15,7 @@ import { GLTFLoader, EXRLoader } from '@/three';
 //import EnvMapImg2 from '@/assets/industrial_sunset_02_puresky_1k.exr';
 import StarknetLogo from '@/assets/briqout/starknet.png?url';
 import EnvMapImg from '@/assets/briqout/starfield.jpg';
+import NoiseImg from '@/assets/briqout/noise.png';
 
 import type { Game, Powerup, BriqoutBriq, BriqoutBall, BriqoutItem } from 'briqout';
 
@@ -38,6 +39,7 @@ let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 
 let starkwareTexture: THREE.Texture;
+let noiseTexture: THREE.Texture;
 
 export async function useRenderer(_canvas: HTMLCanvasElement) {
     await threeSetupComplete;
@@ -69,6 +71,16 @@ export async function useRenderer(_canvas: HTMLCanvasElement) {
             resolve(tex);
         }),
     ).then(tex => starkwareTexture = tex);
+
+    new Promise<THREE.Texture>((resolve) =>
+        defaultLoader.load(NoiseImg, tex => {
+            tex.encoding = THREE.sRGBEncoding;
+            tex.flipY = false;
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            resolve(tex);
+        }),
+    ).then(tex => noiseTexture = tex);
 
     /* Create these early, they're needed to create the composer */
     scene = new THREE.Scene();
@@ -165,6 +177,7 @@ export function render(delta: number) {
 }
 
 let paddleObject = undefined;
+let hyperspace = undefined;
 
 let gameItems = {} as Record<number, THREE.Object3D>;
 
@@ -185,6 +198,68 @@ function resetScene(quality: SceneQuality) {
         renderer.shadowMap.type = THREE.PCFShadowMap;
 }
 
+function setupHyperspace(scene: THREE.Scene, game: Game) {
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(game.width * 2, game.height * 2));
+    floor.rotateX(-Math.PI / 2);
+    floor.position.y = -50;
+    floor.position.x = game.width / 2;
+    floor.position.z = game.height / 2;
+    hyperspace = floor;
+    scene.add(floor);
+
+    const material = new THREE.ShaderMaterial( {
+        uniforms: {
+            tex: { value: noiseTexture },
+            time: { value: 0 },
+        },
+        vertexShader: `
+        varying vec2 uv1;
+        void main() {
+            vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+            uv1 = uv;
+            gl_Position = projectionMatrix * modelViewPosition; 
+        }
+        `,
+        fragmentShader:
+        `
+        varying vec2 uv1;
+        uniform sampler2D tex;
+        uniform float time;
+        #define PI 3.1415926538
+
+        vec2 computeUV(vec2 xy, vec2 center, float rotateTime, float zoomTime) {
+            vec2 dir = xy - center;
+            float d = length(dir) + 0.01;
+            float theta = 0.0;
+            if (xy.x > center.x)
+                theta = atan(dir.y, dir.x);
+            else
+                theta = atan(dir.y, -dir.x);
+
+            float u = (theta) / (PI) * sign(xy.x - center.x) + rotateTime;
+            float v = 0.05 / d + zoomTime;  // or 1.0 - d, choose based on the effect you desire
+        
+            return vec2(u, v);
+        }
+
+        void main() {
+            vec2 toCenter = (uv1 - vec2(0.5)) * 2.0;
+            float distanceToCenter = length(toCenter) + 0.2;
+
+            vec2 zoomA = computeUV(uv1, vec2(0.5), time * 0.2, time);
+            vec2 zoomB = computeUV(uv1, vec2(0.5), 0.2 - time * 0.11, time + 0.4);
+            float texA = texture2D(tex, zoomA).r;
+            float texB = texture2D(tex, zoomB).r;
+
+            // Mix between two blues depending on which texture dominates
+            vec3 color = mix(vec3(0.3, 0.0, 1.0), vec3(0.0, 0.4, 1.0), texA);
+            gl_FragColor = vec4(color * texA * texB, 1.0);
+        }
+        `,
+    });
+    floor.material = material;
+}
+
 export function setupScene(game: Game, quality: SceneQuality) {
     resetScene(quality);
 
@@ -195,14 +270,7 @@ export function setupScene(game: Game, quality: SceneQuality) {
     // SMAA
     composer.passes[4].enabled = quality >= SceneQuality.ULTRA;
 
-
-    //const floor = new THREE.Mesh(new THREE.PlaneGeometry(game.width, game.height), new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
-    //floor.rotateX(-Math.PI / 2);
-    //floor.position.y = -20;
-    //floor.position.x = game.width / 2;
-    //floor.position.z = game.height / 2;
-    //floor.receiveShadow = true;
-    //scene.add(floor);
+    setupHyperspace(scene, game);
 
     const light = new THREE.DirectionalLight(0xffffff, 2.0);
     light.position.set(game.width / 2, 1000, game.height / 2);
@@ -239,6 +307,8 @@ export function updateScene(game: Game, delta: number) {
     paddleObject.position.z = game.height - 20;
     paddleObject.scale.x = game.paddleWidth / 100;
 
+    hyperspace.material.uniforms['time'].value += delta;
+
     for (const item of game.balls) {
         if (!gameItems[item.id])
             gameItems[item.id] = generateBall(item);
@@ -246,6 +316,8 @@ export function updateScene(game: Game, delta: number) {
         obj.position.x = item.x + item.vX * overdraw * game.TICK_LENGTH * (1-item.isLaunching);
         obj.position.y = 0;
         obj.position.z = item.y + item.vY * overdraw * game.TICK_LENGTH * (1-item.isLaunching);
+
+        obj.rotateY(delta * -Math.sign(item.vX) * Math.max(1, Math.abs(item.vX) / 50));
 
         obj.scale.setScalar(item.radius / 10);
         if (game.powerups.metalballs)
