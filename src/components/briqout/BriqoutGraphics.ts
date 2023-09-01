@@ -247,6 +247,7 @@ export function updateScene(game: Game, delta: number) {
         obj.position.y = 0;
         obj.position.z = item.y + item.vY * overdraw * game.TICK_LENGTH * (1-item.isLaunching);
 
+        obj.scale.setScalar(item.radius / 10);
         if (game.powerups.metalballs)
             obj.material.color.setHex(0xFF0000);
         else
@@ -265,6 +266,9 @@ export function updateScene(game: Game, delta: number) {
         obj.position.x = item.x;
         obj.position.y = 0;
         obj.position.z = item.y;
+
+        if (item.type === 'powerup')
+            obj.rotateY(delta);
     }
 
     for (const id in gameItems)
@@ -302,12 +306,40 @@ const powerupCol = {
 } as Record<Powerup['kind'], number>;
 
 function generatePowerup(item: Powerup) {
-    const geometry = new THREE.SphereGeometry(item.radius);
-    const ball = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: new THREE.Color(powerupCol[item.kind]).convertSRGBToLinear() }));
-    ball.castShadow = true;
-    ball.receiveShadow = true;
-    scene.add(ball);
-    return ball;
+    const geometry = new THREE.TorusGeometry(item.radius, 2, 2, 32);
+    geometry.rotateX(Math.PI / 2);
+    const mainObj = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff).convertSRGBToLinear() }));
+
+    const ball = (() => {
+        if (item.kind === 'metalballs') {
+            const geometry = new THREE.SphereGeometry(item.radius / 2);
+            const obj = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: new THREE.Color(0x888888).convertSRGBToLinear() }));
+            obj.material.metalness = 0.8;
+            obj.material.roughness = 0.0;
+            obj.material.envMap = envMapTexture;
+            obj.castShadow = true;
+            obj.receiveShadow = true;
+            return obj;
+        }
+        if (item.kind === 'multiball') {
+            const geometry = new THREE.CylinderGeometry(item.radius / 2, item.radius / 2, 10, 16)
+            const ballMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({}));
+            ballMesh.material.map = starkwareTexture;
+            ballMesh.castShadow = true;
+            ballMesh.receiveShadow = true;
+            return ballMesh;
+        }
+        if (item.kind === 'biggerpaddle') {
+            const geometry = new THREE.BoxGeometry(40, 10, 10);
+            const obj = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: new THREE.Color(0x00ff00).convertSRGBToLinear() }));
+            obj.castShadow = true;
+            obj.receiveShadow = true;
+            return obj;
+        }
+    })();
+    mainObj.add(ball);
+    scene.add(mainObj);
+    return mainObj;
 }
 
 function generateBriq(item: BriqoutBriq) {

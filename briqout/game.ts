@@ -187,6 +187,7 @@ export class Game {
                 tickEvents.push({ type: 'wallTonk' });
             } else if (ball.y > this.height + ball.radius) {
                 ballsToDrop.push(ball);
+                this.paddleWidth = Math.max(this.paddleWidth - 50, 0);
                 continue;
             } else if (this.paddleActive && ball.vY > 0 && checkBallPaddleCollision(ball, { x: this.paddleX, y: this.height - 20, width: this.paddleWidth, height: 20 })) {
                 // Record the position of the paddle as a phantom move, assuming it was literally anywhere else any other time.
@@ -220,9 +221,11 @@ export class Game {
                             }
                             ball.hitBriq = true;
                         }
-                        if (ball.velocity < 1000)
+                        if (ball.velocity < 1000) {
                             ball.velocity += 10;
-                            // Drop the briq from the lineup
+                            ball.radius += 0.2;
+                        }
+                        // Drop the briq from the lineup
                         itemsToDrop.push(item);
                         // Record a trace for reproduction
                         this.trace({ type: 'briqcollision', x: ball.x, y: ball.y });
@@ -242,13 +245,8 @@ export class Game {
             ball.hitBriq = false;
         }
 
-        if (this.random() > 0.995) {
-            const powerup = new Powerup(this, ['multiball', 'biggerpaddle', 'metalballs'][Math.floor(this.random() * 3)] as Powerup['kind']);
-            powerup.x = Math.random() * this.width;
-            powerup.y = -50;
-            powerup.radius = 25;
-            this.items.push(powerup);
-        }
+        for (const kind of ['multiball', 'biggerpaddle', 'metalballs'] as const)
+            this.maybeLaunchPowerup(kind);
 
         for (const item of this.items) {
             if (item.type !== 'powerup')
@@ -273,10 +271,17 @@ export class Game {
 
         this.powerups.metalballs = Math.max(0, this.powerups.metalballs - this.TICK_LENGTH);
 
-        if (this.items.length === 0) {
+        if (this.balls.length === 0) {
+            this.balls = [new BriqoutBall(this)];
+            this.balls[0].isLaunching = true;
+            this.balls[0].x = this.width / 2;
+            this.balls[0].y = this.height - 30 - this.balls[0].radius;
+        }
+
+        if (!this.items.some(x => x.type === 'briq')) {
             this.trace({ type: 'won' });
             this.status = 'won';
-        } else if (this.balls.length === 0) {
+        } else if (this.paddleWidth <= 0) {
             this.trace({ type: 'lost' });
             this.status = 'lost';
         }
@@ -284,26 +289,37 @@ export class Game {
         return tickEvents;
     }
 
+    maybeLaunchPowerup(kind: Powerup['kind']) {
+        if (kind === 'metalballs' && this.random() < 0.0015) {
+            const powerup = new Powerup(this, kind);
+            powerup.x = Math.random() * this.width;
+            powerup.y = -50;
+            powerup.radius = 25;
+            this.items.push(powerup);
+        } else if (kind === 'biggerpaddle' && this.random() < 0.001 && this.paddleWidth < 250) {
+            const powerup = new Powerup(this, kind);
+            powerup.x = Math.random() * this.width;
+            powerup.y = -50;
+            powerup.radius = 25;
+            this.items.push(powerup);
+        } else if (kind === 'multiball' && this.random() < 0.001) {
+            const powerup = new Powerup(this, kind);
+            powerup.x = Math.random() * this.width;
+            powerup.y = -50;
+            powerup.radius = 25;
+            this.items.push(powerup);
+        }
+    }
+
     triggerPowerup(kind: Powerup['kind']) {
         if (kind === 'multiball') {
-            {
-                const ball = new BriqoutBall(this);
-                const r = this.random() * Math.PI / 2 + Math.PI / 4;
-                ball.vX = Math.cos(r) * ball.velocity;
-                ball.vY = -Math.sin(r) * ball.velocity;
-                ball.x = this.random() * this.width;
-                ball.y = this.random() * 200 + 50;
-                this.balls.push(ball);
-            }
-            {
-                const ball = new BriqoutBall(this);
-                const r = this.random() * Math.PI / 2 + Math.PI / 4;
-                ball.vX = Math.cos(r) * ball.velocity;
-                ball.vY = -Math.sin(r) * ball.velocity;
-                ball.x = this.random() * this.width;
-                ball.y = this.random() * 200 + 50;
-                this.balls.push(ball);
-            }
+            const ball = new BriqoutBall(this);
+            const r = this.random() * Math.PI / 2 + Math.PI / 4;
+            ball.vX = Math.cos(r) * ball.velocity;
+            ball.vY = -Math.sin(r) * ball.velocity;
+            ball.x = this.random() * this.width;
+            ball.y = this.random() * 200 + 50;
+            this.balls.push(ball);
         } else if (kind === 'biggerpaddle')
             this.paddleWidth += 50;
         else if (kind === 'metalballs')
@@ -315,16 +331,22 @@ export class Game {
     start(params: SetupParams, setBriqs?: unknown[]) {
         if (params.setToMigrate !== '0x0' && !setBriqs)
             throw new Error('setBriqs must be provided if setToMigrate is set');
-        else if (!params.setToMigrate === '0x0' && setBriqs)
+        else if (params.setToMigrate === '0x0' && setBriqs)
             throw new Error('setToMigrate must be provided if setBriqs is set');
+
+        this.pendingEvents = [];
 
         this.gameTrace = [];
         this.balls = [new BriqoutBall(this)];
         this.balls[0].isLaunching = true;
 
         this.paddleX = this.width / 2;
+        this.paddleWidth = 100;
         this.balls[0].x = this.width / 2;
         this.balls[0].y = this.height - 30 - this.balls[0].radius;
+
+        this.powerups.metalballs = 0;
+        this.items = [];
 
         // Compute a random starting position for the ball based on the parameters.
         // TODO: do this

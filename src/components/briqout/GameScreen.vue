@@ -48,14 +48,14 @@ const gameLoop = () => {
     requestAnimationFrame(gameLoop);
 };
 
-const reset = (briqs?: Briq[]) => {
+const reset = (set?: string, briqs?: Briq[]) => {
     lastTime = performance.now();
     setupScene(game, SceneQuality.MEDIUM);
     game.start({
         migrator: maybeStore.value!.userWalletAddress!,
         currentBriqs: chainBriqs.value?.getNbBriqs() ?? 0,
         briqsToMigrate: 50,
-        setToMigrate: '0x0',
+        setToMigrate: set || '0x0',
     }, briqs);
 
     window.removeEventListener('mousemove', onMouseMove);
@@ -165,7 +165,7 @@ const setsToMigrate = computed(() => {
                         :title="briqset.name"
                         status="LOADED"
                         :image-src="backendManager.getPreviewUrl(briqset.id)"
-                        @click="reset(briqset.briqs)"
+                        @click="reset(briqset.id, briqset.briqs)"
                         class="max-w-[20rem]">
                         <p>{{ briqset.nb_briqs }}</p>
                     </GenericCard>
