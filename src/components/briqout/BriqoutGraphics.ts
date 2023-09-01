@@ -216,6 +216,7 @@ function setupHyperspace(scene: THREE.Scene, game: Game) {
         uniforms: {
             tex: { value: noiseTexture },
             time: { value: 0 },
+            zoomFactor: { value: 0 },
             colA: { value: new THREE.Color(0x4400ff) },
             colB: { value: new THREE.Color(0x0044ff) },
         },
@@ -232,6 +233,7 @@ function setupHyperspace(scene: THREE.Scene, game: Game) {
         varying vec2 uv1;
         uniform sampler2D tex;
         uniform float time;
+        uniform float zoomFactor;
 
         uniform vec3 colA;
         uniform vec3 colB;
@@ -250,7 +252,7 @@ function setupHyperspace(scene: THREE.Scene, game: Game) {
             float s = sign(dir.x);
 
             float u = theta / PI * s + rotateTime;
-            float v = 0.05 / d + zoomTime;  // or 1.0 - d, choose based on the effect you desire
+            float v = zoomFactor / d + zoomTime;  // or 1.0 - d, choose based on the effect you desire
         
             return vec2(u, v);
         }
@@ -322,7 +324,8 @@ export function updateScene(game: Game, delta: number, events: unknown[]) {
     paddleObject.position.z = game.height - 20;
     paddleObject.scale.x = game.paddleWidth / 100;
 
-    hyperspace.material.uniforms['time'].value += delta;
+    hyperspace.material.uniforms['time'].value += delta * Math.min(3, game.time / 60 + 0.2);
+    hyperspace.material.uniforms['zoomFactor'].value = Math.max(0.025, 0.08 - game.time / 300);
 
     // Update colors over time so things look good.
     hyperspace.material.uniforms['colA'].value.r = 0.3 + Math.cos(hyperspace.material.uniforms['time'].value * 0.1) * 0.2;

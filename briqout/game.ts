@@ -123,7 +123,7 @@ export class Game {
         }
         for (const event of this.pendingEvents)
             if (event.type === 'mousemove')
-                this.paddleX = event.x * this.width;
+                this.paddleX += event.x / 2;
             else if (event.type === 'mouseup')
                 for (const ball of this.balls)
                     ball.isLaunching = false;
@@ -188,6 +188,7 @@ export class Game {
             } else if (ball.y > this.height + ball.radius) {
                 ballsToDrop.push(ball);
                 this.paddleWidth = Math.max(this.paddleWidth - 50, 0);
+                tickEvents.push({ type: 'ballLost' });
                 continue;
             } else if (this.paddleActive && ball.vY > 0 && checkBallPaddleCollision(ball, { x: this.paddleX, y: this.height - 20, width: this.paddleWidth, height: 20 })) {
                 // Record the position of the paddle as a phantom move, assuming it was literally anywhere else any other time.
@@ -208,17 +209,15 @@ export class Game {
                 for (const item of this.items) {
                     if (item.type !== 'briq')
                         continue;
-                    const [coll, cx, cy] = checkBallBriqCollision(ball, item as BriqoutBriq);
-                    if (coll) {
+                    const coll = checkBallBriqCollision(ball, item as BriqoutBriq);
+                    if (coll !== CollisionSide.None) {
                         if (!ball.hitBriq && !this.powerups.metalballs) {
-                            if (!cx) {
+                            if (coll === CollisionSide.Horiz)
                                 ball.vX *= -1;
-                                ball.x += Math.sign(ball.vX) * 10;
-                            }
-                            if (!cy) {
+
+                            if (coll === CollisionSide.Vert)
                                 ball.vY *= -1;
-                                ball.y += Math.sign(ball.vY) * 10;
-                            }
+
                             ball.hitBriq = true;
                         }
                         if (ball.velocity < 1000) {
@@ -276,14 +275,18 @@ export class Game {
             this.balls[0].isLaunching = true;
             this.balls[0].x = this.width / 2;
             this.balls[0].y = this.height - 30 - this.balls[0].radius;
-        }
+        } else
+            this.paddleWidth = Math.max(this.paddleWidth, 50);
+
 
         if (!this.items.some(x => x.type === 'briq')) {
             this.trace({ type: 'won' });
             this.status = 'won';
+            tickEvents.push({ type: 'won' });
         } else if (this.paddleWidth <= 0) {
             this.trace({ type: 'lost' });
             this.status = 'lost';
+            tickEvents.push({ type: 'lost' });
         }
 
         return tickEvents;
@@ -335,6 +338,9 @@ export class Game {
             throw new Error('setToMigrate must be provided if setBriqs is set');
 
         this.pendingEvents = [];
+
+        this.time = 0;
+        this.nextId = 1;
 
         this.gameTrace = [];
         this.balls = [new BriqoutBall(this)];
@@ -415,6 +421,7 @@ function checkBallPaddleCollision(ball: Circle, square: Rectangle) {
     return false;
 }
 
+/*
 function checkBallBriqCollision(ball: BriqoutBall, square: Rectangle) {
     const ballLeft = ball.x - ball.radius;
     const ballRight = ball.x + ball.radius;
@@ -433,6 +440,41 @@ function checkBallBriqCollision(ball: BriqoutBall, square: Rectangle) {
     const lastcollTop = ballTop - ball.vY < squareBottom && ballBottom - ball.vY > squareTop;
 
     return [collSide && collTop, lastcollSide, lastcollTop];
+}*/
+
+enum CollisionSide {
+    None,
+    Vert,
+    Horiz,
+}
+
+function checkBallBriqCollision(ball: BriqoutBall, rect: Rectangle): CollisionSide {
+    const ballLeft = ball.x - ball.radius;
+    const ballRight = ball.x + ball.radius;
+    const ballTop = ball.y - ball.radius;
+    const ballBottom = ball.y + ball.radius;
+
+    const rectLeft = rect.x - rect.width / 2;
+    const rectRight = rect.x + rect.width / 2;
+    const rectTop = rect.y - rect.height / 2;
+    const rectBottom = rect.y + rect.height / 2;
+
+    // Bounding box check
+    if (ballRight < rectLeft || ballLeft > rectRight || ballBottom < rectTop || ballTop > rectBottom)
+        return CollisionSide.None;
+
+
+    // Determine which side of the rectangle the ball hit
+    if (ball.y < rectTop && ball.x >= rectLeft && ball.x <= rectRight)
+        return CollisionSide.Vert;
+    if (ball.y > rectBottom && ball.x >= rectLeft && ball.x <= rectRight)
+        return CollisionSide.Vert;
+    if (ball.x < rectLeft && ball.y >= rectTop && ball.y <= rectBottom)
+        return CollisionSide.Horiz;
+    if (ball.x > rectRight && ball.y >= rectTop && ball.y <= rectBottom)
+        return CollisionSide.Horiz;
+
+    return CollisionSide.None;
 }
 
 function checkBallCircleCollision(ball: BriqoutBall, circle: Circle) {

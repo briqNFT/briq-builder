@@ -3,6 +3,7 @@
 import { Game, replay } from 'briqout';
 import { reactive, onMounted, onUnmounted, ref, computed } from 'vue';
 import { SceneQuality, setupScene, updateScene, render } from './BriqoutGraphics';
+import { briqoutStore } from './GameData';
 import { useBriqoutAudio } from './Sound';
 import { WEB_WALLET_URL, maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
@@ -12,7 +13,7 @@ import { chainBriqs } from '@/builder/ChainBriqs';
 import { userSetStore } from '@/builder/UserSets';
 import { backendManager } from '@/Backend';
 import GenericCard from '../builder/genesis/GenericCard.vue';
-import type { Briq } from './Briq';
+import type { Briq } from '@/builder/Briq';
 
 const game = reactive(new Game());
 
@@ -30,7 +31,9 @@ const gameLoop = () => {
     const { ticks, events } = game.update(delta);
     if (ticks) {
         lastTime = t;
-        for (const event of events)
+        for (const event of events) {
+            if (event.type === 'won' || event.type === 'lost')
+                document.exitPointerLock();
             if (event.type === 'paddlebounce')
                 audioSystem?.clap();
             else if (event.type === 'briqTonk')
@@ -39,6 +42,9 @@ const gameLoop = () => {
                 audioSystem?.wallTonk();
             else if (event.type === 'powerup')
                 audioSystem?.powerup();
+            else if (event.type === 'ballLost')
+                audioSystem?.ballLost();
+        }
     }
     // Save energy, cpu and gpu
     if (game.status === 'running') {
@@ -51,6 +57,9 @@ const gameLoop = () => {
 const reset = (set?: string, briqs?: Briq[]) => {
     lastTime = performance.now();
     setupScene(game, SceneQuality.MEDIUM);
+
+    briqoutStore.canvas.requestPointerLock();
+
     game.start({
         migrator: maybeStore.value!.userWalletAddress!,
         currentBriqs: chainBriqs.value?.getNbBriqs() ?? 0,
@@ -86,7 +95,7 @@ const checkReplay = async () => {
 const onMouseMove = (ev) => {
     game.pushEvent({
         type: 'mousemove',
-        x: ev.clientX / window.innerWidth,
+        x: ev.movementX,
     });
 }
 
