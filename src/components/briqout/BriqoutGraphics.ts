@@ -181,6 +181,7 @@ export function render(delta: number) {
 
 let paddleObject = undefined;
 let hyperspace = undefined;
+let graphicsTime = 0.0;
 
 let gameItems = {} as Record<number, THREE.Object3D>;
 
@@ -188,8 +189,8 @@ const graphicsObjects = [] as THREE.Object3D[];
 
 function resetScene(quality: SceneQuality) {
     paddleObject = undefined;
-
     gameItems = {};
+    graphicsTime = 0.0;
 
     scene.clear();
     scene.add(camera);
@@ -277,6 +278,41 @@ function setupHyperspace(scene: THREE.Scene, game: Game) {
     floor.material = material;
 }
 
+function setupBounds(scene: THREE.Scene, game: Game) {
+    // Draw 4 lines to mark the bounds of the game.
+    // Use 4 rectangles that don't overlap in the corners, as lineMaterial is width 1 only.
+    const width = 6;
+    const material = new THREE.MeshBasicMaterial({ color: 0x66aaff });
+    material.transparent = true;
+    material.opacity = 0.1;
+    material.blending = THREE.SubtractiveBlending;
+
+    const lW = new THREE.PlaneGeometry(width, game.height);
+    const lH = new THREE.PlaneGeometry(game.width + width * 2, width);
+    const lleft = new THREE.Mesh(lW, material);
+    const lright = new THREE.Mesh(lW, material);
+    const ltop = new THREE.Mesh(lH, material);
+    const lbottom = new THREE.Mesh(lH, material);
+    lleft.position.x = -width / 2;
+    lright.position.x = game.width + width / 2;
+    lleft.position.y = game.height / 2;
+    lright.position.y = game.height / 2;
+
+    ltop.position.y = -width / 2;
+    lbottom.position.y = game.height + width / 2;
+    ltop.position.x = game.width / 2;
+    lbottom.position.x = game.width / 2;
+
+    const boundsObj = new THREE.Object3D();
+    boundsObj.add(lleft);
+    boundsObj.add(lright);
+    boundsObj.add(ltop);
+    boundsObj.add(lbottom);
+    boundsObj.rotateX(-Math.PI / 2);
+    boundsObj.position.set(0, 0, game.height);
+    scene.add(boundsObj);
+}
+
 export function setupScene(game: Game, quality: SceneQuality) {
     resetScene(quality);
 
@@ -288,6 +324,8 @@ export function setupScene(game: Game, quality: SceneQuality) {
     composer.passes[4].enabled = quality >= SceneQuality.ULTRA;
 
     setupHyperspace(scene, game);
+
+    setupBounds(scene, game);
 
     const light = new THREE.DirectionalLight(0xffffff, 2.0);
     light.position.set(game.width / 2, 1000, game.height / 2);
@@ -324,12 +362,14 @@ export function updateScene(game: Game, delta: number, events: unknown[]) {
     paddleObject.position.z = game.height - 20;
     paddleObject.scale.x = game.paddleWidth / 100;
 
-    hyperspace.material.uniforms['time'].value += delta * Math.min(3, game.time / 60 + 0.2);
-    hyperspace.material.uniforms['zoomFactor'].value = Math.max(0.025, 0.08 - game.time / 300);
+    graphicsTime += delta;
+
+    hyperspace.material.uniforms['time'].value += delta * Math.min(2, game.time / 90 + 0.2);
+    hyperspace.material.uniforms['zoomFactor'].value = Math.max(0.04, 0.08 - game.time / 500);
 
     // Update colors over time so things look good.
-    hyperspace.material.uniforms['colA'].value.r = 0.3 + Math.cos(hyperspace.material.uniforms['time'].value * 0.1) * 0.2;
-    hyperspace.material.uniforms['colB'].value.g = 0.4 + Math.cos(hyperspace.material.uniforms['time'].value * 0.1) * 0.14;
+    hyperspace.material.uniforms['colA'].value.r = 0.3 + Math.cos(graphicsTime * 0.1) * 0.2;
+    hyperspace.material.uniforms['colB'].value.g = 0.4 + Math.sin(graphicsTime * 0.13) * 0.14;
 
     for (const item of game.balls) {
         if (!gameItems[item.id])
@@ -370,6 +410,7 @@ export function updateScene(game: Game, delta: number, events: unknown[]) {
 
     for (const event of events)
         if (event.type === 'briqTonk') {
+            graphicsTime += 1;
             const obj = generateBriqPopParticles();
             obj.position.x = event.x;
             obj.position.y = 0;
@@ -431,7 +472,7 @@ function generateBriqPopParticles() {
     const geometry = new THREE.BufferGeometry();
     const vertices = [];
     const speeds = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 25; i++) {
         const v = Math.random() + 0.5;
         const r = Math.random() * Math.PI * 2;
         vertices.push(Math.cos(r) * Math.random() * 10, 0, Math.sin(r) * Math.random() * 10);

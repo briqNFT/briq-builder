@@ -377,7 +377,7 @@ export class Game {
             for (let j = 0; j < 10; j++)
                 for (let i = 0; i < this.width / 60 - 1; i++) {
                     const briq = new BriqoutBriq(this);
-                    briq.x = i * 65 + 30 + (j % 2) * 15;
+                    briq.x = i * 65 + 7 + (j % 2) * 15;
                     briq.y = 20 + 25 * j;
                     briq.width = 60;
                     this.items.push(briq);
