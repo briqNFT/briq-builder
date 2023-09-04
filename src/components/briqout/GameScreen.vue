@@ -14,6 +14,7 @@ import { userSetStore } from '@/builder/UserSets';
 import { backendManager } from '@/Backend';
 import GenericCard from '../builder/genesis/GenericCard.vue';
 import type { Briq } from '@/builder/Briq';
+import { getCurrentNetwork } from '@/chain/Network';
 
 const game = reactive(new Game());
 
@@ -74,11 +75,11 @@ const reset = (set?: string, briqs?: Briq[]) => {
 }
 
 const checkReplay = async () => {
-    replay(game.exportTrace());
     const res = await fetch('http://localhost:3000/verify_replay', {
         method: 'POST',
         body: JSON.stringify({
             trace: game.exportTrace(),
+            chain_id: getCurrentNetwork(),
         }),
     })
     const signedMessage = await res.json();
@@ -183,6 +184,9 @@ const setsToMigrate = computed(() => {
             </template>
             <Btn @click="connectWallet()" v-else>Connect wallet</Btn>
         </div>
+    </template>
+    <template v-else-if="game.status === 'running'">
+        <p class="text-lg text-white relative top-[50px]">X: {{ game.paddleX }}</p>
     </template>
     <template v-else>
         <div class="m-auto">

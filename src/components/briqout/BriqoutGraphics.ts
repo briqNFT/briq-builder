@@ -18,6 +18,7 @@ import EnvMapImg from '@/assets/briqout/starfield.jpg';
 import NoiseImg from '@/assets/briqout/noise.png';
 
 import type { Game, Powerup, BriqoutBriq, BriqoutBall, BriqoutItem } from 'briqout';
+import { BallLaunch } from 'briqout';
 
 import { backendManager } from '@/Backend';
 import { APP_ENV } from '@/Meta';
@@ -375,11 +376,12 @@ export function updateScene(game: Game, delta: number, events: unknown[]) {
         if (!gameItems[item.id])
             gameItems[item.id] = generateBall(item);
         const obj = gameItems[item.id];
-        obj.position.x = item.x + item.vX * overdraw * game.TICK_LENGTH * (1-item.isLaunching);
+        const isLaunching = +(item.isLaunching === BallLaunch.LOCKED);
+        obj.position.x = item.x + item.vX * overdraw * game.TICK_LENGTH * (1-isLaunching);
         obj.position.y = 0;
-        obj.position.z = item.y + item.vY * overdraw * game.TICK_LENGTH * (1-item.isLaunching);
+        obj.position.z = item.y + item.vY * overdraw * game.TICK_LENGTH * (1-isLaunching);
 
-        if (!item.isLaunching)
+        if (!isLaunching)
             obj.rotateY(delta * -Math.sign(item.vX) * Math.max(1, Math.abs(item.vX) / 50));
 
         obj.scale.setScalar(item.radius / 10);

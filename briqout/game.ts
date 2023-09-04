@@ -26,11 +26,11 @@ export class BriqoutBall extends Circle implements BriqoutItem {
     y = 200;
     radius = 10;
 
-    isLaunching = false;
+    isLaunching = BallLaunch.LAUNCHED;
 
     velocity = 500;
-    vX = 200.0;
-    vY = 300.0;
+    vX = 0.0;
+    vY = -500.0;
 
     // True if we already hit a briq this tick, to avoid double-hits that would make the ball go through the briq.
     hitBriq = false;
@@ -66,6 +66,12 @@ export class Powerup extends Circle implements BriqoutItem {
     }
 }
 
+export enum BallLaunch {
+    LOCKED,
+    LAUNCHING,
+    LAUNCHED,
+}
+
 /**
  * These are used for setup, so that users cannot just re-use someone else's replay.
  */
@@ -96,6 +102,7 @@ export class Game {
 
     pendingEvents = [];
     gameTrace = [];
+    storePaddlePos = false;
 
     powerups = {
         metalballs: 0,
@@ -124,9 +131,12 @@ export class Game {
         for (const event of this.pendingEvents)
             if (event.type === 'mousemove')
                 this.paddleX += event.x / 2;
-            else if (event.type === 'mouseup')
+            else if (event.type === 'mouseup') {
+                this.storePaddlePos = true;
+                this.trace({ type: 'launchBall' }, this.time + this.TICK_LENGTH / 2);
                 for (const ball of this.balls)
-                    ball.isLaunching = false;
+                    ball.isLaunching = BallLaunch.LAUNCHING;
+            }
 
 
         this.pendingEvents = [];
@@ -143,16 +153,26 @@ export class Game {
         if (this.status !== 'running')
             return { ticks: 0, events: [] };
 
-        this.pollEvents();
-
         let turns = delay / this.TICK_LENGTH;
         if (turns < 1)
             return { ticks: 0, events: [] };
+
+        this.storePaddlePos = false;
+        this.pollEvents();
+
         const updateEvents = [];
         const ticks = Math.floor(turns);
+
         while (turns >= 1) {
+            const initX = this.paddleX;
+            const initTime = this.time;
+
             updateEvents.push(...this.tick());
             turns -= 1;
+
+            if (this.storePaddlePos)
+                this.trace({ type: 'mouseMoveTo', x: initX }, initTime - this.TICK_LENGTH * 0.8);
+            this.storePaddlePos = false;
         }
         return { ticks, events: updateEvents };
     }
@@ -168,9 +188,12 @@ export class Game {
         const ballsToDrop = [] as BriqoutBall[];
         const itemsToDrop = [] as BriqoutItem[];
         for (const ball of this.balls) {
-            if (ball.isLaunching) {
+            if (ball.isLaunching === BallLaunch.LOCKED) {
                 ball.x = this.paddleX;
                 continue;
+            } else if (ball.isLaunching === BallLaunch.LAUNCHING) {
+                ball.x = this.paddleX;
+                ball.isLaunching = BallLaunch.LAUNCHED;
             }
 
             if (ball.x <= ball.radius) {
@@ -187,13 +210,11 @@ export class Game {
                 tickEvents.push({ type: 'wallTonk' });
             } else if (ball.y > this.height + ball.radius) {
                 ballsToDrop.push(ball);
-                this.paddleWidth = Math.max(this.paddleWidth - 50, 0);
                 tickEvents.push({ type: 'ballLost' });
                 continue;
             } else if (this.paddleActive && ball.vY > 0 && checkBallPaddleCollision(ball, { x: this.paddleX, y: this.height - 20, width: this.paddleWidth, height: 20 })) {
-                // Record the position of the paddle as a phantom move, assuming it was literally anywhere else any other time.
+                this.storePaddlePos = true;
                 this.trace({ type: 'activatepaddle' }, this.time - this.TICK_LENGTH / 2);
-                this.trace({ type: 'mousemove', x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
                 // Record a trace for reproductions
                 this.trace({ type: 'paddlebounce', x: ball.x, y: ball.y });
                 this.trace({ type: 'shutdownpaddle' }, this.time + this.TICK_LENGTH / 3);
@@ -237,7 +258,7 @@ export class Game {
         this.balls = this.balls.filter(ball => !ballsToDrop.includes(ball));
 
         for (const ball of this.balls) {
-            if (ball.isLaunching)
+            if (ball.isLaunching !== BallLaunch.LAUNCHED)
                 continue;
             ball.x += ball.vX * this.TICK_LENGTH;
             ball.y += ball.vY * this.TICK_LENGTH;
@@ -252,10 +273,10 @@ export class Game {
                 continue;
             item.y += 200 * this.TICK_LENGTH;
 
-            if (checkBallPaddleCollision(item as Powerup, { x: this.paddleX, y: this.height - 20, width: this.paddleWidth, height: 20 })) {
+            if (this.paddleActive && checkBallPaddleCollision(item as Powerup, { x: this.paddleX, y: this.height - 20, width: this.paddleWidth, height: 20 })) {
 
+                this.storePaddlePos = true;
                 this.trace({ type: 'activatepaddle' }, this.time - this.TICK_LENGTH / 2);
-                this.trace({ type: 'mousemove', x: this.paddleX }, this.time - this.TICK_LENGTH / 2);
                 this.trace({ type: 'powerupcollision', x: item.x, y: item.y, kind: (item as Powerup).kind });
                 this.trace({ type: 'shutdownpaddle' }, this.time + this.TICK_LENGTH / 3);
 
@@ -271,12 +292,13 @@ export class Game {
         this.powerups.metalballs = Math.max(0, this.powerups.metalballs - this.TICK_LENGTH);
 
         if (this.balls.length === 0) {
+            this.paddleWidth = Math.max(this.paddleWidth - 25, 0);
             this.balls = [new BriqoutBall(this)];
-            this.balls[0].isLaunching = true;
+            this.balls[0].isLaunching = BallLaunch.LOCKED;
             this.balls[0].x = this.width / 2;
             this.balls[0].y = this.height - 30 - this.balls[0].radius;
         } else
-            this.paddleWidth = Math.max(this.paddleWidth, 50);
+            this.paddleWidth = Math.max(this.paddleWidth, 25);
 
 
         if (!this.items.some(x => x.type === 'briq')) {
@@ -295,22 +317,25 @@ export class Game {
     maybeLaunchPowerup(kind: Powerup['kind']) {
         if (kind === 'metalballs' && this.random() < 0.0015) {
             const powerup = new Powerup(this, kind);
-            powerup.x = Math.random() * this.width;
+            powerup.x = this.random() * this.width;
             powerup.y = -50;
             powerup.radius = 25;
             this.items.push(powerup);
-        } else if (kind === 'biggerpaddle' && this.random() < 0.001 && this.paddleWidth < 250) {
+            this.trace({ type: 'powerupspawn', x: powerup.x, y: powerup.y, kind: 'metalballs' });
+        } else if (kind === 'biggerpaddle' && this.random() < 0.002 && this.paddleWidth <= 175) {
             const powerup = new Powerup(this, kind);
-            powerup.x = Math.random() * this.width;
+            powerup.x = this.random() * this.width;
             powerup.y = -50;
             powerup.radius = 25;
             this.items.push(powerup);
+            this.trace({ type: 'powerupspawn', x: powerup.x, y: powerup.y, kind: 'biggerpaddle' });
         } else if (kind === 'multiball' && this.random() < 0.001) {
             const powerup = new Powerup(this, kind);
-            powerup.x = Math.random() * this.width;
+            powerup.x = this.random() * this.width;
             powerup.y = -50;
             powerup.radius = 25;
             this.items.push(powerup);
+            this.trace({ type: 'powerupspawn', x: powerup.x, y: powerup.y, kind: 'multiball' });
         }
     }
 
@@ -324,7 +349,7 @@ export class Game {
             ball.y = this.random() * 200 + 50;
             this.balls.push(ball);
         } else if (kind === 'biggerpaddle')
-            this.paddleWidth += 50;
+            this.paddleWidth += 25;
         else if (kind === 'metalballs')
             this.powerups.metalballs += 2;
     }
@@ -344,14 +369,14 @@ export class Game {
 
         this.gameTrace = [];
         this.balls = [new BriqoutBall(this)];
-        this.balls[0].isLaunching = true;
+        this.balls[0].isLaunching = BallLaunch.LOCKED;
 
-        this.paddleX = this.width / 2;
+        this.paddleX = this.width / 2.0;
         this.paddleWidth = 100;
         this.balls[0].x = this.width / 2;
         this.balls[0].y = this.height - 30 - this.balls[0].radius;
 
-        this.powerups.metalballs = 0;
+        this.powerups.metalballs = 10000;
         this.items = [];
 
         // Compute a random starting position for the ball based on the parameters.
@@ -485,28 +510,62 @@ function checkBallCircleCollision(ball: BriqoutBall, circle: Circle) {
     return distanceSquared < radiusSquared;
 }
 
-export function replay(trace: any[]) {
+/**
+ * Validates that a game matches a replay trace.
+ * @param trace - the trace to replay against
+ * @param setBriqs - if the trace is a set replay, this is needed - the same data as the generating trace must be passed.
+ */
+export function replay(trace: any[], setBriqs?: unknown[]) {
     const game = new Game();
     if (trace.length === 0)
         return false;
-    game.start(trace[0]);
+    game.start(trace[0], setBriqs);
 
     let eventI = 0;
-    while (game.status === 'running') {
-        while (eventI < trace.length && trace[eventI].time <= game.time + game.TICK_LENGTH) {
-            if (trace[eventI].type === 'mousemove')
+    while (game.status === 'running' && game.time <= trace[trace.length - 1].time) {
+        game.storePaddlePos = false;
+        const initX = game.paddleX;
+        const initTime = game.time;
+        while (eventI < trace.length && trace[eventI].time < game.time + game.TICK_LENGTH) {
+            if (trace[eventI].type === 'mouseMoveTo')
                 game.paddleX = trace[eventI].x;
             else if (trace[eventI].type === 'activatepaddle')
                 game.paddleActive = true;
             else if (trace[eventI].type === 'shutdownpaddle')
                 game.paddleActive = false;
+            else if (trace[eventI].type === 'launchBall') {
+                game.storePaddlePos = true;
+                game.trace({ type: 'launchBall' }, game.time + game.TICK_LENGTH / 2);
+                for (const ball of game.balls) {
+                    ball.isLaunching = BallLaunch.LAUNCHED;
+                    ball.x = game.paddleX;
+                }
+            }
             eventI++;
         }
         game.tick();
+        if (game.storePaddlePos)
+            game.trace({ type: 'mouseMoveTo', x: initX }, initTime - game.TICK_LENGTH * 0.8);
     }
     const replayTrace = game.exportTrace();
-    // Compare both traces by hashing.
-    const traceHash = trace.map(e => JSON.stringify(e)).join('');
-    const replayHash = replayTrace.map(e => JSON.stringify(e)).join('');
-    return traceHash === replayHash;
+    // Compare both traces.
+    // Have to round a little because of floating point errors.
+    // (this is mega ugly).
+    if (trace.length !== replayTrace.length)
+        return false;
+    for (let i = 0; i < Math.min(trace.length, replayTrace.length); i++) {
+        const a = trace[i];
+        const b = replayTrace[i];
+        if (a.type !== b.type)
+            return false;
+        if (Math.round(a.time * 100) !== Math.round(b.time * 100))
+            return false;
+        if (a.type === 'briqcollision' || a.type === 'paddlebounce') {
+            if (Math.round(a.x * 100) !== Math.round(b.x * 100))
+                return false;
+            if (Math.round(a.y * 100) !== Math.round(b.y * 100))
+                return false;
+        }
+    }
+    return true;
 }
