@@ -132,7 +132,10 @@ export class Game {
         }
         for (const event of this.pendingEvents)
             if (event.type === 'mousemove') {
-                this.paddleX += event.x / 2;
+                if (event.deltaX !== undefined)
+                    this.paddleX += event.deltaX / 2;
+                else
+                    this.paddleX = event.x * this.width;
                 this.paddleX = Math.max(this.paddleWidth / 2, Math.min(this.width - this.paddleWidth / 2, this.paddleX));
             } else if (event.type === 'mouseup') {
                 let launched = false;

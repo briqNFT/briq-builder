@@ -30,6 +30,8 @@ useBriqoutAudio().then((audio) => {
 
 let keepOnLooping = true;
 
+let mouseMode = 'absolute' as 'lock' | 'absolute';
+
 const gameLoop = () => {
     const t = performance.now();
     const delta = (t - lastTime) / 1000.0;
@@ -72,8 +74,10 @@ const reset = (set?: string, briqs?: Briq[]) => {
     setupScene(game, SceneQuality.MEDIUM);
 
     // Doesn't exist on mobile
-    if (briqoutStore.canvas.requestPointerLock)
+    if (briqoutStore.canvas.requestPointerLock) {
+        mouseMode = 'lock';
         briqoutStore.canvas.requestPointerLock();
+    }
 
     game.start({
         migrator: maybeStore.value!.userWalletAddress!,
@@ -120,14 +124,14 @@ const checkReplay = async () => {
 const onMouseMove = (ev) => {
     game.pushEvent({
         type: 'mousemove',
-        x: ev.movementX,
+        deltaX: ev.movementX,
+        x: ev.clientX / window.innerWidth,
     });
 }
 
 const onMouseUp = (ev) => {
     game.pushEvent({
         type: 'mouseup',
-        x: ev.clientX / window.innerWidth,
     });
 }
 
