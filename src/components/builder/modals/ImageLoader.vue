@@ -69,7 +69,6 @@ watchEffect(() => {
 
     canvas2.value.width = width;
     canvas2.value.height = height;
-    console.log(width, height)
     let ctx2 = canvas2.value!.getContext('2d')!;
 
     ctx2.imageSmoothingEnabled = false;

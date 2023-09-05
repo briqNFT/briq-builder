@@ -108,6 +108,8 @@ export class Game {
         metalballs: 0,
     }
 
+    powerupLuck = 0;
+
     randomSeed = 0;
 
     init() {}
@@ -129,14 +131,22 @@ export class Game {
             return;
         }
         for (const event of this.pendingEvents)
-            if (event.type === 'mousemove')
+            if (event.type === 'mousemove') {
                 this.paddleX += event.x / 2;
-            else if (event.type === 'mouseup') {
-                this.storePaddlePos = true;
-                this.trace({ type: 'launchBall' }, this.time + this.TICK_LENGTH / 2);
+                this.paddleX = Math.max(this.paddleWidth / 2, Math.min(this.width - this.paddleWidth / 2, this.paddleX));
+            } else if (event.type === 'mouseup') {
+                let launched = false;
                 for (const ball of this.balls)
-                    ball.isLaunching = BallLaunch.LAUNCHING;
+                    if (ball.isLaunching === BallLaunch.LOCKED) {
+                        ball.isLaunching = BallLaunch.LAUNCHING;
+                        launched = true;
+                    }
+                if (launched) {
+                    this.storePaddlePos = true;
+                    this.trace({ type: 'launchBall' }, this.time + this.TICK_LENGTH / 2);
+                }
             }
+
 
 
         this.pendingEvents = [];
@@ -224,8 +234,8 @@ export class Game {
                 // Adjust velocity based on angle to center
                 const angle = (ball.x - this.paddleX) / this.paddleWidth;
                 //console.log("Angle:", angle, "cos", Math.cos(angle), "sin", Math.sin(angle));
-                ball.vX = ball.velocity * Math.sin(angle);
-                ball.vY = -ball.velocity * Math.cos(angle);
+                ball.vX = ball.velocity * Math.sin(angle * 1.3);
+                ball.vY = -ball.velocity * Math.cos(angle * 1.3);
             } else
                 for (const item of this.items) {
                     if (item.type !== 'briq')
@@ -245,6 +255,7 @@ export class Game {
                             ball.velocity += 10;
                             ball.radius += 0.2;
                         }
+                        this.powerupLuck += 1;
                         // Drop the briq from the lineup
                         itemsToDrop.push(item);
                         // Record a trace for reproduction
@@ -285,27 +296,29 @@ export class Game {
                 this.triggerPowerup((item as Powerup).kind);
 
                 itemsToDrop.push(item);
-            }
+            } else if (item.y > this.height + 300)
+                itemsToDrop.push(item);
         }
         this.items = this.items.filter(item => !itemsToDrop.includes(item));
 
         this.powerups.metalballs = Math.max(0, this.powerups.metalballs - this.TICK_LENGTH);
+        this.powerupLuck = Math.max(0, this.powerupLuck * (1 - this.TICK_LENGTH));
 
         if (this.balls.length === 0) {
             this.paddleWidth = Math.max(this.paddleWidth - 25, 0);
             this.balls = [new BriqoutBall(this)];
             this.balls[0].isLaunching = BallLaunch.LOCKED;
-            this.balls[0].x = this.width / 2;
+            this.balls[0].x = this.paddleX;
             this.balls[0].y = this.height - 30 - this.balls[0].radius;
         } else
-            this.paddleWidth = Math.max(this.paddleWidth, 25);
+            this.paddleWidth = Math.max(this.paddleWidth, 50);
 
 
         if (!this.items.some(x => x.type === 'briq')) {
             this.trace({ type: 'won' });
             this.status = 'won';
             tickEvents.push({ type: 'won' });
-        } else if (this.paddleWidth <= 0) {
+        } else if (this.paddleWidth <= 25 || this.time >= 5 * 60) {
             this.trace({ type: 'lost' });
             this.status = 'lost';
             tickEvents.push({ type: 'lost' });
@@ -315,21 +328,25 @@ export class Game {
     }
 
     maybeLaunchPowerup(kind: Powerup['kind']) {
-        if (kind === 'metalballs' && this.random() < 0.0015) {
+        const luckMult = Math.min(0.002, Math.log10(1 + this.powerupLuck / 2000.0) + 0.0008);
+
+        if (kind === 'metalballs' && this.random() < luckMult) {
             const powerup = new Powerup(this, kind);
             powerup.x = this.random() * this.width;
             powerup.y = -50;
             powerup.radius = 25;
             this.items.push(powerup);
             this.trace({ type: 'powerupspawn', x: powerup.x, y: powerup.y, kind: 'metalballs' });
-        } else if (kind === 'biggerpaddle' && this.random() < 0.002 && this.paddleWidth <= 175) {
+        }
+        if (kind === 'biggerpaddle' && this.random() < luckMult && this.paddleWidth <= 175) {
             const powerup = new Powerup(this, kind);
             powerup.x = this.random() * this.width;
             powerup.y = -50;
             powerup.radius = 25;
             this.items.push(powerup);
             this.trace({ type: 'powerupspawn', x: powerup.x, y: powerup.y, kind: 'biggerpaddle' });
-        } else if (kind === 'multiball' && this.random() < 0.001) {
+        }
+        if (kind === 'multiball' && this.random() < luckMult * 0.8) {
             const powerup = new Powerup(this, kind);
             powerup.x = this.random() * this.width;
             powerup.y = -50;
@@ -376,7 +393,9 @@ export class Game {
         this.balls[0].x = this.width / 2;
         this.balls[0].y = this.height - 30 - this.balls[0].radius;
 
-        this.powerups.metalballs = 10000;
+        this.powerups.metalballs = 0;
+        this.powerupLuck = 0;
+
         this.items = [];
 
         // Compute a random starting position for the ball based on the parameters.
@@ -445,27 +464,6 @@ function checkBallPaddleCollision(ball: Circle, square: Rectangle) {
 
     return false;
 }
-
-/*
-function checkBallBriqCollision(ball: BriqoutBall, square: Rectangle) {
-    const ballLeft = ball.x - ball.radius;
-    const ballRight = ball.x + ball.radius;
-    const ballTop = ball.y - ball.radius;
-    const ballBottom = ball.y + ball.radius;
-
-    const squareLeft = square.x - square.width / 2;
-    const squareRight = square.x + square.width / 2;
-    const squareTop = square.y - square.height / 2;
-    const squareBottom = square.y + square.height / 2;
-
-    // Determine if we should flip X and/or Y velocity for the ball.
-    const collSide = ballLeft < squareRight && ballRight > squareLeft;
-    const collTop = ballTop < squareBottom && ballBottom > squareTop;
-    const lastcollSide = ballLeft - ball.vX < squareRight && ballRight - ball.vX > squareLeft;
-    const lastcollTop = ballTop - ball.vY < squareBottom && ballBottom - ball.vY > squareTop;
-
-    return [collSide && collTop, lastcollSide, lastcollTop];
-}*/
 
 enum CollisionSide {
     None,

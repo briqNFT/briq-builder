@@ -1,14 +1,16 @@
 
 <script setup lang="ts">
 import { Game, replay } from 'briqout';
-import { reactive, onMounted, onUnmounted, ref, computed } from 'vue';
+import { reactive, onMounted, onUnmounted, ref, computed, onBeforeUnmount } from 'vue';
 import { SceneQuality, setupScene, updateScene, render } from './BriqoutGraphics';
 import { briqoutStore } from './GameData';
 import { useBriqoutAudio } from './Sound';
 import { WEB_WALLET_URL, maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
 
-import { hash, ec } from 'starknet';
+import Header from '@/components/landing_page/Header.vue';
+
+import { hash, ec, Signer, Account, Provider } from 'starknet';
 import { chainBriqs } from '@/builder/ChainBriqs';
 import { userSetStore } from '@/builder/UserSets';
 import { backendManager } from '@/Backend';
@@ -19,19 +21,24 @@ import { getCurrentNetwork } from '@/chain/Network';
 const game = reactive(new Game());
 
 let lastTime = undefined;
+let lastGameTime = undefined;
 
 let audioSystem = undefined as Awaited<ReturnType<typeof useBriqoutAudio>> | undefined;
 useBriqoutAudio().then((audio) => {
     audioSystem = audio;
 });
 
+let keepOnLooping = true;
+
 const gameLoop = () => {
     const t = performance.now();
     const delta = (t - lastTime) / 1000.0;
+    const gameDelta = (t - lastGameTime) / 1000.0;
+    lastTime = t;
 
-    const { ticks, events } = game.update(delta);
+    const { ticks, events } = game.update(gameDelta);
     if (ticks) {
-        lastTime = t;
+        lastGameTime = t;
         for (const event of events) {
             if (event.type === 'won' || event.type === 'lost')
                 document.exitPointerLock();
@@ -48,15 +55,19 @@ const gameLoop = () => {
         }
     }
     // Save energy, cpu and gpu
-    if (game.status === 'running') {
+    if (pageStatus.value === 'ingame') {
         updateScene(game, delta, events);
         render(delta);
     }
-    requestAnimationFrame(gameLoop);
+    if (keepOnLooping)
+        requestAnimationFrame(gameLoop);
 };
 
 const reset = (set?: string, briqs?: Briq[]) => {
+    page.value = 'ingame';
+
     lastTime = performance.now();
+    lastGameTime = performance.now();
     setupScene(game, SceneQuality.MEDIUM);
 
     briqoutStore.canvas.requestPointerLock();
@@ -91,6 +102,16 @@ const checkReplay = async () => {
     const keyPair = ec.getKeyPair(privateKey);
     const result = ec.verify(keyPair, msgHash, signedMessage.signature);
     console.log('Result (boolean) =', result);
+
+    const sg = new Signer(keyPair);
+    const acc = new Account(new Provider({ rpc: { nodeUrl: 'http://localhost:5050' } }), '0x598f57e84be4279ff74e7ba389be4d46ec2b1c7974088caad07ebd5a3e8baaa', sg);
+
+    let tx = await acc.execute({
+        contractAddress: '0x598f57e84be4279ff74e7ba389be4d46ec2b1c7974088caad07ebd5a3e8baaa',
+        entrypoint: 'execute',
+        calldata: ['0x0'],
+    });
+    console.log(tx);
 }
 
 const onMouseMove = (ev) => {
@@ -108,8 +129,10 @@ const onMouseUp = (ev) => {
 }
 
 onMounted(async () => {
-    if (!lastTime)
+    if (!lastTime) {
         lastTime = performance.now();
+        lastGameTime = performance.now();
+    }
 
     requestAnimationFrame(gameLoop);
 
@@ -129,6 +152,10 @@ onMounted(async () => {
         requestAnimationFrame(animate);
     }
 });
+
+onBeforeUnmount(() => {
+    keepOnLooping = false;
+}),
 
 onUnmounted(() => {
     window.removeEventListener('mousemove', onMouseMove);
@@ -161,47 +188,79 @@ const setsToMigrate = computed(() => {
     }).filter(x => !!x) || [];
 })
 
+const page = ref('home' as 'home' | 'migrate' | 'ingame');
+const pageStatus = computed(() => {
+    if (page.value === 'ingame')
+        return 'ingame';
+    return 'pregame';
+})
+
 </script>
 
+<style scoped>
+.fade-enter-to, .fade-leave-from {
+    opacity: 100%;
+}
+.fade-enter-from, .fade-leave-to {
+    opacity: 0%;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: all 0.5s ease-in-out !important;
+}
+</style>
+
 <template>
-    <template v-if="game.status === 'pregame'">
-        <div class="w-full h-full bg-white flex flex-col justify-center items-center absolute top-0 left-0">
-            <h1 class="mb-12">briqout</h1>
-            <template v-if="maybeStore?.userWalletAddress">
-                <h3>Choose an NFT to migrate, or play to migrate your briqs</h3>
-                <div class="flex justify-center gap-4">
-                    <GenericCard
-                        v-for="briqset of setsToMigrate" :key="briqset.id"
-                        :title="briqset.name"
-                        status="LOADED"
-                        :image-src="backendManager.getPreviewUrl(briqset.id)"
-                        @click="reset(briqset.id, briqset.briqs)"
-                        class="max-w-[20rem]">
-                        <p>{{ briqset.nb_briqs }}</p>
-                    </GenericCard>
+    <Transition name="fade" mode="out-in">
+        <div v-if="pageStatus === 'pregame'" class="bg-background min-h-screen min-w-screen">
+            <Header/>
+            <template v-if="page === 'home'">
+                <div class="flex flex-col justify-center items-center min-h-[50vh] gap-4">
+                    <h1 class="mb-12">briqout</h1>
+                    <Btn class="w-[14rem] h-12" @click="page = 'migrate'">Migrate your assets</Btn>
+                    <Btn class="w-[14rem] h-12" secondary @click="reset()">Quick play</Btn>
+                    <Btn class="w-[14rem] h-12" secondary>How to play</Btn>
                 </div>
-                <Btn secondary @click="reset()">Migrate only my briqs</Btn>
             </template>
-            <Btn @click="connectWallet()" v-else>Connect wallet</Btn>
+            <template v-else-if="page === 'migrate'">
+                <template v-if="maybeStore?.userWalletAddress">
+                    <div class="container m-auto relative">
+                        <Btn no-background icon class="absolute top-0 left-12" @click="page='home'"><i class="fas fa-arrow-left"/> Back</Btn>
+                        <h2 class="text-center mt-12">Asset migration</h2>
+                        <p class="text-center my-6"><Btn secondary @click="reset()">Migrate only my briqs</Btn></p>
+                        <p class="text-center my-6 font-medium">Or choose an NFT to migrate</p>
+                        <div class="flex justify-center gap-4 flex-wrap">
+                            <GenericCard
+                                v-for="briqset of setsToMigrate" :key="briqset.id"
+                                :title="briqset.name"
+                                status="LOADED"
+                                :image-src="backendManager.getPreviewUrl(briqset.id)"
+                                @click="reset(briqset.id, briqset.briqs)"
+                                class="max-w-[20rem]">
+                                <p>{{ briqset.nb_briqs }}</p>
+                            </GenericCard>
+                        </div>
+                    </div>
+                </template>
+                <Btn @click="connectWallet()" v-else>Connect wallet</Btn>
+            </template>
         </div>
-    </template>
-    <template v-else-if="game.status === 'running'">
-        <p class="text-lg text-white relative top-[50px]">X: {{ game.paddleX }}</p>
-    </template>
-    <template v-else>
-        <div class="m-auto">
-            <div
-                class="w-full h-full bg-info-error flex justify-center items-center absolute top-0 left-0"
-                v-if="game.status === 'lost'">
-                <button @click="reset()">LOSER</button>
-                <button @click="checkReplay">check trace</button>
-            </div>
-            <div
-                class="w-full h-full bg-info-success bg-opacity-50 flex justify-center items-center absolute top-0 left-0"
-                v-if="game.status === 'won'">
-                <button @click="reset()">replay</button>
-                <button @click="checkReplay">check trace</button>
-            </div>
+        <div v-else-if="pageStatus === 'ingame' && game.status === 'running'">
+            <p class="text-lg text-white relative top-[50px]">Lives: {{ (game.paddleWidth / 25 - 2) }}</p>
+            <p class="text-lg text-white relative top-[50px]">Time Left: {{ Math.ceil(5 * 60 - game.time) }}</p>
         </div>
-    </template>
+        <template v-else-if="pageStatus === 'ingame' && game.status === 'lost'">
+            <div class="absolute w-full h-full flex flex-col gap-4 justify-center items-center">
+                <h1 class="text-xl md:text-[6rem] text-white mb-8">Figration Mailed</h1>
+                <Btn secondary class="w-[10rem]" @click="reset()">Try again</Btn>
+                <Btn secondary class="w-[10rem]" @click="page = 'home'">Main Menu</Btn>
+            </div>
+        </template>
+        <template v-else-if="pageStatus === 'ingame' && game.status === 'won'">
+            <div class="absolute w-full h-full flex flex-col gap-4 justify-center items-center">
+                <h1 class="text-xl md:text-[6rem] text-text mb-8">You won !</h1>
+                <Btn class="w-[10rem]">Migrate asset</Btn>
+                <Btn secondary class="w-[10rem]" @click="page = 'home'">Main Menu</Btn>
+            </div>
+        </template>
+    </Transition>
 </template>

@@ -132,6 +132,9 @@ function recreateComposer(quality: SceneQuality) {
         aoPass.maxDistance = 0.02;
         composer.addPass(aoPass);
 
+        hyperspace = setupHyperspace();
+        composer.addPass(hyperspace);
+
         const copyPass = new ShaderPass(GammaCorrectionShader);
         composer.addPass(copyPass);
 
@@ -160,13 +163,16 @@ function resizeRendererToDisplaySize() {
         composer.passes[1].setSize(width, height);
 
         // FXAA
-        composer.passes[3].uniforms['resolution'].value.x = 1 / width;
-        composer.passes[3].uniforms['resolution'].value.y = 1 / height;
+        composer.passes[4].uniforms['resolution'].value.x = 1 / width;
+        composer.passes[4].uniforms['resolution'].value.y = 1 / height;
         // SMAA
-        composer.passes[4].setSize(width, height);
+        composer.passes[5].setSize(width, height);
 
         const canvas = renderer.domElement;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        // Update the FOV so that the whole game screen is in view.
+        camera.fov = Math.max(30, 30 * 1.66667 / camera.aspect);
+
         camera.updateProjectionMatrix();
     }
     return needResize;
@@ -181,8 +187,9 @@ export function render(delta: number) {
 }
 
 let paddleObject = undefined;
-let hyperspace = undefined;
-let graphicsTime = 0.0;
+let hyperspace = undefined as unknown as ReturnType<typeof setupHyperspace>;
+let colorTime = 0.0;
+let postGameTime = 0.0;
 
 let gameItems = {} as Record<number, THREE.Object3D>;
 
@@ -191,7 +198,7 @@ const graphicsObjects = [] as THREE.Object3D[];
 function resetScene(quality: SceneQuality) {
     paddleObject = undefined;
     gameItems = {};
-    graphicsTime = 0.0;
+    colorTime = 0.0;
 
     scene.clear();
     scene.add(camera);
@@ -205,22 +212,17 @@ function resetScene(quality: SceneQuality) {
         renderer.shadowMap.type = THREE.PCFShadowMap;
 }
 
-function setupHyperspace(scene: THREE.Scene, game: Game) {
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(game.width * 2, game.height * 2));
-    floor.rotateX(-Math.PI / 2);
-    floor.position.y = -50;
-    floor.position.x = game.width / 2;
-    floor.position.z = game.height / 2;
-    hyperspace = floor;
-    scene.add(floor);
-
-    const material = new THREE.ShaderMaterial( {
+function setupHyperspace() {
+    return new ShaderPass({
+        name: 'Hyperspace',
         uniforms: {
+            tDiffuse: { value: null },
             tex: { value: noiseTexture },
             time: { value: 0 },
             zoomFactor: { value: 0 },
-            colA: { value: new THREE.Color(0x4400ff) },
-            colB: { value: new THREE.Color(0x0044ff) },
+            colA: { value: new THREE.Color(0x4401ff) },
+            colB: { value: new THREE.Color(0x0144ff) },
+            brightBonus: { value: 0 },
         },
         vertexShader: `
         varying vec2 uv1;
@@ -239,6 +241,8 @@ function setupHyperspace(scene: THREE.Scene, game: Game) {
 
         uniform vec3 colA;
         uniform vec3 colB;
+        uniform float brightBonus;
+		uniform sampler2D tDiffuse;
 
         #define PI 3.1415926538
 
@@ -260,33 +264,35 @@ function setupHyperspace(scene: THREE.Scene, game: Game) {
         }
 
         void main() {
+            vec4 texel = texture2D( tDiffuse, uv1 );
             vec2 center = vec2(0.5);
-
+            if (texel.a > 0.99) {
+                gl_FragColor = texel;
+                return;
+            }
             //gl_FragColor = vec4(computeUV(uv1, center, 0.0, 0.0).rr, 0.0, 1.0);
             //return;
 
             vec2 zoomA = computeUV(uv1, center, time * 0.2, time);
             vec2 zoomB = computeUV(uv1, center, 0.2 - time * 0.11, time + 0.4);
-            float texA = texture2D(tex, zoomA).r;
-            float texB = texture2D(tex, zoomB).r;
+            float texA = texture2D(tex, zoomA).r + brightBonus;
+            float texB = texture2D(tex, zoomB).r + brightBonus;
 
             // Mix between two blues depending on which texture dominates
             vec3 color = mix(colA, colB, texA);
-            gl_FragColor = vec4(color * texA * texB, 1.0);
+            gl_FragColor = vec4(mix(color * texA * texB, texel.rgb, texel.a), 1.0);
         }
         `,
     });
-    floor.material = material;
 }
 
 function setupBounds(scene: THREE.Scene, game: Game) {
     // Draw 4 lines to mark the bounds of the game.
     // Use 4 rectangles that don't overlap in the corners, as lineMaterial is width 1 only.
     const width = 6;
-    const material = new THREE.MeshBasicMaterial({ color: 0x66aaff });
+    const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
     material.transparent = true;
-    material.opacity = 0.1;
-    material.blending = THREE.SubtractiveBlending;
+    material.opacity = 0.33;
 
     const lW = new THREE.PlaneGeometry(width, game.height);
     const lH = new THREE.PlaneGeometry(game.width + width * 2, width);
@@ -324,8 +330,6 @@ export function setupScene(game: Game, quality: SceneQuality) {
     // SMAA
     composer.passes[4].enabled = quality >= SceneQuality.ULTRA;
 
-    setupHyperspace(scene, game);
-
     setupBounds(scene, game);
 
     const light = new THREE.DirectionalLight(0xffffff, 2.0);
@@ -347,7 +351,15 @@ export function setupScene(game: Game, quality: SceneQuality) {
     camera.lookAt(new THREE.Vector3(game.width / 2, 0, game.height / 2));
 
     scene.environment = envMapTexture;
-    scene.background = envMapTexture;
+    //scene.background = envMapTexture;
+}
+
+function lerp(a: number, b: number, t: number) {
+    return a + (b - a) * Math.min(1, Math.max(0, t));
+}
+
+function easeIn(t: number) {
+    return t * t;
 }
 
 export function updateScene(game: Game, delta: number, events: unknown[]) {
@@ -358,19 +370,48 @@ export function updateScene(game: Game, delta: number, events: unknown[]) {
     // Do some compensation on fast moving objects.
     const overdraw = delta / game.TICK_LENGTH - Math.floor(delta / game.TICK_LENGTH);
 
+    if (game.status === 'lost') {
+        postGameTime += delta;
+        hyperspace.uniforms['colA'].value.r = lerp(0.3 + Math.cos(colorTime * 0.1) * 0.2, 1.0, postGameTime);
+        hyperspace.uniforms['colB'].value.r = 0.0;
+        hyperspace.uniforms['colA'].value.g = 0.0;
+        hyperspace.uniforms['colB'].value.g = lerp(0.4 + Math.sin(colorTime * 0.13) * 0.14, 0.0, postGameTime);
+        hyperspace.uniforms['colA'].value.b = lerp(1.0, 0.0, postGameTime);
+        hyperspace.uniforms['colB'].value.b = lerp(1.0, 0.0, postGameTime);
+
+        hyperspace.uniforms['time'].value += lerp(delta * Math.min(2, game.time / 90 + 0.2), 0, postGameTime / 3.0);
+
+        camera.translateZ(easeIn(lerp(0.0, 1.0, postGameTime / 10.0)) * 300);
+        return;
+    } else if (game.status === 'won') {
+        postGameTime += delta;
+        hyperspace.uniforms['time'].value += delta * Math.min(3, Math.min(2, game.time / 90 + 0.2) * (1 + postGameTime * 2));
+        hyperspace.uniforms['zoomFactor'].value = Math.max(0.02, Math.max(0.04, 0.08 - game.time / 500) - postGameTime / 100.0);
+        hyperspace.uniforms['brightBonus'].value = postGameTime / 10.0;
+
+        hyperspace.uniforms['colA'].value.r = lerp(0.3 + Math.cos(colorTime * 0.1) * 0.2, 1.0, (postGameTime - 6.0) / 5.0);
+        hyperspace.uniforms['colB'].value.r = lerp(0.0, 1.0, (postGameTime - 6.0) / 5.0);
+        hyperspace.uniforms['colA'].value.g = lerp(0.0, 1.0, (postGameTime - 6.0) / 5.0);
+        hyperspace.uniforms['colB'].value.g = lerp(0.4 + Math.sin(colorTime * 0.13) * 0.14, 1.0, (postGameTime - 6.0) / 5.0);
+
+        camera.translateZ(easeIn(lerp(0.0, 1.0, postGameTime / 10.0)) * 300);
+        return;
+    }
+
+
     paddleObject.position.x = game.paddleX;
     paddleObject.position.y = 0;
     paddleObject.position.z = game.height - 20;
     paddleObject.scale.x = game.paddleWidth / 100;
 
-    graphicsTime += delta;
+    colorTime += delta;
 
-    hyperspace.material.uniforms['time'].value += delta * Math.min(2, game.time / 90 + 0.2);
-    hyperspace.material.uniforms['zoomFactor'].value = Math.max(0.04, 0.08 - game.time / 500);
+    hyperspace.uniforms['time'].value += delta * Math.min(2, game.time / 90 + 0.2);
+    hyperspace.uniforms['zoomFactor'].value = Math.max(0.04, 0.08 - game.time / 500);
 
     // Update colors over time so things look good.
-    hyperspace.material.uniforms['colA'].value.r = 0.3 + Math.cos(graphicsTime * 0.1) * 0.2;
-    hyperspace.material.uniforms['colB'].value.g = 0.4 + Math.sin(graphicsTime * 0.13) * 0.14;
+    hyperspace.uniforms['colA'].value.r = 0.3 + Math.cos(colorTime * 0.1) * 0.2;
+    hyperspace.uniforms['colB'].value.g = 0.4 + Math.sin(colorTime * 0.13) * 0.14;
 
     for (const item of game.balls) {
         if (!gameItems[item.id])
@@ -412,7 +453,7 @@ export function updateScene(game: Game, delta: number, events: unknown[]) {
 
     for (const event of events)
         if (event.type === 'briqTonk') {
-            graphicsTime += 1;
+            colorTime += 1;
             const obj = generateBriqPopParticles();
             obj.position.x = event.x;
             obj.position.y = 0;

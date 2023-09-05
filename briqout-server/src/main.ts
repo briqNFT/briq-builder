@@ -29,16 +29,6 @@ server.post('/verify_replay', {}, async (request, reply) => {
 
 
     const setup = trace[0];
-    const message = [
-        // First item: the contract address of the migratoor
-        hash.computeHashOnElements([setup.migrator]),
-        // Second item: the number of briqs before the migration (to avoid replay attacks)
-        hash.computeHashOnElements([setup.currentBriqs]),
-        // Third item: the number of briqs to migrate
-        hash.computeHashOnElements([setup.briqsToMigrate]),
-        // Fourth, optional item: the set to migrate.
-        hash.computeHashOnElements([setup.setToMigrate]),
-    ];
     let setBriqs = undefined;
     if (setup.setToMigrate !== '0x0') {
         const backend = getBackendAddress();
@@ -49,6 +39,17 @@ server.post('/verify_replay', {}, async (request, reply) => {
     if (!replay(trace, setBriqs))
         throw new Error('Replay is incorrect');
 
+    const message = [
+        // First item: the contract address of the migratoor
+        setup.migrator,
+        // Second item: the number of briqs before the migration (to avoid replay attacks)
+        setup.currentBriqs,
+        // Third item: the number of briqs to migrate
+        setup.briqsToMigrate,
+        // Fourth, optional item: the set to migrate.
+        setup.setToMigrate,
+    ];
+
     return {
         message,
         signature: sign(message),
@@ -57,10 +58,8 @@ server.post('/verify_replay', {}, async (request, reply) => {
 
 const sign = (message) => {
     const privateKey = '0x1234567890987654321';
-    const starknetPublicKey = ec.starkCurve.getStarkKey(privateKey);
-    const fullPublicKey = encode.addHexPrefix(encode.buf2hex(ec.starkCurve.getPublicKey(privateKey, false)));
-
     const msgHash = hash.computeHashOnElements(message);
+    console.log('Signing:', msgHash, ec.starkCurve.getStarkKey(privateKey));
     const signature = ec.starkCurve.sign(msgHash, privateKey)
     return [encode.addHexPrefix(signature.r.toString(16)), encode.addHexPrefix(signature.s.toString(16))];
 }

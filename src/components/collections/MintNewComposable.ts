@@ -138,7 +138,6 @@ const estimateFee = async () => {
         entrypoint: 'mint_',
         calldata: [maybeStore.value!.userWalletAddress, bookletTokenId, compiledShape.value!._data!.class_hash],
     });
-    console.log('toto', tx);
 }
 
 const compileShape = async () => {

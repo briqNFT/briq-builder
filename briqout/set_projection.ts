@@ -28,7 +28,6 @@ export function projectSet(briqs: Briq[]) {
     }
 
     const output = [];
-    console.log(x0, y0, sizes)
     for (const briq of briqs) {
         const col = briq.color;
         const x = briq.position[x_axis];

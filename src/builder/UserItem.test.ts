@@ -76,8 +76,6 @@ describe('Test optimistic updates', () => {
             on: () => {},
         });
         await new Promise(res => setTimeout(res, 0));
-        console.log('toto');
-
         expect(userBookletsStore.current?.booklets).toEqual(['test/test_1']);
         userBookletsStore.current!.showOne('test/test_2', '0xcafe')
         expect(userBookletsStore.current?.booklets).toEqual(['test/test_1', 'test/test_2']);
