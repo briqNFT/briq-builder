@@ -35,14 +35,14 @@ if (APP_ENV !== 'prod') {
         eth_bridge_contract: '0x62230ea046a9a5fbc261ac77d03c8d41e5d442db2284587570ab46455fd2488',
     };
     ADDRESSES['starknet-testnet'] = {
-        briq: '0x06f18ebcc76b6bd3560da141aeae53f9af3d80c2001415c963ecddbba4e8ba12',
-        set: '0x05f9e1c4975b0f71f0b1af2b837166d321af1cdba5c30c09b0d4822b493f1347',
-        box: '0x003b51e657e236e7085d1006e8ae6f955f09793b7f6dbdfad7a1a8abadad464a',
-        booklet: '0x05646ae11383a9994f958ee9cb29b3cf720b994733100ef7b8a00d6adcbe1c42',
+        briq: '0x0068eb19445f96b3c3775fba757de89ee8f44fda42dc08173a501acacd97853f',
+        set: '0x038bf557306ab58c7e2099036b00538b51b37bdad3b8abc31220001fb5139365',
+        box: '0x043bafcb15f12c137229406f96735eba51018fe75e5330058479556bc77dfd94',
+        booklet: '0x018734a90e5df97235c0ff83f92174cf6f16ad3ec572e38e2e146e47c8878839',
         auction: '0x033f840d4f7bfa20aaa128e5a69157355478d33182bea6039d55aae3ffb861e2',
         auction_ducks: '0x04ef0bd475fb101cc1b5dc2c4fc9d11b4fa233cfa1876924ec84b2f3dcf32f75',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
-        briq_factory: '0x0011ff172f1a9f3af71e77ef67036e81dcdb4c4d294d74bf5440d0d4c6ae61b7',
+        briq_factory: '0x07ad96c0f03a1924ede9ce2e3e4546560602dcce65b5fd050870cfecf583b414',
     };
     ADDRESSES['starknet-testnet2'] = {
         briq: '0x029e1fb93825a116daf88902c8bbf1a386890e6a5cf7906b584a1e70e7023e28',

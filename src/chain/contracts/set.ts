@@ -92,7 +92,7 @@ export default class SetContract {
     async assemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
         const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
         await maybeStore.value!.ensureEnabled();
-        return toRaw(await this.contract.assemble_(owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet, SHAPE_HASH_COLLECTION] : [SHAPE_HASH_COLLECTION]));
+        return toRaw(await this.contract.assemble_(owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet] : []));
     }
 
     async callAndAssemble(otherCalls: Array<starknet.Call>, owner: string, token_id_hint: string, data: any, booklet?: string) {
@@ -103,7 +103,7 @@ export default class SetContract {
 
     prepareAssemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
         const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
-        return this.contract.populate('assemble_', [owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet, SHAPE_HASH_COLLECTION] : [SHAPE_HASH_COLLECTION]]);
+        return this.contract.populate('assemble_', [owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet] : []]);
     }
 
     async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
@@ -123,7 +123,7 @@ export default class SetContract {
             fts.push([ft, '' + fungibles[ft]]);
 
         await maybeStore.value!.ensureEnabled();
-        return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [booklet, SHAPE_HASH_COLLECTION] : [SHAPE_HASH_COLLECTION]);
+        return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [booklet] : []);
     }
 
     async transferOneNFT(sender: string, recipient: string, token_id: string) {
