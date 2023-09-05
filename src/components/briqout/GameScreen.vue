@@ -41,7 +41,8 @@ const gameLoop = () => {
         lastGameTime = t;
         for (const event of events) {
             if (event.type === 'won' || event.type === 'lost')
-                document.exitPointerLock();
+                if (document.exitPointerLock)
+                    document.exitPointerLock();
             if (event.type === 'paddlebounce')
                 audioSystem?.clap();
             else if (event.type === 'briqTonk')
@@ -70,7 +71,9 @@ const reset = (set?: string, briqs?: Briq[]) => {
     lastGameTime = performance.now();
     setupScene(game, SceneQuality.MEDIUM);
 
-    briqoutStore.canvas.requestPointerLock();
+    // Doesn't exist on mobile
+    if (briqoutStore.canvas.requestPointerLock)
+        briqoutStore.canvas.requestPointerLock();
 
     game.start({
         migrator: maybeStore.value!.userWalletAddress!,
