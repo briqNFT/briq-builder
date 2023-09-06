@@ -23,6 +23,7 @@ import { BallLaunch } from 'briqout';
 import { backendManager } from '@/Backend';
 import { APP_ENV } from '@/Meta';
 import { main } from '@/builder/graphics/Builder';
+import { Vector3 } from 'three';
 
 let envMapTexture: THREE.Texture;
 
@@ -223,21 +224,28 @@ function setupHyperspace() {
             colA: { value: new THREE.Color(0x4401ff) },
             colB: { value: new THREE.Color(0x0144ff) },
             brightBonus: { value: 0 },
+            aspectRatio: { value: 1 },
         },
         vertexShader: `
         varying vec2 uv1;
+        varying vec2 uv2;
+        uniform float aspectRatio;
         void main() {
             vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
             uv1 = uv;
-            gl_Position = projectionMatrix * modelViewPosition; 
+            // Fix uv2 for aspect ratio so that it's always square-ish
+            uv2 = vec2(position.x, position.y / aspectRatio);
+            gl_Position = projectionMatrix * modelViewPosition;
         }
         `,
         fragmentShader:
         `
         varying vec2 uv1;
+        varying vec2 uv2;
         uniform sampler2D tex;
         uniform float time;
         uniform float zoomFactor;
+        uniform float aspectRatio;
 
         uniform vec3 colA;
         uniform vec3 colB;
@@ -264,8 +272,12 @@ function setupHyperspace() {
         }
 
         void main() {
+            if (abs(uv2.y) > 0.7 || abs(uv2.x) > 1.0 / aspectRatio * 2.0) {
+                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                return;
+            }
             vec4 texel = texture2D( tDiffuse, uv1 );
-            vec2 center = vec2(0.5);
+            vec2 center = vec2(0.0);
             if (texel.a > 0.99) {
                 gl_FragColor = texel;
                 return;
@@ -273,8 +285,8 @@ function setupHyperspace() {
             //gl_FragColor = vec4(computeUV(uv1, center, 0.0, 0.0).rr, 0.0, 1.0);
             //return;
 
-            vec2 zoomA = computeUV(uv1, center, time * 0.2, time);
-            vec2 zoomB = computeUV(uv1, center, 0.2 - time * 0.11, time + 0.4);
+            vec2 zoomA = computeUV(uv2, center, time * 0.2, time);
+            vec2 zoomB = computeUV(uv2, center, 0.2 - time * 0.11, time + 0.4);
             float texA = texture2D(tex, zoomA).r + brightBonus;
             float texB = texture2D(tex, zoomB).r + brightBonus;
 
@@ -370,6 +382,8 @@ export function updateScene(game: Game, delta: number, events: unknown[]) {
     // Do some compensation on fast moving objects.
     const overdraw = delta / game.TICK_LENGTH - Math.floor(delta / game.TICK_LENGTH);
 
+    hyperspace.uniforms.aspectRatio.value = camera.aspect;
+
     if (game.status === 'lost') {
         postGameTime += delta;
         hyperspace.uniforms['colA'].value.r = lerp(0.3 + Math.cos(colorTime * 0.1) * 0.2, 1.0, postGameTime);
@@ -397,7 +411,6 @@ export function updateScene(game: Game, delta: number, events: unknown[]) {
         camera.translateZ(easeIn(lerp(0.0, 1.0, postGameTime / 10.0)) * 300);
         return;
     }
-
 
     paddleObject.position.x = game.paddleX;
     paddleObject.position.y = 0;
