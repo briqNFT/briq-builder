@@ -6,12 +6,12 @@ import { getProvider } from './BlockchainProvider';
 import contractStore, { ADDRESSES } from './Contracts';
 
 import BriqContract from './contracts/briq';
-import SetContract from './contracts/set';
+import SetContract, { SetOnDojoContract } from './contracts/set';
 import AuctionContract from './contracts/auction';
 import ERC20Contract from './contracts/erc20';
 import BoxContract from './contracts/box';
 import OnchainAuctionContract from './contracts/auction_onchain';
-import BriqFactoryContract from './contracts/briq_factory';
+import BriqFactoryContract, { BriqFactoryOnDojoContract } from './contracts/briq_factory';
 
 
 const IMPL = {
@@ -30,11 +30,10 @@ const IMPL = {
         eth_bridge_contract: ERC20Contract,
         briq_factory: BriqFactoryContract,
     },
-    'starknet-testnet2': {
+    'starknet-testnet-dojo': {
         briq: BriqContract,
-        set: SetContract,
-        box: BoxContract,
-        auction: AuctionContract,
+        set: SetOnDojoContract,
+        briq_factory: BriqFactoryOnDojoContract,
         eth_bridge_contract: ERC20Contract,
     },
     'starknet-mainnet': {
@@ -67,8 +66,8 @@ export function watchSignerChanges(walletStore: any) {
         logDebug('SWITCHING TO NETWORK ', network);
         for (const contr in impl)
             if (!contractStore[contr])
-                contractStore[contr] = new impl[contr](addr[contr], signer.value ? signer.value : provider);
+                contractStore[contr] = new impl[contr](addr[contr], signer.value ? signer.value : provider, addr);
             else
-                contractStore[contr].connect(addr[contr] || '0xdead', signer.value ? signer.value : provider);
+                contractStore[contr].connect(addr[contr] || '0xdead', signer.value ? signer.value : provider, addr);
     });
 }

@@ -8,9 +8,6 @@ const mockBackendManager = (() => {
     return ret;
 })()
 
-vitest.mock('@cartridge/controller')
-
-
 describe('Test optimistic updates', () => {
     beforeEach(() => {
         vitest.clearAllMocks();

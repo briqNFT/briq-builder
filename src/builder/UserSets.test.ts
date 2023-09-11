@@ -15,8 +15,6 @@ const mockBackendManager = (() => {
 
 watchSignerChanges(walletStore);
 
-vitest.mock('@cartridge/controller')
-
 describe('Test Set minting', () => {
     beforeEach(() => {
         vitest.clearAllMocks();

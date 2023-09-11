@@ -17,13 +17,13 @@ function toHex(str: string) {
     return '0x' + result;
 }
 
-const tokenId = computed(() => contractStore.set?.precomputeTokenId(maybeStore.value!.userWalletAddress!, toHex(tokenName.value)) || '0x0');
 const tokenName = ref('');
 const tokenDescription = ref('');
 const jsonData = ref<Fetchable<SetData>|undefined>(undefined);
 const tokenImage = ref<Fetchable<string>|undefined>(undefined);
 const bookletImage = ref<Fetchable<string>|undefined>(undefined);
 const backgroundColor = ref('#000000');
+const tokenId = computed(() => contractStore.set?.precomputeTokenId(maybeStore.value!.userWalletAddress!, toHex(tokenName.value)) || '0x0', jsonData.value?._data?.getNbBriqs || 0);
 
 const signature = ref<Fetchable<Signature>|undefined>(undefined);
 const validatedData = ref<Fetchable<Record<string, any>>|undefined>(undefined);

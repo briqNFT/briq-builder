@@ -6,17 +6,17 @@ import { logDebug } from '@/Messages';
  * Sort of an abstraction around the idea of a chain + network.
  */
 
-export type CHAIN_NETWORKS = 'localhost' | 'starknet-testnet' | 'starknet-testnet2' | 'starknet-mainnet';
+export type CHAIN_NETWORKS = 'localhost' | 'starknet-testnet' | 'starknet-testnet-dojo' | 'starknet-mainnet';
 
 const network = reactive({
-    network: APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet' as CHAIN_NETWORKS,
+    network: APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet-dojo' as CHAIN_NETWORKS,
 });
 
 export function getNetworkName(network: CHAIN_NETWORKS) {
     return {
         'localhost': 'Localhost',
         'starknet-testnet': 'Starknet Testnet',
-        'starknet-testnet2': 'Starknet Testnet 2',
+        'starknet-testnet-dojo': 'Starknet Testnet',
         'starknet-mainnet': 'Starknet Mainnet',
     }[network];
 }
@@ -32,7 +32,7 @@ export function getChainIdFromNetwork(network: CHAIN_NETWORKS): string {
     return {
         'localhost': '0xdead',
         'starknet-testnet': '0x534e5f474f45524c49',
-        'starknet-testnet2': '0x534e5f474f45524c4932',
+        'starknet-testnet-dojo': '0x534e5f474f45524c49',
         'starknet-mainnet': '0x534e5f4d41494e',
     }[network];
 }

@@ -297,6 +297,7 @@ const cancelBuy = () => {
                 <Btn no-background @click="fetchPrices" class="absolute top-1 right-1 h-6 w-6 p-2"><i class="far fa-xmark"/></Btn>
                 <h4>Error fetching prices</h4>
                 <p>There was an error fetch briq prices.</p>
+                <p v-if="APP_ENV !== 'prod'">{{ parameters._error }}</p>
                 <Btn class="mt-6" @click="fetchPrices">Retry</Btn>
             </div>
         </div>

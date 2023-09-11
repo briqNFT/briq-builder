@@ -18,8 +18,6 @@ import { connect, disconnect } from '@argent/get-starknet'
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider';
 
-import { injectController, SupportedChainIds } from '@cartridge/controller';
-
 export type UserID = string;
 export class WalletStore {
     signer: undefined | AccountInterface = undefined;
@@ -122,6 +120,7 @@ export class WalletStore {
     }
 
     async enableExternalWallet(address: string) {
+        const chainId = this.signer?.chainId;
         const obj = {
             isConnected: true,
             account: new starknet.Account(getProviderForNetwork('starknet-mainnet'), address, new starknet.Signer(null)),
@@ -129,7 +128,7 @@ export class WalletStore {
             on: () => {},
         } as unknown as StarknetWindowObject;
         this.starknetObject = obj;
-        obj.account!.provider.chainId = await obj.account!.provider!.getChainId();
+        obj.account!.provider.chainId = chainId;
         await this.setSignerFromGSW();
     }
 
@@ -166,10 +165,8 @@ export class WalletStore {
             chooseDefaultNetwork();
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1 || this.signer?.provider?.chainId === '0x534e5f4d41494e')
             setNetwork('starknet-mainnet');
-        else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4-2') !== -1)
-            setNetwork('starknet-testnet2');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4') !== -1 || this.signer?.provider?.chainId === '0x534e5f474f45524c49')
-            setNetwork('starknet-testnet');
+            setNetwork('starknet-testnet-dojo');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('mock_chain') !== -1)
             setNetwork('mock');
         else

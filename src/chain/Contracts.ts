@@ -14,7 +14,6 @@ import { APP_ENV } from '@/Meta';
 export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
     localhost: {},
     'starknet-testnet': {},
-    'starknet-testnet2': {},
     'starknet-mainnet': {
         briq: '0x00247444a11a98ee7896f9dec18020808249e8aad21662f2fa00402933dce402',
         set: '0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672',
@@ -44,12 +43,15 @@ if (APP_ENV !== 'prod') {
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
         briq_factory: '0x07ad96c0f03a1924ede9ce2e3e4546560602dcce65b5fd050870cfecf583b414',
     };
-    ADDRESSES['starknet-testnet2'] = {
-        briq: '0x029e1fb93825a116daf88902c8bbf1a386890e6a5cf7906b584a1e70e7023e28',
-        set: '0x065ee60db9e38ecdf4afb9e070466b81984ffbcd06bc8650b1a21133310255c8',
-        box: '0x0799b964cd6a32611fbd589ebae040ad18715ae5cd9b1a42226bb0b1db48c631',
-        booklet: '0x048891a90426d468603732453afa919f280a3bc61a9ef246519eec87760aad76',
-        auction: '0x006fbea980d2acb5c63ad97637f6d7f3fa18887e3ad987abbd9eb594a58c0291',
+    ADDRESSES['starknet-testnet-dojo'] = {
+        world: '0x2bef66bac33c7c8a668049a870b9795a468800ec54e398d592fd84f831ae2c',
+        executor: '0x1c24cd47ab41ad1140f624ed133db38411bfa44d7f34e41551af819da9a78eb',
+        briq_factory: '0x2bef66bac33c7c8a668049a870b9795a468800ec54e398d592fd84f831ae2c',
+        briq: '0x251cd76d4f31f1c0a1a719a315d524a6338697120e5bede50bc7949819c93e5',
+        set: '0x43045108736ec538ac6a4f57ea6da423ad18787eb2da8c7d644a91b4ebd5cc4',
+        box: '',
+        booklet: '',
+        auction: '',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
     };
 }

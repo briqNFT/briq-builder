@@ -56,7 +56,7 @@ export function getProviderForNetwork(network: CHAIN_NETWORKS): Provider {
     return {
         'localhost': new Provider({ sequencer: { baseUrl: 'http://localhost:5050/' } }),
         'starknet-testnet': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet/rpc`, retries: 2 } }),
-        'starknet-testnet2': new Provider({ sequencer: { baseUrl: 'https://alpha4-2.starknet.io/' } }),
+        'starknet-testnet-dojo': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet/rpc`, retries: 2 } }),
         'starknet-mainnet': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-mainnet/rpc`, retries: 3 } }),
     }[network];
 }
