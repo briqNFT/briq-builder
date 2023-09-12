@@ -460,6 +460,61 @@
                 "type": "felt"
             },
             {
+                "name": "token_id_hint",
+                "type": "felt"
+            },
+            {
+                "name": "name_len",
+                "type": "felt"
+            },
+            {
+                "name": "name",
+                "type": "felt*"
+            },
+            {
+                "name": "description_len",
+                "type": "felt"
+            },
+            {
+                "name": "description",
+                "type": "felt*"
+            },
+            {
+                "name": "fts_len",
+                "type": "felt"
+            },
+            {
+                "name": "fts",
+                "type": "FTSpec*"
+            },
+            {
+                "name": "shape_len",
+                "type": "felt"
+            },
+            {
+                "name": "shape",
+                "type": "ShapeItem*"
+            },
+            {
+                "name": "attributes_len",
+                "type": "felt"
+            },
+            {
+                "name": "attributes",
+                "type": "ShapeItem*"
+            }
+        ],
+        "name": "assemble",
+        "outputs": [],
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "felt"
+            },
+            {
                 "name": "token_id",
                 "type": "felt"
             },
@@ -489,6 +544,37 @@
             }
         ],
         "name": "disassemble_",
+        "outputs": [],
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "felt"
+            },
+            {
+                "name": "token_id",
+                "type": "felt"
+            },
+            {
+                "name": "fts_len",
+                "type": "felt"
+            },
+            {
+                "name": "fts",
+                "type": "FTSpec*"
+            },
+            {
+                "name": "attributes_len",
+                "type": "felt"
+            },
+            {
+                "name": "attributes",
+                "type": "ShapeItem*"
+            }
+        ],
+        "name": "disassemble",
         "outputs": [],
         "type": "function"
     },

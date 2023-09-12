@@ -133,19 +133,7 @@ export default class SetContract {
     }
 }
 
-export class SetOnDojoContract {
-    world_address: string;
-    executor_address: string;
-    constructor(_: string, __: Provider, addresses: typeof ADDRESSES['starknet-testnet-dojo']) {
-        this.world_address = addresses.world;
-        this.executor_address = addresses.executor;
-    }
-
-    connect(_: string, __: Provider, addresses: typeof ADDRESSES['starknet-testnet-dojo']) {
-        this.world_address = addresses.world;
-        this.executor_address = addresses.executor;
-    }
-
+export class SetOnDojoContract extends SetContract {
     precomputeTokenId(address: string, token_id_hint: string, nb_briqs: number) {
         let hash = snHash.pedersen([0, address]);
         hash = snHash.pedersen([hash, token_id_hint]);
@@ -154,89 +142,16 @@ export class SetOnDojoContract {
         return '0x' + hash;
     }
 
-    _compress_shape_item(briq: any) {
-        const two = starknet.number.toBN(2);
-        let colorHex = '0x';
-        const colorHexCode = briq.data.color.toLowerCase();
-        for (let i = 0; i < colorHexCode.length; ++i)
-            colorHex += colorHexCode.charCodeAt(i).toString(16).padStart(2, '0');
-        const color_nft_material = starknet.number.toBN(briq.data.material).iadd(starknet.number.toBN(colorHex).imul(two.pow(starknet.number.toBN(136))))
-        const x_y_z = (starknet.number.toBN(briq.pos[2]).add(two.pow(starknet.number.toBN(63)))).iadd(
-            starknet.number.toBN(briq.pos[1]).add(two.pow(starknet.number.toBN(63))).mul(two.pow(starknet.number.toBN(64)))).iadd(
-            starknet.number.toBN(briq.pos[0]).add(two.pow(starknet.number.toBN(63))).mul(two.pow(starknet.number.toBN(128))),
-        )
-        return [color_nft_material.toString(10), x_y_z.toString(10)]
+    async assemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
+        const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
+        await maybeStore.value!.ensureEnabled();
+        return toRaw(await this.contract.assemble(owner, token_id_hint, setName, setDescription, fts, shapes, booklet ? [booklet] : []));
     }
-
-    _string_to_felt_string(data: string) {
-        const encoded = new TextEncoder().encode(data);
-        const out = ['0x'];
-        encoded.forEach(x => {
-            if (out[out.length - 1].length >= 32)
-                out.push('0x');
-            out[out.length - 1] += x.toString(16).padStart(2, '0');
-        });
-        if (out[out.length - 1] === '0x')
-            out.pop();
-        return out;
-    }
-
-    _prepareForAssemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
-        const fungibles = {} as { [mat: string]: number };
-        const nfts = [] as string[];
-        const shapes = [];
-        for (const briq of data.briqs) {
-            shapes.push(this._compress_shape_item(briq));
-            if (briq.data.id)
-                nfts.push(briq.data.id);
-            else {
-                if (!fungibles[briq.data.material])
-                    fungibles[briq.data.material] = 0;
-                ++fungibles[briq.data.material];
-            }
-        }
-        shapes.sort((a, b) => a[1].localeCompare(b[1], 'en'));
-        const fts = [];
-        for (const ft in fungibles)
-            fts.push([ft, '' + fungibles[ft]]);
-
-        const setName = this._string_to_felt_string(data.name);
-        const setDescription = this._string_to_felt_string(data.description);
-        return { setName, setDescription, fts, nfts, shapes };
-    }
-
     prepareAssemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
         const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
-        //return this.contract.populate('assemble_', [owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet] : []]);
-        const ret = {
-            contractAddress: this.world_address,
-            entrypoint: 'execute',
-            calldata: [
-                starknet.shortString.encodeShortString('set_nft_assembly'), 0,
-                owner, // caller
-                owner, token_id_hint,
-                setName.length, ...setName,
-                setDescription.length, ...setDescription,
-                fts.length, ...fts.flat(),
-                shapes.length, ...shapes.flat(),
-                ...(booklet ? [1, booklet] : [0]),
-            ],
-        };
-        ret.calldata[1] = ret.calldata.length - 2;
-        return ret;
+        return this.contract.populate('assemble', [owner, token_id_hint, setName, setDescription, fts, shapes, booklet ? [booklet] : []]);
     }
 
-    async assemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
-        await maybeStore.value!.ensureEnabled();
-        return toRaw(await (maybeStore.value!.signer as starknet.AccountInterface).execute(this.prepareAssemble(owner, token_id_hint, data, booklet)));
-        //return toRaw(await this.contract.assemble_(owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet] : []));
-    }
-
-    async callAndAssemble(otherCalls: Array<starknet.Call>, owner: string, token_id_hint: string, data: any, booklet?: string) {
-        await maybeStore.value!.ensureEnabled();
-        const calls = toRaw(otherCalls).concat([this.prepareAssemble(owner, token_id_hint, data, booklet)]);
-        return await (maybeStore.value!.signer as starknet.AccountInterface).execute(calls);
-    }
 
     async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
         const fungibles = {} as { [mat: string]: number };
@@ -255,26 +170,7 @@ export class SetOnDojoContract {
             fts.push([ft, '' + fungibles[ft]]);
 
         await maybeStore.value!.ensureEnabled();
-
-        const tx = {
-            contractAddress: this.world_address,
-            entrypoint: 'execute',
-            calldata: [
-                starknet.shortString.encodeShortString('set_nft_disassembly'), 0,
-                owner, // caller
-                owner, token_id,
-                fts.length, ...fts.flat(),
-                ...(booklet ? [1, booklet] : [0]),
-            ],
-        };
-        tx.calldata[1] = tx.calldata.length - 2;
-        console.log(tx);
-        return toRaw(await (maybeStore.value!.signer as starknet.AccountInterface).execute(tx));
+        return await this.contract.disassemble(owner, token_id, fts, booklet ? [booklet] : []);
     }
 
-    async transferOneNFT(sender: string, recipient: string, token_id: string) {
-        throw new Error('Not implemented');
-        //await maybeStore.value!.ensureEnabled();
-        //return await this.contract.transferFrom_(sender, recipient, token_id);
-    }
 }

@@ -46,7 +46,7 @@ if (APP_ENV !== 'prod') {
     ADDRESSES['starknet-testnet-dojo'] = {
         world: '0x2bef66bac33c7c8a668049a870b9795a468800ec54e398d592fd84f831ae2c',
         executor: '0x1c24cd47ab41ad1140f624ed133db38411bfa44d7f34e41551af819da9a78eb',
-        briq_factory: '0x2bef66bac33c7c8a668049a870b9795a468800ec54e398d592fd84f831ae2c',
+        briq_factory: '0x0213556a61d17f369eddf0b531b25f8deb7e5ceaac9263fa00e35a9d3de64b90',
         briq: '0x251cd76d4f31f1c0a1a719a315d524a6338697120e5bede50bc7949819c93e5',
         set: '0x43045108736ec538ac6a4f57ea6da423ad18787eb2da8c7d644a91b4ebd5cc4',
         box: '',
