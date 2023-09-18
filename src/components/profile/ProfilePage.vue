@@ -163,7 +163,18 @@ watchEffect(() => {
 
 watch([activeTab], () => {
     router.replace({ query: { tab: activeTab.value } })
+    selectedItems.value.clear();
+    mode.value = 'normal';
 });
+
+const mode = ref('normal' as 'normal' | 'batch_actions');
+const selectedItems = ref(new Set<string>());
+const toggleSelected = (id: string) => {
+    if (selectedItems.value.has(id))
+        selectedItems.value.delete(id);
+    else
+        selectedItems.value.add(id);
+}
 
 </script>
 
@@ -263,6 +274,14 @@ div[data-name='menu'] button {
                     </template>
                 </div>
                 <Btn primary class="w-full text-sm mb-4" @click="pushModal(NewSetModalVue)">New Creation</Btn>
+                <Btn v-if="mode == 'normal'" secondary class="w-full text-sm font-normal mb-4" @click="mode = 'batch_actions'">Select sets for batch actions</Btn>
+                <template v-if="mode == 'batch_actions'">
+                    <Btn secondary class="w-full text-sm font-normal mb-4" @click="mode = 'normal'">Cancel batch action</Btn>
+                    <p class="w-full text-center text-sm font-medium mb-4">{{ selectedItems.size }} selected</p>
+                    <Btn v-if="activeTab == 'WIP'" secondary class="w-full text-sm font-normal mb-1" @click="deleteSelected()">Delete selected</Btn>
+                    <Btn v-if="activeTab == 'CREATION'" secondary class="w-full text-sm font-normal mb-1" @click="disassembleSelected()">Disassemble selected</Btn>
+                    <Btn v-if="activeTab == 'CREATION'" secondary class="w-full text-sm font-normal mb-1" @click="migrateSelected()">Migrate selected</Btn>
+                </template>
             </div>
         </div>
         <div>
@@ -278,9 +297,11 @@ div[data-name='menu'] button {
                         <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
                     </div>
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <RouterLink :to="`box/${token_id.split('/').map(encodeURIComponent).join('/')}`" v-for="token_id, i of inventoryBoxes" :key="`${token_id}_${i}`">
-                            <BoxCard mode="INVENTORY" :token-name="token_id"/>
-                        </routerlink>
+                        <div v-if="mode == 'normal'">
+                            <RouterLink :to="`box/${token_id.split('/').map(encodeURIComponent).join('/')}`" v-for="token_id, i of inventoryBoxes" :key="`${token_id}_${i}`">
+                                <BoxCard mode="INVENTORY" :token-name="token_id"/>
+                            </routerlink>
+                        </div>
                     </div>
                 </div>
                 <div v-show="showSection('BOOKLET')">
@@ -322,11 +343,11 @@ div[data-name='menu'] button {
                             :image-src="getPreview(creation.id)"
                             image-bg="bg-background"
                             class="cursor-pointer"
-                            @click="openSetInBuilder(creation.id)">
+                            @click="mode == 'normal' ? openSetInBuilder(creation.id) : toggleSelected(creation.id)">
                             <template #subtitle>
                                 <p class="mx-4 text-grad-dark relative">
                                     WIP
-                                    <span class="absolute bottom-0 right-0">
+                                    <span v-if="mode == 'normal'" class="absolute bottom-0 right-0">
                                         <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
                                             <template #button><i class="fas fa-ellipsis-h"/></template>
                                             <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
@@ -334,6 +355,7 @@ div[data-name='menu'] button {
                                             <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
                                         </MenuDropdown>
                                     </span>
+                                    <Toggle v-else class="absolute bottom-0 right-0 w-8" :enabled="selectedItems.has(creation.id)"/>
                                 </p>
                             </template>
                             <template #content>
@@ -359,7 +381,12 @@ div[data-name='menu'] button {
                         <Btn secondary class="mt-2">Browse the themes</Btn>
                     </div>
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <DraftCard :creation="creation" v-for="creation of draftBooklets" :key="creation.id"/>
+                        <template v-if="mode == 'normal'">
+                            <DraftCard :creation="creation" v-for="creation of draftBooklets" :key="creation.id"/>
+                        </template>
+                        <template v-else>
+                            <DraftCard @click.capture="toggleSelected(creation.id)" :creation="creation" v-for="creation of draftBooklets" :key="creation.id"/>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -382,18 +409,22 @@ div[data-name='menu'] button {
                             :image-src="backendManager.getPreviewUrl(creation.id)"
                             class="cursor-pointer"
                             :show-pending-marker="creation?.pending"
-                            @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
+                            @click=" mode == 'normal' ?
+                                router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }}) :
+                                toggleSelected(creation.id)
+                            ">
                             <template #subtitle>
                                 <p class="mx-4 text-grad-dark relative">
                                     {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-3) }}
                                     <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
-                                    <span class="absolute bottom-0 right-0">
+                                    <span v-if="mode == 'normal'" class="absolute bottom-0 right-0">
                                         <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
                                             <template #button><i class="fas fa-ellipsis-h"/></template>
                                             <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
                                             <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
                                         </MenuDropdown>
                                     </span>
+                                    <Toggle v-else class="absolute bottom-0 right-0 w-8" :enabled="selectedItems.has(creation.id)"/>
                                 </p>
                             </template>
                             <template #content>
@@ -428,18 +459,22 @@ div[data-name='menu'] button {
                             :image-src="backendManager.getPreviewUrl(creation.id)"
                             class="cursor-pointer"
                             :show-pending-marker="creation?.pending"
-                            @click="router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }})">
+                            @click=" mode == 'normal' ?
+                                router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }}) :
+                                toggleSelected(creation.id)
+                            ">
                             <template #subtitle>
                                 <p class="mx-4 text-grad-dark relative">
                                     {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-3) }}
                                     <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
-                                    <span class="absolute bottom-0 right-0">
+                                    <span v-if="mode == 'normal'" class="absolute bottom-0 right-0">
                                         <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
                                             <template #button><i class="fas fa-ellipsis-h"/></template>
                                             <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
                                             <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
                                         </MenuDropdown>
                                     </span>
+                                    <Toggle v-else class="absolute bottom-0 right-0 w-8" :enabled="selectedItems.has(creation.id)"/>
                                 </p>
                             </template>
                             <template #content>
@@ -453,43 +488,6 @@ div[data-name='menu'] button {
                                 </p>
                             </template>
                         </GenericCard>
-                    </div>
-                </div>
-            </div>
-            <div v-else-if="activeTab === 'ACTIVITY' && userAddress">
-                <div>
-                    <div v-show="showSection('WINNING')">
-                        <a id="winning" class="relative bottom-[80px]"/>
-                        <h4>Winning bids on ongoing auctions</h4>
-                        <div v-if="!winningBids.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                            <p class="font-semibold">You have no winning bids on ongoing auctions.</p>
-                            <p>Browse the available items in our Genesis collections!</p>
-                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                        </div>
-                        <div v-else>
-                            <BoxListing :boxes="winningBids" :mode="'BID'"/>
-                        </div>
-                    </div>
-                    <div v-show="showSection('LOSING')">
-                        <a id="losing" class="relative bottom-[80px]"/>
-                        <h4>Losing bids on ongoing auctions</h4>
-                        <div v-if="!losingBids.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                            <p class="font-semibold">No losing bids to report.</p>
-                            <p>Browse the available items in our Genesis collections!</p>
-                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                        </div>
-                        <div v-else>
-                            <BoxListing :boxes="losingBids" :mode="'BID'"/>
-                        </div>
-                    </div>
-                    <div v-show="showSection('PURCHASED')">
-                        <a id="purchased" class="relative bottom-[80px]"/>
-                        <h4>Purchased items</h4>
-                        <div class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                            <p class="font-semibold">You have not yet bought any item</p>
-                            <p>Browse the available items in our Genesis collections!</p>
-                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                        </div>
                     </div>
                 </div>
             </div>
