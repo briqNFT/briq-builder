@@ -21,6 +21,13 @@ export function getNetworkName(network: CHAIN_NETWORKS) {
     }[network];
 }
 
+export function getPremigrationNetwork(network: CHAIN_NETWORKS) {
+    return {
+        'starknet-testnet-dojo': 'starknet-testnet',
+        'starknet-mainnet-dojo': 'starknet-mainnet',
+    }?.[network] || undefined;
+}
+
 export function getCurrentNetwork(nohack = false) {
     if (!nohack && APP_ENV === 'prod')
         return 'starknet-mainnet';

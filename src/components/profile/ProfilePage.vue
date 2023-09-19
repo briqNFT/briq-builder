@@ -6,137 +6,35 @@ import ProfileIcon from '@/assets/profile/profile.svg?skipsvgo';
 
 import { WEB_WALLET_URL, maybeStore } from '@/chain/WalletLoading';
 
+import GenesisTab from './TabGenesis.vue';
+import WipTab from './TabWIP.vue';
+import CreationTab from './TabCreation.vue';
+
 import { computed, ref, watch, watchEffect } from 'vue';
-import { userBoxesStore } from '@/builder/UserBoxes';
-import { userBookletsStore } from '@/builder/UserBooklets';
-import { userSetStore } from '@/builder/UserSets';
-import BoxListing from '../builder/genesis/BoxListing.vue';
-import { setsManager } from '@/builder/SetsManager';
-import MenuDropdown from '../generic/MenuDropdown.vue';
-import { useSetHelpers } from '../builder/SetComposable';
 import { router } from '@/Routes';
-import BookletCard from '../builder/genesis/BookletCard.vue';
-import GenericCard from '../builder/genesis/GenericCard.vue';
-import { backendManager } from '@/Backend';
 import { useRoute } from 'vue-router';
 import { pushModal } from '../Modals.vue';
 import NewSetModalVue from '../builder/modals/NewSetModal.vue';
-import DownloadSetVue from '../builder/modals/DownloadSet.vue';
 import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 import Tooltip from '../generic/Tooltip.vue';
-import { pushPopup } from '@/Notifications';
-import BoxCard from '../builder/genesis/BoxCard.vue';
-import DraftCard from './DraftCard.vue';
+import { useProfileData, deleteSelected, disassembleSelected, migrateSelected, selectedItems } from './ProfileData';
 
 const {
-    openSetInBuilder,
-    duplicateSet,
-    deleteLocalSet,
-    disassembleSet,
-    downloadSet,
-} = useSetHelpers();
-
-const getPreview = (id: string) => {
-    return window.localStorage.getItem('set_preview_' + id);
-}
-
-const winningBids = computed(() => {
-    return [];
-})
-
-const losingBids = computed(() => {
-    return [];
-})
-
-const inventoryBoxes = computed(() => {
-    if (!userBoxesStore?.current?.availableBoxes)
-        return [];
-    const ret = [] as string[];
-    const nb = {} as Record<string, boolean>;
-    for (const box of userBoxesStore.current.availableBoxes)
-        if (!nb[box]) {
-            nb[box] = true;
-            ret.push(box);
-        }
-    return ret;
-});
-
-
-const inventoryBooklets = computed(() => {
-    if (!userBookletsStore?.current?.booklets)
-        return [];
-    const ret = [] as string[];
-    const nb = {} as Record<string, boolean>;
-    for (const box of userBookletsStore.current.booklets)
-        if (!nb[box]) {
-            nb[box] = true;
-            ret.push(box);
-        }
-    return ret;
-});
-
-const creationsWIP = computed(() => {
-    return Object.values(setsManager.setsInfo).filter(x => (!x.booklet || x.booklet.startsWith('tutorial')) && !x.onchainId).map(x => x.getSet()) || [];
-})
-
-const draftBooklets = computed(() => {
-    return Object.values(setsManager.setsInfo).filter(x => x.booklet && !x.booklet.startsWith('tutorial')).map(y => {
-        const ret = y.getSet();
-        ret.booklet = y.booklet;
-        return ret;
-    }) || [];
-})
-
-
-const creations = computed(() => {
-    return userSetStore.current?.sets.map(setId => {
-        if (userSetStore.current?.setData[setId]?.booklet_id)
-            return undefined;
-        const data = userSetStore.current?.setData[setId];
-        return {
-            id: setId,
-            name: data?.data?.name || setId,
-            nb_briqs: data?.data?.getNbBriqs?.() || 0,
-            created_at: data?.created_at || Date.now(),
-            pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
-        }
-    }).filter(x => !!x) || [];
-})
-
-
-const officialCreations = computed(() => {
-    return userSetStore.current?.sets.map(setId => {
-        if (!userSetStore.current?.setData[setId]?.booklet_id)
-            return undefined;
-        const data = userSetStore.current?.setData[setId];
-        return {
-            id: setId,
-            name: data?.data?.name || setId,
-            nb_briqs: data?.data?.getNbBriqs?.() || 0,
-            created_at: data?.created_at || Date.now(),
-            pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
-        }
-    }).filter(x => !!x) || [];
-})
+    inventoryBoxes,
+    inventoryBooklets,
+    creationsWIP,
+    draftBooklets,
+    creations,
+    officialCreations,
+} = useProfileData();
 
 const userAddress = computed(() => maybeStore.value?.userWalletAddress);
 
 const route = useRoute();
 
-let lastCopy = 0;
-const copy = (id: string) => {
-    navigator.clipboard.writeText(id);
-    if (Date.now() - lastCopy > 500) {
-        pushPopup('info', 'Set ID copied', `${ id.slice(0, 7) }...${ id.slice(-3)}`)
-        lastCopy = Date.now();
-    }
-}
-const activeTab = ref('GENESIS' as 'GENESIS' | 'WIP' | 'CREATION' | 'ACTIVITY');
+const activeTab = ref('GENESIS' as 'GENESIS' | 'WIP' | 'CREATION');
 
 const filter = ref('ALL');
-const showSection = (section: string) => {
-    return filter.value === 'ALL' || filter.value === section;
-}
 
 const sectiontop = ref(null as unknown as HTMLElement);
 
@@ -168,37 +66,9 @@ watch([activeTab], () => {
 });
 
 const mode = ref('normal' as 'normal' | 'batch_actions');
-const selectedItems = ref(new Set<string>());
-const toggleSelected = (id: string) => {
-    if (selectedItems.value.has(id))
-        selectedItems.value.delete(id);
-    else
-        selectedItems.value.add(id);
-}
-
 </script>
 
 <style scoped>
-.imagePlaceholder {
-    background: repeating-linear-gradient(
-        -45deg,
-        rgba(0, 0, 0, 0),
-        rgba(0, 0, 0, 0),
-        10px,
-        rgba(247, 137, 74, 0.5) 10px,
-        rgba(247, 137, 74, 0.5) 15px
-    );
-}
-
-@media (hover: hover) {
-    .item-card ::v-deep(.cardContextualMenu) {
-        @apply invisible;
-    }
-    .item-card:hover ::v-deep(.cardContextualMenu) {
-        @apply visible;
-    }
-}
-
 .pastille {
     @apply font-medium text-xs;
 }
@@ -266,231 +136,31 @@ div[data-name='menu'] button {
                         <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">Custom Sets<span class="pastille">{{ creations.length }}</span></Btn>
                         <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ officialCreations.length }}</span></Btn>
                     </template>
-                    <template v-else-if="activeTab === 'ACTIVITY'">
-                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start text-left items-baseline font-medium">All items <span class="pastille">{{ winningBids.length + losingBids.length }}</span></Btn>
-                        <Btn @click="setSection('WINNING')" :force-active="filter === 'WINNING'" no-background class="w-full justify-start text-left items-baseline font-medium">Winning bids <span class="pastille">{{ winningBids.length }}</span></Btn>
-                        <Btn @click="setSection('LOSING')" :force-active="filter === 'LOSING'" no-background class="w-full justify-start text-left items-baseline font-medium">Losing bids <span class="pastille">{{ losingBids.length }}</span></Btn>
-                        <Btn @click="setSection('PURCHASED')" :force-active="filter === 'PURCHASED'" no-background class="w-full justify-start text-left items-baseline font-medium">Purchased items <span class="pastille">{{ 0 }}</span></Btn>
-                    </template>
                 </div>
                 <Btn primary class="w-full text-sm mb-4" @click="pushModal(NewSetModalVue)">New Creation</Btn>
                 <Btn v-if="mode == 'normal'" secondary class="w-full text-sm font-normal mb-4" @click="mode = 'batch_actions'">Select sets for batch actions</Btn>
                 <template v-if="mode == 'batch_actions'">
                     <Btn secondary class="w-full text-sm font-normal mb-4" @click="mode = 'normal'">Cancel batch action</Btn>
                     <p class="w-full text-center text-sm font-medium mb-4">{{ selectedItems.size }} selected</p>
-                    <Btn v-if="activeTab == 'WIP'" secondary class="w-full text-sm font-normal mb-1" @click="deleteSelected()">Delete selected</Btn>
-                    <Btn v-if="activeTab == 'CREATION'" secondary class="w-full text-sm font-normal mb-1" @click="disassembleSelected()">Disassemble selected</Btn>
-                    <Btn v-if="activeTab == 'CREATION'" secondary class="w-full text-sm font-normal mb-1" @click="migrateSelected()">Migrate selected</Btn>
+                    <Btn v-if="activeTab == 'WIP'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="deleteSelected()">Delete selected</Btn>
+                    <Btn v-if="activeTab == 'CREATION'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="disassembleSelected()">Disassemble selected</Btn>
+                    <Btn v-if="activeTab == 'CREATION'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="migrateSelected()">Migrate selected</Btn>
                 </template>
             </div>
         </div>
         <div>
             <a ref="sectiontop" class="relative top-[-5rem]"/>
-            <div v-if="activeTab === 'GENESIS' && userAddress">
-                <div v-show="showSection('BOX')">
-                    <a id="box" class="relative bottom-[80px]"/>
-                    <h4>Boxes</h4>
-                    <p class="text-sm mt-1">Boxes contain briqs and an instruction booklet. Unbox them to get their content and start building!</p>
-                    <div v-if="!inventoryBoxes.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have any boxes.</p>
-                        <p>Browse the available items in our Genesis collections!</p>
-                        <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <div v-if="mode == 'normal'">
-                            <RouterLink :to="`box/${token_id.split('/').map(encodeURIComponent).join('/')}`" v-for="token_id, i of inventoryBoxes" :key="`${token_id}_${i}`">
-                                <BoxCard mode="INVENTORY" :token-name="token_id"/>
-                            </routerlink>
-                        </div>
-                    </div>
-                </div>
-                <div v-show="showSection('BOOKLET')">
-                    <a id="booklet" class="relative bottom-[80px]"/>
-                    <h4>Booklets</h4>
-                    <p class="text-sm mt-1">Booklets contain instructions to build official briq sets. Follow the instructions to mint the official sets!</p>
-                    <div v-if="!inventoryBooklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have any booklets.</p>
-                        <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
-                        <Btn secondary class="mt-2">Browse the themes</Btn>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <div v-for="booklet of inventoryBooklets" :key="booklet">
-                            <RouterLink :to="`booklet/${booklet.split('/').map(encodeURIComponent).join('/')}`">
-                                <BookletCard :box-id="booklet"/>
-                            </RouterLink>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div v-else-if="activeTab === 'WIP'">
-                <div v-show="showSection('PERSONAL')">
-                    <a id="personal" class="relative bottom-[80px]"/>
-                    <h4>Custom Sets</h4>
-                    <p class="text-sm mt-1">Sets you have started but haven't minted yet. They are stored locally on this computer only.</p>
-                    <div v-if="!creationsWIP.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have work-in-progress sets.</p>
-                        <p>Get some briqs and start building!</p>
-                        <div class="flex gap-2 mt-2">
-                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary>Browse the themes</Btn></router-link>
-                            <RouterLink :to="{ name: 'Builder' }"><Btn>Start a new work</Btn></RouterLink>
-                        </div>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <GenericCard
-                            v-for="creation in creationsWIP" :key="creation.id"
-                            :status="creation?.id ? 'LOADED' : 'FETCHING'"
-                            :title="creation.name"
-                            :image-src="getPreview(creation.id)"
-                            image-bg="bg-background"
-                            class="cursor-pointer"
-                            @click="mode == 'normal' ? openSetInBuilder(creation.id) : toggleSelected(creation.id)">
-                            <template #subtitle>
-                                <p class="mx-4 text-grad-dark relative">
-                                    WIP
-                                    <span v-if="mode == 'normal'" class="absolute bottom-0 right-0">
-                                        <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
-                                            <template #button><i class="fas fa-ellipsis-h"/></template>
-                                            <Btn @click="duplicateSet(creation)" no-background>Duplicate</Btn>
-                                            <Btn @click="downloadSet(creation)" no-background>Download</Btn>
-                                            <Btn @click="deleteLocalSet(creation.id)" no-background>Delete</Btn>
-                                        </MenuDropdown>
-                                    </span>
-                                    <Toggle v-else class="absolute bottom-0 right-0 w-8" :enabled="selectedItems.has(creation.id)"/>
-                                </p>
-                            </template>
-                            <template #content>
-                                <p class="flex justify-between text-sm">
-                                    <span class="text-grad-dark">briqs needed</span>
-                                    <span class="font-medium">{{ creation.getNbBriqs() }}</span>
-                                </p>
-                                <p class="flex justify-between text-sm">
-                                    <span class="text-grad-dark">Last updated on</span>
-                                    <span class="">{{ new Date(setsManager.getInfo(creation.id)!.lastUpdate).toLocaleString("en-uk", { dateStyle: "medium" }) }}</span>
-                                </p>
-                            </template>
-                        </GenericCard>
-                    </div>
-                </div>
-                <div v-show="showSection('OFFICIAL')">
-                    <a id="official" class="relative bottom-[80px]"/>
-                    <h4>Official Sets</h4>
-                    <p class="text-sm mt-1">You can only have one WIP for each Booklet type. Like Custom Sets, these are stored locally on your computer.</p>
-                    <div v-if="!draftBooklets.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have any work-in-progress official sets.</p>
-                        <p>Open one of your boxes or browse the available items in our Genesis collections!</p>
-                        <Btn secondary class="mt-2">Browse the themes</Btn>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <template v-if="mode == 'normal'">
-                            <DraftCard :creation="creation" v-for="creation of draftBooklets" :key="creation.id"/>
-                        </template>
-                        <template v-else>
-                            <DraftCard @click.capture="toggleSelected(creation.id)" :creation="creation" v-for="creation of draftBooklets" :key="creation.id"/>
-                        </template>
-                    </div>
-                </div>
-            </div>
-            <div v-else-if="activeTab === 'CREATION' && userAddress">
-                <div v-show="showSection('PERSONAL')">
-                    <a id="personal" class="relative bottom-[80px]"/>
-                    <h4>Custom Sets</h4>
-                    <p class="text-sm mt-1">These are minted NFTs that you have created yourself or got from someone else!</p>
-                    <div v-if="!creations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">
-                            You have not yet created a set yourself. <br> Let your imagination run free!
-                        </p><p>Get some briqs and start building!</p>
-                        <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <GenericCard
-                            v-for="creation in creations" :key="creation.id"
-                            :status="creation?.id ? 'LOADED' : 'FETCHING'"
-                            :title="creation.name"
-                            :image-src="backendManager.getPreviewUrl(creation.id)"
-                            class="cursor-pointer"
-                            :show-pending-marker="creation?.pending"
-                            @click=" mode == 'normal' ?
-                                router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }}) :
-                                toggleSelected(creation.id)
-                            ">
-                            <template #subtitle>
-                                <p class="mx-4 text-grad-dark relative">
-                                    {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-3) }}
-                                    <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
-                                    <span v-if="mode == 'normal'" class="absolute bottom-0 right-0">
-                                        <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
-                                            <template #button><i class="fas fa-ellipsis-h"/></template>
-                                            <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
-                                            <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
-                                        </MenuDropdown>
-                                    </span>
-                                    <Toggle v-else class="absolute bottom-0 right-0 w-8" :enabled="selectedItems.has(creation.id)"/>
-                                </p>
-                            </template>
-                            <template #content>
-                                <p class="flex justify-between text-sm">
-                                    <span class="text-grad-dark">briqs used</span>
-                                    <span class="font-medium">{{ creation.nb_briqs }}</span>
-                                </p>
-                                <p class="flex justify-between text-sm">
-                                    <span class="text-grad-dark">Minted on</span>
-                                    <span class="font-normal">{{ new Date(creation.created_at).toLocaleString("en-uk", { dateStyle: "medium" }) }}</span>
-                                </p>
-                            </template>
-                        </GenericCard>
-                    </div>
-                </div>
-                <div v-show="showSection('OFFICIAL')">
-                    <a id="official" class="relative bottom-[80px]"/>
-                    <h4>Official Sets</h4>
-                    <p class="text-sm mt-1">These are minted NFTs from the briq official collection.</p>
-                    <div v-if="!officialCreations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
-                        <p class="font-semibold">You don't have any official Genesis sets.</p>
-                        <p>Start working on your booklets or browse the available items in our Genesis collections!</p>
-                        <div class="mt-2 flex gap-2">
-                            <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
-                        </div>
-                    </div>
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                        <GenericCard
-                            v-for="creation in officialCreations" :key="creation.id"
-                            :status="creation?.id ? 'LOADED' : 'FETCHING'"
-                            :title="creation.name"
-                            :image-src="backendManager.getPreviewUrl(creation.id)"
-                            class="cursor-pointer"
-                            :show-pending-marker="creation?.pending"
-                            @click=" mode == 'normal' ?
-                                router.push({ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: creation.id }}) :
-                                toggleSelected(creation.id)
-                            ">
-                            <template #subtitle>
-                                <p class="mx-4 text-grad-dark relative">
-                                    {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-3) }}
-                                    <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
-                                    <span v-if="mode == 'normal'" class="absolute bottom-0 right-0">
-                                        <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
-                                            <template #button><i class="fas fa-ellipsis-h"/></template>
-                                            <Btn no-background @click="disassembleSet(creation.id)">Disassemble</Btn>
-                                            <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
-                                        </MenuDropdown>
-                                    </span>
-                                    <Toggle v-else class="absolute bottom-0 right-0 w-8" :enabled="selectedItems.has(creation.id)"/>
-                                </p>
-                            </template>
-                            <template #content>
-                                <p class="flex justify-between text-sm">
-                                    <span class="text-grad-dark">briqs used</span>
-                                    <span class="font-medium">{{ creation.nb_briqs }}</span>
-                                </p>
-                                <p class="flex justify-between text-sm">
-                                    <span class="text-grad-dark">Minted on</span>
-                                    <span class="font-normal">{{ new Date(creation.created_at).toLocaleString("en-uk", { dateStyle: "medium" }) }}</span>
-                                </p>
-                            </template>
-                        </GenericCard>
-                    </div>
-                </div>
-            </div>
+            <GenesisTab
+                v-if="activeTab === 'GENESIS' && userAddress"
+                :filter="filter"/>
+            <WipTab
+                v-else-if="activeTab === 'WIP'"
+                :filter="filter"
+                :mode="mode"/>
+            <CreationTab
+                v-else-if="activeTab === 'CREATION' && userAddress"
+                :filter="filter"
+                :mode="mode"/>
         </div>
     </div>
     <Footer/>

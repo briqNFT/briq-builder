@@ -1,19 +1,25 @@
+<script setup lang="ts">
+defineProps<{
+    title: string;
+    text: string;
+    buttons: {
+        text: string;
+        tooltip?: string;
+        primary?: boolean;
+    }[];
+}>();
+
+const emit = defineEmits(['close']);
+</script>
+
 <template>
     <Window @close="$emit('close')">
-        <template #title>{{ metadata.title }}</template>
-        <p class="mb-8">{{ metadata.text }}</p>
+        <template #title>{{ title }}</template>
+        <p class="mb-8 whitespace-pre-wrap">{{ text }}</p>
         <div class="flex justify-around">
-            <p v-for="(btn, i) of metadata.buttons">
-                <Btn class="min-w-[8rem]" :tooltip="btn.tooltip || undefined" :secondary="!btn.primary" @click="$emit('close', i)">{{ btn.text }}</Btn>
+            <p v-for="(btn, i) of buttons" :key="i">
+                <Btn class="min-w-[8rem]" :tooltip="btn.tooltip || undefined" :secondary="!btn.primary" @click="emit('close', i)">{{ btn.text }}</Btn>
             </p>
         </div>
     </Window>
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-export default defineComponent({
-    props: ['metadata'],
-    emits: ['close'],
-});
-</script>
