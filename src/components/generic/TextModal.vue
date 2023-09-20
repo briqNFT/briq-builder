@@ -13,7 +13,7 @@ const emit = defineEmits(['close']);
 </script>
 
 <template>
-    <Window @close="$emit('close')">
+    <Window @close="emit('close')">
         <template #title>{{ title }}</template>
         <p class="mb-8 whitespace-pre-wrap">{{ text }}</p>
         <div class="flex justify-around">

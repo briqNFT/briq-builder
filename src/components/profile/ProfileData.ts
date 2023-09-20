@@ -7,6 +7,7 @@ import { setsManager } from '@/builder/SetsManager';
 import { getCurrentNetwork, getPremigrationNetwork } from '@/chain/Network';
 import { pushModal } from '../Modals.vue';
 import TextModal from '../generic/TextModal.vue';
+import MigrateModal from '../builder/modals/MigrateModal.vue';
 
 export const selectedItems = ref(new Set<string>());
 
@@ -47,19 +48,8 @@ export function disassembleSelected() {
 }
 
 export function migrateSelected() {
-    const migratable = Array.from(selectedItems.value).filter(x => userLegacySetStore.current?.setData[x].data);
-    const setText = migratable.map(x => `- ${userLegacySetStore.current?.setData[x]?.data?.name}`);
-    const briqs = migratable.reduce((acc, x) => acc + (userLegacySetStore.current?.setData[x]?.data?.getNbBriqs?.() || 0), 0);
-    const notAllWarning = migratable.length !== selectedItems.value.size ? 'NB: you have selected some sets that do not need to be migrated, this will do nothing for those.\n\n' : '';
-    pushModal(TextModal, {
-        title: 'Confirm migration',
-        text: `This will migrate the following ${migratable.length} sets:\n${setText.join('\n')}\n\nYou can either migrate only the ${briqs} briqs, or migrate the briqs and re-mint the sets in one go.\n\n${(notAllWarning)}`,
-        buttons: [{
-            text: 'Migrate briqs only',
-        },
-        {
-            text: 'Migrate briqs & mint sets',
-        }],
+    pushModal(MigrateModal, {
+        selectedItems: Array.from(selectedItems.value),
     }).then(btn => {
         if (btn !== 0)
             return;
