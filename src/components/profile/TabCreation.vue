@@ -9,7 +9,7 @@ import { pushModal } from '../Modals.vue';
 import DownloadSetVue from '../builder/modals/DownloadSet.vue';
 import { getCurrentNetwork } from '@/chain/Network';
 import { pushPopup } from '@/Notifications';
-import { useProfileData, selectedItems } from './ProfileData';
+import { useProfileData, selectedItems, migrateSets } from './ProfileData';
 
 const {
     legacyCreations,
@@ -155,7 +155,7 @@ const toggleSelected = (id: string) => {
                             <span v-if="mode == 'normal'" class="absolute bottom-0 right-0">
                                 <MenuDropdown no-background no-marker class="cardContextualMenu !w-6 !h-6 !p-0 text-md">
                                     <template #button><i class="fas fa-ellipsis-h"/></template>
-                                    <Btn no-background @click="() => {}">Migrate</Btn>
+                                    <Btn no-background @click="migrateSets([creation.id])">Migrate</Btn>
                                     <Btn no-background @click="pushModal(DownloadSetVue, { setId: creation.id })">Download</Btn>
                                 </MenuDropdown>
                             </span>

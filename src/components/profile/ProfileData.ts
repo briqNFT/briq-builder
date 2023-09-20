@@ -47,9 +47,9 @@ export function disassembleSelected() {
     })
 }
 
-export function migrateSelected() {
+export function migrateSets(sets: string[]) {
     pushModal(MigrateModal, {
-        selectedItems: Array.from(selectedItems.value),
+        selectedItems: sets,
     }).then(btn => {
         if (btn !== 0)
             return;

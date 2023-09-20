@@ -17,7 +17,7 @@ import { pushModal } from '../Modals.vue';
 import NewSetModalVue from '../builder/modals/NewSetModal.vue';
 import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 import Tooltip from '../generic/Tooltip.vue';
-import { useProfileData, deleteSelected, disassembleSelected, migrateSelected, selectedItems } from './ProfileData';
+import { useProfileData, deleteSelected, disassembleSelected, migrateSets, selectedItems } from './ProfileData';
 
 const {
     inventoryBoxes,
@@ -144,7 +144,7 @@ div[data-name='menu'] button {
                     <p class="w-full text-center text-sm font-medium mb-4">{{ selectedItems.size }} selected</p>
                     <Btn v-if="activeTab == 'WIP'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="deleteSelected()">Delete selected</Btn>
                     <Btn v-if="activeTab == 'CREATION'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="disassembleSelected()">Disassemble selected</Btn>
-                    <Btn v-if="activeTab == 'CREATION'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="migrateSelected()">Migrate selected</Btn>
+                    <Btn v-if="activeTab == 'CREATION'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="migrateSets(Array.from(selectedItems))">Migrate selected</Btn>
                 </template>
             </div>
         </div>
