@@ -1,5 +1,7 @@
 import { builderStore } from '@/builder/BuilderStore';
 import { chainBriqs } from '@/builder/ChainBriqs';
+import { legacyChainBriqs } from '@/builder/ChainBriqsLegacy';
+
 export function useBuilder() {
     const {
         currentSet,
@@ -13,6 +15,7 @@ export function useBuilder() {
         currentSetInfo,
         selectSet,
         chainBriqs,
+        legacyChainBriqs,
         setsManager,
         resetBuilderState,
     }

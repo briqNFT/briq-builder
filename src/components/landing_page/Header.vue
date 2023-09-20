@@ -2,7 +2,7 @@
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { WEB_WALLET_URL, maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { computed, onMounted, ref } from 'vue';
-import { maybeChainBriqs } from '@/builder/ChainBriqsAsync';
+import { maybeChainBriqs, maybeLegacyBriqs } from '@/builder/ChainBriqsAsync';
 
 import SmallProfileIcon from '@/assets/profile/profile_small.svg';
 import briqLogo from '@/assets/briq.svg';
@@ -22,6 +22,16 @@ const connectWallet = () => {
     }
 }
 
+const pendingBriqs = computed(() => {
+    if (!maybeChainBriqs.value)
+        return false;
+    return Object.keys(maybeChainBriqs.value!.metadata).length;
+});
+
+const nbOfBriqs = computed(() => {
+    return maybeChainBriqs.value?.getNbBriqs() + (maybeLegacyBriqs.value?.current?.getNbBriqs() || 0)
+})
+
 let NotificationsMenu = ref();
 import('@/Dispatch').then(x => NotificationsMenu.value = x.NotificationsMenu);
 
@@ -37,11 +47,6 @@ onMounted(() => {
     observer.observe(header.value);
 });
 
-const pendingBriqs = computed(() => {
-    if (!maybeChainBriqs.value)
-        return false;
-    return Object.keys(maybeChainBriqs.value!.metadata).length;
-});
 
 </script>
 
@@ -82,13 +87,13 @@ const pendingBriqs = computed(() => {
                         <Tooltip tooltip="Some transactions are pending that might change your briq count.">
                             <div class="hidden sm:flex border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
                                 <briqIcon width="0.9rem" class="inline-block hue-rotate-180 brightness-[1.3] saturate-[0.8]"/>
-                                <span class="text-info-info"> {{ maybeChainBriqs?.getNbBriqs() }}</span>
+                                <span class="text-info-info"> {{ nbOfBriqs }}</span>
                             </div>
                         </Tooltip>
                     </template>
                     <template v-else>
                         <div class="hidden sm:flex border-grad-light px-3 border rounded flex items-center justify-center gap-2 font-medium">
-                            <briqIcon width="0.9rem" class="inline-block"/> {{ maybeChainBriqs?.getNbBriqs() }}
+                            <briqIcon width="0.9rem" class="inline-block"/> {{ nbOfBriqs }}
                         </div>
                     </template>
                     <div class="flex-none">

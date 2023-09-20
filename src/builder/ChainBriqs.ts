@@ -7,6 +7,7 @@ import { perUserStorable, perUserStore } from './PerUserStore';
 import { maybeStore } from '@/chain/WalletLoading';
 import { setChainBriqsStoreComplete } from './ChainBriqsAsync';
 import { Notification } from '@/Notifications';
+import { legacyChainBriqs } from './ChainBriqsLegacy';
 
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number; nft_ids: string[] };
@@ -296,4 +297,4 @@ const _chainBriqs = perUserStore('ChainBriqs', ChainBriqs);
 _chainBriqs.setup();
 
 export const chainBriqs = toRef(_chainBriqs, 'current');
-setChainBriqsStoreComplete(_chainBriqs);
+setChainBriqsStoreComplete(_chainBriqs, legacyChainBriqs);

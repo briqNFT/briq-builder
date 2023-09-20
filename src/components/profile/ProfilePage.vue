@@ -138,7 +138,7 @@ div[data-name='menu'] button {
                     </template>
                 </div>
                 <Btn primary class="w-full text-sm mb-4" @click="pushModal(NewSetModalVue)">New Creation</Btn>
-                <Btn v-if="mode == 'normal'" secondary class="w-full text-sm font-normal mb-4" @click="mode = 'batch_actions'">Select sets for batch actions</Btn>
+                <Btn v-if="mode == 'normal' && activeTab !== 'GENESIS'" secondary class="w-full text-sm font-normal mb-4" @click="mode = 'batch_actions'">Select for batch actions</Btn>
                 <template v-if="mode == 'batch_actions'">
                     <Btn secondary class="w-full text-sm font-normal mb-4" @click="mode = 'normal'">Cancel batch action</Btn>
                     <p class="w-full text-center text-sm font-medium mb-4">{{ selectedItems.size }} selected</p>

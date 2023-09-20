@@ -10,7 +10,7 @@ import { WEB_WALLET_URL, maybeStore, walletInitComplete } from '@/chain/WalletLo
 import { inputStore } from '../../builder/inputs/InputStore';
 
 // TODO: remove redundancy with Header.vue
-import ProfileIcon from '@/assets/profile/profile_small.svg';
+import SmallProfileIcon from '@/assets/profile/profile_small.svg';
 import briqIcon from '@/assets/landing/briq-icon.svg';
 import ArgentLogo from '@/assets/argent_logo.svg';
 import MenuBuilder from './MenuBuilder.vue';
@@ -56,17 +56,21 @@ const connectWallet = () => {
     }
 }
 
-const { chainBriqs } = useBuilder();
+const { chainBriqs, legacyChainBriqs } = useBuilder();
+
+const pendingBriqs = computed(() => {
+    if (!chainBriqs.value)
+        return false;
+    return Object.keys(chainBriqs.value!.metadata).length;
+});
+
+const nbOfBriqs = computed(() => {
+    return chainBriqs.value!.getNbBriqs() + (legacyChainBriqs.current?.getNbBriqs() || 0)
+})
 
 const { activeInputButton, switchToState } = useBuilderInput();
 
 const menuOpen = ref(false);
-
-const pendingBriqs = computed(() => {
-    if (!chainBriqs?.value)
-        return false;
-    return Object.keys(chainBriqs?.value!.metadata).length;
-});
 
 </script>
 
@@ -126,16 +130,16 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
             </div>
             <div class="flex-auto sm:flex-none flex items-center justify-between gap-1 p-1 border border-grad-light bg-grad-lightest rounded pointer-events-auto text-sm md:text-normal">
                 <template v-if="maybeStore?.userWalletAddress">
-                    <Tooltip :tooltip="`${ getNbBriqs } briqs used out of ${ chainBriqs?.getNbBriqs() } in wallet`">
+                    <Tooltip :tooltip="`${ getNbBriqs } briqs used out of ${ nbOfBriqs } in wallet`">
                         <div class="flex items-center justify-left font-medium gap-2 pl-3 pr-4 cursor-help" :style="{ minWidth: `${getNbBriqs.toString().length * 0.6 + 5.7}rem`}">
                             <briqIcon v-if="pendingBriqs" width="0.9rem" class="inline-block hue-rotate-180 brightness-[1.3] saturate-[0.8]"/>
                             <briqIcon v-else width="0.9rem" class="inline-block"/>
-                            <span :class="pendingBriqs ? 'text-info-info' : ''">{{ getNbBriqs }}/{{ chainBriqs?.getNbBriqs() }}</span>
+                            <span :class="pendingBriqs ? 'text-info-info' : ''">{{ getNbBriqs }}/{{ nbOfBriqs }}</span>
                         </div>
                     </Tooltip>
                     <div>
                         <MenuDropdown no-background icon class="text-xs">
-                            <template #button><ProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
+                            <template #button><SmallProfileIcon width="1rem" height="1rem" class="inline-block"/></template>
                             <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="far fa-circle-user"/> My profile</Btn></router-link>
                             <a v-if="maybeStore?.isWebWallet()" :href="WEB_WALLET_URL" target="_blank"><Btn no-background class="w-full justify-start text-left py-1" icon><ArgentLogo width="1rem" height="1rem"/> Web wallet<br>dashboard</Btn></a>
                             <Btn no-background class="justify-start" icon @click="maybeStore?.openWalletSelector()"><i class="far fa-address-card"/> Change Wallet</Btn>
@@ -152,7 +156,7 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
                                 <span class="hidden md:block">Wrong network, switch to mainnet</span>
                                 <span class="md:hidden block">Switch to mainnet</span>
                             </div>
-                            <ProfileIcon width="1rem" height="1rem" class="inline-block !mx-2"/>
+                            <SmallProfileIcon width="1rem" height="1rem" class="inline-block !mx-2"/>
                         </template>
                         <router-link :to="{ name: 'Profile' }"><Btn class="w-full justify-start" no-background icon><i class="fa-regular fa-circle-user"/> My profile</Btn></router-link>
                         <a v-if="maybeStore?.isWebWallet()" :href="WEB_WALLET_URL" target="_blank"><Btn no-background class="w-full justify-start text-left py-1" icon><ArgentLogo width="1rem" height="1rem"/> Web wallet<br>dashboard</Btn></a>

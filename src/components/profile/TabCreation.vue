@@ -68,6 +68,20 @@ const toggleSelected = (id: string) => {
 ::v-deep(.item-card.selected) > div {
     @apply ring-2 ring-primary;
 }
+
+.needMigration {
+    background: repeating-linear-gradient(
+        -50deg,
+        rgb(var(--color-primary) / 0.5) 0px,
+        rgb(var(--color-primary) / 0.5) 15px,
+        rgb(var(--color-grad-lightest)) 15px,
+        rgb(var(--color-grad-lightest)) 30px
+    ) !important;
+    @apply h-7 border border-primary text-text-on-primary font-normal;
+}
+.needMigration p {
+    @apply text-primary bg-grad-lightest px-2 rounded;
+}
 </style>
 
 <template>
@@ -131,6 +145,9 @@ const toggleSelected = (id: string) => {
                         toggleSelected(creation.id)
                     ">
                     <template #subtitle>
+                        <div class="needMigration absolute top-0 w-full flex justify-center items-center rounded-t-md">
+                            <p>Migration needed</p>
+                        </div>
                         <Toggle v-if="mode == 'batch_actions'" class="absolute top-4 right-3 w-10" :enabled="selectedItems.has(creation.id)"/>
                         <p class="mx-4 text-grad-dark relative">
                             {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-3) }}
