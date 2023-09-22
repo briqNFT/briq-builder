@@ -68,6 +68,11 @@ export const routes = [
         },
     },
     {
+        path: '/collections/massmint',
+        name: 'MassMint',
+        component: () => import('@/components/collections/MassMint.vue'),
+    },
+    {
         path: '/debug/:address?',
         name: 'Debug',
         component: async () => {

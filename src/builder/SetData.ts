@@ -79,7 +79,7 @@ export class SetData {
         this.reset();
         this.name = data.name;
         this.description = data?.description || '';
-        this.regionSize = data.regionSize;
+        this.regionSize = data.regionSize || REGION_SIZE;
         const version = data.version;
         for (const briq of data.briqs) {
             const cell = new Briq();
