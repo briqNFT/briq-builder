@@ -81,7 +81,6 @@ const importJsons = async () => {
             let contents = JSON.parse(await jsondata.text());
             let set = new SetData(contents.id).deserialize(contents);
             set.id = contractStore.set!.precomputeTokenId(walletStore.userWalletAddress, set.id, set.getNbBriqs());
-            console.log(set);
             const ftch = new Fetchable<SetToMint>();
             ftch.fetch(async () => new SetToMint(jsondata.name.replace('.json', ''), set));
             setsToMint.value.push(ftch);
@@ -130,6 +129,21 @@ const storeObjects = () => {
         });
 }
 
+const deployShapeContracts = async () => {
+    const data = {}
+    for (const item in existingItems.value?.[collection.value] || {}) {
+        if (!(item in bookletDataStore[getCurrentNetwork()]))
+            continue;
+        if (!bookletDataStore[getCurrentNetwork()][item]._data)
+            continue;
+        const attribute_id = bookletDataStore[getCurrentNetwork()][item]._data!.serial_number.toString(16);
+        data['0x' + attribute_id] = bookletDataStore[getCurrentNetwork()][item]._data!.briqs;
+    }
+    const jsonData = await backendManager.post('v1/admin/compile_shape_contract/', {
+        shapes_by_attribute_id: data,
+    });
+}
+
 const start_auth = async () => {
     const message_to_sign = await backendManager.fetch(`v1/auth/start/${getCurrentNetwork()}/${walletStore.userWalletAddress}`)
     const signature = await (walletStore.signer as Account).signMessage(message_to_sign.challenge);
@@ -161,7 +175,7 @@ const start_auth = async () => {
         </div>
         <Btn @click="start_auth">Connect</Btn>
         <div>
-            <h3>Minting</h3>
+            <h3>Data storage</h3>
             <p>Network: {{ getCurrentNetwork() }}</p>
             <Btn @click="importJsons">Import JSON files</Btn>
             <Btn @click="importPreviews('preview_b64')">Import Preview files</Btn>
@@ -173,17 +187,15 @@ const start_auth = async () => {
                 </select>
             </p>
             <table>
-                <tr><th>file</th><th>Name</th><th>ID</th><th>NB briqs</th><th>Preview</th><th>Server Preview</th><th>Booklet ID</th><th>Booklet</th><th>Server Booklet</th><th>AGID</th><th>AID</th></tr>
+                <tr><th>file</th><th>Name</th><th>ID</th><th>NB briqs</th><th>Preview</th><th>Booklet ID</th><th>Booklet</th><th>AGID</th><th>AID</th></tr>
                 <tr v-for="setToMint, i in setsToMint" :key="i">
                     <td>{{ setToMint._data?.filename }}</td>
                     <td>{{ setToMint._data?.data.name }}</td>
                     <td>{{ setToMint._data?.data.id }}</td>
                     <td>{{ setToMint._data?.data.getNbBriqs() }}</td>
                     <td><img class="w-16" v-if="setToMint._data?.preview_b64" :src="setToMint._data?.preview_b64"></td>
-                    <td><img v-if="setToMint._data?.data.id" :src="backendManager.getPreviewUrl(setToMint._data?.data.id)"><p v-else>false</p></td>
                     <td>{{ collection ? `${collection}/${setToMint._data?.data.name}`: 'N/A' }}</td>
                     <td><img class="w-16" v-if="collection && setToMint._data?.booklet_b64" :src="setToMint._data?.booklet_b64"></td>
-                    <td>{{ collection ? 'TODO' : '' }}</td>
                     <td>{{ assemblyGroupId }}</td>
                     <td/>
                 </tr>
@@ -204,38 +216,51 @@ const start_auth = async () => {
             </p>
             <hr class="my-6">
             <h4>Existing items in this collection:</h4>
+            <Btn @click="deployShapeContracts">Deploy missing shape contract(s)</Btn>
+            <Btn>Mint Boxes</Btn>
+            <Btn>Mint Booklets</Btn>
+            <Btn>Migrate all</Btn>
             <table>
-                <tr><th>Object ID</th><th>Booklet metadata</th><th>Name</th><th>Serial #</th><th>Token ID</th></tr>
-                <tr v-for="id in existingItems?.[collection] ?? []" :key="id">
-                    <td>{{ id }}</td>
-                    <template v-if="id in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][id]._data">
+                <tr>
+                    <th>Object ID</th>
+                    <th>Booklet metadata</th>
+                    <th>Name</th>
+                    <th>Serial #</th>
+                    <th>Images</th>
+                    <th>Shape Contract</th>
+                    <th>Booklet owners</th>
+                </tr>
+                <tr v-for="id, name in existingItems?.[collection] ?? {}" :key="name">
+                    <td>{{ name }}</td>
+                    <template v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">
                         <td>
                             <Btn
                                 secondary
                                 @click="() => pushModal(TextModal, {
-                                    text: JSON.stringify(bookletDataStore[getCurrentNetwork()][id]._data, null, 4)
+                                    text: JSON.stringify(bookletDataStore[getCurrentNetwork()][name]._data, null, 4)
                                 })">
                                 Show metadata
                             </Btn>
                         </td>
                         <td>
-                            {{ bookletDataStore[getCurrentNetwork()][id]._data.name }}
-                        </td>
-                        <td>
-                            {{ bookletDataStore[getCurrentNetwork()][id]._data.serial_number }}
-                        </td>
-                        <td>
-                            {{ bookletDataStore[getCurrentNetwork()][id]._data.token_id }}
+                            {{ bookletDataStore[getCurrentNetwork()][name]._data.name }}
                         </td>
                     </template>
                     <td v-else-if="id in bookletDataStore[getCurrentNetwork()]">
-                        {{ bookletDataStore[getCurrentNetwork()][id]._status }}
+                        {{ bookletDataStore[getCurrentNetwork()][name]._status }}
                     </td>
-                    <td v-else>
-                        <Btn no-background @click="() => bookletDataStore[getCurrentNetwork()][id]">
-                            Load
-                        </Btn>
+                    <template v-else>
+                        <td>
+                            <Btn no-background @click="() => bookletDataStore[getCurrentNetwork()][name]">
+                                Load
+                            </Btn>
+                        </td>
+                        <td/>
+                    </template>
+                    <td>
+                        {{ id }}
                     </td>
+                    <td><img class="w-12" :src="genesisStore.coverBookletRoute(name, true)"></td>
                 </tr>
             </table>
         </div>
