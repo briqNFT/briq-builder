@@ -10,6 +10,7 @@ import type BriqFactoryContract from './contracts/briq_factory';
 
 import type { CHAIN_NETWORKS } from './Network';
 import { APP_ENV } from '@/Meta';
+import RegisterShapeValidatorContract from './contracts/register_shape_validator';
 
 export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
     localhost: {},
@@ -43,16 +44,29 @@ if (APP_ENV !== 'prod') {
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
         briq_factory: '0x07ad96c0f03a1924ede9ce2e3e4546560602dcce65b5fd050870cfecf583b414',
     };
+    // # World  Contract address: 0x224ad60c7cac93cc53ac324b2c6289a335a1f914e009344520b7bea5cba7195
+    // setup_world  Already deployed: 0x4cadc6ed170e1b860bbac104c9d470f215f95cea566fd36802c8d6684565cc6
+    // briq_factory  Already deployed: 0x59152f8e204f008814c1cf5472e91ba53a723ebbd3c62a415f6571a35724abd
+    // attribute_groups  Already deployed: 0x485f6c389bd22d266e90395b5f145b59044db43915d130e440b9eaedd51af82
+    // register_shape_validator  Already deployed: 0x8230683598be99d4f87ca0d525aaaa32281394e05a56d2282e6e853729a3a1
+    // box_nft  Already deployed: 0x317fb0ae04fb8eae8bd032bf7c217bcef7e2a152ea89e17a08e21537a75d7e0
+    // booklet_ducks  Already deployed: 0x10c306b71a6a938ae6e06e5c727108b19a092a02b9eac3940dccf7e1732594c
+    // booklet_starknet_planet  Already deployed: 0x2ff89b2a217d175cbce0d6ea286e529a2464aa3bd20d5fb68b6e378b77741f8
+    // briq_token  Already deployed: 0x1d1b0fea4ed52bc6459a537ffd687a98bce5dcb33491294ef79b6d13a4ff20b
+    // set_nft  Already deployed: 0x704f5c989fc68cd845125ff378b6fe42679477a26de68a03ac8cbe5fc4dea47
+    // set_nft_ducks  Already deployed: 0x625a0eed8bd3817523d09fbd48a5d92ba0623cd65f6dad3b4570f7102c95829
+    // set_nft_1155  Already deployed: 0x1e0dbbb73af3380ffae2ea598c7d6a80f3d417da3c13ba5df1b3a6fd1d1aa85
     ADDRESSES['starknet-testnet-dojo'] = {
-        world: '0x2bef66bac33c7c8a668049a870b9795a468800ec54e398d592fd84f831ae2c',
-        executor: '0x1c24cd47ab41ad1140f624ed133db38411bfa44d7f34e41551af819da9a78eb',
-        briq_factory: '0x0213556a61d17f369eddf0b531b25f8deb7e5ceaac9263fa00e35a9d3de64b90',
-        briq: '0x251cd76d4f31f1c0a1a719a315d524a6338697120e5bede50bc7949819c93e5',
-        set: '0x43045108736ec538ac6a4f57ea6da423ad18787eb2da8c7d644a91b4ebd5cc4',
+        world: '0x224ad60c7cac93cc53ac324b2c6289a335a1f914e009344520b7bea5cba7195',
+        executor: '',
+        briq_factory: '0x59152f8e204f008814c1cf5472e91ba53a723ebbd3c62a415f6571a35724abd',
+        briq: '0x1d1b0fea4ed52bc6459a537ffd687a98bce5dcb33491294ef79b6d13a4ff20b',
+        set: '0x704f5c989fc68cd845125ff378b6fe42679477a26de68a03ac8cbe5fc4dea47',
         box: '',
         booklet: '',
         auction: '',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+        register_shape_validator: '0x8230683598be99d4f87ca0d525aaaa32281394e05a56d2282e6e853729a3a1',
     };
 }
 
@@ -64,6 +78,7 @@ const contractStore = shallowReactive({
     auction_ducks: undefined as undefined | OnchainAuctionContract,
     eth_bridge_contract: undefined as undefined | ERC20Contract,
     briq_factory: undefined as undefined | BriqFactoryContract,
+    register_shape_validator: undefined as undefined | RegisterShapeValidatorContract,
 });
 
 export default contractStore;

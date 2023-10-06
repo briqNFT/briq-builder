@@ -17,7 +17,7 @@ import Toggle from '@/components/generic/Toggle.vue';
 import { addressToStarknetId } from '@/chain/StarknetId';
 
 const route = useRoute();
-const network: CHAIN_NETWORKS = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet';
+const network: CHAIN_NETWORKS = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet-dojo';
 
 const themeName = computed(() => 'ducks_everywhere');
 

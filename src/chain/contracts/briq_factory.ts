@@ -47,24 +47,15 @@ export default class BriqContract {
 }
 
 export class BriqFactoryOnDojoContract extends BriqContract {
-    executor!: string;
-    constructor(address: string, provider: Provider, addresses: any) {
-        super(address, provider, addresses);
-    }
-    connect(address: string, provider: Provider, addresses: any) {
-        this.contract = new Contract(BriqFactoryABI as FunctionAbi[], address, provider);
-        this.executor = addresses?.executor;
-    }
     buyTransaction(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
-        console.log(this.executor)
         return [
-            erc20_contract.contract.populateTransaction['approve'](this.executor, uint256.bnToUint256(number.toBN(approval))),
+            erc20_contract.contract.populateTransaction['approve'](this.contract.address, uint256.bnToUint256(number.toBN(approval))),
             {
                 contractAddress: this.contract.address,
                 entrypoint: 'buy',
                 calldata: [1, `${amount}`],
             },
-            erc20_contract.contract.populateTransaction['approve'](this.executor, uint256.bnToUint256(number.toBN(0))),
+            erc20_contract.contract.populateTransaction['approve'](this.contract.address, uint256.bnToUint256(number.toBN(0))),
         ]
     }
 }

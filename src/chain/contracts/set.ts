@@ -45,12 +45,12 @@ export default class SetContract {
         const colorHexCode = briq.data.color.toLowerCase();
         for (let i = 0; i < colorHexCode.length; ++i)
             colorHex += colorHexCode.charCodeAt(i).toString(16).padStart(2, '0');
-        const color_nft_material = starknet.number.toBN(briq.data.material).iadd(starknet.number.toBN(colorHex).imul(two.pow(starknet.number.toBN(136))))
-        const x_y_z = (starknet.number.toBN(briq.pos[2]).add(two.pow(starknet.number.toBN(63)))).iadd(
-            starknet.number.toBN(briq.pos[1]).add(two.pow(starknet.number.toBN(63))).mul(two.pow(starknet.number.toBN(64)))).iadd(
-            starknet.number.toBN(briq.pos[0]).add(two.pow(starknet.number.toBN(63))).mul(two.pow(starknet.number.toBN(128))),
+        const color_material = starknet.number.toBN(briq.data.material).iadd(starknet.number.toBN(colorHex).imul(two.pow(starknet.number.toBN(64))))
+        const x_y_z = (starknet.number.toBN(briq.pos[2]).add(two.pow(starknet.number.toBN(31)))).iadd(
+            starknet.number.toBN(briq.pos[1]).add(two.pow(starknet.number.toBN(31))).mul(two.pow(starknet.number.toBN(32)))).iadd(
+            starknet.number.toBN(briq.pos[0]).add(two.pow(starknet.number.toBN(31))).mul(two.pow(starknet.number.toBN(64))),
         )
-        return [color_nft_material.toString(10), x_y_z.toString(10)]
+        return [color_material.toString(10), x_y_z.toString(10)]
     }
 
     _string_to_felt_string(data: string) {
@@ -138,7 +138,9 @@ export class SetOnDojoContract extends SetContract {
         let hash = snHash.pedersen([0, address]);
         hash = snHash.pedersen([hash, token_id_hint]);
         hash = snHash.pedersen([hash, nb_briqs]);
-        hash = (BigInt(hash) % BigInt('0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00')).toString(16);
+        hash = (
+            BigInt(hash) % BigInt('0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00') & BigInt('0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000')
+        ).toString(16);
         return '0x' + hash;
     }
 

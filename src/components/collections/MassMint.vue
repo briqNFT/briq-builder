@@ -130,7 +130,7 @@ const storeObjects = () => {
 }
 
 const deployShapeContracts = async () => {
-    const data = {}
+    const data = {} as Record<string, unknown>;
     for (const item in existingItems.value?.[collection.value] || {}) {
         if (!(item in bookletDataStore[getCurrentNetwork()]))
             continue;
@@ -142,6 +142,14 @@ const deployShapeContracts = async () => {
     const jsonData = await backendManager.post('v1/admin/compile_shape_contract/', {
         shapes_by_attribute_id: data,
     });
+    //(walletStore.signer)?.declare()
+    for (const attributeId in data)
+        contractStore.register_shape_validator!.register(
+            assemblyGroupId.value!,
+            attributeId,
+            '',
+        )
+
 }
 
 const start_auth = async () => {
