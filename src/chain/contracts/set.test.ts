@@ -50,19 +50,19 @@ describe('Test Export with booklet', () => {
         const contract = new SetContract('0xcafe', new Signer());
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#faafaa' }, pos: [1, 2, 3],
-        })).toEqual([starknet.number.toBN('0x236661616661610000000000000000000000000000000024').toString(10), starknet.number.toBN('0x800000000000000180000000000000028000000000000003').toString(10)])
+        })).toEqual([starknet.number.toBN('0x236661616661610000000000000024').toString(10), starknet.number.toBN('0x800000018000000280000003').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x242424', color: '#faafaa' }, pos: [1, -20000, 3],
-        })).toEqual([starknet.number.toBN('0x236661616661610000000000000000000000000000242424').toString(10), starknet.number.toBN('0x80000000000000017fffffffffffb1e08000000000000003').toString(10)])
+        })).toEqual([starknet.number.toBN('0x236661616661610000000000242424').toString(10), starknet.number.toBN('0x800000017fffb1e080000003').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#faafaa' }, pos: [1, 2, -3],
-        })).toEqual([starknet.number.toBN('0x236661616661610000000000000000000000000000000024').toString(10), starknet.number.toBN('0x800000000000000180000000000000027ffffffffffffffd').toString(10)])
+        })).toEqual([starknet.number.toBN('0x236661616661610000000000000024').toString(10), starknet.number.toBN('0x80000001800000027ffffffd').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#afafaf' }, pos: [-1, 2, 3],
-        })).toEqual([starknet.number.toBN('0x236166616661660000000000000000000000000000000024').toString(10), starknet.number.toBN('0x7fffffffffffffff80000000000000028000000000000003').toString(10)])
+        })).toEqual([starknet.number.toBN('0x236166616661660000000000000024').toString(10), starknet.number.toBN('0x7fffffff8000000280000003').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x24994', color: '#347873' }, pos: [1, 2, 3000000],
-        })).toEqual([starknet.number.toBN('0x233334373837330000000000000000000000000000024994').toString(10), starknet.number.toBN('0x8000000000000001800000000000000280000000002dc6c0').toString(10)])
+        })).toEqual([starknet.number.toBN('0x233334373837330000000000024994').toString(10), starknet.number.toBN('0x8000000180000002802dc6c0').toString(10)])
     });
 });
 
@@ -71,34 +71,34 @@ describe('Test new token ID computations', () => {
         const contract = new SetOnDojoContract('0xcafe', undefined as any, { world: 0, executor: 1 } as any);
 
         expect(contract.precomputeTokenId('0x3ef5b02bcc5d30f3f0d35d55f365e6388fe9501eca216cb1596940bf41083e2', '0x6111956b2a0842138b2df81a3e6e88f8', 25)).toEqual(
-            '0xc40763dbee89f284bf9215e353171229b4cbc645fa8c0932cb68c134ba8b24',
+            '0xc40763dbee89f284bf9215e353171229b4cbc645fa8c0932cb68c100000000',
         );
-        expect(contract.precomputeTokenId('0x3ef5b02bcc5d30f3f0d35d55f365e6388fe9501eca216cb1596940bf41083e2', '0x6111956b2a0842138b2df81a3e6e88f8', 25)).toEqual(
-            '0xc40763dbee89f284bf9215e353171229b4cbc645fa8c0932cb68c134ba8b24',
+        expect(contract.precomputeTokenId('0x3ef5b02bcc5d30f3f0d35d55f365e6388fe9501eca216cb1596940bf41083e2', '0x6111956b2a0842138b2df81a3e6e88f8', 76)).toEqual(
+            '0x139db5a5c452dc2bfd81794db74ced3aa2fb2d848d85dd6c1055d300000000',
         );
         expect(contract.precomputeTokenId('0x3ef5b02bcc5d30f3f0d35d55f365eca216cb1596940bf41083e2', '0x6111956b2a06e88f8', 1)).toEqual(
-            '0x3011789e95d63923025646fcbf5230513b8b347ff1371b871a996861def1621',
+            '0x3011789e95d63923025646fcbf5230513b8b347ff1371b871a9968600000000',
         );
         expect(contract.precomputeTokenId('0x3ef5b02bcc5d305f365e6388fe9501eca216cb1596940bf41083e2', '0x611195842138b2df81a3e6e88f8', 2)).toEqual(
-            '0x19d7b6f61cec829e2e1c424e11b40c8198912a71d75b14a781db838df69daa5',
+            '0x19d7b6f61cec829e2e1c424e11b40c8198912a71d75b14a781db83800000000',
         );
         expect(contract.precomputeTokenId('0x3ef5b02bcc5d30f3f0d35d55f365e63801eca216cb1596940bf41083e2', '0x6111956b42138b2df81a3e6e88f8', 3)).toEqual(
-            '0x7805905ca794dd2afcf54520b89b0a5520f51614e3ce357c7c285279f874b29',
+            '0x7805905ca794dd2afcf54520b89b0a5520f51614e3ce357c7c2852700000000',
         );
         expect(contract.precomputeTokenId('0x3ef5b02bcc5d30f3f35d55f365e6388fe9501eca216cb1596940bf41083e2', '0x6111956b2ae88f8', 4)).toEqual(
-            '0x6f003d687db73af9b0675080e87208027881dccf5a6fd35eed4f88568ed7f37',
+            '0x6f003d687db73af9b0675080e87208027881dccf5a6fd35eed4f88500000000',
         );
         expect(contract.precomputeTokenId('0x3ef5b02bcc5d30f3f0d35d55f365e6388fe9501e216cb1596940bf41083e2', '0x6111956b2a0842138b26e88f8', 5)).toEqual(
-            '0x3f7dc95b8ce50f4c0e75d7c2c6cf04190e45c3cb4c26e52b9993df08ffb7e5a',
+            '0x3f7dc95b8ce50f4c0e75d7c2c6cf04190e45c3cb4c26e52b9993df000000000',
         );
         expect(contract.precomputeTokenId('0x3ef5b02b30f3f0d35d55f365e6388fe9501eca216cb1596940bf41083e2', '0x6111938b2df81a3e6e88f8', 6)).toEqual(
-            '0x5289ebc74ed85b93bd3f2da93cb3b836b0b8bd6c3924b29d916f6882998dc06',
+            '0x5289ebc74ed85b93bd3f2da93cb3b836b0b8bd6c3924b29d916f68800000000',
         );
         expect(contract.precomputeTokenId('0x3ef5b0388fe9501eca216cb1596940bf41083e2', '0x6111956b2a02138b2df81a3e6e88f8', 7)).toEqual(
-            '0x7e49695c97a0b7779bfcc0f532866b5f8ed03999a7d3cd093d585dd5eb23c39',
+            '0x7e49695c97a0b7779bfcc0f532866b5f8ed03999a7d3cd093d585dd00000000',
         );
         expect(contract.precomputeTokenId('0x3ef5b02bcc5d30f3f0d35d5cb1596940bf41083e2', '0x611138b2df81a3e6e88f8', 8)).toEqual(
-            '0x1fcea5dd923ed43f376c2ff1fc86fecf221b1fad82d6caf6221f5b71a787573',
+            '0x1fcea5dd923ed43f376c2ff1fc86fecf221b1fad82d6caf6221f5b700000000',
         );
     });
 });
