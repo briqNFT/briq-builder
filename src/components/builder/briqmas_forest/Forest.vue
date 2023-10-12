@@ -83,7 +83,7 @@ const loadTrees = async () => {
         loadTree(getCurrentNetwork(), treeId).then(_ => {
             const tree = putTreeInScene(getCurrentNetwork(), treeId);
 
-            const idx = Math.floor(starknet.number.toBN(treeId).umod(starknet.number.toBN(SLOTS_EDGE*SLOTS_EDGE)).toNumber());
+            const idx = Math.floor(Number(BigInt(treeId) % BigInt(SLOTS_EDGE*SLOTS_EDGE)));
             const pos = findPos(positions, idx);
             pos.claimant = treeId;
             tree.position.x = pos.pos[0];
@@ -97,7 +97,7 @@ const loadTrees = async () => {
             tree.userData.id = treeId;
             owners[trees._data[treeId].owner] = new Fetchable();
             owners[trees._data[treeId].owner].fetch(async () => {
-                const r = await (await fetch('https://app.starknet.id/api/indexer/addr_to_domain?addr=' + starknet.number.toBN(trees._data[treeId].owner).toString())).json()
+                const r = await (await fetch('https://app.starknet.id/api/indexer/addr_to_domain?addr=' + BigInt(trees._data[treeId].owner).toString())).json()
                 if (r.domain)
                     return r.domain;
             });

@@ -65,9 +65,9 @@ const actualData = computed(() => data.map((item: unknown) => {
             }
         */
     else if (props.type === 'box')
-        if (!user_wallet.value || !(starknet.number.toBN(item.from).cmp(starknet.number.toBN(user_wallet.value)) === 0 || starknet.number.toBN(item.to).cmp(starknet.number.toBN(user_wallet.value)) === 0))
+        if (!user_wallet.value || !(BigInt(item.from) === BigInt(user_wallet.value) || BigInt(item.to) === BigInt(user_wallet.value)))
             return null;
-        else if (starknet.number.toBN(item.from).cmp(starknet.number.toBN(user_wallet.value)) === 0 && item.to === '0x0')
+        else if (BigInt(item.from) === BigInt(user_wallet.value) && item.to === '0x0')
             return {
                 kind: 'unboxed',
                 by: item.from.slice(0, 6) + '...' + item.from.slice(-3),
@@ -75,14 +75,14 @@ const actualData = computed(() => data.map((item: unknown) => {
                 date: new Date(item.timestamp),
                 tx_hash: item.tx_hash,
             }
-        else if (starknet.number.toBN(item.from).cmp(starknet.number.toBN(ADDRESSES[props.network].auction)) === 0 && starknet.number.toBN(item.to).cmp(starknet.number.toBN(user_wallet.value)) === 0)
+        else if (BigInt(item.from) === BigInt(ADDRESSES[props.network].auction) && BigInt(item.to) === BigInt(user_wallet.value))
             return {
                 kind: 'bought',
                 by: item.to.slice(0, 6) + '...' + item.to.slice(-3),
                 date: new Date(item.timestamp),
                 tx_hash: item.tx_hash,
             }
-        else if (starknet.number.toBN(item.to).cmp(starknet.number.toBN(user_wallet.value)) === 0)
+        else if (BigInt(item.to) === BigInt(user_wallet.value))
             return {
                 kind: 'obtained',
                 by: item.to.slice(0, 6) + '...' + item.to.slice(-3),

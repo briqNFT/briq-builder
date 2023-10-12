@@ -34,7 +34,7 @@
     "get-starknet": "^2.0",
     "json-bigint": "git+https://github.com/briqNFT/json-bigint.git#fix-ts",
     "qrcode": "^1.5.1",
-    "starknet": "^4.0",
+    "starknet": "^5.0",
     "stats.js": "^0.17",
     "three": "^0.151",
     "uuid": "^8",

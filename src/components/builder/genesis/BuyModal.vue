@@ -35,16 +35,16 @@ const props = defineProps<{
 const termsSale = ref(false);
 const termsBriq = ref(false);
 
-const weiPrice = computed(() => starknet.number.toBN(Math.floor(saledata.value?.price || 100).toString()))
+const weiPrice = computed(() => BigInt(Math.floor(saledata.value?.price || 100).toString()))
 
 const canMakeBid = computed(() => {
     if (!termsBriq.value || !termsSale.value)
         return false;
-    return userBalance.current?.balance?._status !== 'LOADED' || starknet.number.toBN(userBalance.current?.balance._data).cmp(weiPrice) >= 0;
+    return userBalance.current?.balance?._status !== 'LOADED' || BigInt(userBalance.current?.balance._data) >= weiPrice.value;
 })
 
 const canMakeBidReason = computed(() => {
-    if (userBalance.current?.balance?._status == 'LOADED' && starknet.number.toBN(userBalance.current?.balance?._data).cmp(weiPrice) < 0)
+    if (userBalance.current?.balance?._status == 'LOADED' && BigInt(userBalance.current?.balance?._data) < weiPrice.value)
         return 'Insufficient balance';
     return undefined;
 })

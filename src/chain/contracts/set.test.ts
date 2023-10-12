@@ -50,19 +50,19 @@ describe('Test Export with booklet', () => {
         const contract = new SetContract('0xcafe', new Signer());
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#faafaa' }, pos: [1, 2, 3],
-        })).toEqual([starknet.number.toBN('0x236661616661610000000000000024').toString(10), starknet.number.toBN('0x800000018000000280000003').toString(10)])
+        })).toEqual([BigInt('0x236661616661610000000000000024').toString(10), BigInt('0x800000018000000280000003').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x242424', color: '#faafaa' }, pos: [1, -20000, 3],
-        })).toEqual([starknet.number.toBN('0x236661616661610000000000242424').toString(10), starknet.number.toBN('0x800000017fffb1e080000003').toString(10)])
+        })).toEqual([BigInt('0x236661616661610000000000242424').toString(10), BigInt('0x800000017fffb1e080000003').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#faafaa' }, pos: [1, 2, -3],
-        })).toEqual([starknet.number.toBN('0x236661616661610000000000000024').toString(10), starknet.number.toBN('0x80000001800000027ffffffd').toString(10)])
+        })).toEqual([BigInt('0x236661616661610000000000000024').toString(10), BigInt('0x80000001800000027ffffffd').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#afafaf' }, pos: [-1, 2, 3],
-        })).toEqual([starknet.number.toBN('0x236166616661660000000000000024').toString(10), starknet.number.toBN('0x7fffffff8000000280000003').toString(10)])
+        })).toEqual([BigInt('0x236166616661660000000000000024').toString(10), BigInt('0x7fffffff8000000280000003').toString(10)])
 
         expect(contract._compress_shape_item({ data: { material: '0x24994', color: '#347873' }, pos: [1, 2, 3000000],
-        })).toEqual([starknet.number.toBN('0x233334373837330000000000024994').toString(10), starknet.number.toBN('0x8000000180000002802dc6c0').toString(10)])
+        })).toEqual([BigInt('0x233334373837330000000000024994').toString(10), BigInt('0x8000000180000002802dc6c0').toString(10)])
     });
 });
 

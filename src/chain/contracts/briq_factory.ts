@@ -1,6 +1,6 @@
 import type { AccountInterface, Provider } from 'starknet';
 import { Contract, FunctionAbi } from 'starknet';
-import { number, uint256, shortString } from 'starknet';
+import { cairo } from 'starknet';
 
 import BriqFactoryABI from './starknet-testnet/briq_factory.json';
 import { maybeStore } from '../WalletLoading';
@@ -34,9 +34,9 @@ export default class BriqContract {
 
     buyTransaction(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
         return [
-            erc20_contract.contract.populateTransaction['approve'](this.contract.address, uint256.bnToUint256(number.toBN(approval))),
+            erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(BigInt(approval))),
             this.contract.populateTransaction.buy(`${amount}`),
-            erc20_contract.contract.populateTransaction['approve'](this.contract.address, uint256.bnToUint256(number.toBN(0))),
+            erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(0n)),
         ]
     }
 
@@ -49,13 +49,13 @@ export default class BriqContract {
 export class BriqFactoryOnDojoContract extends BriqContract {
     buyTransaction(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
         return [
-            erc20_contract.contract.populateTransaction['approve'](this.contract.address, uint256.bnToUint256(number.toBN(approval))),
+            erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(BigInt(approval))),
             {
                 contractAddress: this.contract.address,
                 entrypoint: 'buy',
                 calldata: [1, `${amount}`],
             },
-            erc20_contract.contract.populateTransaction['approve'](this.contract.address, uint256.bnToUint256(number.toBN(0))),
+            erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(0n)),
         ]
     }
 }

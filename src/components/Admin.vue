@@ -78,9 +78,7 @@ import contractStore, { ADDRESSES } from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages';
 import type { AccountInterface, Provider, Signer } from 'starknet';
 import { hash as snHash } from 'starknet';
-import * as starknet from 'starknet';
 
-import { getProvider } from '@/chain/BlockchainProvider';
 import { walletStore } from '@/chain/Wallet';
 
 const callContract = function (provider: Provider, address: string, entryPoint: string, data: any[]) {
@@ -148,7 +146,7 @@ export default defineComponent({
                 });
                 pushMessage(JSON.stringify(tx));
             } else {
-                let tx = await (walletStore.signer as Signer).invokeFunction(starknet.number.toBN(contract.getAddress()).toString(), starknet.number.toBN(snHash.getSelectorFromName('upgradeImplementation_')).toString(), [starknet.number.toBN(address).toString()]);
+                let tx = await (walletStore.signer as Signer).invokeFunction(BigInt(contract.getAddress()).toString(), BigInt(snHash.getSelectorFromName('upgradeImplementation_')).toString(), [BigInt(address).toString()]);
                 pushMessage(JSON.stringify(tx));
             }
         },
@@ -171,14 +169,14 @@ export default defineComponent({
                         calldata: this.calldata
                             .split(',')
                             .filter((x) => x)
-                            .map((x: string) => starknet.number.toBN(x.trim()).toString()),
+                            .map((x: string) => BigInt(x.trim()).toString()),
                     });
                     pushMessage(JSON.stringify(tx));
                 } else {
-                    let tx = await (walletStore.signer as Signer).invokeFunction(starknet.number.toBN(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(), starknet.number.toBN(snHash.getSelectorFromName(this.selector)).toString(), this.calldata
+                    let tx = await (walletStore.signer as Signer).invokeFunction(BigInt(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(), BigInt(snHash.getSelectorFromName(this.selector)).toString(), this.calldata
                         .split(',')
                         .filter((x) => x)
-                        .map((x: string) => starknet.number.toBN(x.trim()).toString()));
+                        .map((x: string) => BigInt(x.trim()).toString()));
                     pushMessage(JSON.stringify(tx));
                 }
                 this.customResult = `${tx.code} ${tx.transaction_hash}`;

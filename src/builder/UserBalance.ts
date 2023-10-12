@@ -5,7 +5,7 @@ import * as starknet from 'starknet';
 
 class UserBalance implements perUserStorable {
     user_id!: string;
-    balance = new Fetchable<starknet.number.BigNumberish>();
+    balance = new Fetchable<starknet.num.BigNumberish>();
 
     async onEnter() {
         await this.balance.fetch(async () => (await import('@/Dispatch')).contractStore.eth_bridge_contract!.getBalance());
@@ -14,7 +14,7 @@ class UserBalance implements perUserStorable {
     asEth(): number | undefined {
         if (this.balance._status !== 'LOADED')
             return undefined;
-        return starknet.number.toBN(this.balance._data).div(starknet.number.toBN('' + 10**15)).toNumber() / 1000;
+        return Number(BigInt(this.balance._data) + BigInt('1000000000000000')) / 1000;
     }
 }
 

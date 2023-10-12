@@ -25,15 +25,15 @@ const auctionData = computed(() => {
     return getAuctionData(getCurrentNetwork(), props.item)!._data;
 });
 
-const currentBid = computed(() => starknet.number.toBN(auctionData.value?.highest_bid || '0'));
+const currentBid = computed(() => BigInt(auctionData.value?.highest_bid || '0'));
 const currentBidString = computed(() => `${readableNumber(auctionData.value?.highest_bid || '0')} ${readableUnit(auctionData.value?.highest_bid || '0')}`);
 
 const minNewBid = computed(() => {
     if (auctionData.value?.highest_bid === '0')
-        return starknet.number.toBN(auctionData.value?.minimum_bid || '0');
+        return BigInt(auctionData.value?.minimum_bid || '0');
     const mb = currentBid.value;
-    const gr = mb.mul(starknet.number.toBN(auctionData.value?.growth_factor || 10)).idivn(starknet.number.toBN(1000));
-    return mb.add(gr);
+    const gr = mb * BigInt(auctionData.value?.growth_factor || 10) / 1000n;
+    return mb + gr;
 });
 
 // Actual current bid, as a string. Set by the input.
@@ -47,11 +47,12 @@ const weiBid = computed(() => {
 
 const balance = computed(() => userBalance.current?.asEth());
 
-const yourCurrentBid = computed(() => starknet.number.toBN(userBidsStore.current?.getBid(props.item)?.bid_amount));
+const yourCurrentBid = computed(() => BigInt(userBidsStore.current?.getBid(props.item)?.bid_amount));
+
 const yourMaxBid = computed(() => {
     if (currentBid.value.cmp(yourCurrentBid.value) === 0)
-        return starknet.number.toBN(userBalance.current?.balance._data).add(yourCurrentBid.value);
-    return starknet.number.toBN(userBalance.current?.balance._data);
+        return BigInt(userBalance.current?.balance._data) + yourCurrentBid.value;
+    return BigInt(userBalance.current?.balance._data);
 });
 
 const canMakeBid = computed(() => {
@@ -63,9 +64,9 @@ const canMakeBid = computed(() => {
 const canMakeBidReason = computed(() => {
     if (bid.value === undefined)
         return undefined;
-    if (balance.value && weiBid.value.cmp(yourMaxBid.value) > 0)
+    if (balance.value && weiBid.value > yourMaxBid.value)
         return 'Bid is greater than your balance';
-    if (weiBid.value.cmp(minNewBid.value) < 0)
+    if (weiBid.value < minNewBid.value)
         return 'Bid must be more than the current bid + 1%';
     return undefined;
 })

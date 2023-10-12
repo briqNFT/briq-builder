@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
-import * as starknet from 'starknet';
 import { readableNumber, readableUnit } from '@/BigNumberForHumans';
 import { userBalance } from '@/builder/UserBalance';
 import { Fetchable } from '@/DataFetching';
@@ -61,41 +60,38 @@ const fetchPrices = async () => {
 }
 
 const get_price_eth = (briqs: number) => {
-    let price = starknet.number.toBN(briqFactory.getPrice(briqs));
-    let slippage_value = price.mul(starknet.number.toBN(slippage.value)).div(starknet.number.toBN(1000));
-    return price.add(slippage_value);
+    let price = BigInt(briqFactory.getPrice(briqs));
+    let slippage_value = price * BigInt(slippage.value) / 1000n;
+    return price + slippage_value;
 }
 
 const surgePart = computed(() => {
-    return starknet.number.toBN(briqFactory.getSurgePrice(briqs_wanted.value));
+    return BigInt(briqFactory.getSurgePrice(briqs_wanted.value));
 })
 
 const regularPart = computed(() => {
-    return get_price_eth(briqs_wanted.value).sub(surgePart.value);
+    return get_price_eth(briqs_wanted.value) - surgePart.value;
 })
 
 const impactOnPrice = computed(() => {
     let price = get_price_eth(1);
-    let delta = starknet.number.toBN(briqFactory.getPriceAfter(briqs_wanted.value)).sub(price);
-    if (delta.cmp(starknet.number.toBN('100000000000000')) < 0)
-        return starknet.number.toBN(0);
+    let delta = BigInt(briqFactory.getPriceAfter(briqs_wanted.value)).sub(price);
+    if (delta.cmp(BigInt('100000000000000')) < 0)
+        return 0n;
     return delta;
 })
 
 const shareOfSurge = computed(() => {
     const price = get_price_eth(briqs_wanted.value);
-    if (price.isZero())
+    if (price == 0n)
         return 0;
-    return surgePart.value.mul(starknet.number.toBN(1000)).div(price).toNumber() / 10;
+    return Number(surgePart.value * 1000n / price) / 10;
 })
 
 const as_dollars = computed(() => {
     if (!parameters.value._data)
         return '...';
-    let price = get_price_eth(briqs_wanted.value).mul(
-        starknet.number.toBN(EthUsdPrice._data * 10000000000|| 10000000000),
-    ).div(starknet.number.toBN(10000000000));
-    price = +readableNumber(price);
+    let price = +readableNumber(get_price_eth(briqs_wanted.value) * BigInt(EthUsdPrice._data * 10000000000|| 10000000000) / 10000000000n);
     if (price > 1000)
         return '~' + Math.round(price);
     return Math.round(price*100)/100;
@@ -103,9 +99,9 @@ const as_dollars = computed(() => {
 
 const price_ber_briq = computed(() => {
     if (briqs_wanted.value == 0)
-        return starknet.number.toBN(0);
+        return 0n;
     let price = get_price_eth(briqs_wanted.value);
-    return price.div(starknet.number.toBN(BigInt(briqs_wanted.value).toString()));
+    return (price / BigInt(briqs_wanted.value)).toString();
 })
 
 const balance = computed(() => {

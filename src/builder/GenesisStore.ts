@@ -67,7 +67,7 @@ export class SaleData {
     }
 
     get price() {
-        return starknet.number.toBN(this.initial_price);
+        return BigInt(this.initial_price);
     }
 }
 

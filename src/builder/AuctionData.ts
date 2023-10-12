@@ -88,7 +88,7 @@ class AuctionData {
 
     async fetchBids(auction: auctionId) {
         this._bids[auction] = await backendManager.fetch(`v1/${this.network}/${auction}/bids`);
-        this._bids[auction].sort((a, b) => starknet.number.toBN(b.bid).cmp(starknet.number.toBN(a.bid)));
+        this._bids[auction].sort((a, b) => Number(BigInt(b.bid) - BigInt(a.bid)));
     }
 
     async fetchData() {
@@ -264,7 +264,7 @@ class UserBidStore implements perUserStorable {
             await item[1];
     }
 
-    async makeBid(value: starknet.number.BigNumberish, auction_id: string) {
+    async makeBid(value: starknet.num.BigNumberish, auction_id: string) {
         const contract = contractStore.auction_ducks!;
         const tx_response = await contract.approveAndBid(contractStore.eth_bridge_contract, auction_id.split('/')[1], value);
         const newBid = {
@@ -272,7 +272,7 @@ class UserBidStore implements perUserStorable {
             tx_hash: tx_response!.transaction_hash,
             date: Date.now(),
             block: undefined,
-            bid_amount: starknet.number.toFelt(value),
+            bid_amount: starknet.cairo.felt(value), // TODO: check this works after v5 if the code is reused.
         } as Bid;
         // TODO: ignore current bid ?
         if (this.metadata[auction_id]) {}

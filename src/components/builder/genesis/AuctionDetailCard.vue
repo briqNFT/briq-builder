@@ -36,7 +36,7 @@ const hasPendingBid = computed(() => {
     if (!bid)
         return false;
     // If the pending bid is lower than the current highest known bid, don't show it.
-    return props.auctionData.highest_bid === '0' || starknet.number.toBN(bid.bid_amount).cmp(starknet.number.toBN(props.auctionData.highest_bid)) > 0;
+    return props.auctionData.highest_bid === '0' || BigInt(bid.bid_amount) > BigInt(props.auctionData.highest_bid);
 });
 
 const doBid = async () => {

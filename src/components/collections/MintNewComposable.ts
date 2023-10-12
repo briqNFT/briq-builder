@@ -130,16 +130,6 @@ const doValidate = async () => {
         signature.value = undefined;
 }
 
-const estimateFee = async () => {
-    return;
-    const bookletTokenId = '0x' + num.toBN('3').add(num.toBN(validatedData.value?._data?.serial_number).mul(num.toBN('0x1000000000000000000000000000000000000000000000000'))).toString(16);
-    const tx = await maybeStore.value!.signer!.estimateInvokeFee({
-        contractAddress: ADDRESSES[getCurrentNetwork()].booklet,
-        entrypoint: 'mint_',
-        calldata: [maybeStore.value!.userWalletAddress, bookletTokenId, compiledShape.value!._data!.class_hash],
-    });
-}
-
 const compileShape = async () => {
     compiledShape.value = new Fetchable();
     await compiledShape.value.fetch(async () => await backendManager.post(`v1/admin/${getCurrentNetwork()}/ducks_everywhere/compile_shape`, {
@@ -166,7 +156,7 @@ const mintToken = async (skipDeclare: boolean) => {
                 contract: compiledShape.value?._data.contract_json,
                 classHash: compiledShape.value?._data.class_hash,
             });
-        const bookletTokenId = '0x' + num.toBN('3').add(num.toBN(validatedData.value?._data?.serial_number).mul(num.toBN('0x1000000000000000000000000000000000000000000000000'))).toString(16);
+        const bookletTokenId = '0x' + (BigInt('3') + BigInt(validatedData.value?._data?.serial_number) * BigInt('0x1000000000000000000000000000000000000000000000000')).toString(16);
         const tx = await maybeStore.value!.signer!.execute([
             {
                 contractAddress: ADDRESSES[getCurrentNetwork()].booklet,

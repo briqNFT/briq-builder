@@ -206,7 +206,7 @@ export default defineComponent({
                     this.calldata
                         .split(',')
                         .filter((x) => x)
-                        .map((x: string) => starknet.number.toBN(x.trim()).toString()),
+                        .map((x: string) => BigInt(x.trim()).toString()),
                 );
                 this.customResult = tx;
             } catch (err) {
@@ -251,7 +251,7 @@ export default defineComponent({
         },
         getMint: ticketing(async function () {
             return await callContract(this.provider, this.mintContract.getAddress(), 'amountMinted', [
-                starknet.number.toBN(this.addr.substr(2), 'hex').toString(),
+                BigInt(this.addr.substr(2), 'hex').toString(),
             ]);
         }),
         checkMint() {
@@ -268,7 +268,7 @@ export default defineComponent({
         },
         getBalance: ticketing(async function () {
             return await callContract(this.provider, this.briqContract!.getAddress(), 'balanceOf', [
-                starknet.number.toBN(this.addr.substr(2), 'hex').toString(),
+                BigInt(this.addr.substr(2), 'hex').toString(),
                 '1',
             ]);
         }),
@@ -286,7 +286,7 @@ export default defineComponent({
         },
         getSets: ticketing(async function () {
             return await callContract(this.provider, this.setContract!.getAddress(), 'balanceOf_', [
-                starknet.number.toBN(this.addr.substr(2), 'hex').toString(),
+                BigInt(this.addr.substr(2), 'hex').toString(),
             ]);
         }),
         checkBalanceSets() {

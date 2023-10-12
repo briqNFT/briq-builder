@@ -1,5 +1,4 @@
 import { readableNumber, readableUnit, fromETH } from './BigNumberForHumans';
-import * as starknet from 'starknet';
 
 describe('Test human readable representations of wei values', () => {
     it('should convert 1.23 ETH correctly', () => {
@@ -26,9 +25,9 @@ describe('Test human readable representations of wei values', () => {
 
     it('should round up with good significant digits', () => {
         const growBid = (bid: any) => {
-            const mb = starknet.number.toBN(bid);
-            const gr = mb.mul(starknet.number.toBN(50)).idivn(starknet.number.toBN(1000));
-            return mb.add(gr);
+            const mb = BigInt(bid);
+            const gr = mb * BigInt(50) / BigInt(1000);
+            return mb + gr;
         };
         expect(+growBid(5512500000).toString()).toEqual(5788125000);
         // We try to maintain significant digits.
@@ -81,8 +80,9 @@ describe('Parse human numbers into WEI values', () => {
     });
 
     it('Should bail on weird numbers and not numbers', () => {
-        expect(fromETH('10,000,000.12')).toEqual(NaN);
-        expect(fromETH('10,000.000,12')).toEqual(NaN);
-        expect(fromETH('abc')).toEqual(NaN);
+        // TODO: I used to return NaN here but bigint doesn't support that. I just return 0.
+        expect(fromETH('10,000,000.12')).toEqual(0n);
+        expect(fromETH('10,000.000,12')).toEqual(0n);
+        expect(fromETH('abc')).toEqual(0n);
     });
 });
