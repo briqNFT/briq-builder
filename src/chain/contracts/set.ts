@@ -134,7 +134,7 @@ export default class SetContract {
 }
 
 export class SetOnDojoContract extends SetContract {
-    precomputeTokenId(address: string, token_id_hint: string, nb_briqs: number) {
+    precomputeTokenId(address: string, token_id_hint: string, nb_briqs: number, booklet?: string) {
         let hash = snHash.pedersen([0, address]);
         hash = snHash.pedersen([hash, token_id_hint]);
         hash = snHash.pedersen([hash, nb_briqs]);

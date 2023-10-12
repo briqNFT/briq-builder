@@ -46,11 +46,9 @@ const showSection = (section: string) => {
                 <router-link :to="{ name: 'ThemesListing' }"><Btn secondary class="mt-2">Browse the themes</Btn></router-link>
             </div>
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-10 z-50">
-                <div v-if="mode == 'normal'">
-                    <RouterLink :to="`box/${token_id.split('/').map(encodeURIComponent).join('/')}`" v-for="token_id, i of inventoryBoxes" :key="`${token_id}_${i}`">
-                        <BoxCard mode="INVENTORY" :token-name="token_id"/>
-                    </routerlink>
-                </div>
+                <RouterLink :to="`box/${token_id.split('/').map(encodeURIComponent).join('/')}`" v-for="token_id, i of inventoryBoxes" :key="`${token_id}_${i}`">
+                    <BoxCard mode="INVENTORY" :token-name="token_id"/>
+                </routerlink>
             </div>
         </div>
         <div v-show="showSection('BOOKLET')">

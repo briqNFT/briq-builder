@@ -4,7 +4,7 @@ import Footer from '../landing_page/Footer.vue';
 import Header from '../landing_page/Header.vue';
 import { pushPopup } from '@/Notifications';
 import { SetData } from '@/builder/SetData';
-import contractStore from '@/chain/Contracts';
+import contractStore, { ADDRESSES } from '@/chain/Contracts';
 import { walletStore } from '@/chain/Wallet';
 import { ref, onMounted, computed, watchEffect } from 'vue';
 import { Fetchable } from '@/DataFetching';
@@ -15,16 +15,7 @@ import { Account } from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import { pushModal } from '../Modals.vue';
 import TextModal from '../generic/TextModal.vue';
-
-onMounted(() => {
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-    }
-    document.body.appendChild(script);
-});
+import RecipientMappingModal from './RecipientMappingModal.vue';
 
 class SetToMint {
     filename: string;
@@ -44,9 +35,13 @@ const setsToMint = ref([] as Fetchable<SetToMint>[]);
 
 const genesisStore = useGenesisStore();
 const collection = ref('');
-const assemblyGroupId = computed(() => ({
-    'ducks_everywhere': '0x1',
-}[collection.value] ?? null));
+const collectionData = {
+    'starknet_planet': '0x1',
+    'briqmas': '0x2',
+    'ducks_everywhere': '0x3',
+    'frens_ducks': '0x4',
+} as const;
+const assemblyGroupId = computed(() => (collectionData[collection.value] ?? null));
 
 const existingItems = ref({});
 
@@ -80,7 +75,8 @@ const importJsons = async () => {
         try {
             let contents = JSON.parse(await jsondata.text());
             let set = new SetData(contents.id).deserialize(contents);
-            set.id = contractStore.set!.precomputeTokenId(walletStore.userWalletAddress, set.id, set.getNbBriqs());
+            // TODO -> add token ID here
+            set.id = contractStore.set!.precomputeTokenId(walletStore.userWalletAddress, set.id, set.getNbBriqs(), null);
             const ftch = new Fetchable<SetToMint>();
             ftch.fetch(async () => new SetToMint(jsondata.name.replace('.json', ''), set));
             setsToMint.value.push(ftch);
@@ -157,31 +153,73 @@ const start_auth = async () => {
     const signature = await (walletStore.signer as Account).signMessage(message_to_sign.challenge);
     const res = await backendManager.post('v1/auth/finish', { signature });
 }
+
+const setup_collections = async () => {
+    await (walletStore.signer as Account).execute([
+        {
+            contractAddress: ADDRESSES[getCurrentNetwork()].attribute_groups,
+            entrypoint: 'create_attribute_group',
+            calldata: [
+                ADDRESSES[getCurrentNetwork()].world,
+                '0x1',
+                1, ADDRESSES[getCurrentNetwork()].booklets_starknet_planet,
+                ADDRESSES[getCurrentNetwork()].sets_starknet_planet,
+            ],
+        },
+        {
+            contractAddress: ADDRESSES[getCurrentNetwork()].attribute_groups,
+            entrypoint: 'create_attribute_group',
+            calldata: [
+                ADDRESSES[getCurrentNetwork()].world,
+                '0x2',
+                1, ADDRESSES[getCurrentNetwork()].booklets_briqmas,
+                ADDRESSES[getCurrentNetwork()].sets_briqmas,
+            ],
+        },
+        {
+            contractAddress: ADDRESSES[getCurrentNetwork()].attribute_groups,
+            entrypoint: 'create_attribute_group',
+            calldata: [
+                ADDRESSES[getCurrentNetwork()].world,
+                '0x3',
+                1, ADDRESSES[getCurrentNetwork()].booklets_ducks_everywhere,
+                ADDRESSES[getCurrentNetwork()].sets_ducks_everywhere,
+            ],
+        },
+        {
+            contractAddress: ADDRESSES[getCurrentNetwork()].attribute_groups,
+            entrypoint: 'create_attribute_group',
+            calldata: [
+                ADDRESSES[getCurrentNetwork()].world,
+                '0x4',
+                1, ADDRESSES[getCurrentNetwork()].booklets_ducks_frens,
+                ADDRESSES[getCurrentNetwork()].sets_ducks_frens,
+            ],
+        },
+    ])
+}
+
+const mintBoxes = async () => {
+    const mapping = await pushModal(RecipientMappingModal) as Record<string, string>;
+    walletStore.signer?.execute(
+        Object.keys(mapping).map(recipient => ({
+            contractAddress: ADDRESSES[getCurrentNetwork()].box,
+            entrypoint: 'mint',
+            calldata: [
+                recipient,
+                mapping[recipient],
+                1],
+        })),
+    );
+}
 </script>
 
 <template>
     <Header/>
     <div class="m-auto container">
         <h1 class="text-center my-4">Mass mint</h1>
-        <div class="w-min">
-            <div
-                id="g_id_onload"
-                data-client_id="703585634285-7i7hcnfipr51t37s0r5ggkja2batge5t.apps.googleusercontent.com"
-                data-context="signin"
-                data-ux_mode="popup"
-                data-login_uri="/login"
-                data-auto_prompt="false"/>
-
-            <div
-                class="g_id_signin"
-                data-type="standard"
-                data-shape="rectangular"
-                data-theme="outline"
-                data-text="signin_with"
-                data-size="large"
-                data-logo_alignment="left"/>
-        </div>
         <Btn @click="start_auth">Connect</Btn>
+        <Btn @click="setup_collections">Setup</Btn>
         <div>
             <h3>Data storage</h3>
             <p>Network: {{ getCurrentNetwork() }}</p>
@@ -191,7 +229,7 @@ const start_auth = async () => {
             <p>
                 Collection: <select v-model="collection">
                     <option value="">None</option>
-                    <option value="ducks_everywhere">Ducks Everywhere</option>
+                    <option v-for="key, val in collectionData" :key="key" :value="val">{{ val }}</option>
                 </select>
             </p>
             <table>
@@ -225,8 +263,8 @@ const start_auth = async () => {
             <hr class="my-6">
             <h4>Existing items in this collection:</h4>
             <Btn @click="deployShapeContracts">Deploy missing shape contract(s)</Btn>
-            <Btn>Mint Boxes</Btn>
-            <Btn>Mint Booklets</Btn>
+            <Btn @click="mintBoxes">Mint Boxes</Btn>
+            <Btn @click="pushModal(RecipientMappingModal)">Mint Booklets</Btn>
             <Btn>Migrate all</Btn>
             <table>
                 <tr>

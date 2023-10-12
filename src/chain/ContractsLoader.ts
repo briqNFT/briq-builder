@@ -9,7 +9,7 @@ import BriqContract from './contracts/briq';
 import SetContract, { SetOnDojoContract } from './contracts/set';
 import AuctionContract from './contracts/auction';
 import ERC20Contract from './contracts/erc20';
-import BoxContract from './contracts/box';
+import BoxContract, { BoxDojoContract } from './contracts/box';
 import OnchainAuctionContract from './contracts/auction_onchain';
 import BriqFactoryContract, { BriqFactoryOnDojoContract } from './contracts/briq_factory';
 
@@ -35,6 +35,7 @@ const IMPL = {
         set: SetOnDojoContract,
         briq_factory: BriqFactoryOnDojoContract,
         eth_bridge_contract: ERC20Contract,
+        box: BoxDojoContract,
     },
     'starknet-mainnet': {
         briq: BriqContract,

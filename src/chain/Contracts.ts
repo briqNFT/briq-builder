@@ -59,11 +59,12 @@ if (APP_ENV !== 'prod') {
     ADDRESSES['starknet-testnet-dojo'] = {
         world: '0x224ad60c7cac93cc53ac324b2c6289a335a1f914e009344520b7bea5cba7195',
         executor: '',
+        attribute_groups: '0x485f6c389bd22d266e90395b5f145b59044db43915d130e440b9eaedd51af82',
         briq_factory: '0x59152f8e204f008814c1cf5472e91ba53a723ebbd3c62a415f6571a35724abd',
         briq: '0x1d1b0fea4ed52bc6459a537ffd687a98bce5dcb33491294ef79b6d13a4ff20b',
         set: '0x704f5c989fc68cd845125ff378b6fe42679477a26de68a03ac8cbe5fc4dea47',
-        box: '',
-        booklet: '',
+        box: '0x317fb0ae04fb8eae8bd032bf7c217bcef7e2a152ea89e17a08e21537a75d7e0',
+        booklet: '0x4aa9169992298aa98981c781040a9312726b3865f868c55a38fcceadf6ef563', // briqmas
         auction: '',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
         register_shape_validator: '0x8230683598be99d4f87ca0d525aaaa32281394e05a56d2282e6e853729a3a1',
