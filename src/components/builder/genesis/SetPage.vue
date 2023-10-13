@@ -30,7 +30,6 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { pushPopup } from '@/Notifications';
 import DownloadSet from '../modals/DownloadSet.vue';
 import Tooltip from '@/components/generic/Tooltip.vue';
-import * as starknet from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { externalSetCache } from '@/builder/ExternalSets';

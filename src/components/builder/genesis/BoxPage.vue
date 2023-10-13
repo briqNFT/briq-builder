@@ -15,7 +15,7 @@ import ItemActivity from './ItemActivity.vue';
 import { maybeStore } from '@/chain/WalletLoading';
 
 import BriqsImg from '@/assets/genesis/briqs.png';
-import { getBoxLink, getSetLink } from '@/chain/Marketplaces';
+import { getBoxLink } from '@/chain/Marketplaces';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -25,12 +25,8 @@ const box_id = computed(() => `${route.params.theme}/${route.params.box}`);
 const {
     itemQuery,
     item,
-    saleQuery,
     saledata,
-    getActualMode,
-    durationLeft,
     nbOwned,
-    hasPendingActivity,
     isUnboxable,
     description,
 } = useBoxData(box_id.value);
