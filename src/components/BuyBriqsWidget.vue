@@ -75,8 +75,8 @@ const regularPart = computed(() => {
 
 const impactOnPrice = computed(() => {
     let price = get_price_eth(1);
-    let delta = BigInt(briqFactory.getPriceAfter(briqs_wanted.value)).sub(price);
-    if (delta.cmp(BigInt('100000000000000')) < 0)
+    let delta = BigInt(briqFactory.getPriceAfter(briqs_wanted.value)) - price;
+    if (delta < BigInt('100000000000000'))
         return 0n;
     return delta;
 })
@@ -91,7 +91,7 @@ const shareOfSurge = computed(() => {
 const as_dollars = computed(() => {
     if (!parameters.value._data)
         return '...';
-    let price = +readableNumber(get_price_eth(briqs_wanted.value) * BigInt(EthUsdPrice._data * 10000000000|| 10000000000) / 10000000000n);
+    let price = +readableNumber(get_price_eth(briqs_wanted.value) * BigInt(Math.round(EthUsdPrice._data * 10000000000|| 10000000000)) / 10000000000n);
     if (price > 1000)
         return '~' + Math.round(price);
     return Math.round(price*100)/100;

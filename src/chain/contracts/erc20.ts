@@ -22,7 +22,7 @@ export default class ERC20Contract {
     }
 
     async getBalance(): Promise<string> {
-        const result = (await getProvider().value.provider?.callContract(this.contract.populateTransaction.balanceOf(maybeStore.value?.userWalletAddress))).result;
+        const result = (await getProvider().value.provider?.callContract(this.contract.populateTransaction.balanceOf(maybeStore.value?.userWalletAddress), 'latest')).result;
         return cairo.uint256({ low: result[0], high: result[1] }).toString();
     }
 }

@@ -50,7 +50,7 @@ const balance = computed(() => userBalance.current?.asEth());
 const yourCurrentBid = computed(() => BigInt(userBidsStore.current?.getBid(props.item)?.bid_amount));
 
 const yourMaxBid = computed(() => {
-    if (currentBid.value.cmp(yourCurrentBid.value) === 0)
+    if (currentBid.value === yourCurrentBid.value)
         return BigInt(userBalance.current?.balance._data) + yourCurrentBid.value;
     return BigInt(userBalance.current?.balance._data);
 });

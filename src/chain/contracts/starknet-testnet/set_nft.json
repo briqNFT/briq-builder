@@ -51,6 +51,23 @@
         "type": "struct"
     },
     {
+        "members": [
+            {
+                "name": "attribute_group_id",
+                "offset": 0,
+                "type": "felt"
+            },
+            {
+                "name": "attribute_id",
+                "offset": 1,
+                "type": "felt"
+            }
+        ],
+        "name": "AttributeItem",
+        "size": 2,
+        "type": "struct"
+    },
+    {
         "data": [
             {
                 "name": "implementation",
@@ -501,7 +518,7 @@
             },
             {
                 "name": "attributes",
-                "type": "ShapeItem*"
+                "type": "AttributeItem*"
             }
         ],
         "name": "assemble",
@@ -571,7 +588,7 @@
             },
             {
                 "name": "attributes",
-                "type": "ShapeItem*"
+                "type": "AttributeItem*"
             }
         ],
         "name": "disassemble",

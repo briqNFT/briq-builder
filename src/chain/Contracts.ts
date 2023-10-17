@@ -57,17 +57,17 @@ if (APP_ENV !== 'prod') {
     // set_nft_ducks  Already deployed: 0x625a0eed8bd3817523d09fbd48a5d92ba0623cd65f6dad3b4570f7102c95829
     // set_nft_1155  Already deployed: 0x1e0dbbb73af3380ffae2ea598c7d6a80f3d417da3c13ba5df1b3a6fd1d1aa85
     ADDRESSES['starknet-testnet-dojo'] = {
-        world: '0x224ad60c7cac93cc53ac324b2c6289a335a1f914e009344520b7bea5cba7195',
-        executor: '',
-        attribute_groups: '0x485f6c389bd22d266e90395b5f145b59044db43915d130e440b9eaedd51af82',
-        briq_factory: '0x59152f8e204f008814c1cf5472e91ba53a723ebbd3c62a415f6571a35724abd',
-        briq: '0x1d1b0fea4ed52bc6459a537ffd687a98bce5dcb33491294ef79b6d13a4ff20b',
-        set: '0x704f5c989fc68cd845125ff378b6fe42679477a26de68a03ac8cbe5fc4dea47',
-        box: '0x317fb0ae04fb8eae8bd032bf7c217bcef7e2a152ea89e17a08e21537a75d7e0',
-        booklet: '0x4aa9169992298aa98981c781040a9312726b3865f868c55a38fcceadf6ef563', // briqmas
+        world: '0x472f425f84a736a4fb59e9aa7d8c2f664a04b91e36b92230db93abb0566cb7b',
+        attribute_groups: '0x1cfb9fb8bb15bb338ae7074360a35b1994c8bc93648a44db5433da424d03805',
+        briq_factory: '0x15e6c5cf2766fdf71494359389ad710ab79f597833200a887c4ae6948e123b0',
+        briq: '0x16dffb1ef41055a45e37c9f4189cc2748141c81cf2ca1f5f929d9ae727d67e8',
+        set: '0x30d94b5cad19b465667f1f7298c747be883b1ba6db9ed7f4d8e20ebaf336bc8',
+        set_briqmas: '0x4661b144606e0dff664a8a3f98b999b48b51c959c3ce484bff3e4b728102526',
+        box: '0x150915cb2822785ff97ddab53b5d7fa05cd2522e41963f67a772c110b72aa23', // briqmas
+        booklet: '0x20943fb1e326d8ac6575568e4384ffd4720e17835ec6d31c82ba3131cb0f9aa', // briqmas
+        register_shape_validator: '0x281014b413b61ad5b66dad574a6554d83b14c1475097070988aadae0ee5580c',
         auction: '',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
-        register_shape_validator: '0x8230683598be99d4f87ca0d525aaaa32281394e05a56d2282e6e853729a3a1',
     };
 }
 

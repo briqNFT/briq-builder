@@ -6,9 +6,12 @@ import SetABI from './starknet-testnet/set_nft.json';
 import * as starknet from 'starknet';
 import { maybeStore } from '../WalletLoading';
 import { toRaw } from 'vue';
-import type { ADDRESSES } from '../Contracts';
+import { ADDRESSES } from '../Contracts';
 
-const SHAPE_HASH_COLLECTION = 2;
+interface AttributeItem {
+    attribute_group_id: string;
+    attribute_id: string;
+}
 
 export default class SetContract {
     contract!: Contract;
@@ -62,7 +65,7 @@ export default class SetContract {
         return out;
     }
 
-    _prepareForAssemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
+    _prepareForAssemble(data: any) {
         const fungibles = {} as { [mat: string]: number };
         const nfts = [] as string[];
         const shapes = [];
@@ -86,24 +89,28 @@ export default class SetContract {
         return { setName, setDescription, fts, nfts, shapes };
     }
 
-    async assemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
-        const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
+    async assemble(owner: string, token_id_hint: string, data: any, attribute?: AttributeItem) {
+        const { setName, setDescription, fts, shapes } = this._prepareForAssemble(data);
         await maybeStore.value!.ensureEnabled();
-        return toRaw(await this.contract.assemble_(owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet] : []));
+        return toRaw(await this.contract.assemble(owner, token_id_hint, setName, setDescription, fts, shapes, attribute ? [attribute] : []));
     }
 
-    async callAndAssemble(otherCalls: Array<starknet.Call>, owner: string, token_id_hint: string, data: any, booklet?: string) {
+    async callAndAssemble(otherCalls: Array<starknet.Call>, owner: string, token_id_hint: string, data: any, attribute?: AttributeItem) {
         await maybeStore.value!.ensureEnabled();
-        const calls = toRaw(otherCalls).concat([this.prepareAssemble(owner, token_id_hint, data, booklet)]);
+        const calls = toRaw(otherCalls).concat([this.prepareAssemble(owner, token_id_hint, data, attribute)]);
+        for (const call of calls)
+            if (call.entrypoint === 'assemble')
+                call.contractAddress = ADDRESSES['starknet-testnet-dojo'].set_briqmas;
+
         return await (this.contract.providerOrAccount as starknet.AccountInterface).execute(calls);
     }
 
-    prepareAssemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
-        const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
-        return this.contract.populate('assemble_', [owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet] : []]);
+    prepareAssemble(owner: string, token_id_hint: string, data: any, attribute?: AttributeItem) {
+        const { setName, setDescription, fts, shapes } = this._prepareForAssemble(data);
+        return this.contract.populate('assemble', [owner, token_id_hint, setName, setDescription, fts, shapes, attribute ? [attribute] : []]);
     }
 
-    async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
+    async disassemble(owner: string, token_id: string, set: SetData, attribute?: AttributeItem) {
         const fungibles = {} as { [mat: string]: number };
         const nfts = [] as string[];
         set.forEach((briq, _) => {
@@ -117,10 +124,11 @@ export default class SetContract {
         });
         const fts = [];
         for (const ft in fungibles)
-            fts.push([ft, '' + fungibles[ft]]);
+            fts.push({ token_id: ft, qty: fungibles[ft] });
 
         await maybeStore.value!.ensureEnabled();
-        return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [booklet] : []);
+        this.contract.address = ADDRESSES['starknet-testnet-dojo'].set_briqmas;
+        return await this.contract.disassemble(owner, token_id, fts, attribute ? [attribute] : []);
     }
 
     async transferOneNFT(sender: string, recipient: string, token_id: string) {
@@ -137,6 +145,8 @@ export class SetOnDojoContract extends SetContract {
         hash = (
             BigInt(hash) % BigInt('0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00') & BigInt('0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000')
         ).toString(16);
+        if (booklet?.startsWith('briqmas'))
+            hash += 2n;
         return '0x' + hash;
     }
 
@@ -149,39 +159,7 @@ export class SetOnDojoContract extends SetContract {
         const x_y_z = BigInt(briq.pos[2]) + 2n ** 31n +
             (BigInt(briq.pos[1]) + 2n ** 31n) * 2n ** 32n +
             (BigInt(briq.pos[0]) + 2n ** 31n) * 2n ** 64n;
+        console.log(briq, color_material.toString(16), x_y_z.toString(16));
         return { color_nft_material: color_material.toString(10), x_y_z: x_y_z.toString(10) };
     }
-
-    async assemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
-        const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
-        await maybeStore.value!.ensureEnabled();
-        return toRaw(await this.contract.assemble(owner, token_id_hint, setName, setDescription, fts, shapes, booklet ? [booklet] : []));
-    }
-    prepareAssemble(owner: string, token_id_hint: string, data: any, booklet?: string) {
-        const { setName, setDescription, fts, nfts, shapes } = this._prepareForAssemble(owner, token_id_hint, data, booklet);
-        this.contract.assemble(owner, token_id_hint, setName, setDescription, fts, shapes, booklet ? [booklet] : []);
-        return this.contract.populate('assemble', [owner, token_id_hint, setName, setDescription, fts, shapes, booklet ? [booklet] : []]);
-    }
-
-
-    async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
-        const fungibles = {} as { [mat: string]: number };
-        const nfts = [] as string[];
-        set.forEach((briq, _) => {
-            if (briq.id)
-                nfts.push(briq.id);
-            else {
-                if (!fungibles[briq.material])
-                    fungibles[briq.material] = 0;
-                ++fungibles[briq.material];
-            }
-        });
-        const fts = [];
-        for (const ft in fungibles)
-            fts.push([ft, '' + fungibles[ft]]);
-
-        await maybeStore.value!.ensureEnabled();
-        return await this.contract.disassemble(owner, token_id, fts, booklet ? [booklet] : []);
-    }
-
 }

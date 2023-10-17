@@ -215,11 +215,16 @@ class UserSetStore implements perUserStorable {
         const bookletData = await bookletDataStore[network][booklet]._fetch!;
         data.name = bookletData.name;
         data.descriptioon = bookletData.description;
+
+        const attr = {
+            attribute_group_id: (BigInt(bookletData.token_id || '0') / 2n ** 64n).toString(10),
+            attribute_id: (BigInt(bookletData.token_id || '0') & 0xFFFFFFFFFFFFFFFFn).toString(10),
+        }
         const TX = contractStore.set!.callAndAssemble(otherCalls,
             wallet_address,
             token_hint,
             data,
-            bookletData.token_id,
+            attr,
         );
         if (!image) {
             // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome#solution
@@ -294,15 +299,21 @@ class UserSetStore implements perUserStorable {
     }
 
     async disassemble(token_id: string) {
-        let booklet_token_id;
         const [network, wallet_address] = this.user_id.split('/');
-        if (this.setData[token_id].booklet_id)
-            booklet_token_id = (await bookletDataStore[network][this.setData[token_id].booklet_id!]._fetch)!.token_id;
+        let attr;
+        if (this.setData[token_id].booklet_id) {
+            const booklet_token_id = (await bookletDataStore[network][this.setData[token_id].booklet_id!]._fetch)!.token_id;
+            attr = {
+                attribute_group_id: (BigInt(booklet_token_id || '0') / 2n ** 64n).toString(10),
+                attribute_id: (BigInt(booklet_token_id || '0') & 0xFFFFFFFFFFFFFFFFn).toString(10),
+            };
+        }
+
         const TX = await contractStore.set!.disassemble(
             wallet_address,
             token_id,
             this.setData[token_id].data!,
-            booklet_token_id,
+            attr,
         );
 
         if (this.setData[token_id].booklet_id)

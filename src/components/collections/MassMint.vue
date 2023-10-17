@@ -138,13 +138,18 @@ const deployShapeContracts = async () => {
     const jsonData = await backendManager.post('v1/admin/compile_shape_contract/', {
         shapes_by_attribute_id: data,
     });
-    //(walletStore.signer)?.declare()
-    for (const attributeId in data)
-        contractStore.register_shape_validator!.register(
-            assemblyGroupId.value!,
-            attributeId,
-            '',
-        )
+    (walletStore.signer)?.declare(
+        {
+            contract: JSON.parse(jsonData.sierra),
+            casm: JSON.parse(jsonData.casm),
+        },
+    )
+    //for (const attributeId in data)
+    //    contractStore.register_shape_validator!.register(
+    //        assemblyGroupId.value!,
+    //        attributeId,
+    //        '0x65cb2a485b363d0d06ca965a55be5b171e3efb116ee2ceaf9ffc0250774e7c3',
+    //    )
 
 }
 

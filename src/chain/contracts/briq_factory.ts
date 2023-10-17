@@ -23,8 +23,8 @@ export default class BriqContract {
     async getParameters() {
         const provider = getProvider().value!;
 
-        const current_t = (await provider.provider!.callContract(this.contract.populateTransaction.get_current_t())).result[0] as string;
-        const surge_t = (await provider.provider!.callContract(this.contract.populateTransaction.get_surge_t())).result[0] as string;
+        const current_t = (await provider.provider!.callContract(this.contract.populateTransaction.get_current_t(), 'latest')).result[0] as string;
+        const surge_t = (await provider.provider!.callContract(this.contract.populateTransaction.get_surge_t(), 'latest')).result[0] as string;
 
         return {
             current_t,

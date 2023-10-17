@@ -13,10 +13,19 @@ import { reactive } from 'vue';
 import { chooseDefaultNetwork, getCurrentNetwork, setNetwork } from './Network';
 
 import type { StarknetWindowObject } from 'get-starknet';
-import { connect, disconnect } from '@argent/get-starknet'
+//import { connect, disconnect } from 'starknetkit';
 
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider';
+
+const connect = async (...args: any[]) => {
+    const cwo = await import('starknetkit');
+    return cwo.connect(...args);
+}
+const disconnect = async (...args: any[]) => {
+    const cwo = await import('starknetkit');
+    return cwo.disconnect(...args);
+}
 
 export type UserID = string;
 export class WalletStore {
