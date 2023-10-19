@@ -1,6 +1,5 @@
-import SetContract, { SetOnDojoContract } from './set';
+import SetContract from './set';
 import { Signer } from 'starknet';
-import * as starknet from 'starknet';
 
 describe('Test Export', () => {
     it('should compute token ID correctly', () => {
@@ -47,7 +46,7 @@ describe('Test Export', () => {
 
 describe('Test Export with booklet', () => {
     it('should compute compressed shape items correctly', () => {
-        const contract = new SetContract('0xcafe', new Signer());
+        const contract = new SetContract('0xcafe', new Signer(), {});
 
         expect(contract._compress_shape_item({ data: { material: '0x24', color: '#faafaa' }, pos: [1, 2, 3],
         })).toEqual([BigInt('0x236661616661610000000000000024').toString(10), BigInt('0x800000018000000280000003').toString(10)])
@@ -68,7 +67,7 @@ describe('Test Export with booklet', () => {
 
 describe('Test new token ID computations', () => {
     it('should compute token ID correctly', () => {
-        const contract = new SetOnDojoContract('0xcafe', undefined as any, { world: 0, executor: 1 } as any);
+        const contract = new SetContract('0xcafe', undefined as any, {} as any);
 
         expect(contract.precomputeTokenId('0x3ef5b02bcc5d30f3f0d35d55f365e6388fe9501eca216cb1596940bf41083e2', '0x6111956b2a0842138b2df81a3e6e88f8', 25)).toEqual(
             '0xc40763dbee89f284bf9215e353171229b4cbc645fa8c0932cb68c100000000',

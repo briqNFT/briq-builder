@@ -75,7 +75,7 @@ const actualData = computed(() => data.map((item: unknown) => {
                 date: new Date(item.timestamp),
                 tx_hash: item.tx_hash,
             }
-        else if (BigInt(item.from) === BigInt(ADDRESSES[props.network].auction) && BigInt(item.to) === BigInt(user_wallet.value))
+        else if (BigInt(item.from) === BigInt(ADDRESSES[props.network]?.auction || 0) && BigInt(item.to) === BigInt(user_wallet.value))
             return {
                 kind: 'bought',
                 by: item.to.slice(0, 6) + '...' + item.to.slice(-3),

@@ -7,6 +7,64 @@ const canMasterInit = computed(() => {
 });
 
 const impersonate = ref('');
+
+const setupWorld = async () => {
+    const addr = ADDRESSES[getCurrentNetwork()];
+    await (walletStore.signer)?.execute([
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['WorldConfig', addr.setup_world] },
+        { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft , 1] },
+        { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_ducks , 1] },
+        { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_sp , 1] },
+        { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_briqmas , 1] },
+        { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_1155_lil_ducks , 1] },
+        { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_1155_frens_ducks , 1] },
+        { contractAddress: addr.setup_world, entrypoint: 'register_box_contract', calldata:[addr.world, addr.box_nft_sp , 1] },
+        { contractAddress: addr.setup_world, entrypoint: 'register_box_contract', calldata:[addr.world, addr.box_nft_briqmas , 1] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['BriqFactoryStore', addr.briq_factory] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.briq_token] },
+
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.box_nft_sp] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.box_nft_briqmas] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_ducks] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_starknet_planet] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_briqmas] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_lil_ducks] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_frens_ducks] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_ducks] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_sp] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_briqmas] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_1155_lil_ducks] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_1155_frens_ducks] },
+
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft_ducks] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft_sp] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft_briqmas] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft_1155_lil_ducks] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft_1155_frens_ducks] },
+
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_ducks] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_sp] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_briqmas] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_1155_lil_ducks] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_1155_frens_ducks] },
+    ])
+}
+    // starkli invoke $SETUP_WORLD_ADDR register_set_contract $WORLD_ADDRESS $SET_NFT 1 --keystore-password $KEYSTORE_PWD --watch
+    // starkli invoke $SETUP_WORLD_ADDR register_set_contract $WORLD_ADDRESS $SET_NFT_ADDR_BRIQMAS 1 --keystore-password $KEYSTORE_PWD
+    // starkli invoke $SETUP_WORLD_ADDR register_box_contract $WORLD_ADDRESS $BOX_ADDR 1 --keystore-password $KEYSTORE_PWD
+
+    // starkli invoke $WORLD_ADDRESS grant_writer str:BriqFactoryStore $FACTORY_ADDR --keystore-password $KEYSTORE_PWD
+    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC1155Balance $BRIQ_TOKEN --keystore-password $KEYSTORE_PWD
+    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC1155Balance $BOX_ADDR --keystore-password $KEYSTORE_PWD
+    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC1155Balance $BOOKLET_ADDR_BRIQMAS --keystore-password $KEYSTORE_PWD
+    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC1155Balance $SET_NFT_ADDR_BRIQMAS --keystore-password $KEYSTORE_PWD
+    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC721Balance $SET_NFT --keystore-password $KEYSTORE_PWD --watch
+    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC721Owner $SET_NFT --keystore-password $KEYSTORE_PWD --watch
+    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC721Balance $SET_NFT_ADDR_BRIQMAS --keystore-password $KEYSTORE_PWD --watch
+    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC721Owner $SET_NFT_ADDR_BRIQMAS --keystore-password $KEYSTORE_PWD --watch
 </script>
 
 <template>
@@ -31,12 +89,7 @@ const impersonate = ref('');
                     <h2>Custom Write Call:</h2>
                     <p>
                         <select v-model="cc_contract">
-                            <option value="set">set</option>
-                            <option value="briq">briq</option>
-                            <option value="booklet">booklet</option>
-                            <option value="box">box</option>
-                            <option value="auction">auction</option>
-                            <option value="auction_ducks">auction (ducks)</option>
+                            <option v-for="value, key in ADDRESSES[getCurrentNetwork()]" :key="key" :value="key">{{ key }}</option>
                         </select>
                     </p>
                     <p>Function: <input type="text" v-model="selector"></p>
@@ -54,6 +107,10 @@ const impersonate = ref('');
                     <Btn @click="wallet.disconnect(); wallet.openWalletSelector();">Connect Wallet</Btn>
                     <p>Impersonate wallet:<br><input v-model="impersonate" size="64"></p>
                     <Btn @click="wallet.enableExternalWallet(impersonate)" :disabled="!impersonate">Impersonate</Btn>
+                </div>
+                <div>
+                    <h2>Setup</h2>
+                    <Btn @click="setupWorld">Setup</Btn>
                 </div>
                 <div>
                     <h2>Messages</h2>
@@ -162,8 +219,9 @@ export default defineComponent({
             this.cc_pending = true;
             try {
                 this.customResult = '';
+                let tx;
                 if (walletStore?.signer?.signer) {
-                    let tx = await (walletStore.signer as AccountInterface).execute({
+                    tx = await (walletStore.signer as AccountInterface).execute({
                         contractAddress: ADDRESSES[getCurrentNetwork()][this.cc_contract],
                         entrypoint: this.selector,
                         calldata: this.calldata
@@ -173,13 +231,12 @@ export default defineComponent({
                     });
                     pushMessage(JSON.stringify(tx));
                 } else {
-                    let tx = await (walletStore.signer as Signer).invokeFunction(BigInt(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(), BigInt(snHash.getSelectorFromName(this.selector)).toString(), this.calldata
+                    tx = await (walletStore.signer as Signer).invokeFunction(BigInt(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(), BigInt(snHash.getSelectorFromName(this.selector)).toString(), this.calldata
                         .split(',')
                         .filter((x) => x)
                         .map((x: string) => BigInt(x.trim()).toString()));
                     pushMessage(JSON.stringify(tx));
                 }
-                this.customResult = `${tx.code} ${tx.transaction_hash}`;
             } catch (err) {
                 this.customResult = err.toString();
             }

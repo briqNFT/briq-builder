@@ -11,7 +11,7 @@ import { Fetchable } from '@/DataFetching';
 import { getCurrentNetwork } from '@/chain/Network';
 import { backendManager } from '@/Backend';
 import { useGenesisStore } from '@/builder/GenesisStore';
-import { Account } from 'starknet';
+import { Account, hash } from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import { pushModal } from '../Modals.vue';
 import TextModal from '../generic/TextModal.vue';
@@ -138,19 +138,25 @@ const deployShapeContracts = async () => {
     const jsonData = await backendManager.post('v1/admin/compile_shape_contract/', {
         shapes_by_attribute_id: data,
     });
-    (walletStore.signer)?.declare(
+    console.log(hash.computeCompiledClassHash(JSON.parse(jsonData.casm)));
+    console.log(hash.computeContractClassHash(JSON.parse(jsonData.sierra)));
+    const classHash = (await (walletStore.signer)?.declare(
         {
             contract: JSON.parse(jsonData.sierra),
             casm: JSON.parse(jsonData.casm),
         },
-    )
-    //for (const attributeId in data)
-    //    contractStore.register_shape_validator!.register(
-    //        assemblyGroupId.value!,
-    //        attributeId,
-    //        '0x65cb2a485b363d0d06ca965a55be5b171e3efb116ee2ceaf9ffc0250774e7c3',
-    //    )
-
+    ))!.class_hash;
+    for (const attributeId in data)
+        await walletStore.signer.execute({
+            contractAddress: ADDRESSES[getCurrentNetwork()].register_shape_validator,
+            entrypoint: 'execute',
+            calldata: [
+                ADDRESSES[getCurrentNetwork()].world,
+                assemblyGroupId.value!,
+                attributeId,
+                '0x65cb2a485b363d0d06ca965a55be5b171e3efb116ee2ceaf9ffc0250774e7c3',//hash.computeContractClassHash(JSON.parse(jsonData.sierra)), //'0x65cb2a485b363d0d06ca965a55be5b171e3efb116ee2ceaf9ffc0250774e7c3',
+            ],
+        })
 }
 
 const start_auth = async () => {

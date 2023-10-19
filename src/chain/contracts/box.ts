@@ -26,9 +26,7 @@ export default class BoxContract {
 
 export class BoxDojoContract {
     contract!: Contract;
-    constructor(address: string, provider: Provider) {
-        this.connect(address, provider);
-    }
+    addresses!: Record<string, string>;
 
     static ABI = [
         {
@@ -44,16 +42,39 @@ export class BoxDojoContract {
         },
     ] as const;
 
-    connect(address: string, provider: Provider) {
+    constructor(address: string, provider: Provider, addresses: Record<string, string>) {
+        this.connect(address, provider, addresses);
+    }
+
+    connect(address: string, provider: Provider, addresses: Record<string, string>) {
         this.contract = new Contract(BoxDojoContract.ABI as FunctionAbi[], address, provider);
+        this.addresses = addresses;
     }
 
     getAddress() {
         return this.contract.address;
     }
 
+    _getContractAddress(token_id: string) {
+        return {
+            0: this.addresses.box_nft_sp,
+            1: this.addresses.box_nft_sp,
+            2: this.addresses.box_nft_sp,
+            3: this.addresses.box_nft_sp,
+            4: this.addresses.box_nft_sp,
+            5: this.addresses.box_nft_sp,
+            6: this.addresses.box_nft_sp,
+            7: this.addresses.box_nft_sp,
+            8: this.addresses.box_nft_sp,
+            9: this.addresses.box_nft_sp,
+            10: this.addresses.box_nft_briqmas,
+        }[+token_id] || this.addresses.box_nft_sp;
+    }
+
     async unbox(_owner: string, token_id: string) {
         await maybeStore.value!.ensureEnabled();
+        // Change the target contract (hacky but meh)
+        this.contract.address = this._getContractAddress(token_id);
         return this.contract.unbox(token_id);
     }
 }

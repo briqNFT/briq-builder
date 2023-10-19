@@ -6,7 +6,7 @@ import { getProvider } from './BlockchainProvider';
 import contractStore, { ADDRESSES } from './Contracts';
 
 import BriqContract from './contracts/briq';
-import SetContract, { SetOnDojoContract } from './contracts/set';
+import SetContract from './contracts/set';
 import AuctionContract from './contracts/auction';
 import ERC20Contract from './contracts/erc20';
 import BoxContract, { BoxDojoContract } from './contracts/box';
@@ -32,7 +32,7 @@ const IMPL = {
     },
     'starknet-testnet-dojo': {
         briq: BriqContract,
-        set: SetOnDojoContract,
+        set: SetContract,
         briq_factory: BriqFactoryOnDojoContract,
         eth_bridge_contract: ERC20Contract,
         box: BoxDojoContract,
