@@ -1,17 +1,12 @@
 import { backendManager } from '@/Backend';
-import contractStore from '@/chain/Contracts';
 import { Notification } from '@/Notifications';
-import { bookletDataStore } from './BookletData';
 import { chainBriqs } from './ChainBriqs';
-import { useGenesisStore } from './GenesisStore';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { SetData } from './SetData';
-import { userBookletsStore } from './UserBooklets';
 import { maybeStore } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
 import { setsManager } from './SetsManager';
 import type { ExternalSetData } from './ExternalSets';
-import type { Call } from 'starknet';
 import { getPremigrationNetwork } from '@/chain/Network';
 
 
@@ -106,6 +101,9 @@ class UserLegacySetStore implements perUserStorable {
         try {
             const [network, address] = this.user_id.split('/');
             const premigrationNetwork = getPremigrationNetwork(network);
+            // Do nothing on non-legacy networks.
+            if (!premigrationNetwork)
+                return false;
             this._sets = (await backendManager.fetch(`v1/user/data/${premigrationNetwork}/${address}`, 5000)).sets;
             this._status = 'LOADED';
         } catch(ex) {
@@ -149,6 +147,8 @@ class UserLegacySetStore implements perUserStorable {
     async poll() {
         const success = await this.fetchData();
         const network = getPremigrationNetwork(this.user_id.split('/')[0]);
+        if (!network)
+            return;
         for (const setId in this.metadata)
             if (this.metadata[setId].status === 'TENTATIVE' && this._sets.indexOf(setId) !== -1)  {
                 this.notifyMintingConfirmed(this.metadata[setId]);
