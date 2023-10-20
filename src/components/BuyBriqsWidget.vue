@@ -14,6 +14,8 @@ import MenuLike from './generic/MenuLike.vue';
 import Tooltip from './generic/Tooltip.vue';
 import { APP_ENV } from '@/Meta';
 import { getSetMarketplaceUrl } from '@/chain/Marketplaces';
+import { backendManager } from '@/Backend';
+import { maybeStore } from '@/chain/WalletLoading';
 
 
 const props = defineProps<{
@@ -33,6 +35,8 @@ const toggledDetails = ref(false);
 
 const termsSale = ref(false);
 const termsBriq = ref(false);
+const insideEU = ref(false);
+const euCountry = ref('');
 
 onMounted(async () => {
     // Update our understanding of USD/ETH
@@ -113,6 +117,11 @@ const balance = computed(() => {
 const transaction = ref(new Fetchable<string>());
 const buyBriqs = async () => {
     transaction.value.clear();
+    backendManager.post('v1/user/billing_country', {
+        wallet_address: maybeStore.value!.userWalletAddress,
+        outside_eu: !insideEU.value,
+        eu_country: insideEU.value ? euCountry.value : '',
+    });
     await transaction.value.fetch(async () => {
         let tx = await contractStore.briq_factory?.buy(contractStore.eth_bridge_contract!, briqs_wanted.value, get_price_eth(briqs_wanted.value));
         chainBriqs.value?.show('0x1', briqs_wanted.value, tx!.transaction_hash, true);
@@ -216,10 +225,42 @@ const cancelBuy = () => {
             <hr class="mb-4 rounded border border-grad-lighter">
             <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
             <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
+            <p class="leading-normal">Are you a European Union resident?<br/><span class="inline-flex items-center">No <Toggle v-model="insideEU" class="w-10 mx-1 my-1"/>Yes</span>
+                <span v-show="insideEU" class="ml-2"><select class="py-1" v-model="euCountry">
+                    <option value="austria">Austria</option>
+                    <option value="belgium">Belgium</option>
+                    <option value="bulgaria">Bulgaria</option>
+                    <option value="cyprus">Cyprus</option>
+                    <option value="czech_republic">Czech Republic</option>
+                    <option value="croatia">Croatia</option>
+                    <option value="denmark">Denmark</option>
+                    <option value="estonia">Estonia</option>
+                    <option value="finland">Finland</option>
+                    <option value="france">France</option>
+                    <option value="germany">Germany</option>
+                    <option value="greece">Greece</option>
+                    <option value="hungary">Hungary</option>
+                    <option value="ireland">Ireland</option>
+                    <option value="italy">Italy</option>
+                    <option value="latvia">Latvia</option>
+                    <option value="lithuania">Lithuania</option>
+                    <option value="luxembourg">Luxembourg</option>
+                    <option value="malta">Malta</option>
+                    <option value="netherlands">Netherlands</option>
+                    <option value="poland">Poland</option>
+                    <option value="portugal">Portugal</option>
+                    <option value="romania">Romania</option>
+                    <option value="slovakia">Slovakia</option>
+                    <option value="slovenia">Slovenia</option>
+                    <option value="spain">Spain</option>
+                    <option value="sweden">Sweden</option>
+                    </select>
+                </span>
+            </p>
         </div>
         <!-- Slotted to allow the export flow to do different things -->
         <slot name="button" :disabled="!termsSale || !termsBriq || !parameters._data" :data="{ briqs: briqs_wanted, price: get_price_eth(briqs_wanted) }">
-            <Btn class="w-full" :disabled="!termsSale || !termsBriq || !parameters._data" @click="buyBriqs">Buy</Btn>
+            <Btn class="w-full" :disabled="!termsSale || !termsBriq || !parameters._data || (insideEU && !euCountry)" @click="buyBriqs">Buy</Btn>
         </slot>
         <div v-if="transaction._data" class="overlay">
             <div class="bg-grad-lightest shadow-md rounded p-8 relative">
