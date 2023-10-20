@@ -345,10 +345,10 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <h2>Want to list your booklet?</h2>
                 <p>Seeling your booklet means you will no longer be able to mint the authenticated officiel set.</p>
                 <div class="flex gap-2 mt-4 mb-10">
-                    <a :href="getBookletLink('unframed', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
-                    <a :href="getBookletLink('element', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
-                    <a :href="getBookletLink('flex', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
-                    <a :href="getBookletLink('pyramid', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
+                    <a :href="getBookletLink('unframed', chain_id, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
+                    <a :href="getBookletLink('element', chain_id, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
+                    <a :href="getBookletLink('flex', chain_id, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
+                    <a :href="getBookletLink('pyramid', chain_id, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
                 </div>
                 <div v-if="booklet_id">
                     <Suspense>
