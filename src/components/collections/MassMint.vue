@@ -138,14 +138,13 @@ const deployShapeContracts = async () => {
     const jsonData = await backendManager.post('v1/admin/compile_shape_contract/', {
         shapes_by_attribute_id: data,
     });
-    console.log(hash.computeCompiledClassHash(JSON.parse(jsonData.casm)));
-    console.log(hash.computeContractClassHash(JSON.parse(jsonData.sierra)));
-    const classHash = (await (walletStore.signer)?.declare(
-        {
-            contract: JSON.parse(jsonData.sierra),
-            casm: JSON.parse(jsonData.casm),
-        },
-    ))!.class_hash;
+    //console.log(hash.computeCompiledClassHash(JSON.parse(jsonData.casm)));
+    //console.log(hash.computeSierraContractClassHash(JSON.parse(jsonData.sierra)));
+    const classHash = (await (walletStore.signer)?.declare({
+        contract: JSON.parse(jsonData.sierra),
+        casm: JSON.parse(jsonData.casm),
+    }))!.class_hash;
+    //console.log(classHash);
     for (const attributeId in data)
         await walletStore.signer.execute({
             contractAddress: ADDRESSES[getCurrentNetwork()].register_shape_validator,
@@ -154,7 +153,7 @@ const deployShapeContracts = async () => {
                 ADDRESSES[getCurrentNetwork()].world,
                 assemblyGroupId.value!,
                 attributeId,
-                '0x65cb2a485b363d0d06ca965a55be5b171e3efb116ee2ceaf9ffc0250774e7c3',//hash.computeContractClassHash(JSON.parse(jsonData.sierra)), //'0x65cb2a485b363d0d06ca965a55be5b171e3efb116ee2ceaf9ffc0250774e7c3',
+                classHash,
             ],
         })
 }

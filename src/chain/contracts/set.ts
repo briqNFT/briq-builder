@@ -6,6 +6,7 @@ import SetABI from './starknet-testnet/set_nft.json';
 import * as starknet from 'starknet';
 import { maybeStore } from '../WalletLoading';
 import { toRaw } from 'vue';
+import type { BookletData } from '@/builder/BookletData';
 
 
 export default class SetContract {
@@ -41,23 +42,28 @@ export default class SetContract {
             '1': this.addresses.set_nft_sp,
             '2': this.addresses.set_nft_briqmas,
             '3': this.addresses.set_nft_ducks,
+            '4': this.addresses.set_nft_1155_frens_ducks,
         }[attributeGroupId] || this.addresses.set_nft!;
     }
 
-    precomputeTokenId(address: string, token_id_hint: string, nb_briqs: number, booklet?: string) {
+    precomputeTokenId(address: string, token_id_hint: string, nb_briqs: number, booklet?: string, bookletData?: BookletData) {
+        // 1155 data, the token_id_hint is taken as the attribute ID
+        if (booklet?.startsWith('frens_ducks'))
+            return '0x' + (BigInt(bookletData!.serial_number) * 2n**32n + 4n).toString(16);
+
         let hash = starknet.ec.starkCurve.pedersen(0, address);
         hash = starknet.ec.starkCurve.pedersen(hash, token_id_hint);
         hash = starknet.ec.starkCurve.pedersen(hash, nb_briqs);
-        hash = (
+        hash = '0x' + (
             BigInt(hash) % BigInt('0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00') & BigInt('0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000')
         ).toString(16);
         if (booklet?.startsWith('starknet_planet'))
-            hash = (BigInt(hash) + 1n).toString(16);
+            hash = '0x' + (BigInt(hash) + 1n).toString(16);
         else if (booklet?.startsWith('briqmas'))
-            hash = (BigInt(hash) + 2n).toString(16);
+            hash = '0x' + (BigInt(hash) + 2n).toString(16);
         else if (booklet?.startsWith('ducks_everywhere'))
-            hash = (BigInt(hash) + 3n).toString(16);
-        return '0x' + hash;
+            hash = '0x' + (BigInt(hash) + 3n).toString(16);
+        return hash;
     }
 
     _compress_shape_item(briq: any) {

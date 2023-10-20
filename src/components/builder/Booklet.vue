@@ -10,6 +10,9 @@ import { palettesMgr } from '@/builder/Palette';
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { backendManager } from '@/Backend';
 import { getCurrentNetwork } from '@/chain/Network';
+import { APP_ENV } from '@/Meta';
+import { builderStore } from '@/builder/BuilderStore';
+import { Briq } from '@/builder/Briq';
 
 const {
     getStepImgSrc,
@@ -19,6 +22,8 @@ const {
     bookletFetch,
     minimized,
 } = useBooklet();
+
+const { currentSet } = builderStore;
 
 const genesisStore = useGenesisStore();
 
@@ -198,6 +203,14 @@ watch([shapeValidity], (nv, ov) => {
         badFetti();
 })
 
+const autobuild = async () => {
+    for (const briq of bookletData.value?.briqs)
+        currentSet.value.placeBriq(
+            briq.pos[0], briq.pos[1], briq.pos[2],
+            new Briq(briq.data.material, briq.data.color),
+        )
+};
+
 const bookletMode = computed(() => {
     return 'booklet';
 });
@@ -290,6 +303,7 @@ onBeforeUnmount(() => watcher());
                             <div class="flex justify-stretch gap-4">
                                 <a class="flex-1" target="_blank" :href="backendManager.getRoute(`booklet/pdf/${getCurrentNetwork()}/${booklet}.pdf`)"><Btn secondary class="!text-sm w-full">PDF version</Btn></a>
                                 <Btn class="!text-sm flex-1" @click="higherPage">Start building</Btn>
+                                <Btn v-if="APP_ENV==='dev'" @click="autobuild">Cheat</Btn>
                             </div>
                         </template>
                     </div>

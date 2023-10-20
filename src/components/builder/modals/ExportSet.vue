@@ -171,8 +171,13 @@ const startMinting = async () => {
             throw new Error('Set name too long, max length is 200 characters.');
 
         let token_hint = hexUuid();
-        exportSet.value.id = contractStore.set.precomputeTokenId(maybeStore.value!.userWalletAddress, token_hint, exportSet.value.getNbBriqs(), booklet.value);
-
+        exportSet.value.id = contractStore.set.precomputeTokenId(
+            maybeStore.value!.userWalletAddress,
+            token_hint,
+            exportSet.value.getNbBriqs(),
+            booklet.value,
+            bookletData.value,
+        );
         let data = exportSet.value.serialize();
 
         // We need to adjust the position of briqs so that we mint the right stuff.

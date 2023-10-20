@@ -21,7 +21,6 @@
     "lint-fix": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"
   },
   "dependencies": {
-    "@argent/get-starknet": "^6.4.3",
     "@cartridge/controller": "^0.3.14",
     "@google/model-viewer": "~3.1.0",
     "@jaames/iro": "^5.5",
@@ -31,10 +30,9 @@
     "canvas-confetti": "^1.6.0",
     "connect": "^3.7",
     "fflate": "^0.7.3",
-    "get-starknet": "^2.0",
     "json-bigint": "git+https://github.com/briqNFT/json-bigint.git#fix-ts",
     "qrcode": "^1.5.1",
-    "starknet": "^5.0",
+    "starknet": "^5.21",
     "starknetkit": "^1.0.8",
     "stats.js": "^0.17",
     "three": "^0.151",
@@ -59,6 +57,7 @@
     "c8": "^7.11.0",
     "eslint": "^8.14.0",
     "eslint-plugin-vue": "^9.1",
+    "get-starknet": "^2.0",
     "jsdom": "^22",
     "postcss": "^8.4",
     "postcss-nesting": "^11",
