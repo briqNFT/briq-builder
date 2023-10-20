@@ -52,7 +52,7 @@ class BackendManager {
             method: 'GET',
             headers: headers,
             mode: 'cors',
-            credentials: 'include', // Include - the API is cross-origin
+            //credentials: 'include', // Include - the API is cross-origin
         };
 
         this.last_requests[url] = {
@@ -74,7 +74,7 @@ class BackendManager {
             method: 'POST',
             headers: headers,
             mode: 'cors',
-            credentials: 'include', // Include - the API is cross-origin
+            //credentials: 'include', // Include - the API is cross-origin
         };
         if (body)
             dat.body = JSON.stringify(body);
