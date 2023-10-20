@@ -42,7 +42,7 @@ const {
 const wave1Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
     return genesisStore.saledata?.[x]?._data?.wave === '1';
 }).sort((a: string, b: string) => {
-    return genesisStore.saledata![a]._data?.price.cmp(genesisStore.saledata![b]._data?.price);
+    return Number(genesisStore.saledata![a]._data!.price - genesisStore.saledata![b]._data!.price);
 }));
 
 const wave2Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
@@ -51,7 +51,7 @@ const wave2Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) =>
         return false;
     return sdata.startIn() <= 0 && sdata.wave === '2';
 }).sort((a: string, b: string) => {
-    return genesisStore.saledata![a]._data?.price.cmp(genesisStore.saledata![b]._data?.price);
+    return Number(genesisStore.saledata![a]._data!.price - genesisStore.saledata![b]._data!.price);
 }));
 
 const wave3Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) => {
@@ -62,7 +62,7 @@ const wave3Boxes = computed(() => themeBoxes.value?._data?.filter((x: string) =>
         return false;
     return sdata.startIn() <= 0 && sdata.wave === '3';
 }).sort((a: string, b: string) => {
-    return genesisStore.saledata![a]._data?.price.cmp(genesisStore.saledata![b]._data?.price);
+    return Number(genesisStore.saledata![a]._data!.price - genesisStore.saledata![b]._data!.price);
 }));
 
 

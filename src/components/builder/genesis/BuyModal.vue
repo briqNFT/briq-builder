@@ -35,7 +35,7 @@ const props = defineProps<{
 const termsSale = ref(false);
 const termsBriq = ref(false);
 
-const weiPrice = computed(() => BigInt(Math.floor(saledata.value?.price || 100).toString()))
+const weiPrice = computed(() => (saledata.value?.price || 100n).toString())
 
 const canMakeBid = computed(() => {
     if (!termsBriq.value || !termsSale.value)

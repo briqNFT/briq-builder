@@ -37,16 +37,14 @@ export default class SetContract {
     }
 
     _compress_shape_item(briq: any) {
-        const two = starknet.number.toBN(2);
         let colorHex = '0x';
         const colorHexCode = briq.data.color.toLowerCase();
         for (let i = 0; i < colorHexCode.length; ++i)
             colorHex += colorHexCode.charCodeAt(i).toString(16).padStart(2, '0');
-        const color_nft_material = starknet.number.toBN(briq.data.material).iadd(starknet.number.toBN(colorHex).imul(two.pow(starknet.number.toBN(136))))
-        const x_y_z = (starknet.number.toBN(briq.pos[2]).add(two.pow(starknet.number.toBN(63)))).iadd(
-            starknet.number.toBN(briq.pos[1]).add(two.pow(starknet.number.toBN(63))).mul(two.pow(starknet.number.toBN(64)))).iadd(
-            starknet.number.toBN(briq.pos[0]).add(two.pow(starknet.number.toBN(63))).mul(two.pow(starknet.number.toBN(128))),
-        )
+        const color_nft_material = BigInt(briq.data.material) + BigInt(colorHex) * 2n ** 136n;
+        const x_y_z = BigInt(briq.pos[2]) + 2n ** 63n +
+            (BigInt(briq.pos[1]) + 2n ** 63n) * 2n ** 64n +
+            (BigInt(briq.pos[0]) + 2n ** 63n) * 2n ** 128n;
         return [color_nft_material.toString(10), x_y_z.toString(10)]
     }
 
