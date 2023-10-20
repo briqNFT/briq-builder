@@ -172,7 +172,7 @@ const getAge = (age: number) => {
                     It has been minted {{ getAge(hoveredLock ? hoveredLock.userData.age : hoveredObject.userData.age) }} ago.
                 </p>
                 <a
-                    :href="getSetLink('starknet-mainnet', hoveredLock ? hoveredLock.userData.id : '0')"
+                    :href="getSetLink('unframed', 'starknet-mainnet', hoveredLock ? hoveredLock.userData.id : '0')"
                     target="blank_"><Btn secondary>See on Unframed</Btn></a>
             </div>
         </div>

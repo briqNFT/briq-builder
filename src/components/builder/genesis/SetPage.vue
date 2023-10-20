@@ -17,12 +17,14 @@ import ItemActivity from './ItemActivity.vue';
 
 import briqIcon from '@/assets/landing/briq-icon.svg';
 
-import AspectLogo from '@/assets/landing/aspect.png';
-import UnframedLogo from '@/assets/logo-unframed-square.svg';
+import UnframedLogo from '@/assets/marketplaces/logo-unframed-square.svg';
+import ElementLogo from '@/assets/marketplaces/logo-element.svg';
+import FlexLogo from '@/assets/marketplaces/logo-flex.png';
+import PyramidLogo from '@/assets/marketplaces/logo-pyramid.png';
+
 import { pushModal } from '@/components/Modals.vue';
 import ExportSetVue from '../modals/ExportSet.vue';
 import { userBookletsStore } from '@/builder/UserBooklets';
-import { SetData } from '@/builder/SetData';
 import { getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
 import { pushPopup } from '@/Notifications';
@@ -33,7 +35,7 @@ import { bookletDataStore } from '@/builder/BookletData';
 import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { externalSetCache } from '@/builder/ExternalSets';
 import ShareOnTwitter from '../ShareOnTwitter.vue';
-import { getSetLink } from '@/chain/Marketplaces';
+import { getSetLink, getBookletLink } from '@/chain/Marketplaces';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -343,8 +345,10 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <h2>Want to list your booklet?</h2>
                 <p>Seeling your booklet means you will no longer be able to mint the authenticated officiel set.</p>
                 <div class="flex gap-2 mt-4 mb-10">
-                    <a :href="getSetLink(chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
-                    <a :href="`https://aspect.co/asset/0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
+                    <a :href="getBookletLink('unframed', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
+                    <a :href="getBookletLink('element', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
+                    <a :href="getBookletLink('flex', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
+                    <a :href="getBookletLink('pyramid', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
                 </div>
                 <div v-if="booklet_id">
                     <Suspense>
@@ -395,8 +399,10 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <div>
                     <h4>See on</h4>
                     <p class="flex gap-3 mt-4 mb-10">
-                        <a :href="getSetLink(chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
-                        <a :href="`https://aspect.co/asset/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672/${token_decimal}`" rel="noopener" target="_blank"><Btn secondary><img class="w-4 mr-3" :src="AspectLogo"> Aspect</Btn></a>
+                        <a :href="getSetLink('unframed', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
+                        <a :href="getSetLink('element', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
+                        <a :href="getSetLink('flex', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
+                        <a :href="getSetLink('pyramid', chain_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
                     </p>
                 </div>
                 <div v-if="set?.id">
