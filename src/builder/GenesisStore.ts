@@ -97,7 +97,7 @@ export interface BoxMetadata {
 
 
 class GenesisStore {
-    network = { dev: 'mock', test: 'starknet-testnet-dojo', prod: 'starknet' }[APP_ENV];
+    network = getCurrentNetwork();
     _metadata = reactive({}) as { [box_uid: string]: Fetchable<BoxMetadata> };
     _saledata = reactive({}) as { [box_uid: string]: Fetchable<SaleData> };
     _boxes = reactive({}) as { [theme_uid: string]: Fetchable<string[]> };

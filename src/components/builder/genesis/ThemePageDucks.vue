@@ -9,15 +9,13 @@ import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
 import { useThemeURLs } from './ThemeUrlComposable';
 import { backendManager } from '@/Backend';
-import { APP_ENV } from '@/Meta';
 import { themeSetsDataStore, themeSetsOwnerStore, useSearch } from '@/builder/DucksSale';
 import DuckDetailCard from './DuckDetailCard.vue';
-import type { CHAIN_NETWORKS } from '@/chain/Network';
 import Toggle from '@/components/generic/Toggle.vue';
 import { addressToStarknetId } from '@/chain/StarknetId';
+import { getCurrentNetwork } from '@/chain/Network';
 
 const route = useRoute();
-const network: CHAIN_NETWORKS = APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet-dojo';
 
 const themeName = computed(() => 'ducks_everywhere');
 
@@ -25,7 +23,7 @@ const genesisStore = useGenesisStore();
 
 const themeData = computed(() => genesisStore.themedata[themeName.value]?._data );
 
-const themeSets = computed(() => themeSetsDataStore[network][themeName.value]);
+const themeSets = computed(() => themeSetsDataStore[getCurrentNetwork()][themeName.value]);
 
 const themeStatus = computed(() => {
     if (genesisStore.themedata[themeName.value]?._status !== 'LOADED')
@@ -62,13 +60,13 @@ const tokensByOwner = computed(() => {
 });
 
 const ownerName = (address: string) => {
-    if (addressToStarknetId[network][address]._data)
-        return addressToStarknetId[network][address]._data;
+    if (addressToStarknetId[getCurrentNetwork()][address]._data)
+        return addressToStarknetId[getCurrentNetwork()][address]._data;
     return address;
 }
 
 const getSet = (tokenId: string) => themeSets.value._data?.[tokenId];
-const getOwner = (tokenId: string) => themeSetsOwnerStore[network][themeName.value]._data?.[tokenId];
+const getOwner = (tokenId: string) => themeSetsOwnerStore[getCurrentNetwork()][themeName.value]._data?.[tokenId];
 
 const { searchBar, sortOrder, groupBy } = useSearch();
 const isGroupedByOwner = computed(() => groupBy.value === 'owner');
@@ -236,7 +234,7 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                                 :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
                                                 @mouseenter="setHoveredDuck(duckId)"
                                                 @click="hoverLock = duckId">
-                                                <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                                <img :src="backendManager.getRoute(`set/${getCurrentNetwork()}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                             </div>
                                         </div>
                                     </template>
@@ -252,7 +250,7 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                             :class="`h-full w-full cursor-pointer overflow-hidden rounded transition-all duration-300 ${hoverLock == duckId ? 'border-grad-dark' : 'border-transparent hover:border-grad-dark/50'} border-4 flex justify-center items-center`"
                                             @mouseenter="setHoveredDuck(duckId)"
                                             @click="hoverLock = duckId">
-                                            <img :src="backendManager.getRoute(`set/${network}/${getSet(duckId)!.id}/small_preview.jpg`)">
+                                            <img :src="backendManager.getRoute(`set/${getCurrentNetwork()}/${getSet(duckId)!.id}/small_preview.jpg`)">
                                         </div>
                                     </div>
                                 </template>
@@ -267,7 +265,7 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                                 :key="hoverLock"
                                                 :class="`!absolute top-0 transition-all duration-500 origin-bottom-left ${ hoveredAuction && hoveredAuction !== hoverLock ? 'rotate-[3deg]' : '' }`"
                                                 :expand="true"
-                                                :network="network"
+                                                :network="getCurrentNetwork()"
                                                 :theme="themeName"
                                                 :token-id="hoverLock"/>
                                         </Transition>
@@ -277,7 +275,7 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                             <DuckDetailCard
                                                 v-if="hoveredAuction && hoveredAuction !== hoverLock"
                                                 :class="`!absolute top-0`"
-                                                :network="network"
+                                                :network="getCurrentNetwork()"
                                                 :theme="themeName"
                                                 :token-id="hoveredAuction"/>
                                         </Transition>
@@ -286,7 +284,7 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                                                 :key="hoveredAuction"
                                                 v-if="hoveredAuction && hoveredAuction !== hoverLock"
                                                 :class="`!absolute top-0 ${hoverLock ? '!shadow-xl' : ''}`"
-                                                :network="network"
+                                                :network="getCurrentNetwork()"
                                                 :theme="themeName"
                                                 :token-id="hoveredAuction"/>
                                         </Transition>

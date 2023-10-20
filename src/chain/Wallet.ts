@@ -175,7 +175,7 @@ export class WalletStore {
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1 || this.signer?.provider?.chainId === '0x534e5f4d41494e')
             setNetwork('starknet-mainnet');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4') !== -1 || this.signer?.provider?.chainId === '0x534e5f474f45524c49')
-            setNetwork('starknet-testnet-dojo');
+            setNetwork('starknet-testnet');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('mock_chain') !== -1)
             setNetwork('mock');
         else
