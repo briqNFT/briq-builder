@@ -45,7 +45,7 @@ export default class SetContract {
         const x_y_z = BigInt(briq.pos[2]) + 2n ** 63n +
             (BigInt(briq.pos[1]) + 2n ** 63n) * 2n ** 64n +
             (BigInt(briq.pos[0]) + 2n ** 63n) * 2n ** 128n;
-        return [color_nft_material.toString(10), x_y_z.toString(10)]
+        return { color_nft_material: color_nft_material.toString(10), x_y_z: x_y_z.toString(10) };
     }
 
     _string_to_felt_string(data: string) {
@@ -78,7 +78,7 @@ export default class SetContract {
         shapes.sort((a, b) => a[1].localeCompare(b[1], 'en'));
         const fts = [];
         for (const ft in fungibles)
-            fts.push([ft, '' + fungibles[ft]]);
+            fts.push({ token_id: ft, qty: '' + fungibles[ft] });
 
         const setName = this._string_to_felt_string(data.name);
         const setDescription = this._string_to_felt_string(data.description);
@@ -116,7 +116,7 @@ export default class SetContract {
         });
         const fts = [];
         for (const ft in fungibles)
-            fts.push([ft, '' + fungibles[ft]]);
+            fts.push({ token_id: ft, qty: '' + fungibles[ft] });
 
         await maybeStore.value!.ensureEnabled();
         return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [booklet] : []);
