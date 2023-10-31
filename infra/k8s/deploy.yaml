@@ -109,6 +109,7 @@ data:
         # auth_basic "admin protection";
         # auth_basic_user_file /etc/nginx/secrets/password;
 
+        proxy_set_header   X-Real-IP  $remote_addr;
         proxy_set_header   X-Forwarded-For $remote_addr;
         proxy_set_header   Host $http_host;
         proxy_set_header   Cookie $http_cookie;
@@ -120,6 +121,7 @@ data:
         # auth_basic "admin protection";
         # auth_basic_user_file /etc/nginx/secrets/password;
 
+        proxy_set_header   X-Real-IP  $remote_addr;
         proxy_set_header   X-Forwarded-For $remote_addr;
         proxy_set_header   Host $http_host;
         proxy_set_header   Cookie $http_cookie;

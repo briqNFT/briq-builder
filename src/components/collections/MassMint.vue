@@ -9,7 +9,7 @@ import { walletStore } from '@/chain/Wallet';
 import { ref, onMounted, computed, watchEffect } from 'vue';
 import { Fetchable } from '@/DataFetching';
 import { getCurrentNetwork } from '@/chain/Network';
-import { adminBackendManager } from '@/Backend';
+import { adminBackendManager, backendManager } from '@/Backend';
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { Account, hash } from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
@@ -49,7 +49,7 @@ watchEffect(async () => {
     if (collection.value === '')
         return;
     if (!existingItems[collection.value]) {
-        const data = await adminBackendManager.fetch(`v1/${getCurrentNetwork()}/${collection.value}/object_ids`);
+        const data = await backendManager.fetch(`v1/${getCurrentNetwork()}/${collection.value}/object_ids`);
         existingItems.value[collection.value] = data;
     }
 });
