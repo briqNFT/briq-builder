@@ -1,4 +1,4 @@
-import getBaseUrl from './url';
+import { getBaseUrl, getAdminBaseUrl } from './url';
 import { getCurrentNetwork } from './chain/Network';
 
 class BackendManager {
@@ -52,7 +52,7 @@ class BackendManager {
             method: 'GET',
             headers: headers,
             mode: 'cors',
-            //credentials: 'include', // Include - the API is cross-origin
+            credentials: 'same-origin',
         };
 
         this.last_requests[url] = {
@@ -74,7 +74,7 @@ class BackendManager {
             method: 'POST',
             headers: headers,
             mode: 'cors',
-            //credentials: 'include', // Include - the API is cross-origin
+            credentials: 'same-origin',
         };
         if (body)
             dat.body = JSON.stringify(body);
@@ -87,3 +87,4 @@ class BackendManager {
 }
 
 export const backendManager = new BackendManager(getBaseUrl());
+export const adminBackendManager = new BackendManager(getAdminBaseUrl());

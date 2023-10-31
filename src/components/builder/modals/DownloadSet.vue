@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { backendManager } from '@/Backend';
 import { getCurrentNetwork } from '@/chain/Network';
-import getBaseUrl, { doDownload, downloadJSON } from '../../../url';
+import { doDownload, downloadJSON } from '../../../url';
 
 const props = defineProps<{
     setId: string

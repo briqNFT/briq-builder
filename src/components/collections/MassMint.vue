@@ -9,7 +9,7 @@ import { walletStore } from '@/chain/Wallet';
 import { ref, onMounted, computed, watchEffect } from 'vue';
 import { Fetchable } from '@/DataFetching';
 import { getCurrentNetwork } from '@/chain/Network';
-import { backendManager } from '@/Backend';
+import { adminBackendManager } from '@/Backend';
 import { useGenesisStore } from '@/builder/GenesisStore';
 import { Account, hash } from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
@@ -39,7 +39,7 @@ const collectionData = {
     'starknet_planet': '0x1',
     'briqmas': '0x2',
     'ducks_everywhere': '0x3',
-    'frens_ducks': '0x4',
+    'fren_ducks': '0x4',
 } as const;
 const assemblyGroupId = computed(() => (collectionData[collection.value] ?? null));
 
@@ -49,7 +49,7 @@ watchEffect(async () => {
     if (collection.value === '')
         return;
     if (!existingItems[collection.value]) {
-        const data = await backendManager.fetch(`v1/${getCurrentNetwork()}/${collection.value}/object_ids`);
+        const data = await adminBackendManager.fetch(`v1/${getCurrentNetwork()}/${collection.value}/object_ids`);
         existingItems.value[collection.value] = data;
     }
 });
@@ -118,7 +118,7 @@ const importPreviews = async (to: 'preview_b64' | 'booklet_b64') => {
 
 const storeObjects = () => {
     for (const set of setsToMint.value)
-        backendManager.post(`v1/admin/store_theme_object/${getCurrentNetwork()}/${collection.value}/${set._data?.data.name}`, {
+        adminBackendManager.post(`v1/admin/store_theme_object/${getCurrentNetwork()}/${collection.value}/${set._data?.data.name}`, {
             data: set._data?.data.serialize(),
             preview_base64: set._data?.preview_b64,
             booklet_base64: set._data?.booklet_b64,
@@ -135,7 +135,7 @@ const deployShapeContracts = async () => {
         const attribute_id = bookletDataStore[getCurrentNetwork()][item]._data!.serial_number.toString(16);
         data['0x' + attribute_id] = bookletDataStore[getCurrentNetwork()][item]._data!.briqs;
     }
-    const jsonData = await backendManager.post('v1/admin/compile_shape_contract/', {
+    const jsonData = await adminBackendManager.post('v1/admin/compile_shape_contract/', {
         shapes_by_attribute_id: data,
     });
     //console.log(hash.computeCompiledClassHash(JSON.parse(jsonData.casm)));
@@ -159,9 +159,9 @@ const deployShapeContracts = async () => {
 }
 
 const start_auth = async () => {
-    const message_to_sign = await backendManager.fetch(`v1/auth/start/${getCurrentNetwork()}/${walletStore.userWalletAddress}`)
+    const message_to_sign = await adminBackendManager.fetch(`v1/auth/start/${getCurrentNetwork()}/${walletStore.userWalletAddress}`)
     const signature = await (walletStore.signer as Account).signMessage(message_to_sign.challenge);
-    const res = await backendManager.post('v1/auth/finish', { signature });
+    const res = await adminBackendManager.post('v1/auth/finish', { signature });
 }
 
 const setup_collections = async () => {

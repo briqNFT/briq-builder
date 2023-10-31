@@ -6,7 +6,7 @@ function getCanonicalDomain() {
     return 'briq.construction';
 }
 
-export default function getBaseUrl() {
+export function getBaseUrl() {
     // Hack for dev when I want chain-connectivity.
     if (DEV && false)
         return 'https://api.test.sltech.company';
@@ -15,6 +15,14 @@ export default function getBaseUrl() {
         dev: 'http://localhost:5055',
         test: 'https://api.test.sltech.company',
         prod: `https://api.${getCanonicalDomain()}`,
+    }[APP_ENV];
+}
+
+export function getAdminBaseUrl() {
+    return {
+        dev: 'http://localhost:5055',
+        test: 'https://test.sltech.company/api_relay',
+        prod: `https://${getCanonicalDomain()}/api_relay`,
     }[APP_ENV];
 }
 

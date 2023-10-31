@@ -135,10 +135,10 @@ const view = ref(('PREVIEW') as 'PREVIEW' | 'SET' | 'BOOKLET');
             <div>
                 <h4>See on</h4>
                 <p class="flex gap-3 mt-4 mb-10">
-                    <a :href="getBoxLink('unframed', getCurrentNetwork(), item?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-4 mr-3"/> Unframed</Btn></a>
-                    <a :href="getBoxLink('element', getCurrentNetwork(), item?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
-                    <a :href="getBoxLink('flex', getCurrentNetwork(), item?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
-                    <a :href="getBoxLink('pyramid', getCurrentNetwork(), item?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
+                    <a :href="getBoxLink('unframed', getCurrentNetwork(), route.params.theme, item?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-4 mr-3"/> Unframed</Btn></a>
+                    <a :href="getBoxLink('element', getCurrentNetwork(), route.params.theme, item?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
+                    <a :href="getBoxLink('flex', getCurrentNetwork(), route.params.theme, item?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
+                    <a :href="getBoxLink('pyramid', getCurrentNetwork(), route.params.theme, item?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
                 </p>
             </div>
             <div v-if="box_id && nbOwned > 0">

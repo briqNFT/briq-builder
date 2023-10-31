@@ -5,7 +5,7 @@ import { logDebug } from '@/Messages';
 import { ref, watchEffect } from 'vue';
 
 import { Provider } from 'starknet';
-import getBaseUrl from '@/url';
+import { getBaseUrl } from '@/url';
 
 import { CHAIN_NETWORKS, getCurrentNetwork } from './Network';
 import { TEST_ENV, DEV, APP_ENV } from '@/Meta';

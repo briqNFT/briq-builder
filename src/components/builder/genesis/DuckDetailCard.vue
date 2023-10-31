@@ -80,7 +80,7 @@ const currentOwner = computed(() => {
                         <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: tokenId } }">
                             <Btn secondary>See details</Btn>
                         </RouterLink>
-                        <a class="hidden tall-sm:visible" :href="getSetLink('unframed', network, tokenId)" target="_blank">
+                        <a class="hidden tall-sm:visible" :href="getSetLink('unframed', network, 'ducks_everywhere', tokenId)" target="_blank">
                             <Btn secondary>See on Unframed</Btn>
                         </a>
                     </p>

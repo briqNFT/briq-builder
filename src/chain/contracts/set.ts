@@ -9,6 +9,8 @@ import * as starknet from 'starknet';
 import { maybeStore } from '../WalletLoading';
 import { toRaw } from 'vue';
 import type { BookletData } from '@/builder/BookletData';
+import { getSetAddress } from '../Collections';
+
 
 export default class SetContract {
     contract!: Contract;
@@ -149,21 +151,9 @@ export class SetOnDojoContract extends SetContract {
         }
     }
 
-    _getContractAddress(attributeGroupId?: string) {
-        if (!attributeGroupId)
-            return this.addresses.set_nft!;
-        return {
-            '0': this.addresses.set_nft,
-            '1': this.addresses.set_nft_sp,
-            '2': this.addresses.set_nft_briqmas,
-            '3': this.addresses.set_nft_ducks,
-            '4': this.addresses.set_nft_1155_frens_ducks,
-        }[attributeGroupId] || this.addresses.set_nft!;
-    }
-
     precomputeTokenId(address: string, token_id_hint: string, nb_briqs: number, booklet?: string, bookletData?: BookletData) {
         // 1155 data, the token_id_hint is taken as the attribute ID
-        if (booklet?.startsWith('frens_ducks'))
+        if (booklet?.startsWith('fren_ducks'))
             return '0x' + (BigInt(bookletData!.serial_number) * 2n**32n + 4n).toString(16);
 
         let hash = starknet.ec.starkCurve.pedersen(0, address);
@@ -224,7 +214,7 @@ export class SetOnDojoContract extends SetContract {
         for (const call of calls)
             if (call.entrypoint === 'assemble') {
                 const attrGroupid = this._getAttributeItem(bookletId)?.attribute_group_id;
-                call.contractAddress = this._getContractAddress(attrGroupid);
+                call.contractAddress = getSetAddress(this.addresses, attrGroupid);
             }
         return await (this.contract.providerOrAccount as starknet.AccountInterface).execute(calls);
     }
@@ -253,7 +243,7 @@ export class SetOnDojoContract extends SetContract {
         await maybeStore.value!.ensureEnabled();
         // Change the target contract transparently (super hacky but meh)
         const attrGroupid = this._getAttributeItem(bookletId)?.attribute_group_id;
-        this.contract.address = this._getContractAddress(attrGroupid);
+        this.contract.address = getSetAddress(this.addresses, attrGroupid);
         return await this.contract.disassemble(owner, token_id, fts, bookletId ? [this._getAttributeItem(bookletId)] : []);
     }
 }
