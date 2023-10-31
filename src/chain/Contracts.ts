@@ -46,32 +46,32 @@ if (APP_ENV !== 'prod') {
     };
 
     ADDRESSES['starknet-testnet-dojo'] = {
-        world: '0x5e62f46f103f8009b4f12925c92407b3121206abaca5f43248350533bfdb40b',
-        setup_world: '0x74a07a80dec968f55bbfbf006deb4b6fe3493c51ae42c6cd588fb6e5431800b',
-        attribute_groups: '0x5e03fffff04a383414aede1dda95c33cff3ac8d44e19811ff634896dc931cf1',
-        register_shape_validator: '0x376685547c2237ff271bd241ab8d2bd6f168514cb45a969b7271d7cd3fdced9',
+        world: '0x7e4b18f979ebdc9cf30f929bc8199239005832eb9eed2134667bed628c23d4',
+        setup_world: '0x1db42603f55f5e92e7f1a2a5ee3213a9a79edc32037f57903f1cf064c126236',
+        attribute_groups: '0x32752b585c5debf79889c30f282ef13d916449dc04d6e8a958b3215a87fcd9e',
+        register_shape_validator: '0x664296a70c193451670628d4e563ec53eae2515731bb06ebe5241455d31fd07',
 
-        briq_factory: '0x24081ab73c27537806ce23d93b40befd8946bdede1f031298a032ccb2b74d96',
+        briq_factory: '0x651a5b09f83dd7645c406763c4c32f0a369ad4f14729ee3cfd02b4a99fc8363',
 
-        box: '0x10fda9480706cef65c9d7eb90a2ce32751ac80898fc826cc74e6331b781992a', // briqmas
-        booklet: '0x761a05da11813527b02f503000b74c0e83743e1f836111ca987772a19fca3bb', // briqmas
-        briq: '0x3fc9bfbf5e373f5bf52b1c895885c85de76863772511c467df882ca44826962',
-        set: '0x34fcb874cbc85d0a6f8c473d433e9ebd0bccfa76ad75232945a1f0115b62ba1',
+        box: '0x6baff254582bd7750600b762729bd44b7dea781b17804fb5a529874e3f6d5fb', // briqmas
+        booklet: '0x5cce2521148759a6f605e7c7661c9d0441162bbe076cdef8385b3718e6c9afb', // briqmas
+        briq: '0x67e44efc5d1868fde5ff9604b44c3cef2d77dc00e785f6d2c4519c248c8bdf2',
+        set: '0x16a1e2799d18948eeb8d153180169d3ebbd964958ff338d9446fd5834f18836',
 
-        box_nft_sp: '0x6e10789a603f768da43d9797dc97fc53ad4c3b52db504ff102be232aa8eb527',
-        box_nft_briqmas: '0x10fda9480706cef65c9d7eb90a2ce32751ac80898fc826cc74e6331b781992a',
-        booklet_ducks: '0x748f4162442c60a6e228503e078ff8b003f331695bffda99c74e5a7bc235656',
-        booklet_starknet_planet: '0x4e549e6a2e8401909ab03d20c9a6fbef4613a1354b74b0e52cf80fc4cdcc2e6',
-        booklet_briqmas: '0x761a05da11813527b02f503000b74c0e83743e1f836111ca987772a19fca3bb',
-        booklet_lil_ducks: '0x34b7c0de8199f5acc07fe3b95e009750ee32de6f341251e46a448210d4e700a',
-        booklet_fren_ducks: '0x22a626c03cb1320e31ed4deaa174088419697bf44f4e1fe2d7e1ecc61e1d607',
-        briq_token: '0x3fc9bfbf5e373f5bf52b1c895885c85de76863772511c467df882ca44826962',
-        set_nft: '0x34fcb874cbc85d0a6f8c473d433e9ebd0bccfa76ad75232945a1f0115b62ba1',
-        set_nft_ducks: '0x765fca82c4690a15c8c33985b7045ec8f8fdd1a7cba231a1c5f3a9c9767adc8',
-        set_nft_sp: '0x30e11394a3c0e2fd712b0bd161027c49d96df1a010693c3f2794428b0b03df9',
-        set_nft_briqmas: '0x774c404feeb97675c47145140a0f8d92c70f02d52a4aa640c11064f1d9380a3',
-        set_nft_1155_lil_ducks: '0x2f888a745a97123db6265a1db9f09a47d59f47e223dd272a3223e652bde806a',
-        set_nft_1155_fren_ducks: '0x4f72b6668def25e048f8877e4d200602dd90d10cb1bedfba5758a67e3c7da13',
+        box_nft_sp: '0xd9bfa6936fdd84593a3920937fc556c67c16da8d3d3663f6af299365cc3b10',
+        box_nft_briqmas: '0x6baff254582bd7750600b762729bd44b7dea781b17804fb5a529874e3f6d5fb',
+        booklet_ducks: '0x53a545137759dc4d969b9816e809a7f9d89f0e86ad96d7277b33c724b466fa9',
+        booklet_starknet_planet: '0x4104a0f65e62cce969e9adf103277c2b2681a731bca790f7d04c921488d2ec1',
+        booklet_briqmas: '0x5cce2521148759a6f605e7c7661c9d0441162bbe076cdef8385b3718e6c9afb',
+        booklet_lil_ducks: '0x1f582e9ee9f862caccaee12c181740e6f1fe8800df30c8b0c5ca14ef4651c59',
+        booklet_fren_ducks: '0x55afbd1c3b5e29891cffed94edd86fc60e044e89d9b329a1d31035e160058cb',
+        briq_token: '0x67e44efc5d1868fde5ff9604b44c3cef2d77dc00e785f6d2c4519c248c8bdf2',
+        set_nft: '0x16a1e2799d18948eeb8d153180169d3ebbd964958ff338d9446fd5834f18836',
+        set_nft_ducks: '0x112c60e1c47f74e3328f9ca0678519de2f962de678bafb3f37c5d5a2e05a58e',
+        set_nft_sp: '0x49fbdb572e1b1bc24db67bb9205329227daa838039e344dd33ae91af76812e7',
+        set_nft_briqmas: '0x69710c8ee4465f4ea29636bc741224a2ec9456191c88ca52d1a04bc413efafb',
+        set_nft_1155_lil_ducks: '0x4499ce1604e2432e26779b97ca6e56250bb612103e3f13233f25dbecabf13f7',
+        set_nft_1155_fren_ducks: '0x7645accafb7d12f07dcc7abca241f3afbaefc9300aca5ca90b85ea6db50cfe3',
 
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
     };

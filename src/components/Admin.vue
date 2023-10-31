@@ -10,7 +10,7 @@ const impersonate = ref('');
 
 const setupWorld = async () => {
     const addr = ADDRESSES[getCurrentNetwork()];
-    await (walletStore.signer)?.execute([
+    const txes = [
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['WorldConfig', addr.setup_world] },
         { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft , 1] },
         { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_ducks , 1] },
@@ -50,7 +50,14 @@ const setupWorld = async () => {
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_briqmas] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_1155_lil_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_1155_fren_ducks] },
-    ])
+
+        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x1', 1, addr.booklet_starknet_planet, addr.set_nft_sp] },
+        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x2', 1, addr.booklet_briqmas, addr.set_nft_briqmas] },
+        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x3', 1, addr.booklet_ducks, addr.set_nft_ducks] },
+        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x4', 1, addr.booklet_fren_ducks, addr.set_nft_1155_fren_ducks] },
+    ];
+    console.log(txes);
+    await (walletStore.signer)?.execute(txes)
 }
     // starkli invoke $SETUP_WORLD_ADDR register_set_contract $WORLD_ADDRESS $SET_NFT 1 --keystore-password $KEYSTORE_PWD --watch
     // starkli invoke $SETUP_WORLD_ADDR register_set_contract $WORLD_ADDRESS $SET_NFT_ADDR_BRIQMAS 1 --keystore-password $KEYSTORE_PWD

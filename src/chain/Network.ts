@@ -9,7 +9,7 @@ import { logDebug } from '@/Messages';
 export type CHAIN_NETWORKS = 'localhost' | 'starknet-testnet' | 'starknet-testnet-dojo' | 'starknet-mainnet';
 
 const network = reactive({
-    network: APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet' as CHAIN_NETWORKS,
+    network: APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet-dojo' as CHAIN_NETWORKS,
 });
 
 export function getNetworkName(network: CHAIN_NETWORKS) {

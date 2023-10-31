@@ -165,48 +165,6 @@ const start_auth = async () => {
 }
 
 const setup_collections = async () => {
-    await (walletStore.signer as Account).execute([
-        {
-            contractAddress: ADDRESSES[getCurrentNetwork()].attribute_groups,
-            entrypoint: 'create_attribute_group',
-            calldata: [
-                ADDRESSES[getCurrentNetwork()].world,
-                '0x1',
-                1, ADDRESSES[getCurrentNetwork()].booklets_starknet_planet,
-                ADDRESSES[getCurrentNetwork()].sets_starknet_planet,
-            ],
-        },
-        {
-            contractAddress: ADDRESSES[getCurrentNetwork()].attribute_groups,
-            entrypoint: 'create_attribute_group',
-            calldata: [
-                ADDRESSES[getCurrentNetwork()].world,
-                '0x2',
-                1, ADDRESSES[getCurrentNetwork()].booklets_briqmas,
-                ADDRESSES[getCurrentNetwork()].sets_briqmas,
-            ],
-        },
-        {
-            contractAddress: ADDRESSES[getCurrentNetwork()].attribute_groups,
-            entrypoint: 'create_attribute_group',
-            calldata: [
-                ADDRESSES[getCurrentNetwork()].world,
-                '0x3',
-                1, ADDRESSES[getCurrentNetwork()].booklets_ducks_everywhere,
-                ADDRESSES[getCurrentNetwork()].sets_ducks_everywhere,
-            ],
-        },
-        {
-            contractAddress: ADDRESSES[getCurrentNetwork()].attribute_groups,
-            entrypoint: 'create_attribute_group',
-            calldata: [
-                ADDRESSES[getCurrentNetwork()].world,
-                '0x4',
-                1, ADDRESSES[getCurrentNetwork()].booklets_ducks_frens,
-                ADDRESSES[getCurrentNetwork()].sets_ducks_frens,
-            ],
-        },
-    ])
 }
 
 const mintBoxes = async () => {
