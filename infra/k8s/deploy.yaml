@@ -106,21 +106,23 @@ data:
 #@ if data.values.env == 'prod':
   api_relay.conf: |
     location /api_relay/ {
-        auth_basic "admin protection";
-        auth_basic_user_file /etc/nginx/secrets/password;
+        # auth_basic "admin protection";
+        # auth_basic_user_file /etc/nginx/secrets/password;
 
         proxy_set_header   X-Forwarded-For $remote_addr;
         proxy_set_header   Host $http_host;
+        proxy_set_header   Cookie $http_cookie;
         proxy_pass         http://briq-api.default.svc.cluster.local/;
     }
 #@ else:
   api_relay.conf: |
     location /api_relay/ {
-        auth_basic "admin protection";
-        auth_basic_user_file /etc/nginx/secrets/password;
+        # auth_basic "admin protection";
+        # auth_basic_user_file /etc/nginx/secrets/password;
 
         proxy_set_header   X-Forwarded-For $remote_addr;
         proxy_set_header   Host $http_host;
+        proxy_set_header   Cookie $http_cookie;
         proxy_pass         http://dev-briq-api.default.svc.cluster.local/;
     }
 #@ end
