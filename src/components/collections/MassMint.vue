@@ -138,24 +138,26 @@ const deployShapeContracts = async () => {
     const jsonData = await adminBackendManager.post('v1/admin/compile_shape_contract/', {
         shapes_by_attribute_id: data,
     });
-    //console.log(hash.computeCompiledClassHash(JSON.parse(jsonData.casm)));
-    //console.log(hash.computeSierraContractClassHash(JSON.parse(jsonData.sierra)));
-    const classHash = (await (walletStore.signer)?.declare({
-        contract: JSON.parse(jsonData.sierra),
-        casm: JSON.parse(jsonData.casm),
+    const parsedSierra = JSON.parse(jsonData.sierra);
+    const parsedCasm = JSON.parse(jsonData.casm);
+    const classHash = (await (walletStore.signer)!.declare({
+        contract: parsedSierra,
+        casm: parsedCasm,
     }))!.class_hash;
-    //console.log(classHash);
-    for (const attributeId in data)
-        await walletStore.signer.execute({
-            contractAddress: ADDRESSES[getCurrentNetwork()].register_shape_validator,
-            entrypoint: 'execute',
-            calldata: [
-                ADDRESSES[getCurrentNetwork()].world,
-                assemblyGroupId.value!,
-                attributeId,
-                classHash,
-            ],
-        })
+    //let classHash = '0x0732fa75c94e08557cf09bec3a32ad4b80c3f6ca211e9126d48ea9f386c070b8';
+    //console.log('argent', classHash);
+    //classHash = hash.computeSierraContractClassHash(parsedSierra);
+    //console.log('mine', hash.computeSierraContractClassHash(parsedSierra));
+    await walletStore.signer!.execute(Object.keys(data).map(x => ({
+        contractAddress: ADDRESSES[getCurrentNetwork()].register_shape_validator,
+        entrypoint: 'execute',
+        calldata: [
+            ADDRESSES[getCurrentNetwork()].world,
+            assemblyGroupId.value!,
+            x,
+            classHash,
+        ],
+    })))
 }
 
 const start_auth = async () => {
