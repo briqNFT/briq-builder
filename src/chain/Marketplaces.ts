@@ -1,6 +1,6 @@
 import { ADDRESSES } from '@/chain/Contracts';
 import type { CHAIN_NETWORKS } from '@/chain/Network';
-import { getSetAddress } from '@/chain/Collections';
+import { getSetAddress, getBookletAddress, getBoxAddress } from '@/chain/Collections';
 
 export function getSetLink(marketplace: string, network: CHAIN_NETWORKS, collection: string, setId: string) {
     // TODO: handle networks properly

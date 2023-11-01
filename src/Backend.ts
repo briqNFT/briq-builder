@@ -1,5 +1,6 @@
 import { getBaseUrl, getAdminBaseUrl } from './url';
 import { getCurrentNetwork } from './chain/Network';
+import { APP_ENV } from './Meta';
 
 class BackendManager {
     url: string;
@@ -52,7 +53,7 @@ class BackendManager {
             method: 'GET',
             headers: headers,
             mode: 'cors',
-            credentials: 'same-origin',
+            credentials: APP_ENV === 'dev' ? 'include' : 'same-origin',
         };
 
         this.last_requests[url] = {
@@ -74,7 +75,7 @@ class BackendManager {
             method: 'POST',
             headers: headers,
             mode: 'cors',
-            credentials: 'same-origin',
+            credentials: APP_ENV === 'dev' ? 'include' : 'same-origin',
         };
         if (body)
             dat.body = JSON.stringify(body);
