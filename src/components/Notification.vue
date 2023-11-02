@@ -57,6 +57,12 @@ p {
         <template v-else-if="notif.type === 'set_delete_rejected'">
             <p>Set '{{ notif.data.name }}' failed to disassemble.<br>There was an error with the transaction.</p>
         </template>
+        <template v-else-if="notif.type === 'set_migration_confirmed'">
+            <p>Set '{{ notif.data.name }}' was sucessfully migrated.</p>
+        </template>
+        <template v-else-if="notif.type === 'set_migration_rejected'">
+            <p>Set '{{ notif.data.name }}' failed to migrate.<br>There was an error with the transaction.</p>
+        </template>
         <template v-else-if="notif.type === 'bid_pending'">
             <p>Your bidding transaction was sent.</p>
         </template>

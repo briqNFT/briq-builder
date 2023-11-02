@@ -294,6 +294,33 @@ class UserSetStore implements perUserStorable {
         }
     }
 
+    async migrateSet(tx_hash: string, old_network: string, old_token_id: string, new_network: string, data: any) {
+        window.addEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
+        try {
+            // Ask the backend to migrate the set
+            backendManager.post('v1/migrate_set', {
+                old_chain_id: old_network,
+                old_token_id: old_token_id,
+                chain_id: new_network,
+                token_id: data.id,
+            });
+            this._setData[data.id] = {
+                data: new SetData(data.id).deserialize(data),
+                booklet_id: undefined,
+                created_at: Date.now(),
+            }
+            this.metadata[data.id] = {
+                set_id: data.id,
+                status: 'TENTATIVE',
+                tx_hash: tx_hash,
+            }
+            window.removeEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
+        } catch(_) {
+            window.removeEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
+            throw _;
+        }
+    }
+
     async disassemble(token_id: string) {
         const [network, wallet_address] = this.user_id.split('/');
         let booklet_token_id;

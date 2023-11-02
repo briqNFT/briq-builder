@@ -150,27 +150,7 @@ class UserLegacySetStore implements perUserStorable {
         if (!network)
             return;
         for (const setId in this.metadata)
-            if (this.metadata[setId].status === 'TENTATIVE' && this._sets.indexOf(setId) !== -1)  {
-                this.notifyMintingConfirmed(this.metadata[setId]);
-                delete this.metadata[setId];
-                // At this point re-fetch the data just in case we ended up with something un-clean.
-                try {
-                    backendManager.fetch(`v1/metadata/${network}/${setId}.json`).then(data => {
-                        this._setData[setId] = {
-                            data: new SetData(setId).deserialize(data),
-                            booklet_id: data.booklet_id,
-                            created_at: data.created_at * 1000,
-                            properties: data.properties,
-                            background_color: data.background_color,
-                        }
-                    });
-                } catch(_)  {
-                    if (APP_ENV === 'dev')
-                        console.error(_);
-                }
-                // Reload briqs, we likely have an update.
-                chainBriqs.value?.loadFromChain();
-            } else if (this.metadata[setId].status === 'TENTATIVE_DELETED' && this._sets.indexOf(setId) === -1)  {
+            if (this.metadata[setId].status === 'TENTATIVE_DELETED' && this._sets.indexOf(setId) === -1)  {
                 this.notifyDeletionConfirmed(this.metadata[setId]);
                 delete this.metadata[setId];
                 // Reload briqs, we likely have an update.
@@ -185,13 +165,7 @@ class UserLegacySetStore implements perUserStorable {
             const item = this.metadata[setId];
             const status = await maybeStore.value?.getProvider()?.getTransactionStatus(item.tx_hash);
             if (status === 'REJECTED') {
-                if (item.status === 'TENTATIVE') {
-                    // Reveal the set.
-                    const info = setsManager.getHiddenSetInfo(item.set_id);
-                    if (info)
-                        info.onchainId = undefined;
-                    this.notifyMintingRejected(item, info?.id);
-                } else if (item.status === 'TENTATIVE_DELETED')
+                if (item.status === 'TENTATIVE_DELETED')
                     this.notifyDeletionRejected(item);
                 delete this.metadata[setId];
             }
@@ -199,10 +173,18 @@ class UserLegacySetStore implements perUserStorable {
         setTimeout(() => this.poll(), success ? 60000 : 60000);
     }
 
+    removeSet(tx_hash: string, setId: string) {
+        this.metadata[setId] = {
+            set_id: setId,
+            status: 'TENTATIVE_DELETED',
+            tx_hash: tx_hash,
+        }
+    }
+
     notifyDeletionConfirmed(setData: UserSetStore['metadata']['any']) {
         new Notification({
-            type: 'set_delete_confirmed',
-            title: 'Set disassembled',
+            type: 'set_migration_confirmed',
+            title: 'Set migrated',
             level: 'success',
             data: {
                 tx_hash: setData.tx_hash,
@@ -216,8 +198,8 @@ class UserLegacySetStore implements perUserStorable {
 
     notifyDeletionRejected(setData: UserSetStore['metadata']['any']) {
         new Notification({
-            type: 'set_delete_rejected',
-            title: 'Disassembly failure',
+            type: 'set_migration_rejected',
+            title: 'Migration failed',
             level: 'error',
             data: {
                 tx_hash: setData.tx_hash,

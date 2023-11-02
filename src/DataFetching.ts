@@ -13,10 +13,10 @@ export class Fetchable<T> {
     _error = undefined as any;
 
     get _status() {
-        return this._data !== undefined ? 'LOADED' : (this._error !== undefined ? 'ERROR' : 'FETCHING');
+        return this._fetch === undefined ? 'NA' : this._data !== undefined ? 'LOADED' : (this._error !== undefined ? 'ERROR' : 'FETCHING');
     }
 
-    async fetch(t: () => Promise<T>) {
+    fetch(t: () => Promise<T>): Promise<T | void> {
         this._fetch = t().then((data) => {
             this._data = data;
             return data;

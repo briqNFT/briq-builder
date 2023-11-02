@@ -43,6 +43,23 @@ if (APP_ENV !== 'prod') {
         auction_ducks: '0x04ef0bd475fb101cc1b5dc2c4fc9d11b4fa233cfa1876924ec84b2f3dcf32f75',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
         briq_factory: '0x07ad96c0f03a1924ede9ce2e3e4546560602dcce65b5fd050870cfecf583b414',
+
+        // Forward compatibility
+        box_nft_sp: '0x043bafcb15f12c137229406f96735eba51018fe75e5330058479556bc77dfd94',
+        box_nft_briqmas: '0x043bafcb15f12c137229406f96735eba51018fe75e5330058479556bc77dfd94',
+        booklet_ducks: '0x018734a90e5df97235c0ff83f92174cf6f16ad3ec572e38e2e146e47c8878839',
+        booklet_starknet_planet: '0x018734a90e5df97235c0ff83f92174cf6f16ad3ec572e38e2e146e47c8878839',
+        booklet_briqmas: '0x018734a90e5df97235c0ff83f92174cf6f16ad3ec572e38e2e146e47c8878839',
+        booklet_lil_ducks: '0x018734a90e5df97235c0ff83f92174cf6f16ad3ec572e38e2e146e47c8878839',
+        booklet_fren_ducks: '0x018734a90e5df97235c0ff83f92174cf6f16ad3ec572e38e2e146e47c8878839',
+        briq_token: '0x0068eb19445f96b3c3775fba757de89ee8f44fda42dc08173a501acacd97853f',
+        set_nft: '0x043bafcb15f12c137229406f96735eba51018fe75e5330058479556bc77dfd94',
+        set_nft_ducks: '0x043bafcb15f12c137229406f96735eba51018fe75e5330058479556bc77dfd94',
+        set_nft_sp: '0x043bafcb15f12c137229406f96735eba51018fe75e5330058479556bc77dfd94',
+        set_nft_briqmas: '0x043bafcb15f12c137229406f96735eba51018fe75e5330058479556bc77dfd94',
+        set_nft_1155_lil_ducks: '0x043bafcb15f12c137229406f96735eba51018fe75e5330058479556bc77dfd94',
+        set_nft_1155_fren_ducks: '0x043bafcb15f12c137229406f96735eba51018fe75e5330058479556bc77dfd94',
+
     };
 
     ADDRESSES['starknet-testnet-dojo'] = {
@@ -50,6 +67,7 @@ if (APP_ENV !== 'prod') {
         setup_world: '0x1db42603f55f5e92e7f1a2a5ee3213a9a79edc32037f57903f1cf064c126236',
         attribute_groups: '0x32752b585c5debf79889c30f282ef13d916449dc04d6e8a958b3215a87fcd9e',
         register_shape_validator: '0x664296a70c193451670628d4e563ec53eae2515731bb06ebe5241455d31fd07',
+        migrate_assets: '0x30e53c44983f6998732095bd61fa998e9008cd479ccc08ea553dfcae86f4880',
 
         briq_factory: '0x651a5b09f83dd7645c406763c4c32f0a369ad4f14729ee3cfd02b4a99fc8363',
 

@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import { backendManager } from '@/Backend';
+import { Fetchable } from '@/DataFetching';
 import { userLegacySetStore } from '@/builder/UserLegacySets';
-import { computed } from 'vue';
+import { userSetStore } from '@/builder/UserSets';
+import contractStore, { ADDRESSES } from '@/chain/Contracts';
+import { getPremigrationNetwork, getCurrentNetwork } from '@/chain/Network';
+import { maybeStore } from '@/chain/WalletLoading';
+import { computed, reactive } from 'vue';
 
 const emit = defineEmits(['close']);
 
@@ -11,6 +17,60 @@ const props = defineProps<{
 const migratable = computed(() => props.selectedItems.filter(x => userLegacySetStore.current?.setData[x].data));
 const briqs = computed(() => migratable.value.reduce((acc, x) => acc + (userLegacySetStore.current?.setData[x]?.data?.getNbBriqs?.() || 0), 0));
 const notAll = computed(() => migratable.value.length !== props.selectedItems.length);
+
+const migration = reactive(new Fetchable());
+
+const migrateOnly = async () => {
+    migration.clear();
+    await migration.fetch(async () => {
+        await maybeStore.value!.ensureEnabled();
+        await maybeStore.value!.signer!.execute([{
+            contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())!].set,
+            entrypoint: 'setApprovalForAll',
+            calldata: [ADDRESSES[getCurrentNetwork()].migrate_assets, 1],
+        }].concat(props.selectedItems.map(x => ({
+            contractAddress: ADDRESSES[getCurrentNetwork()].migrate_assets,
+            entrypoint: 'migrate_legacy_set_briqs',
+            calldata: [x, userLegacySetStore.current!.setData[x]!.data!.getNbBriqs()],
+        }))));
+    });
+    if (migration._status === 'LOADED')
+        emit('close', 0);
+}
+
+const migrateAndRemint = async () => {
+    migration.clear();
+    await migration.fetch(async () => {
+        try {
+            await Promise.all(props.selectedItems.map(x => backendManager.fetch(`v1/check_migrate_set/${getPremigrationNetwork(getCurrentNetwork())!}/${x}`)));
+        } catch(error) {
+            throw new Error('Could not validate the migration for some selected sets. Please try porting the briqs only.');
+        }
+        await maybeStore.value!.ensureEnabled();
+        const tx = await maybeStore.value!.signer!.execute([{
+            contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())!].set,
+            entrypoint: 'setApprovalForAll',
+            calldata: [ADDRESSES[getCurrentNetwork()].migrate_assets, 1],
+        }].concat(props.selectedItems.map(x => ({
+            contractAddress: ADDRESSES[getCurrentNetwork()].migrate_assets,
+            entrypoint: 'migrate_legacy_set_briqs',
+            calldata: [x, userLegacySetStore.current!.setData[x]!.data!.getNbBriqs()],
+        }))).concat(props.selectedItems.map(x => {
+            const oldSet = userLegacySetStore.current!.setData[x]!.data!;
+            const setData = oldSet.serialize();
+            setData.id = contractStore.set!.precomputeTokenId(maybeStore.value!.userWalletAddress, x, oldSet.getNbBriqs());
+            return contractStore.set.prepareAssemble(maybeStore.value!.userWalletAddress, x, setData);
+        })));
+        props.selectedItems.forEach(x => {
+            const oldSet = userLegacySetStore.current!.setData[x]!.data!;
+            const setData = oldSet.serialize();
+            setData.id = contractStore.set!.precomputeTokenId(maybeStore.value!.userWalletAddress, x, oldSet.getNbBriqs());
+            userLegacySetStore.current!.removeSet(tx.transaction_hash, x);
+            userSetStore.current?.migrateSet(tx.transaction_hash, getPremigrationNetwork(getCurrentNetwork())!, x, getCurrentNetwork(), setData);
+        });
+        emit('close', 1);
+    });
+}
 </script>
 
 <template>
@@ -42,8 +102,9 @@ const notAll = computed(() => migratable.value.length !== props.selectedItems.le
             </li>
         </ul>
         <div class="mt-8 mb-2 flex justify-around gap-12 mx-4">
-            <Btn class="min-w-[8rem] flex-1" tooltip="Choose this option if you just want the briqs, not the NFTs" @click="emit('close', 0)">Migrate briqs only</Btn>
-            <Btn class="min-w-[8rem] flex-1" tooltip="Choose this option if you want to keep your NFTs, not get briqs" @click="emit('close', 1)">Migrate briqs & mint sets</Btn>
+            <Btn class="min-w-[8rem] flex-1" :disabled="migration._status === 'FETCHING'" tooltip="Choose this option if you just want the briqs, not the NFTs" @click="migrateOnly">Migrate briqs only</Btn>
+            <Btn class="min-w-[8rem] flex-1" :disabled="migration._status === 'FETCHING'" tooltip="Choose this option if you want to keep your NFTs, not get briqs" @click="migrateAndRemint">Migrate briqs & mint sets</Btn>
         </div>
+        <p v-show="migration._status == 'ERROR'" class="font-mono text-copy bg-grad-light mt-4 p-2 rounded text-info-error">{{ migration._error }}</p>
     </Window>
 </template>
