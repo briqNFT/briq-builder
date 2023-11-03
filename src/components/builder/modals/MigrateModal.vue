@@ -14,7 +14,7 @@ const props = defineProps<{
     selectedItems: string[],
 }>();
 
-const migratable = computed(() => props.selectedItems.filter(x => userLegacySetStore.current?.setData[x].data));
+const migratable = computed(() => props.selectedItems.filter(x => userLegacySetStore.current?.setData?.[x]?.data));
 const briqs = computed(() => migratable.value.reduce((acc, x) => acc + (userLegacySetStore.current?.setData[x]?.data?.getNbBriqs?.() || 0), 0));
 const notAll = computed(() => migratable.value.length !== props.selectedItems.length);
 
@@ -28,7 +28,7 @@ const migrateOnly = async () => {
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())!].set,
             entrypoint: 'setApprovalForAll',
             calldata: [ADDRESSES[getCurrentNetwork()].migrate_assets, 1],
-        }].concat(props.selectedItems.map(x => ({
+        }].concat(migratable.value.map(x => ({
             contractAddress: ADDRESSES[getCurrentNetwork()].migrate_assets,
             entrypoint: 'migrate_legacy_set_briqs',
             calldata: [x, userLegacySetStore.current!.setData[x]!.data!.getNbBriqs()],
@@ -42,7 +42,7 @@ const migrateAndRemint = async () => {
     migration.clear();
     await migration.fetch(async () => {
         try {
-            await Promise.all(props.selectedItems.map(x => backendManager.fetch(`v1/check_migrate_set/${getPremigrationNetwork(getCurrentNetwork())!}/${x}`)));
+            await Promise.all(migratable.value.map(x => backendManager.fetch(`v1/check_migrate_set/${getPremigrationNetwork(getCurrentNetwork())!}/${x}`)));
         } catch(error) {
             throw new Error('Could not validate the migration for some selected sets. Please try porting the briqs only.');
         }
@@ -51,17 +51,17 @@ const migrateAndRemint = async () => {
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())!].set,
             entrypoint: 'setApprovalForAll',
             calldata: [ADDRESSES[getCurrentNetwork()].migrate_assets, 1],
-        }].concat(props.selectedItems.map(x => ({
+        }].concat(migratable.value.map(x => ({
             contractAddress: ADDRESSES[getCurrentNetwork()].migrate_assets,
             entrypoint: 'migrate_legacy_set_briqs',
             calldata: [x, userLegacySetStore.current!.setData[x]!.data!.getNbBriqs()],
-        }))).concat(props.selectedItems.map(x => {
+        }))).concat(migratable.value.map(x => {
             const oldSet = userLegacySetStore.current!.setData[x]!.data!;
             const setData = oldSet.serialize();
             setData.id = contractStore.set!.precomputeTokenId(maybeStore.value!.userWalletAddress, x, oldSet.getNbBriqs());
             return contractStore.set.prepareAssemble(maybeStore.value!.userWalletAddress, x, setData);
         })));
-        props.selectedItems.forEach(x => {
+        migratable.value.forEach(x => {
             const oldSet = userLegacySetStore.current!.setData[x]!.data!;
             const setData = oldSet.serialize();
             setData.id = contractStore.set!.precomputeTokenId(maybeStore.value!.userWalletAddress, x, oldSet.getNbBriqs());
