@@ -107,7 +107,7 @@ export function useProfileData() {
                 name: data?.data?.name || setId,
                 nb_briqs: data?.data?.getNbBriqs?.() || 0,
                 created_at: data?.created_at || Date.now(),
-                pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
+                pending: userLegacySetStore.current?.metadata[setId]?.status === 'TENTATIVE',
                 needs_migration: true,
             }
         }).filter(x => !!x) || [];

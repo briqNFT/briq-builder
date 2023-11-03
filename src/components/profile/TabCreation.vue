@@ -90,7 +90,7 @@ const toggleSelected = (id: string) => {
             <a id="personal" class="relative bottom-[80px]"/>
             <h4>Custom Sets</h4>
             <p class="text-sm mt-1">These are minted NFTs that you have created yourself or got from someone else!</p>
-            <div v-if="!creations.length" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
+            <div v-if="!(creations.length + legacyCreations.length)" class="bg-grad-lightest rounded-md mt-4 mb-10 p-8 flex flex-col justify-center items-center gap-2">
                 <p class="font-semibold">
                     You have not yet created a set yourself. <br> Let your imagination run free!
                 </p><p>Get some briqs and start building!</p>
