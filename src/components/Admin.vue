@@ -121,11 +121,12 @@ const setupWorld = async () => {
                     <h2>Custom Write Call:</h2>
                     <p>
                         <select v-model="cc_contract">
-                            <option v-for="value, key in ADDRESSES[getCurrentNetwork()]" :key="key" :value="key">{{ key }}</option>
+                            <option value="0x038bf557306ab58c7e2099036b00538b51b37bdad3b8abc31220001fb5139365">Legacy sets</option>
+                            <option v-for="value, key in ADDRESSES[getCurrentNetwork()]" :key="key" :value="value">{{ key }}</option>
                         </select>
                     </p>
                     <p>Function: <input type="text" v-model="selector"></p>
-                    <p>Calldata (csv): <input type="text" v-model="calldata"></p>
+                    <p>Calldata (csv): <input type="text" v-model="calldata" size="70"></p>
                     <p>
                         <Btn :disabled="cc_pending" @click="customCall">Call</Btn><i v-if="cc_pending" class="far fa-spinner animate-spin"/>
                     </p>
@@ -198,7 +199,7 @@ export default defineComponent({
             _briqImpl: '',
             newSetImpl: '',
             newBriqImpl: '',
-            cc_contract: 'set',
+            cc_contract: '',
             selector: '',
             calldata: '',
             customResult: '',
@@ -254,7 +255,7 @@ export default defineComponent({
                 let tx;
                 if (walletStore?.signer?.signer) {
                     tx = await (walletStore.signer as AccountInterface).execute({
-                        contractAddress: ADDRESSES[getCurrentNetwork()][this.cc_contract],
+                        contractAddress: this.cc_contract,
                         entrypoint: this.selector,
                         calldata: this.calldata
                             .split(',')
@@ -263,7 +264,7 @@ export default defineComponent({
                     });
                     pushMessage(JSON.stringify(tx));
                 } else {
-                    tx = await (walletStore.signer as Signer).invokeFunction(BigInt(ADDRESSES[getCurrentNetwork()][this.cc_contract]).toString(), BigInt(snHash.getSelectorFromName(this.selector)).toString(), this.calldata
+                    tx = await (walletStore.signer as Signer).invokeFunction(BigInt(this.cc_contract).toString(), BigInt(snHash.getSelectorFromName(this.selector)).toString(), this.calldata
                         .split(',')
                         .filter((x) => x)
                         .map((x: string) => BigInt(x.trim()).toString()));
