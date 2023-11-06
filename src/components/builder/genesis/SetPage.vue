@@ -35,6 +35,8 @@ import MenuDropdown from '@/components/generic/MenuDropdown.vue';
 import { externalSetCache } from '@/builder/ExternalSets';
 import ShareOnTwitter from '../ShareOnTwitter.vue';
 import { getSetLink, getBookletLink } from '@/chain/Marketplaces';
+import { userLegacySetStore } from '@/builder/UserLegacySets';
+import MigrateModal from '../modals/MigrateModal.vue';
 
 const route = useRoute();
 const genesisStore = useGenesisStore();
@@ -50,6 +52,12 @@ const createSet = () => {
 
 const doDisassembly = async () => {
     if (await disassembleSet(set.value!.id))
+        router.push({ name: 'Profile' });
+}
+
+const doMigrate = async () => {
+    const res = await pushModal(MigrateModal, { selectedItems: [route.params.set_id] });
+    if (res !== undefined)
         router.push({ name: 'Profile' });
 }
 
@@ -80,6 +88,8 @@ const collection_name = computed(() => {
 const setKind = computed(() => collection_name.value ? 'OFFICIAL' : 'PERSONAL');
 
 const isOwned = computed(() => !!userSetStore.current?.setData[route.params.set_id as string]);
+
+const needsMigrating = computed(() => !!userLegacySetStore.current?.setData[route.params.set_id as string]);
 
 const setData = computed(() => {
     if (mode === 'BOOKLET')
@@ -389,6 +399,7 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                         <div class="flex justify-between items-stretch gap-2">
                             <RouterLink v-if="set?.id" :to="`/briqmas_next_day?token=${set.id}`"><Btn v-if="isOwned && booklet_id === 'briqmas/briqmas_tree'" class="!h-full text-md px-6 py-0">View in<br>living room</Btn></RouterLink>
                             <Btn v-if="isOwned" :disabled="false && hasPendingActivity" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
+                            <Btn v-else-if="needsMigrating" :disabled="false && hasPendingActivity" @click="doMigrate" class="!h-auto text-md px-6">Migrate</Btn>
                         </div>
                     </div>
                     <div class="p-6 py-4 flex flex-col gap-4">

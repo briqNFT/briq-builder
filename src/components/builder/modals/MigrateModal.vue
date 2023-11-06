@@ -68,8 +68,9 @@ const migrateAndRemint = async () => {
             userLegacySetStore.current!.removeSet(tx.transaction_hash, x);
             userSetStore.current?.migrateSet(tx.transaction_hash, getPremigrationNetwork(getCurrentNetwork())!, x, getCurrentNetwork(), setData);
         });
-        emit('close', 1);
     });
+    if (migration._status === 'LOADED')
+        emit('close', 1);
 }
 </script>
 

@@ -44,6 +44,7 @@ export function disassembleSelected() {
     }).then(btn => {
         if (btn !== 0)
             return;
+        disassemblable.map(setId => userSetStore.current!.disassemble(setId));
     })
 }
 

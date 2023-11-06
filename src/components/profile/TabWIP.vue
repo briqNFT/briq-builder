@@ -87,7 +87,7 @@ const toggleSelected = (id: string) => {
                     :class="'cursor-pointer' + (mode == 'batch_actions' && selectedItems.has(creation.id) ? ' selected' : '')"
                     @click="mode == 'normal' ? openSetInBuilder(creation.id) : toggleSelected(creation.id)">
                     <template #subtitle>
-                        <Toggle v-if="mode == 'batch_actions'" class="absolute top-4 right-3 w-10" :enabled="selectedItems.has(creation.id)"/>
+                        <Toggle v-if="mode == 'batch_actions'" class="absolute top-4 right-3 w-10" :enabled="selectedItems.has(creation.id)" @click="toggleSelected(creation.id)"/>
                         <p class="mx-4 text-grad-dark relative">
                             WIP
                             <span v-if="mode == 'normal'" class="absolute bottom-0 right-0">

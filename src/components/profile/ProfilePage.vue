@@ -26,6 +26,7 @@ const {
     draftBooklets,
     creations,
     officialCreations,
+    legacyCreations,
 } = useProfileData();
 
 const userAddress = computed(() => maybeStore.value?.userWalletAddress);
@@ -112,7 +113,7 @@ div[data-name='menu'] button {
             <div class="flex gap-8">
                 <p v-if="userAddress" :class="`font-medium ${activeTab === 'GENESIS' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('GENESIS')">Boxes & Booklets&nbsp;<span class="pastille">{{ inventoryBoxes.length + inventoryBooklets.length }}</span></p>
                 <p :class="`font-medium ${activeTab === 'WIP' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('WIP')">Work in Progress&nbsp;<span class="pastille">{{ creationsWIP.length + draftBooklets.length }}</span></p>
-                <p v-if="userAddress" :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">Minted Sets&nbsp;<span class="pastille">{{ officialCreations.length + creations.length }}</span></p>
+                <p v-if="userAddress" :class="`font-medium ${activeTab === 'CREATION' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('CREATION')">Minted Sets&nbsp;<span class="pastille">{{ officialCreations.length + creations.length + legacyCreations.length }}</span></p>
                 <!--<p v-if="userAddress" :class="`font-medium ${activeTab === 'ACTIVITY' ? 'pb-2 border-b-4 border-primary' : 'hover:cursor-pointer text-grad-dark hover:text-grad-darkest'}`" @click="setTab('ACTIVITY')">Shopping Activity</p>-->
             </div>
         </div>
@@ -132,15 +133,15 @@ div[data-name='menu'] button {
                         <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ draftBooklets.length }}</span></Btn>
                     </template>
                     <template v-else-if="activeTab === 'CREATION'">
-                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ creations.length + officialCreations.length }}</span></Btn>
-                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">Custom Sets<span class="pastille">{{ creations.length }}</span></Btn>
+                        <Btn @click="setSection('ALL')" :force-active="filter === 'ALL'" no-background class="w-full justify-start items-baseline font-medium">All items <span class="pastille">{{ creations.length + officialCreations.length + legacyCreations.length }}</span></Btn>
+                        <Btn @click="setSection('PERSONAL')" :force-active="filter === 'PERSONAL'" no-background class="w-full justify-start text-left items-baseline font-medium">Custom Sets<span class="pastille">{{ creations.length + legacyCreations.length }}</span></Btn>
                         <Btn @click="setSection('OFFICIAL')" :force-active="filter === 'OFFICIAL'" no-background class="w-full justify-start items-baseline font-medium">Official Sets<span class="pastille">{{ officialCreations.length }}</span></Btn>
                     </template>
                 </div>
                 <Btn primary class="w-full text-sm mb-4" @click="pushModal(NewSetModalVue)">New Creation</Btn>
                 <Btn v-if="mode == 'normal' && activeTab !== 'GENESIS'" secondary class="w-full text-sm font-normal mb-4" @click="mode = 'batch_actions'">Select for batch actions</Btn>
                 <template v-if="mode == 'batch_actions'">
-                    <Btn secondary class="w-full text-sm font-normal mb-4" @click="mode = 'normal'">Cancel batch action</Btn>
+                    <Btn secondary class="w-full text-sm font-normal mb-1" @click="mode = 'normal'">Cancel batch action</Btn>
                     <p class="w-full text-center text-sm font-medium mb-4">{{ selectedItems.size }} selected</p>
                     <Btn v-if="activeTab == 'WIP'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="deleteSelected()">Delete selected</Btn>
                     <Btn v-if="activeTab == 'CREATION'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="disassembleSelected()">Disassemble selected</Btn>

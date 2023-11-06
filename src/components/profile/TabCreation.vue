@@ -109,7 +109,7 @@ const toggleSelected = (id: string) => {
                         toggleSelected(creation.id)
                     ">
                     <template #subtitle>
-                        <Toggle v-if="mode == 'batch_actions'" class="absolute top-4 right-3 w-10" :enabled="selectedItems.has(creation.id)"/>
+                        <Toggle v-if="mode == 'batch_actions'" class="absolute top-4 right-3 w-10" :enabled="selectedItems.has(creation.id)" @click="toggleSelected(creation.id)"/>
                         <p class="mx-4 text-grad-dark relative">
                             {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-3) }}
                             <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
@@ -148,7 +148,7 @@ const toggleSelected = (id: string) => {
                         <div class="needMigration absolute top-0 w-full flex justify-center items-center rounded-t-md">
                             <p>Migration needed</p>
                         </div>
-                        <Toggle v-if="mode == 'batch_actions'" class="absolute top-4 right-3 w-10" :enabled="selectedItems.has(creation.id)"/>
+                        <Toggle v-if="mode == 'batch_actions'" class="absolute top-4 right-3 w-10" :enabled="selectedItems.has(creation.id)" @click="toggleSelected(creation.id)"/>
                         <p class="mx-4 text-grad-dark relative">
                             {{ creation.id.slice(0, 7) }}...{{ creation.id.slice(-3) }}
                             <Btn no-background class="p-0 text-xs" @click.stop="copy(creation.id)"><i class="fa-regular fa-copy"/></Btn>
