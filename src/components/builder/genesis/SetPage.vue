@@ -57,7 +57,7 @@ const doDisassembly = async () => {
 
 const doMigrate = async () => {
     const res = await pushModal(MigrateModal, { selectedItems: [route.params.set_id] });
-    if (res !== undefined)
+    if (res !== null && res !== undefined)
         router.push({ name: 'Profile' });
 }
 
