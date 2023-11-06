@@ -294,16 +294,18 @@ class UserSetStore implements perUserStorable {
         }
     }
 
-    async migrateSet(tx_hash: string, old_network: string, old_token_id: string, new_network: string, data: any) {
-        window.addEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
-        try {
-            // Ask the backend to migrate the set
-            backendManager.post('v1/migrate_set', {
-                old_chain_id: old_network,
-                old_token_id: old_token_id,
-                chain_id: new_network,
-                token_id: data.id,
-            });
+    /**
+     * This function looks weird - it's a hack, it works, it's fine.
+     */
+    async migrateSet(old_network: string, old_token_id: string, new_network: string, data: any) {
+        // Ask the backend to migrate the set
+        await backendManager.post('v1/migrate_set', {
+            old_chain_id: old_network,
+            old_token_id: old_token_id,
+            chain_id: new_network,
+            token_id: data.id,
+        });
+        return (tx_hash: string) => {
             this._setData[data.id] = {
                 data: new SetData(data.id).deserialize(data),
                 booklet_id: undefined,
@@ -314,10 +316,6 @@ class UserSetStore implements perUserStorable {
                 status: 'TENTATIVE',
                 tx_hash: tx_hash,
             }
-            window.removeEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
-        } catch(_) {
-            window.removeEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
-            throw _;
         }
     }
 

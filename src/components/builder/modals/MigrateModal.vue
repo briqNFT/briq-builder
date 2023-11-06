@@ -47,6 +47,12 @@ const migrateAndRemint = async () => {
             throw new Error('Could not validate the migration for some selected sets. Please try porting the briqs only.');
         }
         await maybeStore.value!.ensureEnabled();
+        const endMigration = migratable.value.map(x => {
+            const oldSet = userLegacySetStore.current!.setData[x]!.data!;
+            const setData = oldSet.serialize();
+            setData.id = contractStore.set!.precomputeTokenId(maybeStore.value!.userWalletAddress, x, oldSet.getNbBriqs());
+            return userSetStore.current!.migrateSet(getPremigrationNetwork(getCurrentNetwork())!, x, getCurrentNetwork(), setData);
+        });
         const tx = await maybeStore.value!.signer!.execute([{
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())!].set,
             entrypoint: 'setApprovalForAll',
@@ -61,13 +67,10 @@ const migrateAndRemint = async () => {
             setData.id = contractStore.set!.precomputeTokenId(maybeStore.value!.userWalletAddress, x, oldSet.getNbBriqs());
             return contractStore.set.prepareAssemble(maybeStore.value!.userWalletAddress, x, setData);
         })));
-        migratable.value.forEach(x => {
-            const oldSet = userLegacySetStore.current!.setData[x]!.data!;
-            const setData = oldSet.serialize();
-            setData.id = contractStore.set!.precomputeTokenId(maybeStore.value!.userWalletAddress, x, oldSet.getNbBriqs());
-            userLegacySetStore.current!.removeSet(tx.transaction_hash, x);
-            userSetStore.current?.migrateSet(tx.transaction_hash, getPremigrationNetwork(getCurrentNetwork())!, x, getCurrentNetwork(), setData);
-        });
+        migratable.value.forEach(x => userLegacySetStore.current!.removeSet(tx.transaction_hash, x));
+        endMigration.forEach(x => x.then(x => {
+            x(tx.transaction_hash);
+        }));
     });
     if (migration._status === 'LOADED')
         emit('close', 1);
