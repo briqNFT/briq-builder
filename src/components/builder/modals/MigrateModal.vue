@@ -6,6 +6,7 @@ import { userSetStore } from '@/builder/UserSets';
 import contractStore, { ADDRESSES } from '@/chain/Contracts';
 import { getPremigrationNetwork, getCurrentNetwork } from '@/chain/Network';
 import { maybeStore } from '@/chain/WalletLoading';
+import { migrateBriqsIfNeeded } from '@/chain/contracts/migration';
 import { computed, reactive } from 'vue';
 
 const emit = defineEmits(['close']);
@@ -23,8 +24,7 @@ const migration = reactive(new Fetchable());
 const migrateOnly = async () => {
     migration.clear();
     await migration.fetch(async () => {
-        await maybeStore.value!.ensureEnabled();
-        await maybeStore.value!.signer!.execute([{
+        await maybeStore.value!.sendTransaction(migrateBriqsIfNeeded([{
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())!].set,
             entrypoint: 'setApprovalForAll',
             calldata: [ADDRESSES[getCurrentNetwork()].migrate_assets, 1],
@@ -32,7 +32,7 @@ const migrateOnly = async () => {
             contractAddress: ADDRESSES[getCurrentNetwork()].migrate_assets,
             entrypoint: 'migrate_legacy_set_briqs',
             calldata: [x, userLegacySetStore.current!.setData[x]!.data!.getNbBriqs()],
-        }))));
+        })))));
     });
     if (migration._status === 'LOADED')
         emit('close', 0);
@@ -53,7 +53,7 @@ const migrateAndRemint = async () => {
             setData.id = contractStore.set!.precomputeTokenId(maybeStore.value!.userWalletAddress, x, oldSet.getNbBriqs());
             return userSetStore.current!.migrateSet(getPremigrationNetwork(getCurrentNetwork())!, x, getCurrentNetwork(), setData);
         });
-        const tx = await maybeStore.value!.signer!.execute([{
+        const tx = await maybeStore.value!.sendTransaction(migrateBriqsIfNeeded([{
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())!].set,
             entrypoint: 'setApprovalForAll',
             calldata: [ADDRESSES[getCurrentNetwork()].migrate_assets, 1],
@@ -66,7 +66,7 @@ const migrateAndRemint = async () => {
             const setData = oldSet.serialize();
             setData.id = contractStore.set!.precomputeTokenId(maybeStore.value!.userWalletAddress, x, oldSet.getNbBriqs());
             return contractStore.set.prepareAssemble(maybeStore.value!.userWalletAddress, x, setData);
-        })));
+        }))));
         migratable.value.forEach(x => userLegacySetStore.current!.removeSet(tx.transaction_hash, x));
         endMigration.forEach(x => x.then(x => {
             x(tx.transaction_hash);

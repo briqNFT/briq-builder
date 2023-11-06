@@ -10,6 +10,7 @@ import { maybeStore } from '../WalletLoading';
 import { toRaw } from 'vue';
 import type { BookletData } from '@/builder/BookletData';
 import { getSetAddress } from '../Collections';
+import { migrateBriqsIfNeeded } from './migration';
 
 
 export default class SetContract {
@@ -125,7 +126,7 @@ export default class SetContract {
 
     async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
         await maybeStore.value!.ensureEnabled();
-        return await (this.contract.providerOrAccount as starknet.AccountInterface).execute(this.prepareDisassemble(owner, token_id, set, booklet));
+        return await (this.contract.providerOrAccount as starknet.AccountInterface).execute(migrateBriqsIfNeeded([this.prepareDisassemble(owner, token_id, set, booklet)]));
     }
 }
 
@@ -220,7 +221,7 @@ export class SetOnDojoContract extends SetContract {
                 const attrGroupid = this._getAttributeItem(bookletId)?.attribute_group_id;
                 call.contractAddress = getSetAddress(this.addresses, attrGroupid);
             }
-        return await (this.contract.providerOrAccount as starknet.AccountInterface).execute(calls);
+        return await (this.contract.providerOrAccount as starknet.AccountInterface).execute(migrateBriqsIfNeeded(calls));
     }
 
     prepareAssemble(owner: string, token_id_hint: string, data: any, bookletId?: string) {

@@ -12,6 +12,7 @@ import { APP_ENV } from '@/Meta';
 import { setsManager } from './SetsManager';
 import type { ExternalSetData } from './ExternalSets';
 import type { Call } from 'starknet';
+import { migrateBriqsIfNeeded } from '@/chain/contracts/migration';
 
 
 
@@ -327,7 +328,6 @@ class UserSetStore implements perUserStorable {
             if (this.setData[token_id].booklet_id)
                 booklet_token_id = (await bookletDataStore[network][this.setData[token_id].booklet_id!]._fetch)!.token_id;
 
-
             calls.push(contractStore.set!.prepareDisassemble(
                 wallet_address,
                 token_id,
@@ -335,7 +335,8 @@ class UserSetStore implements perUserStorable {
                 booklet_token_id,
             ));
         }
-        const TX = await maybeStore.value!.sendTransaction(calls);
+
+        const TX = await maybeStore.value!.sendTransaction(migrateBriqsIfNeeded(calls));
 
         for (const token_id of token_ids) {
             if (this.setData[token_id].booklet_id)
