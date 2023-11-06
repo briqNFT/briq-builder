@@ -11,6 +11,9 @@ import MigrateModal from '../builder/modals/MigrateModal.vue';
 
 export const selectedItems = ref(new Set<string>());
 
+export const migratableItems = computed(() => Array.from(selectedItems.value).filter(x => userLegacySetStore.current?.setData?.[x]?.data));
+export const disassemblableItems = computed(() => Array.from(selectedItems.value).filter(x => userSetStore.current?.setData?.[x]?.data));
+
 export function deleteSelected() {
     const setText = Array.from(selectedItems.value).map(x => `- ${setsManager.getInfo(x).getSet().name}`);
     pushModal(TextModal, {

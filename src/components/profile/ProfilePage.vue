@@ -17,7 +17,7 @@ import { pushModal } from '../Modals.vue';
 import NewSetModalVue from '../builder/modals/NewSetModal.vue';
 import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 import Tooltip from '../generic/Tooltip.vue';
-import { useProfileData, deleteSelected, disassembleSelected, migrateSets, selectedItems } from './ProfileData';
+import { useProfileData, deleteSelected, disassembleSelected, migrateSets, selectedItems, disassemblableItems, migratableItems } from './ProfileData';
 
 const {
     inventoryBoxes,
@@ -144,8 +144,8 @@ div[data-name='menu'] button {
                     <Btn secondary class="w-full text-sm font-normal mb-1" @click="mode = 'normal'">Cancel batch action</Btn>
                     <p class="w-full text-center text-sm font-medium mb-4">{{ selectedItems.size }} selected</p>
                     <Btn v-if="activeTab == 'WIP'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="deleteSelected()">Delete selected</Btn>
-                    <Btn v-if="activeTab == 'CREATION'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="disassembleSelected()">Disassemble selected</Btn>
-                    <Btn v-if="activeTab == 'CREATION'" :disabled="selectedItems.size == 0" secondary class="w-full text-sm font-normal mb-1" @click="migrateSets(Array.from(selectedItems))">Migrate selected</Btn>
+                    <Btn v-if="activeTab == 'CREATION'" :disabled="disassemblableItems.length == 0" secondary class="w-full text-sm font-normal mb-1" @click="disassembleSelected()">Disassemble selected</Btn>
+                    <Btn v-if="activeTab == 'CREATION'" :disabled="migratableItems.length == 0" secondary class="w-full text-sm font-normal mb-1" @click="migrateSets(Array.from(selectedItems))">Migrate selected</Btn>
                 </template>
             </div>
         </div>
