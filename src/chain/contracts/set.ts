@@ -104,7 +104,7 @@ export default class SetContract {
         return this.contract.populate('assemble_', [owner, token_id_hint, setName, setDescription, fts, nfts, shapes, booklet ? [booklet] : []]);
     }
 
-    async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
+    prepareDisassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
         const fungibles = {} as { [mat: string]: number };
         const nfts = [] as string[];
         set.forEach((briq, _) => {
@@ -120,8 +120,12 @@ export default class SetContract {
         for (const ft in fungibles)
             fts.push({ token_id: ft, qty: '' + fungibles[ft] });
 
+        return this.contract.populate('disassemble_', [owner, token_id, fts, nfts, booklet ? [booklet] : []]);
+    }
+
+    async disassemble(owner: string, token_id: string, set: SetData, booklet?: string) {
         await maybeStore.value!.ensureEnabled();
-        return await this.contract.disassemble_(owner, token_id, fts, nfts, booklet ? [booklet] : []);
+        return await (this.contract.providerOrAccount as starknet.AccountInterface).execute(this.prepareDisassemble(owner, token_id, set, booklet));
     }
 }
 
@@ -224,7 +228,7 @@ export class SetOnDojoContract extends SetContract {
         return this.contract.populate('assemble', [owner, token_id_hint, setName, setDescription, fts, shapes, bookletId ? [this._getAttributeItem(bookletId)] : []]);
     }
 
-    async disassemble(owner: string, token_id: string, set: SetData, bookletId?: string) {
+    prepareDisassemble(owner: string, token_id: string, set: SetData, bookletId?: string) {
         const fungibles = {} as { [mat: string]: number };
         const nfts = [] as string[];
         set.forEach((briq, _) => {
@@ -240,10 +244,9 @@ export class SetOnDojoContract extends SetContract {
         for (const ft in fungibles)
             fts.push({ token_id: ft, qty: fungibles[ft] });
 
-        await maybeStore.value!.ensureEnabled();
         // Change the target contract transparently (super hacky but meh)
         const attrGroupid = this._getAttributeItem(bookletId)?.attribute_group_id;
         this.contract.address = getSetAddress(this.addresses, attrGroupid);
-        return await this.contract.disassemble(owner, token_id, fts, bookletId ? [this._getAttributeItem(bookletId)] : []);
+        return this.contract.populate('disassemble', [owner, token_id, fts, bookletId ? [this._getAttributeItem(bookletId)] : []]);
     }
 }

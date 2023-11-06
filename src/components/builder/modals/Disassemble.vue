@@ -23,7 +23,7 @@ const disassembling = ref(false);
 const disassembleAndClose = async () => {
     disassembling.value = true;
     try {
-        const TX = await userSetStore.current!.disassemble(props.setId);
+        const TX = await userSetStore.current!.disassemble([props.setId]);
         const notif = new Notification({
             type: 'set_delete_sent',
             title: 'Disassembling set',

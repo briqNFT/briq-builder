@@ -321,30 +321,36 @@ class UserSetStore implements perUserStorable {
         }
     }
 
-    async disassemble(token_id: string) {
+    async disassemble(token_ids: string[]) {
         const [network, wallet_address] = this.user_id.split('/');
-        let booklet_token_id;
-        if (this.setData[token_id].booklet_id)
-            booklet_token_id = (await bookletDataStore[network][this.setData[token_id].booklet_id!]._fetch)!.token_id;
+        const calls = [];
+        for (const token_id of token_ids) {
+            let booklet_token_id;
+            if (this.setData[token_id].booklet_id)
+                booklet_token_id = (await bookletDataStore[network][this.setData[token_id].booklet_id!]._fetch)!.token_id;
 
 
-        const TX = await contractStore.set!.disassemble(
-            wallet_address,
-            token_id,
-            this.setData[token_id].data!,
-            booklet_token_id,
-        );
+            calls.push(contractStore.set!.prepareDisassemble(
+                wallet_address,
+                token_id,
+                this.setData[token_id].data!,
+                booklet_token_id,
+            ));
+        }
+        const TX = await maybeStore.value!.sendTransaction(calls);
 
-        if (this.setData[token_id].booklet_id)
-            userBookletsStore.current!.showOne(this.setData[token_id].booklet_id!, TX.transaction_hash);
+        for (const token_id of token_ids) {
+            if (this.setData[token_id].booklet_id)
+                userBookletsStore.current!.showOne(this.setData[token_id].booklet_id!, TX.transaction_hash);
 
-        for (const mat in this.setData[token_id].data!.usedByMaterial)
-            chainBriqs.value?.show(mat, this.setData[token_id].data!.usedByMaterial[mat], TX.transaction_hash);
+            for (const mat in this.setData[token_id].data!.usedByMaterial)
+                chainBriqs.value?.show(mat, this.setData[token_id].data!.usedByMaterial[mat], TX.transaction_hash);
 
-        this.metadata[token_id] = {
-            set_id: token_id,
-            status: 'TENTATIVE_DELETED',
-            tx_hash: TX.transaction_hash,
+            this.metadata[token_id] = {
+                set_id: token_id,
+                status: 'TENTATIVE_DELETED',
+                tx_hash: TX.transaction_hash,
+            }
         }
         return TX;
     }

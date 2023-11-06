@@ -169,6 +169,11 @@ export class WalletStore {
         return blockchainProvider.value;
     }
 
+    async sendTransaction(calls: any[]) {
+        await this.ensureEnabled();
+        return this.signer!.execute(calls);
+    }
+
     setProviderFromSigner() {
         if (!this.signer)
             chooseDefaultNetwork();
