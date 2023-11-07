@@ -53,7 +53,6 @@ class BackendManager {
             method: 'GET',
             headers: headers,
             mode: 'cors',
-            credentials: APP_ENV === 'dev' ? 'include' : 'same-origin',
         };
 
         this.last_requests[url] = {
