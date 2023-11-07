@@ -18,7 +18,10 @@ export class Fetchable<T> {
 
     fetch(t: () => Promise<T>): Promise<T | void> {
         this._fetch = t().then((data) => {
-            this._data = data;
+            if (data !== undefined)
+                this._data = data;
+            else
+                this._data = true; // As a fallback for _status to be updated.
             return data;
         }).catch((err) => {
             this._error = err;

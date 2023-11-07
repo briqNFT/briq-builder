@@ -192,7 +192,7 @@ class UserLegacySetStore implements perUserStorable {
                 name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
             },
-            read: false,
+            read: true, // Start these as true - I want trace but a popup is redundant.
         }).push(true);
     }
 
@@ -207,7 +207,7 @@ class UserLegacySetStore implements perUserStorable {
                 name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
             },
-            read: false,
+            read: true, // Start these as true - I want trace but a popup is redundant.
         }).push(true);
     }
 }

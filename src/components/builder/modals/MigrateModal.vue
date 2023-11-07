@@ -24,7 +24,7 @@ const migration = reactive(new Fetchable());
 const migrateOnly = async () => {
     migration.clear();
     await migration.fetch(async () => {
-        await maybeStore.value!.sendTransaction(migrateBriqsIfNeeded([{
+        const tx = await maybeStore.value!.sendTransaction(migrateBriqsIfNeeded([{
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())!].set,
             entrypoint: 'setApprovalForAll',
             calldata: [ADDRESSES[getCurrentNetwork()].migrate_assets, 1],
@@ -33,6 +33,7 @@ const migrateOnly = async () => {
             entrypoint: 'migrate_legacy_set_briqs',
             calldata: [x, userLegacySetStore.current!.setData[x]!.data!.getNbBriqs()],
         })))));
+        migratable.value.forEach(x => userLegacySetStore.current!.removeSet(tx.transaction_hash, x));
     });
     if (migration._status === 'LOADED')
         emit('close', 0);
