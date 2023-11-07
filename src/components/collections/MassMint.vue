@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import { showOpenFilePickerPolyfill } from '@/UploadFilePolyfill';
-import Footer from '../landing_page/Footer.vue';
 import Header from '../landing_page/Header.vue';
+import Footer from '../landing_page/Footer.vue';
 import { pushPopup } from '@/Notifications';
 import { SetData } from '@/builder/SetData';
 import contractStore, { ADDRESSES } from '@/chain/Contracts';
 import { walletStore } from '@/chain/Wallet';
-import { ref, onMounted, computed, watchEffect } from 'vue';
+import { ref, onMounted, computed, watchEffect, reactive } from 'vue';
 import { Fetchable } from '@/DataFetching';
-import { getCurrentNetwork } from '@/chain/Network';
+import { getCurrentNetwork, getPremigrationNetwork } from '@/chain/Network';
 import { adminBackendManager, backendManager } from '@/Backend';
 import { useGenesisStore } from '@/builder/GenesisStore';
-import { Account, hash } from 'starknet';
+import type { Account, Call } from 'starknet';
 import { bookletDataStore } from '@/builder/BookletData';
 import { pushModal } from '../Modals.vue';
 import TextModal from '../generic/TextModal.vue';
 import RecipientMappingModal from './RecipientMappingModal.vue';
+import { getCalls } from './migrate';
 
 class SetToMint {
     filename: string;
@@ -182,6 +183,33 @@ const mintBoxes = async () => {
         })),
     );
 }
+
+const migrationCalls = reactive(new Fetchable<Call[]>());
+
+watchEffect(() => {
+    if (migrationCalls?._data)
+        window.localStorage.setItem('migration_calls', JSON.stringify(migrationCalls._data!));
+
+})
+
+onMounted(() => {
+    try {
+        const calls = window.localStorage.getItem('migration_calls');
+        if (calls && calls.length)
+            migrationCalls.fetch(async () => JSON.parse(calls));
+    } catch(_) {}
+})
+
+const migrate = async () => {
+    const mapping = await pushModal(RecipientMappingModal) as Record<string, unknown>;
+    if (!mapping)
+        return;
+    migrationCalls.fetch(async () => {
+        return await getCalls(mapping);
+    });
+    //await walletStore.sendTransaction(calls);
+}
+
 </script>
 
 <template>
@@ -233,9 +261,8 @@ const mintBoxes = async () => {
             <hr class="my-6">
             <h4>Existing items in this collection:</h4>
             <Btn @click="deployShapeContracts">Deploy missing shape contract(s)</Btn>
-            <Btn @click="mintBoxes">Mint Boxes</Btn>
-            <Btn @click="pushModal(RecipientMappingModal)">Mint Booklets</Btn>
-            <Btn>Migrate all</Btn>
+            <Btn :disabled="true" @click="mintBoxes">Mint Boxes</Btn>
+            <Btn :disabled="true" @click="pushModal(RecipientMappingModal)">Mint Booklets</Btn>
             <table>
                 <tr>
                     <th>Object ID</th>
@@ -279,6 +306,16 @@ const mintBoxes = async () => {
                     <td><img class="w-12" :src="genesisStore.coverBookletRoute(name, true)"></td>
                 </tr>
             </table>
+            <hr class="my-6">
+            <h2>Migration</h2>
+            <Btn @click="migrate">Setup calls</Btn>
+            <div v-if="migrationCalls._status == 'LOADED'">
+                <p>Total calls: {{ migrationCalls._data!.length }}</p>
+                <p v-for="(value, key) in ADDRESSES[getCurrentNetwork()]" :key="key">Calls to {{ key }}: {{ migrationCalls._data!.filter(x => x.contractAddress == value).length }}</p>
+            </div>
+            <div v-else-if="migrationCalls._error">
+                <p>Error: {{ migrationCalls._error }}</p>
+            </div>
         </div>
     </div>
     <Footer/>
