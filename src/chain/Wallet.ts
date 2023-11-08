@@ -20,6 +20,10 @@ import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider'
 
 import { injectController, SupportedChainIds } from '@cartridge/controller';
 
+import { addWalnutLogs } from '@walnuthq/sdk';
+
+const WALNUT_API_KEY = 'walnut_9tkxeupzdAj_8K1zPzun4QaFaiGFQvZhmT';
+
 export type UserID = string;
 export class WalletStore {
     signer: undefined | AccountInterface = undefined;
@@ -115,6 +119,8 @@ export class WalletStore {
 
     async enableWallet(starknetObj: StarknetWindowObject) {
         this.starknetObject = starknetObj;
+        if (this.starknetObject.account)
+            this.starknetObject.account = addWalnutLogs({ account: this.starknetObject.account, apiKey: WALNUT_API_KEY });
         if (!this.starknetObject?.isConnected)
             await this.starknetObject.enable({ starknetVersion: 'v4' })
         await this.setSignerFromGSW();
@@ -124,7 +130,7 @@ export class WalletStore {
     async enableExternalWallet(address: string) {
         const obj = {
             isConnected: true,
-            account: new starknet.Account(getProviderForNetwork('starknet-mainnet'), address, new starknet.Signer(null)),
+            account: addWalnutLogs({ account: new starknet.Account(getProviderForNetwork('starknet-mainnet'), address, new starknet.Signer(null)), apiKey: WALNUT_API_KEY }),
             enable: () => Promise.resolve(),
             on: () => {},
         } as unknown as StarknetWindowObject;
