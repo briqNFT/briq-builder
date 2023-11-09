@@ -26,7 +26,7 @@
     "@jaames/iro": "^5.5",
     "@sentry/tracing": "^6.16",
     "@sentry/vue": "^6.16",
-    "@walnuthq/sdk": "^1.0.2",
+    "@walnuthq/sdk": "^1.0.3",
     "briqout": "^0.1.0",
     "canvas-confetti": "^1.6.0",
     "connect": "^3.7",
