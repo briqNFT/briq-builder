@@ -18,6 +18,10 @@ import type { StarknetWindowObject } from 'get-starknet';
 import { APP_ENV } from '@/Meta';
 import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider';
 
+import { addWalnutLogs } from '@walnuthq/sdk';
+
+const WALNUT_API_KEY = 'walnut_YPuxeJ7eMTX_8yfAjTjfVvv3K1dyaRdZJF';
+
 const connect = async (...args: any[]) => {
     const cwo = await import('starknetkit');
     return cwo.connect(...args);
@@ -143,6 +147,7 @@ export class WalletStore {
 
     async setSignerFromGSW() {
         if (this.starknetObject?.isConnected) {
+            this.starknetObject.account = addWalnutLogs({ account: this.starknetObject.account, apiKey: WALNUT_API_KEY });
             this.signer = markRaw(this.starknetObject.account);
             this._userWalletAddress = this.starknetObject.account.address;
             this._starknetIdDomain = '';
