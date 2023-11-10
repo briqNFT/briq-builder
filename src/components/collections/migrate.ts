@@ -16,6 +16,7 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
                 ADDRESSES[getCurrentNetwork()].migrate_assets,
                 box.box_id,
                 1,
+                0,
             ],
         });
         const contract = BigInt(box.box_id) == 10n ? ADDRESSES[getCurrentNetwork()].box_nft_briqmas : ADDRESSES[getCurrentNetwork()].box_nft_sp;
@@ -41,6 +42,7 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
                 ADDRESSES[getCurrentNetwork()].migrate_assets,
                 booklet.old_token_id,
                 1,
+                0,
             ],
         });
         const contract = getBookletAddress(ADDRESSES[getCurrentNetwork()], collec.toString());
@@ -56,11 +58,14 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
     }
     // Actual sets
     for (const set of (mapping.sets as { owner: string, old_token_id: string, matching_booklet_name: string }[]))
-        bookletDataStore[getCurrentNetwork()][set.matching_booklet_name]
+        if (set.matching_booklet_name.startsWith('starknet'))
+            bookletDataStore[getCurrentNetwork()][set.matching_booklet_name]
     for (const set of (mapping.sets as { owner: string, old_token_id: string, matching_booklet_name: string }[])) {
+        if (!set.matching_booklet_name.startsWith('starknet'))
+            continue;
         await bookletDataStore[getCurrentNetwork()][set.matching_booklet_name]._fetch;
-        console.log(bookletDataStore[getCurrentNetwork()][set.matching_booklet_name]._error)
         const bookletData = bookletDataStore[getCurrentNetwork()][set.matching_booklet_name]._data!;
+        console.log(bookletData);
         calls.push({
             contractAddress: ADDRESSES[getCurrentNetwork()].migrate_assets,
             entrypoint: 'migrate_legacy_set_briqs',

@@ -223,21 +223,16 @@ const migrateSetData = async () => {
 
 const estimateFees = async () => {
     // Split calls in equal buckets
-    const size = 20;
+    const size = 200;
     const buckets = [[]];
     for (let i = 0; i < Math.min(size, migrationData._data?.calls.length); ++i) {
         buckets[buckets.length - 1].push(migrationData._data!.calls[i]);
         if (buckets[buckets.length - 1].length == size)
             buckets.push([]);
     }
+    //return walletStore.sendTransaction(buckets[0]);
     const fees = await Promise.allSettled(buckets.map(calls => {
-        return walletStore.signer!.estimateInvokeFee(calls, { skipValidate: true }) /*estimateFeeBulk(
-            calls.map(x => ({
-                type: 'INVOKE_FUNCTION',
-                payload: x,
-            }),
-            ), { skipValidate: true }) //estimateInvokeFee(calls);
-            */
+        return walletStore.signer!.estimateInvokeFee(calls, { skipValidate: true })
     }));
     console.log('totoro', fees);
 }

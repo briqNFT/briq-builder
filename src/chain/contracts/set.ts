@@ -226,7 +226,11 @@ export class SetOnDojoContract extends SetContract {
 
     prepareAssemble(owner: string, token_id_hint: string, data: any, bookletId?: string) {
         const { setName, setDescription, fts, shapes } = this._prepareForAssemble(data);
-        return this.contract.populate('assemble', [owner, token_id_hint, setName, setDescription, fts, shapes, bookletId ? [this._getAttributeItem(bookletId)] : []]);
+        // Change the target contract transparently (kinda hacky but meh)
+        const attrGroupid = this._getAttributeItem(bookletId)?.attribute_group_id;
+        const call = this.contract.populate('assemble', [owner, token_id_hint, setName, setDescription, fts, shapes, bookletId ? [this._getAttributeItem(bookletId)] : []]);
+        call.contractAddress = getSetAddress(this.addresses, attrGroupid);
+        return call;
     }
 
     prepareDisassemble(owner: string, token_id: string, set: SetData, bookletId?: string) {
