@@ -92,7 +92,6 @@ describe('Test migration call parsing', () => {
             throw new Error();
         });
         // console.log(JSON.stringify(data, null, 4))
-        const parsedCalls = await getCalls(data);
-        console.log(parsedCalls);
+        const { calls: parsedCalls } = await getCalls(data);
     });
 });

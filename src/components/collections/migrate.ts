@@ -6,6 +6,7 @@ import { bookletDataStore } from '@/builder/BookletData';
 
 export const getCalls = async (mapping: Record<string, unknown>) => {
     const calls: Call[] = [];
+    const set_migrations: { old_token_id: string, new_token_id: string }[] = [];
     for (const box of (mapping.boxes as { owner: string, box_id: string}[])) {
         calls.push({
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())].box,
@@ -77,8 +78,12 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
                 1,
             ],
         });
+        set_migrations.push({
+            old_token_id: set.old_token_id,
+            new_token_id: contractStore.set!.precomputeTokenId(set.owner, '1', bookletData.briqs.length, set.matching_booklet_name, bookletData),
+        });
         // Then mint the set
         calls.push(contractStore.set!.prepareAssemble(set.owner, '1', bookletData, bookletData.token_id));
     }
-    return calls;
+    return { calls, set_migrations };
 };

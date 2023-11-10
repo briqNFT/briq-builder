@@ -40,7 +40,7 @@ const collectionData = {
     'starknet_planet': '0x1',
     'briqmas': '0x2',
     'ducks_everywhere': '0x3',
-    'fren_ducks': '0x4',
+    'ducks_frens': '0x4',
 } as const;
 const assemblyGroupId = computed(() => (collectionData[collection.value] ?? null));
 
@@ -184,11 +184,11 @@ const mintBoxes = async () => {
     );
 }
 
-const migrationCalls = reactive(new Fetchable<Call[]>());
+const migrationData = reactive(new Fetchable<{ set_migrations: { old_token_id: string, new_token_id: string }[], calls: Call[] }>());
 
 watchEffect(() => {
-    if (migrationCalls?._data)
-        window.localStorage.setItem('migration_calls', JSON.stringify(migrationCalls._data!));
+    if (migrationData?._data)
+        window.localStorage.setItem('migration_calls', JSON.stringify(migrationData._data!));
 
 })
 
@@ -196,7 +196,7 @@ onMounted(() => {
     try {
         const calls = window.localStorage.getItem('migration_calls');
         if (calls && calls.length)
-            migrationCalls.fetch(async () => JSON.parse(calls));
+            migrationData.fetch(async () => JSON.parse(calls));
     } catch(_) {}
 })
 
@@ -204,10 +204,42 @@ const migrate = async () => {
     const mapping = await pushModal(RecipientMappingModal) as Record<string, unknown>;
     if (!mapping)
         return;
-    migrationCalls.fetch(async () => {
+    migrationData.fetch(async () => {
         return await getCalls(mapping);
     });
     //await walletStore.sendTransaction(calls);
+}
+
+const migrateSetData = async () => {
+    await Promise.all(migrationData._data!.set_migrations.map(x => {
+        return backendManager.post('v1/migrate_set', {
+            old_chain_id: getPremigrationNetwork(getCurrentNetwork()),
+            old_token_id: x.old_token_id,
+            chain_id: getCurrentNetwork(),
+            token_id: x.new_token_id,
+        });
+    }));
+}
+
+const estimateFees = async () => {
+    // Split calls in equal buckets
+    const size = 20;
+    const buckets = [[]];
+    for (let i = 0; i < Math.min(size, migrationData._data?.calls.length); ++i) {
+        buckets[buckets.length - 1].push(migrationData._data!.calls[i]);
+        if (buckets[buckets.length - 1].length == size)
+            buckets.push([]);
+    }
+    const fees = await Promise.allSettled(buckets.map(calls => {
+        return walletStore.signer!.estimateInvokeFee(calls, { skipValidate: true }) /*estimateFeeBulk(
+            calls.map(x => ({
+                type: 'INVOKE_FUNCTION',
+                payload: x,
+            }),
+            ), { skipValidate: true }) //estimateInvokeFee(calls);
+            */
+    }));
+    console.log('totoro', fees);
 }
 
 </script>
@@ -309,12 +341,18 @@ const migrate = async () => {
             <hr class="my-6">
             <h2>Migration</h2>
             <Btn @click="migrate">Setup calls</Btn>
-            <div v-if="migrationCalls._status == 'LOADED'">
-                <p>Total calls: {{ migrationCalls._data!.length }}</p>
-                <p v-for="(value, key) in ADDRESSES[getCurrentNetwork()]" :key="key">Calls to {{ key }}: {{ migrationCalls._data!.filter(x => x.contractAddress == value).length }}</p>
+            <Btn :disabled="!migrationData._data?.set_migrations?.length" @click="migrateSetData">Migrate Set data</Btn>
+            <Btn :disabled="!migrationData._data?.calls?.length" @click="estimateFees">Estimate Fees</Btn>
+            <div v-if="migrationData._status == 'LOADED'">
+                <p>Total calls: {{ migrationData._data!.calls.length }}</p>
+                <p v-for="(value, key) in ADDRESSES[getCurrentNetwork()]" :key="key">Calls to {{ key }}: {{ migrationData._data!.calls.filter(x => x.contractAddress == value).length }}</p>
+
+                <div>
+                    <p v-for="val in migrationData._data!.set_migrations">{{ val }}</p>
+                </div>
             </div>
-            <div v-else-if="migrationCalls._error">
-                <p>Error: {{ migrationCalls._error }}</p>
+            <div v-else-if="migrationData._error">
+                <p>Error: {{ migrationData._error }}</p>
             </div>
         </div>
     </div>

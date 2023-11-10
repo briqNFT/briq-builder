@@ -158,7 +158,7 @@ export class SetOnDojoContract extends SetContract {
 
     precomputeTokenId(address: string, token_id_hint: string, nb_briqs: number, booklet?: string, bookletData?: BookletData) {
         // 1155 data, the token_id_hint is taken as the attribute ID
-        if (booklet?.startsWith('fren_ducks'))
+        if (booklet?.startsWith('ducks_frens'))
             return '0x' + (BigInt(bookletData!.serial_number) * 2n**32n + 4n).toString(16);
 
         let hash = starknet.ec.starkCurve.pedersen(0, address);
