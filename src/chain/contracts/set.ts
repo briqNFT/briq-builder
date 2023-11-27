@@ -78,7 +78,7 @@ export default class SetContract {
                 ++fungibles[briq.data.material];
             }
         }
-        shapes.sort((a, b) => a[1].localeCompare(b[1], 'en'));
+        shapes.sort((a, b) => a.x_y_z.localeCompare(b.x_y_z, 'en'));
         const fts = [];
         for (const ft in fungibles)
             fts.push({ token_id: ft, qty: '' + fungibles[ft] });
