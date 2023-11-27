@@ -147,7 +147,8 @@ export class WalletStore {
 
     async setSignerFromGSW() {
         if (this.starknetObject?.isConnected) {
-            this.starknetObject.account = addWalnutLogs({ account: this.starknetObject.account, apiKey: WALNUT_API_KEY });
+            if (APP_ENV !== 'prod')
+                this.starknetObject.account = addWalnutLogs({ account: this.starknetObject.account, apiKey: WALNUT_API_KEY });
             this.signer = markRaw(this.starknetObject.account);
             this._userWalletAddress = this.starknetObject.account.address;
             this._starknetIdDomain = '';

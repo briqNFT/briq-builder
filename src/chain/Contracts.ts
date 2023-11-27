@@ -25,6 +25,7 @@ export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
         briq_factory: '0x05b021b6743c4f420e20786baa7fb9add1d711302c267afbc171252a74687376',
     },
+    'starknet-mainnet-dojo': {},
 };
 
 if (APP_ENV !== 'prod') {

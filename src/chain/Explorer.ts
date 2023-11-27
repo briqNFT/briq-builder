@@ -5,6 +5,7 @@ const EXPLORER_URL_BY_NETWORK = {
     'starknet-testnet-dojo': 'testnet.starkscan.co',
     'starknet-testnet-legacy': 'testnet.starkscan.co',
     'starknet-mainnet': 'starkscan.co',
+    'starknet-mainnet-dojo': 'starkscan.co',
 };
 
 export function ExplorerTxUrl(transaction_hash: string, network = getCurrentNetwork()) {

@@ -71,6 +71,8 @@ export class LegacyChainBriqs implements perUserStorable {
         try {
             const [network, address] = this.user_id.split('/');
             const premigrationNetwork = getPremigrationNetwork(network);
+            if (!premigrationNetwork)
+                return;
             this._lastDataFetch = await backendManager.fetch(`v1/user/briqs/${premigrationNetwork}/${address}`);
             await this._parseChainData(this._lastDataFetch);
             this.status = 'OK';

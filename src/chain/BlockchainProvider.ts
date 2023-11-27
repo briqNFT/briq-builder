@@ -58,6 +58,7 @@ export function getProviderForNetwork(network: CHAIN_NETWORKS): Provider {
         'starknet-testnet': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet/rpc`, retries: 2 } }),
         'starknet-testnet-dojo': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet-dojo/rpc`, retries: 2 } }),
         'starknet-mainnet': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-mainnet/rpc`, retries: 3 } }),
+        'starknet-mainnet-dojo': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-mainnet-dojo/rpc`, retries: 3 } }),
     }[network];
 }
 

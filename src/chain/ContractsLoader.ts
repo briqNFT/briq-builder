@@ -45,6 +45,13 @@ const IMPL = {
         eth_bridge_contract: ERC20Contract,
         briq_factory: BriqFactoryContract,
     },
+    'starknet-mainnet-dojo': {
+        briq: BriqContract,
+        set: SetOnDojoContract,
+        briq_factory: BriqFactoryOnDojoContract,
+        eth_bridge_contract: ERC20Contract,
+        box: BoxDojoContract,
+    },
 };
 
 const selectedNetwork = ref('' as CHAIN_NETWORKS | undefined);
