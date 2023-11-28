@@ -32,10 +32,9 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
             ],
         });
     }
-    for (const booklet of (mapping.booklets as { owner: string, old_token_id: string}[])) {
+    for (const booklet of (mapping.booklets as { owner: string, old_token_id: string, new_booklet_id: string }[])) {
         const collec = BigInt(booklet.old_token_id) % 100n;
-        const attribute_id = BigInt(booklet.old_token_id) / (2n**192n);
-        const new_token_id = collec * (2n**64n) + attribute_id;
+        const new_token_id = BigInt(booklet.new_booklet_id);
         calls.push({
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())].booklet,
             entrypoint: 'safeTransferFrom_',
@@ -59,14 +58,11 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
         });
     }
     // Actual sets
-    for (const set of (mapping.sets as { owner: string, old_token_id: string, matching_booklet_name: string }[]))
-        if (set.matching_booklet_name.startsWith('starknet'))
-            bookletDataStore[getCurrentNetwork()][set.matching_booklet_name]
-    for (const set of (mapping.sets as { owner: string, old_token_id: string, matching_booklet_name: string }[])) {
-        if (!set.matching_booklet_name.startsWith('starknet'))
-            continue;
-        await bookletDataStore[getCurrentNetwork()][set.matching_booklet_name]._fetch;
-        const bookletData = bookletDataStore[getCurrentNetwork()][set.matching_booklet_name]._data!;
+    for (const set of (mapping.sets as { owner: string, old_token_id: string, new_booklet_id: string, new_booklet_name: string }[]))
+        bookletDataStore[getCurrentNetwork()][set.new_booklet_name]
+    for (const set of (mapping.sets as { owner: string, old_token_id: string, new_booklet_id: string, new_booklet_name: string }[])) {
+        await bookletDataStore[getCurrentNetwork()][set.new_booklet_name]._fetch;
+        const bookletData = bookletDataStore[getCurrentNetwork()][set.new_booklet_name]._data!;
         console.log(bookletData);
         calls.push({
             contractAddress: ADDRESSES[getCurrentNetwork()].migrate_assets,
@@ -75,22 +71,22 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
         });
         // At this point we're supposed to have briqs.
         // Mint the booklet
-        const contract = getBookletAddress(ADDRESSES[getCurrentNetwork()], set.matching_booklet_name.split('/')[0]);
+        const contract = getBookletAddress(ADDRESSES[getCurrentNetwork()], set.new_booklet_name.split('/')[0]);
         calls.push({
             contractAddress: contract,
             entrypoint: 'mint',
             calldata: [
                 set.owner,
-                bookletData.token_id,
+                set.new_booklet_id,
                 1,
             ],
         });
         set_migrations.push({
             old_token_id: set.old_token_id,
-            new_token_id: contractStore.set!.precomputeTokenId(set.owner, '1', bookletData.briqs.length, set.matching_booklet_name, bookletData),
+            new_token_id: contractStore.set!.precomputeTokenId(set.owner, '1', bookletData.briqs.length, set.new_booklet_name, bookletData),
         });
         // Then mint the set
-        calls.push(contractStore.set!.prepareAssemble(set.owner, '1', bookletData, bookletData.token_id));
+        calls.push(contractStore.set!.prepareAssemble(set.owner, '1', bookletData, set.new_booklet_id));
     }
     return { calls, set_migrations };
 };

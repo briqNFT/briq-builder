@@ -20,8 +20,8 @@ const setupWorld = async () => {
         { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_1155_ducks_frens , 1] },
         { contractAddress: addr.setup_world, entrypoint: 'register_box_contract', calldata:[addr.world, addr.box_nft_sp , 1] },
         { contractAddress: addr.setup_world, entrypoint: 'register_box_contract', calldata:[addr.world, addr.box_nft_briqmas , 1] },
-        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['BriqFactoryStore', addr.briq_factory] },
 
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['BriqFactoryStore', addr.briq_factory] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.briq_token] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.box_nft_sp] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.box_nft_briqmas] },
@@ -51,11 +51,6 @@ const setupWorld = async () => {
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_briqmas] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_1155_lil_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_1155_ducks_frens] },
-
-    //{ contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft_1155_lil_ducks] },
-    //{ contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft_1155_ducks_frens] },
-    //{ contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_1155_lil_ducks] },
-    //{ contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Owner', addr.set_nft_1155_ducks_frens] },
 
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft_ducks] },
