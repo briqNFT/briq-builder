@@ -53,7 +53,7 @@ class BackendManager {
             method: 'GET',
             headers: headers,
             mode: 'cors',
-            credentials: APP_ENV === 'dev' ? 'include' : 'same-origin',
+            credentials: this.url.search('localhost') !== -1 ? 'include' : 'same-origin',
         };
 
         this.last_requests[url] = {
@@ -75,7 +75,7 @@ class BackendManager {
             method: 'POST',
             headers: headers,
             mode: 'cors',
-            credentials: APP_ENV === 'dev' ? 'include' : 'same-origin',
+            credentials: this.url.search('localhost') !== -1 ? 'include' : 'same-origin',
         };
         if (body)
             dat.body = JSON.stringify(body);

@@ -24,6 +24,22 @@ export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
         auction_ducks: '0x00b9bb7650a88f7e375ae8d31d48b4d4f13c6c34344839837d7dae7ffcdd3df0',
         eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
         briq_factory: '0x05b021b6743c4f420e20786baa7fb9add1d711302c267afbc171252a74687376',
+
+        // Forward compatibility
+        box_nft_sp: '0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139',
+        box_nft_briqmas: '0x01e1f972637ad02e0eed03b69304344c4253804e528e1a5dd5c26bb2f23a8139',
+        booklet_ducks: '0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4',
+        booklet_starknet_planet: '0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4',
+        booklet_briqmas: '0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4',
+        booklet_lil_ducks: '0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4',
+        booklet_ducks_frens: '0x05faa82e2aec811d3a3b14c1f32e9bbb6c9b4fd0cd6b29a823c98c7360019aa4',
+        briq_token: '0x00247444a11a98ee7896f9dec18020808249e8aad21662f2fa00402933dce402',
+        set_nft: '0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672',
+        set_nft_ducks: '0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672',
+        set_nft_sp: '0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672',
+        set_nft_briqmas: '0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672',
+        set_nft_1155_lil_ducks: '0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672',
+        set_nft_1155_ducks_frens: '0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672',
     },
     'starknet-mainnet-dojo': {},
 };
