@@ -4,8 +4,6 @@ import contractStore, { ADDRESSES } from '@/chain/Contracts';
 import { getCurrentNetwork, getPremigrationNetwork } from '@/chain/Network';
 import { bookletDataStore } from '@/builder/BookletData';
 
-export const MIGRATION_ENABLED = false;
-
 export const getCalls = async (mapping: Record<string, unknown>) => {
     const calls: Call[] = [];
     const set_migrations: { old_token_id: string, new_token_id: string }[] = [];

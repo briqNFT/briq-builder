@@ -19,6 +19,7 @@ import { APP_ENV } from '@/Meta';
 import { blockchainProvider, getProviderForNetwork } from './BlockchainProvider';
 
 import { addWalnutLogs } from '@walnuthq/sdk';
+import { MIGRATION_ENABLED } from '@/MigrationData';
 
 const WALNUT_API_KEY = 'walnut_YPuxeJ7eMTX_8yfAjTjfVvv3K1dyaRdZJF';
 
@@ -184,9 +185,9 @@ export class WalletStore {
         if (!this.signer)
             chooseDefaultNetwork();
         else if (this.starknetObject.chainId === 'SN_MAIN' || (this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1 || this.signer?.provider?.chainId === '0x534e5f4d41494e')
-            setNetwork('starknet-mainnet');
+            setNetwork(MIGRATION_ENABLED ? 'starknet-mainnet-dojo' : 'starknet-mainnet');
         else if (this.starknetObject.chainId === 'SN_GOERLI' || (this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4') !== -1 || this.signer?.provider?.chainId === '0x534e5f474f45524c49')
-            setNetwork('starknet-testnet-dojo');
+            setNetwork(MIGRATION_ENABLED ? 'starknet-testnet-dojo' : 'starknet-testnet');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('mock_chain') !== -1)
             setNetwork('mock');
         else

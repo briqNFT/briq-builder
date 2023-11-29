@@ -237,6 +237,22 @@ const estimateFees = async () => {
     console.log('totoro', fees);
 }
 
+const mintStuff = async () => {
+    // Split calls in equal buckets
+    const size = 200;
+    const buckets = [[]];
+    for (let i = 0; i < Math.min(size, migrationData._data?.calls.length); ++i) {
+        buckets[buckets.length - 1].push(migrationData._data!.calls[i]);
+        if (buckets[buckets.length - 1].length == size)
+            buckets.push([]);
+    }
+    const start = parseInt(window.localStorage.getItem('migration_step') || '0');
+    for (let i = start; i < buckets.length; ++i) {
+        await walletStore.sendTransaction(buckets[i]);
+        window.localStorage.setItem('migration_step', i.toString());
+    }
+}
+
 </script>
 
 <template>
@@ -338,6 +354,7 @@ const estimateFees = async () => {
             <Btn @click="migrate">Setup calls</Btn>
             <Btn :disabled="!migrationData._data?.set_migrations?.length" @click="migrateSetData">Migrate Set data</Btn>
             <Btn :disabled="!migrationData._data?.calls?.length" @click="estimateFees">Estimate Fees</Btn>
+            <Btn :disabled="!migrationData._data?.calls?.length" @click="mintStuff">Actually Migrate</Btn>
             <div v-if="migrationData._status == 'LOADED'">
                 <p>Total calls: {{ migrationData._data!.calls.length }}</p>
                 <p v-for="(value, key) in ADDRESSES[getCurrentNetwork()]" :key="key">Calls to {{ key }}: {{ migrationData._data!.calls.filter(x => x.contractAddress == value).length }}</p>

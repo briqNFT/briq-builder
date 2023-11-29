@@ -1,6 +1,7 @@
 import { reactive } from 'vue';
 import { APP_ENV } from '@/Meta';
 import { logDebug } from '@/Messages';
+import { MIGRATION_ENABLED } from '@/MigrationData';
 
 /**
  * Sort of an abstraction around the idea of a chain + network.
@@ -9,7 +10,10 @@ import { logDebug } from '@/Messages';
 export type CHAIN_NETWORKS = 'localhost' | 'starknet-testnet' | 'starknet-testnet-dojo' | 'starknet-mainnet' | 'starknet-mainnet-dojo';
 
 const network = reactive({
-    network: APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet-dojo' as CHAIN_NETWORKS,
+    network: (MIGRATION_ENABLED ?
+        APP_ENV === 'prod' ? 'starknet-mainnet-dojo' : 'starknet-testnet-dojo' :
+        APP_ENV === 'prod' ? 'starknet-mainnet' : 'starknet-testnet'
+    ) as CHAIN_NETWORKS,
 });
 
 export function getNetworkName(network: CHAIN_NETWORKS) {

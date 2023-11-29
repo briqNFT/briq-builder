@@ -18,7 +18,7 @@ import NewSetModalVue from '../builder/modals/NewSetModal.vue';
 import { getCurrentNetwork, getNetworkName } from '@/chain/Network';
 import Tooltip from '../generic/Tooltip.vue';
 import { useProfileData, deleteSelected, disassembleSelected, migrateSets, selectedItems, disassemblableItems, migratableItems } from './ProfileData';
-import { MIGRATION_ENABLED } from '../collections/migrate';
+import { MIGRATION_ENABLED } from '@/MigrationData';
 
 const {
     inventoryBoxes,
