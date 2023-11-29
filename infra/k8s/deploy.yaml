@@ -113,6 +113,7 @@ data:
         proxy_set_header   X-Forwarded-For $remote_addr;
         proxy_set_header   Host $http_host;
         proxy_set_header   Cookie $http_cookie;
+        proxy_set_header   Connection "";
         proxy_pass         http://briq-api.default.svc.cluster.local/;
     }
 #@ else:
@@ -125,6 +126,7 @@ data:
         proxy_set_header   X-Forwarded-For $remote_addr;
         proxy_set_header   Host $http_host;
         proxy_set_header   Cookie $http_cookie;
+        proxy_set_header   Connection "";
         proxy_pass         http://dev-briq-api.default.svc.cluster.local/;
     }
 #@ end
