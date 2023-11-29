@@ -6,21 +6,30 @@ const canMasterInit = computed(() => {
     return contractStore.briq?.getAddress() && contractStore.set?.getAddress() && walletStore.userWalletAddress
 });
 
+const customPayload = ref('');
+
 const impersonate = ref('');
 
 const setupWorld = async () => {
     const addr = ADDRESSES[getCurrentNetwork()];
     const txes = [
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['WorldConfig', addr.setup_world] },
+
+        { contractAddress: addr.setup_world, entrypoint: 'register_box_contract', calldata:[addr.world, addr.box_nft_sp , 1] },
+        { contractAddress: addr.setup_world, entrypoint: 'register_box_contract', calldata:[addr.world, addr.box_nft_briqmas , 1] },
+
         { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft , 1] },
         { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_ducks , 1] },
         { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_sp , 1] },
         { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_briqmas , 1] },
-        { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_1155_lil_ducks , 1] },
         { contractAddress: addr.setup_world, entrypoint: 'register_set_contract', calldata:[addr.world, addr.set_nft_1155_ducks_frens , 1] },
-        { contractAddress: addr.setup_world, entrypoint: 'register_box_contract', calldata:[addr.world, addr.box_nft_sp , 1] },
-        { contractAddress: addr.setup_world, entrypoint: 'register_box_contract', calldata:[addr.world, addr.box_nft_briqmas , 1] },
 
+        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x1', 1, addr.booklet_starknet_planet, addr.set_nft_sp] },
+        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x2', 1, addr.booklet_briqmas, addr.set_nft_briqmas] },
+        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x3', 1, addr.booklet_ducks, addr.set_nft_ducks] },
+        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x4', 1, addr.booklet_ducks_frens, addr.set_nft_1155_ducks_frens] },
+
+    /*
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['BriqFactoryStore', addr.briq_factory] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.briq_token] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.box_nft_sp] },
@@ -70,28 +79,17 @@ const setupWorld = async () => {
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721TokenApproval', addr.set_nft_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721TokenApproval', addr.set_nft_sp] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721TokenApproval', addr.set_nft_briqmas] },
-
-        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x1', 1, addr.booklet_starknet_planet, addr.set_nft_sp] },
-        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x2', 1, addr.booklet_briqmas, addr.set_nft_briqmas] },
-        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x3', 1, addr.booklet_ducks, addr.set_nft_ducks] },
-        { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x4', 1, addr.booklet_ducks_frens, addr.set_nft_1155_ducks_frens] },
+        */
     ];
-    console.log(txes);
+    // console.log(JSON.stringify(txes));
     await (walletStore.signer)?.execute(txes)
 }
-    // starkli invoke $SETUP_WORLD_ADDR register_set_contract $WORLD_ADDRESS $SET_NFT 1 --keystore-password $KEYSTORE_PWD --watch
-    // starkli invoke $SETUP_WORLD_ADDR register_set_contract $WORLD_ADDRESS $SET_NFT_ADDR_BRIQMAS 1 --keystore-password $KEYSTORE_PWD
-    // starkli invoke $SETUP_WORLD_ADDR register_box_contract $WORLD_ADDRESS $BOX_ADDR 1 --keystore-password $KEYSTORE_PWD
 
-    // starkli invoke $WORLD_ADDRESS grant_writer str:BriqFactoryStore $FACTORY_ADDR --keystore-password $KEYSTORE_PWD
-    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC1155Balance $BRIQ_TOKEN --keystore-password $KEYSTORE_PWD
-    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC1155Balance $BOX_ADDR --keystore-password $KEYSTORE_PWD
-    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC1155Balance $BOOKLET_ADDR_BRIQMAS --keystore-password $KEYSTORE_PWD
-    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC1155Balance $SET_NFT_ADDR_BRIQMAS --keystore-password $KEYSTORE_PWD
-    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC721Balance $SET_NFT --keystore-password $KEYSTORE_PWD --watch
-    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC721Owner $SET_NFT --keystore-password $KEYSTORE_PWD --watch
-    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC721Balance $SET_NFT_ADDR_BRIQMAS --keystore-password $KEYSTORE_PWD --watch
-    // starkli invoke $WORLD_ADDRESS grant_writer str:ERC721Owner $SET_NFT_ADDR_BRIQMAS --keystore-password $KEYSTORE_PWD --watch
+const customPayloadCall = async () => {
+    console.log(JSON.parse(customPayload.value))
+    await walletStore.sendTransaction(JSON.parse(customPayload.value));
+}
+
 </script>
 
 <template>
@@ -126,6 +124,13 @@ const setupWorld = async () => {
                         <Btn :disabled="cc_pending" @click="customCall">Call</Btn><i v-if="cc_pending" class="far fa-spinner animate-spin"/>
                     </p>
                     <p v-if="customResult">Result: {{ JSON.stringify(customResult) }}</p>
+                </div>
+                <div class="my-4">
+                    <h2>Totally custom payload</h2>
+                    <textarea v-model="customPayload"/>
+                    <p>
+                        <Btn @click="customPayloadCall">Call</Btn>
+                    </p>
                 </div>
             </div>
             <div class="border-l-4 border-grad-darker mr-4">
