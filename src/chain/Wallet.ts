@@ -201,7 +201,7 @@ export class WalletStore {
     }
 
     get userWalletAddress(): UserID | undefined {
-        if (APP_ENV === 'prod' && getCurrentNetwork(true) !== 'starknet-mainnet')
+        if (APP_ENV === 'prod' && getCurrentNetwork(true) !== (MIGRATION_ENABLED ? 'starknet-mainnet-dojo' : 'starknet-mainnet'))
             return undefined;
         return this._userWalletAddress;
     }
@@ -211,7 +211,7 @@ export class WalletStore {
     }
 
     get user_id(): UserID | undefined {
-        if (!this._userWalletAddress || (APP_ENV === 'prod' && getCurrentNetwork(true) !== 'starknet-mainnet'))
+        if (!this._userWalletAddress || (APP_ENV === 'prod' && getCurrentNetwork(true) !== (MIGRATION_ENABLED ? 'starknet-mainnet-dojo' : 'starknet-mainnet')))
             return undefined;
         return `${getCurrentNetwork(true)}/${this._userWalletAddress}`;
     }

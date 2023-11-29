@@ -35,7 +35,7 @@ export function getPremigrationNetwork(network: CHAIN_NETWORKS) {
 
 export function getCurrentNetwork(nohack = false) {
     if (!nohack && APP_ENV === 'prod')
-        return 'starknet-mainnet';
+        return MIGRATION_ENABLED ? 'starknet-mainnet-dojo' : 'starknet-mainnet';
     return network.network;
 }
 
