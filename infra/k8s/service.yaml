@@ -22,7 +22,7 @@ metadata:
   labels: #@ data.values.defaultLabels
 spec:
 #@ if data.values.env == 'prod':
-  timeoutSec: 10
+  timeoutSec: 60
 #@ else: # Longer in dev because we do the API relay thing.
   timeoutSec: 60
 #@ end
