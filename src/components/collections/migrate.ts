@@ -64,8 +64,8 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
         console.log(bookletData);
         calls.push({
             contractAddress: ADDRESSES[getCurrentNetwork()].migrate_assets,
-            entrypoint: 'migrate_legacy_set_briqs',
-            calldata: [set.old_token_id, bookletData.briqs.length],
+            entrypoint: 'admin_migrate_legacy_set_briqs',
+            calldata: [set.owner, set.old_token_id, bookletData.briqs.length],
         });
         // At this point we're supposed to have briqs.
         // Mint the booklet
