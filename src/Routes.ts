@@ -4,6 +4,7 @@ import { APP_ENV } from './Meta';
 import GenesisMint from '@/components/builder/genesis/GenesisMint.vue';
 import Legal from './components/Legal.vue';
 import BuilderLoader from './components/builder/BuilderLoader.vue';
+import { MIGRATION_ENABLED } from './MigrationData';
 
 let loader;
 async function loadExtraPages() {
@@ -181,10 +182,13 @@ export const routes = [
         component: () => import('@/components/briqout/Briqout.vue'),
     },
 ];
-
 export const router = createRouter({
     history: createWebHistory(),
-    routes,
+    routes: MIGRATION_ENABLED ? routes : [{
+        path: '/:pathMatch(.*)*',
+        name: 'Migration ongoing',
+        component: () => import('@/components/MigrationOngoing.vue'),
+    }],
     scrollBehavior(to, from, savedPosition) {
         if (to.hash)
             return {
