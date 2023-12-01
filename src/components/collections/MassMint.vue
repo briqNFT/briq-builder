@@ -126,6 +126,12 @@ const storeObjects = () => {
         });
 }
 
+const loadAll = async () => {
+    for (const item in existingItems.value?.[collection.value] || {})
+        bookletDataStore[getCurrentNetwork()][item];
+
+}
+
 const deployShapeContracts = async () => {
     const data = {} as Record<string, unknown>;
     for (const item in existingItems.value?.[collection.value] || {}) {
@@ -303,6 +309,7 @@ const mintStuff = async () => {
             </p>
             <hr class="my-6">
             <h4>Existing items in this collection:</h4>
+            <Btn @click="loadAll">Load all</Btn>
             <Btn @click="deployShapeContracts">Deploy missing shape contract(s)</Btn>
             <Btn :disabled="true" @click="mintBoxes">Mint Boxes</Btn>
             <Btn :disabled="true" @click="pushModal(RecipientMappingModal)">Mint Booklets</Btn>
@@ -357,8 +364,11 @@ const mintStuff = async () => {
             <Btn :disabled="!migrationData._data?.calls?.length" @click="mintStuff">Actually Migrate</Btn>
             <div v-if="migrationData._status == 'LOADED'">
                 <p>Total calls: {{ migrationData._data!.calls.length }}</p>
-                <p v-for="(value, key) in ADDRESSES[getCurrentNetwork()]" :key="key">Calls to {{ key }}: {{ migrationData._data!.calls.filter(x => x.contractAddress == value).length }}</p>
-
+                <p v-for="(value, key) in ADDRESSES[getCurrentNetwork()]" :key="key">
+                    Calls to {{ key }}: {{
+                        migrationData._data!.calls.filter(x => x.contractAddress == value).map(x => x.calldata?.[2] || 1).reduce((a, b) => a + b, 0)
+                    }}
+                </p>
                 <div>
                     <p v-for="val in migrationData._data!.set_migrations">{{ val }}</p>
                 </div>

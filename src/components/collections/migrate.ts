@@ -7,7 +7,7 @@ import { bookletDataStore } from '@/builder/BookletData';
 export const getCalls = async (mapping: Record<string, unknown>) => {
     const calls: Call[] = [];
     const set_migrations: { old_token_id: string, new_token_id: string }[] = [];
-    for (const box of (mapping.boxes as { owner: string, box_id: string}[])) {
+    for (const box of (mapping.boxes as { owner: string, box_id: string, quant: number}[])) {
         calls.push({
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())].box,
             entrypoint: 'safeTransferFrom_',
@@ -15,7 +15,7 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
                 box.owner,
                 ADDRESSES[getCurrentNetwork()].migrate_assets,
                 box.box_id,
-                1,
+                box.quant,
                 0,
             ],
         });
@@ -26,13 +26,13 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
             calldata: [
                 box.owner,
                 box.box_id,
-                1,
+                box.quant,
             ],
         });
     }
-    for (const booklet of (mapping.booklets as { owner: string, old_token_id: string, new_booklet_id: string }[])) {
-        const collec = BigInt(booklet.old_token_id) % 100n;
+    for (const booklet of (mapping.booklets as { owner: string, old_token_id: string, new_booklet_id: string, quant: number }[])) {
         const new_token_id = BigInt(booklet.new_booklet_id);
+        const collec = BigInt(booklet.new_booklet_id) / 0x10000000000000000n;
         calls.push({
             contractAddress: ADDRESSES[getPremigrationNetwork(getCurrentNetwork())].booklet,
             entrypoint: 'safeTransferFrom_',
@@ -40,7 +40,7 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
                 booklet.owner,
                 ADDRESSES[getCurrentNetwork()].migrate_assets,
                 booklet.old_token_id,
-                1,
+                booklet.quant,
                 0,
             ],
         });
@@ -51,7 +51,7 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
             calldata: [
                 booklet.owner,
                 new_token_id.toString(),
-                1,
+                booklet.quant,
             ],
         });
     }
