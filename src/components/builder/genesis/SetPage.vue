@@ -77,6 +77,13 @@ const booklet_id = computed(() => {
     return userSetStore.current?.setData[route.params.set_id as string]?.booklet_id;
 });
 
+const collection_id = computed(() => {
+    if (booklet_id.value)
+        return booklet_id.value.split('/')[0];
+    return undefined;
+});
+
+
 const collection_name = computed(() => {
     if (booklet_id.value)
         return genesisStore.themedata[booklet_id.value.split('/')[0]]._data?.name;
@@ -354,10 +361,10 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <h2>Want to list your booklet?</h2>
                 <p>Seeling your booklet means you will no longer be able to mint the authenticated officiel set.</p>
                 <div class="flex gap-2 mt-4 mb-10">
-                    <a :href="getBookletLink('unframed', chain_id, collection_name, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
-                    <a :href="getBookletLink('element', chain_id, collection_name, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
-                    <a :href="getBookletLink('flex', chain_id, collection_name, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
-                    <a :href="getBookletLink('pyramid', chain_id, collection_name, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
+                    <a :href="getBookletLink('unframed', chain_id, collection_id, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
+                    <a :href="getBookletLink('element', chain_id, collection_id, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
+                    <a :href="getBookletLink('flex', chain_id, collection_id, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
+                    <a :href="getBookletLink('pyramid', chain_id, collection_id, bookletData?.token_id || '0')" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
                 </div>
                 <div v-if="booklet_id">
                     <Suspense>
@@ -409,10 +416,10 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                 <div>
                     <h4>See on</h4>
                     <p class="flex gap-3 mt-4 mb-10">
-                        <a :href="getSetLink('unframed', chain_id, collection_name, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
-                        <a :href="getSetLink('element', chain_id, collection_name, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
-                        <a :href="getSetLink('flex', chain_id, collection_name, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
-                        <a :href="getSetLink('pyramid', chain_id, collection_name, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
+                        <a :href="getSetLink('unframed', chain_id, collection_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><UnframedLogo class="w-5 mr-3"/> Unframed</Btn></a>
+                        <a :href="getSetLink('element', chain_id, collection_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><ElementLogo class="w-5 mr-3"/> Element</Btn></a>
+                        <a :href="getSetLink('flex', chain_id, collection_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="FlexLogo" class="w-7 mr-3"> Flex</Btn></a>
+                        <a :href="getSetLink('pyramid', chain_id, collection_id, route.params.set_id)" rel="noopener" target="_blank"><Btn secondary><img :src="PyramidLogo" class="w-8 mr-3"> Pyramid</Btn></a>
                     </p>
                 </div>
                 <div v-if="set?.id">
