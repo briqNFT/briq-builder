@@ -366,7 +366,7 @@ const mintStuff = async () => {
                 <p>Total calls: {{ migrationData._data!.calls.length }}</p>
                 <p v-for="(value, key) in ADDRESSES[getCurrentNetwork()]" :key="key">
                     Calls to {{ key }}: {{
-                        migrationData._data!.calls.filter(x => x.contractAddress == value).map(x => x.calldata?.[2] || 1).reduce((a, b) => a + b, 0)
+                        migrationData._data!.calls.filter(x => x.contractAddress == value).map(x => +x.calldata?.[2] || 1).reduce((a, b) => a + b, 0)
                     }}
                 </p>
                 <div>
