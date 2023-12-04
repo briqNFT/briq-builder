@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { backendManager } from '@/Backend';
+import { ref, computed, watchEffect } from 'vue';
+import { useGenesisStore } from '@/builder/GenesisStore';
 import { themeSetsDataStore, themeSetsOwnerStore } from '@/builder/DucksSale';
 import { Fetchable } from '@/DataFetching';
 import { addressToStarknetId } from '@/chain/StarknetId';
 import { CHAIN_NETWORKS } from '@/chain/Network';
-import { getSetLink } from '@/chain/Marketplaces';
+import { getBookletLink, getSetLink } from '@/chain/Marketplaces';
+import { log } from 'console';
+import { bookletDataStore } from '@/builder/BookletData';
 
 const props = defineProps<{
     network: CHAIN_NETWORKS,
@@ -14,24 +16,28 @@ const props = defineProps<{
     expand?: boolean,
 }>();
 
-const highImage = computed(() => backendManager.getPreviewUrl(props.tokenId, props.network));
-const lowImage = computed(() => backendManager.getRoute(`set/${props.network}/${props.tokenId}/small_preview.jpg`))
+const genesisStore = useGenesisStore();
 
-const data = computed(() => {
-    if (themeSetsDataStore[props.network][props.theme]._data) {
-        const ret = new Fetchable<Record<string, any>>();
-        ret._data = themeSetsDataStore[props.network][props.theme]._data?.[props.tokenId];
-        ret._fetch = new Promise(res => res(null));
-        ret._error = themeSetsDataStore[props.network][props.theme]._error;
-        return ret;
-    }
-    return themeSetsDataStore[props.network][props.theme];
-});
+const highImage = computed(() => genesisStore.coverItemRoute(props.tokenId, false));
+const lowImage = computed(() => genesisStore.coverItemRoute(props.tokenId, true));
+
+const data = ref(new Fetchable<Record<string, any>>());
+watchEffect(() => {
+    props.tokenId;
+    data.value.fetch(async () => {
+        const data = (await themeSetsDataStore[props.network][props.theme]._fetch)?.[props.tokenId];
+        if (!data)
+            return await bookletDataStore[props.network][props.tokenId]._fetch;
+        return data;
+    });
+})
+
+const isAssembled = computed(() => !!themeSetsDataStore[props.network][props.theme]._data?.[props.tokenId]);
 
 const ownerData = computed(() => {
     if (themeSetsOwnerStore[props.network][props.theme]._data) {
         const ret = new Fetchable<string>();
-        ret._data = themeSetsOwnerStore[props.network][props.theme]._data?.[props.tokenId];
+        ret._data = themeSetsOwnerStore[props.network][props.theme]._data?.[data.value._data.id];
         ret._fetch = new Promise(res => res(null));
         ret._error = themeSetsOwnerStore[props.network][props.theme]._error;
         return ret;
@@ -71,16 +77,27 @@ const currentOwner = computed(() => {
                 <p class="px-4 flex justify-between text-sm tall-sm:text-md py-[1px]">{{ data._data!.description }}</p>
                 <hr class="my-2">
 
-                <div class="px-4 py-2 tall-sm:p-4 pt-0 flex flex-col gap-2">
-                    <p class="flex justify-between">
+                <div class="px-4 py-2 pt-0 flex flex-col gap-2">
+                    <p v-if="isAssembled" class="flex justify-between">
                         <span class="text-grad-dark">Owner</span>
                         <span class="font-medium">{{ currentOwner }}</span>
                     </p>
-                    <p v-if="expand" class="flex justify-between flex-wrap gap-2">
+                    <p v-else class="flex justify-center">
+                        <span class="text-grad-dark">This set is currently disassembled!</span>
+                    </p>
+                    <p v-if="expand && isAssembled" class="flex justify-between flex-wrap gap-2">
                         <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: tokenId } }">
                             <Btn secondary>See details</Btn>
                         </RouterLink>
-                        <a class="hidden tall-sm:visible" :href="getSetLink('unframed', network, 'ducks_everywhere', tokenId)" target="_blank">
+                        <a :href="getSetLink('element', network, theme, data._data!.id)" target="_blank">
+                            <Btn secondary>See on Element</Btn>
+                        </a>
+                    </p>
+                    <p v-else-if="expand && !isAssembled" class="flex justify-between flex-wrap gap-2">
+                        <a :href="getBookletLink('element', network, theme, data._data.token_id)" target="_blank">
+                            <Btn secondary>See on Element</Btn>
+                        </a>
+                        <a :href="getBookletLink('unframed', network, theme, data._data.token_id)" target="_blank">
                             <Btn secondary>See on Unframed</Btn>
                         </a>
                     </p>

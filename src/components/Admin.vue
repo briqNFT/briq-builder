@@ -29,7 +29,6 @@ const setupWorld = async () => {
         { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x3', 1, addr.booklet_ducks, addr.set_nft_ducks] },
         { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x4', 1, addr.booklet_ducks_frens, addr.set_nft_1155_ducks_frens] },
 
-    /*
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['BriqFactoryStore', addr.briq_factory] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.briq_token] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.box_nft_sp] },
@@ -37,13 +36,11 @@ const setupWorld = async () => {
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.booklet_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.booklet_starknet_planet] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.booklet_briqmas] },
-        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.booklet_lil_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.booklet_ducks_frens] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.set_nft] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.set_nft_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.set_nft_sp] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.set_nft_briqmas] },
-        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.set_nft_1155_lil_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.set_nft_1155_ducks_frens] },
 
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.briq_token] },
@@ -52,13 +49,11 @@ const setupWorld = async () => {
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_starknet_planet] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_briqmas] },
-        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_lil_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.booklet_ducks_frens] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_sp] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_briqmas] },
-        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_1155_lil_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155Balance', addr.set_nft_1155_ducks_frens] },
 
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721Balance', addr.set_nft] },
@@ -79,7 +74,6 @@ const setupWorld = async () => {
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721TokenApproval', addr.set_nft_ducks] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721TokenApproval', addr.set_nft_sp] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC721TokenApproval', addr.set_nft_briqmas] },
-        */
     ];
     // console.log(JSON.stringify(txes));
     await (walletStore.signer)?.execute(txes)

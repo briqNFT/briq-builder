@@ -15,10 +15,24 @@ export const useSearch = function() {
     }
 }
 
+export const themeObjects = defaultDict((network: string) => {
+    return defaultDict((theme: string) => {
+        const ret = reactive(new Fetchable<Record<string, string>>());
+        ret.fetch(() => backendManager.fetch(`v1/${network}/${theme}/object_ids`));
+        return ret;
+    });
+});
+
 export const themeSetsDataStore = defaultDict((network: string) => {
     return defaultDict((theme: string) => {
         const ret = reactive(new Fetchable<Record<string, any>>());
-        ret.fetch(() => backendManager.fetch(`v1/${network}/${theme}/all_sets_static_data`));
+        ret.fetch(async () => {
+            const data_by_set_id = await backendManager.fetch(`v1/${network}/${theme}/all_sets_static_data`)
+            const mapping = {};
+            for (const [key, value] of Object.entries(data_by_set_id))
+                mapping[value['booklet_id']] = value;
+            return mapping;
+        });
         return ret;
     });
 });

@@ -7,7 +7,7 @@ import { useGenesisStore } from '@/builder/GenesisStore';
 import { computed, ref } from 'vue';
 import { backendManager } from '@/Backend';
 import { CHAIN_NETWORKS, getCurrentNetwork } from '@/chain/Network';
-import { useThemeURLs } from './ThemeUrlComposable';
+import { useThemeURLs } from '@/components/themes/ThemeUrlComposable';
 
 const genesisStore = useGenesisStore();
 

@@ -11,7 +11,7 @@ import MysteryBoxImg from '@/assets/landing/mysterybox.jpg';
 
 import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 
-import { useThemeURLs } from './ThemeUrlComposable';
+import { useThemeURLs } from '@/components/themes/ThemeUrlComposable';
 import BoxCard from './BoxCard.vue';
 
 const route = useRoute();

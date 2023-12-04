@@ -7,7 +7,7 @@ import DucksEverywhereFAQ from '@/components/themes/DucksEverywhereFAQ.vue';
 import DucksEverywhereCover from '@/components/themes/DucksEverywhereCover.vue';
 import ObjectListing from '@/components/themes/ObjectListing.vue';
 
-const themeName = computed(() => 'ducks_everywhere');
+const themeName = computed(() => 'ducks_frens');
 
 </script>
 

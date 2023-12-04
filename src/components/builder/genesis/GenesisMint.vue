@@ -24,7 +24,7 @@ import RocketGlb from '@/assets/landing/rocket.glb?url';
 
 import { nextTick, h, ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 
-import { useThemeURLs } from './ThemeUrlComposable';
+import { useThemeURLs } from '@/components/themes/ThemeUrlComposable';
 import { getSetMarketplaceUrl } from '@/chain/Marketplaces';
 
 const modelViewerLoading = ref(true);
