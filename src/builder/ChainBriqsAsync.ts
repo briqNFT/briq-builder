@@ -7,6 +7,16 @@ export const maybeChainBriqs = computed<ChainBriqs | undefined>(() => {
     return chainBriqsStore.value?.current;
 })
 
+// Defined here to avoid import issues
+export class NotEnoughBriqs extends Error {
+    material: string;
+    constructor(material: string) {
+        super(`Not enough Briqs with material ${material}`);
+        this.material = material;
+    }
+}
+
+
 // Temporary, for the migration.
 export const maybeLegacyBriqs = ref(undefined as undefined | LegacyChainBriqs);
 

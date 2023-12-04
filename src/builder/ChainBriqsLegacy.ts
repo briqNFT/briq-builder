@@ -1,14 +1,11 @@
 import { Briq } from './Briq';
-import { toRef } from 'vue';
 import { logDebug, pushMessage } from '../Messages';
 
 import { backendManager } from '@/Backend';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { maybeStore } from '@/chain/WalletLoading';
-import { setChainBriqsStoreComplete } from './ChainBriqsAsync';
-import { Notification } from '@/Notifications';
 import { getPremigrationNetwork } from '@/chain/Network';
-import { NotEnoughBriqs } from './ChainBriqs';
+import { NotEnoughBriqs } from './ChainBriqsAsync';
 
 /**
  * Responsible for maintaining the state of 'on-chain' briqs, as opposed to local set-briqs.

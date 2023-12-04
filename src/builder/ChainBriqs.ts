@@ -6,19 +6,11 @@ import { backendManager } from '@/Backend';
 import { perUserStorable, perUserStore } from './PerUserStore';
 import { maybeStore } from '@/chain/WalletLoading';
 import { setChainBriqsStoreComplete } from './ChainBriqsAsync';
+import { NotEnoughBriqs } from './ChainBriqsAsync';
 import { Notification } from '@/Notifications';
 import { legacyChainBriqs } from './ChainBriqsLegacy';
-
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number; nft_ids: string[] };
-
-export class NotEnoughBriqs extends Error {
-    material: string;
-    constructor(material: string) {
-        super(`Not enough Briqs with material ${material}`);
-        this.material = material;
-    }
-}
 
 class NFTNotAvailable extends Error {
     token_id: string;
