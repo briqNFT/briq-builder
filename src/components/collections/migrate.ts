@@ -81,10 +81,10 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
         });
         set_migrations.push({
             old_token_id: set.old_token_id,
-            new_token_id: contractStore.set!.precomputeTokenId(set.owner, '1', bookletData.briqs.length, set.new_booklet_name, bookletData),
+            new_token_id: contractStore.set!.precomputeTokenId(set.owner, set.old_token_id.substring(0, 12), bookletData.briqs.length, set.new_booklet_name, bookletData),
         });
         // Then mint the set
-        calls.push(contractStore.set!.prepareAssemble(set.owner, '1', bookletData, set.new_booklet_id));
+        calls.push(contractStore.set!.prepareAssemble(set.owner, set.old_token_id.substring(0, 12), bookletData, set.new_booklet_id));
     }
     return { calls, set_migrations };
 };
