@@ -23,6 +23,7 @@ import BuyBriqsWidget from '@/components/BuyBriqsWidget.vue';
 import { Call } from 'starknet';
 import { ExplorerTxUrl } from '@/chain/Explorer';
 import ShareOnTwitter from '../ShareOnTwitter.vue';
+import { legacyChainBriqs } from '@/builder/ChainBriqsLegacy';
 
 const { chainBriqs } = useBuilder();
 
@@ -148,7 +149,7 @@ const buyBriqsAndMint = async (data: unknown) => {
 
 const briqsNeeded = computed(() => {
     // TODO -> this only works so far as we have one type of briq.
-    return setData.value.getNbBriqs() - chainBriqs.value?.getNbBriqs() || 0;
+    return setData.value.getNbBriqs() - (chainBriqs.value?.getNbBriqs() || 0) - (legacyChainBriqs.current?.getNbBriqs() || 0);
 })
 
 const startMinting = async () => {

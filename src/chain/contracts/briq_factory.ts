@@ -6,6 +6,7 @@ import BriqFactoryABI from './starknet-testnet/briq_factory.json';
 import { maybeStore } from '../WalletLoading';
 import type ERC20Contract from './erc20';
 import { getProvider } from '../BlockchainProvider';
+import { migrateBriqsIfNeeded } from './migration';
 
 export default class BriqContract {
     contract!: Contract;
@@ -33,11 +34,11 @@ export default class BriqContract {
     }
 
     buyTransaction(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
-        return [
+        return migrateBriqsIfNeeded([
             erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(BigInt(approval))),
             this.contract.populateTransaction.buy(`${amount}`),
             erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(0n)),
-        ]
+        ]);
     }
 
     async buy(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
