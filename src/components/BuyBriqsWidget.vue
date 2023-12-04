@@ -221,7 +221,8 @@ const cancelBuy = () => {
             <hr class="mb-4 rounded border border-grad-lighter">
             <p class="flex items-center gap-1"><Toggle v-model="termsBriq" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-09-23-terms-conditions' } }">briq terms of use</RouterLink></p>
             <p class="flex items-center gap-1"><Toggle v-model="termsSale" class="w-10 mr-2"/>I agree to the <RouterLink class="text-primary" :to="{ name: 'Legal Doc', params: { doc: '2022-08-16-terms-of-sale' } }">NFT sale terms</RouterLink></p>
-            <p class="leading-normal">Are you a European Union resident?<br/><span class="inline-flex items-center">No <Toggle v-model="insideEU" class="w-10 mx-1 my-1"/>Yes</span>
+            <p class="leading-normal">
+                Are you a European Union resident?<br><span class="inline-flex items-center">No <Toggle v-model="insideEU" class="w-10 mx-1 my-1"/>Yes</span>
                 <span v-show="insideEU" class="ml-2"><select class="py-1" v-model="euCountry">
                     <option value="austria">Austria</option>
                     <option value="belgium">Belgium</option>
@@ -250,7 +251,7 @@ const cancelBuy = () => {
                     <option value="slovenia">Slovenia</option>
                     <option value="spain">Spain</option>
                     <option value="sweden">Sweden</option>
-                    </select>
+                </select>
                 </span>
             </p>
         </div>

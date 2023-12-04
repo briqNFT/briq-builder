@@ -38,6 +38,7 @@ class BriqFactory {
 
     private getCurrentT(): bigint {
         const t = this.lastStoredT;
+        return t; // Temporary
 
         const timestamp = BigInt(Date.now());
         const timeSinceLastPurchase = (timestamp - this.lastPurchaseTime) / BigInt(1000);
@@ -48,6 +49,7 @@ class BriqFactory {
 
     private getSurgeT(): bigint {
         const t = this.surgeT;
+        return t; // Temporary
 
         const timestamp = BigInt(Date.now());
         const timeSinceLastPurchase = (timestamp - this.lastPurchaseTime) / BigInt(1000);
