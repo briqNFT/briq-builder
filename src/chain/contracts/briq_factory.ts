@@ -34,11 +34,11 @@ export default class BriqContract {
     }
 
     buyTransaction(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
-        return migrateBriqsIfNeeded([
+        return [
             erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(BigInt(approval))),
             this.contract.populateTransaction.buy(`${amount}`),
             erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(0n)),
-        ]);
+        ];
     }
 
     async buy(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
@@ -49,7 +49,7 @@ export default class BriqContract {
 
 export class BriqFactoryOnDojoContract extends BriqContract {
     buyTransaction(erc20_contract: ERC20Contract, amount: number, approval: number.BigNumberish) {
-        return [
+        return migrateBriqsIfNeeded([
             erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(BigInt(approval))),
             {
                 contractAddress: this.contract.address,
@@ -57,6 +57,6 @@ export class BriqFactoryOnDojoContract extends BriqContract {
                 calldata: [1, `${amount}`],
             },
             erc20_contract.contract.populateTransaction['approve'](this.contract.address, cairo.uint256(0n)),
-        ]
+        ]);
     }
 }

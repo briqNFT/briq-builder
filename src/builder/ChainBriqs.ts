@@ -12,7 +12,7 @@ import { legacyChainBriqs } from './ChainBriqsLegacy';
 // TODO: there can technically be more than whatever is supported by number
 type BALANCE = { ft_balance: number; nft_ids: string[] };
 
-class NotEnoughBriqs extends Error {
+export class NotEnoughBriqs extends Error {
     material: string;
     constructor(material: string) {
         super(`Not enough Briqs with material ${material}`);

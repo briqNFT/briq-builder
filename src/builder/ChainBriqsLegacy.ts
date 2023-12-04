@@ -8,6 +8,7 @@ import { maybeStore } from '@/chain/WalletLoading';
 import { setChainBriqsStoreComplete } from './ChainBriqsAsync';
 import { Notification } from '@/Notifications';
 import { getPremigrationNetwork } from '@/chain/Network';
+import { NotEnoughBriqs } from './ChainBriqs';
 
 /**
  * Responsible for maintaining the state of 'on-chain' briqs, as opposed to local set-briqs.
@@ -121,6 +122,8 @@ export class LegacyChainBriqs implements perUserStorable {
             }
             if (update.status === 'DELETING_SOON')
                 bal -= update.quantity;
+            else
+                bal += update.quantity;
         }
         this.balance = bal;
         for (const item of promises)
@@ -133,10 +136,23 @@ export class LegacyChainBriqs implements perUserStorable {
         return this.balance;
     }
 
-    migrateBriqs() {
-        if (this.getNbBriqs() <= 0)
-            return;
-        // TODO -> TX
+    /**
+     * Check that we have enough on-chain briqs available,
+     * and if not return NFTs that can be used to complement.
+     * Note that this function won't swap existing NFTs that are unavailable.
+     * @param usageByMaterial entry balance
+     * @returns a list of NFT briqs to replace.
+     */
+    findRealBriqs(usageByMaterial: { [material: string]: { ft_balance: number; nft_ids: string[] } }) {
+        const swaps = [] as Briq[];
+        for (const mat in usageByMaterial)
+            if (usageByMaterial[mat].ft_balance > this.balance)
+                throw new NotEnoughBriqs(mat);
+        return swaps;
+    }
+
+    show(quantity: number, tx_hash: string, date?: number) {
+        return this._add('TENTATIVE', quantity, tx_hash, false, date);
     }
 
     hide(quantity: number, tx_hash: string, date?: number) {

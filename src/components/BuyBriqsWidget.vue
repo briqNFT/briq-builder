@@ -12,9 +12,10 @@ import { chainBriqs } from '@/builder/ChainBriqs';
 import MenuLike from './generic/MenuLike.vue';
 import Tooltip from './generic/Tooltip.vue';
 import { APP_ENV } from '@/Meta';
-import { getSetMarketplaceUrl } from '@/chain/Marketplaces';
+import { getBriqLink } from '@/chain/Marketplaces';
 import { backendManager } from '@/Backend';
 import { maybeStore } from '@/chain/WalletLoading';
+import { getCurrentNetwork } from '@/chain/Network';
 
 
 const props = defineProps<{
@@ -198,8 +199,9 @@ const cancelBuy = () => {
         <div class="my-4 text-sm flex justify-between items-center gap-8">
             <div>
                 <p class="mt-1" v-if="parameters._data">1 briq = {{ readableNumber(price_ber_briq) }} {{ readableUnit(price_ber_briq) }}</p>
-                <p class="my-2 flex items-center">
-                    <i class="mr-2 far fa-circle-exclamation text-primary"/> <span>Please be aware that the price of briq is currently very high due to demand. You can also get briqs by buying sets from <a class="text-primary" :href="getSetMarketplaceUrl()">Unframed</a> and disassembling them.</span>
+                <p class="my-2 border-l-4 border-primary pl-2 font-medium">
+                    You can also buy briqs on the secondary market!<br>
+                    Check out <a :href="getBriqLink('element', getCurrentNetwork())!" target="_blank" class="text-primary">Element</a> marketplace.
                 </p>
             </div>
             <i @click.stop.prevent="toggledDetails=!toggledDetails" :class="`p-2 cursor-pointer hover:bg-grad-light rounded fa-solid fa-chevron-${toggledDetails ? 'up' : 'down'}`"/>

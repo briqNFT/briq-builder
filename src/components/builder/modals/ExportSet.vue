@@ -104,8 +104,13 @@ watch([setData, toRef(chainBriqs.value, 'byMaterial')], () => {
     try {
         es.swapForRealBriqs(chainBriqs.value!);
     } catch (err) {
-        exportSet.value = undefined;
-        return;
+        // Temp for migration
+        try {
+            es.swapForRealBriqs(legacyChainBriqs.current!);
+        } catch (err) {
+            exportSet.value = undefined;
+            return;
+        }
     }
     exportSet.value = es;
 }, {
@@ -141,6 +146,11 @@ const buyBriqsAndMint = async (data: unknown) => {
     briqTransaction.value = contractStore.briq_factory?.buyTransaction(contractStore.eth_bridge_contract!, data.briqs, data.price);
     // Don't notify in case we stop.
     briqPendingObject.value = chainBriqs.value?.show('0x1', data.briqs, '');
+    if (legacyChainBriqs.current?.getNbBriqs()) {
+        const legacyBriqNb = legacyChainBriqs.current?.getNbBriqs() || 0;
+        chainBriqs.value?.show('0x1', legacyBriqNb, 'hack', false);
+        legacyChainBriqs.current?.hide(legacyBriqNb, 'hack');
+    }
     // This will update ExportSet through watchers, but might take some time, so nextTick.
     nextTick(() => {
         startMinting();
@@ -242,8 +252,16 @@ const startMinting = async () => {
     } catch (err: any) {
         // Reset the briqs if we bought some.
         // TODO: this is fairly hacky.
-        if (briqPendingObject.value)
+        if (briqPendingObject.value) {
             chainBriqs.value!.removeMetadataItem(briqPendingObject.value);
+            // Super hacky part.
+            const legacyHacks = legacyChainBriqs.current?.metadata.filter(x => x.tx_hash === 'hack');
+            for (const hack of legacyHacks || []) {
+                const legacyBriqNb = hack.quantity;
+                chainBriqs.value?.hide('0x1', legacyBriqNb, 'hack');
+                legacyChainBriqs.current?.show(legacyBriqNb, 'hack');
+            }
+        }
 
         if (err?.message === 'User abort') {
             pushPopup('error', 'Mint error', 'Minting transaction aborted.');

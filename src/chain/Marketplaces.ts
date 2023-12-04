@@ -41,3 +41,7 @@ export function getBoxLink(marketplace: string, network: CHAIN_NETWORKS, collect
 export function getSetMarketplaceUrl() {
     return 'https://unframed.co/collection/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672';
 }
+
+export function getBriqLink(marketplace: string, network: CHAIN_NETWORKS) {
+    return 'https://element.market/collections/briq-token';
+}
