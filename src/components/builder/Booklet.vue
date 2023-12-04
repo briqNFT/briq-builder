@@ -303,7 +303,7 @@ onBeforeUnmount(() => watcher());
                             <div class="flex justify-stretch gap-4">
                                 <a class="flex-1" target="_blank" :href="backendManager.getRoute(`booklet/pdf/${getCurrentNetwork()}/${booklet}.pdf`)"><Btn secondary class="!text-sm w-full">PDF version</Btn></a>
                                 <Btn class="!text-sm flex-1" @click="higherPage">Start building</Btn>
-                                <Btn v-if="APP_ENV==='dev'" @click="autobuild">Cheat</Btn>
+                                <Btn v-if="APP_ENV !== 'prod'" @click="autobuild">Cheat</Btn>
                             </div>
                         </template>
                     </div>
