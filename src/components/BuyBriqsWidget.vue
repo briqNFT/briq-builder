@@ -50,7 +50,7 @@ const fetchPrices = async () => {
         parameters.value.clear();
     parameters.value.fetch(async () => {
         if (APP_ENV === 'prod')
-            briqFactory.setParams('2201831629382202264696000', '0');
+            briqFactory.setParams('2100000000000000000000000', '0');
         else {
             const params = await contractStore.briq_factory!.getParameters();
             briqFactory.setParams(params.current_t, params.surge_t);

@@ -42,6 +42,8 @@ export const ADDRESSES: Record<CHAIN_NETWORKS, Record<string, string>> = {
         set_nft_1155_ducks_frens: '0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672',
     },
     'starknet-mainnet-dojo': {
+        eth_bridge_contract: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+
         world: '0x1ea16366a82e211a9b9045725309a5080c0260d5caf45c58836fc61b42501f5',
         setup_world: '0x2b07055a0545c2dd1f18adef3c54bdf7d2235571698c8846cf83532a87ba3a0',
         attribute_groups: '0x3b85ace5bcb097c42accd00909d35944025c20168e5c4f485808f6c468009c7',
