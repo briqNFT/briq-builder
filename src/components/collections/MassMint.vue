@@ -17,6 +17,8 @@ import { pushModal } from '../Modals.vue';
 import TextModal from '../generic/TextModal.vue';
 import RecipientMappingModal from './RecipientMappingModal.vue';
 import { getCalls } from './migrate';
+import { getBookletAddress } from '@/chain/Collections';
+import { hexUuid } from '@/Uuid';
 
 class SetToMint {
     filename: string;
@@ -46,6 +48,12 @@ const assemblyGroupId = computed(() => (collectionData[collection.value] ?? null
 
 const existingItems = ref({});
 
+const loadedItems = (collection: string) => {
+    const all = Object.keys(existingItems.value[collection] || {});
+    return all.filter(x => x in bookletDataStore[getCurrentNetwork()]);
+}
+
+// Load existing items based on current collection
 watchEffect(async () => {
     if (collection.value === '')
         return;
@@ -54,6 +62,7 @@ watchEffect(async () => {
         existingItems.value[collection.value] = data;
     }
 });
+
 
 const importFiles = async () => {
     let files = [] as File[];
@@ -190,6 +199,60 @@ const mintBoxes = async () => {
     );
 }
 
+const getOfficialSetPreview = async (booklet: string) => {
+    const bookletImage = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please');
+    const imageBlob = (await (await bookletImage).blob());
+    const image_base64 = await new Promise(yes => {
+        const reader = new FileReader() ;
+        reader.onload = _ => reader.result && yes(reader.result);
+        reader.readAsDataURL(imageBlob);
+    });
+    return image_base64 as string;
+}
+
+const mintSets = async () => {
+    const mapping = await pushModal(RecipientMappingModal, {
+        initialMapping: loadedItems(collection.value).reduce((acc, val) => {
+            acc[val] = walletStore.userWalletAddress!;
+            return acc;
+        }, {} as Record<string, string>),
+    }) as Record<string, string>;
+
+    const calls = [] as Call[];
+    for (const booklet in mapping) {
+        const recipient = mapping[booklet];
+        const bookletData = bookletDataStore[getCurrentNetwork()][booklet]._data!;
+        if (!bookletData)
+            throw new Error(`Booklet ${booklet} not loaded`);
+        // Mint the booklet
+        const contract = getBookletAddress(ADDRESSES[getCurrentNetwork()], booklet.split('/')[0]);
+        calls.push({
+            contractAddress: contract,
+            entrypoint: 'mint',
+            calldata: [
+                recipient,
+                bookletData.token_id,
+                1,
+            ],
+        });
+        // Then mint the set
+        const tokenHint = hexUuid();
+        const futureTokenId = contractStore.set!.precomputeTokenId(recipient, tokenHint, bookletData.briqs.length, booklet, bookletData);
+        calls.push(contractStore.set!.prepareAssemble(recipient, tokenHint, bookletData, bookletData.token_id));
+        // Immediately hint to the backend
+        await backendManager.storeSet({
+            chain_id: getCurrentNetwork(),
+            owner: walletStore.userWalletAddress!,
+            token_id: futureTokenId,
+            data: bookletData,
+            image_base64: await getOfficialSetPreview(booklet),
+        });
+
+    }
+    console.log('totoro', calls);
+    await walletStore.sendTransaction(calls);
+}
+
 const migrationData = reactive(new Fetchable<{ set_migrations: { old_token_id: string, new_token_id: string }[], calls: Call[] }>());
 
 watchEffect(() => {
@@ -312,7 +375,7 @@ const mintStuff = async () => {
             <Btn @click="loadAll">Load all</Btn>
             <Btn @click="deployShapeContracts">Deploy missing shape contract(s)</Btn>
             <Btn :disabled="true" @click="mintBoxes">Mint Boxes</Btn>
-            <Btn :disabled="true" @click="pushModal(RecipientMappingModal)">Mint Booklets</Btn>
+            <Btn @click="mintSets">Mint Sets</Btn>
             <table>
                 <tr>
                     <th>Object ID</th>

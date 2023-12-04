@@ -61,7 +61,6 @@ export const getCalls = async (mapping: Record<string, unknown>) => {
     for (const set of (mapping.sets as { owner: string, old_token_id: string, new_booklet_id: string, new_booklet_name: string }[])) {
         await bookletDataStore[getCurrentNetwork()][set.new_booklet_name]._fetch;
         const bookletData = bookletDataStore[getCurrentNetwork()][set.new_booklet_name]._data!;
-        console.log(bookletData);
         calls.push({
             contractAddress: ADDRESSES[getCurrentNetwork()].migrate_assets,
             entrypoint: 'admin_migrate_legacy_set_briqs',
