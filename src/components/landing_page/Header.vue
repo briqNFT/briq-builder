@@ -10,6 +10,7 @@ import briqIcon from '@/assets/landing/briq-icon.svg';
 import { APP_ENV } from '@/Meta';
 import Tooltip from '../generic/Tooltip.vue';
 import ArgentLogo from '@/assets/argent_logo.svg';
+import DojoBanner from '../DojoBanner.vue';
 
 let _clicked = false;
 const walletStore = maybeStore;
@@ -128,6 +129,7 @@ onMounted(() => {
                 <routerLink to="/builder"><Btn class="text-md">Create</Btn></routerLink>
             </div>
         </div>
+        <DojoBanner/>
     </div>
 </template>
 

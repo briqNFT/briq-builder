@@ -22,6 +22,7 @@ import { useBooklet } from './BookletComposable';
 import Hotkey from '../generic/Hotkey.vue';
 import Tooltip from '../generic/Tooltip.vue';
 import RenameSetVue from './modals/RenameSet.vue';
+import DojoBanner from '../DojoBanner.vue';
 
 const { currentSet } = useBuilder();
 
@@ -91,6 +92,7 @@ div.flex > div.flex > div.flex > button:not(.btn):not(.nostyle) {
 </style>
 
 <template>
+    <DojoBanner/>
     <div class="mx-1 mt-1 sm:mx-2 sm:mt-2 flex flex-wrap pointer-events-none" v-if="!inputStore.hideInput">
         <div class="flex-1 basis-1 min-w-max flex justify-stretch lg:justify-start">
             <div class="flex-auto sm:flex-none flex items-center justify-center p-1 gap-1 border border-grad-light bg-grad-lightest rounded pointer-events-auto">
