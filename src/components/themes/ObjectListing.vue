@@ -148,7 +148,7 @@ const setHoveredDuck = (tokenId: string | undefined) => {
                     <input class="w-full" type="text" v-model="searchBar" placeholder="Search for a specific duck">
                     <i class="fa-solid fa-magnifying-glass absolute right-3"/>
                 </p>
-                <div class="hidden sm:flex gap-2">
+                <div v-if="themeName !== 'ducks_frens'" class="hidden sm:flex gap-2">
                     <Btn secondary class="px-2 font-normal text-sm" @click="groupBy ? groupBy = undefined : groupBy = 'owner'">
                         <Toggle v-model="isGroupedByOwner" class="mr-2 w-8 pointer-events-none"/>
                         Group by owner

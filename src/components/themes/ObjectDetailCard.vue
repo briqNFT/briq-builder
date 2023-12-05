@@ -6,7 +6,6 @@ import { Fetchable } from '@/DataFetching';
 import { addressToStarknetId } from '@/chain/StarknetId';
 import { CHAIN_NETWORKS } from '@/chain/Network';
 import { getBookletLink, getSetLink } from '@/chain/Marketplaces';
-import { log } from 'console';
 import { bookletDataStore } from '@/builder/BookletData';
 
 const props = defineProps<{
@@ -78,15 +77,15 @@ const currentOwner = computed(() => {
                 <hr class="my-2">
 
                 <div class="px-4 py-2 pt-0 flex flex-col gap-2">
-                    <p v-if="isAssembled" class="flex justify-between">
+                    <p v-if="isAssembled && theme !== 'ducks_frens'" class="flex justify-between">
                         <span class="text-grad-dark">Owner</span>
                         <span class="font-medium">{{ currentOwner }}</span>
                     </p>
-                    <p v-else class="flex justify-center">
+                    <p v-else-if="!isAssembled" class="flex justify-center">
                         <span class="text-grad-dark">This set is currently disassembled!</span>
                     </p>
                     <p v-if="expand && isAssembled" class="flex justify-between flex-wrap gap-2">
-                        <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: tokenId } }">
+                        <RouterLink :to="{ name: 'UserCreation', params: { network: network, set_id: data._data!.id } }">
                             <Btn secondary>See details</Btn>
                         </RouterLink>
                         <a :href="getSetLink('element', network, theme, data._data!.id)" target="_blank">
@@ -94,10 +93,10 @@ const currentOwner = computed(() => {
                         </a>
                     </p>
                     <p v-else-if="expand && !isAssembled" class="flex justify-between flex-wrap gap-2">
-                        <a :href="getBookletLink('element', network, theme, data._data.token_id)" target="_blank">
+                        <a :href="getBookletLink('element', network, theme, data._data!.token_id)" target="_blank">
                             <Btn secondary>See on Element</Btn>
                         </a>
-                        <a :href="getBookletLink('unframed', network, theme, data._data.token_id)" target="_blank">
+                        <a :href="getBookletLink('unframed', network, theme, data._data!.token_id)" target="_blank">
                             <Btn secondary>See on Unframed</Btn>
                         </a>
                     </p>

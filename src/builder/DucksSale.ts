@@ -29,8 +29,10 @@ export const themeSetsDataStore = defaultDict((network: string) => {
         ret.fetch(async () => {
             const data_by_set_id = await backendManager.fetch(`v1/${network}/${theme}/all_sets_static_data`)
             const mapping = {};
-            for (const [key, value] of Object.entries(data_by_set_id))
+            for (const [key, value] of Object.entries(data_by_set_id)) {
+                value['id'] = key;
                 mapping[value['booklet_id']] = value;
+            }
             return mapping;
         });
         return ret;
