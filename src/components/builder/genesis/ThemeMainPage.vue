@@ -209,15 +209,15 @@ watch([saleStartsInSeconds, wave2InSeconds, wave3InSeconds], (nv: number[], ov: 
                         <div class="container m-auto mt-8">
                             <template v-if="status == 'LOADED'">
                                 <div class="presentation flex gap-8">
-                                    <a :href="getBoxMarketplaceUrl('pyramid', getCurrentNetwork(), 'briqmas')"><div>
+                                    <a :href="getBoxMarketplaceUrl('pyramid', getCurrentNetwork(), 'starknet_planet')"><div>
                                         <h2 class="absolute top-0 left-0 translate-x-[-20%] bg-grad-lightest border-2 px-4 py-2 rotate-[-20deg] rounded-lg shadow-sm">Buy a Box</h2>
                                         <img :src="genesisStore.coverBoxRoute('starknet_planet/akimbo_fighter', false)" alt="box" class="w-auto h-full object-contain">
                                     </div></a>
-                                    <a :href="getBookletMarketplaceUrl('pyramid', getCurrentNetwork(), 'briqmas')"><div>
+                                    <a :href="getBookletMarketplaceUrl('pyramid', getCurrentNetwork(), 'starknet_planet')"><div>
                                         <h2 class="absolute top-0 left-0 translate-x-[-20%] bg-grad-lightest border-2 px-4 py-2 rotate-[-20deg] rounded-lg shadow-sm">Open it</h2>
                                         <img :src="genesisStore.coverBookletRoute('starknet_planet/akimbo_fighter', false)" alt="box" class="w-auto h-full object-contain">
                                     </div></a>
-                                    <a :href="getSetMarketplaceUrl('pyramid', getCurrentNetwork(), 'briqmas')"><div class="!p-12 relative">
+                                    <a :href="getSetMarketplaceUrl('pyramid', getCurrentNetwork(), 'starknet_planet')"><div class="!p-12 relative">
                                         <h2 class="absolute top-0 left-0 translate-x-[-20%] bg-grad-lightest border-2 px-4 py-2 rotate-[-20deg] rounded-lg shadow-sm">Build your Set</h2>
                                         <img :src="genesisStore.coverItemRoute('starknet_planet/akimbo_fighter', false)" alt="box" class="w-auto h-full object-contain">
                                     </div></a>
