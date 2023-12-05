@@ -14,6 +14,9 @@ import ToggleParagraph from '@/components/generic/ToggleParagraph.vue';
 import { useThemeURLs } from '@/components/themes/ThemeUrlComposable';
 import BoxCard from './BoxCard.vue';
 
+import { getCurrentNetwork } from '@/chain/Network';
+import { getBoxMarketplaceUrl, getBookletMarketplaceUrl, getSetMarketplaceUrl } from '@/chain/Marketplaces';
+
 const route = useRoute();
 
 const themeName = computed(() => route.params.theme as string);
@@ -121,6 +124,17 @@ watch([saleStartsInSeconds, wave2InSeconds, wave3InSeconds], (nv: number[], ov: 
     @apply text-primary;
 }
 
+.presentation > a {
+    @apply basis-1/3 max-h-[20rem]
+}
+
+.presentation > a > div {
+    @apply basis-1/3 max-h-[20rem] relative h-full flex items-center justify-center bg-grad-lightest rounded border border-grad-lighter p-2 transition-all
+}
+.presentation > a > div:hover {
+    @apply translate-y-[-0.5rem] transition-all
+}
+
 </style>
 
 <template>
@@ -194,6 +208,20 @@ watch([saleStartsInSeconds, wave2InSeconds, wave3InSeconds], (nv: number[], ov: 
                     <template v-if="themeStatus === 'LOADED'">
                         <div class="container m-auto mt-8">
                             <template v-if="status == 'LOADED'">
+                                <div class="presentation flex gap-8">
+                                    <a :href="getBoxMarketplaceUrl('pyramid', getCurrentNetwork(), 'briqmas')"><div>
+                                        <h2 class="absolute top-0 left-0 translate-x-[-20%] bg-grad-lightest border-2 px-4 py-2 rotate-[-20deg] rounded-lg shadow-sm">Buy a Box</h2>
+                                        <img :src="genesisStore.coverBoxRoute('starknet_planet/akimbo_fighter', false)" alt="box" class="w-auto h-full object-contain">
+                                    </div></a>
+                                    <a :href="getBookletMarketplaceUrl('pyramid', getCurrentNetwork(), 'briqmas')"><div>
+                                        <h2 class="absolute top-0 left-0 translate-x-[-20%] bg-grad-lightest border-2 px-4 py-2 rotate-[-20deg] rounded-lg shadow-sm">Open it</h2>
+                                        <img :src="genesisStore.coverBookletRoute('starknet_planet/akimbo_fighter', false)" alt="box" class="w-auto h-full object-contain">
+                                    </div></a>
+                                    <a :href="getSetMarketplaceUrl('pyramid', getCurrentNetwork(), 'briqmas')"><div class="!p-12 relative">
+                                        <h2 class="absolute top-0 left-0 translate-x-[-20%] bg-grad-lightest border-2 px-4 py-2 rotate-[-20deg] rounded-lg shadow-sm">Build your Set</h2>
+                                        <img :src="genesisStore.coverItemRoute('starknet_planet/akimbo_fighter', false)" alt="box" class="w-auto h-full object-contain">
+                                    </div></a>
+                                </div>
                                 <template v-if="wave1Boxes.length">
                                     <h4
                                         class="font-medium bg-no-repeat bg-center flex justify-center mt-10 mb-6"

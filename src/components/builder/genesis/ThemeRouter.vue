@@ -4,10 +4,12 @@ import { useRoute } from 'vue-router';
 import ThemeMainPage from './ThemeMainPage.vue';
 import ThemePageDucks from './ThemePageDucks.vue';
 import ThemePageDucksFrens from './ThemePageDucksFrens.vue';
+import ThemePageBriqmas from './ThemePageBriqmas.vue';
 
 const route = useRoute();
 
 const components = {
+    'briqmas': ThemePageBriqmas,
     'ducks_everywhere': ThemePageDucks,
     'ducks_frens': ThemePageDucksFrens,
 } as Record<string, unknown>;

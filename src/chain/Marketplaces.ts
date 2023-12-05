@@ -48,6 +48,11 @@ export function getBookletMarketplaceUrl(marketplace: string, network: CHAIN_NET
     return `https://pyramid.market/collection/0x${BigInt(getBookletAddress(ADDRESSES[network], collection)).toString(16)}/`;
 }
 
+export function getBoxMarketplaceUrl(marketplace: string, network: CHAIN_NETWORKS, collection: string) {
+    // send to Pyramid for now as they work
+    return `https://pyramid.market/collection/0x${BigInt(getBoxAddress(ADDRESSES[network], collection)).toString(16)}/`;
+}
+
 export function getBriqLink(marketplace: string, network: CHAIN_NETWORKS) {
     return 'https://element.market/collections/briq-token';
 }
