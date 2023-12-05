@@ -38,8 +38,14 @@ export function getBoxLink(marketplace: string, network: CHAIN_NETWORKS, collect
         return `https://pyramid.market/asset/0x${BigInt(getBoxAddress(ADDRESSES[network], collection)).toString(16)}/${BigInt(setId).toString(10)}`;
 }
 
-export function getSetMarketplaceUrl() {
-    return 'https://unframed.co/collection/0x01435498bf393da86b4733b9264a86b58a42b31f8d8b8ba309593e5c17847672';
+export function getSetMarketplaceUrl(marketplace: string, network: CHAIN_NETWORKS, collection: string) {
+    // send to Pyramid for now as they work
+    return `https://pyramid.market/collection/0x${BigInt(getSetAddress(ADDRESSES[network], collection)).toString(16)}/`;
+}
+
+export function getBookletMarketplaceUrl(marketplace: string, network: CHAIN_NETWORKS, collection: string) {
+    // send to Pyramid for now as they work
+    return `https://pyramid.market/collection/0x${BigInt(getBookletAddress(ADDRESSES[network], collection)).toString(16)}/`;
 }
 
 export function getBriqLink(marketplace: string, network: CHAIN_NETWORKS) {

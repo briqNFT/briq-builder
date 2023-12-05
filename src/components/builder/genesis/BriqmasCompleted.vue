@@ -205,6 +205,7 @@ onUnmounted(() => {
 
 import FireplaceAudio from './FireplaceAudio.vue';
 import { getSetMarketplaceUrl } from '@/chain/Marketplaces';
+import { getCurrentNetwork } from '@/chain/Network';
 const quality = ref(SceneQuality.ULTRA);
 
 </script>
@@ -227,7 +228,7 @@ const quality = ref(SceneQuality.ULTRA);
                 <p class="mt-12">You need a minted briqmas tree set to access this page.</p>
                 <p>You can build one using an official briqmas tree booklet!</p>
                 <div class="flex gap-4 mt-8 ">
-                    <a :href="getSetMarketplaceUrl()" rel="noopener" target="_blank">
+                    <a :href="getSetMarketplaceUrl('unframed', getCurrentNetwork(), 'briqmas')" rel="noopener" target="_blank">
                         <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><UnframedLogo class="mr-3" height="1.5rem" width="1.5rem"/> Unframed</Btn>
                     </a>
                 </div>

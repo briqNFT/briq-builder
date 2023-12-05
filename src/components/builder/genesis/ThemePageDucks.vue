@@ -15,7 +15,7 @@ const themeName = computed(() => 'ducks_everywhere');
     <div class="">
         <Header/>
         <div>
-            <DucksEverywhereCover/>
+            <DucksEverywhereCover :theme-name="themeName"/>
             <div class="mb-8">
                 <ObjectListing :theme-name="themeName"/>
             </div>

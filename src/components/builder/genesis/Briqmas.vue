@@ -494,6 +494,7 @@ const openBuilder = async () => {
 
 import FireplaceAudio from './FireplaceAudio.vue';
 import { getSetMarketplaceUrl } from '@/chain/Marketplaces';
+import { getCurrentNetwork } from '@/chain/Network';
 const quality = ref(SceneQuality.HIGH);
 
 </script>
@@ -516,7 +517,7 @@ const quality = ref(SceneQuality.HIGH);
                 <p class="mt-12">Unfortunately, you don't own a briqmas box.</p>
                 <p>Try getting one on the secondary market!</p>
                 <div class="flex gap-4 mt-8">
-                    <a :href="getSetMarketplaceUrl()" rel="noopener" target="_blank">
+                    <a :href="getSetMarketplaceUrl('unframed', getCurrentNetwork(), 'briqmas')" rel="noopener" target="_blank">
                         <Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><UnframedLogo class="mr-3" height="1.5rem" width="1.5rem"/> Unframed</Btn>
                     </a>
                 </div>
