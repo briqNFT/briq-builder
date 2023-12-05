@@ -56,6 +56,10 @@ export abstract class GeneralizedUserItem implements perUserStorable {
                 // Clear the metadata if we are now ahead of it.
                 if (update.block && update.block <= data.lastBlock) {
                     this.metadata[tokenName].updates.splice(i--, 1);
+                    if (update.status.indexOf('TENTATIVE') !== -1)
+                        this.notifyMintConfirmed({ tx_hash: update.tx_hash, token_name: tokenName });
+                    else
+                        this.notifyBurnConfirmed({ tx_hash: update.tx_hash, token_name: tokenName });
                     continue;
                 }
                 // Try to fetch some updated data if we don't know the block, but don't block the optimistic processing.
@@ -68,10 +72,17 @@ export abstract class GeneralizedUserItem implements perUserStorable {
                             if (status === 'REJECTED' || ((Date.now() - update.date) > 1000 * 60 * 60 && status === 'NOT_RECEIVED')) {
                                 this.metadata[tokenName].updates.splice(i--, 1);
                                 reprocess = true;
+                                if (update.status.indexOf('TENTATIVE') !== -1)
+                                    this.notifyMintFailure({ tx_hash: update.tx_hash, token_name: tokenName });
+                                else
+                                    this.notifyBurnFailure({ tx_hash: update.tx_hash, token_name: tokenName });
                                 return;
                             }
-                            if (update.status === 'TENTATIVE' && (status === 'PENDING' || status === 'ACCEPTED_ON_L2' || status === 'ACCEPTED_ON_L1'))
+                            if (update.status === 'TENTATIVE' && (status === 'PENDING' || status === 'ACCEPTED_ON_L2' || status === 'ACCEPTED_ON_L1')) {
                                 update.status = 'TENTATIVE_PENDING';
+                                if (block > data.block_number)
+                                    this.notifyMintPending({ tx_hash: update.tx_hash, token_name: tokenName });
+                            }
                             if (block) {
                                 update.block = block;
                                 if (update.block)
@@ -116,4 +127,10 @@ export abstract class GeneralizedUserItem implements perUserStorable {
         });
         this._updateData(this._lastDataFetch);
     }
+
+    notifyMintConfirmed(item: { tx_hash: string, token_name: string }) {}
+    notifyBurnConfirmed(item: { tx_hash: string, token_name: string }) {}
+    notifyMintFailure(item: { tx_hash: string, token_name: string }) {}
+    notifyBurnFailure(item: { tx_hash: string, token_name: string }) {}
+    notifyMintPending(item: { tx_hash: string, token_name: string }) {}
 }

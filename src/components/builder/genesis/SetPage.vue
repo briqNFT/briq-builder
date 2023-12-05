@@ -172,7 +172,7 @@ const attributes = computed(() => {
             { name: 'Theme', value: genesisStore.themedata[route.params.theme]._data?.name },
             { name: 'Artist', value: props.artist.value },
             { name: 'Year', value: new Date(props.date.value).getFullYear() },
-            { name: '# of steps', value: props.nb_steps.value },
+            { name: '# of steps', value: props.nb_steps?.value || '??' },
             { name: '# of briqs', value: bookletData!.value.briqs.length },
         ]
     } else if (setKind.value === 'OFFICIAL') {

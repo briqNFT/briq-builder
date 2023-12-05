@@ -13,33 +13,48 @@ import { setsManager } from './SetsManager';
 import type { ExternalSetData } from './ExternalSets';
 import type { Call } from 'starknet';
 import { migrateBriqsIfNeeded } from '@/chain/contracts/migration';
+import { GeneralizedUserItem } from './UserItem';
 
 
 
-class UserSetStore implements perUserStorable {
-    user_id!: string;
-    _sets = [] as string[];
-    // Only store metadata on sets where something is happening. Rest are assumed live.
-    metadata = {} as { [setId: string]: {
-        set_id: string,
-        status: 'TENTATIVE' | 'TENTATIVE_DELETED',
-        tx_hash: string,
-    }};
-
-    _status = 'FETCHING' as 'FETCHING' | 'LOADED' | 'ERROR';
-
+class UserSetStore extends GeneralizedUserItem {
     _setData = {} as { [setId: string]: Omit<ExternalSetData, 'data'> & { data?: SetData }
     };
 
     polling!: number;
 
-    get status() {
-        return this._status;
-    }
-
     onEnter() {
-        this.fetchData();
-        this.polling = setTimeout(() => this.poll(), 5000);
+        super.onEnter();
+        /*
+        this.metadata['0x1800000004'] = {
+            token_name: '0x1800000004',
+            updates: [{
+                tx_hash: '0xcafe',
+                block: undefined,
+                status: 'TENTATIVE_PENDING',
+                date: Date.now(),
+            },
+            {
+                tx_hash: '0xcafe',
+                block: undefined,
+                status: 'TENTATIVE',
+                date: Date.now(),
+            },
+            {
+                tx_hash: '0xcafe',
+                block: undefined,
+                status: 'DELETING_SOON',
+                date: Date.now(),
+            },
+            {
+                tx_hash: '0xcafe',
+                block: undefined,
+                status: 'DELETING_SOON',
+                date: Date.now(),
+            },
+        ],
+        }*/
+        this.polling = setTimeout(() => this._fetchData(), 20000);
     }
 
     onLeave() {
@@ -64,14 +79,17 @@ class UserSetStore implements perUserStorable {
                 }
         // TODO: find a way to serialise set data maybe.
         return {
-            sets: this._sets,
+            version: '2',
+            sets: this._tokenNames,
             metadata: JSON.parse(JSON.stringify(this.metadata)),
             setData: setData,
         }
     }
 
     _deserialize(data: any) {
-        this._sets = data.sets;
+        if (!('version' in data) || data.version !== '2')
+            return;
+        this._tokenNames = data.sets;
         this.metadata = data.metadata;
         this._setData = {};
         for (const setId in data.setData)
@@ -86,15 +104,8 @@ class UserSetStore implements perUserStorable {
         this._deserialize(data);
     }
 
-
     get sets() {
-        const ret = this._sets.filter((setId: string) => this.metadata[setId]?.status !== 'TENTATIVE_DELETED');
-        for (const setId in this.metadata) {
-            const item = this.metadata[setId];
-            if (item.status === 'TENTATIVE')
-                ret.push(item.set_id);
-        }
-        return ret;
+        return this._tokenNames;
     }
 
     get setData() {
@@ -102,24 +113,29 @@ class UserSetStore implements perUserStorable {
     }
 
     async fetchData() {
-        let success = true;
+        const data = (await backendManager.fetch(`v1/user/data/${this.user_id}`, 5000));
+        return {
+            lastBlock: data.last_block,
+            data: data.sets,
+        }
+    }
+
+    async _fetchData() {
         try {
-            this._sets = (await backendManager.fetch(`v1/user/data/${this.user_id}`, 5000)).sets;
-            this._status = 'LOADED';
+            this._lastDataFetch = await this.fetchData();
+            this._updateData(this._lastDataFetch);
         } catch(ex) {
             console.error(ex.message);
-            // If we were loading, we've already loaded once, so keep on trucking.
-            if (this._status === 'FETCHING')
-                this._status = 'ERROR';
-            success = false;
         }
+
         // Clean up all hidden sets that we have succesfully minted
         // (this needs to be _sets or we'll delete temporary sets)
-        for (const setId of this._sets) {
+        for (const setId of this.sets) {
             const hiddenSet = setsManager.getHiddenSetInfo(setId);
             if (hiddenSet)
                 setsManager.deleteLocalSet(hiddenSet.id);
         }
+
         // Tell the set manager to reveal any other hidden set that's old enough, to prevent data loss.
         setsManager.revealHiddenSetsMaybe();
         const network = this.user_id.split('/')[0];
@@ -139,62 +155,7 @@ class UserSetStore implements perUserStorable {
                 } catch(_) {
                     if (APP_ENV === 'dev')
                         console.error(_.message);
-                    success = false;
                 }
-        return success;
-    }
-
-    async poll() {
-        const success = await this.fetchData();
-        const network = this.user_id.split('/')[0];
-        for (const setId in this.metadata)
-            if (this.metadata[setId].status === 'TENTATIVE' && this._sets.indexOf(setId) !== -1)  {
-                this.notifyMintingConfirmed(this.metadata[setId]);
-                delete this.metadata[setId];
-                // At this point re-fetch the data just in case we ended up with something un-clean.
-                try {
-                    backendManager.fetch(`v1/metadata/${network}/${setId}.json`).then(data => {
-                        this._setData[setId] = {
-                            data: new SetData(setId).deserialize(data),
-                            booklet_id: data.booklet_id,
-                            created_at: data.created_at * 1000,
-                            properties: data.properties,
-                            background_color: data.background_color,
-                        }
-                    });
-                } catch(_)  {
-                    if (APP_ENV === 'dev')
-                        console.error(_);
-                }
-                // Reload briqs, we likely have an update.
-                chainBriqs.value?.loadFromChain();
-            } else if (this.metadata[setId].status === 'TENTATIVE_DELETED' && this._sets.indexOf(setId) === -1)  {
-                this.notifyDeletionConfirmed(this.metadata[setId]);
-                delete this.metadata[setId];
-                // Reload briqs, we likely have an update.
-                chainBriqs.value?.loadFromChain();
-            }
-        // At this point, if there remains any we must check for failure.
-        if (!Object.keys(this.metadata).length) {
-            setTimeout(() => this.poll(), 60000)
-            return;
-        }
-        for (const setId in this.metadata) {
-            const item = this.metadata[setId];
-            const status = await maybeStore.value?.getProvider()?.getTransactionStatus(item.tx_hash);
-            if (status === 'REJECTED') {
-                if (item.status === 'TENTATIVE') {
-                    // Reveal the set.
-                    const info = setsManager.getHiddenSetInfo(item.set_id);
-                    if (info)
-                        info.onchainId = undefined;
-                    this.notifyMintingRejected(item, info?.id);
-                } else if (item.status === 'TENTATIVE_DELETED')
-                    this.notifyDeletionRejected(item);
-                delete this.metadata[setId];
-            }
-        }
-        setTimeout(() => this.poll(), success ? 60000 : 60000);
     }
 
     async mintSet(otherCalls: Array<Call>, token_hint: string, data: any, image: string | undefined) {
@@ -272,11 +233,7 @@ class UserSetStore implements perUserStorable {
                 booklet_id: booklet,
                 created_at: Date.now(),
             }
-            this.metadata[data.id] = {
-                set_id: data.id,
-                status: 'TENTATIVE',
-                tx_hash: TX.transaction_hash,
-            }
+            this.showOne(data.id, TX.transaction_hash);
             window.removeEventListener('beforeunload', this.beforeUnloadTxPendingWarning);
             // Wait on the backend to be done before returning.
             await new Promise<void>(resolve => {
@@ -312,11 +269,7 @@ class UserSetStore implements perUserStorable {
                 booklet_id: undefined,
                 created_at: Date.now(),
             }
-            this.metadata[data.id] = {
-                set_id: data.id,
-                status: 'TENTATIVE',
-                tx_hash: tx_hash,
-            }
+            this.showOne(data.id, tx_hash);
         }
     }
 
@@ -345,70 +298,70 @@ class UserSetStore implements perUserStorable {
             for (const mat in this.setData[token_id].data!.usedByMaterial)
                 chainBriqs.value?.show(mat, this.setData[token_id].data!.usedByMaterial[mat], TX.transaction_hash);
 
-            this.metadata[token_id] = {
-                set_id: token_id,
-                status: 'TENTATIVE_DELETED',
-                tx_hash: TX.transaction_hash,
-            }
+            this.hideOne(token_id, TX.transaction_hash);
         }
         return TX;
     }
 
-    notifyMintingConfirmed(setData: UserSetStore['metadata']['any']) {
+    notifyMintConfirmed(item: { tx_hash: string, token_name: string }) {
         new Notification({
             type: 'set_mint_confirmed',
             title: 'Set minted',
             level: 'success',
             data: {
-                tx_hash: setData.tx_hash,
-                set_id: setData.set_id,
-                name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
+                tx_hash: item.tx_hash,
+                set_id: item.token_name,
+                name: this.setData[item.token_name]?.data?.name || `${item.token_name.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
             },
             read: false,
         }).push(true);
     }
 
-    notifyMintingRejected(setData: UserSetStore['metadata']['any'], localSetRestored?: string) {
+    notifyMintFailure(item: { tx_hash: string, token_name: string }) {
+        // Reveal the set.
+        const info = setsManager.getHiddenSetInfo(item.token_name);
+        if (info)
+            info.onchainId = undefined;
         new Notification({
             type: 'set_mint_rejected',
             title: 'Set failed to mint',
             level: 'error',
             data: {
-                tx_hash: setData.tx_hash,
-                set_id: setData.set_id,
-                name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
+                tx_hash: item.tx_hash,
+                set_id: item.token_name,
+                name: this.setData[item.token_name]?.data?.name || `${item.token_name.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
-                local_set_restored: localSetRestored,
+                local_set_restored: !!info?.id,
             },
             read: false,
         }).push(true);
     }
 
-    notifyDeletionConfirmed(setData: UserSetStore['metadata']['any']) {
+    notifyBurnConfirmed(item: { tx_hash: string, token_name: string }) {
         new Notification({
             type: 'set_delete_confirmed',
             title: 'Set disassembled',
             level: 'success',
             data: {
-                tx_hash: setData.tx_hash,
-                set_id: setData.set_id,
-                name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
+                tx_hash: item.tx_hash,
+                set_id: item.token_name,
+                name: this.setData[item.token_name]?.data?.name || `${item.token_name.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
             },
             read: false,
         }).push(true);
     }
 
-    notifyDeletionRejected(setData: UserSetStore['metadata']['any']) {
+    notifyBurnFailure(item: { tx_hash: string, token_name: string }) {
         new Notification({
             type: 'set_delete_rejected',
             title: 'Disassembly failure',
             level: 'error',
             data: {
-                tx_hash: setData.tx_hash,
-                set_id: setData.set_id,
-                name: this.setData[setData.set_id]?.data?.name || `${setData.set_id.slice(0, 10)}...`,
+                tx_hash: item.tx_hash,
+                set_id: item.token_name,
+                name: this.setData[item.token_name]?.data?.name || `${item.token_name.slice(0, 10)}...`,
                 network: this.user_id.split('/')[0],
             },
             read: false,

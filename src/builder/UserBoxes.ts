@@ -59,67 +59,67 @@ class UserBoxesStore extends GeneralizedUserItem {
         return this._tokenNames;
     }
 
-    notifyPurchasePending(item: { tx_hash: string, box_id: string }) {
+    notifyMintPending(item: { tx_hash: string, token_name: string }) {
         new Notification({
             type: 'box_purchase_pending',
             title: 'Unbox available',
             level: 'info',
             data: {
                 tx_hash: item.tx_hash,
-                box_id: item.box_id,
+                box_id: item.token_name,
             },
             read: false,
         }).push(true);
     }
 
-    notifyPurchaseConfirmed(item: { tx_hash: string, box_id: string }) {
+    notifyMintConfirmed(item: { tx_hash: string, token_name: string }) {
         new Notification({
             type: 'box_purchase_confirmed',
             title: 'Box successfully purchased',
             level: 'success',
             data: {
                 tx_hash: item.tx_hash,
-                box_id: item.box_id,
+                box_id: item.token_name,
             },
             read: false,
         }).push(true);
     }
 
-    notifyPurchaseFailure(item: { tx_hash: string, box_id: string }) {
+    notifyMintFailure(item: { tx_hash: string, token_name: string }) {
         new Notification({
             type: 'box_purchase_failure',
             title: 'Error with box purchase',
             level: 'error',
             data: {
                 tx_hash: item.tx_hash,
-                box_id: item.box_id,
+                box_id: item.token_name,
             },
             read: false,
         }).push(true);
     }
 
     // This one is pre-read -> we're assuming we're good.
-    notifyUnboxConfirmed(item: { tx_hash: string, box_id: string }) {
+    notifyBurnConfirmed(item: { tx_hash: string, token_name: string }) {
         new Notification({
             type: 'box_unbox_confirmed',
             title: 'Unboxing successful',
             level: 'success',
             data: {
                 tx_hash: item.tx_hash,
-                box_id: item.box_id,
+                box_id: item.token_name,
             },
             read: true,
         }).push(false);
     }
 
-    notifyUnboxFailure(item: { tx_hash: string, box_id: string }) {
+    notifyBurnFailure(item: { tx_hash: string, token_name: string }) {
         new Notification({
             type: 'box_unbox_failure',
             title: 'Error during unboxing',
             level: 'error',
             data: {
                 tx_hash: item.tx_hash,
-                box_id: item.box_id,
+                box_id: item.token_name,
             },
             read: false,
         }).push(true);
