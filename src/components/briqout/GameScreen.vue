@@ -10,6 +10,8 @@ import { APP_ENV } from '@/Meta';
 
 import Header from '@/components/landing_page/Header.vue';
 
+import BriqoutLogo from '@/assets/briqout/briqout-logo.png';
+
 import { chainBriqs } from '@/builder/ChainBriqs';
 import { userSetStore } from '@/builder/UserSets';
 import { backendManager } from '@/Backend';
@@ -190,7 +192,9 @@ const pageStatus = computed(() => {
             <Header/>
             <template v-if="page === 'home'">
                 <div class="flex flex-col justify-center items-center my-[3rem] tall-md:my-[6rem] tall-lg:my-[8rem] min-h-[50vh] gap-4">
-                    <h1 class="mb-12 !font-logo text-primary text-[4rem]">briqout</h1>
+                    <h1 class="mb-12 !font-logo text-primary text-[4rem]">
+                        <img :src="BriqoutLogo" alt="briqout logo" class="h-[8rem]">
+                    </h1>
                     <template v-if="maybeStore?.userWalletAddress">
                         <div class="container m-auto relative">
                             <p class="text-center my-6 font-medium">Choose the map to play on</p>
