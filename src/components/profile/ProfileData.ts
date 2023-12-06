@@ -118,6 +118,10 @@ export function useProfileData() {
     })
 
     const creations = computed(() => {
+        const pendingSets = {} as Record<string, number>;
+        for (const setId in userSetStore.current?.metadata)
+            pendingSets[setId] = userSetStore.current?.metadata[setId].updates.filter(x => x.status !== 'DELETING_SOON').length;
+
         return userSetStore.current?.sets.map(setId => {
             if (userSetStore.current?.setData[setId]?.booklet_id)
                 return undefined;
@@ -128,12 +132,16 @@ export function useProfileData() {
                 name: data?.data?.name || setId,
                 nb_briqs: data?.data?.getNbBriqs?.() || 0,
                 created_at: data?.created_at || Date.now(),
-                pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
+                pending: pendingSets[setId]-- > 0,
             }
         }).filter(x => !!x) || [];
     })
 
     const officialCreations = computed(() => {
+        const pendingSets = {} as Record<string, number>;
+        for (const setId in userSetStore.current?.metadata)
+            pendingSets[setId] = userSetStore.current?.metadata[setId].updates.filter(x => x.status !== 'DELETING_SOON').length;
+
         return userSetStore.current?.sets.map(setId => {
             if (!userSetStore.current?.setData[setId]?.booklet_id)
                 return undefined;
@@ -143,7 +151,7 @@ export function useProfileData() {
                 name: data?.data?.name || setId,
                 nb_briqs: data?.data?.getNbBriqs?.() || 0,
                 created_at: data?.created_at || Date.now(),
-                pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
+                pending: pendingSets[setId]-- > 0,
             }
         }).filter(x => !!x) || [];
     })

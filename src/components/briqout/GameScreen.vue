@@ -189,7 +189,6 @@ const setsToMigrate = computed(() => {
             name: data?.data?.name || setId,
             nb_briqs: data?.data?.getNbBriqs?.() || 0,
             created_at: data?.created_at || Date.now(),
-            pending: userSetStore.current?.metadata[setId]?.status === 'TENTATIVE',
             briqs: data?.data?.getAllBriqs() || undefined,
         }
     }).filter(x => !!x) || [];
