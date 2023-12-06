@@ -208,6 +208,10 @@ const pageStatus = computed(() => {
                                     class="max-w-[20rem] cursor-pointer">
                                     <p>{{ briqset.nb_briqs }}</p>
                                 </GenericCard>
+                                <p v-if="!setsToPlayOn.length" class="flex justify-center items-center gap-2 flex-col bg-grad-lightest p-6 rounded border border-grad-light">
+                                    <span>You have no briq NFTs built to play with !</span>
+                                    <routerLink to="/builder"><Btn class="text-md">Create one</Btn></routerLink>
+                                </p>
                             </div>
                         </div>
                     </template>
