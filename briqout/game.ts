@@ -45,7 +45,7 @@ export class BriqoutBriq extends Rectangle implements BriqoutItem {
     id: number;
     type = 'briq' as const;
 
-    color = '#ff5500';
+    color = '#880000';
 
     constructor(game: Game) {
         super();

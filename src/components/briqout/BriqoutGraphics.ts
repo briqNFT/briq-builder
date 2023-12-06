@@ -20,11 +20,6 @@ import NoiseImg from '@/assets/briqout/noise.png';
 import type { Game, Powerup, BriqoutBriq, BriqoutBall, BriqoutItem } from 'briqout';
 import { BallLaunch } from 'briqout';
 
-import { backendManager } from '@/Backend';
-import { APP_ENV } from '@/Meta';
-import { main } from '@/builder/graphics/Builder';
-import { Vector3 } from 'three';
-
 let envMapTexture: THREE.Texture;
 
 export enum SceneQuality {
@@ -200,6 +195,7 @@ function resetScene(quality: SceneQuality) {
     paddleObject = undefined;
     gameItems = {};
     colorTime = 0.0;
+    postGameTime = 0.0;
 
     scene.clear();
     scene.add(camera);
@@ -560,7 +556,7 @@ function updateBriqPopParticles(points: THREE.Points) {
 
 function generatePaddle(game: Game) {
     const geometry = new THREE.BoxGeometry(game.paddleWidth, 20, 20);
-    const paddle = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x00ff00 }));
+    const paddle = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: new THREE.Color(0xdd4400).convertSRGBToLinear() }));
     paddle.castShadow = true;
     paddle.receiveShadow = true;
     scene.add(paddle);
@@ -576,12 +572,6 @@ function generateBall(ball: BriqoutBall) {
     scene.add(ballMesh);
     return ballMesh;
 }
-
-const powerupCol = {
-    'metalballs': 0xff0000,
-    'multiball': 0x00ff00,
-    'biggerpaddle': 0x0000ff,
-} as Record<Powerup['kind'], number>;
 
 function generatePowerup(item: Powerup) {
     const geometry = new THREE.TorusGeometry(item.radius, 2, 2, 32);

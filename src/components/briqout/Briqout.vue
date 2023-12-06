@@ -21,7 +21,7 @@ const stopWatch = watch(gameCanvas, () => canvasResolved() && stopWatch());
 
 <template>
     <Suspense>
-        <canvas ref="gameCanvas" class="absolute w-screen h-screen"></canvas>
+        <canvas ref="gameCanvas" class="absolute w-screen h-screen"/>
         <template #fallback>
             <div class="w-full h-full flex justify-center items-center">
                 <div class="text-4xl text-gray-500">Loading...</div>

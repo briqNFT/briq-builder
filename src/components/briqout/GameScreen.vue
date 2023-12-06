@@ -1,22 +1,20 @@
 
 <script setup lang="ts">
-import { Game, replay } from 'briqout';
+import { Game } from 'briqout';
 import { reactive, onMounted, onUnmounted, ref, computed, onBeforeUnmount } from 'vue';
 import { SceneQuality, setupScene, updateScene, render } from './BriqoutGraphics';
 import { briqoutStore } from './GameData';
 import { useBriqoutAudio } from './Sound';
-import { WEB_WALLET_URL, maybeStore, walletInitComplete } from '@/chain/WalletLoading';
+import { maybeStore, walletInitComplete } from '@/chain/WalletLoading';
 import { APP_ENV } from '@/Meta';
 
 import Header from '@/components/landing_page/Header.vue';
 
-import { hash, ec, Signer, Account, Provider } from 'starknet';
 import { chainBriqs } from '@/builder/ChainBriqs';
 import { userSetStore } from '@/builder/UserSets';
 import { backendManager } from '@/Backend';
 import GenericCard from '../builder/genesis/GenericCard.vue';
 import type { Briq } from '@/builder/Briq';
-import { getCurrentNetwork } from '@/chain/Network';
 
 const game = reactive(new Game());
 
@@ -92,35 +90,6 @@ const reset = (set?: string, briqs?: Briq[]) => {
     window.addEventListener('mouseup', onMouseUp);
 }
 
-const checkReplay = async () => {
-    const res = await fetch('http://localhost:3000/verify_replay', {
-        method: 'POST',
-        body: JSON.stringify({
-            trace: game.exportTrace(),
-            chain_id: getCurrentNetwork(),
-        }),
-    })
-    const signedMessage = await res.json();
-    console.log('signedMessage', signedMessage);
-
-    const msgHash = hash.computeHashOnElements(signedMessage.message);
-    // TODO change starknet.js v5
-    const privateKey = '0x1234567890987654321';
-    const keyPair = ec.getKeyPair(privateKey);
-    const result = ec.verify(keyPair, msgHash, signedMessage.signature);
-    console.log('Result (boolean) =', result);
-
-    const sg = new Signer(keyPair);
-    const acc = new Account(new Provider({ rpc: { nodeUrl: 'http://localhost:5050' } }), '0x598f57e84be4279ff74e7ba389be4d46ec2b1c7974088caad07ebd5a3e8baaa', sg);
-
-    let tx = await acc.execute({
-        contractAddress: '0x598f57e84be4279ff74e7ba389be4d46ec2b1c7974088caad07ebd5a3e8baaa',
-        entrypoint: 'execute',
-        calldata: ['0x0'],
-    });
-    console.log(tx);
-}
-
 const onMouseMove = (ev) => {
     game.pushEvent({
         type: 'mousemove',
@@ -181,7 +150,7 @@ const connectWallet = () => {
     }
 }
 
-const setsToMigrate = computed(() => {
+const setsToPlayOn = computed(() => {
     return userSetStore.current?.sets.map(setId => {
         const data = userSetStore.current?.setData[setId];
         return {
@@ -194,7 +163,7 @@ const setsToMigrate = computed(() => {
     }).filter(x => !!x) || [];
 })
 
-const page = ref('home' as 'home' | 'migrate' | 'ingame');
+const page = ref('home' as 'home' | 'ingame');
 const pageStatus = computed(() => {
     if (page.value === 'ingame')
         return 'ingame';
@@ -220,52 +189,44 @@ const pageStatus = computed(() => {
         <div v-if="pageStatus === 'pregame'" class="bg-background min-h-screen min-w-screen">
             <Header/>
             <template v-if="page === 'home'">
-                <div class="flex flex-col justify-center items-center min-h-[50vh] gap-4">
-                    <h1 class="mb-12">briqout</h1>
-                    <Btn class="w-[14rem] h-12" @click="page = 'migrate'">Migrate your assets</Btn>
+                <div class="flex flex-col justify-center items-center my-[3rem] tall-md:my-[6rem] tall-lg:my-[8rem] min-h-[50vh] gap-4">
+                    <h1 class="mb-12 !font-logo text-primary text-[4rem]">briqout</h1>
+                    <template v-if="maybeStore?.userWalletAddress">
+                        <div class="container m-auto relative">
+                            <p class="text-center my-6 font-medium">Choose the map to play on</p>
+                            <div class="flex justify-center gap-4 flex-wrap">
+                                <GenericCard
+                                    v-for="briqset of setsToPlayOn" :key="briqset.id"
+                                    :title="briqset.name"
+                                    status="LOADED"
+                                    :image-src="backendManager.getPreviewUrl(briqset.id)"
+                                    @click="reset(briqset.id, briqset.briqs)"
+                                    class="max-w-[20rem] cursor-pointer">
+                                    <p>{{ briqset.nb_briqs }}</p>
+                                </GenericCard>
+                            </div>
+                        </div>
+                    </template>
+                    <Btn @click="connectWallet()" v-else>Connect wallet to play with your own NFTs</Btn>
                     <Btn class="w-[14rem] h-12" secondary @click="reset()">Quick play</Btn>
-                    <Btn class="w-[14rem] h-12" secondary>How to play</Btn>
                 </div>
             </template>
-            <template v-else-if="page === 'migrate'">
-                <template v-if="maybeStore?.userWalletAddress">
-                    <div class="container m-auto relative">
-                        <Btn no-background icon class="absolute top-0 left-12" @click="page='home'"><i class="fas fa-arrow-left"/> Back</Btn>
-                        <h2 class="text-center mt-12">Asset migration</h2>
-                        <p class="text-center my-6"><Btn secondary @click="reset()">Migrate only my briqs</Btn></p>
-                        <p class="text-center my-6 font-medium">Or choose an NFT to migrate</p>
-                        <div class="flex justify-center gap-4 flex-wrap">
-                            <GenericCard
-                                v-for="briqset of setsToMigrate" :key="briqset.id"
-                                :title="briqset.name"
-                                status="LOADED"
-                                :image-src="backendManager.getPreviewUrl(briqset.id)"
-                                @click="reset(briqset.id, briqset.briqs)"
-                                class="max-w-[20rem]">
-                                <p>{{ briqset.nb_briqs }}</p>
-                            </GenericCard>
-                        </div>
-                    </div>
-                </template>
-                <Btn @click="connectWallet()" v-else>Connect wallet</Btn>
-            </template>
         </div>
-        <div v-else-if="pageStatus === 'ingame' && game.status === 'running'">
-            <p class="text-lg text-white relative top-[50px]">Lives: {{ (game.paddleWidth / 25 - 2) }}</p>
-            <p class="text-lg text-white relative top-[50px]">Time Left: {{ Math.ceil(5 * 60 - game.time) }}</p>
+        <div v-else-if="pageStatus === 'ingame' && game.status === 'running'" class="px-4 py-2">
+            <p class="text-lg text-white font-semibold relative top-[50px]">Lives: {{ (game.paddleWidth / 25 - 2) }}</p>
+            <p class="text-lg text-white font-semibold relative top-[50px]">Time Left: {{ Math.ceil(5 * 60 - game.time) }}</p>
         </div>
         <template v-else-if="pageStatus === 'ingame' && game.status === 'lost'">
             <div class="absolute w-full h-full flex flex-col gap-4 justify-center items-center">
-                <h1 class="text-xl md:text-[6rem] text-white mb-8">Figration Mailed</h1>
-                <Btn secondary class="w-[10rem]" @click="reset()">Try again</Btn>
-                <Btn secondary class="w-[10rem]" @click="page = 'home'">Main Menu</Btn>
+                <h1 class="text-xl md:text-[6rem] text-white mb-8">Fission Mailed</h1>
+                <!-- buggy for now <Btn secondary class="w-[10rem]" @click="reset()">Try again</Btn>-->
+                <Btn secondary class="w-[14rem]" @click="page = 'home'">Back to Main Menu</Btn>
             </div>
         </template>
         <template v-else-if="pageStatus === 'ingame' && game.status === 'won'">
             <div class="absolute w-full h-full flex flex-col gap-4 justify-center items-center">
                 <h1 class="text-xl md:text-[6rem] text-text mb-8">You won !</h1>
-                <Btn class="w-[10rem]">Migrate asset</Btn>
-                <Btn secondary class="w-[10rem]" @click="page = 'home'">Main Menu</Btn>
+                <Btn secondary class="w-[14rem]" @click="page = 'home'">Back to Main Menu</Btn>
             </div>
         </template>
     </Transition>
