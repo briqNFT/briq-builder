@@ -600,7 +600,7 @@ function generatePowerup(item: Powerup) {
         }
         if (item.kind === 'biggerpaddle') {
             const geometry = new THREE.BoxGeometry(40, 10, 10);
-            const obj = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: new THREE.Color(0x00ff00).convertSRGBToLinear() }));
+            const obj = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: new THREE.Color(0xdd4400).convertSRGBToLinear() }));
             obj.castShadow = true;
             obj.receiveShadow = true;
             return obj;
