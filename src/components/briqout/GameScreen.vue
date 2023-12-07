@@ -17,6 +17,9 @@ import { userSetStore } from '@/builder/UserSets';
 import { backendManager } from '@/Backend';
 import GenericCard from '../builder/genesis/GenericCard.vue';
 import type { Briq } from '@/builder/Briq';
+import { useRoute } from 'vue-router';
+import { externalSetCache } from '@/builder/ExternalSets';
+import { getCurrentNetwork } from '@/chain/Network';
 
 const game = reactive(new Game());
 
@@ -165,13 +168,35 @@ const setsToPlayOn = computed(() => {
     }).filter(x => !!x) || [];
 })
 
+
+const route = useRoute();
+
 const page = ref('home' as 'home' | 'ingame');
 const pageStatus = computed(() => {
     if (page.value === 'ingame')
         return 'ingame';
+    if (route.query.network)
+        return 'invite';
     return 'pregame';
 })
 
+const inviteSet = computed(() => {
+    if (pageStatus.value !== 'invite')
+        return undefined;
+    return externalSetCache[route.query.network as string][route.query.set_id as string]._data?.data;
+})
+
+const tweetText = computed(() => {
+    if (pageStatus.value !== 'ingame' || game.status !== 'won')
+        return '';
+    return `I broke my NFT in only ${Math.ceil(game.time)}s with @briqNFT !\nThink you can do better?\n`;
+})
+
+const shareUrl = computed(() => {
+    if (pageStatus.value !== 'ingame' || game.status !== 'won')
+        return '';
+    return `https://${window.location.hostname}${route.path}?network=${route.query.network || getCurrentNetwork()}&set_id=${route.query.set_id || game.getParams()?.setToMigrate}`;
+})
 </script>
 
 <style scoped>
@@ -220,6 +245,29 @@ const pageStatus = computed(() => {
                 </div>
             </template>
         </div>
+        <div v-else-if="pageStatus === 'invite'">
+            <Header/>
+            <div class="flex flex-col justify-center items-center my-[3rem] tall-md:my-[6rem] tall-lg:my-[8rem] min-h-[50vh] gap-4">
+                <h1 class="mb-12 !font-logo text-primary text-[4rem]">
+                    <img :src="BriqoutLogo" alt="briqout logo" class="h-[8rem]">
+                </h1>
+                <div class="container m-auto relative">
+                    <p class="text-center my-6 font-medium">You've been invited to play a specific briq set !</p>
+                    <div class="flex justify-center gap-4 flex-wrap">
+                        <GenericCard
+                            v-if="inviteSet"
+                            :title="inviteSet.name"
+                            status="LOADED"
+                            :image-src="backendManager.getPreviewUrl(inviteSet.id)"
+                            @click="reset(inviteSet.id, inviteSet.getAllBriqs())"
+                            class="max-w-[20rem] min-w-[16rem] cursor-pointer">
+                            <p>{{ inviteSet.getNbBriqs() }}</p>
+                        </GenericCard>
+                    </div>
+                </div>
+                <a href="/briqout"><Btn secondary class="w-[14rem]">Back to Main Menu</Btn></a>
+            </div>
+        </div>
         <div v-else-if="pageStatus === 'ingame' && game.status === 'running'" class="px-4 py-2">
             <p class="text-lg text-white font-semibold relative top-[50px]">Lives: {{ (game.paddleWidth / 25 - 2) }}</p>
             <p class="text-lg text-white font-semibold relative top-[50px]">Time Left: {{ Math.ceil(5 * 60 - game.time) }}</p>
@@ -233,8 +281,16 @@ const pageStatus = computed(() => {
         </template>
         <template v-else-if="pageStatus === 'ingame' && game.status === 'won'">
             <div class="absolute w-full h-full flex flex-col gap-4 justify-center items-center">
-                <h1 class="text-xl md:text-[6rem] text-text mb-8">You won !</h1>
-                <Btn secondary class="w-[14rem]" @click="page = 'home'">Back to Main Menu</Btn>
+                <h1 class="text-xl md:text-[6rem] text-text mb-8">You won in {{ Math.ceil(game.time) }}s !</h1>
+                <template v-if="(game.getParams()?.setToMigrate || '0x0') !== '0x0'">
+                    <h3>Challenge others to do better</h3>
+                    <a
+                        target="_blank"
+                        :href="`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`">
+                        <Btn v-bind="$attrs" icon class="text-sm justify-start font-normal"><i class="fa-brands fa-twitter text-md mr-2"/> Share on Twitter</Btn>
+                    </a>
+                </template>
+                <Btn secondary class="w-[14rem] mt-8" @click="page = 'home'">Back to Main Menu</Btn>
             </div>
         </template>
     </Transition>

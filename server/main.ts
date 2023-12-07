@@ -20,16 +20,6 @@ const config = {
 
 const __dirname = path.resolve();
 
-// TODO: reduce duplication with frontend.
-function getApiUrl(hostname: string | undefined) {
-    if (!hostname || hostname.indexOf('localhost') !== -1)
-        return 'localhost:5055';
-    if (hostname.indexOf('test') !== -1)
-        return 'api.test.sltech.company';
-    if (hostname.indexOf('sltech.company') !== -1 || hostname.indexOf('briq.construction') !== -1)
-        return 'api.briq.construction';
-}
-
 async function runServer() {
     const app = connect();
     let vite: undefined | ViteDevServer;
@@ -126,6 +116,66 @@ async function runServer() {
                     // Ignore error -> probably just a bad ID, will be handled by frontend.
                     // console.error(_);
                 }
+            } if (req.url?.indexOf('/briqout?') !== -1) {
+                const url_parts = url.parse(req.url!, true);
+                if (url_parts.query.network === 'starknet-mainnet-dojo' && url_parts.query.set_id) {
+                    let data: any;
+                    try {
+                        // Fetch information from the API.
+                        const apiUrl = APP_ENV === 'prod' ? 'briq-api' : 'dev-briq-api';
+                        data = await new Promise((resolve, reject) => {
+                            try {
+                                const query = http.request(
+                                    `http://${apiUrl}/v1/metadata/${url_parts.query.network}/${url_parts.query.set_id}.json`,
+                                    {
+                                        port: 80,
+                                        method: 'GET',
+                                        // Low timeout, we don't want to be too reliant on the API
+                                        timeout: 1000,
+                                    },
+                                    (resp) => {
+                                        let data = '';
+                                        resp.on('data', (chunk) => {
+                                            data += chunk;
+                                        });
+                                        resp.on('end', () => {
+                                            try {
+                                                resolve(JSON.parse(data));
+                                            } catch (err) {
+                                                reject(err);
+                                            }
+                                        });
+                                        resp.on('error', (err) => {
+                                            reject(err);
+                                        });
+                                    },
+                                );
+                                query.end();
+                                query.on('error', (err) => {
+                                    reject(err);
+                                });
+                            } catch (err) {
+                                reject(err);
+                            }
+                        });
+                        const meta_start = processedTemplate.indexOf('<!--<meta-replace-start>-->');
+                        const meta_end = processedTemplate.indexOf('<!--<meta-replace-end>-->');
+                        processedTemplate =
+                            processedTemplate.slice(0, meta_start) +
+                            [
+                                '<meta property="og:title" content="' + (data.name || data.id) + '">',
+                                '<meta property="og:type" content="article" />',
+                                '<meta property="og:description" content="Built with briqs">',
+                                `<meta property="og:image" content="https://api.briq.construction/v1/preview/${url_parts.query.network}/${url_parts.query.set_id}.png">`,
+                                '<meta property="og:url" content="https://' + req.headers.host + req.url + '">',
+                                '<meta name="twitter:card" content="summary_large_image">',
+                            ].join('\n') +
+                            processedTemplate.slice(meta_end);
+                    } catch (_) {
+                        // Ignore error -> probably just a bad ID, will be handled by frontend.
+                        // console.error(_);
+                    }
+                }
             } else if (req.url?.indexOf('/starknet_planet') !== -1)
                 try {
                     const meta_start = processedTemplate.indexOf('<!--<meta-replace-start>-->');
@@ -136,7 +186,7 @@ async function runServer() {
                             '<meta property="og:title" content="Starknet Planet - made with briq">',
                             '<meta property="og:type" content="article" />',
                             '<meta property="og:description" content="“A few briqs for a man, a giant leap for NFTs”. Get ready to build your first NFT collection, briq by briq.">',
-                            '<meta property="og:image" content="https://api.briq.construction/v1/starknet-mainnet/starknet_planet/high/splash.jpg">',
+                            '<meta property="og:image" content="https://api.briq.construction/v1/starknet-mainnet-dojo/starknet_planet/high/splash.jpg">',
                             '<meta property="og:url" content="https://briq.construction/product/starknet_planet">',
                             '<meta name="twitter:card" content="summary_large_image">',
                         ].join('\n') +
@@ -155,8 +205,27 @@ async function runServer() {
                             '<meta property="og:title" content="Ducks Everywhere - made with briq">',
                             '<meta property="og:type" content="article" />',
                             '<meta property="og:description" content="“Quack quack” - heard on Starknet, 2023">',
-                            '<meta property="og:image" content="https://api.briq.construction/v1/starknet-mainnet/ducks_everywhere/high/splash.jpg">',
+                            '<meta property="og:image" content="https://api.briq.construction/v1/starknet-mainnet-dojo/ducks_everywhere/high/splash.jpg">',
                             '<meta property="og:url" content="https://briq.construction/product/ducks_everywhere">',
+                            '<meta name="twitter:card" content="summary_large_image">',
+                        ].join('\n') +
+                        processedTemplate.slice(meta_end);
+                } catch (_) {
+                    // Ignore error -> probably just a bad ID, will be handled by frontend.
+                    // console.error(_);
+                }
+            else if (req.url?.indexOf('/product/ducks_frens') !== -1)
+                try {
+                    const meta_start = processedTemplate.indexOf('<!--<meta-replace-start>-->');
+                    const meta_end = processedTemplate.indexOf('<!--<meta-replace-end>-->');
+                    processedTemplate =
+                        processedTemplate.slice(0, meta_start) +
+                        [
+                            '<meta property="og:title" content="Ducks Frens - made with briq">',
+                            '<meta property="og:type" content="article" />',
+                            '<meta property="og:description" content="“Quack quack” - heard on Starknet, 2023">',
+                            '<meta property="og:image" content="https://api.briq.construction/v1/starknet-mainnet-dojo/ducks_frens/high/splash.jpg">',
+                            '<meta property="og:url" content="https://briq.construction/product/ducks_frens">',
                             '<meta name="twitter:card" content="summary_large_image">',
                         ].join('\n') +
                         processedTemplate.slice(meta_end);

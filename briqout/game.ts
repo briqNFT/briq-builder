@@ -433,6 +433,10 @@ export class Game {
         this.status = 'running';
     }
 
+    getParams() {
+        return this.gameTrace?.[0];
+    }
+
     exportTrace() {
         const data = this.gameTrace.slice();
         // Sort by time, then ID for stability
