@@ -19,6 +19,7 @@ import RecipientMappingModal from './RecipientMappingModal.vue';
 import { getCalls } from './migrate';
 import { getBookletAddress } from '@/chain/Collections';
 import { hexUuid } from '@/Uuid';
+import ProgressModal from './ProgressModal.vue';
 
 class SetToMint {
     filename: string;
@@ -135,19 +136,30 @@ const storeObjects = () => {
         });
 }
 
-const storeExistingObjects = async () => {
+const generateGLBs = async () => {
+    const steps = reactive([]);
     for (const item in existingItems.value?.[collection.value] || {}) {
         if (!(item in bookletDataStore[getCurrentNetwork()]))
             continue;
         const data = await bookletDataStore[getCurrentNetwork()][item]._fetch!;
         if (!data)
             continue;
-        adminBackendManager.post(`v1/admin/store_theme_object/${getCurrentNetwork()}/${item}`, {
-            data: data,
-            preview_base64: '',
-            booklet_base64: '',
+        const step = reactive(new Fetchable());
+        step.fetch(async () => {
+            return await adminBackendManager.post(`v1/admin/update_glbs/${getCurrentNetwork()}/${item}`, {
+                data: data,
+                preview_base64: '',
+                booklet_base64: '',
+            });
+        });
+        steps.push({
+            name: item,
+            task: step,
         });
     }
+    await pushModal(ProgressModal, {
+        steps,
+    });
 }
 
 const loadAll = async () => {
@@ -388,7 +400,7 @@ const mintStuff = async () => {
             <hr class="my-6">
             <h4>Existing items in this collection:</h4>
             <Btn @click="loadAll">Load all</Btn>
-            <Btn @click="storeExistingObjects">Regenerate data</Btn>
+            <Btn @click="generateGLBs">Generate GLB data</Btn>
             <Btn @click="deployShapeContracts">Deploy missing shape contract(s)</Btn>
             <Btn :disabled="true" @click="mintBoxes">Mint Boxes</Btn>
             <Btn @click="mintSets">Mint Sets</Btn>
