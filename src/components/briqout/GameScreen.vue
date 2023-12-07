@@ -291,7 +291,7 @@ const shareUrl = computed(() => {
                     </a>
                     <template v-if="userSetStore.current?.setData?.[game.getParams()!.setToMigrate]">
                         <h4 class="mt-8 !mb-0">Roleplay</h4>
-                        <Btn secondary @click="userSetStore.current!.disassemble(game.getParams()!.setToMigrate);">Disassemble the set</Btn>
+                        <Btn secondary @click="userSetStore.current!.disassemble([game.getParams()!.setToMigrate]);">Disassemble the set</Btn>
                     </template>
                 </template>
                 <Btn secondary class="w-[14rem] mt-16" @click="page = 'home'">Back to Main Menu</Btn>
