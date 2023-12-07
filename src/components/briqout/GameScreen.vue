@@ -197,6 +197,11 @@ const shareUrl = computed(() => {
         return '';
     return `https://${window.location.hostname}${route.path}?network=${route.query.network || getCurrentNetwork()}&set_id=${route.query.set_id || game.getParams()?.setToMigrate}`;
 })
+
+const copyShareLink = () => {
+    navigator.clipboard.writeText(shareUrl.value);
+}
+
 </script>
 
 <style scoped>
@@ -283,12 +288,15 @@ const shareUrl = computed(() => {
             <div class="absolute w-full h-full flex flex-col gap-2 justify-center items-center">
                 <h1 class="text-xl md:text-[6rem] text-text mb-8">You won in {{ Math.ceil(game.time) }}s !</h1>
                 <template v-if="(game.getParams()?.setToMigrate || '0x0') !== '0x0'">
-                    <h3 class="mt-4">Challenge others to do better</h3>
-                    <a
-                        target="_blank"
-                        :href="`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`">
-                        <Btn v-bind="$attrs" icon class="text-sm justify-start font-normal"><i class="fa-brands fa-twitter text-md mr-2"/> Share on Twitter</Btn>
-                    </a>
+                    <div class="mt-4 flex flex-col justify-center items-center gap-2">
+                        <h3>Challenge others to do better</h3>
+                        <p class="text-sm">{{ shareUrl }} <Btn no-background class="text-sm h-6 w-6" @click="copyShareLink"><i class="far fa-copy"/></Btn></p>
+                        <a
+                            target="_blank"
+                            :href="`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`">
+                            <Btn v-bind="$attrs" icon class="text-sm justify-start font-normal"><i class="fa-brands fa-twitter text-md mr-2"/> Share on Twitter</Btn>
+                        </a>
+                    </div>
                     <template v-if="userSetStore.current?.setData?.[game.getParams()!.setToMigrate]">
                         <h4 class="mt-8 !mb-0">Roleplay</h4>
                         <Btn secondary @click="userSetStore.current!.disassemble([game.getParams()!.setToMigrate]);">Disassemble the set</Btn>
