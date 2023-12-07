@@ -189,7 +189,7 @@ const inviteSet = computed(() => {
 const tweetText = computed(() => {
     if (pageStatus.value !== 'ingame' || game.status !== 'won')
         return '';
-    return `I broke my @briqNFT set in only ${Math.ceil(game.time)} playing briqout!\nThink you can do better?\n`;
+    return `I broke my @briqNFT set in only ${Math.ceil(game.time)}s playing briqout!\nThink you can do better?\n`;
 })
 
 const shareUrl = computed(() => {
