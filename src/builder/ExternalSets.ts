@@ -15,6 +15,7 @@ export interface ExternalSetData {
     booklet_id?: string,
     properties?: Record<string, any>,
     background_color?: string,
+    disassembled?: boolean,
 }
 
 
@@ -29,6 +30,7 @@ export const externalSetCache = defaultDict((network: string) => defaultDict((se
             properties: data.properties,
             booklet_id: data.booklet_id,
             background_color: data?.background_color,
+            disassembled: data?.disassembled || false,
         }
     });
     return setF;

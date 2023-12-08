@@ -94,7 +94,8 @@ const collection_name = computed(() => {
 
 const setKind = computed(() => collection_name.value ? 'OFFICIAL' : 'PERSONAL');
 
-const isOwned = computed(() => !!userSetStore.current?.setData[route.params.set_id as string]);
+const isDisassembled = computed(() => userSetStore.current?.setData[route.params.set_id as string]?.disassembled || externalSetData.value?.disassembled);
+const isOwned = computed(() => !!userSetStore.current?.setData[route.params.set_id as string] && !isDisassembled.value);
 
 const needsMigrating = computed(() => !!userLegacySetStore.current?.setData[route.params.set_id as string]);
 
@@ -404,8 +405,9 @@ const view = ref((mode === 'BOOKLET' ? 'BOOKLET' : 'PREVIEW') as 'PREVIEW' | '3D
                             </p>
                         </div>
                         <div class="flex justify-between items-stretch gap-2">
-                            <RouterLink v-if="set?.id" :to="`/briqmas_next_day?token=${set.id}`"><Btn v-if="isOwned && booklet_id === 'briqmas/briqmas_tree'" class="!h-full text-md px-6 py-0">View in<br>living room</Btn></RouterLink>
-                            <Btn v-if="isOwned" :disabled="false && hasPendingActivity" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
+                            <RouterLink v-if="set?.id && isOwned && booklet_id === 'briqmas/briqmas_tree'" :to="`/briqmas_next_day?token=${set.id}`"><Btn class="!h-full text-md px-6 py-0">View in<br>living room</Btn></RouterLink>
+                            <div v-if="isDisassembled" class="h-full flex items-center justify-center"><p class="text-sm text-center text-grad-dark px-6">This set has<br>been disassembled</p></div>
+                            <Btn v-else-if="isOwned" :disabled="false && hasPendingActivity" secondary @click="doDisassembly" class="!h-auto text-md px-6">Disassemble</Btn>
                             <Btn v-else-if="needsMigrating" :disabled="false && hasPendingActivity" @click="doMigrate" class="!h-auto text-md px-6">Migrate</Btn>
                         </div>
                     </div>

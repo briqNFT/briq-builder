@@ -151,6 +151,7 @@ class UserSetStore extends GeneralizedUserItem {
                         created_at: data.created_at * 1000, // JS timestamps are milliseconds
                         properties: data.properties,
                         background_color: data.background_color,
+                        disassembled: data?.disassembled || false,
                     }
                 } catch(_) {
                     if (APP_ENV === 'dev')
@@ -298,6 +299,7 @@ class UserSetStore extends GeneralizedUserItem {
             for (const mat in this.setData[token_id].data!.usedByMaterial)
                 chainBriqs.value?.show(mat, this.setData[token_id].data!.usedByMaterial[mat], TX.transaction_hash);
 
+            this.setData[token_id].disassembled = true;
             this.hideOne(token_id, TX.transaction_hash);
         }
         return TX;
