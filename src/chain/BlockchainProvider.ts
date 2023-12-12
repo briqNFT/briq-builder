@@ -4,14 +4,14 @@
 import { logDebug } from '@/Messages';
 import { ref, watchEffect } from 'vue';
 
-import { Provider } from 'starknet';
+import { RpcProvider } from 'starknet';
 import { getBaseUrl } from '@/url';
 
 import { CHAIN_NETWORKS, getCurrentNetwork } from './Network';
 import { TEST_ENV, DEV, APP_ENV } from '@/Meta';
 
 class BlockchainProvider {
-    provider: Provider | undefined;
+    provider: RpcProvider | undefined;
 
     alive = true;
 
@@ -52,13 +52,13 @@ class BlockchainProvider {
     }
 }
 
-export function getProviderForNetwork(network: CHAIN_NETWORKS): Provider {
+export function getProviderForNetwork(network: CHAIN_NETWORKS): RpcProvider {
     return {
-        'localhost': new Provider({ sequencer: { baseUrl: 'http://localhost:5050/' } }),
-        'starknet-testnet': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet/rpc`, retries: 2 } }),
-        'starknet-testnet-dojo': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet-dojo/rpc`, retries: 2 } }),
-        'starknet-mainnet': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-mainnet/rpc`, retries: 3 } }),
-        'starknet-mainnet-dojo': new Provider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-mainnet-dojo/rpc`, retries: 3 } }),
+        'localhost': new RpcProvider({ sequencer: { baseUrl: 'http://localhost:5050/' } }),
+        'starknet-testnet': new RpcProvider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet/rpc`, retries: 2 } }),
+        'starknet-testnet-dojo': new RpcProvider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-testnet-dojo/rpc`, retries: 2 } }),
+        'starknet-mainnet': new RpcProvider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-mainnet/rpc`, retries: 3 } }),
+        'starknet-mainnet-dojo': new RpcProvider({ rpc: { nodeUrl: `${getBaseUrl()}/v1/node/starknet-mainnet-dojo/rpc`, retries: 3 } }),
     }[network];
 }
 

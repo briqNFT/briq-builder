@@ -137,7 +137,8 @@ export class WalletStore {
         const chainId = this.signer?.chainId;
         const obj = {
             isConnected: true,
-            account: new starknet.Account(getProviderForNetwork('starknet-mainnet'), address, new starknet.Signer(null)),
+            account: new starknet.Account(getProviderForNetwork('starknet-mainnet-dojo'), address, ''),
+            chainId: 'SN_MAIN',
             enable: () => Promise.resolve(),
             on: () => {},
         } as unknown as StarknetWindowObject;
