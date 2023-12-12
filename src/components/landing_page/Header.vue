@@ -79,6 +79,9 @@ onMounted(() => {
                 <routerLink class="hidden sm:block" to="/get_briqs">
                     <p class="hover:text-primary text-sm md:text-md font-medium brea">Get&nbsp;briqs</p>
                 </routerLink>
+                <routerLink class="hidden sm:block" to="/games">
+                    <p class="hover:text-primary text-sm md:text-md font-medium brea">Games</p>
+                </routerLink>
                 <div v-if="APP_ENV === 'dev'" class="hidden lg:block text-info-info font-semibold px-2 py-1">DEV ENV - FOR TESTING ONLY</div>
                 <div v-else-if="APP_ENV !== 'prod'" class="hidden lg:block text-primary font-semibold px-2 py-1">STAGING ENV - FOR TESTING ONLY</div>
             </div>

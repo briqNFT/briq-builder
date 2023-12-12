@@ -55,11 +55,13 @@ const { themeSplashSrc } = useThemeURLs();
                     <h4 class="text-md text-white absolute bottom-3 left-4">{{ genesisStore.themedata[theme]._data?.name }}</h4>
                 </div>
             </RouterLink>
+            <!--
             <div class="h-[16rem] flex flex-col justify-center items-center gap-2 bg-grad-lightest border border-grad-light rounded-lg">
                 <p class="text-primary">New themes</p>
                 <h3>COMING SOON</h3>
                 <briqIcon width="1.25rem"/>
             </div>
+            -->
         </div>
     </div>
     <Footer/>

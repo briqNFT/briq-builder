@@ -100,6 +100,14 @@ export const routes = [
         },
     },
     {
+        path: '/games',
+        name: 'Games',
+        component: async () => {
+            await loadExtraPages();
+            return loader.GamesListing;
+        },
+    },
+    {
         path: '/themes',
         name: 'ThemesListing',
         component: async () => {

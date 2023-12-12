@@ -21,6 +21,7 @@ import BoxPageVue_ from './components/builder/genesis/BoxPage.vue';
 import SetPageVue_ from './components/builder/genesis/SetPage.vue';
 import Collections_ from '@/components/collections/ManageCollection.vue';
 import BuyBriqsVue from '@/components/BuyBriqs.vue';
+import GamesListingVue from './components/GamesListing.vue';
 
 import { userPurchaseStore } from '@/builder/UserPurchase';
 
@@ -40,5 +41,6 @@ export const BoxPageVue = BoxPageVue_;
 export const SetPageVue = SetPageVue_;
 export const Collections = Collections_;
 export const BuyBriqs = BuyBriqsVue;
+export const GamesListing = GamesListingVue;
 
 userPurchaseStore.setup();
