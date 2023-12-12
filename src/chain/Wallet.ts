@@ -153,11 +153,11 @@ export class WalletStore {
             this.signer = markRaw(this.starknetObject.account);
             this._userWalletAddress = this.starknetObject.account.address;
             this._starknetIdDomain = '';
+            this.setProviderFromSigner();
             fetch('https://app.starknet.id/api/indexer/addr_to_domain?addr=' + BigInt(this._userWalletAddress).toString()).then(r => r.json()).then(r => {
                 if (r.domain)
                     this._starknetIdDomain = r.domain;
-            });
-            this.setProviderFromSigner();
+            }).catch(_ => {});
         }
     }
 
