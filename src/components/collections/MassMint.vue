@@ -20,18 +20,21 @@ import { getCalls } from './migrate';
 import { getBookletAddress } from '@/chain/Collections';
 import { hexUuid } from '@/Uuid';
 import ProgressModal from './ProgressModal.vue';
+import { authStore, checkAuth } from '@/Auth';
 
 class SetToMint {
     filename: string;
     data: SetData;
     preview_b64: string | null;
     booklet_b64: string | null;
+    attribute_id: string | null;
 
     constructor(f: string, data: SetData) {
         this.filename = f;
         this.data = data;
         this.preview_b64 = null;
         this.booklet_b64 = null;
+        this.attribute_id = null;
     }
 }
 
@@ -44,6 +47,7 @@ const collectionData = {
     'briqmas': '0x2',
     'ducks_everywhere': '0x3',
     'ducks_frens': '0x4',
+    'lil_ducks': '0x5',
 } as const;
 const assemblyGroupId = computed(() => (collectionData[collection.value] ?? null));
 
@@ -58,7 +62,7 @@ const loadedItems = (collection: string) => {
 watchEffect(async () => {
     if (collection.value === '')
         return;
-    if (!existingItems[collection.value]) {
+    if (!existingItems.value[collection.value]) {
         const data = await backendManager.fetch(`v1/${getCurrentNetwork()}/${collection.value}/object_ids`);
         existingItems.value[collection.value] = data;
     }
@@ -89,7 +93,13 @@ const importJsons = async () => {
             // TODO -> add token ID here
             set.id = contractStore.set!.precomputeTokenId(walletStore.userWalletAddress, set.id, set.getNbBriqs(), null);
             const ftch = new Fetchable<SetToMint>();
-            ftch.fetch(async () => new SetToMint(jsondata.name.replace('.json', ''), set));
+            await ftch.fetch(async () => {
+                const ret = new SetToMint(jsondata.name.replace('.json', ''), set);
+                ret.attribute_id = existingItems.value?.[collection.value]?.[`${collection.value}/${ret.data.name}`] || 0;
+                ret.attribute_id = (BigInt(ret.attribute_id) & BigInt('0xffffffffffffffff')).toString(10);
+                return ret;
+            });
+            console.log(ftch._error)
             setsToMint.value.push(ftch);
         } catch(err) {
             pushPopup('error', 'Error loading file', `Error while parsing set ${jsondata.name}\n${err?.message}`);
@@ -127,7 +137,16 @@ const importPreviews = async (to: 'preview_b64' | 'booklet_b64') => {
         }
 }
 
-const storeObjects = () => {
+const storeObjects = async () => {
+    const bookletSpec = {};
+    for (const set of setsToMint.value) {
+        const val = BigInt(+set._data!.attribute_id) + BigInt(assemblyGroupId.value!) * BigInt('0x10000000000000000');
+        bookletSpec[`${collection.value}/${set._data!.data.name}`] = '0x' + val.toString(16);
+    }
+
+    await adminBackendManager.post(`v1/admin/update_booklet_spec/${getCurrentNetwork()}/${collection.value}`, {
+        booklet_spec: bookletSpec,
+    });
     for (const set of setsToMint.value)
         adminBackendManager.post(`v1/admin/store_theme_object/${getCurrentNetwork()}/${collection.value}/${set._data?.data.name}`, {
             data: set._data?.data.serialize(),
@@ -206,10 +225,8 @@ const deployShapeContracts = async () => {
 const start_auth = async () => {
     const message_to_sign = await adminBackendManager.fetch(`v1/auth/start/${getCurrentNetwork()}/${walletStore.userWalletAddress}`)
     const signature = await (walletStore.signer as Account).signMessage(message_to_sign.challenge);
-    const res = await adminBackendManager.post('v1/auth/finish', { signature });
-}
-
-const setup_collections = async () => {
+    await adminBackendManager.post('v1/auth/finish', { signature });
+    checkAuth();
 }
 
 const mintBoxes = async () => {
@@ -289,6 +306,7 @@ watchEffect(() => {
 })
 
 onMounted(() => {
+    checkAuth();
     try {
         const calls = window.localStorage.getItem('migration_calls');
         if (calls && calls.length)
@@ -355,35 +373,44 @@ const mintStuff = async () => {
     <Header/>
     <div class="m-auto container">
         <h1 class="text-center my-4">Mass mint</h1>
-        <Btn @click="start_auth">Connect</Btn>
-        <Btn @click="setup_collections">Setup</Btn>
+        <Btn v-if="!authStore.authenticated" @click="start_auth">Connect</Btn>
+        <div v-if="authStore.authenticated" class="my-4">
+            <p>You are currently authenticated as admin</p>
+            <Btn secondary @click="authStore.authenticated = false">Disconnect</Btn>
+        </div>
         <div>
-            <h3>Data storage</h3>
-            <p>Network: {{ getCurrentNetwork() }}</p>
-            <Btn @click="importJsons">Import JSON files</Btn>
-            <Btn @click="importPreviews('preview_b64')">Import Preview files</Btn>
-            <Btn @click="importPreviews('booklet_b64')">Import Booklet files</Btn>
+            <p>Network: {{ getCurrentNetwork() }} (adjust by changing wallet)</p>
             <p>
                 Collection: <select v-model="collection">
                     <option value="">None</option>
                     <option v-for="key, val in collectionData" :key="key" :value="val">{{ val }}</option>
                 </select>
             </p>
-            <table>
-                <tr><th>file</th><th>Name</th><th>ID</th><th>NB briqs</th><th>Preview</th><th>Booklet ID</th><th>Booklet</th><th>AGID</th><th>AID</th></tr>
-                <tr v-for="setToMint, i in setsToMint" :key="i">
-                    <td>{{ setToMint._data?.filename }}</td>
-                    <td>{{ setToMint._data?.data.name }}</td>
-                    <td>{{ setToMint._data?.data.id }}</td>
-                    <td>{{ setToMint._data?.data.getNbBriqs() }}</td>
-                    <td><img class="w-16" v-if="setToMint._data?.preview_b64" :src="setToMint._data?.preview_b64"></td>
-                    <td>{{ collection ? `${collection}/${setToMint._data?.data.name}`: 'N/A' }}</td>
-                    <td><img class="w-16" v-if="collection && setToMint._data?.booklet_b64" :src="setToMint._data?.booklet_b64"></td>
-                    <td>{{ assemblyGroupId }}</td>
-                    <td/>
-                </tr>
-            </table>
-            <Btn @click="storeObjects">Store object metadata</Btn>
+            <div>
+                <Btn :disabled="!collection" @click="addNewItems">Add new items</Btn>
+                <p>
+                    <Btn :disabled="!collection" @click="importJsons">Import JSON files</Btn>
+                    <Btn :disabled="!collection" @click="importPreviews('preview_b64')">Import Preview files</Btn>
+                    <Btn :disabled="!collection" @click="importPreviews('booklet_b64')">Import Booklet files</Btn>
+                </p>
+                <p>
+                    <Btn :disabled="!collection" @click="storeObjects">Store new items</Btn>
+                </p>
+                <table>
+                    <tr><th>serial number</th><th>file</th><th>Name</th><th>ID</th><th>NB briqs</th><th>Preview</th><th>Booklet ID</th><th>Booklet</th><th>AGID</th></tr>
+                    <tr v-for="setToMint, i in setsToMint" :key="i">
+                        <td><input v-if="setToMint._data" type="text" size="3" v-model="setToMint._data!.attribute_id"></td>
+                        <td>{{ setToMint._data?.filename }}</td>
+                        <td>{{ setToMint._data?.data.name }}</td>
+                        <td class="text-xs">{{ setToMint._data?.data.id }}</td>
+                        <td>{{ setToMint._data?.data.getNbBriqs() }}</td>
+                        <td><img class="w-16" v-if="setToMint._data?.preview_b64" :src="setToMint._data?.preview_b64"></td>
+                        <td>{{ collection ? `${collection}/${setToMint._data?.data.name}`: 'N/A' }}</td>
+                        <td><img class="w-16" v-if="collection && setToMint._data?.booklet_b64" :src="setToMint._data?.booklet_b64"></td>
+                        <td>{{ assemblyGroupId }}</td>
+                    </tr>
+                </table>
+            </div>
             <p>
                 Trucs à rajouter:
                 - Mode "select" ou je peux up-down et voir que la data est bonne ou pas rapidement.
