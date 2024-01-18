@@ -16,6 +16,7 @@ import { bookletDataStore } from '@/builder/BookletData';
 import { pushModal } from '../Modals.vue';
 import TextModal from '../generic/TextModal.vue';
 import RecipientMappingModal from './RecipientMappingModal.vue';
+import TraitModal from './TraitModal.vue';
 import { getCalls } from './migrate';
 import { getBookletAddress } from '@/chain/Collections';
 import { hexUuid } from '@/Uuid';
@@ -147,12 +148,46 @@ const storeObjects = async () => {
     await adminBackendManager.post(`v1/admin/update_booklet_spec/${getCurrentNetwork()}/${collection.value}`, {
         booklet_spec: bookletSpec,
     });
-    for (const set of setsToMint.value)
-        adminBackendManager.post(`v1/admin/store_theme_object/${getCurrentNetwork()}/${collection.value}/${set._data?.data.name}`, {
-            data: set._data?.data.serialize(),
-            preview_base64: set._data?.preview_b64,
-            booklet_base64: set._data?.booklet_b64,
+    const steps = reactive([] as unknown[]);
+    for (const set of setsToMint.value) {
+        const step = reactive(new Fetchable());
+        step.fetch(async () => {
+            return await adminBackendManager.post(`v1/admin/store_theme_object/${getCurrentNetwork()}/${collection.value}/${set._data!.data.name}`, {
+                data: set._data?.data.serialize(),
+                preview_base64: set._data?.preview_b64,
+                booklet_base64: set._data?.booklet_b64,
+            });
         });
+        steps.push({
+            name: set._data!.data.name,
+            task: step,
+        });
+    }
+    await pushModal(ProgressModal, {
+        steps,
+    });
+}
+
+const updateTraits = async () => {
+    const mapping = await pushModal(TraitModal) as Record<string, Record<string, string>>;
+    if (!mapping)
+        return;
+    // add collection name to all items
+    const newMapping = {} as Record<string, Record<string, string>>;
+    for (const item in mapping)
+        newMapping[`${collection.value}/${item}`] = mapping[item];
+    // Ensure we have a perfect mapping with known items
+    const knownItems = Object.keys(existingItems.value?.[collection.value] || {});
+    const knownTraits = Object.keys(newMapping).filter(x => knownItems.includes(x));
+    if (knownTraits.length !== knownItems.length) {
+        // print out difference
+        const unknownItems = Object.keys(newMapping).filter(x => !knownItems.includes(x));
+        pushPopup('error', 'Error', `You must provide a mapping for all known items. Missing: ${unknownItems.join(', ')}`);
+        return;
+    }
+    return await adminBackendManager.post(`v1/admin/update_traits/${getCurrentNetwork()}/${collection.value}`, {
+        data: mapping,
+    });
 }
 
 const generateGLBs = async () => {
@@ -387,7 +422,6 @@ const mintStuff = async () => {
                 </select>
             </p>
             <div>
-                <Btn :disabled="!collection" @click="addNewItems">Add new items</Btn>
                 <p>
                     <Btn :disabled="!collection" @click="importJsons">Import JSON files</Btn>
                     <Btn :disabled="!collection" @click="importPreviews('preview_b64')">Import Preview files</Btn>
@@ -427,6 +461,7 @@ const mintStuff = async () => {
             <hr class="my-6">
             <h4>Existing items in this collection:</h4>
             <Btn @click="loadAll">Load all</Btn>
+            <Btn @click="updateTraits">Update Traits</Btn>
             <Btn @click="generateGLBs">Generate GLB data</Btn>
             <Btn @click="deployShapeContracts">Deploy missing shape contract(s)</Btn>
             <Btn :disabled="true" @click="mintBoxes">Mint Boxes</Btn>
