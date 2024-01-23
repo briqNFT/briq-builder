@@ -80,7 +80,7 @@ export class SetData {
         this.name = data.name;
         this.description = data?.description || '';
         this.regionSize = data.regionSize || REGION_SIZE;
-        const version = data.version;
+        const version = +data.version;
         for (const briq of data.briqs) {
             const cell = new Briq();
             if (version === SET_DATA_VERSION)
