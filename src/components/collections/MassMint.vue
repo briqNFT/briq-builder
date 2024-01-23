@@ -396,7 +396,7 @@ const storeOneObject = async () => {
             });
         },
         () => deployShapeContracts({
-            [setsToMint.value[0]._data!.attribute_id!]: setsToMint.value[0]._data!.data.serialize().briqs,
+            ['0x' + (+setsToMint.value[0]._data!.attribute_id!).toString(16)]: setsToMint.value[0]._data!.data.serialize().briqs,
         }),
         async () => {}, // for popping errors
     ]
