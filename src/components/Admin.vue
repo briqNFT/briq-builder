@@ -29,6 +29,13 @@ const setupWorld = async () => {
         { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x3', 1, addr.booklet_ducks, addr.set_nft_ducks] },
         { contractAddress: addr.attribute_groups, entrypoint: 'create_attribute_group', calldata: [addr.world, '0x4', 1, addr.booklet_ducks_frens, addr.set_nft_1155_ducks_frens] },
 
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: [shortString.encodeShortString('ShapeValidator'), addr.register_shape_validator] },
+        { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: [shortString.encodeShortString('ShapeValidatorAdmin'), addr.register_shape_validator] },
+
+    // Allow OutSmth to handle duck collections
+        { contractAddress: addr.register_shape_validator, entrypoint: 'set_admin', calldata: [addr.world, '0x3', '0x02ef9325a17d3ef302369fd049474bc30bfeb60f59cca149daa0a0b7bcc278f8', 1] },
+        { contractAddress: addr.register_shape_validator, entrypoint: 'set_admin', calldata: [addr.world, '0x4', '0x02ef9325a17d3ef302369fd049474bc30bfeb60f59cca149daa0a0b7bcc278f8', 1] },
+
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['BriqFactoryStore', addr.briq_factory] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.briq_token] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.box_nft_sp] },
@@ -161,7 +168,7 @@ h2 {
 import contractStore, { ADDRESSES } from '@/chain/Contracts';
 import { messagesStore, pushMessage } from '../Messages';
 import type { AccountInterface, Provider, Signer } from 'starknet';
-import { hash as snHash } from 'starknet';
+import { shortString, hash as snHash } from 'starknet';
 
 import { walletStore } from '@/chain/Wallet';
 
