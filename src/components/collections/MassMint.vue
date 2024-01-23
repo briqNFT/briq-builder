@@ -373,7 +373,7 @@ const storeOneObject = async () => {
         async () => {
             const traits = await pushModal(RecipientMappingModal, {
                 initialMapping: {
-                    serial_number: '' + Object.keys(existingItems.value?.[collection.value] ?? {}).length,
+                    serial_number: '' + (Object.keys(existingItems.value?.[collection.value] ?? {}).length + 1),
                     Family: family,
                     Season: season,
                 },
