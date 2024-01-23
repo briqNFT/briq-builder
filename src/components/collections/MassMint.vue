@@ -22,6 +22,7 @@ import { getBookletAddress } from '@/chain/Collections';
 import { hexUuid } from '@/Uuid';
 import ProgressModal from './ProgressModal.vue';
 import { authStore, checkAuth } from '@/Auth';
+import { getProvider } from '@/chain/BlockchainProvider';
 
 class SetToMint {
     filename: string;
@@ -87,6 +88,7 @@ const importFiles = async () => {
 const importJsons = async () => {
     let jsons = await importFiles();
     setsToMint.value = [];
+    let errors = [];
     for (let jsondata of jsons)
         try {
             let contents = JSON.parse(await jsondata.text());
@@ -105,11 +107,15 @@ const importJsons = async () => {
         } catch(err) {
             pushPopup('error', 'Error loading file', `Error while parsing set ${jsondata.name}\n${err?.message}`);
             console.error(err);
+            errors.push(`Error while parsing set ${jsondata.name}\n${err?.message}`);
         }
+    if (errors.length)
+        throw new Error(errors.join('\n'));
 }
 
 const importPreviews = async (to: 'preview_b64' | 'booklet_b64') => {
     let previews = await importFiles();
+    let errors = [];
     for (let preview of previews)
         try {
             let contents = await preview.arrayBuffer();
@@ -124,6 +130,7 @@ const importPreviews = async (to: 'preview_b64' | 'booklet_b64') => {
             });
             if (!set) {
                 pushPopup('error', 'Error loading file', `Preview ${preview.name} has no corresponding set`);
+                errors.push(`Error loading file, Preview ${preview.name} has no corresponding set`);
                 continue;
             }
             const blob = new Blob([contents], { type: 'image/png' });
@@ -135,7 +142,10 @@ const importPreviews = async (to: 'preview_b64' | 'booklet_b64') => {
         } catch(err) {
             pushPopup('error', 'Error loading file', `Error while parsing preview ${preview.name}\n${err?.message}`);
             console.error(err);
+            errors.push(`Error while parsing preview ${preview.name}\n${err?.message}`);
         }
+    if (errors.length)
+        throw new Error(errors.join('\n'));
 }
 
 const storeObjects = async () => {
@@ -163,7 +173,12 @@ const storeObjects = async () => {
             task: step,
         });
     }
-    await pushModal(ProgressModal, {
+    return steps;
+}
+
+const storeObjectsWithModal = async () => {
+    const steps = await storeObjects();
+    return await pushModal(ProgressModal, {
         steps,
     });
 }
@@ -222,7 +237,31 @@ const loadAll = async () => {
 
 }
 
-const deployShapeContracts = async () => {
+const deployShapeContracts = async (data: Record<string, unknown>) => {
+    const jsonData = await adminBackendManager.post('v1/admin/compile_shape_contract/', {
+        shapes_by_attribute_id: data,
+    });
+    //const parsedSierra = JSON.parse(jsonData.sierra);
+    //const parsedCasm = JSON.parse(jsonData.casm);
+    //const classHash = '0xcafe';
+    //console.log(walletStore.signer);
+    //const classHash = (await (walletStore.signer)!.declare({
+    //    contract: parsedSierra,
+    //    casm: parsedCasm,
+    //}))!.class_hash;
+    await walletStore.signer!.execute(Object.keys(data).map(x => ({
+        contractAddress: ADDRESSES[getCurrentNetwork()].register_shape_validator,
+        entrypoint: 'execute',
+        calldata: [
+            ADDRESSES[getCurrentNetwork()].world,
+            assemblyGroupId.value!,
+            x,
+            jsonData.class_hash,
+        ],
+    })))
+}
+
+const deployShapeContractsForLoaded = async () => {
     const data = {} as Record<string, unknown>;
     for (const item in existingItems.value?.[collection.value] || {}) {
         if (!(item in bookletDataStore[getCurrentNetwork()]))
@@ -232,29 +271,7 @@ const deployShapeContracts = async () => {
         const attribute_id = bookletDataStore[getCurrentNetwork()][item]._data!.serial_number.toString(16);
         data['0x' + attribute_id] = bookletDataStore[getCurrentNetwork()][item]._data!.briqs;
     }
-    const jsonData = await adminBackendManager.post('v1/admin/compile_shape_contract/', {
-        shapes_by_attribute_id: data,
-    });
-    const parsedSierra = JSON.parse(jsonData.sierra);
-    const parsedCasm = JSON.parse(jsonData.casm);
-    const classHash = (await (walletStore.signer)!.declare({
-        contract: parsedSierra,
-        casm: parsedCasm,
-    }))!.class_hash;
-    //let classHash = '0x0732fa75c94e08557cf09bec3a32ad4b80c3f6ca211e9126d48ea9f386c070b8';
-    //console.log('argent', classHash);
-    //classHash = hash.computeSierraContractClassHash(parsedSierra);
-    //console.log('mine', hash.computeSierraContractClassHash(parsedSierra));
-    await walletStore.signer!.execute(Object.keys(data).map(x => ({
-        contractAddress: ADDRESSES[getCurrentNetwork()].register_shape_validator,
-        entrypoint: 'execute',
-        calldata: [
-            ADDRESSES[getCurrentNetwork()].world,
-            assemblyGroupId.value!,
-            x,
-            classHash,
-        ],
-    })))
+    return await deployShapeContracts(data);
 }
 
 const start_auth = async () => {
@@ -328,9 +345,111 @@ const mintSets = async () => {
         });
 
     }
-    console.log('totoro', calls);
     await walletStore.sendTransaction(calls);
 }
+
+const checkShapeContract = async (name: string) => {
+    const resp = await getProvider().value.provider?.callContract({
+        contractAddress: ADDRESSES[getCurrentNetwork()].register_shape_validator,
+        entrypoint: 'get_shape_validator',
+        calldata: [
+            ADDRESSES[getCurrentNetwork()].world,
+            assemblyGroupId.value!,
+            bookletDataStore[getCurrentNetwork()][name]._data?.serial_number,
+        ],
+    });
+    await pushModal(TextModal, {
+        text: (resp?.result?.[0] ?? '0x0') !== '0x0' ? `Contract has a shape declared at ${resp?.result?.[0]} - nothing to be done.` : 'Contract has no class shape - it needs to be declared',
+    });
+}
+
+const storeOneObject = async () => {
+    let family = '';
+    let season = '3';
+    const tasks = [
+        importJsons,
+        () => importPreviews('preview_b64'),
+        () => importPreviews('booklet_b64'),
+        async () => {
+            const traits = await pushModal(RecipientMappingModal, {
+                initialMapping: {
+                    serial_number: '' + Object.keys(existingItems.value?.[collection.value] ?? {}).length,
+                    Family: family,
+                    Season: season,
+                },
+            }) as Record<string, string>;
+            setsToMint.value[0]._data!.attribute_id = traits.serial_number;
+            family = traits.Family;
+            season = traits.Season;
+        },
+        async () => {
+            await Promise.all((await storeObjects()).map(x => x.task._fetch));
+        },
+        async () => {
+            return await adminBackendManager.post(`v1/admin/update_traits/${getCurrentNetwork()}/${collection.value}`, {
+                data: {
+                    [setsToMint.value[0]._data!.data.name]: {
+                        Family: family,
+                        Season: season,
+                    },
+                },
+            });
+        },
+        () => deployShapeContracts({
+            [setsToMint.value[0]._data!.attribute_id!]: setsToMint.value[0]._data!.data.serialize().briqs,
+        }),
+        async () => {}, // for popping errors
+    ]
+    // This isn't amazing code but meh
+    const promises = [] as Fetchable<unknown>[];
+    tasks.forEach(() => promises.push(reactive(new Fetchable())));
+    let prom = promises[0]!.fetch(tasks[0]);
+    for (let i = 1; i < promises.length; ++i)
+        prom = prom.then(() => {
+            const last_prom = promises[i - 1]!;
+            if (last_prom._error) {
+                pushPopup('error', 'Error', `Error while storing object: ${last_prom._error?.message ?? last_prom._error}`);
+                return Promise.reject(last_prom._error);
+            } else
+                return promises[i]!.fetch(tasks[i])
+        })
+
+    await pushModal(ProgressModal, {
+        steps: [
+            {
+                name: 'Upload JSON',
+                task: promises[0],
+            },
+            {
+                name: 'Upload PFP Image',
+                task: promises[1],
+            },
+            {
+                name: 'Upload Booklet PFP',
+                task: promises[2],
+            },
+            {
+                name: 'Set traits',
+                task: promises[3],
+            },
+            {
+                name: 'Store object',
+                task: promises[4],
+            },
+            {
+                name: 'Update traits',
+                task: promises[5],
+            },
+            {
+                name: 'Declare shape contract',
+                task: promises[6],
+            },
+        ],
+    });
+}
+
+////////////////////////////////////
+////////////////////////////////////
 
 const migrationData = reactive(new Fetchable<{ set_migrations: { old_token_id: string, new_token_id: string }[], calls: Call[] }>());
 
@@ -383,7 +502,6 @@ const estimateFees = async () => {
     const fees = await Promise.allSettled(buckets.map(calls => {
         return walletStore.signer!.estimateInvokeFee(calls, { skipValidate: true })
     }));
-    console.log('totoro', fees);
 }
 
 const mintStuff = async () => {
@@ -408,29 +526,35 @@ const mintStuff = async () => {
     <Header/>
     <div class="m-auto container">
         <h1 class="text-center my-4">Mass mint</h1>
-        <Btn v-if="!authStore.authenticated" @click="start_auth">Connect</Btn>
+        <Btn v-if="!authStore.authenticated" @click="start_auth">Click here to authenticate as admin</Btn>
         <div v-if="authStore.authenticated" class="my-4">
             <p>You are currently authenticated as admin</p>
             <Btn secondary @click="authStore.authenticated = false">Disconnect</Btn>
         </div>
         <div>
-            <p>Network: {{ getCurrentNetwork() }} (adjust by changing wallet)</p>
-            <p>
-                Collection: <select v-model="collection">
-                    <option value="">None</option>
-                    <option v-for="key, val in collectionData" :key="key" :value="val">{{ val }}</option>
-                </select>
-            </p>
             <div>
+                <p>Network: {{ getCurrentNetwork() }} (adjust by changing wallet)</p>
+                <p>
+                    Collection: <select v-model="collection">
+                        <option value="">None</option>
+                        <option v-for="key, val in collectionData" :key="key" :value="val">{{ val }}</option>
+                    </select>
+                </p>
+                <hr class="my-6">
+            </div>
+            <div>
+                <h4 class="my-4">Add new NFTs to the collection</h4>
+                <p><Btn :disabled="!collection && !setsToMint.length" @click="storeOneObject">Upload new item</Btn></p>
+                <p class="my-2">Or upload many items:</p>
                 <p>
                     <Btn :disabled="!collection" @click="importJsons">Import JSON files</Btn>
                     <Btn :disabled="!collection" @click="importPreviews('preview_b64')">Import Preview files</Btn>
                     <Btn :disabled="!collection" @click="importPreviews('booklet_b64')">Import Booklet files</Btn>
                 </p>
                 <p>
-                    <Btn :disabled="!collection" @click="storeObjects">Store new items</Btn>
+                    <Btn :disabled="!collection || !setsToMint.length" @click="storeObjectsWithModal">Store new items</Btn>
                 </p>
-                <table>
+                <table v-if="setsToMint.length">
                     <tr><th>serial number</th><th>file</th><th>Name</th><th>ID</th><th>NB briqs</th><th>Preview</th><th>Booklet ID</th><th>Booklet</th><th>AGID</th></tr>
                     <tr v-for="setToMint, i in setsToMint" :key="i">
                         <td><input v-if="setToMint._data" type="text" size="3" v-model="setToMint._data!.attribute_id"></td>
@@ -445,70 +569,71 @@ const mintStuff = async () => {
                     </tr>
                 </table>
             </div>
-            <p>
-                Trucs à rajouter:
-                - Mode "select" ou je peux up-down et voir que la data est bonne ou pas rapidement.
-                - Check si la data est déjà sur le serveur, si non upload
-                - Une colonne customisable?
-                - Bouton pour loader des images (même ID / même nom ?)
-                - Montrer les images en petit
-                - Pareil booklet
-                - Ajouter attributs (à partir d'un json?)
-                - synchro backend
-                - Il me faut aussi register un shape contract
-                - Ajouter destinataire du mint (à partir d'un json)
-            </p>
             <hr class="my-6">
-            <h4>Existing items in this collection:</h4>
-            <Btn @click="loadAll">Load all</Btn>
-            <Btn @click="updateTraits">Update Traits</Btn>
-            <Btn @click="generateGLBs">Generate GLB data</Btn>
-            <Btn @click="deployShapeContracts">Deploy missing shape contract(s)</Btn>
-            <Btn :disabled="true" @click="mintBoxes">Mint Boxes</Btn>
-            <Btn @click="mintSets">Mint Sets</Btn>
-            <table>
-                <tr>
-                    <th>Object ID</th>
-                    <th>Booklet metadata</th>
-                    <th>Name</th>
-                    <th>Serial #</th>
-                    <th>Images</th>
-                    <th>Shape Contract</th>
-                    <th>Booklet owners</th>
-                </tr>
-                <tr v-for="id, name in existingItems?.[collection] ?? {}" :key="name">
-                    <td>{{ name }}</td>
-                    <template v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">
-                        <td>
-                            <Btn
-                                secondary
-                                @click="() => pushModal(TextModal, {
-                                    text: JSON.stringify(bookletDataStore[getCurrentNetwork()][name]._data, null, 4)
-                                })">
-                                Show metadata
-                            </Btn>
+            <div>
+                <h4 class="my-4">Existing items in this collection</h4>
+                <p class="mb-2">{{ Object.keys(existingItems?.[collection] ?? {}).length }} items in total</p>
+                <Btn @click="loadAll">Load all</Btn>
+                <Btn @click="updateTraits">Update Traits</Btn>
+                <Btn @click="generateGLBs">Generate GLB data</Btn>
+                <Btn @click="deployShapeContractsForLoaded">Deploy shape contract(s)</Btn>
+                <Btn :disabled="true" @click="mintBoxes">Mint Boxes</Btn>
+                <Btn @click="mintSets">Mint Booklet + Sets</Btn>
+                <table>
+                    <tr>
+                        <th>Object ID</th>
+                        <th>Booklet metadata</th>
+                        <th>Name</th>
+                        <th>Serial #</th>
+                        <th>Family</th>
+                        <th>Season</th>
+                        <th>Preview image</th>
+                        <th>Booklet image</th>
+                        <th>Shape Contract</th>
+                    </tr>
+                    <tr v-for="id, name in existingItems?.[collection] ?? {}" :key="name">
+                        <td><a :href="`/booklet/${name}`">{{ name }}</a></td>
+                        <template v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">
+                            <td>
+                                <Btn
+                                    secondary
+                                    @click="() => pushModal(TextModal, {
+                                        text: JSON.stringify(bookletDataStore[getCurrentNetwork()][name]._data, null, 4)
+                                    })">
+                                    Show metadata
+                                </Btn>
+                            </td>
+                            <td>
+                                {{ bookletDataStore[getCurrentNetwork()][name]._data.name }}
+                            </td>
+                        </template>
+                        <td v-else-if="id in bookletDataStore[getCurrentNetwork()]">
+                            {{ bookletDataStore[getCurrentNetwork()][name]._status }}
                         </td>
+                        <template v-else>
+                            <td>
+                                <Btn no-background @click="() => bookletDataStore[getCurrentNetwork()][name]">
+                                    Load
+                                </Btn>
+                            </td>
+                            <td/>
+                        </template>
                         <td>
-                            {{ bookletDataStore[getCurrentNetwork()][name]._data.name }}
+                            {{ id }}
                         </td>
-                    </template>
-                    <td v-else-if="id in bookletDataStore[getCurrentNetwork()]">
-                        {{ bookletDataStore[getCurrentNetwork()][name]._status }}
-                    </td>
-                    <template v-else>
-                        <td>
-                            <Btn no-background @click="() => bookletDataStore[getCurrentNetwork()][name]">
-                                Load
-                            </Btn>
-                        </td>
-                        <td/>
-                    </template>
-                    <td>
-                        {{ id }}
-                    </td>
-                    <td><img class="w-12" :src="genesisStore.coverBookletRoute(name, true)"></td>
-                </tr>
-            </table>
+                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">{{ bookletDataStore[getCurrentNetwork()][name]._data!.properties?.family?.value || '??' }}</td>
+                        <td v-else/>
+                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">{{ bookletDataStore[getCurrentNetwork()][name]._data!.properties?.season?.value || '??' }}</td>
+                        <td v-else/>
+                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data"><img class="w-12" :src="genesisStore.coverItemRoute(name, true)"></td>
+                        <td v-else/>
+                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data"><img class="w-12" :src="genesisStore.coverBookletRoute(name, true)"></td>
+                        <td v-else/>
+                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data"><Btn secondary @click="() => checkShapeContract(name)">Check Shape</Btn></td>
+                        <td v-else/>
+                    </tr>
+                </table>
+            </div>
             <hr class="my-6">
             <h2>Migration</h2>
             <Btn @click="migrate">Setup calls</Btn>
