@@ -105,7 +105,7 @@ export class LegacyChainBriqs implements perUserStorable {
                     promises.set(update, _block.then(data => {
                         const status = data.status;
                         const block = data.block_number;
-                        if (status === 'REJECTED' || ((Date.now() - update.date) > 20 * 60 * 1000 && status === 'NOT_RECEIVED')) {
+                        if (status === 'REVERTED' || ((Date.now() - update.date) > 20 * 60 * 1000 && status === 'NOT_RECEIVED')) {
                             this.metadata.splice(i--, 1);
                             reprocess = true;
                             return;

@@ -35,14 +35,14 @@ class BlockchainProvider {
         try {
             const data = await this.provider?.getTransactionReceipt(tx_hash);
             return {
-                block_number: data!.block_number,
-                status: data!.status,
+                block_number: data!.block_number as number,
+                status: (data!.execution_status || 'NOT_RECEIVED') as 'SUCCEEDED' | 'REVERTED' | 'NOT_RECEIVED',
             }
         } catch (_) {
             // Fail in a safe-way for calling code.
             return {
                 block_number: undefined,
-                status: 'NOT_RECEIVED',
+                status: 'NOT_RECEIVED' as const,
             };
         }
     }
