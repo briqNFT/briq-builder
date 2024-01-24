@@ -50,7 +50,11 @@ export abstract class GeneralizedUserItem implements perUserStorable {
         let reprocess = false;
         const promises = new Map<any, Promise<any>>();
         // Process metadata and clean it up where it seems like things went through (this is a bit optimistic but that's probably OK)
-        for (const tokenName in this.metadata)
+        for (const tokenName in this.metadata) {
+            if (this.metadata[tokenName].updates.length === 0) {
+                delete this.metadata[tokenName];
+                continue;
+            }
             for (let i = 0; i < this.metadata[tokenName].updates.length; ++i) {
                 const update = this.metadata[tokenName].updates[i];
                 // Clear the metadata if we are now ahead of it.
@@ -97,6 +101,7 @@ export abstract class GeneralizedUserItem implements perUserStorable {
                 } else
                     tokens.push(tokenName);
             }
+        }
         // Update locally, then wait for pending stuff and see if we need to reprocess.
         this._tokenNames = tokens;
         for (const item of promises)
