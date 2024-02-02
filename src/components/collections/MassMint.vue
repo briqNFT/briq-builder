@@ -544,15 +544,15 @@ const mintStuff = async () => {
             </div>
             <div>
                 <h4 class="my-4">Add new NFTs to the collection</h4>
-                <p><Btn :disabled="!collection && !setsToMint.length" @click="storeOneObject">Upload new item</Btn></p>
+                <p><Btn :disabled="(!collection && !setsToMint.length) || !authStore.authenticated" @click="storeOneObject">Upload new item</Btn></p>
                 <p class="my-2">Or upload many items:</p>
                 <p>
-                    <Btn :disabled="!collection" @click="importJsons">Import JSON files</Btn>
-                    <Btn :disabled="!collection" @click="importPreviews('preview_b64')">Import Preview files</Btn>
-                    <Btn :disabled="!collection" @click="importPreviews('booklet_b64')">Import Booklet files</Btn>
+                    <Btn :disabled="!collection || !authStore.authenticated" @click="importJsons">Import JSON files</Btn>
+                    <Btn :disabled="!collection || !authStore.authenticated" @click="importPreviews('preview_b64')">Import Preview files</Btn>
+                    <Btn :disabled="!collection || !authStore.authenticated" @click="importPreviews('booklet_b64')">Import Booklet files</Btn>
                 </p>
                 <p>
-                    <Btn :disabled="!collection || !setsToMint.length" @click="storeObjectsWithModal">Store new items</Btn>
+                    <Btn :disabled="!collection || !setsToMint.length || !authStore.authenticated" @click="storeObjectsWithModal">Store new items</Btn>
                 </p>
                 <table v-if="setsToMint.length">
                     <tr><th>serial number</th><th>file</th><th>Name</th><th>ID</th><th>NB briqs</th><th>Preview</th><th>Booklet ID</th><th>Booklet</th><th>AGID</th></tr>
