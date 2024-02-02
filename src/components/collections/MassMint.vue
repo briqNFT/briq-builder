@@ -238,7 +238,7 @@ const loadAll = async () => {
 }
 
 const deployShapeContracts = async (data: Record<string, unknown>) => {
-    const jsonData = await adminBackendManager.post('v1/admin/compile_shape_contract/', {
+    const jsonData = await adminBackendManager.post(`v1/admin/compile_shape_contract/${getCurrentNetwork()}`, {
         shapes_by_attribute_id: data,
     });
     //const parsedSierra = JSON.parse(jsonData.sierra);
