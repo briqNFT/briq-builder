@@ -187,7 +187,7 @@ class UserSetStore extends GeneralizedUserItem {
         );
         if (!image) {
             // https://www.hacksoft.io/blog/handle-images-cors-error-in-chrome#solution
-            const bookletImage = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please');
+            const bookletImage = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please' + Date.now());
             const imageBlob = (await (await bookletImage).blob());
             const image_base64 = await new Promise(yes => {
                 const reader = new FileReader() ;

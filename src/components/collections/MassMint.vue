@@ -296,7 +296,7 @@ const mintBoxes = async () => {
 }
 
 const getOfficialSetPreview = async (booklet: string) => {
-    const bookletImage = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please');
+    const bookletImage = fetch(genesisStore.coverItemRoute(booklet) + '?no-cache-please' + Date.now());
     const imageBlob = (await (await bookletImage).blob());
     const image_base64 = await new Promise(yes => {
         const reader = new FileReader() ;
