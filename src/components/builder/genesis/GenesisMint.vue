@@ -12,6 +12,7 @@ import StarkwareIcon from '@/assets/landing/starkware.svg';
 
 import AspectLogo from '@/assets/landing/aspect.png';
 import UnframedLogo from '@/assets/logo-unframed-square.svg';
+import TradeOnPyramid from '@/assets/marketplaces/logo-pyramid.png?url';
 
 import CollectImage from '@/assets/landing/landing_box_cover.jpg';
 import PlayImage from '@/assets/landing/landing_full_speeder.jpg';
@@ -235,6 +236,7 @@ h4 {
     <div class="bg-grad-darkest py-16 px-1">
         <h1 class="text-center text-grad-lightest">A prolific community of builders</h1>
         <div class="flex flex-wrap justify-center gap-6 mt-8">
+            <a :href="getSetMarketplaceUrl('pyramid', 'starknet-mainnet-dojo', 'starknet_planet')" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 pl-6 pr-10 py-0"><img :src="TradeOnPyramid" class="my-0 h-full mr-3"> Pyramid</Btn></a>
             <a :href="getSetMarketplaceUrl('unframed', 'starknet-mainnet-dojo', 'starknet_planet')" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><UnframedLogo class="w-8 mr-3"/> Unframed</Btn></a>
             <a href="https://discord.gg/kpvbDCw5pr" rel="noopener" target="_blank"><Btn secondary class="relative hover:-translate-y-1 translate-y-0 transition-all text-md h-16 px-12"><i class="fab fa-discord text-xl mr-3"/> Discord</Btn></a>
         </div>

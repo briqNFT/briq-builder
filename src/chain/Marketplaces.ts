@@ -40,6 +40,8 @@ export function getBoxLink(marketplace: string, network: CHAIN_NETWORKS, collect
 
 export function getSetMarketplaceUrl(marketplace: string, network: CHAIN_NETWORKS, collection: string) {
     // send to Pyramid for now as they work
+    if (marketplace === 'unframed')
+        return `https://unframed.co/collection/${getSetAddress(ADDRESSES[network], collection)}`;
     return `https://pyramid.market/collection/0x${BigInt(getSetAddress(ADDRESSES[network], collection)).toString(16)}/`;
 }
 
