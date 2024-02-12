@@ -314,6 +314,11 @@ const mintSets = async () => {
         }, {} as Record<string, string>),
     }) as Record<string, string>;
 
+    if (!mapping)
+        return;
+
+    const steps = reactive([] as { name: string, task: Fetchable<any> }[]);
+
     const calls = [] as Call[];
     for (const booklet in mapping) {
         const recipient = mapping[booklet];
@@ -335,17 +340,32 @@ const mintSets = async () => {
         const tokenHint = hexUuid();
         const futureTokenId = contractStore.set!.precomputeTokenId(recipient, tokenHint, bookletData.briqs.length, booklet, bookletData);
         calls.push(contractStore.set!.prepareAssemble(recipient, tokenHint, bookletData, bookletData.token_id));
+        const step = reactive({
+            name: 'Storing data for set ' + booklet,
+            task: new Fetchable(),
+        });
         // Immediately hint to the backend
-        await backendManager.storeSet({
+        step.task.fetch(async () => await backendManager.storeSet({
             chain_id: getCurrentNetwork(),
             owner: walletStore.userWalletAddress!,
             token_id: futureTokenId,
             data: bookletData,
             image_base64: await getOfficialSetPreview(booklet),
-        });
-
+        }))
+        steps.push(step);
     }
-    await walletStore.sendTransaction(calls);
+    const step = reactive({
+        name: 'Minting',
+        task: new Fetchable(),
+    });
+    const lastStep = steps[steps.length - 1];
+    step.task.fetch(async () =>  await lastStep.task._fetch.then(() => {
+        if (lastStep.task._status === 'LOADED')
+            return walletStore.sendTransaction(calls);
+        throw new Error('All sets did not successfully store');
+    }));
+    steps.push(step);
+    return await pushModal(ProgressModal, { steps });
 }
 
 const checkShapeContract = async (name: string) => {
@@ -526,135 +546,141 @@ const mintStuff = async () => {
     <Header/>
     <div class="m-auto container">
         <h1 class="text-center my-4">Mass mint</h1>
-        <Btn v-if="!authStore.authenticated" @click="start_auth">Click here to authenticate as admin</Btn>
-        <div v-if="authStore.authenticated" class="my-4">
-            <p>You are currently authenticated as admin</p>
-            <Btn secondary @click="authStore.authenticated = false">Disconnect</Btn>
-        </div>
-        <div>
-            <div>
-                <p>Network: {{ getCurrentNetwork() }} (adjust by changing wallet)</p>
-                <p>
-                    Collection: <select v-model="collection">
-                        <option value="">None</option>
-                        <option v-for="key, val in collectionData" :key="key" :value="val">{{ val }}</option>
-                    </select>
-                </p>
-                <hr class="my-6">
+        <Btn v-if="!authStore.authenticated" class="my-8" @click="start_auth">Click here to authenticate as admin</Btn>
+        <template v-else>
+            <div v-if="authStore.authenticated" class="my-4">
+                <p>You are currently authenticated as admin</p>
+                <Btn secondary @click="authStore.authenticated = false">Disconnect</Btn>
             </div>
             <div>
-                <h4 class="my-4">Add new NFTs to the collection</h4>
-                <p><Btn :disabled="(!collection && !setsToMint.length) || !authStore.authenticated" @click="storeOneObject">Upload new item</Btn></p>
-                <p class="my-2">Or upload many items:</p>
-                <p>
-                    <Btn :disabled="!collection || !authStore.authenticated" @click="importJsons">Import JSON files</Btn>
-                    <Btn :disabled="!collection || !authStore.authenticated" @click="importPreviews('preview_b64')">Import Preview files</Btn>
-                    <Btn :disabled="!collection || !authStore.authenticated" @click="importPreviews('booklet_b64')">Import Booklet files</Btn>
-                </p>
-                <p>
-                    <Btn :disabled="!collection || !setsToMint.length || !authStore.authenticated" @click="storeObjectsWithModal">Store new items</Btn>
-                </p>
-                <table v-if="setsToMint.length">
-                    <tr><th>serial number</th><th>file</th><th>Name</th><th>ID</th><th>NB briqs</th><th>Preview</th><th>Booklet ID</th><th>Booklet</th><th>AGID</th></tr>
-                    <tr v-for="setToMint, i in setsToMint" :key="i">
-                        <td><input v-if="setToMint._data" type="text" size="3" v-model="setToMint._data!.attribute_id"></td>
-                        <td>{{ setToMint._data?.filename }}</td>
-                        <td>{{ setToMint._data?.data.name }}</td>
-                        <td class="text-xs">{{ setToMint._data?.data.id }}</td>
-                        <td>{{ setToMint._data?.data.getNbBriqs() }}</td>
-                        <td><img class="w-16" v-if="setToMint._data?.preview_b64" :src="setToMint._data?.preview_b64"></td>
-                        <td>{{ collection ? `${collection}/${setToMint._data?.data.name}`: 'N/A' }}</td>
-                        <td><img class="w-16" v-if="collection && setToMint._data?.booklet_b64" :src="setToMint._data?.booklet_b64"></td>
-                        <td>{{ assemblyGroupId }}</td>
-                    </tr>
-                </table>
-            </div>
-            <hr class="my-6">
-            <div>
-                <h4 class="my-4">Existing items in this collection</h4>
-                <p class="mb-2">{{ Object.keys(existingItems?.[collection] ?? {}).length }} items in total</p>
-                <Btn @click="loadAll">Load all</Btn>
-                <Btn @click="updateTraits">Update Traits</Btn>
-                <Btn @click="generateGLBs">Generate GLB data</Btn>
-                <Btn @click="deployShapeContractsForLoaded">Deploy shape contract(s)</Btn>
-                <Btn :disabled="true" @click="mintBoxes">Mint Boxes</Btn>
-                <Btn @click="mintSets">Mint Booklet + Sets</Btn>
-                <table>
-                    <tr>
-                        <th>Object ID</th>
-                        <th>Booklet metadata</th>
-                        <th>Name</th>
-                        <th>Serial #</th>
-                        <th>Family</th>
-                        <th>Season</th>
-                        <th>Preview image</th>
-                        <th>Booklet image</th>
-                        <th>Shape Contract</th>
-                    </tr>
-                    <tr v-for="id, name in existingItems?.[collection] ?? {}" :key="name">
-                        <td><a :href="`/booklet/${name}`">{{ name }}</a></td>
-                        <template v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">
-                            <td>
-                                <Btn
-                                    secondary
-                                    @click="() => pushModal(TextModal, {
-                                        text: JSON.stringify(bookletDataStore[getCurrentNetwork()][name]._data, null, 4)
-                                    })">
-                                    Show metadata
-                                </Btn>
-                            </td>
-                            <td>
-                                {{ bookletDataStore[getCurrentNetwork()][name]._data.name }}
-                            </td>
-                        </template>
-                        <td v-else-if="id in bookletDataStore[getCurrentNetwork()]">
-                            {{ bookletDataStore[getCurrentNetwork()][name]._status }}
-                        </td>
-                        <template v-else>
-                            <td>
-                                <Btn no-background @click="() => bookletDataStore[getCurrentNetwork()][name]">
-                                    Load
-                                </Btn>
-                            </td>
-                            <td/>
-                        </template>
-                        <td>
-                            {{ id }}
-                        </td>
-                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">{{ bookletDataStore[getCurrentNetwork()][name]._data!.properties?.family?.value || '??' }}</td>
-                        <td v-else/>
-                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">{{ bookletDataStore[getCurrentNetwork()][name]._data!.properties?.season?.value || '??' }}</td>
-                        <td v-else/>
-                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data"><img class="w-12" :src="genesisStore.coverItemRoute(name, true)"></td>
-                        <td v-else/>
-                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data"><img class="w-12" :src="genesisStore.coverBookletRoute(name, true)"></td>
-                        <td v-else/>
-                        <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data"><Btn secondary @click="() => checkShapeContract(name)">Check Shape</Btn></td>
-                        <td v-else/>
-                    </tr>
-                </table>
-            </div>
-            <hr class="my-6">
-            <h2>Migration</h2>
-            <Btn @click="migrate">Setup calls</Btn>
-            <Btn :disabled="!migrationData._data?.set_migrations?.length" @click="migrateSetData">Migrate Set data</Btn>
-            <Btn :disabled="!migrationData._data?.calls?.length" @click="estimateFees">Estimate Fees</Btn>
-            <Btn :disabled="!migrationData._data?.calls?.length" @click="mintStuff">Actually Migrate</Btn>
-            <div v-if="migrationData._status == 'LOADED'">
-                <p>Total calls: {{ migrationData._data!.calls.length }}</p>
-                <p v-for="(value, key) in ADDRESSES[getCurrentNetwork()]" :key="key">
-                    Calls to {{ key }}: {{
-                        migrationData._data!.calls.filter(x => x.contractAddress == value).map(x => +x.calldata?.[2] || 1).reduce((a, b) => a + b, 0)
-                    }}
-                </p>
                 <div>
-                    <p v-for="val in migrationData._data!.set_migrations">{{ val }}</p>
+                    <p>Network: {{ getCurrentNetwork() }} (adjust by changing wallet)</p>
+                    <p>
+                        Collection: <select v-model="collection">
+                            <option value="">None</option>
+                            <option v-for="key, val in collectionData" :key="key" :value="val">{{ val }}</option>
+                        </select>
+                    </p>
+                    <hr class="my-6">
                 </div>
+                <div>
+                    <h4 class="my-4">Add new NFTs to the collection</h4>
+                    <p><Btn :disabled="(!collection && !setsToMint.length) || !authStore.authenticated" @click="storeOneObject">Upload new item</Btn></p>
+                    <p class="my-2">Or upload many items:</p>
+                    <p>
+                        <Btn :disabled="!collection || !authStore.authenticated" @click="importJsons">Import JSON files</Btn>
+                        <Btn :disabled="!collection || !authStore.authenticated" @click="importPreviews('preview_b64')">Import Preview files</Btn>
+                        <Btn :disabled="!collection || !authStore.authenticated" @click="importPreviews('booklet_b64')">Import Booklet files</Btn>
+                    </p>
+                    <p>
+                        <Btn :disabled="!collection || !setsToMint.length || !authStore.authenticated" @click="storeObjectsWithModal">Store new items</Btn>
+                    </p>
+                    <table v-if="setsToMint.length">
+                        <tr><th>serial number</th><th>file</th><th>Name</th><th>ID</th><th>NB briqs</th><th>Preview</th><th>Booklet ID</th><th>Booklet</th><th>AGID</th></tr>
+                        <tr v-for="setToMint, i in setsToMint" :key="i">
+                            <td><input v-if="setToMint._data" type="text" size="3" v-model="setToMint._data!.attribute_id"></td>
+                            <td>{{ setToMint._data?.filename }}</td>
+                            <td>{{ setToMint._data?.data.name }}</td>
+                            <td class="text-xs">{{ setToMint._data?.data.id }}</td>
+                            <td>{{ setToMint._data?.data.getNbBriqs() }}</td>
+                            <td><img class="w-16" v-if="setToMint._data?.preview_b64" :src="setToMint._data?.preview_b64"></td>
+                            <td>{{ collection ? `${collection}/${setToMint._data?.data.name}`: 'N/A' }}</td>
+                            <td><img class="w-16" v-if="collection && setToMint._data?.booklet_b64" :src="setToMint._data?.booklet_b64"></td>
+                            <td>{{ assemblyGroupId }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <hr class="my-6">
+                <div>
+                    <h4 class="my-4">Existing items in this collection</h4>
+                    <p class="mb-2">{{ Object.keys(existingItems?.[collection] ?? {}).length }} items in total</p>
+                    <div class="sticky top-[3.8rem] py-2 bg-background z-[100] flex gap-2">
+                        <Btn @click="loadAll">Load all</Btn>
+                        <Btn @click="updateTraits">Update Traits</Btn>
+                        <Btn :disabled="!loadedItems(collection).length" @click="generateGLBs">Generate GLB data</Btn>
+                        <Btn :disabled="!loadedItems(collection).length" @click="deployShapeContractsForLoaded">Deploy shape contract(s)</Btn>
+                        <Btn :disabled="true" @click="mintBoxes">Mint Boxes</Btn>
+                        <Btn :disabled="!loadedItems(collection).length" @click="mintSets">Mint Booklet + Sets</Btn>
+                    </div>
+                    <table>
+                        <tr>
+                            <th>Object ID</th>
+                            <th>Booklet metadata</th>
+                            <th>Name</th>
+                            <th>Serial #</th>
+                            <th>Family</th>
+                            <th>Season</th>
+                            <th>Preview image</th>
+                            <th>Booklet image</th>
+                            <th>Shape Contract</th>
+                        </tr>
+                        <tr v-for="id, name in existingItems?.[collection] ?? {}" :key="name">
+                            <td><a :href="`/booklet/${name}`">{{ name }}</a></td>
+                            <template v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">
+                                <td>
+                                    <Btn
+                                        secondary
+                                        @click="() => pushModal(TextModal, {
+                                            text: JSON.stringify(bookletDataStore[getCurrentNetwork()][name]._data, null, 4)
+                                        })">
+                                        Show metadata
+                                    </Btn>
+                                </td>
+                                <td>
+                                    {{ bookletDataStore[getCurrentNetwork()][name]._data.name }}
+                                </td>
+                            </template>
+                            <td v-else-if="id in bookletDataStore[getCurrentNetwork()]">
+                                {{ bookletDataStore[getCurrentNetwork()][name]._status }}
+                            </td>
+                            <template v-else>
+                                <td>
+                                    <Btn no-background @click="() => bookletDataStore[getCurrentNetwork()][name]">
+                                        Load
+                                    </Btn>
+                                </td>
+                                <td/>
+                            </template>
+                            <td>
+                                {{ id }}
+                            </td>
+                            <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">{{ bookletDataStore[getCurrentNetwork()][name]._data!.properties?.family?.value || '??' }}</td>
+                            <td v-else/>
+                            <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data">{{ bookletDataStore[getCurrentNetwork()][name]._data!.properties?.season?.value || '??' }}</td>
+                            <td v-else/>
+                            <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data"><img class="w-12" :src="genesisStore.coverItemRoute(name, true)"></td>
+                            <td v-else/>
+                            <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data"><img class="w-12" :src="genesisStore.coverBookletRoute(name, true)"></td>
+                            <td v-else/>
+                            <td v-if="name in bookletDataStore[getCurrentNetwork()] && bookletDataStore[getCurrentNetwork()][name]._data"><Btn secondary @click="() => checkShapeContract(name)">Check Shape</Btn></td>
+                            <td v-else/>
+                        </tr>
+                    </table>
+                </div>
+                <!--
+                <hr class="my-6">
+                <h2>Migration</h2>
+                <Btn @click="migrate">Setup calls</Btn>
+                <Btn :disabled="!migrationData._data?.set_migrations?.length" @click="migrateSetData">Migrate Set data</Btn>
+                <Btn :disabled="!migrationData._data?.calls?.length" @click="estimateFees">Estimate Fees</Btn>
+                <Btn :disabled="!migrationData._data?.calls?.length" @click="mintStuff">Actually Migrate</Btn>
+                <div v-if="migrationData._status == 'LOADED'">
+                    <p>Total calls: {{ migrationData._data!.calls.length }}</p>
+                    <p v-for="(value, key) in ADDRESSES[getCurrentNetwork()]" :key="key">
+                        Calls to {{ key }}: {{
+                            migrationData._data!.calls.filter(x => x.contractAddress == value).map(x => +x.calldata?.[2] || 1).reduce((a, b) => a + b, 0)
+                        }}
+                    </p>
+                    <div>
+                        <p v-for="val in migrationData._data!.set_migrations">{{ val }}</p>
+                    </div>
+                </div>
+                <div v-else-if="migrationData._error">
+                    <p>Error: {{ migrationData._error }}</p>
+                </div>
+                -->
             </div>
-            <div v-else-if="migrationData._error">
-                <p>Error: {{ migrationData._error }}</p>
-            </div>
-        </div>
+        </template>
     </div>
     <Footer/>
 </template>
