@@ -384,8 +384,10 @@ const checkShapeContract = async (name: string) => {
 }
 
 const storeOneObject = async () => {
-    let family = '';
-    let season = '3';
+    let customTraits = collection.value === 'ducks_everywhere' ? {
+        Family: '',
+        Season: '3',
+    } : { Collection: '' };
     const tasks = [
         importJsons,
         () => importPreviews('preview_b64'),
@@ -394,13 +396,12 @@ const storeOneObject = async () => {
             const traits = await pushModal(RecipientMappingModal, {
                 initialMapping: {
                     serial_number: '' + (Object.keys(existingItems.value?.[collection.value] ?? {}).length + 1),
-                    Family: family,
-                    Season: season,
+                    ...customTraits,
                 },
             }) as Record<string, string>;
             setsToMint.value[0]._data!.attribute_id = traits.serial_number;
-            family = traits.Family;
-            season = traits.Season;
+            for (const key in customTraits)
+                customTraits[key] = traits?.[key];
         },
         async () => {
             await Promise.all((await storeObjects()).map(x => x.task._fetch));
@@ -409,8 +410,7 @@ const storeOneObject = async () => {
             return await adminBackendManager.post(`v1/admin/update_traits/${getCurrentNetwork()}/${collection.value}`, {
                 data: {
                     [setsToMint.value[0]._data!.data.name]: {
-                        Family: family,
-                        Season: season,
+                        ...customTraits,
                     },
                 },
             });
