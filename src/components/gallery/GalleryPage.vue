@@ -18,10 +18,10 @@ watch([sort], () => {
 
 async function fetchGalleryData() {
   loading.value = true
-  let data = await backendManager.fetch(`v1/${getCurrentNetwork()}/ducks_frens/all_sets_static_data`)
+  let data = await backendManager.fetch(`v1/${getCurrentNetwork()}/gallery/static_data`)
 
   if (data) {
-    galleryData.value = Object.values(data)
+    galleryData.value = Object.entries(data)
   }
 
   loading.value = false
@@ -35,11 +35,11 @@ fetchGalleryData()
 
   <div class="container m-auto min-h-screen">
     <h3 class="mt-10 mb-4">Gallery</h3>
-    <div class="flex flex-wrap gap-3 mb-10" v-if="galleryData.length > 0">
+    <div class="flex flex-wrap gap-3 mb-10" v-if="!loading && galleryData.length > 0">
 
-      <div v-for="item in galleryData" class="cursor-pointer">
-        <RouterLink :to="{ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: 'lk' } }">
-          <img :src="genesisStore.coverItemRoute(item.booklet_id, true)" alt="" :width="300" />
+      <div v-for="item in galleryData" class="item">
+        <RouterLink :to="{ name: 'UserCreation', params: { network: getCurrentNetwork(), set_id: item[0] } }">
+          <img :src="genesisStore.coverItemRoute(item[1].booklet_id, true)" alt="" :width="300" />
         </RouterLink>
       </div>
 
@@ -51,4 +51,12 @@ fetchGalleryData()
 </template>
 
 
-<style scoped></style>
+<style scoped>
+  .item {
+    cursor: pointer;
+  }
+
+  .item:hover {
+    box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.5)
+  }
+</style>
