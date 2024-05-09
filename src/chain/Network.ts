@@ -20,7 +20,7 @@ export function getNetworkName(network: CHAIN_NETWORKS) {
     return {
         'localhost': 'Localhost',
         'starknet-testnet': 'Starknet Testnet',
-        'starknet-testnet-dojo': 'Starknet Testnet',
+        'starknet-testnet-dojo': 'Starknet Sepolia',
         'starknet-mainnet': 'Starknet Mainnet',
         'starknet-mainnet-dojo': 'Starknet Mainnet',
     }[network];
@@ -44,7 +44,7 @@ export function getChainIdFromNetwork(network: CHAIN_NETWORKS): string {
     return {
         'localhost': '0xdead',
         'starknet-testnet': '0x534e5f474f45524c49',
-        'starknet-testnet-dojo': '0x534e5f474f45524c49',
+        'starknet-testnet-dojo': '0x534e5f5345504f4c4941',
         'starknet-mainnet': '0x534e5f4d41494e',
         'starknet-mainnet-dojo': '0x534e5f4d41494e',
     }[network];

@@ -2,7 +2,7 @@ import { getCurrentNetwork } from './Network';
 
 const EXPLORER_URL_BY_NETWORK = {
     'starknet-testnet': 'testnet.starkscan.co',
-    'starknet-testnet-dojo': 'testnet.starkscan.co',
+    'starknet-testnet-dojo': 'sepolia.starkscan.co',
     'starknet-testnet-legacy': 'testnet.starkscan.co',
     'starknet-mainnet': 'starkscan.co',
     'starknet-mainnet-dojo': 'starkscan.co',

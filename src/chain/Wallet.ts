@@ -186,7 +186,7 @@ export class WalletStore {
             chooseDefaultNetwork();
         else if (this.starknetObject.chainId === 'SN_MAIN' || (this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha-mainnet.starknet') !== -1 || this.signer?.provider?.chainId === '0x534e5f4d41494e')
             setNetwork(MIGRATION_ENABLED ? 'starknet-mainnet-dojo' : 'starknet-mainnet');
-        else if (this.starknetObject.chainId === 'SN_GOERLI' || (this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4') !== -1 || this.signer?.provider?.chainId === '0x534e5f474f45524c49')
+        else if (this.starknetObject.chainId === 'SN_SEPOLIA' || (this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('alpha4') !== -1 || this.signer?.provider?.chainId === '0x534e5f474f45524c49')
             setNetwork(MIGRATION_ENABLED ? 'starknet-testnet-dojo' : 'starknet-testnet');
         else if ((this.signer.gatewayUrl || this.signer.provider.gatewayUrl || '').indexOf('mock_chain') !== -1)
             setNetwork('mock');
