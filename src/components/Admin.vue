@@ -33,8 +33,12 @@ const setupWorld = async () => {
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: [shortString.encodeShortString('ShapeValidatorAdmin'), addr.register_shape_validator] },
 
     // Allow OutSmth to handle duck collections
+    // Old Braavos wallet
         { contractAddress: addr.register_shape_validator, entrypoint: 'set_admin', calldata: [addr.world, '0x3', '0x02ef9325a17d3ef302369fd049474bc30bfeb60f59cca149daa0a0b7bcc278f8', 1] },
         { contractAddress: addr.register_shape_validator, entrypoint: 'set_admin', calldata: [addr.world, '0x4', '0x02ef9325a17d3ef302369fd049474bc30bfeb60f59cca149daa0a0b7bcc278f8', 1] },
+    // New Argent X Wallet
+        { contractAddress: addr.register_shape_validator, entrypoint: 'set_admin', calldata: [addr.world, '0x3', '0x0246db469dFfb4A5309E2BEBbf8eEC6AeA477D30724924949F7619D9C52A5888', 1] },
+        { contractAddress: addr.register_shape_validator, entrypoint: 'set_admin', calldata: [addr.world, '0x4', '0x0246db469dFfb4A5309E2BEBbf8eEC6AeA477D30724924949F7619D9C52A5888', 1] },
 
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['BriqFactoryStore', addr.briq_factory] },
         { contractAddress: addr.world, entrypoint: 'grant_writer', calldata: ['ERC1155OperatorApproval', addr.briq_token] },
