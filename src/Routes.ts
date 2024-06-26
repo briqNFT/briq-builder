@@ -5,6 +5,7 @@ import GenesisMint from '@/components/builder/genesis/GenesisMint.vue';
 import Legal from './components/Legal.vue';
 import BuilderLoader from './components/builder/BuilderLoader.vue';
 import { MIGRATION_ENABLED } from './MigrationData';
+import GalleryPage from './components/gallery/GalleryPage.vue';
 
 let loader;
 async function loadExtraPages() {
@@ -189,6 +190,11 @@ export const routes = [
         name: 'briqout',
         component: () => import('@/components/briqout/Briqout.vue'),
     },
+    {
+        path: '/gallery',
+        name: 'gallery',
+        component: GalleryPage
+    }
 ];
 export const router = createRouter({
     history: createWebHistory(),
