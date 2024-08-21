@@ -73,7 +73,7 @@ onMounted(() => {
                 <routerLink to="/themes">
                     <p class="hover:text-primary text-sm md:text-md font-medium">Themes</p>
                 </routerLink>
-                <a class="hidden sm:block" href="https://briqnft.notion.site/briqnft/briq-hub-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank">
+                <a class="hidden sm:block" href="https://www.notion.so/hyle-org/briqipedia-ae6a1d92745044cc9c2274251a5212f3" rel="noopener" target="_blank">
                     <p class="hover:text-primary text-sm md:text-md font-medium">Resources</p>
                 </a>
                 <routerLink class="hidden sm:block" to="/get_briqs">
